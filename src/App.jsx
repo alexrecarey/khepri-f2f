@@ -1,4 +1,4 @@
-import {useState, useEffect, useCallback, useRef} from 'react'
+import {useState, useEffect, useRef} from 'react'
 import CssBaseline from '@mui/material/CssBaseline';
 import './App.css'
 import {
@@ -23,19 +23,6 @@ import {faDiceD20} from '@fortawesome/free-solid-svg-icons'
 import { loadPyodide } from 'pyodide'
 
 const pythonCode = `
-def func():
-    return 5 + 7
-
-func()
-`
-
-const pythonCode2 = `
-def func(a,b,c,d):
-    return a+b+c+d
-func
-`
-
-const pythonCodeOriginal = `
 import micropip
 await micropip.install('icepool==0.20.1')
 
@@ -129,7 +116,7 @@ function App() {
   const [successValueB, setSuccessValueB] = useState(10)
 
   // Outputs
-  const [results, setResults] = useState(null);
+  const [f2fResults, setF2fResults] = useState(null);
 
   const handleButtonPress = (amount, variable, setter) => {
     if (amount + variable >= 30) {
@@ -155,14 +142,17 @@ function App() {
   }, []);
 
   const rollDice = async () => {
+    let startTime = Date.now();
     setStatusMessage("Calculating");
     console.log(`pyodide ref is ${pyodideRef} and ${pyodideRef.current}`);
-    const f = await pyodideRef.current.runPythonAsync(pythonCodeOriginal);
+    const f = await pyodideRef.current.runPythonAsync(pythonCode);
     //setStatusMessage(`result is ${f}`);
     const result = await f(successValueA, burstA, successValueB, burstB)
     console.log('Pyodide script result:');
     console.log(result);
-    setResults({...result});
+    setF2fResults({...result})
+    let elapsed = Date.now() - startTime;
+    setStatusMessage(`Done! Took ${elapsed} ms`);
     console.log(`Calculated results ${JSON.stringify(result)}`);
   };
 
@@ -238,7 +228,7 @@ function App() {
 
                 <Typography>{statusMessage}</Typography>
                 <ResultTable
-                  res={results}
+                  res={f2fResults}
                 />
                 
               </CardContent>
@@ -254,7 +244,7 @@ function ResultTable(props) {
 
   let die_results = props.res;
 
-  if(die_results === null || die_results.size == 0 ){
+  if(die_results === null || die_results.size === 0 ){
     return <div/>
   }
 
