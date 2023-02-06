@@ -13,10 +13,6 @@ import {
   Typography
 } from "@mui/material";
 
-import {
-  DataGrid
-} from "@mui/x-data-grid";
-
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faDiceD20} from '@fortawesome/free-solid-svg-icons'
 
@@ -106,7 +102,10 @@ to_js(face_to_face_results)`
 
 
 function App() {
+  // App Status
   const [statusMessage, setStatusMessage] = useState("(loading...)");
+  const [isPyodideReady, setIsPyodideReady] = useState(false);
+  const [isCalculating, setIsCalculating] = useState(false);
   const pyodideRef = useRef(null);
 
   // Inputs
@@ -130,29 +129,35 @@ function App() {
 
   // First load
   useEffect(() => {
+    setStatusMessage("Loading icepool engine");
+    setIsPyodideReady(false);
     const run = async () => {
       pyodideRef.current = await loadPyodide({
         indexURL : "https://cdn.jsdelivr.net/pyodide/v0.22.1/full/"
       });
       await pyodideRef.current.loadPackage(["micropip"], {messageCallback: console.log});
       console.log(`pyodide is ${pyodideRef} and current is ${pyodideRef}`);
-      setStatusMessage("Pyodide ready");
+      setStatusMessage("Icepool ready");
+      setIsPyodideReady(true);
     }
     run();
   }, []);
 
   const rollDice = async () => {
-    let startTime = Date.now();
+    setIsCalculating(true);
     setStatusMessage("Calculating");
+    setF2fResults(null);
+    let startTime = Date.now();
     console.log(`pyodide ref is ${pyodideRef} and ${pyodideRef.current}`);
     const f = await pyodideRef.current.runPythonAsync(pythonCode);
     //setStatusMessage(`result is ${f}`);
     const result = await f(successValueA, burstA, successValueB, burstB)
     console.log('Pyodide script result:');
     console.log(result);
-    setF2fResults({...result})
     let elapsed = Date.now() - startTime;
+    setF2fResults({...result})
     setStatusMessage(`Done! Took ${elapsed} ms`);
+    setIsCalculating(false);
     console.log(`Calculated results ${JSON.stringify(result)}`);
   };
 
@@ -222,17 +227,18 @@ function App() {
             </Card>
           </Grid>
           <Grid xs={12} sm={12} lg={4} xl={6} item>
-            <Button onClick={()=> rollDice()}>Roll dice!</Button>
+            <Button variant="contained" disabled={!isPyodideReady || isCalculating} onClick={()=> rollDice()}>Roll dice!</Button>
             <Card>
               <CardContent>
 
-                <Typography>{statusMessage}</Typography>
+
                 <ResultTable
                   res={f2fResults}
                 />
                 
               </CardContent>
             </Card>
+            <Typography variant="caption" color="text.secondary">{statusMessage}</Typography>
           </Grid>
         </Grid>
       </Box>
@@ -248,56 +254,62 @@ function ResultTable(props) {
     return <div/>
   }
 
-  const total_rolls = die_results['active'] + die_results['reactive'] + die_results['tie'];
-  const columns = [
-    {
-      field: 'id',
-      headerName: 'ID',
-      width: 0,
-    },
-    {
-      field: 'outcome',
-      headerName: 'Outcome',
-      width: 90
-    },
-    {
-      field: 'result',
-      headerName: 'Result',
-      width: 150,
-    }]
-  const rows = [
-    {
-      'id': 1,
-      'outcome': 'Active player wins',
-      'result': die_results['active'] / total_rolls
-    },
-    {
-      'id': 2,
-      'outcome': 'No winner',
-      'result': die_results['tie'] / total_rolls
-    },
-    {
-      'id': 3,
-      'outcome': 'Reactive player wins',
-      'result': die_results['reactive'] / total_rolls
-    }
-  ];
+  const {active, reactive, tie} = die_results;
+  const total_rolls = (active + reactive + tie);
+  const active_pcnt = active / total_rolls;
+  const reactive_pcnt = reactive / total_rolls;
+  const tie_pcnt = tie / total_rolls;
+  let activeWidth = active_pcnt * 300;
+  let reactiveWidth = reactive_pcnt * 300;
+  let tieWidth = tie_pcnt * 300;
 
-  console.log('Props are:');
-  console.log(`${JSON.stringify(props)}`);
-  console.log(`Total rolls ${total_rolls}`);
-  console.log('Die results:');
-  console.log(`${JSON.stringify(die_results)}`);
-  console.log('Rows:');
-  console.log(`${JSON.stringify(rows)}`);
-  return <Box sx={{ height: '300px', width:'300px'}}>
-    <DataGrid
-      rows={rows}
-      columns={columns}
-      disableSelectionOnClick
-    />
-  </Box>;
+  // testing color palette
+  const [lightSkyBlue, mediumOrchid, lavender, royalBlue, midnightBlue] = ['#6EcbF5', '#C252E1', '#E0D9F6', '#586AE2', '#2A2356'];
+  return <Grid container>
+    <Grid item xs={12}>
+      <svg style={{width: "inherit"}} height="20">
+        <rect x="0" y="0" width={activeWidth} height="20" fill={royalBlue}></rect>
+        <rect x={activeWidth} y="0" width={tieWidth} height="20" fill={midnightBlue}></rect>
+        <rect x={activeWidth+tieWidth} y="0" width={reactiveWidth} height="20" fill={mediumOrchid}></rect>
+      </svg>
+    </Grid>
+    <Grid item xs={6}>
+      <Typography>Active</Typography>
+    </Grid>
+    <Grid item xs={6}>
+      <Typography>{Number(active_pcnt).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:0})}</Typography>
+    </Grid>
+    <Grid item xs={6}>
+      <Typography>Tie</Typography>
+    </Grid>
+    <Grid item xs={6}>
+      <Typography>{Number(tie_pcnt).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:0})}</Typography>
+    </Grid>
+    <Grid item xs={6}>
+      <Typography>Reactive</Typography>
+    </Grid>
+    <Grid item xs={6}>
+      <Typography>{Number(reactive_pcnt).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:0})}</Typography>
+    </Grid>
+  </Grid>;
 }
+
+// function ResultGraph(props) {
+//
+//   const {active, reactive, tie} = die_results;
+//   let activeWidth = active_pcnt * 300;
+//   let reactiveWidth = reactive_pcnt * 300;
+//   let tieWidth = tie_pcnt * 300;
+//
+//
+//   const [lightSkyBlue, mediumOrchid, lavender, royalBlue, midnightBlue] = ['#6EcbF5', '#C252E1', '#E0D9F6', '#586AE2', '#2A2356'];
+//
+//   return(<svg width="inherit" height="20">
+//     <rect x="0" y="0" width={activeWidth} height="20" fill={royalBlue}></rect>
+//     <rect x={activeWidth} y="0" width={tieWidth} height="20" fill={midnightBlue}></rect>
+//     <rect x={activeWidth+tieWidth} y="0" width={reactiveWidth} height="20" fill={mediumOrchid}></rect>
+//   </svg>);
+// }
 
 export default App
 
