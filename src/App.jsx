@@ -8,7 +8,7 @@ import {
   Card,
   CardContent,
   Grid,
-  Rating,
+  Rating, Slider,
   Stack, Table, TableBody, TableCell, TableRow,
   Typography
 } from "@mui/material";
@@ -215,10 +215,16 @@ function App() {
   const pyodideRef = useRef(null);
 
   // Inputs
-  const [burstA, setBurstA] = useState(3)
-  const [burstB, setBurstB] = useState(1)
-  const [successValueA, setSuccessValueA] = useState(10)
-  const [successValueB, setSuccessValueB] = useState(10)
+  const [burstA, setBurstA] = useState(3);
+  const [burstB, setBurstB] = useState(1);
+  const [successValueA, setSuccessValueA] = useState(10);
+  const [successValueB, setSuccessValueB] = useState(10);
+  const [damageA, setDamageA] = useState(13);
+  const [damageB, setDamageB] = useState(13);
+  const [armA, setArmA] = useState(0);
+  const [armB, setArmB] = useState(0);
+  const [ammoA, setAmmoA] = useState('N');
+  const [ammoB, setAmmoB] = useState('N');
 
   // Outputs
   const [f2fResults, setF2fResults] = useState(null);
@@ -257,8 +263,8 @@ function App() {
     console.log(`pyodide ref is ${pyodideRef} and ${pyodideRef.current}`);
     const f = await pyodideRef.current.runPythonAsync(pythonCode);
     //setStatusMessage(`result is ${f}`);
-    const result = await f(successValueA, burstA, 13, 3, 'N',
-                           successValueB, burstB, 13, 2, 'DA');
+    const result = await f(successValueA, burstA, damageA, armA, ammoA,
+                           successValueB, burstB, damageB, armB, ammoB);
     console.log('Pyodide script result:');
     console.log(result);
     let elapsed = Date.now() - startTime;
@@ -300,7 +306,11 @@ function App() {
                     <Button onClick={() => handleButtonPress(+3, successValueA, setSuccessValueA)}>+3</Button>
                   </ButtonGroup>
                 </Stack>
-                
+                <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">
+                  <Typography>{damageA}</Typography>
+                  <Slider value={damageA} step={1} min={8} max={30} onChange={(event, newValue) => {setDamageA(newValue)}}/>
+                </Stack>
+                <Slider value={armA} step={1} min={0} max={10} onChange={(event, newValue) => {setArmA(newValue)}}/>
               </CardContent>
             </Card>
           </Grid>
