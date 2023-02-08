@@ -4,19 +4,24 @@ import './App.css'
 import {
   Box,
   Button,
-  ButtonGroup,
   Card,
   CardContent,
-  Grid, List, ListItem,
-  Rating, Slider,
-  Stack, Table, TableBody, TableCell, TableRow, ToggleButton, ToggleButtonGroup,
+  Grid,
+  ThemeProvider,
   Typography
 } from "@mui/material";
 
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faDiceD20} from '@fortawesome/free-solid-svg-icons'
+import { createTheme } from '@mui/material/styles';
 
 import { loadPyodide } from 'pyodide'
+import {grey} from "@mui/material/colors";
+import BurstInput from "./inputs/BurstInput.jsx";
+import SuccessValueInput from "./inputs/SuccessValueInput.jsx";
+import DamageInput from "./inputs/DamageInput.jsx";
+import ArmorInput from "./inputs/ArmorInput.jsx";
+import AmmoInput from "./inputs/AmmoInput.jsx";
+import F2FGraph from "./display/F2FGraph.jsx";
+import F2FResultList from "./display/F2FResultList.jsx";
 
 const pythonCode = `import micropip
 await micropip.install('icepool==0.20.1')
@@ -216,28 +221,28 @@ function App() {
 
   // Inputs
   const [burstA, setBurstA] = useState(3);
-  const [burstB, setBurstB] = useState(1);
   const [successValueA, setSuccessValueA] = useState(10);
-  const [successValueB, setSuccessValueB] = useState(10);
   const [damageA, setDamageA] = useState(13);
-  const [damageB, setDamageB] = useState(13);
   const [armA, setArmA] = useState(0);
-  const [armB, setArmB] = useState(0);
   const [ammoA, setAmmoA] = useState('N');
+
+  const [burstB, setBurstB] = useState(1);
+  const [successValueB, setSuccessValueB] = useState(10);
+  const [damageB, setDamageB] = useState(13);
+  const [armB, setArmB] = useState(0);
   const [ammoB, setAmmoB] = useState('N');
 
   // Outputs
   const [f2fResults, setF2fResults] = useState(null);
 
-  const handleButtonPress = (amount, variable, setter) => {
-    if (amount + variable >= 30) {
-      setter(30);
-    } else if (amount + variable <= 1) {
-      setter(1);
-    } else {
-      setter(amount + variable);
-    }
-  };
+  // Theme
+  const theme = createTheme({
+    palette: {
+      background: {
+        default: grey[100]
+      },
+    },
+  });
 
   // First load
   useEffect(() => {
@@ -275,9 +280,9 @@ function App() {
   };
 
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <CssBaseline/>
-      <Box sx={{flexGrow: 1}}>
+      <Box sx={{flexGrow: 1}} >
         <Grid container spacing={2}>
           <Grid xs={12} item>
             <Typography variant="h5">Face 2 Face Calculator</Typography>
@@ -287,52 +292,11 @@ function App() {
               style={{alignItems: "center", justifyContent: "center"}}>
               <CardContent>
                 <Typography sx={{fontSize: 14}} color="text.secondary" gutterBottom>Player A</Typography>
-                <Rating
-                  value={burstA}
-                  min={1}
-                  max={6}
-                  size="large"
-                  onChange={(event, newValue) => {
-                    setBurstA(newValue);
-                  }}
-                  icon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2, color: "#b14d8e"}} icon={faDiceD20}/>}
-                  emptyIcon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2, opacity: 0.55}} icon={faDiceD20}/>}
-                />
-                <Stack alignItems="center" justifyContent="center" direction="row">
-                  <ButtonGroup>
-                    <Button onClick={() => handleButtonPress(-3, successValueA, setSuccessValueA)}>-3</Button>
-                    <Button onClick={() => handleButtonPress(-1, successValueA, setSuccessValueA)}>-1</Button>
-                  </ButtonGroup>
-                  <Typography sx={{fontSize: 24, fontWeight: "bold", pl: 2, pr: 2}}>{successValueA}</Typography>
-                  <ButtonGroup>
-                    <Button onClick={() => handleButtonPress(+1, successValueA, setSuccessValueA)}>+1</Button>
-                    <Button onClick={() => handleButtonPress(+3, successValueA, setSuccessValueA)}>+3</Button>
-                  </ButtonGroup>
-                </Stack>
-                <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">
-                  <Typography>DAM</Typography>
-                  <Typography>{damageA}</Typography>
-                  <Slider value={damageA} step={1} min={10} max={20} onChange={(event, newValue) => {setDamageA(newValue)}}/>
-                </Stack>
-                <Stack spacing={2} direction="row" sx={{mb:1}} alignItems="center">
-                  <Typography>ARM</Typography>
-                  <Typography>{armA}</Typography>
-                  <Slider value={armA} step={1} min={0} max={10} onChange={(event, newValue) => {setArmA(newValue)}}/>
-                </Stack>
-                <ToggleButtonGroup
-                  exclusive
-                  value={ammoA}
-                  onChange={
-                  (event, newAmmo) => {
-                    if(newAmmo !== null){
-                      setAmmoA(newAmmo);
-                    } else {
-                      setAmmoA('N');
-                    }}}
-                >
-                  <ToggleButton value="DA">DA</ToggleButton>
-                  <ToggleButton value="EXP">EXP</ToggleButton>
-                </ToggleButtonGroup>
+                <BurstInput burst={burstA} update={setBurstA} color="#b14d8e"/>
+                <SuccessValueInput successValue={successValueA} update={setSuccessValueA}/>
+                <DamageInput damage={damageA} update={setDamageA}/>
+                <ArmorInput armor={armA} update={setArmA}/>
+                <AmmoInput ammo={ammoA} update={setAmmoA}/>
               </CardContent>
             </Card>
           </Grid>
@@ -340,52 +304,11 @@ function App() {
             <Card>
               <CardContent>
                 <Typography sx={{fontSize: 14}} color="text.secondary" gutterBottom>Player B</Typography>
-                <Rating
-                  value={burstB}
-                  min={1}
-                  max={6}
-                  size="large"
-                  onChange={(event, newValue) => {
-                    setBurstB(newValue);
-                  }}
-                  icon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2, color: "#217a79"}} icon={faDiceD20}/>}
-                  emptyIcon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2, opacity: 0.55}} icon={faDiceD20}/>}
-                />
-                <Stack alignItems="center" justifyContent="center" direction="row">
-                  <ButtonGroup>
-                    <Button onClick={() => handleButtonPress(-3, successValueB, setSuccessValueB)}>-3</Button>
-                    <Button onClick={() => handleButtonPress(-1, successValueB, setSuccessValueB)}>-1</Button>
-                  </ButtonGroup>
-                  <Typography sx={{fontSize: 24, fontWeight: "bold", pl: 2, pr: 2}}>{successValueB}</Typography>
-                  <ButtonGroup>
-                    <Button onClick={() => handleButtonPress(+1, successValueB, setSuccessValueB)}>+1</Button>
-                    <Button onClick={() => handleButtonPress(+3, successValueB, setSuccessValueB)}>+3</Button>
-                  </ButtonGroup>
-                </Stack>
-                <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">
-                  <Typography>DAM</Typography>
-                  <Typography>{damageB}</Typography>
-                  <Slider value={damageB} step={1} min={10} max={20} onChange={(event, newValue) => {setDamageB(newValue)}}/>
-                </Stack>
-                <Stack spacing={2} direction="row" sx={{mb:1}} alignItems="center">
-                  <Typography>ARM</Typography>
-                  <Typography>{armB}</Typography>
-                  <Slider value={armB} step={1} min={0} max={10} onChange={(event, newValue) => {setArmB(newValue)}}/>
-                </Stack>
-                <ToggleButtonGroup
-                  exclusive
-                  value={ammoB}
-                  onChange={
-                    (event, newAmmo) => {
-                      if(newAmmo !== null){
-                        setAmmoB(newAmmo);
-                      } else {
-                        setAmmoB('N');
-                      }}}
-                >
-                  <ToggleButton value="DA">DA</ToggleButton>
-                  <ToggleButton value="EXP">EXP</ToggleButton>
-                </ToggleButtonGroup>
+                <BurstInput burst={burstB} update={setBurstB} color="#217a79"/>
+                <SuccessValueInput successValue={successValueB} update={setSuccessValueB}/>
+                <DamageInput damage={damageB} update={setDamageB}/>
+                <ArmorInput armor={armB} update={setArmB}/>
+                <AmmoInput ammo={ammoB} update={setAmmoB}/>
               </CardContent>
             </Card>
           </Grid>
@@ -397,132 +320,21 @@ function App() {
                 <F2FGraph
                   results={f2fResults}
                 />
-                <ResultList rows={f2fResults}/>
+                <F2FResultList rows={f2fResults}/>
 
-
-                
               </CardContent>
             </Card>
             <Typography variant="caption" color="text.secondary">{statusMessage}</Typography>
           </Grid>
         </Grid>
       </Box>
-    </>
+    </ThemeProvider>
   )
 }
 
-// Single colors
-// sunset dark
-//#f3e79b,#fac484,#f8a07e,#eb7f86,#ce6693,#a059a0,#5c53a5
-
-// emerald
-// ['#074050', '#105965', '#217a79', '#4c9b82', '#6cc08b', '#97e196', '#d3f2a3']  // dark to light
-
-// teal
-// #d1eeea,#a8dbd9,#85c4c9,#68abb8,#4f90a6,#3b738f,#2a5674
-
-// magenta dark to light
-// ['#6c2167', '#91357d', '#b14d8e', '#ca699d', '#dd88ac', '#eaa9bd', '#f3cbd3']
-
-// Diverging colors.
-// tropic. Kinda cyberpunky?
-//#009B9E,#42B7B9,#A7D3D4,#F1F1F1,#E4C1D9,#D691C1,#C75DAB
 
 
 
-function F2FGraphCell(props) {
-  //const active_colors = ['#6c2167', '#91357d', '#b14d8e', '#ca699d', '#dd88ac', '#eaa9bd', '#f3cbd3'];
-  const active_colors = [ '#dd88ac', '#ca699d', '#b14d8e', '#91357d', '#6c2167'];
-  //const reactive_colors = ['#074050', '#105965', '#217a79', '#4c9b82', '#6cc08b', '#97e196', '#d3f2a3'];
-  const reactive_colors = ['#6cc08b', '#4c9b82', '#217a79', '#105965', '#074050'];
-  const data = props.row;
-  const width = (data['chance'] * 100).toFixed(1) + "%";
-  let color;
-  if(data['player'] === 'active'){
-    color = active_colors[data['wounds']];
-  } else if(data['player'] === 'reactive'){
-    color = reactive_colors[data['wounds']];
-  } else {
-    color = 'lightgrey';
-  }
-  let key_ = data['player'] + '-' + data['wounds'];
-  console.log(`Width of cell ${key_} is ${width}`);
-
-  return <TableCell sx={{bgcolor: color, width: width, padding:0, height: '30px'}}>
-
-  </TableCell>;
-}
-
-function F2FGraph(props) {
-  const results = props.results;
-  if(results === null || results.size === 0 ){
-    return <div/>
-  }
-  console.log(results instanceof Array);
-  return <Table sx={{width:"100%"}}>
-    <TableBody>
-        <TableRow key="1">
-          {results.map((result) => (<F2FGraphCell key={result['id']} row={result}/>))}
-        </TableRow>
-    </TableBody>
-  </Table>
-}
-
-function ResultListItem(props){
-  const item = props.item
-  return <ListItem>
-    <Typography>{item['player']} player causes {item['wounds']} wounds: {(item['chance']*100).toFixed(1)}%</Typography>
-  </ListItem>
-}
-
-function ResultList(props){
-  const rows = props.rows
-  if (rows === null){
-    return null;
-  }
-
-  return(<List>
-    {rows.map((row)=>{
-      return <ResultListItem key={row['id']} item={row}/>;
-    })}
-  </List>);
-}
-
-
-
-// function Face2FaceResultBarChart(props){
-//
-//   const {active, reactive, tie} = die_results;
-//   let activeWidth = active_pcnt * 300;
-//   let reactiveWidth = reactive_pcnt * 300;
-//   let tieWidth = tie_pcnt * 300;
-//
-//
-//   const [lightSkyBlue, mediumOrchid, lavender, royalBlue, midnightBlue] = ['#6EcbF5', '#C252E1', '#E0D9F6', '#586AE2', '#2A2356'];
-//
-//   return(<svg width="inherit" height="20">
-//     <rect x="0" y="0" width={activeWidth} height="20" fill={royalBlue}></rect>
-//     <rect x={activeWidth} y="0" width={tieWidth} height="20" fill={midnightBlue}></rect>
-//     <rect x={activeWidth+tieWidth} y="0" width={reactiveWidth} height="20" fill={mediumOrchid}></rect>
-//   </svg>);
-// }
-
-// function ResultGraph(props) {
-//
-//   const {active, reactive, tie} = die_results;
-//   let activeWidth = active_pcnt * 300;
-//   let reactiveWidth = reactive_pcnt * 300;
-//   let tieWidth = tie_pcnt * 300;
-//
-//
-//   const [lightSkyBlue, mediumOrchid, lavender, royalBlue, midnightBlue] = ['#6EcbF5', '#C252E1', '#E0D9F6', '#586AE2', '#2A2356'];
-//
-//   return(<svg width="inherit" height="20">
-//     <rect x="0" y="0" width={activeWidth} height="20" fill={royalBlue}></rect>
-//     <rect x={activeWidth} y="0" width={tieWidth} height="20" fill={midnightBlue}></rect>
-//     <rect x={activeWidth+tieWidth} y="0" width={reactiveWidth} height="20" fill={mediumOrchid}></rect>
-//   </svg>);
-// }
 
 export default App
 
