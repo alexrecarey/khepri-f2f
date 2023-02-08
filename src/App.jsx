@@ -7,9 +7,9 @@ import {
   ButtonGroup,
   Card,
   CardContent,
-  Grid,
+  Grid, List, ListItem,
   Rating, Slider,
-  Stack, Table, TableBody, TableCell, TableRow,
+  Stack, Table, TableBody, TableCell, TableRow, ToggleButton, ToggleButtonGroup,
   Typography
 } from "@mui/material";
 
@@ -279,6 +279,9 @@ function App() {
       <CssBaseline/>
       <Box sx={{flexGrow: 1}}>
         <Grid container spacing={2}>
+          <Grid xs={12} item>
+            <Typography variant="h5">Face 2 Face Calculator</Typography>
+          </Grid>
           <Grid xs={12} sm={6} lg={4} xl={3} item>
             <Card
               style={{alignItems: "center", justifyContent: "center"}}>
@@ -307,10 +310,29 @@ function App() {
                   </ButtonGroup>
                 </Stack>
                 <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">
+                  <Typography>DAM</Typography>
                   <Typography>{damageA}</Typography>
-                  <Slider value={damageA} step={1} min={8} max={30} onChange={(event, newValue) => {setDamageA(newValue)}}/>
+                  <Slider value={damageA} step={1} min={10} max={20} onChange={(event, newValue) => {setDamageA(newValue)}}/>
                 </Stack>
-                <Slider value={armA} step={1} min={0} max={10} onChange={(event, newValue) => {setArmA(newValue)}}/>
+                <Stack spacing={2} direction="row" sx={{mb:1}} alignItems="center">
+                  <Typography>ARM</Typography>
+                  <Typography>{armA}</Typography>
+                  <Slider value={armA} step={1} min={0} max={10} onChange={(event, newValue) => {setArmA(newValue)}}/>
+                </Stack>
+                <ToggleButtonGroup
+                  exclusive
+                  value={ammoA}
+                  onChange={
+                  (event, newAmmo) => {
+                    if(newAmmo !== null){
+                      setAmmoA(newAmmo);
+                    } else {
+                      setAmmoA('N');
+                    }}}
+                >
+                  <ToggleButton value="DA">DA</ToggleButton>
+                  <ToggleButton value="EXP">EXP</ToggleButton>
+                </ToggleButtonGroup>
               </CardContent>
             </Card>
           </Grid>
@@ -340,6 +362,30 @@ function App() {
                     <Button onClick={() => handleButtonPress(+3, successValueB, setSuccessValueB)}>+3</Button>
                   </ButtonGroup>
                 </Stack>
+                <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">
+                  <Typography>DAM</Typography>
+                  <Typography>{damageB}</Typography>
+                  <Slider value={damageB} step={1} min={10} max={20} onChange={(event, newValue) => {setDamageB(newValue)}}/>
+                </Stack>
+                <Stack spacing={2} direction="row" sx={{mb:1}} alignItems="center">
+                  <Typography>ARM</Typography>
+                  <Typography>{armB}</Typography>
+                  <Slider value={armB} step={1} min={0} max={10} onChange={(event, newValue) => {setArmB(newValue)}}/>
+                </Stack>
+                <ToggleButtonGroup
+                  exclusive
+                  value={ammoB}
+                  onChange={
+                    (event, newAmmo) => {
+                      if(newAmmo !== null){
+                        setAmmoB(newAmmo);
+                      } else {
+                        setAmmoB('N');
+                      }}}
+                >
+                  <ToggleButton value="DA">DA</ToggleButton>
+                  <ToggleButton value="EXP">EXP</ToggleButton>
+                </ToggleButtonGroup>
               </CardContent>
             </Card>
           </Grid>
@@ -347,11 +393,13 @@ function App() {
             <Button variant="contained" disabled={!isPyodideReady || isCalculating} onClick={()=> rollDice()}>Roll dice!</Button>
             <Card>
               <CardContent>
-
-
+                <Typography>Results</Typography>
                 <F2FGraph
                   results={f2fResults}
                 />
+                <ResultList rows={f2fResults}/>
+
+
                 
               </CardContent>
             </Card>
@@ -400,7 +448,7 @@ function F2FGraphCell(props) {
   let key_ = data['player'] + '-' + data['wounds'];
   console.log(`Width of cell ${key_} is ${width}`);
 
-  return <TableCell key={key_} sx={{bgcolor: color, width: width, padding:0, height: '30px'}}>
+  return <TableCell sx={{bgcolor: color, width: width, padding:0, height: '30px'}}>
 
   </TableCell>;
 }
@@ -410,19 +458,38 @@ function F2FGraph(props) {
   if(results === null || results.size === 0 ){
     return <div/>
   }
-
   console.log(results instanceof Array);
-
   return <Table sx={{width:"100%"}}>
     <TableBody>
-        <TableRow>
-          {results.map((result) => (<F2FGraphCell row={result}/>))}
+        <TableRow key="1">
+          {results.map((result) => (<F2FGraphCell key={result['id']} row={result}/>))}
         </TableRow>
     </TableBody>
   </Table>
 }
 
-//
+function ResultListItem(props){
+  const item = props.item
+  return <ListItem>
+    <Typography>{item['player']} player causes {item['wounds']} wounds: {(item['chance']*100).toFixed(1)}%</Typography>
+  </ListItem>
+}
+
+function ResultList(props){
+  const rows = props.rows
+  if (rows === null){
+    return null;
+  }
+
+  return(<List>
+    {rows.map((row)=>{
+      return <ResultListItem key={row['id']} item={row}/>;
+    })}
+  </List>);
+}
+
+
+
 // function Face2FaceResultBarChart(props){
 //
 //   const {active, reactive, tie} = die_results;
