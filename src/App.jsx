@@ -12,17 +12,21 @@ import {
 } from "@mui/material";
 
 import { createTheme } from '@mui/material/styles';
-
-import { loadPyodide } from 'pyodide'
 import {grey} from "@mui/material/colors";
+
+// Input items
 import BurstInput from "./inputs/BurstInput.jsx";
 import SuccessValueInput from "./inputs/SuccessValueInput.jsx";
 import DamageInput from "./inputs/DamageInput.jsx";
 import ArmorInput from "./inputs/ArmorInput.jsx";
 import AmmoInput from "./inputs/AmmoInput.jsx";
+
+// Data display items
 import F2FGraph from "./display/F2FGraph.jsx";
 import F2FResultList from "./display/F2FResultList.jsx";
 
+// Pyodide
+import { loadPyodide } from 'pyodide'
 const pythonCode = `import micropip
 await micropip.install('icepool==0.20.1')
 from functools import reduce
