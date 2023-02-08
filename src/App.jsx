@@ -9,7 +9,7 @@ import {
   CardContent,
   Grid,
   Rating,
-  Stack,
+  Stack, Table, TableBody, TableCell, TableRow,
   Typography
 } from "@mui/material";
 
@@ -18,12 +18,13 @@ import {faDiceD20} from '@fortawesome/free-solid-svg-icons'
 
 import { loadPyodide } from 'pyodide'
 
-const pythonCode = `
-import micropip
+const pythonCode = `import micropip
 await micropip.install('icepool==0.20.1')
+from functools import reduce
 
 import icepool
 from icepool import d20, lowest
+from math import comb
 import js
 from pyodide.ffi import to_js
 
@@ -70,7 +71,7 @@ def face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst):
     # Handle cases where SV > 20
     a_sv = player_a_sv if player_a_sv <= 20 else 20
     a_bonus = 0 if player_a_sv <= 20 else player_a_sv - 20
-    b_sv = a_sv if player_b_sv <= 20 else 20
+    b_sv = player_b_sv if player_b_sv <= 20 else 20
     b_bonus = 0 if player_b_sv <= 20 else player_b_sv - 20
 
     result = InfinityUniverseEvaluator(a_sv=a_sv, b_sv=b_sv).evaluate(
@@ -79,25 +80,130 @@ def face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst):
     return [i for i in result.items()]
 
 
-def face_to_face_results(player_a_sv, player_a_burst, player_b_sv, player_b_burst):
+def face_to_face_result(player_a_sv, player_a_burst, player_b_sv, player_b_burst):
     f2f = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
-    result = {'active':0,
-              'tie':0,
-              'reactive':0}
+    result = {'active': 0,
+              'tie': 0,
+              'reactive': 0,
+              'total_rolls': 0}
     for outcome, amount in f2f:
+        result['total'] += amount
         squash = outcome[0] + outcome[1] - outcome[2] - outcome[3]
         # check if tie
         if squash == 0:
-            result['tie'] = result['tie'] + amount
+            result['tie'] += amount
         # Player A wins F2F
         elif squash > 0:
-            result['active'] = result['active'] + amount
+            result['active'] += amount
         # Player B wins F2F
         elif squash < 0:
-            result['reactive'] = result['reactive'] + amount
-    return to_js(result, dict_converter=js.Object.fromEntries)
+            result['reactive'] += amount
+    return result
+    #return to_js(result, dict_converter=js.Object.fromEntries)
 
-to_js(face_to_face_results)`
+
+def binomial_success(successes: int, trials: int, probability: float):
+    """Binomial theory success probability"""
+    return comb(trials, successes) * pow(probability, successes) * pow(1 - probability, trials - successes);
+
+
+AMMO = {
+    'N': 1,
+    'DA': 2,
+    'EXP': 3,
+    'CONT': 1  # not used for now?
+}
+
+
+
+def face_to_face_expected_wounds(
+        player_a_sv, player_a_burst, player_a_dam, player_a_arm, player_a_ammo,
+        player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_ammo):
+    """Calculates the wounds expected from a face to face encounter"""
+    outcomes = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
+    wounds = {
+        'active': {},
+        'reactive': {},
+        'tie': {},
+        'total_rolls': 0
+    }
+    for (a_crit, a_hit, b_crit, b_hit), rolls in outcomes:
+        wounds['total_rolls'] += rolls
+        winner_number = a_crit + a_hit - b_crit - b_hit
+        if winner_number > 0:
+            winner = 'active'
+            wound_probability = (player_a_dam - player_b_arm) / 20
+        elif winner_number < 0:
+            winner = 'reactive'
+            wound_probability = (player_b_dam - player_a_arm) / 20
+        else:
+            winner = 'tie'
+            wound_probability = 0
+
+        saves = ((a_crit*AMMO[player_a_ammo] + a_crit) + a_hit*AMMO[player_a_ammo] +
+                 (b_crit*AMMO[player_b_ammo] + b_crit) + b_hit*AMMO[player_b_ammo])
+
+        # Fold successful results by active or reactive that cause 0 wounds into the "tie" dictionary
+        wounds_caused_probability = binomial_success(0, saves, wound_probability)
+        if 0 in wounds['tie']:
+            wounds['tie'][0] += wounds_caused_probability * rolls
+        else:
+            wounds['tie'][0] = wounds_caused_probability * rolls
+
+        # Calculate probabilities of active or reactive player inflicting 1 or more wounds
+        for wounds_caused in range(1, saves + 1):
+            wounds_caused_probability = binomial_success(wounds_caused, saves, wound_probability)
+            # # At the moment accept any number of wounds caused results
+            # if wounds_caused > MAX_WOUNDS_CALCULATED:
+            #     wounds_caused = MAX_WOUNDS_CALCULATED
+            if wounds_caused in wounds[winner]:
+                wounds[winner][wounds_caused] += wounds_caused_probability * rolls
+            else:
+                wounds[winner][wounds_caused] = wounds_caused_probability * rolls
+    formatted_wounds = format_expected_wounds(wounds)
+    return to_js(formatted_wounds, dict_converter=js.Object.fromEntries)
+    #return formatted_wounds
+
+
+
+def format_expected_wounds(wounds, max_wounds_shown=3):
+    """Format expected_wounds into a list of results
+
+    Output format is {'player': 'active/reactive', 'wounds': 3, 'chance': 0.2432, 'raw_chance' 1341234.23}
+    """
+    # Squash items that are > than max_wounds_shown
+    squashed = {'active': None, 'reactive': None, 'tie': wounds['tie']}
+    for player in ['active', 'reactive']:
+        over_max = {k: v for k, v in wounds[player].items() if k > max_wounds_shown}
+        if len(over_max) > 0:
+            additional_successes = reduce(lambda x, y: x+y, over_max.values(), 0)
+            new_dict = {k: v for k, v in wounds[player].items() if k <= max_wounds_shown}
+            new_dict[max_wounds_shown] += additional_successes
+            squashed[player] = new_dict
+        else:
+            squashed[player] = wounds[player]
+
+    # Create output table
+    expected_wounds = []
+    order = 0
+    for player in ['active', 'tie', 'reactive']:
+        # ugly hack to get the ordering right, only works if results are ordered
+        reverse_list = True if player == 'active' else False
+        keys = sorted(squashed[player].keys(), reverse=reverse_list)
+        for key in keys:
+            expected_wounds.append({
+                'id': order,
+                'player': player,
+                'wounds': key,
+                'raw_chance': squashed[player][key],
+                'chance': squashed[player][key]/wounds['total_rolls']
+            })
+            order += 1
+    return expected_wounds
+    # to_js(expected_wounds, dict_converter=js.Object.fromEntries)
+
+# Return value for Javascript
+to_js(face_to_face_expected_wounds)`
 
 
 
@@ -151,16 +257,16 @@ function App() {
     console.log(`pyodide ref is ${pyodideRef} and ${pyodideRef.current}`);
     const f = await pyodideRef.current.runPythonAsync(pythonCode);
     //setStatusMessage(`result is ${f}`);
-    const result = await f(successValueA, burstA, successValueB, burstB)
+    const result = await f(successValueA, burstA, 13, 3, 'N',
+                           successValueB, burstB, 13, 2, 'DA');
     console.log('Pyodide script result:');
     console.log(result);
     let elapsed = Date.now() - startTime;
-    setF2fResults({...result})
+    setF2fResults(result);
     setStatusMessage(`Done! Took ${elapsed} ms`);
     setIsCalculating(false);
     console.log(`Calculated results ${JSON.stringify(result)}`);
   };
-
 
   return (
     <>
@@ -180,7 +286,7 @@ function App() {
                   onChange={(event, newValue) => {
                     setBurstA(newValue);
                   }}
-                  icon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2}} icon={faDiceD20}/>}
+                  icon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2, color: "#b14d8e"}} icon={faDiceD20}/>}
                   emptyIcon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2, opacity: 0.55}} icon={faDiceD20}/>}
                 />
                 <Stack alignItems="center" justifyContent="center" direction="row">
@@ -194,6 +300,7 @@ function App() {
                     <Button onClick={() => handleButtonPress(+3, successValueA, setSuccessValueA)}>+3</Button>
                   </ButtonGroup>
                 </Stack>
+                
               </CardContent>
             </Card>
           </Grid>
@@ -209,7 +316,7 @@ function App() {
                   onChange={(event, newValue) => {
                     setBurstB(newValue);
                   }}
-                  icon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2}} icon={faDiceD20}/>}
+                  icon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2, color: "#217a79"}} icon={faDiceD20}/>}
                   emptyIcon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2, opacity: 0.55}} icon={faDiceD20}/>}
                 />
                 <Stack alignItems="center" justifyContent="center" direction="row">
@@ -232,8 +339,8 @@ function App() {
               <CardContent>
 
 
-                <ResultTable
-                  res={f2fResults}
+                <F2FGraph
+                  results={f2fResults}
                 />
                 
               </CardContent>
@@ -246,53 +353,82 @@ function App() {
   )
 }
 
-function ResultTable(props) {
+// Single colors
+// sunset dark
+//#f3e79b,#fac484,#f8a07e,#eb7f86,#ce6693,#a059a0,#5c53a5
 
-  let die_results = props.res;
+// emerald
+// ['#074050', '#105965', '#217a79', '#4c9b82', '#6cc08b', '#97e196', '#d3f2a3']  // dark to light
 
-  if(die_results === null || die_results.size === 0 ){
+// teal
+// #d1eeea,#a8dbd9,#85c4c9,#68abb8,#4f90a6,#3b738f,#2a5674
+
+// magenta dark to light
+// ['#6c2167', '#91357d', '#b14d8e', '#ca699d', '#dd88ac', '#eaa9bd', '#f3cbd3']
+
+// Diverging colors.
+// tropic. Kinda cyberpunky?
+//#009B9E,#42B7B9,#A7D3D4,#F1F1F1,#E4C1D9,#D691C1,#C75DAB
+
+
+
+function F2FGraphCell(props) {
+  //const active_colors = ['#6c2167', '#91357d', '#b14d8e', '#ca699d', '#dd88ac', '#eaa9bd', '#f3cbd3'];
+  const active_colors = [ '#dd88ac', '#ca699d', '#b14d8e', '#91357d', '#6c2167'];
+  //const reactive_colors = ['#074050', '#105965', '#217a79', '#4c9b82', '#6cc08b', '#97e196', '#d3f2a3'];
+  const reactive_colors = ['#6cc08b', '#4c9b82', '#217a79', '#105965', '#074050'];
+  const data = props.row;
+  const width = (data['chance'] * 100).toFixed(1) + "%";
+  let color;
+  if(data['player'] === 'active'){
+    color = active_colors[data['wounds']];
+  } else if(data['player'] === 'reactive'){
+    color = reactive_colors[data['wounds']];
+  } else {
+    color = 'lightgrey';
+  }
+  let key_ = data['player'] + '-' + data['wounds'];
+  console.log(`Width of cell ${key_} is ${width}`);
+
+  return <TableCell key={key_} sx={{bgcolor: color, width: width, padding:0, height: '30px'}}>
+
+  </TableCell>;
+}
+
+function F2FGraph(props) {
+  const results = props.results;
+  if(results === null || results.size === 0 ){
     return <div/>
   }
 
-  const {active, reactive, tie} = die_results;
-  const total_rolls = (active + reactive + tie);
-  const active_pcnt = active / total_rolls;
-  const reactive_pcnt = reactive / total_rolls;
-  const tie_pcnt = tie / total_rolls;
-  let activeWidth = active_pcnt * 300;
-  let reactiveWidth = reactive_pcnt * 300;
-  let tieWidth = tie_pcnt * 300;
+  console.log(results instanceof Array);
 
-  // testing color palette
-  const [lightSkyBlue, mediumOrchid, lavender, royalBlue, midnightBlue] = ['#6EcbF5', '#C252E1', '#E0D9F6', '#586AE2', '#2A2356'];
-  return <Grid container>
-    <Grid item xs={12}>
-      <svg style={{width: "inherit"}} height="20">
-        <rect x="0" y="0" width={activeWidth} height="20" fill={royalBlue}></rect>
-        <rect x={activeWidth} y="0" width={tieWidth} height="20" fill={midnightBlue}></rect>
-        <rect x={activeWidth+tieWidth} y="0" width={reactiveWidth} height="20" fill={mediumOrchid}></rect>
-      </svg>
-    </Grid>
-    <Grid item xs={6}>
-      <Typography>Active</Typography>
-    </Grid>
-    <Grid item xs={6}>
-      <Typography>{Number(active_pcnt).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:0})}</Typography>
-    </Grid>
-    <Grid item xs={6}>
-      <Typography>Tie</Typography>
-    </Grid>
-    <Grid item xs={6}>
-      <Typography>{Number(tie_pcnt).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:0})}</Typography>
-    </Grid>
-    <Grid item xs={6}>
-      <Typography>Reactive</Typography>
-    </Grid>
-    <Grid item xs={6}>
-      <Typography>{Number(reactive_pcnt).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:0})}</Typography>
-    </Grid>
-  </Grid>;
+  return <Table sx={{width:"100%"}}>
+    <TableBody>
+        <TableRow>
+          {results.map((result) => (<F2FGraphCell row={result}/>))}
+        </TableRow>
+    </TableBody>
+  </Table>
 }
+
+//
+// function Face2FaceResultBarChart(props){
+//
+//   const {active, reactive, tie} = die_results;
+//   let activeWidth = active_pcnt * 300;
+//   let reactiveWidth = reactive_pcnt * 300;
+//   let tieWidth = tie_pcnt * 300;
+//
+//
+//   const [lightSkyBlue, mediumOrchid, lavender, royalBlue, midnightBlue] = ['#6EcbF5', '#C252E1', '#E0D9F6', '#586AE2', '#2A2356'];
+//
+//   return(<svg width="inherit" height="20">
+//     <rect x="0" y="0" width={activeWidth} height="20" fill={royalBlue}></rect>
+//     <rect x={activeWidth} y="0" width={tieWidth} height="20" fill={midnightBlue}></rect>
+//     <rect x={activeWidth+tieWidth} y="0" width={reactiveWidth} height="20" fill={mediumOrchid}></rect>
+//   </svg>);
+// }
 
 // function ResultGraph(props) {
 //
