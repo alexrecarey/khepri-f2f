@@ -13,31 +13,24 @@ function SuccessValueInput(props){
     }
   };
 
+  const gridStyle = {
+    bgcolor: '#f3cbd3',
+    display: "flex",
+    justifyContent:"center",
+    alignItems:"center",
+    borderRadius: '8px 8px 8px 8px',
+    p:1};
+
   return <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
       <InputLabel>Success Value</InputLabel>
     </Grid>
-    <Grid item xs={1} sx={{
-      bgcolor: '#f3cbd3',
-      display: "flex",
-      justifyContent:"center",
-      alignItems:"center",
-      borderRadius: '8px 0 0 8px',
-      p:1}}
-    >
-      <Typography color='#6c2167' fontWeight="bold">SV</Typography>
-    </Grid>
-    <Grid item xs={1} sx={{
-      bgcolor: '#f3cbd3',
-      display: "flex",
-      justifyContent:"center",
-      alignItems:"center",
-      borderRadius: '0 8px 8px 0',
-      p:1}}
+    <Grid item xs={2} sx={gridStyle}
     >
       <Typography sx={{fontWeight: "bold", color: '#6c2167'}}>{successValue}</Typography>
     </Grid>
-    <Grid item xs={10}>
+    <Grid item xs={1}></Grid>
+    <Grid item xs={9} sx={{display: 'flex', justifyContent:"left"}} >
       <ButtonGroup>
         <Button onClick={() => handleButtonPress(-3, update)}>-3</Button>
         <Button onClick={() => handleButtonPress(-1, update)}>-1</Button>

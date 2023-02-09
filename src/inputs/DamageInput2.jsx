@@ -4,21 +4,13 @@ function DamageInput(props) {
   const damage = props.damage;
   const update = props.update;
 
-  const gridStyleLeft = {
+  const gridStyle = {
     bgcolor: '#f3cbd3',
     display: "flex",
     justifyContent:"center",
     alignItems:"center",
-    borderRadius: '8px 0 0 8px',
+    borderRadius: '8px 8px 8px 8px',
     p:1};
-
-  const gridStyleRight = {
-    bgcolor: '#f3cbd3',
-    display: "flex",
-    justifyContent:"center",
-    alignItems:"center",
-    borderRadius: '0 8px 8px 0',
-    p:1}
 
   const textStyle = {
     color:'#6c2167',
@@ -28,11 +20,10 @@ function DamageInput(props) {
   return <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
       <InputLabel>Damage</InputLabel></Grid>
-    <Grid item xs={1} sx={gridStyleLeft}>
-      <Typography sx={textStyle}>DAM</Typography></Grid>
-    <Grid item xs={1} sx={gridStyleRight}>
+    <Grid item xs={2} sx={gridStyle}>
       <Typography sx={textStyle}>{damage}</Typography></Grid>
-    <Grid item xs={10} sx={{display:"flex", justifyContent:"center", alignItems:"center", pl:2, pr:2}}>
+    <Grid item xs={1}></Grid>
+    <Grid item xs={9} sx={{display: 'flex', justifyContent:"left", alignItems:"center"}} >
       <Slider
         value={damage} step={1} min={10} max={20}
         onChange={(event, newValue) => {

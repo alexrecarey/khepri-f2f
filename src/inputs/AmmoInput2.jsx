@@ -5,22 +5,15 @@ import { styled } from "@mui/material/styles";
 function AmmoInput(props){
   const ammo = props.ammo;
   const update = props.update;
+  //const variant = props.variant;
 
-  const gridStyleLeft = {
+  const gridStyle = {
     bgcolor: '#f3cbd3',
     display: "flex",
     justifyContent:"center",
     alignItems:"center",
-    borderRadius: '8px 0 0 8px',
+    borderRadius: '8px 8px 8px 8px',
     p:1};
-
-  const gridStyleRight = {
-    bgcolor: '#f3cbd3',
-    display: "flex",
-    justifyContent:"center",
-    alignItems:"center",
-    borderRadius: '0 8px 8px 0',
-    p:1}
 
   const textStyle = {
     color:'#6c2167',
@@ -41,12 +34,11 @@ function AmmoInput(props){
 
   return  <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
-      <InputLabel>Damage</InputLabel></Grid>
-    <Grid item xs={1} sx={gridStyleLeft}>
-      <Typography sx={textStyle}>AMM</Typography></Grid>
-    <Grid item xs={1} sx={gridStyleRight}>
+      <InputLabel>Ammunition</InputLabel></Grid>
+    <Grid item xs={2} sx={gridStyle}>
       <Typography sx={textStyle}>{ammo}</Typography></Grid>
-    <Grid item xs={10} sx={{display:"flex", justifyContent:"center", alignItems:"center", pl:2, pr:2}}>
+    <Grid item xs={1}></Grid>
+    <Grid item xs={9} sx={{display:"flex", justifyContent:"left", alignItems:"center"}}>
       <ToggleButtonGroup
         exclusive
         value={ammo}

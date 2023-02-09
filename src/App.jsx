@@ -15,11 +15,11 @@ import { createTheme } from '@mui/material/styles';
 import {grey} from "@mui/material/colors";
 
 // Input items
-import BurstInput from "./inputs/BurstInput.jsx";
-import SuccessValueInput from "./inputs/SuccessValueInput.jsx";
-import DamageInput from "./inputs/DamageInput.jsx";
-import ArmorInput from "./inputs/ArmorInput.jsx";
-import AmmoInput from "./inputs/AmmoInput.jsx";
+// import BurstInput from "./inputs/BurstInput.jsx";
+// import SuccessValueInput from "./inputs/SuccessValueInput.jsx";
+// import DamageInput from "./inputs/DamageInput.jsx";
+// import ArmorInput from "./inputs/ArmorInput.jsx";
+// import AmmoInput from "./inputs/AmmoInput.jsx";
 
 // Data display items
 import F2FGraph from "./display/F2FGraph.jsx";
@@ -31,6 +31,7 @@ import SuccessValueInput2 from "./inputs/SuccessValueInput2.jsx";
 import DamageInput2 from "./inputs/DamageInput2.jsx";
 import ArmorInput2 from "./inputs/ArmorInput2.jsx";
 import AmmoInput2 from "./inputs/AmmoInput2.jsx";
+import BurstInput2 from "./inputs/BurstInput2.jsx";
 const pythonCode = `import micropip
 await micropip.install('icepool==0.20.1')
 from functools import reduce
@@ -229,13 +230,13 @@ function App() {
 
   // Inputs
   const [burstA, setBurstA] = useState(3);
-  const [successValueA, setSuccessValueA] = useState(10);
+  const [successValueA, setSuccessValueA] = useState(13);
   const [damageA, setDamageA] = useState(13);
   const [armA, setArmA] = useState(0);
   const [ammoA, setAmmoA] = useState('N');
 
   const [burstB, setBurstB] = useState(1);
-  const [successValueB, setSuccessValueB] = useState(10);
+  const [successValueB, setSuccessValueB] = useState(13);
   const [damageB, setDamageB] = useState(13);
   const [armB, setArmB] = useState(0);
   const [ammoB, setAmmoB] = useState('N');
@@ -316,15 +317,13 @@ function App() {
             <Typography variant="h5">Face 2 Face Calculator</Typography>
           </Grid>
           <Grid xs={12} sm={6} lg={4} xl={3} item>
-            <Card
-              style={{alignItems: "center", justifyContent: "center"}}>
+            <Card style={{alignItems: "center", justifyContent: "center"}}>
               <CardContent>
                 <Grid container>
                   <Grid item xs={12}>
-                    <Typography sx={{fontSize: 14}} color="text.secondary" gutterBottom>Player A</Typography>
+                    <Typography variant="h6" gutterBottom>Active</Typography>
                   </Grid>
-
-                <BurstInput burst={burstA} update={setBurstA} color="#b14d8e"/>
+                <BurstInput2 burst={burstA} update={setBurstA} color="#b14d8e"/>
                 <SuccessValueInput2 successValue={successValueA} update={setSuccessValueA}/>
                 <DamageInput2 damage={damageA} update={setDamageA}/>
                 <ArmorInput2 armor={armA} update={setArmA}/>
@@ -334,14 +333,18 @@ function App() {
             </Card>
           </Grid>
           <Grid xs={12} sm={6} lg={4} xl={3} item>
-            <Card>
+            <Card style={{alignItems: "center", justifyContent: "center"}}>
               <CardContent>
-                <Typography sx={{fontSize: 14}} color="text.secondary" gutterBottom>Player B</Typography>
-                <BurstInput burst={burstB} update={setBurstB} color="#217a79"/>
-                <SuccessValueInput successValue={successValueB} update={setSuccessValueB}/>
-                <DamageInput damage={damageB} update={setDamageB}/>
-                <ArmorInput armor={armB} update={setArmB}/>
-                <AmmoInput ammo={ammoB} update={setAmmoB}/>
+                <Grid container>
+                  <Grid item xs={12}>
+                    <Typography variant="h6" gutterBottom>Reactive</Typography>
+                  </Grid>
+                  <BurstInput2 burst={burstB} update={setBurstB} variant='reactive'/>
+                  <SuccessValueInput2 successValue={successValueB} update={setSuccessValueB}/>
+                  <DamageInput2 damage={damageB} update={setDamageB}/>
+                  <ArmorInput2 armor={armB} update={setArmB}/>
+                  <AmmoInput2 ammo={ammoB} update={setAmmoB}/>
+                </Grid>
               </CardContent>
             </Card>
           </Grid>
