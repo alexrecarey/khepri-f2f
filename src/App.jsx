@@ -27,6 +27,10 @@ import F2FResultList from "./display/F2FResultList.jsx";
 
 // Pyodide
 import { loadPyodide } from 'pyodide'
+import SuccessValueInput2 from "./inputs/SuccessValueInput2.jsx";
+import DamageInput2 from "./inputs/DamageInput2.jsx";
+import ArmorInput2 from "./inputs/ArmorInput2.jsx";
+import AmmoInput2 from "./inputs/AmmoInput2.jsx";
 const pythonCode = `import micropip
 await micropip.install('icepool==0.20.1')
 from functools import reduce
@@ -245,6 +249,26 @@ function App() {
       background: {
         default: grey[100]
       },
+      player: {
+        active: {
+          100: '#f3cbd3',
+          200: '#eaa9bd',
+          300: '#dd88ac',
+          400: '#ca699d',
+          500: '#b14d8e',
+          600: '#91357d',
+          700: '#6c2167',
+        },
+        reactive: {
+          100: '#d3f2a3',
+          200: '#97e196',
+          300: '#6cc08b',
+          400: '#4c9b82',
+          500: '#217a79',
+          600: '#105965',
+          700: '#074050',
+        },
+      },
     },
   });
 
@@ -295,12 +319,17 @@ function App() {
             <Card
               style={{alignItems: "center", justifyContent: "center"}}>
               <CardContent>
-                <Typography sx={{fontSize: 14}} color="text.secondary" gutterBottom>Player A</Typography>
+                <Grid container>
+                  <Grid item xs={12}>
+                    <Typography sx={{fontSize: 14}} color="text.secondary" gutterBottom>Player A</Typography>
+                  </Grid>
+
                 <BurstInput burst={burstA} update={setBurstA} color="#b14d8e"/>
-                <SuccessValueInput successValue={successValueA} update={setSuccessValueA}/>
-                <DamageInput damage={damageA} update={setDamageA}/>
-                <ArmorInput armor={armA} update={setArmA}/>
-                <AmmoInput ammo={ammoA} update={setAmmoA}/>
+                <SuccessValueInput2 successValue={successValueA} update={setSuccessValueA}/>
+                <DamageInput2 damage={damageA} update={setDamageA}/>
+                <ArmorInput2 armor={armA} update={setArmA}/>
+                <AmmoInput2 ammo={ammoA} update={setAmmoA}/>
+                </Grid>
               </CardContent>
             </Card>
           </Grid>
@@ -335,10 +364,6 @@ function App() {
     </ThemeProvider>
   )
 }
-
-
-
-
 
 export default App
 
