@@ -3,7 +3,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import './App.css'
 import {
   Box,
-  Button,
   Card,
   CardContent,
   Grid,
@@ -289,7 +288,15 @@ function App() {
     run();
   }, []);
 
+  useEffect( ()=> {
+    rollDice();
+  },[burstA, successValueA, damageA, armA, ammoA, burstB, successValueB, damageB, armB, ammoB]);
+
+
   const rollDice = async () => {
+    if(isCalculating || !isPyodideReady){
+      return;
+    }
     setIsCalculating(true);
     setStatusMessage("Calculating");
     setF2fResults(null);
@@ -307,6 +314,7 @@ function App() {
     setIsCalculating(false);
     console.log(`Calculated results ${JSON.stringify(result)}`);
   };
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -349,7 +357,6 @@ function App() {
             </Card>
           </Grid>
           <Grid xs={12} sm={12} lg={4} xl={6} item>
-            <Button variant="contained" disabled={!isPyodideReady || isCalculating} onClick={()=> rollDice()}>Roll dice!</Button>
             <Card>
               <CardContent>
                 <Typography>Results</Typography>

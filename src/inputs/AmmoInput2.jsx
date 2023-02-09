@@ -54,9 +54,9 @@ function AmmoInput(props){
               update(newAmmo);
             }}}
       >
-        <ToggleButton sx={{fontWeight:'bold'}} value="N">N</ToggleButton>
-        <ToggleButton sx={{fontWeight:'bold'}} value="DA">DA</ToggleButton>
-        <ToggleButton sx={{fontWeight:'bold'}} value="EXP">EXP</ToggleButton>
+        <ToggleButton sx={{fontWeight:'bold', minWidth:'4em'}} value="N">N</ToggleButton>
+        <ToggleButton sx={{fontWeight:'bold', minWidth:'4em'}} value="DA">DA</ToggleButton>
+        <ToggleButton sx={{fontWeight:'bold', minWidth:'4em'}} value="EXP">EXP</ToggleButton>
       </ToggleButtonGroup>
     </Grid>
   </>
