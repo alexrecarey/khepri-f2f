@@ -28,4 +28,4 @@ project and I suggest you write in first.
 # Contact
 
 My OTM is khepri and I can be found in the IGL Discord or the Infinity forums.
-You can also write to me at <my github account>@gmail.com.
+You can also write to me at `<my github account>@gmail.com`.
