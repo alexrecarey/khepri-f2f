@@ -1,8 +1,16 @@
 import {Button, ButtonGroup, Grid, InputLabel, Typography} from "@mui/material";
+import { useTheme } from '@mui/material/styles';
 
 function SuccessValueInput(props){
   const successValue = props.successValue;
   const update = props.update;
+  const variant = props.variant ?? 'active';
+
+  const theme = useTheme();
+  const colorLight = theme.palette.player[variant]["100"];
+  const colorDark = theme.palette.player[variant]["700"];
+
+
   const handleButtonPress = (amount, setter) => {
     if (amount + successValue >= 30) {
       setter(30);
@@ -14,7 +22,7 @@ function SuccessValueInput(props){
   };
 
   const gridStyle = {
-    bgcolor: '#f3cbd3',
+    bgcolor: colorLight,
     display: "flex",
     justifyContent:"center",
     alignItems:"center",
@@ -27,7 +35,7 @@ function SuccessValueInput(props){
     </Grid>
     <Grid item xs={2} sx={gridStyle}
     >
-      <Typography sx={{fontWeight: "bold", color: '#6c2167'}}>{successValue}</Typography>
+      <Typography sx={{fontWeight: "bold", color: colorDark}}>{successValue}</Typography>
     </Grid>
     <Grid item xs={1}></Grid>
     <Grid item xs={9} sx={{display: 'flex', justifyContent:"left"}} >

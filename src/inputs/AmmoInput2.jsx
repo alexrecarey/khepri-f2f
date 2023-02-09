@@ -1,14 +1,20 @@
 import {Grid, InputLabel, ToggleButtonGroup, Typography} from "@mui/material";
 import MuiToggleButton from "@mui/material/ToggleButton";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
+
 
 function AmmoInput(props){
   const ammo = props.ammo;
   const update = props.update;
-  //const variant = props.variant;
+  const variant = props.variant ?? 'active';
+
+  const theme = useTheme();
+  const colorLight = theme.palette.player[variant]["100"];
+  const colorMid = theme.palette.player[variant]["500"];
+  const colorDark = theme.palette.player[variant]["700"];
 
   const gridStyle = {
-    bgcolor: '#f3cbd3',
+    bgcolor: colorLight,
     display: "flex",
     justifyContent:"center",
     alignItems:"center",
@@ -16,18 +22,18 @@ function AmmoInput(props){
     p:1};
 
   const textStyle = {
-    color:'#6c2167',
+    color: colorDark,
     fontWeight: 'bold'
   };
 
   const ToggleButton = styled(MuiToggleButton)({
     "&.Mui-selected, &.Mui-selected:hover": {
       color: "white",
-      backgroundColor: '#b14d8e',
+      backgroundColor: colorMid,
       fontWeight: 'bold'
     },
     "MuiToggleButton-root": {
-      color:'#6c2167',
+      color: colorMid,
       fontWeight: 'bold',
     }
   });

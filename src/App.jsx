@@ -340,10 +340,10 @@ function App() {
                     <Typography variant="h6" gutterBottom>Reactive</Typography>
                   </Grid>
                   <BurstInput2 burst={burstB} update={setBurstB} variant='reactive'/>
-                  <SuccessValueInput2 successValue={successValueB} update={setSuccessValueB}/>
-                  <DamageInput2 damage={damageB} update={setDamageB}/>
-                  <ArmorInput2 armor={armB} update={setArmB}/>
-                  <AmmoInput2 ammo={ammoB} update={setAmmoB}/>
+                  <SuccessValueInput2 successValue={successValueB} update={setSuccessValueB} variant='reactive'/>
+                  <DamageInput2 damage={damageB} update={setDamageB} variant='reactive'/>
+                  <ArmorInput2 armor={armB} update={setArmB} variant='reactive'/>
+                  <AmmoInput2 ammo={ammoB} update={setAmmoB} variant='reactive'/>
                 </Grid>
               </CardContent>
             </Card>

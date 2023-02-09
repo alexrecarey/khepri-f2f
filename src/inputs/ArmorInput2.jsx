@@ -1,8 +1,16 @@
 import {Grid, InputLabel, Slider, Typography} from "@mui/material";
+import { useTheme } from '@mui/material/styles';
+
 
 function ArmorInput(props){
+  const variant = props.variant ?? 'active';
+
+  const theme = useTheme();
+  const colorLight = theme.palette.player[variant]["100"];
+  const colorDark = theme.palette.player[variant]["700"];
+
   const gridStyle = {
-    bgcolor: '#f3cbd3',
+    bgcolor: colorLight,
     display: "flex",
     justifyContent:"center",
     alignItems:"center",
@@ -10,7 +18,7 @@ function ArmorInput(props){
     p:1};
 
   const textStyle = {
-    color:'#6c2167',
+    color: colorDark,
     fontWeight: 'bold'
   };
 
