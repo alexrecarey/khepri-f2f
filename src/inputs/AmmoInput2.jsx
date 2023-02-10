@@ -57,7 +57,9 @@ function AmmoInput(props){
         <ToggleButton sx={{fontWeight:'bold', minWidth:'4em'}} value="N">N</ToggleButton>
         <ToggleButton sx={{fontWeight:'bold', minWidth:'4em'}} value="DA">DA</ToggleButton>
         <ToggleButton sx={{fontWeight:'bold', minWidth:'4em'}} value="EXP">EXP</ToggleButton>
+        <ToggleButton sx={{fontWeight:'bold', minWidth:'4em'}} value="DODGE">Dodge</ToggleButton>
       </ToggleButtonGroup>
+
     </Grid>
   </>
 }

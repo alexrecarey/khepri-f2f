@@ -124,6 +124,7 @@ AMMO = {
     'N': 1,
     'DA': 2,
     'EXP': 3,
+    'DODGE': 0,
     'CONT': 1  # not used for now?
 }
 
@@ -153,8 +154,11 @@ def face_to_face_expected_wounds(
             winner = 'tie'
             wound_probability = 0
 
-        saves = ((a_crit*AMMO[player_a_ammo] + a_crit) + a_hit*AMMO[player_a_ammo] +
-                 (b_crit*AMMO[player_b_ammo] + b_crit) + b_hit*AMMO[player_b_ammo])
+        # Calculate total amount of saves that must be made.
+        # Each crit deals AMMO saves plus one extra save per crit. If AMMO is dodge it's 0, so we run 'min'
+        # to keep 0 or 1. Each regular hit causes also causes AMMO saves.
+        saves = ((a_crit*AMMO[player_a_ammo] + min(a_crit, AMMO[player_a_ammo])) + a_hit*AMMO[player_a_ammo] +
+                 (b_crit*AMMO[player_b_ammo] + min(b_crit, AMMO[player_b_ammo])) + b_hit*AMMO[player_b_ammo])
 
         # Fold successful results by active or reactive that cause 0 wounds into the "tie" dictionary
         wounds_caused_probability = binomial_success(0, saves, wound_probability)
@@ -176,7 +180,6 @@ def face_to_face_expected_wounds(
     formatted_wounds = format_expected_wounds(wounds)
     return to_js(formatted_wounds, dict_converter=js.Object.fromEntries)
     #return formatted_wounds
-
 
 
 def format_expected_wounds(wounds, max_wounds_shown=3):
@@ -209,7 +212,11 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
                 'player': player,
                 'wounds': key,
                 'raw_chance': squashed[player][key],
-                'chance': squashed[player][key]/wounds['total_rolls']
+                'cumulative_chance': reduce(
+                    lambda x, y: x+y,
+                    [squashed[player][i] for i in squashed[player].keys() if i >= key], 0) / wounds['total_rolls'],
+                'chance': squashed[player][key]/wounds['total_rolls'],
+                'total_rolls': wounds['total_rolls']
             })
             order += 1
     return expected_wounds
