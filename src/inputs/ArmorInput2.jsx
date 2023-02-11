@@ -27,7 +27,7 @@ function ArmorInput(props){
 
   return <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
-      <InputLabel>Armor</InputLabel></Grid>
+      <InputLabel>Armor / BTS</InputLabel></Grid>
     <Grid item xs={2} sx={gridStyle}>
       <Typography sx={textStyle}>{armor}</Typography></Grid>
     <Grid item xs={1}></Grid>

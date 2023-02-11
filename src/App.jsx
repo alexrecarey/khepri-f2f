@@ -291,9 +291,14 @@ function App() {
       console.log(`pyodide is ${pyodideRef} and current is ${pyodideRef}`);
       setStatusMessage("Icepool ready");
       setIsPyodideReady(true);
+      await rollDice();  // calculate initial dice
     }
     run();
   }, []);
+
+  useEffect(()=>{
+    rollDice();
+  },[isPyodideReady])
 
   useEffect( ()=> {
     rollDice();

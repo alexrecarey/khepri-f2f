@@ -48,16 +48,17 @@ function AmmoInput(props){
       <ToggleButtonGroup
         exclusive
         value={ammo}
+        size="small"
         onChange={
           (event, newAmmo) => {
             if(newAmmo !== null){
               update(newAmmo);
             }}}
       >
-        <ToggleButton sx={{fontWeight:'bold', minWidth:'4em'}} value="N">N</ToggleButton>
-        <ToggleButton sx={{fontWeight:'bold', minWidth:'4em'}} value="DA">DA</ToggleButton>
-        <ToggleButton sx={{fontWeight:'bold', minWidth:'4em'}} value="EXP">EXP</ToggleButton>
-        <ToggleButton sx={{fontWeight:'bold', minWidth:'4em'}} value="DODGE">Dodge</ToggleButton>
+        <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="N">N</ToggleButton>
+        <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="DA">DA</ToggleButton>
+        <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="EXP">EXP</ToggleButton>
+        <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="DODGE">Dodge</ToggleButton>
       </ToggleButtonGroup>
 
     </Grid>
