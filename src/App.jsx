@@ -306,10 +306,9 @@ function App() {
 
 
   const rollDice = async () => {
-    if(isCalculating || !isPyodideReady){
+   if(!isPyodideReady){
       return;
     }
-    setIsCalculating(true);
     setStatusMessage("Calculating");
     setF2fResults(null);
     let startTime = Date.now();
@@ -322,8 +321,7 @@ function App() {
     console.log(result);
     let elapsed = Date.now() - startTime;
     setF2fResults(result);
-    setStatusMessage(`Done! Took ${elapsed} ms`);
-    setIsCalculating(false);
+    setStatusMessage(`Done! Took ${elapsed} ms to simulate ${result[0]['total_rolls'].toLocaleString()} rolls.`);
     console.log(`Calculated results ${JSON.stringify(result)}`);
   };
 
@@ -371,7 +369,7 @@ function App() {
           <Grid xs={12} sm={12} lg={4} xl={6} item>
             <Card>
               <CardContent>
-                <Typography>Results</Typography>
+                <Typography variant="h6">Results</Typography>
                 <F2FGraph
                   results={f2fResults}
                 />
