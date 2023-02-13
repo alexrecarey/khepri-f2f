@@ -69,7 +69,7 @@ function F2FResultList(props){
               }}>{row['wounds']}+
               </div>
             </Box>
-            <Typography ml={1} mr={1}>{formatPercentage(row['cumulative_chance'])}% chance neither player succeeds.</Typography></Stack>
+            <Typography ml={1} mr={1} lineHeight={1}>{formatPercentage(row['cumulative_chance'])}% chance neither player succeeds.</Typography></Stack>
         })}
       </Grid>
       <Grid item xs={12} sm={4} lg={12} sx={{textAlign: 'left'}}>
