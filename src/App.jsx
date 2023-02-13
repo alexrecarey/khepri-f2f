@@ -365,9 +365,9 @@ function App() {
           <Grid xs={12} sm={12} lg={4} xl={6} item>
             <Card>
               <CardContent>
-                <Typography variant="h6">Results</Typography>
-                <Box sx={{justifyContent: 'left'}}>Active: B{burstA} SV{successValueA} with DAM{damageA} and ARM{armA}</Box>
-                <Box sx={{justifyContent: 'left'}}>Reactive: B{burstB} SV{successValueB} with DAM{damageB} and ARM{armB}</Box>
+                <Typography variant="h6">Face to Face Results</Typography>
+                <Box sx={{textAlign: 'left'}}>Active: B{burstA} SV{successValueA} with DAM{damageA} and ARM{armA}</Box>
+                <Box sx={{textAlign: 'right'}}>Reactive: B{burstB} SV{successValueB} with DAM{damageB} and ARM{armB}</Box>
                 <F2FGraph
                   results={f2fResults}
                 />
@@ -378,7 +378,8 @@ function App() {
             <Typography variant="caption" color="text.secondary">{statusMessage}</Typography>
           </Grid>
           <Grid>
-            <Typography color="text.secondary" variant="body2" sx={{marginTop: 4, }}>Made with ❤️ for the Infinity community by Khepri.
+            <Typography color="text.secondary" variant="body2" sx={{marginTop: 4,marginLeft:2, marginRight:2 }}>
+              Made with ❤️ for the Infinity community by Khepri.
               Contact me with any bugs or suggestions on the <a href="https://www.infinitygloballeague.com/">
               IGL Discord</a> or on the Corvus Belli forums. Source code <a href="https://github.com/alexrecarey/khepri-f2f">
                 available on github</a>.</Typography>
