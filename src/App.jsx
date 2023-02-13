@@ -13,24 +13,20 @@ import {
 import { createTheme } from '@mui/material/styles';
 import {grey} from "@mui/material/colors";
 
-// Input items
-// import BurstInput from "./inputs/BurstInput.jsx";
-// import SuccessValueInput from "./inputs/SuccessValueInput.jsx";
-// import DamageInput from "./inputs/DamageInput.jsx";
-// import ArmorInput from "./inputs/ArmorInput.jsx";
-// import AmmoInput from "./inputs/AmmoInput.jsx";
+// Data input
+import SuccessValueInput from "./inputs/SuccessValueInput.jsx";
+import DamageInput from "./inputs/DamageInput.jsx";
+import ArmorInput from "./inputs/ArmorInput.jsx";
+import AmmoInput from "./inputs/AmmoInput.jsx";
+import BurstInput from "./inputs/BurstInput.jsx";
 
-// Data display items
+// Data display
 import F2FGraph from "./display/F2FGraph.jsx";
 import F2FResultList from "./display/F2FResultList.jsx";
 
 // Pyodide
 import { loadPyodide } from 'pyodide'
-import SuccessValueInput2 from "./inputs/SuccessValueInput2.jsx";
-import DamageInput2 from "./inputs/DamageInput2.jsx";
-import ArmorInput2 from "./inputs/ArmorInput2.jsx";
-import AmmoInput2 from "./inputs/AmmoInput2.jsx";
-import BurstInput2 from "./inputs/BurstInput2.jsx";
+
 const pythonCode = `import micropip
 await micropip.install('icepool==0.20.1')
 from functools import reduce
@@ -231,7 +227,7 @@ function App() {
   // App Status
   const [statusMessage, setStatusMessage] = useState("(loading...)");
   const [isPyodideReady, setIsPyodideReady] = useState(false);
-  const [isCalculating, setIsCalculating] = useState(false);
+  // const [isCalculating, setIsCalculating] = useState(false);
   const pyodideRef = useRef(null);
 
   // Inputs
@@ -341,11 +337,11 @@ function App() {
                   <Grid item xs={12}>
                     <Typography variant="h6" gutterBottom>Active</Typography>
                   </Grid>
-                <BurstInput2 burst={burstA} update={setBurstA} color="#b14d8e"/>
-                <SuccessValueInput2 successValue={successValueA} update={setSuccessValueA}/>
-                <DamageInput2 damage={damageA} update={setDamageA}/>
-                <ArmorInput2 armor={armA} update={setArmA}/>
-                <AmmoInput2 ammo={ammoA} update={setAmmoA}/>
+                <BurstInput burst={burstA} update={setBurstA} color="#b14d8e"/>
+                <SuccessValueInput successValue={successValueA} update={setSuccessValueA}/>
+                <DamageInput damage={damageA} update={setDamageA}/>
+                <ArmorInput armor={armA} update={setArmA}/>
+                <AmmoInput ammo={ammoA} update={setAmmoA}/>
                 </Grid>
               </CardContent>
             </Card>
@@ -357,11 +353,11 @@ function App() {
                   <Grid item xs={12}>
                     <Typography variant="h6" gutterBottom>Reactive</Typography>
                   </Grid>
-                  <BurstInput2 burst={burstB} update={setBurstB} variant='reactive'/>
-                  <SuccessValueInput2 successValue={successValueB} update={setSuccessValueB} variant='reactive'/>
-                  <DamageInput2 damage={damageB} update={setDamageB} variant='reactive'/>
-                  <ArmorInput2 armor={armB} update={setArmB} variant='reactive'/>
-                  <AmmoInput2 ammo={ammoB} update={setAmmoB} variant='reactive'/>
+                  <BurstInput burst={burstB} update={setBurstB} variant='reactive'/>
+                  <SuccessValueInput successValue={successValueB} update={setSuccessValueB} variant='reactive'/>
+                  <DamageInput damage={damageB} update={setDamageB} variant='reactive'/>
+                  <ArmorInput armor={armB} update={setArmB} variant='reactive'/>
+                  <AmmoInput ammo={ammoB} update={setAmmoB} variant='reactive'/>
                 </Grid>
               </CardContent>
             </Card>
@@ -370,6 +366,8 @@ function App() {
             <Card>
               <CardContent>
                 <Typography variant="h6">Results</Typography>
+                <Box sx={{justifyContent: 'left'}}>Active: B{burstA} SV{successValueA} with DAM{damageA} and ARM{armA}</Box>
+                <Box sx={{justifyContent: 'left'}}>Reactive: B{burstB} SV{successValueB} with DAM{damageB} and ARM{armB}</Box>
                 <F2FGraph
                   results={f2fResults}
                 />
@@ -378,6 +376,12 @@ function App() {
               </CardContent>
             </Card>
             <Typography variant="caption" color="text.secondary">{statusMessage}</Typography>
+          </Grid>
+          <Grid>
+            <Typography color="text.secondary" variant="body2" sx={{marginTop: 4, }}>Made with ❤️ for the Infinity community by Khepri.
+              Contact me with any bugs or suggestions on the <a href="https://www.infinitygloballeague.com/">
+              IGL Discord</a> or on the Corvus Belli forums. Source code <a href="https://github.com/alexrecarey/khepri-f2f">
+                available on github</a>.</Typography>
           </Grid>
         </Grid>
       </Box>
