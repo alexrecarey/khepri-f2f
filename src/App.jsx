@@ -153,8 +153,8 @@ def face_to_face_expected_wounds(
         # Calculate total amount of saves that must be made.
         # Each crit deals AMMO saves plus one extra save per crit. If AMMO is dodge it's 0, so we run 'min'
         # to keep 0 or 1. Each regular hit causes also causes AMMO saves.
-        saves = ((a_crit*AMMO[player_a_ammo] + min(a_crit, AMMO[player_a_ammo])) + a_hit*AMMO[player_a_ammo] +
-                 (b_crit*AMMO[player_b_ammo] + min(b_crit, AMMO[player_b_ammo])) + b_hit*AMMO[player_b_ammo])
+        saves = ((a_crit*AMMO[player_a_ammo] + min(a_crit, a_crit * AMMO[player_a_ammo])) + a_hit*AMMO[player_a_ammo] +
+                 (b_crit*AMMO[player_b_ammo] + min(b_crit, b_crit * AMMO[player_b_ammo])) + b_hit*AMMO[player_b_ammo])
 
         # Fold successful results by active or reactive that cause 0 wounds into the "tie" dictionary
         wounds_caused_probability = binomial_success(0, saves, wound_probability)
