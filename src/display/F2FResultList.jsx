@@ -10,7 +10,7 @@ const decimalPlaces = (n, d=1) => n.toFixed(d);
 const formatPercentage = pipe(multiply(100), decimalPlaces);
 const activePlayer = filter(propEq('player', 'active'));
 const reactivePlayer = filter(propEq('player', 'reactive'));
-const failurePlayer = filter(propEq('player', 'tie'));
+const failurePlayer = filter(propEq('player', 'fail'));
 const sortedByWounds = sortBy(prop('wounds'));
 
 
@@ -66,7 +66,7 @@ function F2FResultList(props){
                 verticalAlign: 'middle',
                 justifyContent: 'center',
                 alignContent: 'center'
-              }}>{row['wounds']}+
+              }}>{row['wounds']}
               </div>
             </Box>
             <Typography ml={1} mr={1} lineHeight={1}>{formatPercentage(row['cumulative_chance'])}% chance neither player succeeds.</Typography></Stack>

@@ -6,12 +6,17 @@ import { styled, useTheme } from "@mui/material/styles";
 function AmmoInput(props){
   const ammo = props.ammo;
   const update = props.update;
+  const cont = props.cont;
+  const setCont = props.updateCont;
   const variant = props.variant ?? 'active';
 
   const theme = useTheme();
   const colorLight = theme.palette.player[variant]["100"];
   const colorMid = theme.palette.player[variant]["500"];
   const colorDark = theme.palette.player[variant]["700"];
+  const toggleCont = (event) => {
+    setCont(event.target.checked);
+  };
 
   const gridStyle = {
     bgcolor: colorLight,
@@ -58,9 +63,24 @@ function AmmoInput(props){
         <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="N">N</ToggleButton>
         <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="DA">DA</ToggleButton>
         <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="EXP">EXP</ToggleButton>
+        <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="T2">T2</ToggleButton>
         <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="DODGE">Dodge</ToggleButton>
       </ToggleButtonGroup>
+    </Grid>
+    <Grid item xs={1}>
 
+    </Grid>
+    <Grid item xs={11}>
+      {/*<Box sx={{flexGrow: 1}}></Box>*/}
+      {/*<ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}}*/}
+      {/*              value="CONT"*/}
+      {/*              size="small"*/}
+      {/*              selected={cont}*/}
+      {/*              onChange={() => {*/}
+      {/*                setCont(!cont);*/}
+      {/*              }}>CONT</ToggleButton>*/}
+      {/*<FormControlLabel labelPlacement="end" control={*/}
+      {/*  <Checkbox checked={cont} onChange={toggleCont} />} label="Continuous" />*/}
     </Grid>
   </>
 }
