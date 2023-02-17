@@ -14,9 +14,6 @@ function AmmoInput(props){
   const colorLight = theme.palette.player[variant]["100"];
   const colorMid = theme.palette.player[variant]["500"];
   const colorDark = theme.palette.player[variant]["700"];
-  const toggleCont = (event) => {
-    setCont(event.target.checked);
-  };
 
   const gridStyle = {
     bgcolor: colorLight,
@@ -49,7 +46,7 @@ function AmmoInput(props){
     <Grid item xs={2} sx={gridStyle}>
       <Typography sx={textStyle}>{ammo}</Typography></Grid>
     <Grid item xs={1}></Grid>
-    <Grid item xs={9} sx={{display:"flex", justifyContent:"left", alignItems:"center"}}>
+    <Grid item xs={9} sx={{display:"flex", justifyContent:"left", alignItems:"center", flexWrap: "wrap"}}>
       <ToggleButtonGroup
         exclusive
         value={ammo}
@@ -66,21 +63,13 @@ function AmmoInput(props){
         <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="T2">T2</ToggleButton>
         <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="DODGE">Dodge</ToggleButton>
       </ToggleButtonGroup>
-    </Grid>
-    <Grid item xs={1}>
-
-    </Grid>
-    <Grid item xs={11}>
-      {/*<Box sx={{flexGrow: 1}}></Box>*/}
-      {/*<ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}}*/}
-      {/*              value="CONT"*/}
-      {/*              size="small"*/}
-      {/*              selected={cont}*/}
-      {/*              onChange={() => {*/}
-      {/*                setCont(!cont);*/}
-      {/*              }}>CONT</ToggleButton>*/}
-      {/*<FormControlLabel labelPlacement="end" control={*/}
-      {/*  <Checkbox checked={cont} onChange={toggleCont} />} label="Continuous" />*/}
+      <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}}
+                    value="CONT"
+                    size="small"
+                    selected={cont}
+                    onChange={() => {
+                      setCont(!cont);
+                    }}>CONT</ToggleButton>
     </Grid>
   </>
 }

@@ -325,7 +325,7 @@ function App() {
 
   useEffect( ()=> {
     rollDice();
-  },[burstA, successValueA, damageA, armA, ammoA, burstB, successValueB, damageB, armB, ammoB]);
+  },[burstA, successValueA, damageA, armA, ammoA, contA, burstB, successValueB, damageB, armB, ammoB, contB]);
 
 
   const rollDice = async () => {
