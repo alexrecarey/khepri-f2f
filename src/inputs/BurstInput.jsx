@@ -1,7 +1,10 @@
 import {faDiceD20} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {Grid, InputLabel, Rating, Typography} from "@mui/material";
+import {Grid, InputLabel, Rating} from "@mui/material";
 import { useTheme } from '@mui/material/styles';
+import {clamp} from "ramda";
+import UncontrolledInput from "../componets/UncontrolledInput.jsx";
+
 
 function BurstInput(props) {
   const burst = props.burst;
@@ -11,7 +14,18 @@ function BurstInput(props) {
   const theme = useTheme();
   const colorLight = theme.palette.player[variant]["100"];
   const colorMid = theme.palette.player[variant]["500"];
-  const colorDark = theme.palette.player[variant]["700"];
+  //const colorDark = theme.palette.player[variant]["700"];
+
+  const handleOnBlur = (newValue) => {
+    let val = Number(newValue);
+    if (isNaN(val)){
+      // do nothing
+      return
+    } else {
+      val = clamp(0, 6, val);
+    }
+    update(val);
+  }
 
   const gridStyle = {
     bgcolor: colorLight,
@@ -26,7 +40,12 @@ function BurstInput(props) {
       <InputLabel>Burst</InputLabel>
     </Grid>
     <Grid item xs={2} sx={gridStyle}>
-      <Typography color={colorDark} fontWeight="bold">{burst}</Typography>
+      <UncontrolledInput
+        key={props.burst}
+        value={burst}
+        onBlur={(event) => handleOnBlur(event.target.value)}
+        variant={variant}
+      />
     </Grid>
     <Grid item xs={1}></Grid>
     <Grid item xs={9} sx={{display:"flex", justifyContent:"left", alignItems:"center"}}>
