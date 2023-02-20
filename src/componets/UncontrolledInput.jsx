@@ -12,7 +12,7 @@ export default function UncontrolledInput(props) {
   const handleFocus = (event) => event.target.select();
 
   const handleOnChange = (newValue) => {
-    setDisplayValue(newValue);
+    setDisplayValue(newValue.replace(/\D/g,''));
   }
 
   const theme = useTheme();
@@ -28,6 +28,7 @@ export default function UncontrolledInput(props) {
     onBlur={onBlur}
     onChange={(event) => handleOnChange(event.target.value)}
     onFocus={handleFocus}
+    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
   />
 }
 
