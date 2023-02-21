@@ -252,10 +252,10 @@ function App() {
   // App Status
   const [statusMessage, setStatusMessage] = useState("(loading...)");
   const [isPyodideReady, setIsPyodideReady] = useState(false);
-  // const [isCalculating, setIsCalculating] = useState(false);
   const pyodideRef = useRef(null);
+  const workerRef = useRef(null);
 
-  // Inputs
+  // Inputs Player A
   const [burstA, setBurstA] = useState(3);
   const [successValueA, setSuccessValueA] = useState(13);
   const [damageA, setDamageA] = useState(13);
@@ -263,6 +263,7 @@ function App() {
   const [ammoA, setAmmoA] = useState('N');
   const [contA, setContA] = useState(false);
 
+  // Inputs Player B
   const [burstB, setBurstB] = useState(1);
   const [successValueB, setSuccessValueB] = useState(13);
   const [damageB, setDamageB] = useState(13);
@@ -272,6 +273,9 @@ function App() {
 
   // Outputs
   const [f2fResults, setF2fResults] = useState(null);
+
+  // worker output
+  const [test, setTest] = useState(null);
 
   // Theme
   const theme = createTheme({
@@ -315,6 +319,9 @@ function App() {
       setStatusMessage("Icepool ready");
       setIsPyodideReady(true);
       await rollDice();  // calculate initial dice
+
+      // Web workers test
+      workerRef.current = new ComlinkWorker(new URL('./worker.js', import.meta.url), {/* normal Worker options*/})
     }
     run();
   }, []);
@@ -329,6 +336,9 @@ function App() {
 
 
   const rollDice = async () => {
+    let t = await workerRef.current.add(2, 3)
+    setTest(t);
+    console.log(`Test variable is: ${t}`)
    if(!isPyodideReady){
       return;
     }
