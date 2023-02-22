@@ -98,7 +98,9 @@ function App() {
       //
 
       // Web workers test
-      workerRef.current = new ComlinkWorker(new URL('./worker.js', import.meta.url), { type: "module" });
+      workerRef.current = new window.Worker(new URL('./python.worker.js', import.meta.url),
+      //  { type: "module" }
+      );
       await workerRef.current.setup();
       await rollDice();  // calculate initial dice
     }

@@ -253,7 +253,8 @@ const pythonContext = {
 
   }
 }
-Comlink.expose(pythonContext)
+
+// Comlink.expose(pythonContext)
 //
 // export async function remoteFunction(successValueA, burstA, damageA, armA, ammoA, contA,
 //                                      successValueB, burstB, damageB, armB, ammoB, contB){
