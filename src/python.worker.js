@@ -223,12 +223,12 @@ let pyodide;
 
 
 async function initPyodide() {
-  self.postMessage({command: 'status', value: 'Initializing icepool worker'})
+  self.postMessage({command: 'status', value: 'loading', description: 'Initializing icepool worker'})
   self.pyodide = await self.loadPyodide({
     indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.22.1/full/'
   }) // eslint-disable-line no-restricted-globals
   await self.pyodide.loadPackage(['micropip']) // eslint-disable-line no-restricted-globals
-  self.postMessage({command: 'status', value: 'Icepool worker ready'})
+  self.postMessage({command: 'status', value: 'ready', description: 'Icepool worker ready'})
 }
 
 
@@ -242,6 +242,10 @@ async function calculateProbability(p) {
 
 self.onmessage = async (msg) => {
   if(msg.data.command === 'calculate') {
+    if(self.pyodide === undefined) {
+      self.postMessage({command: 'status', value: 'notready', description: 'Pyodide not ready yet'})
+      return
+    }
     let startTime = Date.now();
     let results = await calculateProbability(msg.data.data)
     let elapsed = Date.now() - startTime;
@@ -251,45 +255,3 @@ self.onmessage = async (msg) => {
     await initPyodide()
   }
 }
-
-// Work pending, separate initialization from ex
-// async function initPyodide() {
-//   self.postMessage({command: 'status', value: 0, description: 'Initializing pyodide'})
-//   pyodide = await self.loadPyodide({
-//     indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.22.1/full/'
-//   }) // eslint-disable-line no-restricted-globals
-//   await self.pyodide.loadPackage(['micropip']) // eslint-disable-line no-restricted-globals
-//   pythonFunction = await self.pyodide.runPython(PYTHON_CODE) // eslint-disable-line no-restricted-globals
-// }
-
-
-
-//
-// export async function remoteFunction(successValueA, burstA, damageA, armA, ammoA, contA,
-//                                      successValueB, burstB, damageB, armB, ammoB, contB){
-//   // python code
-//   const pythonCode =
-//
-//   // this should work??
-//   console.log("worker: Calculating");
-//   let startTime = Date.now();
-//   console.log(`worker: pyodide ref is ${self.pyodide}`);
-//   const f = await self.pyodide.runPythonAsync(pythonCode);
-//   //setStatusMessage(`result is ${f}`);
-//   const result = await f(successValueA, burstA, damageA, armA, ammoA, contA,
-//     successValueB, burstB, damageB, armB, ammoB, contB);
-//   console.log('worker: Pyodide script result:');
-//   console.log(result);
-//   let elapsed = Date.now() - startTime;
-//   console.log(`worker: Done! Took ${elapsed} ms to simulate ${result[0]['total_rolls'].toLocaleString()} rolls.`);
-//   console.log(`worker: Calculated results ${JSON.stringify(result)}`);
-//   return result;
-//
-//   // await self.pyodide.loadPackagesFromImports(pythonCode);
-//   // const pyProxyBuffer = self.pyodide.runPython(pythonCode);
-//   // // working case:
-//   // // const data = pyProxyBuffer.toJs();
-//   // // return data; // or using Comlink.transfer(data, [data.buffer]) to reduce number of copying
-//
-//
-// }

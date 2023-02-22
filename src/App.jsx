@@ -28,7 +28,6 @@ import F2FResultList from "./display/F2FResultList.jsx";
 function App() {
   // App Status
   const [statusMessage, setStatusMessage] = useState("(loading...)");
-  const [isPyodideReady, setIsPyodideReady] = useState(false);
   const workerRef = useRef(null);
 
   // Inputs Player A
@@ -78,31 +77,30 @@ function App() {
       },
     },
   });
+  // Worker message received
+  const messageReceived = (msg) => {
+    if(msg.data.command === 'result'){
+      setF2fResults(msg.data.value);
+      setStatusMessage(`Done! Took ${msg.data.elapsed}ms to simulate ${msg.data.totalRolls.toLocaleString()} rolls.`);
+    } else if (msg.data.command === 'status'){
+      if(msg.data.value === 'ready'){
+        rollDice()
+      }
+    }
+  }
 
   // First load
   useEffect(() => {
     setStatusMessage("Loading icepool engine");
-    setIsPyodideReady(false);
     const run = async () => {
       // Web workers without comlink
       workerRef.current = new Worker(new URL('./python.worker.js', import.meta.url),
       );
-      workerRef.current.onmessage = (msg) => {
-        if(msg.data.command === 'result'){
-          setF2fResults(msg.data.value);
-          setStatusMessage(`Done! Took ${msg.data.elapsed}ms to simulate ${msg.data.totalRolls.toLocaleString()} rolls.`);
-        }
-        console.log(`Message receivd: ` + JSON.stringify(msg.data));
-      }
+      workerRef.current.onmessage = messageReceived
       workerRef.current.postMessage({command:'init'});
-      //await rollDice();  // calculate initial dice
     }
     run();
   }, []);
-
-  useEffect(()=>{
-    rollDice();
-  },[isPyodideReady])
 
   useEffect( ()=> {
     rollDice();
@@ -110,18 +108,12 @@ function App() {
 
 
   const rollDice = async () => {
-
-
     // get result from worker
     let parameters = {
       player_a_sv: successValueA, player_a_burst: burstA, player_a_dam: damageA, player_a_arm: armA, player_a_ammo: ammoA, player_a_cont: contA,
       player_b_sv: successValueB, player_b_burst: burstB, player_b_dam: damageB, player_b_arm: armB, player_b_ammo: ammoB, player_b_cont: contB
     }
-
-    let t = await workerRef.current.postMessage({command: 'calculate', data: parameters})
-
-    console.log(`main thread: result is`);
-    console.log(JSON.stringify(t));
+    await workerRef.current.postMessage({command: 'calculate', data: parameters})
   };
 
 
