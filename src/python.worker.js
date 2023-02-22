@@ -1,11 +1,5 @@
 importScripts("https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.js");
 
-
-
-
-//const baseURL = "https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.js";
-//importScripts(baseURL);
-
 const PYTHON_CODE = `import micropip
 await micropip.install('icepool==0.20.1')
 import js
@@ -225,36 +219,51 @@ def roll_and_bridge_results(
 # Return value for Javascript
 to_js(roll_and_bridge_results)`;
 
-function wrapCalculateProbability() {
-  const func = self.pyodide.globals.get('roll_and_bridge_results') // eslint-disable-line no-restricted-globals
-
-  return (player_a_sv, player_a_burst, player_a_dam, player_a_arm, player_a_ammo, player_a_cont,
-          player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_ammo, player_b_cont) => {
-    const obj = func(player_a_sv, player_a_burst, player_a_dam, player_a_arm, player_a_ammo, player_a_cont,
-      player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_ammo, player_b_cont)
-    return obj
-  }
-}
+let pyodide;
 
 
-async function loadPyodideAndPackages() {
-  await self.loadPyodide({
+async function initPyodide() {
+  self.postMessage({command: 'status', value: 'Initializing icepool worker'})
+  self.pyodide = await self.loadPyodide({
     indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.22.1/full/'
   }) // eslint-disable-line no-restricted-globals
   await self.pyodide.loadPackage(['micropip']) // eslint-disable-line no-restricted-globals
-  self.pyodide.runPython(PYTHON_CODE) // eslint-disable-line no-restricted-globals
+  self.postMessage({command: 'status', value: 'Icepool worker ready'})
 }
-const pyodideReadyPromise = loadPyodideAndPackages()
 
-const pythonContext = {
-  async setup() {
-    await pyodideReadyPromise
-    this.calculateProbability = wrapCalculateProbability()
 
+async function calculateProbability(p) {
+  let pythonFunction = await self.pyodide.runPythonAsync(PYTHON_CODE) // eslint-disable-line no-restricted-globals
+  return pythonFunction(
+    p['player_a_sv'], p['player_a_burst'], p['player_a_dam'], p['player_a_arm'], p['player_a_ammo'], p['player_a_cont'],
+    p['player_b_sv'], p['player_b_burst'], p['player_b_dam'], p['player_b_arm'], p['player_b_ammo'], p['player_b_cont'])
+}
+
+
+self.onmessage = async (msg) => {
+  if(msg.data.command === 'calculate') {
+    let startTime = Date.now();
+    let results = await calculateProbability(msg.data.data)
+    let elapsed = Date.now() - startTime;
+    console.log(JSON.stringify(results))
+    self.postMessage({command: 'result', value: results, description: 'testing', elapsed: elapsed, totalRolls: results[0]['total_rolls']})
+  }else if (msg.data.command === 'init') {
+    await initPyodide()
   }
 }
 
-// Comlink.expose(pythonContext)
+// Work pending, separate initialization from ex
+// async function initPyodide() {
+//   self.postMessage({command: 'status', value: 0, description: 'Initializing pyodide'})
+//   pyodide = await self.loadPyodide({
+//     indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.22.1/full/'
+//   }) // eslint-disable-line no-restricted-globals
+//   await self.pyodide.loadPackage(['micropip']) // eslint-disable-line no-restricted-globals
+//   pythonFunction = await self.pyodide.runPython(PYTHON_CODE) // eslint-disable-line no-restricted-globals
+// }
+
+
+
 //
 // export async function remoteFunction(successValueA, burstA, damageA, armA, ammoA, contA,
 //                                      successValueB, burstB, damageB, armB, ammoB, contB){

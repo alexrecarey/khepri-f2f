@@ -29,7 +29,6 @@ function App() {
   // App Status
   const [statusMessage, setStatusMessage] = useState("(loading...)");
   const [isPyodideReady, setIsPyodideReady] = useState(false);
-  const pyodideRef = useRef(null);
   const workerRef = useRef(null);
 
   // Inputs Player A
@@ -50,9 +49,6 @@ function App() {
 
   // Outputs
   const [f2fResults, setF2fResults] = useState(null);
-
-  // worker output
-  const [test, setTest] = useState(null);
 
   // Theme
   const theme = createTheme({
@@ -88,21 +84,18 @@ function App() {
     setStatusMessage("Loading icepool engine");
     setIsPyodideReady(false);
     const run = async () => {
-      // pyodideRef.current = await loadPyodide({
-      //   indexURL : "https://cdn.jsdelivr.net/pyodide/v0.22.1/full/"
-      // });
-      // await pyodideRef.current.loadPackage(["micropip"], {messageCallback: console.log});
-      // console.log(`pyodide is ${pyodideRef} and current is ${pyodideRef}`);
-      // setStatusMessage("Icepool ready");
-      // setIsPyodideReady(true);
-      //
-
-      // Web workers test
-      workerRef.current = new window.Worker(new URL('./python.worker.js', import.meta.url),
-      //  { type: "module" }
+      // Web workers without comlink
+      workerRef.current = new Worker(new URL('./python.worker.js', import.meta.url),
       );
-      await workerRef.current.setup();
-      await rollDice();  // calculate initial dice
+      workerRef.current.onmessage = (msg) => {
+        if(msg.data.command === 'result'){
+          setF2fResults(msg.data.value);
+          setStatusMessage(`Done! Took ${msg.data.elapsed}ms to simulate ${msg.data.totalRolls.toLocaleString()} rolls.`);
+        }
+        console.log(`Message receivd: ` + JSON.stringify(msg.data));
+      }
+      workerRef.current.postMessage({command:'init'});
+      //await rollDice();  // calculate initial dice
     }
     run();
   }, []);
@@ -118,9 +111,14 @@ function App() {
 
   const rollDice = async () => {
 
+
     // get result from worker
-    let t = await workerRef.current.remoteFunction(
-      burstA, successValueA, damageA, armA, ammoA, contA, burstB, successValueB, damageB, armB, ammoB, contB)
+    let parameters = {
+      player_a_sv: successValueA, player_a_burst: burstA, player_a_dam: damageA, player_a_arm: armA, player_a_ammo: ammoA, player_a_cont: contA,
+      player_b_sv: successValueB, player_b_burst: burstB, player_b_dam: damageB, player_b_arm: armB, player_b_ammo: ammoB, player_b_cont: contB
+    }
+
+    let t = await workerRef.current.postMessage({command: 'calculate', data: parameters})
 
     console.log(`main thread: result is`);
     console.log(JSON.stringify(t));
