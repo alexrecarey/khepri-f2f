@@ -40,6 +40,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/react", "npm:18.0.26"],\
             ["@types/react-dom", "npm:18.0.9"],\
             ["@vitejs/plugin-react", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:3.0.0"],\
+            ["comlink", "npm:4.4.1"],\
             ["pyodide", "npm:0.22.1"],\
             ["ramda", "npm:0.28.0"],\
             ["react", "npm:18.2.0"],\
@@ -2056,6 +2057,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["comlink", [\
+        ["npm:4.4.1", {\
+          "packageLocation": "./.yarn/cache/comlink-npm-4.4.1-b05bb2527d-16d58a8f59.zip/node_modules/comlink/",\
+          "packageDependencies": [\
+            ["comlink", "npm:4.4.1"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["concat-map", [\
         ["npm:0.0.1", {\
           "packageLocation": "./.yarn/cache/concat-map-npm-0.0.1-85a921b7ee-902a9f5d89.zip/node_modules/concat-map/",\
@@ -2669,6 +2679,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/react", "npm:18.0.26"],\
             ["@types/react-dom", "npm:18.0.9"],\
             ["@vitejs/plugin-react", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:3.0.0"],\
+            ["comlink", "npm:4.4.1"],\
             ["pyodide", "npm:0.22.1"],\
             ["ramda", "npm:0.28.0"],\
             ["react", "npm:18.2.0"],\
@@ -3665,7 +3676,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["vite-plugin-comlink", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:3.0.5"],\
             ["@types/comlink", null],\
             ["@types/vite", null],\
-            ["comlink", null],\
+            ["comlink", "npm:4.4.1"],\
             ["json5", "npm:2.2.1"],\
             ["magic-string", "npm:0.26.7"],\
             ["vite", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:4.0.1"]\

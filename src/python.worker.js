@@ -1,4 +1,6 @@
-import micropip
+importScripts("https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.js");
+
+const PYTHON_CODE = `import micropip
 await micropip.install('icepool==0.20.1')
 import js
 from pyodide.ffi import to_js
@@ -139,10 +141,10 @@ def face_to_face_expected_wounds(
             cont = False
 
         # Calculate total amount of saves that must be made.
-        # Each crit deals AMMO saves plus one extra save per crit. The extra save per crit is in `crit_saves`, as
+        # Each crit deals AMMO saves plus one extra save per crit. The extra save per crit is in \`crit_saves\`, as
         # neither CONT damage nor T2 apply their special effects to crit saves
         # For DODGE AMMO we run "min" to keep 0 (for dodge) or original value of crit, as 3 crits = 3 crit saves
-        # Each regular hit causes AMMO number of `saves`. We also have to add the regular hit portion of a crit,
+        # Each regular hit causes AMMO number of \`saves\`. We also have to add the regular hit portion of a crit,
         # as 1 crit causes a AMMO saves for the regular portion, and 1 extra crit save that is not.
         crit_saves = min(a_crit, AMMO[player_a_ammo] * a_crit) + min(b_crit, AMMO[player_b_ammo] * b_crit)
         saves = ((a_crit + a_hit) * AMMO[player_a_ammo]) + ((b_crit + b_hit) * AMMO[player_b_ammo])
@@ -215,4 +217,41 @@ def roll_and_bridge_results(
     # return formatted_expected_wounds
 
 # Return value for Javascript
-to_js(roll_and_bridge_results)
+to_js(roll_and_bridge_results)`;
+
+let pyodide;
+
+
+async function initPyodide() {
+  self.postMessage({command: 'status', value: 'loading', description: 'Initializing icepool worker'})
+  self.pyodide = await self.loadPyodide({
+    indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.22.1/full/'
+  }) // eslint-disable-line no-restricted-globals
+  await self.pyodide.loadPackage(['micropip']) // eslint-disable-line no-restricted-globals
+  self.postMessage({command: 'status', value: 'ready', description: 'Icepool worker ready'})
+}
+
+
+async function calculateProbability(p) {
+  let pythonFunction = await self.pyodide.runPythonAsync(PYTHON_CODE) // eslint-disable-line no-restricted-globals
+  return pythonFunction(
+    p['player_a_sv'], p['player_a_burst'], p['player_a_dam'], p['player_a_arm'], p['player_a_ammo'], p['player_a_cont'],
+    p['player_b_sv'], p['player_b_burst'], p['player_b_dam'], p['player_b_arm'], p['player_b_ammo'], p['player_b_cont'])
+}
+
+
+self.onmessage = async (msg) => {
+  if(msg.data.command === 'calculate') {
+    if(self.pyodide === undefined) {
+      self.postMessage({command: 'status', value: 'notready', description: 'Pyodide not ready yet'})
+      return
+    }
+    let startTime = Date.now();
+    let results = await calculateProbability(msg.data.data)
+    let elapsed = Date.now() - startTime;
+    console.log(JSON.stringify(results))
+    self.postMessage({command: 'result', value: results, description: 'testing', elapsed: elapsed, totalRolls: results[0]['total_rolls']})
+  } else if (msg.data.command === 'init') {
+    await initPyodide()
+  }
+}
