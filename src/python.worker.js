@@ -251,7 +251,7 @@ self.onmessage = async (msg) => {
     let elapsed = Date.now() - startTime;
     console.log(JSON.stringify(results))
     self.postMessage({command: 'result', value: results, description: 'testing', elapsed: elapsed, totalRolls: results[0]['total_rolls']})
-  }else if (msg.data.command === 'init') {
+  } else if (msg.data.command === 'init') {
     await initPyodide()
   }
 }
