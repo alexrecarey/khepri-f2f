@@ -21,8 +21,8 @@ import AmmoInput from "./inputs/AmmoInput.jsx";
 import BurstInput from "./inputs/BurstInput.jsx";
 
 // Data display
-import F2FGraph from "./display/F2FGraph.jsx";
-import F2FResultList from "./display/F2FResultList.jsx";
+import FaceToFaceResultCard from "./display/FaceToFaceResultCard.jsx";
+
 
 
 function App() {
@@ -120,7 +120,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline/>
-      <Box sx={{flexGrow: 1}} >
+      <Box sx={{flexGrow: 1}}>
         <Grid container spacing={2}>
           <Grid xs={12} item>
             <Typography variant="h5">Face 2 Face Calculator</Typography>
@@ -132,11 +132,11 @@ function App() {
                   <Grid item xs={12}>
                     <Typography variant="h6" gutterBottom>Active</Typography>
                   </Grid>
-                <BurstInput burst={burstA} update={setBurstA} color="#b14d8e"/>
-                <SuccessValueInput successValue={successValueA} update={setSuccessValueA}/>
-                <DamageInput damage={damageA} update={setDamageA}/>
-                <ArmorInput armor={armA} update={setArmA}/>
-                <AmmoInput ammo={ammoA} cont={contA} update={setAmmoA} updateCont={setContA}/>
+                  <BurstInput burst={burstA} update={setBurstA} color="#b14d8e"/>
+                  <SuccessValueInput successValue={successValueA} update={setSuccessValueA}/>
+                  <DamageInput damage={damageA} update={setDamageA}/>
+                  <ArmorInput armor={armA} update={setArmA}/>
+                  <AmmoInput ammo={ammoA} cont={contA} update={setAmmoA} updateCont={setContA}/>
                 </Grid>
               </CardContent>
             </Card>
@@ -158,26 +158,17 @@ function App() {
             </Card>
           </Grid>
           <Grid xs={12} sm={12} lg={4} xl={6} item>
-            <Card>
-              <CardContent>
-                <Typography variant="h6">Face to Face Results</Typography>
-                <Box sx={{textAlign: 'left'}}>Active: B{burstA} SV{successValueA} with DAM{damageA} and ARM{armA}</Box>
-                <Box sx={{textAlign: 'right'}}>Reactive: B{burstB} SV{successValueB} with DAM{damageB} and ARM{armB}</Box>
-                <F2FGraph
-                  results={f2fResults}
-                />
-                <F2FResultList rows={f2fResults}/>
-
-              </CardContent>
-            </Card>
+            <FaceToFaceResultCard f2fResults={f2fResults}/>
             <Typography variant="caption" color="text.secondary">{statusMessage}</Typography>
           </Grid>
+
           <Grid>
-            <Typography color="text.secondary" variant="body2" sx={{marginTop: 4,marginLeft:2, marginRight:2 }}>
+            <Typography color="text.secondary" variant="body2" sx={{marginTop: 4, marginLeft: 2, marginRight: 2}}>
               Made with ❤️ for the Infinity community by Khepri.
               Contact me with any bugs or suggestions on the <a href="https://www.infinitygloballeague.com/">
-              IGL Discord</a> or on the Corvus Belli forums. Source code <a href="https://github.com/alexrecarey/khepri-f2f">
-                available on github</a>.</Typography>
+              IGL Discord</a> or on the Corvus Belli forums. Source code <a
+              href="https://github.com/alexrecarey/khepri-f2f">
+              available on github</a>.</Typography>
           </Grid>
         </Grid>
       </Box>

@@ -1,24 +1,21 @@
 import {Box, Grid, Stack, Typography} from "@mui/material";
-import {propEq, pipe, multiply, filter, sortBy, prop, reduce} from "ramda";
+import {
+  activePlayer,
+  failurePlayer,
+  formatPercentage,
+  reactivePlayer,
+  ascendByWounds,
+  twoDecimalPlaces
+} from './DataTransform';
+import {reduce} from "ramda";
 import { useTheme } from '@mui/material/styles';
 
-// const colorLight = theme.palette.player[variant]["100"];
-// const colorMid = theme.palette.player[variant]["500"];
-// const colorDark = theme.palette.player[variant]["700"];
-
-const oneDecimalPlace = (n, d=1) => n.toFixed(d);
-const twoDecimalPlaces = (n, d=2) => n.toFixed(d);
-const formatPercentage = pipe(multiply(100), oneDecimalPlace);
-const activePlayer = filter(propEq('player', 'active'));
-const reactivePlayer = filter(propEq('player', 'reactive'));
-const failurePlayer = filter(propEq('player', 'fail'));
-const sortedByWounds = sortBy(prop('wounds'));
 
 // To calculate expected wounds per order
-const redcr = (x, y) => x + y['wounds'] * y['chance'];
+const woundsByChance = (x, y) => x + y['wounds'] * y['chance'];
 
 
-function F2FResultList(props){
+function ExpectedWoundsList(props){
   const theme = useTheme();
   const rows = props.rows
   const activeColors = {
@@ -43,10 +40,10 @@ function F2FResultList(props){
   return(
     <Grid container spacing={2}>
       <Grid item xs={12} sm={4} lg={12} sx={{textAlign: 'left'}}>
-        <Typography variant="h6" sx={{}}>Active ({twoDecimalPlaces(reduce(redcr, 0, activePlayer(rows)))} wounds / order)</Typography>
-        {sortedByWounds(activePlayer(rows)).map((row) => {
-          return <Stack direction="row" sx={{alignItems: 'center'}}>
-            <Box sx={{width: 30, height: 30, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor:activeColors[row['wounds']]}}>
+        <Typography variant="h6" sx={{}}>Active ({twoDecimalPlaces(reduce(woundsByChance, 0, activePlayer(rows)))} wounds / order)</Typography>
+        {ascendByWounds(activePlayer(rows)).map((row) => {
+          return <Stack direction="row" sx={{alignItems: 'center'}} key={row.id}>
+            <Box sx={{width: '30px', height: 30, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor:activeColors[row['wounds']]}}>
               <div style={{display:'flex', verticalAlign:'middle', justifyContent: 'center', alignContent: 'center'}}>{row['wounds']}+</div>
             </Box>
             <Typography ml={1} mr={1} lineHeight={1}>{formatPercentage(row['cumulative_chance'])}% chance to inflict {row['wounds']} or more wounds.</Typography></Stack>
@@ -56,7 +53,7 @@ function F2FResultList(props){
       <Grid item xs={12} sm={4} lg={12} sx={{textAlign: 'left'}}>
         <Typography variant="h6">Failure</Typography>
         {failurePlayer(rows).map((row) => {
-          return <Stack direction="row" sx={{alignItems: 'center'}}>
+          return <Stack direction="row" sx={{alignItems: 'center'}} key={row.id}>
             <Box sx={{
               width: 30,
               height: 30,
@@ -73,13 +70,13 @@ function F2FResultList(props){
               }}>{row['wounds']}
               </div>
             </Box>
-            <Typography ml={1} mr={1} lineHeight={1}>{formatPercentage(row['cumulative_chance'])}% chance neither player succeeds.</Typography></Stack>
+            <Typography ml={1} mr={1} lineHeight={1}>{formatPercentage(row['cumulative_chance'])}% chance neither player causes wounds.</Typography></Stack>
         })}
       </Grid>
       <Grid item xs={12} sm={4} lg={12} sx={{textAlign: 'left'}}>
-        <Typography variant="h6">Reactive ({twoDecimalPlaces(reduce(redcr, 0, reactivePlayer(rows)))} wounds / order)</Typography>
-        {sortedByWounds(reactivePlayer(rows)).map((row) => {
-          return <Stack direction="row" sx={{alignItems: 'center'}}>
+        <Typography variant="h6">Reactive ({twoDecimalPlaces(reduce(woundsByChance, 0, reactivePlayer(rows)))} wounds / order)</Typography>
+        {ascendByWounds(reactivePlayer(rows)).map((row) => {
+          return <Stack direction="row" sx={{alignItems: 'center'}} key={row.id}>
             <Box sx={{width: 30, height: 30, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor:reactiveColors[row['wounds']]}}>
               <div style={{display:'flex', verticalAlign:'middle', justifyContent: 'center', alignContent: 'center'}}>{row['wounds']}+</div>
             </Box>
@@ -91,4 +88,4 @@ function F2FResultList(props){
   )
 }
 
-export default F2FResultList;
+export default ExpectedWoundsList;

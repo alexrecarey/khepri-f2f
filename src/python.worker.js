@@ -61,13 +61,12 @@ def face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst):
     return [i for i in result.items()]
 
 
-def face_to_face_result(player_a_sv, player_a_burst, player_b_sv, player_b_burst):
-    f2f = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
+def face_to_face_result(outcomes):
     result = {'active': 0,
               'fail': 0,
               'reactive': 0,
               'total_rolls': 0}
-    for outcome, amount in f2f:
+    for outcome, amount in outcomes:
         result['total_rolls'] += amount
         squash = outcome[0] + outcome[1] - outcome[2] - outcome[3]
         # check if failure result
@@ -103,9 +102,8 @@ AMMO = {
     'T2': 1,
 }
 
-def face_to_face_expected_wounds(
-        player_a_sv, player_a_burst, player_a_dam, player_a_arm, player_a_ammo, player_a_cont,
-        player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_ammo, player_b_cont):
+def face_to_face_expected_wounds(outcomes, player_a_dam, player_a_arm, player_a_ammo, player_a_cont,
+                                 player_b_dam, player_b_arm, player_b_ammo, player_b_cont):
     """Calculates the wounds expected from a face to face encounter
 
     Return format is {
@@ -115,7 +113,6 @@ def face_to_face_expected_wounds(
         'total_rolls': 0
     }
     """
-    outcomes = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
     wounds = {
         'active': {},
         'reactive': {},
@@ -128,12 +125,12 @@ def face_to_face_expected_wounds(
             winner = 'active'
             success_value = player_a_dam - player_b_arm
             damage = 2 if player_a_ammo == 'T2' else 1
-            cont = True if player_a_cont else False
+            cont = player_a_cont
         elif b_crit + b_hit > 0:
             winner = 'reactive'
             success_value = player_b_dam - player_a_arm
             damage = 2 if player_b_ammo == 'T2' else 1
-            cont = True if player_b_cont else False
+            cont = player_b_cont
         else:
             winner = 'fail'
             success_value = 0
@@ -149,7 +146,7 @@ def face_to_face_expected_wounds(
         crit_saves = min(a_crit, AMMO[player_a_ammo] * a_crit) + min(b_crit, AMMO[player_b_ammo] * b_crit)
         saves = ((a_crit + a_hit) * AMMO[player_a_ammo]) + ((b_crit + b_hit) * AMMO[player_b_ammo])
 
-        ### Using icepool to calculate wounds
+        # Using icepool to calculate wounds
         if cont:
             dSave = Die([(damage + Again() if x < success_value else 0) for x in range(20)], again_depth=5)
         else:
@@ -160,11 +157,22 @@ def face_to_face_expected_wounds(
         denominator = r.denominator()
         for w, occurrences in r.items():
             if w == 0:
-                wounds['fail'][0] = wounds['fail'].get(0,0) + (occurrences/denominator) * rolls
+                wounds['fail'][0] = wounds['fail'].get(0, 0) + (occurrences/denominator) * rolls
             else:
                 wounds[winner][w] = wounds[winner].get(w, 0) + (occurrences/denominator) * rolls
     return wounds
 
+
+def format_face_to_face(face_to_face):
+    output = []
+    for index, player in enumerate(['active', 'reactive', 'fail']):
+        output.append({
+            'id': index,
+            'player': player,
+            'raw_chance': face_to_face[player],
+            'chance': face_to_face[player]/face_to_face['total_rolls'],
+        })
+    return output
 
 def format_expected_wounds(wounds, max_wounds_shown=3):
     """Format expected_wounds into a list of results
@@ -187,9 +195,7 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
     expected_wounds = []
     order = 0
     for player in ['active', 'fail', 'reactive']:
-        # ugly hack to get the ordering right, only works if results are ordered
-        reverse_list = True if player == 'active' else False
-        keys = sorted(squashed[player].keys(), reverse=reverse_list)
+        keys = sorted(squashed[player].keys())
         for key in keys:
             expected_wounds.append({
                 'id': order,
@@ -199,8 +205,7 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
                 'cumulative_chance': reduce(
                     lambda x, y: x+y,
                     [squashed[player][i] for i in squashed[player].keys() if i >= key], 0) / wounds['total_rolls'],
-                'chance': squashed[player][key]/wounds['total_rolls'],
-                'total_rolls': wounds['total_rolls']
+                'chance': squashed[player][key]/wounds['total_rolls']
             })
             order += 1
     return expected_wounds
@@ -209,12 +214,20 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
 def roll_and_bridge_results(
     player_a_sv, player_a_burst, player_a_dam, player_a_arm, player_a_ammo, player_a_cont,
     player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_ammo, player_b_cont):
+    outcomes = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
+    results = face_to_face_result(outcomes)
+    formatted_results = format_face_to_face(results)
     expected_wounds = face_to_face_expected_wounds(
-        player_a_sv, player_a_burst, player_a_dam, player_a_arm, player_a_ammo, player_a_cont,
-        player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_ammo, player_b_cont)
+        outcomes, player_a_dam, player_a_arm, player_a_ammo, player_a_cont,
+        player_b_dam, player_b_arm, player_b_ammo, player_b_cont)
     formatted_expected_wounds = format_expected_wounds(expected_wounds)
-    return to_js(formatted_expected_wounds, dict_converter=js.Object.fromEntries)
-    # return formatted_expected_wounds
+    return_object = {
+        'face_to_face': formatted_results,
+        'expected_wounds': formatted_expected_wounds,
+        'total_rolls': expected_wounds['total_rolls']
+    }
+    return to_js(return_object, dict_converter=js.Object.fromEntries)
+    # return return_object
 
 # Return value for Javascript
 to_js(roll_and_bridge_results)`;
@@ -248,9 +261,11 @@ self.onmessage = async (msg) => {
     }
     let startTime = Date.now();
     let results = await calculateProbability(msg.data.data)
+    results['parameters'] = msg.data.data;
     let elapsed = Date.now() - startTime;
-    console.log(JSON.stringify(results))
-    self.postMessage({command: 'result', value: results, description: 'testing', elapsed: elapsed, totalRolls: results[0]['total_rolls']})
+    console.log('Returning results from Face 2 Face calculations:')
+    console.log(results)
+    self.postMessage({command: 'result', value: results, description: 'testing', elapsed: elapsed, totalRolls: results['total_rolls']})
   } else if (msg.data.command === 'init') {
     await initPyodide()
   }
