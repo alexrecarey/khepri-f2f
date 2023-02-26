@@ -100,11 +100,14 @@ AMMO = {
     'EXP': 3,
     'DODGE': 0,
     'T2': 1,
+    'PLASMA': 1,
 }
 
-def face_to_face_expected_wounds(outcomes,
-                                 player_a_dam, player_a_arm, player_a_ammo, player_a_cont, player_a_crit_immune,
-                                 player_b_dam, player_b_arm, player_b_ammo, player_b_cont, player_b_crit_immune):
+def face_to_face_expected_wounds(
+        outcomes,
+        player_a_dam, player_a_arm, player_a_ammo, player_b_dam, player_b_arm, player_b_ammo,
+        player_a_cont=False, player_a_bts=0, player_a_crit_immune=False,
+        player_b_cont=False, player_b_bts=0, player_b_crit_immune=False):
     """Calculates the wounds expected from a face to face encounter
 
     Return format is {
@@ -124,22 +127,28 @@ def face_to_face_expected_wounds(outcomes,
         wounds['total_rolls'] += rolls
         if a_crit + a_hit > 0:
             winner = 'active'
-            success_value = player_a_dam - player_b_arm
+            armor_save = player_a_dam - player_b_arm
             damage = 2 if player_a_ammo == 'T2' else 1
             cont = player_a_cont
             crit_immune = player_b_crit_immune
+            plasma = True if player_a_ammo == 'PLASMA' else False
+            bts_save = player_a_dam - player_b_bts
         elif b_crit + b_hit > 0:
             winner = 'reactive'
-            success_value = player_b_dam - player_a_arm
+            armor_save = player_b_dam - player_a_arm
             damage = 2 if player_b_ammo == 'T2' else 1
             cont = player_b_cont
             crit_immune = player_a_crit_immune
+            plasma = True if player_b_ammo == 'PLASMA' else False
+            bts_save = player_b_dam - player_a_bts
         else:
             winner = 'fail'
-            success_value = 0
+            armor_save = 0
             damage = 0
             cont = False
             crit_immune = False
+            plasma = False
+            bts_save = 0
 
         # Calculate total amount of saves that must be made.
         # Each crit deals AMMO saves plus one extra save per crit. The extra save per crit is in \`crit_saves\`, as
@@ -149,15 +158,19 @@ def face_to_face_expected_wounds(outcomes,
         # as 1 crit causes a AMMO saves for the regular portion, and 1 extra crit save that is not.
         crit_saves = 0 if crit_immune else min(a_crit, AMMO[player_a_ammo] * a_crit) + min(b_crit, AMMO[player_b_ammo] * b_crit)
         saves = ((a_crit + a_hit) * AMMO[player_a_ammo]) + ((b_crit + b_hit) * AMMO[player_b_ammo])
+        plasma_saves = ((a_crit + a_hit) * AMMO[player_a_ammo]) + ((b_crit + b_hit) * AMMO[player_b_ammo]) if plasma else 0
 
-        # Using icepool to calculate wounds
+        # Generate die with 1's for wounds and 0's for successful armor saves
         if cont:
-            dSave = Die([(damage + Again() if x < success_value else 0) for x in range(20)], again_depth=5)
+            dSave = Die([(damage + Again() if x < armor_save else 0) for x in range(20)], again_depth=5)
         else:
-            dSave = Die([(damage if x < success_value else 0) for x in range(20)])
-        dCrit = Die([(1 if x < success_value else 0) for x in range(20)])
+            dSave = Die([(damage if x < armor_save else 0) for x in range(20)])
+        dCrit = Die([(1 if x < armor_save else 0) for x in range(20)])
+        dPlasma = Die([(1 if x < bts_save else 0) for x in range(20)])
 
-        r = Pool([dSave for x in range(saves)] + [dCrit for x in range(crit_saves)]).sum()
+        r = Pool(
+            [dSave for x in range(saves)] + [dCrit for x in range(crit_saves)] + [dPlasma for x in range(plasma_saves)]
+        ).sum()
         denominator = r.denominator()
         for w, occurrences in r.items():
             if w == 0:
@@ -216,14 +229,15 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
 
 
 def roll_and_bridge_results(
-    player_a_sv, player_a_burst, player_a_dam, player_a_arm, player_a_ammo, player_a_cont, player_a_crit_immune,
-    player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_ammo, player_b_cont, player_b_crit_immune):
+    player_a_sv, player_a_burst, player_a_dam, player_a_arm, player_a_bts, player_a_ammo, player_a_cont, player_a_crit_immune,
+    player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_bts, player_b_ammo, player_b_cont, player_b_crit_immune):
     outcomes = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
     results = face_to_face_result(outcomes)
     formatted_results = format_face_to_face(results)
     expected_wounds = face_to_face_expected_wounds(outcomes,
-        player_a_dam, player_a_arm, player_a_ammo, player_a_cont, player_a_crit_immune,
-        player_b_dam, player_b_arm, player_b_ammo, player_b_cont, player_b_crit_immune)
+        player_a_dam, player_a_arm, player_a_ammo, player_b_dam, player_b_arm, player_b_ammo,
+        player_a_cont=player_a_cont, player_a_bts=player_a_bts, player_a_crit_immune=player_a_crit_immune,
+        player_b_cont=player_b_cont, player_b_bts=player_b_bts, player_b_crit_immune=player_b_crit_immune)
     formatted_expected_wounds = format_expected_wounds(expected_wounds)
     return_object = {
         'face_to_face': formatted_results,
@@ -231,7 +245,7 @@ def roll_and_bridge_results(
         'total_rolls': expected_wounds['total_rolls']
     }
     return to_js(return_object, dict_converter=js.Object.fromEntries)
-    #return return_object
+    # return return_object
 
 # Return value for Javascript
 to_js(roll_and_bridge_results)`;
@@ -252,8 +266,10 @@ async function initPyodide() {
 async function calculateProbability(p) {
   let pythonFunction = await self.pyodide.runPythonAsync(PYTHON_CODE) // eslint-disable-line no-restricted-globals
   return pythonFunction(
-    p['player_a_sv'], p['player_a_burst'], p['player_a_dam'], p['player_a_arm'], p['player_a_ammo'], p['player_a_cont'], p['player_a_crit_immune'],
-    p['player_b_sv'], p['player_b_burst'], p['player_b_dam'], p['player_b_arm'], p['player_b_ammo'], p['player_b_cont'], p['player_b_crit_immune'])
+    p['player_a_sv'], p['player_a_burst'], p['player_a_dam'], p['player_a_arm'], p['player_a_bts'], p['player_a_ammo'],
+    p['player_a_cont'], p['player_a_crit_immune'],
+    p['player_b_sv'], p['player_b_burst'], p['player_b_dam'], p['player_b_arm'], p['player_b_bts'], p['player_b_ammo'],
+    p['player_b_cont'], p['player_b_crit_immune'])
 }
 
 

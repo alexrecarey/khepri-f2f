@@ -5,6 +5,7 @@ import {
   Box,
   Card,
   CardContent,
+  CardActions,
   Grid,
   ThemeProvider,
   Typography
@@ -23,6 +24,7 @@ import BurstInput from "./inputs/BurstInput.jsx";
 // Data display
 import FaceToFaceResultCard from "./display/FaceToFaceResultCard.jsx";
 import CritImmuneInput from "./inputs/CritImmuneInput.jsx";
+import BTSInput from "./inputs/BTSInput.jsx";
 
 
 
@@ -36,6 +38,7 @@ function App() {
   const [successValueA, setSuccessValueA] = useState(13);
   const [damageA, setDamageA] = useState(13);
   const [armA, setArmA] = useState(0);
+  const [btsA, setBtsA] = useState(0);
   const [ammoA, setAmmoA] = useState('N');
   const [contA, setContA] = useState(false);
   const [critImmuneA, setCritImmuneA] = useState(false);
@@ -45,6 +48,7 @@ function App() {
   const [successValueB, setSuccessValueB] = useState(13);
   const [damageB, setDamageB] = useState(13);
   const [armB, setArmB] = useState(0);
+  const [btsB, setBtsB] = useState(0);
   const [ammoB, setAmmoB] = useState('N');
   const [contB, setContB] = useState(false);
   const [critImmuneB, setCritImmuneB] = useState(false);
@@ -108,16 +112,18 @@ function App() {
   useEffect( ()=> {
     rollDice();
   },[
-    burstA, successValueA, damageA, armA, ammoA, contA, critImmuneA,
-    burstB, successValueB, damageB, armB, ammoB, contB, critImmuneB
+    burstA, successValueA, damageA, armA, btsA, ammoA, contA, critImmuneA,
+    burstB, successValueB, damageB, armB, btsB, ammoB, contB, critImmuneB
   ]);
 
 
   const rollDice = async () => {
     // get result from worker
     let parameters = {
-      player_a_sv: successValueA, player_a_burst: burstA, player_a_dam: damageA, player_a_arm: armA, player_a_ammo: ammoA, player_a_cont: contA, player_a_crit_immune: critImmuneA,
-      player_b_sv: successValueB, player_b_burst: burstB, player_b_dam: damageB, player_b_arm: armB, player_b_ammo: ammoB, player_b_cont: contB, player_b_crit_immune: critImmuneB
+      player_a_sv: successValueA, player_a_burst: burstA, player_a_dam: damageA, player_a_arm: armA, player_a_bts: btsA,
+      player_a_ammo: ammoA, player_a_cont: contA, player_a_crit_immune: critImmuneA,
+      player_b_sv: successValueB, player_b_burst: burstB, player_b_dam: damageB, player_b_arm: armB, player_b_bts: btsB,
+      player_b_ammo: ammoB, player_b_cont: contB, player_b_crit_immune: critImmuneB
     }
     await workerRef.current.postMessage({command: 'calculate', data: parameters})
   };
@@ -141,11 +147,13 @@ function App() {
                   <BurstInput burst={burstA} update={setBurstA} color="#b14d8e"/>
                   <SuccessValueInput successValue={successValueA} update={setSuccessValueA}/>
                   <DamageInput damage={damageA} update={setDamageA}/>
-                  <ArmorInput armor={armA} update={setArmA}/>
+                  <ArmorInput armor={armA} update={setArmA} hideBTS={ammoB === 'PLASMA'}/>
+                  {ammoB === 'PLASMA' && <BTSInput bts={btsA} update={setBtsA} />}
                   <AmmoInput ammo={ammoA} cont={contA} update={setAmmoA} updateCont={setContA}/>
                   <CritImmuneInput critImmune={critImmuneA} update={setCritImmuneA}/>
                 </Grid>
               </CardContent>
+              <CardActions></CardActions>
             </Card>
           </Grid>
           <Grid xs={12} sm={6} lg={4} xl={3} item>
@@ -158,7 +166,8 @@ function App() {
                   <BurstInput burst={burstB} update={setBurstB} variant='reactive'/>
                   <SuccessValueInput successValue={successValueB} update={setSuccessValueB} variant='reactive'/>
                   <DamageInput damage={damageB} update={setDamageB} variant='reactive'/>
-                  <ArmorInput armor={armB} update={setArmB} variant='reactive'/>
+                  <ArmorInput armor={armB} update={setArmB} hideBTS={ammoA === 'PLASMA'} variant='reactive'/>
+                  {ammoA === 'PLASMA' && <BTSInput bts={btsB} update={setBtsB} variant='reactive'/>}
                   <AmmoInput ammo={ammoB} cont={contB} update={setAmmoB} updateCont={setContB} variant='reactive'/>
                   <CritImmuneInput critImmune={critImmuneB} update={setCritImmuneB}/>
                 </Grid>

@@ -1,15 +1,14 @@
 import {Button, ButtonGroup, Grid, InputLabel} from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faShieldHalved} from "@fortawesome/free-solid-svg-icons";
+import {faShieldVirus} from "@fortawesome/free-solid-svg-icons";
 import UncontrolledInput from "../componets/UncontrolledInput.jsx";
 import {clamp} from "ramda";
 
-function ArmorInput(props){
-  const armor = props.armor;
+function BTSInput(props){
+  const bts = props.bts;
   const update = props.update;
   const variant = props.variant ?? 'active';
-  const hideBTS = props.hideBTS ?? false;
 
   const theme = useTheme();
   const colorLight = theme.palette.player[variant]["100"];
@@ -17,7 +16,7 @@ function ArmorInput(props){
   //const colorDark = theme.palette.player[variant]["700"];
 
   const handleButtonPress = (amount) => {
-    update(clamp(0, 13, amount + armor));
+    update(clamp(0, 12, amount + bts));
   };
 
   const handleOnBlur = (newValue) => {
@@ -26,7 +25,7 @@ function ArmorInput(props){
       // do nothing
       return
     } else {
-      val = clamp(0, 13, val);
+      val = clamp(0, 12, val);
     }
     update(val);
   }
@@ -37,18 +36,18 @@ function ArmorInput(props){
     justifyContent:"center",
     alignItems:"center",
     borderRadius: '8px 8px 8px 8px',
-    p:1};
-
+    p:1
+  };
 
   return <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
-      <InputLabel sx={{mt:1}}>Armor {!hideBTS && <span>/ BTS</span>}</InputLabel>
+      <InputLabel sx={{mt:1}}>BTS</InputLabel>
     </Grid>
     <Grid item xs={2} sx={gridStyle}
     >
       <UncontrolledInput
-        key={props.armor}
-        value={armor}
+        key={props.bts}
+        value={bts}
         onBlur={(event) => handleOnBlur(event.target.value)}
         variant={variant}
       />
@@ -59,7 +58,7 @@ function ArmorInput(props){
         <Button onClick={() => handleButtonPress(-3)} tabIndex={-1}>-3</Button>
         <Button onClick={() => handleButtonPress(-1)} tabIndex={-1}>-1</Button>
       </ButtonGroup>
-      <FontAwesomeIcon icon={faShieldHalved} style={{paddingLeft: 4, paddingRight: 4, color: colorMid, alignSelf: "center"}} className="fa-xl"/>
+      <FontAwesomeIcon icon={faShieldVirus} style={{paddingLeft: 4, paddingRight: 4, color: colorMid, alignSelf: "center"}} className="fa-xl"/>
       <ButtonGroup>
         <Button onClick={() => handleButtonPress(+1)} tabIndex={-1}>+1</Button>
         <Button onClick={() => handleButtonPress(+3)} tabIndex={-1}>+3</Button>
@@ -68,4 +67,4 @@ function ArmorInput(props){
   </>
 }
 
-export default ArmorInput;
+export default BTSInput;

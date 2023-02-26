@@ -23,7 +23,7 @@ function ExpectedWoundsGraphCell(props) {
 
   return <TableCell sx={{bgcolor: color, width: width, padding:0, height: '30px', textAlign: 'center'}}>
     {data['chance'] >= 0.1 &&
-      <div>{data['wounds']}</div>
+      <div>{data['wounds']}{data['wounds'] === 3 &&<span>+</span>}</div>
     }
   </TableCell>;
 }
