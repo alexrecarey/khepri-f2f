@@ -22,6 +22,7 @@ import BurstInput from "./inputs/BurstInput.jsx";
 
 // Data display
 import FaceToFaceResultCard from "./display/FaceToFaceResultCard.jsx";
+import CritImmuneInput from "./inputs/CritImmuneInput.jsx";
 
 
 
@@ -37,6 +38,7 @@ function App() {
   const [armA, setArmA] = useState(0);
   const [ammoA, setAmmoA] = useState('N');
   const [contA, setContA] = useState(false);
+  const [critImmuneA, setCritImmuneA] = useState(false);
 
   // Inputs Player B
   const [burstB, setBurstB] = useState(1);
@@ -45,6 +47,7 @@ function App() {
   const [armB, setArmB] = useState(0);
   const [ammoB, setAmmoB] = useState('N');
   const [contB, setContB] = useState(false);
+  const [critImmuneB, setCritImmuneB] = useState(false);
 
   // Outputs
   const [f2fResults, setF2fResults] = useState(null);
@@ -104,14 +107,17 @@ function App() {
 
   useEffect( ()=> {
     rollDice();
-  },[burstA, successValueA, damageA, armA, ammoA, contA, burstB, successValueB, damageB, armB, ammoB, contB]);
+  },[
+    burstA, successValueA, damageA, armA, ammoA, contA, critImmuneA,
+    burstB, successValueB, damageB, armB, ammoB, contB, critImmuneB
+  ]);
 
 
   const rollDice = async () => {
     // get result from worker
     let parameters = {
-      player_a_sv: successValueA, player_a_burst: burstA, player_a_dam: damageA, player_a_arm: armA, player_a_ammo: ammoA, player_a_cont: contA,
-      player_b_sv: successValueB, player_b_burst: burstB, player_b_dam: damageB, player_b_arm: armB, player_b_ammo: ammoB, player_b_cont: contB
+      player_a_sv: successValueA, player_a_burst: burstA, player_a_dam: damageA, player_a_arm: armA, player_a_ammo: ammoA, player_a_cont: contA, player_a_crit_immune: critImmuneA,
+      player_b_sv: successValueB, player_b_burst: burstB, player_b_dam: damageB, player_b_arm: armB, player_b_ammo: ammoB, player_b_cont: contB, player_b_crit_immune: critImmuneB
     }
     await workerRef.current.postMessage({command: 'calculate', data: parameters})
   };
@@ -137,6 +143,7 @@ function App() {
                   <DamageInput damage={damageA} update={setDamageA}/>
                   <ArmorInput armor={armA} update={setArmA}/>
                   <AmmoInput ammo={ammoA} cont={contA} update={setAmmoA} updateCont={setContA}/>
+                  <CritImmuneInput critImmune={critImmuneA} update={setCritImmuneA}/>
                 </Grid>
               </CardContent>
             </Card>
@@ -153,6 +160,7 @@ function App() {
                   <DamageInput damage={damageB} update={setDamageB} variant='reactive'/>
                   <ArmorInput armor={armB} update={setArmB} variant='reactive'/>
                   <AmmoInput ammo={ammoB} cont={contB} update={setAmmoB} updateCont={setContB} variant='reactive'/>
+                  <CritImmuneInput critImmune={critImmuneB} update={setCritImmuneB}/>
                 </Grid>
               </CardContent>
             </Card>

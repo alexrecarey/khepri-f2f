@@ -102,8 +102,9 @@ AMMO = {
     'T2': 1,
 }
 
-def face_to_face_expected_wounds(outcomes, player_a_dam, player_a_arm, player_a_ammo, player_a_cont,
-                                 player_b_dam, player_b_arm, player_b_ammo, player_b_cont):
+def face_to_face_expected_wounds(outcomes,
+                                 player_a_dam, player_a_arm, player_a_ammo, player_a_cont, player_a_crit_immune,
+                                 player_b_dam, player_b_arm, player_b_ammo, player_b_cont, player_b_crit_immune):
     """Calculates the wounds expected from a face to face encounter
 
     Return format is {
@@ -126,16 +127,19 @@ def face_to_face_expected_wounds(outcomes, player_a_dam, player_a_arm, player_a_
             success_value = player_a_dam - player_b_arm
             damage = 2 if player_a_ammo == 'T2' else 1
             cont = player_a_cont
+            crit_immune = player_b_crit_immune
         elif b_crit + b_hit > 0:
             winner = 'reactive'
             success_value = player_b_dam - player_a_arm
             damage = 2 if player_b_ammo == 'T2' else 1
             cont = player_b_cont
+            crit_immune = player_a_crit_immune
         else:
             winner = 'fail'
             success_value = 0
             damage = 0
             cont = False
+            crit_immune = False
 
         # Calculate total amount of saves that must be made.
         # Each crit deals AMMO saves plus one extra save per crit. The extra save per crit is in \`crit_saves\`, as
@@ -143,7 +147,7 @@ def face_to_face_expected_wounds(outcomes, player_a_dam, player_a_arm, player_a_
         # For DODGE AMMO we run "min" to keep 0 (for dodge) or original value of crit, as 3 crits = 3 crit saves
         # Each regular hit causes AMMO number of \`saves\`. We also have to add the regular hit portion of a crit,
         # as 1 crit causes a AMMO saves for the regular portion, and 1 extra crit save that is not.
-        crit_saves = min(a_crit, AMMO[player_a_ammo] * a_crit) + min(b_crit, AMMO[player_b_ammo] * b_crit)
+        crit_saves = 0 if crit_immune else min(a_crit, AMMO[player_a_ammo] * a_crit) + min(b_crit, AMMO[player_b_ammo] * b_crit)
         saves = ((a_crit + a_hit) * AMMO[player_a_ammo]) + ((b_crit + b_hit) * AMMO[player_b_ammo])
 
         # Using icepool to calculate wounds
@@ -212,14 +216,14 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
 
 
 def roll_and_bridge_results(
-    player_a_sv, player_a_burst, player_a_dam, player_a_arm, player_a_ammo, player_a_cont,
-    player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_ammo, player_b_cont):
+    player_a_sv, player_a_burst, player_a_dam, player_a_arm, player_a_ammo, player_a_cont, player_a_crit_immune,
+    player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_ammo, player_b_cont, player_b_crit_immune):
     outcomes = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
     results = face_to_face_result(outcomes)
     formatted_results = format_face_to_face(results)
-    expected_wounds = face_to_face_expected_wounds(
-        outcomes, player_a_dam, player_a_arm, player_a_ammo, player_a_cont,
-        player_b_dam, player_b_arm, player_b_ammo, player_b_cont)
+    expected_wounds = face_to_face_expected_wounds(outcomes,
+        player_a_dam, player_a_arm, player_a_ammo, player_a_cont, player_a_crit_immune,
+        player_b_dam, player_b_arm, player_b_ammo, player_b_cont, player_b_crit_immune)
     formatted_expected_wounds = format_expected_wounds(expected_wounds)
     return_object = {
         'face_to_face': formatted_results,
@@ -227,7 +231,7 @@ def roll_and_bridge_results(
         'total_rolls': expected_wounds['total_rolls']
     }
     return to_js(return_object, dict_converter=js.Object.fromEntries)
-    # return return_object
+    #return return_object
 
 # Return value for Javascript
 to_js(roll_and_bridge_results)`;
@@ -248,8 +252,8 @@ async function initPyodide() {
 async function calculateProbability(p) {
   let pythonFunction = await self.pyodide.runPythonAsync(PYTHON_CODE) // eslint-disable-line no-restricted-globals
   return pythonFunction(
-    p['player_a_sv'], p['player_a_burst'], p['player_a_dam'], p['player_a_arm'], p['player_a_ammo'], p['player_a_cont'],
-    p['player_b_sv'], p['player_b_burst'], p['player_b_dam'], p['player_b_arm'], p['player_b_ammo'], p['player_b_cont'])
+    p['player_a_sv'], p['player_a_burst'], p['player_a_dam'], p['player_a_arm'], p['player_a_ammo'], p['player_a_cont'], p['player_a_crit_immune'],
+    p['player_b_sv'], p['player_b_burst'], p['player_b_dam'], p['player_b_arm'], p['player_b_ammo'], p['player_b_cont'], p['player_b_crit_immune'])
 }
 
 
