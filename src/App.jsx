@@ -5,7 +5,6 @@ import {
   Box,
   Card,
   CardContent,
-  CardActions,
   Grid,
   ThemeProvider,
   Typography
@@ -153,7 +152,6 @@ function App() {
                   <CritImmuneInput critImmune={critImmuneA} update={setCritImmuneA}/>
                 </Grid>
               </CardContent>
-              <CardActions></CardActions>
             </Card>
           </Grid>
           <Grid xs={12} sm={6} lg={4} xl={3} item>
@@ -178,7 +176,6 @@ function App() {
             <FaceToFaceResultCard f2fResults={f2fResults}/>
             <Typography variant="caption" color="text.secondary">{statusMessage}</Typography>
           </Grid>
-
           <Grid>
             <Typography color="text.secondary" variant="body2" sx={{marginTop: 4, marginLeft: 2, marginRight: 2}}>
               Made with ❤️ for the Infinity community by Khepri.
