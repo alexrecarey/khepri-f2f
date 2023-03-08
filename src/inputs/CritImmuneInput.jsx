@@ -12,7 +12,7 @@ function CritImmuneInput(props){
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
       <InputLabel sx={{mt:1}}>Other</InputLabel>
     </Grid>
-    <Grid item xs={12}>
+    <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
       <FormControlLabel
         label="Immunity (Critical)"
         control={<Checkbox

@@ -1,4 +1,4 @@
-import {Grid, InputLabel, ToggleButtonGroup, Typography} from "@mui/material";
+import {Grid, InputLabel, ToggleButtonGroup} from "@mui/material";
 import MuiToggleButton from "@mui/material/ToggleButton";
 import { styled, useTheme } from "@mui/material/styles";
 
@@ -11,24 +11,12 @@ function AmmoInput(props){
   const variant = props.variant ?? 'active';
 
   const theme = useTheme();
-  const colorLight = theme.palette.player[variant]["100"];
   const colorMid = theme.palette.player[variant]["500"];
-  const colorDark = theme.palette.player[variant]["700"];
 
-  const gridStyle = {
-    bgcolor: colorLight,
-    display: "flex",
-    justifyContent:"center",
-    alignItems:"center",
-    borderRadius: '8px 8px 8px 8px',
-    p:1};
-
-  const textStyle = {
-    color: colorDark,
-    fontWeight: 'bold'
-  };
 
   const ToggleButton = styled(MuiToggleButton)({
+    fontWeight: 'bold',
+    minWidth: '3em',
     "&.Mui-selected, &.Mui-selected:hover": {
       color: "white",
       backgroundColor: colorMid,
@@ -43,10 +31,7 @@ function AmmoInput(props){
   return  <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
       <InputLabel sx={{mt:1}}>Ammunition</InputLabel></Grid>
-    <Grid item xs={2} sx={gridStyle}>
-      <Typography sx={textStyle}>{ammo}</Typography></Grid>
-    <Grid item xs={1}></Grid>
-    <Grid item xs={9} sx={{display:"flex", justifyContent:"left", alignItems:"center", flexWrap: "wrap"}}>
+    <Grid item xs={12} sx={{display:"flex", justifyContent:"left", alignItems:"center", flexWrap: "wrap"}}>
       <ToggleButtonGroup
         exclusive
         value={ammo}
@@ -57,12 +42,12 @@ function AmmoInput(props){
               update(newAmmo);
             }}}
       >
-        <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="N">N</ToggleButton>
-        <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="DA">DA</ToggleButton>
-        <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="EXP">EXP</ToggleButton>
-        <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="T2">T2</ToggleButton>
-        <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="PLASMA">PLASMA</ToggleButton>
-        <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}} value="DODGE">Dodge</ToggleButton>
+        <ToggleButton value="N">N</ToggleButton>
+        <ToggleButton value="DA">DA</ToggleButton>
+        <ToggleButton value="EXP">EXP</ToggleButton>
+        <ToggleButton value="T2">T2</ToggleButton>
+        <ToggleButton value="PLASMA">PLASMA</ToggleButton>
+        <ToggleButton value="DODGE">Dodge</ToggleButton>
       </ToggleButtonGroup>
       <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}}
                     value="CONT"
