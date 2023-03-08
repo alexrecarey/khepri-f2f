@@ -42,6 +42,20 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png}'],
         cleanupOutdatedCaches: true,
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => {
+              return url.host.startsWith("cdn.jsdelivr.net");
+            },
+            handler: "CacheFirst",
+            options: {
+              cacheName: "pyodide-cache",
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+        ],
       },
       devOptions: {
         enabled: true
