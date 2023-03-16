@@ -41,7 +41,7 @@ function FaceToFaceResultCard(props) {
     <CardActions>
       <Button onClick={handleOpen} size="small">Share</Button>
     </CardActions>
-    <ShareResultsModal open={open} setClose={handleClose} expectedWounds={expectedWounds}/>
+    <ShareResultsModal open={open} setClose={handleClose} expectedWounds={expectedWounds} faceToFace={faceToFace}/>
   </Card>;
 
 }

@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
+import Input from '@mui/material/Input';
 import {
   ascendByWounds,
   activePlayer,
@@ -31,19 +32,43 @@ export default function ShareResultsModal(props) {
   const [isCopied, setIsCopied] = useState(false);
   const open = props.open;
   const setClose = props.setClose;
+  const faceToFace = props.faceToFace;
   const expectedWounds = props.expectedWounds;
 
   const activeWounds = ascendByWounds(activePlayer(expectedWounds));
   const reactiveWounds = ascendByWounds(reactivePlayer(expectedWounds));
   const failureWounds = ascendByWounds(failurePlayer(expectedWounds));
+  const activeOneChance = formatPercentage(activeWounds[0].cumulative_chance);
+  const activeTwoChance = formatPercentage(activeWounds[1].cumulative_chance);
+  const reactiveOneChance = formatPercentage(reactiveWounds[0].cumulative_chance);
+  const reactiveTwoChance = formatPercentage(reactiveWounds[1].cumulative_chance);
+  const noWounds = formatPercentage(failureWounds[0].cumulative_chance);
+  const activeWinsF2F = formatPercentage(faceToFace[0].chance);
+  const reactiveWinsF2F = formatPercentage(faceToFace[2].chance);
+  const noWinF2F = formatPercentage(faceToFace[1].chance);
   const woundsByChance = (x, y) => x + y['wounds'] * y['chance'];
   const activeWPO = twoDecimalPlaces(reduce(woundsByChance, 0, activePlayer(expectedWounds)));
   const reactiveWPO = twoDecimalPlaces(reduce(woundsByChance, 0,reactivePlayer(expectedWounds)));
-  const copyText = `Active causes 1+ wounds: ${formatPercentage(activeWounds[0].cumulative_chance)}% (${activeWPO} W/O)
-Active causes 2+ wounds: ${formatPercentage(activeWounds[1].cumulative_chance)}%
-Failure no wounds: ${formatPercentage(failureWounds[0].cumulative_chance)}%
-Reactive causes 1+ wounds: ${formatPercentage(reactiveWounds[0].cumulative_chance)}% (${reactiveWPO} W/O)
-Reactive causes 2+ wounds: ${formatPercentage(reactiveWounds[1].cumulative_chance)}%`
+  const fullResultText =
+`Active:
+  Wins F2F: ${activeWinsF2F}%
+  Causes 1+ wounds: ${activeOneChance}% 
+  Causes 2+ wounds: ${activeTwoChance}%
+  Wounds / order: ${activeWPO}
+Reactive:
+  Wins F2F: ${reactiveWinsF2F}%
+  Causes 1+ wounds: ${reactiveOneChance}% 
+  Causes 2+ wounds: ${reactiveTwoChance}%
+  Wounds / order: ${reactiveWPO}
+Failure:
+  Ties F2F: ${noWinF2F}%
+  No wounds: ${noWounds}%`
+
+  const compactResultText =
+`Active - Failure - Reactive
+Wins F2F:  ${activeWinsF2F}% - ${noWinF2F}% - ${reactiveWinsF2F}%
+1+ wounds: ${activeOneChance}% - ${noWounds}% - ${reactiveOneChance}%
+Wounds / Order: ${activeWPO} - - ${reactiveWPO}`
 
   async function copyTextToClipboard(text) {
     if ('clipboard' in navigator) {
@@ -53,9 +78,9 @@ Reactive causes 2+ wounds: ${formatPercentage(reactiveWounds[1].cumulative_chanc
     }
   }
 
-  const handleCopyClick = () => {
+  const handleCopyClick = (text) => {
     // Asynchronously call copyTextToClipboard
-    copyTextToClipboard(copyText)
+    copyTextToClipboard(text)
       .then(() => {
         // If successful, update the isCopied state value
         setIsCopied(true);
@@ -90,15 +115,16 @@ Reactive causes 2+ wounds: ${formatPercentage(reactiveWounds[1].cumulative_chanc
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2" sx={{mb: 2}}>
+          <Typography id="modal-modal-title" variant="h4" component="h3" sx={{mb: 2}}>
             Share results
           </Typography>
-          <div><b>Active</b> causes 1+ wounds: {formatPercentage(activeWounds[0].cumulative_chance)}% ({activeWPO} W/O)</div>
-          <div><b>Active</b> causes 2+ wounds: {formatPercentage(activeWounds[1].cumulative_chance)}%</div>
-          <div><b>Failure</b> no wounds: {formatPercentage(failureWounds[0].cumulative_chance)}%</div>
-          <div><b>Reactive</b> causes 1+ wounds: {formatPercentage(reactiveWounds[0].cumulative_chance)}% ({reactiveWPO} W/O)</div>
-          <div><b>Reactive</b> causes 2+ wounds: {formatPercentage(reactiveWounds[1].cumulative_chance)}%</div>
-          <Button onClick={handleCopyClick}>{isCopied ? 'Copied!' : 'Copy to clipboard'}</Button>
+          <Typography variant="h6">Compact version</Typography>
+          <Input fullWidth multiline readOnly value={compactResultText}/>
+          <Button onClick={() => handleCopyClick(compactResultText)}>{isCopied ? 'Copied!' : 'Copy to clipboard'}</Button>
+
+          <Typography variant="h6" mt={2}>Full version</Typography>
+          <Input fullWidth multiline readOnly value={fullResultText}/>
+          <Button onClick={() => handleCopyClick(fullResultText)}>{isCopied ? 'Copied!' : 'Copy to clipboard'}</Button>
         </Box>
       </Modal>
     </div>
