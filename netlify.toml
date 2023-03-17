@@ -8,8 +8,8 @@
   status = 200
 
 [[redirects]]
-  from = "https://somenetlifysite.netlify.app"
-  to = "https://mycustomdomain.com"
+  from = "https://khepri.netlify.app"
+  to = "https://infinitythecalculator.com"
   status = 301
   force = true
 
