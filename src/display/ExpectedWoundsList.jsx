@@ -40,23 +40,22 @@ function ExpectedWoundsList(props){
   return(
     <Grid container spacing={2}>
       <Grid item xs={12} sm={4} lg={12} sx={{textAlign: 'left'}}>
-        <Typography variant="h6" sx={{}}>Active ({twoDecimalPlaces(reduce(woundsByChance, 0, activePlayer(rows)))} wounds / order)</Typography>
+        <Typography>Active ({twoDecimalPlaces(reduce(woundsByChance, 0, activePlayer(rows)))} wounds / order)</Typography>
         {ascendByWounds(activePlayer(rows)).map((row) => {
           return <Stack direction="row" sx={{alignItems: 'center'}} key={row.id}>
-            <Box sx={{width: '30px', height: 30, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor:activeColors[row['wounds']]}}>
-              <div style={{display:'flex', verticalAlign:'middle', justifyContent: 'center', alignContent: 'center'}}>{row['wounds']}+</div>
+            <Box sx={{width: 25, height: 25, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor:activeColors[row['wounds']]}}>
+              <div style={{display:'flex', verticalAlign:'middle', justifyContent: 'center', alignContent: 'center'}}></div>
             </Box>
-            <Typography ml={1} mr={1} lineHeight={1}>{formatPercentage(row['cumulative_chance'])}% chance to inflict {row['wounds']} or more wounds.</Typography></Stack>
-
+            <Typography ml={1} mr={1} lineHeight={1} variant="body2">{formatPercentage(row['cumulative_chance'])}% chance {row['wounds']} or more wounds.</Typography></Stack>
         })}
       </Grid>
       <Grid item xs={12} sm={4} lg={12} sx={{textAlign: 'left'}}>
-        <Typography variant="h6">Failure</Typography>
+        <Typography>Failure</Typography>
         {failurePlayer(rows).map((row) => {
           return <Stack direction="row" sx={{alignItems: 'center'}} key={row.id}>
             <Box sx={{
-              width: 30,
-              height: 30,
+              width: 25,
+              height: 25,
               display: 'flex',
               justifyContent: 'center',
               alignContent: 'center',
@@ -67,21 +66,20 @@ function ExpectedWoundsList(props){
                 verticalAlign: 'middle',
                 justifyContent: 'center',
                 alignContent: 'center'
-              }}>{row['wounds']}
+              }}>
               </div>
             </Box>
-            <Typography ml={1} mr={1} lineHeight={1}>{formatPercentage(row['cumulative_chance'])}% chance neither player causes wounds.</Typography></Stack>
+            <Typography ml={1} mr={1} lineHeight={1} variant="body2">{formatPercentage(row['cumulative_chance'])}% chance neither player causes wounds.</Typography></Stack>
         })}
       </Grid>
       <Grid item xs={12} sm={4} lg={12} sx={{textAlign: 'left'}}>
-        <Typography variant="h6">Reactive ({twoDecimalPlaces(reduce(woundsByChance, 0, reactivePlayer(rows)))} wounds / order)</Typography>
+        <Typography  >Reactive ({twoDecimalPlaces(reduce(woundsByChance, 0, reactivePlayer(rows)))} wounds / order)</Typography>
         {ascendByWounds(reactivePlayer(rows)).map((row) => {
           return <Stack direction="row" sx={{alignItems: 'center'}} key={row.id}>
-            <Box sx={{width: 30, height: 30, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor:reactiveColors[row['wounds']]}}>
-              <div style={{display:'flex', verticalAlign:'middle', justifyContent: 'center', alignContent: 'center'}}>{row['wounds']}+</div>
+            <Box sx={{width: 25, height: 25, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor:reactiveColors[row['wounds']]}}>
+              <div style={{display:'flex', verticalAlign:'middle', justifyContent: 'center', alignContent: 'center'}}></div>
             </Box>
-            <Typography ml={1} mr={1} lineHeight={1}>{formatPercentage(row['cumulative_chance'])}% chance to inflict {row['wounds']} or more wounds.</Typography></Stack>
-
+            <Typography ml={1} mr={1} lineHeight={1} variant="body2">{formatPercentage(row['cumulative_chance'])}% chance {row['wounds']} or more wounds.</Typography></Stack>
         })}
       </Grid>
     </Grid>

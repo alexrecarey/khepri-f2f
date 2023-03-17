@@ -25,21 +25,20 @@ function FaceToFaceResultCard(props) {
   console.log(faceToFace)
   return <Card>
     <CardContent>
-      <Typography variant="h6">Expected Wounds</Typography>
-      <Box sx={{textAlign: "left"}}>Active: B{p.player_A_burst} SV{p.player_a_sv} with
-        DAM{p.player_a_dam} and ARM{p.player_a_arm}</Box>
-      <Box sx={{textAlign: "right"}}>Reactive: B{p.player_b_burst} SV{p.player_b_sv} with
-        DAM{p.player_b_dam} and ARM{p.player_b_arm}</Box>
-      <ExpectedWoundsGraph
-        rows={expectedWounds}
-      />
-      <ExpectedWoundsList rows={expectedWounds}/>
-
-      <Typography sx={{mt: 2}} variant="h6">Face to Face</Typography>
+      <Typography variant="h6">Results</Typography>
+      <Box sx={{display: "flex", flexDirection: "row", justifyContent: "space-between", flexWrap: "wrap" }}>
+        <Typography sx={{whiteSpace: "nowrap"}} variant="overline">B{p.player_a_burst} SV{p.player_a_sv} DAM{p.player_a_dam} {p.player_a_ammo !== "N" ? p.player_a_ammo : ""} {p.player_a_cont ? "CONT" : ""} ARM{p.player_a_arm}</Typography>
+        <Typography sx={{whiteSpace: "nowrap", alignSelf: "end"}} variant="overline">B{p.player_b_burst} SV{p.player_b_sv} DAM{p.player_b_dam} {p.player_b_ammo !== "N" ? p.player_b_ammo : ""} {p.player_b_cont ? "CONT" : ""} ARM{p.player_b_arm}</Typography>
+      </Box>
+      <Typography sx={{mt: 1, textAlign: "left", }} >Face to face</Typography>
       <FaceToFaceGraph rows={faceToFace}/>
+      <Typography sx={{mt: 1, textAlign: "left", }}>Expected wounds</Typography>
+      <ExpectedWoundsGraph rows={expectedWounds}/>
+      <Box sx={{mt: 1}}/>
+      <ExpectedWoundsList rows={expectedWounds}/>
     </CardContent>
     <CardActions>
-      <Button onClick={handleOpen} size="small">Share</Button>
+      <Button onClick={handleOpen} size="small" disabled={true}>Share (coming soon)</Button>
     </CardActions>
     <ShareResultsModal open={open} setClose={handleClose} expectedWounds={expectedWounds} faceToFace={faceToFace}/>
   </Card>;
