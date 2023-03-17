@@ -7,6 +7,12 @@
   to = "/index.html"
   status = 200
 
+[[redirects]]
+  from = "https://somenetlifysite.netlify.app"
+  to = "https://mycustomdomain.com"
+  status = 301
+  force = true
+
 [[headers]]
   for = "/manifest.webmanifest"
   [headers.values]
