@@ -47,7 +47,7 @@ export default defineConfig({
             urlPattern: ({ url }) => {
               return url.host.startsWith("cdn.jsdelivr.net") || url.host.startsWith("pypi.org") || url.host.startsWith("files.pythonhosted.org");
             },
-            handler: "CacheFirst",
+            handler: "StaleWhileRevalidate",
             options: {
               cacheName: "pyodide-cache",
               cacheableResponse: {
