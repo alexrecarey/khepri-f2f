@@ -9,10 +9,12 @@ function AmmoInput(props){
   const cont = props.cont;
   const setCont = props.updateCont;
   const variant = props.variant ?? 'active';
+  const dtw = props.dtw;
 
   const theme = useTheme();
   const colorMid = theme.palette.player[variant]["500"];
 
+  const selected = dtw ? "DODGE" : ammo;
 
   const ToggleButton = styled(MuiToggleButton)({
     fontWeight: 'bold',
@@ -34,7 +36,7 @@ function AmmoInput(props){
     <Grid item xs={12} sx={{display:"flex", justifyContent:"left", alignItems:"center", flexWrap: "wrap"}}>
       <ToggleButtonGroup
         exclusive
-        value={ammo}
+        value={selected}
         size="small"
         onChange={
           (event, newAmmo) => {

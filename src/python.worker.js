@@ -61,6 +61,20 @@ def face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst):
     return [i for i in result.items()]
 
 
+def dtw_vs_dodge(dodge_sv, burst):
+    """Results should be in format:
+
+    (a_crit, a_hit, b_crit, b_hit), rolls"""
+    result = []
+    dDodge = Die([(1 if x <= dodge_sv else 0) for x in range(20)])
+    for outcome, amount in dDodge.items():
+        if outcome == 1:
+            result.append(((0, 0, 0, 0), amount))
+        elif outcome == 0:
+            result.append(((0, burst, 0, 0), amount))
+    return result
+
+
 def face_to_face_result(outcomes):
     result = {'active': 0,
               'fail': 0,
@@ -151,10 +165,10 @@ def face_to_face_expected_wounds(
             bts_save = 0
 
         # Calculate total amount of saves that must be made.
-        # Each crit deals AMMO saves plus one extra save per crit. The extra save per crit is in \`crit_saves\`, as
+        # Each crit deals AMMO saves plus one extra save per crit. The extra save per crit is in crit_saves, as
         # neither CONT damage nor T2 apply their special effects to crit saves
         # For DODGE AMMO we run "min" to keep 0 (for dodge) or original value of crit, as 3 crits = 3 crit saves
-        # Each regular hit causes AMMO number of \`saves\`. We also have to add the regular hit portion of a crit,
+        # Each regular hit causes AMMO number of saves. We also have to add the regular hit portion of a crit,
         # as 1 crit causes a AMMO saves for the regular portion, and 1 extra crit save that is not.
         crit_saves = 0 if crit_immune else min(a_crit, AMMO[player_a_ammo] * a_crit) + min(b_crit, AMMO[player_b_ammo] * b_crit)
         saves = ((a_crit + a_hit) * AMMO[player_a_ammo]) + ((b_crit + b_hit) * AMMO[player_b_ammo])
@@ -229,12 +243,17 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
 
 
 def roll_and_bridge_results(
-    player_a_sv, player_a_burst, player_a_dam, player_a_arm, player_a_bts, player_a_ammo, player_a_cont, player_a_crit_immune,
-    player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_bts, player_b_ammo, player_b_cont, player_b_crit_immune):
-    outcomes = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
+        player_a_sv, player_a_burst, player_a_dam, player_a_arm, player_a_bts, player_a_ammo, player_a_cont, player_a_crit_immune,
+        player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_bts, player_b_ammo, player_b_cont, player_b_crit_immune,
+        dtw):
+    if dtw:
+        outcomes = dtw_vs_dodge(player_b_sv, player_a_burst)
+    else:
+        outcomes = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
     results = face_to_face_result(outcomes)
     formatted_results = format_face_to_face(results)
-    expected_wounds = face_to_face_expected_wounds(outcomes,
+    expected_wounds = face_to_face_expected_wounds(
+        outcomes,
         player_a_dam, player_a_arm, player_a_ammo, player_b_dam, player_b_arm, player_b_ammo,
         player_a_cont=player_a_cont, player_a_bts=player_a_bts, player_a_crit_immune=player_a_crit_immune,
         player_b_cont=player_b_cont, player_b_bts=player_b_bts, player_b_crit_immune=player_b_crit_immune)
@@ -269,7 +288,8 @@ async function calculateProbability(p) {
     p['player_a_sv'], p['player_a_burst'], p['player_a_dam'], p['player_a_arm'], p['player_a_bts'], p['player_a_ammo'],
     p['player_a_cont'], p['player_a_crit_immune'],
     p['player_b_sv'], p['player_b_burst'], p['player_b_dam'], p['player_b_arm'], p['player_b_bts'], p['player_b_ammo'],
-    p['player_b_cont'], p['player_b_crit_immune'])
+    p['player_b_cont'], p['player_b_crit_immune'],
+    p['dtw_vs_dodge'])
 }
 
 

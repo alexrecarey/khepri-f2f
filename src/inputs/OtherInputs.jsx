@@ -1,11 +1,18 @@
 import { Grid, InputLabel, Checkbox, FormControlLabel} from "@mui/material";
 
-function CritImmuneInput(props){
+function OtherInputs(props){
+  const variant = props.variant ?? 'active';
   const critImmune = props.critImmune;
+  const dtwVsDodge = props.dtwVsDodge;
   const update = props.update;
+  const updateDtw = props.updateDtw;
 
   const handleChange = (event) => {
     update(event.target.checked);
+  };
+
+  const handleDtwChange = (event) => {
+    updateDtw(event.target.checked);
   };
 
   return <>
@@ -20,7 +27,15 @@ function CritImmuneInput(props){
           onChange={handleChange}
         />}/>
     </Grid>
+    {variant === 'active' ?
+    <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
+      <FormControlLabel
+        label="Direct Template Weapon"
+        control={<Checkbox
+          checked={dtwVsDodge}
+          onChange={handleDtwChange}
+        />}/></Grid>: <></>}
   </>
 }
 
-export default CritImmuneInput;
+export default OtherInputs;
