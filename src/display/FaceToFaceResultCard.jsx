@@ -38,7 +38,7 @@ function FaceToFaceResultCard(props) {
       <ExpectedWoundsList rows={expectedWounds}/>
     </CardContent>
     <CardActions>
-      <Button onClick={handleOpen} size="small" disabled={true}>Share (coming soon)</Button>
+      <Button onClick={handleOpen} size="small">Share</Button>
     </CardActions>
     <ShareResultsModal open={open} setClose={handleClose} expectedWounds={expectedWounds} faceToFace={faceToFace}/>
   </Card>;
