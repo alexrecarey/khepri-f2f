@@ -163,7 +163,7 @@ function App() {
                   <Grid item xs={12}>
                     <Typography variant="h6" gutterBottom>Reactive</Typography>
                   </Grid>
-                  {dtwVsDodge === false && <BurstInput burst={burstB} update={setBurstB} variant='reactive'/>}
+                  <BurstInput burst={burstB} update={setBurstB} variant='reactive'/>
                   <SuccessValueInput successValue={successValueB} update={setSuccessValueB} variant='reactive'/>
                   {dtwVsDodge === false &&<DamageInput damage={damageB} update={setDamageB} variant='reactive'/>}
                   <ArmorInput armor={armB} update={setArmB} hideBTS={ammoA === 'PLASMA'} variant='reactive'/>

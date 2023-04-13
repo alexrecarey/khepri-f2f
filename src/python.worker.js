@@ -61,17 +61,20 @@ def face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst):
     return [i for i in result.items()]
 
 
-def dtw_vs_dodge(dodge_sv, burst):
+def dtw_vs_dodge(dtw_burst, dodge_sv, dodge_burst):
     """Results should be in format:
 
     (a_crit, a_hit, b_crit, b_hit), rolls"""
     result = []
-    dDodge = Die([(1 if x <= dodge_sv else 0) for x in range(20)])
-    for outcome, amount in dDodge.items():
-        if outcome == 1:
-            result.append(((0, 0, 0, 0), amount))
-        elif outcome == 0:
-            result.append(((0, burst, 0, 0), amount))
+    if dodge_burst == 0:
+        result.append(((0, dtw_burst, 0, 0), 1))
+    else:
+        dDodge = Die([(1 if x <= dodge_sv else 0) for x in range(20)])
+        for outcome, amount in (dodge_burst @ dDodge).items():
+            if outcome >= 1:
+                result.append(((0, 0, 0, 0), amount))
+            elif outcome == 0:
+                result.append(((0, dtw_burst, 0, 0), amount))
     return result
 
 
@@ -247,7 +250,7 @@ def roll_and_bridge_results(
         player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_bts, player_b_ammo, player_b_cont, player_b_crit_immune,
         dtw):
     if dtw:
-        outcomes = dtw_vs_dodge(player_b_sv, player_a_burst)
+        outcomes = dtw_vs_dodge(player_a_burst, player_b_sv, player_b_burst)
     else:
         outcomes = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
     results = face_to_face_result(outcomes)
