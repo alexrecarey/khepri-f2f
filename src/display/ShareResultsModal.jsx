@@ -41,10 +41,14 @@ export default function ShareResultsModal(props) {
   const activeWinsF2F = formatPercentage(activePlayer(faceToFace)[0]['chance']);
   const reactiveWinsF2F = formatPercentage(reactivePlayer(faceToFace)[0]['chance']);
   const noWinF2F = formatPercentage(failurePlayer(faceToFace)[0]['chance']);
-  const activeOneWound = activeWounds?.[0] ? formatPercentage(activeWounds[0]['cumulative_chance']): 0;
-  const activeTwoWound = activeWounds?.[1] ? formatPercentage(activeWounds[1]['cumulative_chance']): 0;
-  const reactiveOneWound = reactiveWounds?.[0] ? formatPercentage(reactiveWounds[0]['cumulative_chance']): 0;
-  const reactiveTwoWound = reactiveWounds?.[1] ? formatPercentage(reactiveWounds[1]['cumulative_chance']): 0;
+  const activeFirstWound = activeWounds?.[0] ? formatPercentage(activeWounds[0]['cumulative_chance']): 0;
+  const activeFirstAmount = activeWounds?.[0] ? activeWounds[0]['wounds'] : null;
+  const activeSecondWound = activeWounds?.[1] ? formatPercentage(activeWounds[1]['cumulative_chance']): 0;
+  const activeSecondAmount = activeWounds?.[1] ? activeWounds[1]['wounds'] : null;
+  const reactiveFirstWound = reactiveWounds?.[0] ? formatPercentage(reactiveWounds[0]['cumulative_chance']): 0;
+  const reactiveFirstAmount = reactiveWounds?.[0] ? reactiveWounds[0]['wounds'] : false;
+  const reactiveSecondWound = reactiveWounds?.[1] ? formatPercentage(reactiveWounds[1]['cumulative_chance']): 0;
+  const reactiveSecondAmount = reactiveWounds?.[1] ? reactiveWounds[1]['wounds'] : false;
   const failureWound = failureWounds?.[0] ? formatPercentage(failureWounds[0]['cumulative_chance']): 0;
   const woundsByChance = (x, y) => x + y['wounds'] * y['chance'];
   const activeWPO = twoDecimalPlaces(reduce(woundsByChance, 0, activePlayer(expectedWounds)));
@@ -53,22 +57,22 @@ export default function ShareResultsModal(props) {
 
   const fullResultText =
 `Active - ${activeWPO} wounds / order:
-  Wins F2F: ${activeWinsF2F}%
-  Causes 1+ wounds: ${activeOneWound}%
-  Causes 2+ wounds: ${activeTwoWound}%
+  Wins F2F: ${activeWinsF2F}%\
+  ${activeFirstAmount ? ("\n  Causes " + activeFirstAmount + "+ wounds: " + activeFirstWound + "%") : '' }\
+  ${activeSecondAmount ? ("\n  Causes " + activeSecondAmount + "+ wounds: " + activeSecondWound + "%") : '' }
 Failure:
   Ties F2F: ${noWinF2F}%
   No wounds: ${failureWound}%
 Reactive - ${reactiveWPO} wounds / order:
-  Wins F2F: ${reactiveWinsF2F}%
-  Causes 1+ wounds: ${reactiveOneWound} %
-  Causes 2+ wounds: ${reactiveTwoWound}%
+  Wins F2F: ${reactiveWinsF2F}%\
+${reactiveFirstAmount ? ("\n  Causes " + reactiveFirstAmount + "+ wounds: " + reactiveFirstWound + "%") : '' }\
+${reactiveSecondAmount ? ("\n  Causes " + activeSecondAmount + "+ wounds: " + reactiveSecondWound + "%") : '' }
   Wounds / order: ${reactiveWPO}`
 
   const compactResultText =
 `Active - Failure - Reactive
 Wins F2F:  ${activeWinsF2F}% - ${noWinF2F}% - ${reactiveWinsF2F}%
-1+ wounds: ${activeOneWound}% - ${failureWound}% - ${reactiveOneWound}%
+1+ wounds: ${activeFirstWound}% - ${failureWound}% - ${reactiveFirstWound}%
 Wounds / Order: ${activeWPO} - - ${reactiveWPO}`
 
   async function copyTextToClipboard(text) {
