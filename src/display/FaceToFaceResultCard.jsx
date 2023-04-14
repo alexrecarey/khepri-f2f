@@ -21,14 +21,17 @@ function FaceToFaceResultCard(props) {
   const faceToFace = props.f2fResults.face_to_face;
   const p = props.f2fResults.parameters;
 
-  console.log('Face to face results are:');
-  console.log(faceToFace)
+  let activeParameters = `B${p.player_a_burst} ${p.dtw_vs_dodge ? "DTW" : "SV" + p.player_a_sv}\
+ ${p.player_a_ammo !== "DODGE" ? "DAM" + p.player_a_dam : ""} ${p.player_a_ammo !== "N" ? p.player_a_ammo : ""} \
+ ${p.player_a_cont ? "CONT" : ""} ARM${p.player_a_arm} ${p.player_a_crit_immune ? "CRIT_IMMUNE" : ""}`
+  let reactiveParameters = `B${p.player_b_burst} SV${p.player_b_sv} ${p.player_b_ammo !== "DODGE" ? "DAM" + p.player_b_dam : ""}\
+ ${p.player_b_ammo !== "N" ? p.player_b_ammo : ""} ${p.player_b_cont ? "CONT" : ""} ARM${p.player_b_arm} ${p.player_b_crit_immune ? "CRIT_IMMUNE" : ""}`
   return <Card>
     <CardContent>
       <Typography variant="h6">Results</Typography>
       <Box sx={{display: "flex", flexDirection: "row", justifyContent: "space-between", flexWrap: "wrap" }}>
-        <Typography sx={{whiteSpace: "nowrap"}} variant="overline">B{p.player_a_burst} SV{p.player_a_sv} DAM{p.player_a_dam} {p.player_a_ammo !== "N" ? p.player_a_ammo : ""} {p.player_a_cont ? "CONT" : ""} ARM{p.player_a_arm}</Typography>
-        <Typography sx={{whiteSpace: "nowrap", alignSelf: "end"}} variant="overline">B{p.player_b_burst} SV{p.player_b_sv} DAM{p.player_b_dam} {p.player_b_ammo !== "N" ? p.player_b_ammo : ""} {p.player_b_cont ? "CONT" : ""} ARM{p.player_b_arm}</Typography>
+        <Typography sx={{whiteSpace: "nowrap"}} variant="overline">{activeParameters}</Typography>
+        <Typography sx={{whiteSpace: "nowrap", alignSelf: "end"}} variant="overline">{reactiveParameters}</Typography>
       </Box>
       <Typography sx={{mt: 1, textAlign: "left", }} >Face to face</Typography>
       <FaceToFaceGraph rows={faceToFace}/>

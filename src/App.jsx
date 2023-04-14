@@ -124,7 +124,8 @@ function App() {
       player_a_sv: successValueA, player_a_burst: burstA, player_a_dam: damageA, player_a_arm: armA, player_a_bts: btsA,
       player_a_ammo: ammoA, player_a_cont: contA, player_a_crit_immune: critImmuneA,
       player_b_sv: successValueB, player_b_burst: burstB, player_b_dam: damageB, player_b_arm: armB, player_b_bts: btsB,
-      player_b_ammo: ammoB, player_b_cont: contB, player_b_crit_immune: critImmuneB, dtw_vs_dodge: dtwVsDodge,
+      player_b_ammo: ammoB, player_b_cont: contB, player_b_crit_immune: critImmuneB,
+      dtw_vs_dodge: dtwVsDodge,
     }
     await workerRef.current.postMessage({command: 'calculate', data: parameters})
   };
