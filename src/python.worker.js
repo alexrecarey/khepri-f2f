@@ -179,7 +179,7 @@ def face_to_face_expected_wounds(
 
         # Generate die with 1's for wounds and 0's for successful armor saves
         if cont:
-            dSave = Die([(damage + Again() if x < armor_save else 0) for x in range(20)], again_depth=5)
+            dSave = Die([(damage + Again() if x < armor_save else 0) for x in range(20)], again_depth=5, again_end=0)
         else:
             dSave = Die([(damage if x < armor_save else 0) for x in range(20)])
         dCrit = Die([(1 if x < armor_save else 0) for x in range(20)])
@@ -220,7 +220,7 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
         if len(over_max) > 0:
             additional_successes = reduce(lambda x, y: x+y, over_max.values(), 0)
             new_dict = {k: v for k, v in wounds[player].items() if k <= max_wounds_shown}
-            new_dict[max_wounds_shown] += additional_successes
+            new_dict[max_wounds_shown] = new_dict.get(max_wounds_shown, 0) + additional_successes
             squashed[player] = new_dict
         else:
             squashed[player] = wounds[player]
