@@ -1,6 +1,7 @@
 import {useState, useEffect, useRef} from 'react'
 import CssBaseline from '@mui/material/CssBaseline';
 import './App.css'
+import {any, assoc, clone, findIndex, propEq, update} from "ramda";
 import {
   Box,
   Card,
@@ -55,6 +56,9 @@ function App() {
 
   // Outputs
   const [f2fResults, setF2fResults] = useState(null);
+
+  // Saved Result list
+  const [savedResults, setSavedResults] = useState([]);
 
   // Theme
   const theme = createTheme({
@@ -130,6 +134,24 @@ function App() {
     await workerRef.current.postMessage({command: 'calculate', data: parameters})
   };
 
+  const addResultToCompareList = () => {
+    if(any(propEq('id', f2fResults.id))(savedResults)){
+      console.log("Not adding, duplicate key")
+    } else {
+      setSavedResults(prevState =>  clone([... prevState, f2fResults]));
+    }
+  }
+
+  const changeResultName = (id, name) => {
+    setSavedResults(prevState => {
+      let index = findIndex(propEq('id', id))(prevState);
+      let newSavedResults = update(index, assoc('title', name, prevState[index]))(prevState);
+      console.log('New saved results');
+      console.log(newSavedResults);
+      return newSavedResults;
+    })
+  }
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -176,9 +198,14 @@ function App() {
             </Card>
           </Grid>
           <Grid xs={12} sm={12} lg={4} xl={6} item>
-            <FaceToFaceResultCard f2fResults={f2fResults}/>
+            <FaceToFaceResultCard f2fResults={f2fResults} addToCompare={addResultToCompareList}/>
             <Typography variant="caption" color="text.secondary">{statusMessage}</Typography>
           </Grid>
+          {savedResults.map((result, index) => {
+            return <Grid xs={12} sm={12} lg={4} xl={6} item key={result['id']}>
+              <FaceToFaceResultCard f2fResults={result} changeName={changeResultName} index={index} variant='list'/>
+            </Grid>
+          })}
           <Grid>
             <Typography color="text.secondary" variant="body2" sx={{marginTop: 4, marginLeft: 2, marginRight: 2}}>
               Made with ❤️ for the Infinity community by Khepri.

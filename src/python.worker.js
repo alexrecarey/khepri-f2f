@@ -305,6 +305,7 @@ self.onmessage = async (msg) => {
     let startTime = Date.now();
     let results = await calculateProbability(msg.data.data)
     results['parameters'] = msg.data.data;
+    results['id'] = Date.now();
     let elapsed = Date.now() - startTime;
     console.log('Returning results from Face 2 Face calculations:')
     console.log(results)
