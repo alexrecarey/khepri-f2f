@@ -27,7 +27,6 @@ export default function InlineEdit(props) {
       <Box style={{display: "flex", flexGrow: 1, alignItems: "flex-start"}}>
         <TextField
           sx={{flexGrow: 1, textAlign: "left"}}
-          variant="standard"
           fullWidth
           className="MuiTypography-root MuiTypography-h6 MuiTypography-displayInline"
           value={value}
@@ -48,7 +47,7 @@ export default function InlineEdit(props) {
       <Typography variant={variant} display="inline" sx={{flexGrow: 1, textAlign: "left"}}>
         {value}
       </Typography>
-      <IconButton color="primary" size="small" onClick={toggleIsEditing}>
+      <IconButton size="small" onClick={toggleIsEditing}>
         <EditIcon/>
       </IconButton>
     </div>

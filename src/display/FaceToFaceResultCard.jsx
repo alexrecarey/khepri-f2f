@@ -2,13 +2,15 @@ import ExpectedWoundsGraph from "./ExpectedWoundsGraph.jsx";
 import ExpectedWoundsList from "./ExpectedWoundsList.jsx";
 import FaceToFaceGraph from "./Face2FaceGraph.jsx";
 import {
-  Box, Button,
-  Card, CardActions,
+  Box, Card, CardActions,
   CardContent, Collapse, IconButton,
   Typography
 } from "@mui/material";
 import { styled } from '@mui/material/styles';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import StarOutlineIcon from '@mui/icons-material/StarOutline';
+import TableRowsIcon from '@mui/icons-material/TableRows';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import ShareIcon from '@mui/icons-material/Share';
 import {useState} from "react";
 import ShareResultsModal from "./ShareResultsModal.jsx";
 import InlineEdit from "../componets/InlineEdit.jsx";
@@ -18,7 +20,7 @@ const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
 })(({ theme, expand }) => ({
-  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
+  transform: !expand ? 'rotate(0deg)' : 'rotate(90deg)',
   marginLeft: 'auto',
   transition: theme.transitions.create('transform', {
     duration: theme.transitions.duration.shortest,
@@ -41,9 +43,13 @@ function FaceToFaceResultCard(props) {
   const title = (variant === 'result' ? 'Results' : customTitle);
 
   // Expanded handler
-  const [expanded, setExpanded] = useState(variant === 'result');
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
+  const [expandGraph, setExpandGraph] = useState(true);
+  const [expandTable, setExpandTable] = useState(variant === 'result');
+  const handleExpandGraphClick = () => {
+    setExpandGraph(!expandGraph);
+  };
+  const handleExpandTableClick = () => {
+    setExpandTable(!expandTable);
   };
 
   // Modal sheet handlers
@@ -66,26 +72,37 @@ function FaceToFaceResultCard(props) {
         <Typography sx={{whiteSpace: "nowrap"}} variant="overline">{activeParameters}</Typography>
         <Typography sx={{whiteSpace: "nowrap", alignSelf: "end"}} variant="overline">{reactiveParameters}</Typography>
       </Box>
-      <Typography sx={{mt: 1, textAlign: "left", }} >Face to face</Typography>
-      <FaceToFaceGraph rows={faceToFace}/>
-      <Typography sx={{mt: 1, textAlign: "left", }}>Expected wounds</Typography>
-      <ExpectedWoundsGraph rows={expectedWounds}/>
+      <Collapse in={expandGraph} timeout="auto" >
+        <Typography sx={{mt: 1, textAlign: "left", }} >Face to face</Typography>
+        <FaceToFaceGraph rows={faceToFace}/>
+        <Typography sx={{mt: 1, textAlign: "left", }}>Expected wounds</Typography>
+        <ExpectedWoundsGraph rows={expectedWounds}/>
+      </Collapse>
     </CardContent>
-    <Collapse in={expanded} timeout="auto" unmountOnExit>
+    <Collapse in={expandTable} timeout="auto" >
       <CardContent>
         <ExpectedWoundsList rows={expectedWounds}/>
       </CardContent>
     </Collapse>
-    <CardActions disableSpacing>
-      <Button onClick={handleOpen} size="small">Share</Button>
-      {variant === 'result' && <Button onClick={addToCompare} size="small">Add to compare list</Button>}
+    <CardActions >
+      <IconButton onClick={handleOpen} size="small"><ShareIcon/></IconButton>
+      {variant === 'result' && <IconButton onClick={addToCompare} size="small"><StarOutlineIcon/></IconButton>}
+      <Box sx={{flexGrow:1}}/>
       <ExpandMore
-        expand={expanded}
-        onClick={handleExpandClick}
-        aria-expanded={expanded}
+        expand={expandGraph}
+        onClick={handleExpandGraphClick}
+        aria-expanded={expandTable}
         aria-label="show more"
       >
-        <ExpandMoreIcon />
+        <AssessmentIcon />
+      </ExpandMore>
+      <ExpandMore
+        expand={expandTable}
+        onClick={handleExpandTableClick}
+        aria-expanded={expandTable}
+        aria-label="show more"
+      >
+        <TableRowsIcon />
       </ExpandMore>
     </CardActions>
     <ShareResultsModal open={open} setClose={handleClose} expectedWounds={expectedWounds} faceToFace={faceToFace}/>
