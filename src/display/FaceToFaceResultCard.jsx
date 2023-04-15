@@ -11,6 +11,7 @@ import { styled } from '@mui/material/styles';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {useState} from "react";
 import ShareResultsModal from "./ShareResultsModal.jsx";
+import InlineEdit from "../componets/InlineEdit.jsx";
 
 
 const ExpandMore = styled((props) => {
@@ -57,8 +58,9 @@ function FaceToFaceResultCard(props) {
 
   return <Card>
     <CardContent>
-      <Box sx={{display: "flex", flexDirection: "row"}}>
-        <Typography variant="h6">{title}</Typography>
+      <Box sx={{display: "flex", flexDirection: "row", flexGrow: 1}}>
+        {/*<Typography variant="h6">{title}</Typography>*/}
+        <InlineEdit sx={{flexGrow: 1}} variant="h6" value={title}/>
       </Box>
       <Box sx={{display: "flex", flexDirection: "row", justifyContent: "space-between", flexWrap: "wrap" }}>
         <Typography sx={{whiteSpace: "nowrap"}} variant="overline">{activeParameters}</Typography>
