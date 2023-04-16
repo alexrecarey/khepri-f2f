@@ -104,13 +104,6 @@ def binomial_success(successes: int, trials: int, probability: float):
     return comb(trials, successes) * pow(probability, successes) * pow(1 - probability, trials - successes)
 
 
-def increment_or_create(dictionary, key, amount):
-    if key in dictionary:
-        dictionary[key] += amount
-    else:
-        dictionary[key] = amount
-
-
 AMMO = {
     'N': 1,
     'DA': 2,
@@ -119,6 +112,7 @@ AMMO = {
     'T2': 1,
     'PLASMA': 1,
 }
+
 
 def face_to_face_expected_wounds(
         outcomes,
@@ -130,7 +124,7 @@ def face_to_face_expected_wounds(
     Return format is {
         'active': {1: 11111, 2: 222222, 3: 33333},
         'reactive': {},
-        'fail': {},
+        'fail': {0: 122, guts: {'active': 0, 'reactive': 0}},
         'total_rolls': 0
     }
     """
@@ -138,12 +132,18 @@ def face_to_face_expected_wounds(
         'active': {},
         'reactive': {},
         'fail': {},
+        'guts': {
+            'active': 0,
+            'reactive': 0,
+            'missed': 0
+        },
         'total_rolls': 0
     }
     for (a_crit, a_hit, b_crit, b_hit), rolls in outcomes:
         wounds['total_rolls'] += rolls
         if a_crit + a_hit > 0:
             winner = 'active'
+            counterpart = 'reactive'
             armor_save = player_a_dam - player_b_arm
             damage = 2 if player_a_ammo == 'T2' else 1
             cont = player_a_cont
@@ -152,6 +152,7 @@ def face_to_face_expected_wounds(
             bts_save = player_a_dam - player_b_bts
         elif b_crit + b_hit > 0:
             winner = 'reactive'
+            counterpart = 'active'
             armor_save = player_b_dam - player_a_arm
             damage = 2 if player_b_ammo == 'T2' else 1
             cont = player_b_cont
@@ -160,6 +161,7 @@ def face_to_face_expected_wounds(
             bts_save = player_b_dam - player_a_bts
         else:
             winner = 'fail'
+            counterpart = 'missed'
             armor_save = 0
             damage = 0
             cont = False
@@ -168,10 +170,10 @@ def face_to_face_expected_wounds(
             bts_save = 0
 
         # Calculate total amount of saves that must be made.
-        # Each crit deals AMMO saves plus one extra save per crit. The extra save per crit is in crit_saves, as
+        # Each crit deals AMMO saves plus one extra save per crit. The extra save per crit is in 'crit_saves', as
         # neither CONT damage nor T2 apply their special effects to crit saves
         # For DODGE AMMO we run "min" to keep 0 (for dodge) or original value of crit, as 3 crits = 3 crit saves
-        # Each regular hit causes AMMO number of saves. We also have to add the regular hit portion of a crit,
+        # Each regular hit causes AMMO number of 'saves'. We also have to add the regular hit portion of a crit,
         # as 1 crit causes a AMMO saves for the regular portion, and 1 extra crit save that is not.
         crit_saves = 0 if crit_immune else min(a_crit, AMMO[player_a_ammo] * a_crit) + min(b_crit, AMMO[player_b_ammo] * b_crit)
         saves = ((a_crit + a_hit) * AMMO[player_a_ammo]) + ((b_crit + b_hit) * AMMO[player_b_ammo])
@@ -179,7 +181,7 @@ def face_to_face_expected_wounds(
 
         # Generate die with 1's for wounds and 0's for successful armor saves
         if cont:
-            dSave = Die([(damage + Again() if x < armor_save else 0) for x in range(20)], again_depth=5, again_end=0)
+            dSave = Die([(damage + Again() if x < armor_save else 0) for x in range(20)], again_depth=5)
         else:
             dSave = Die([(damage if x < armor_save else 0) for x in range(20)])
         dCrit = Die([(1 if x < armor_save else 0) for x in range(20)])
@@ -191,7 +193,8 @@ def face_to_face_expected_wounds(
         denominator = r.denominator()
         for w, occurrences in r.items():
             if w == 0:
-                wounds['fail'][0] = wounds['fail'].get(0, 0) + (occurrences/denominator) * rolls
+                wounds['fail'][0] = wounds['fail'].get(0, 0.0) + (occurrences/denominator) * rolls
+                wounds['guts'][counterpart] += (occurrences/denominator) * rolls
             else:
                 wounds[winner][w] = wounds[winner].get(w, 0) + (occurrences/denominator) * rolls
     return wounds
@@ -208,10 +211,12 @@ def format_face_to_face(face_to_face):
         })
     return output
 
+
 def format_expected_wounds(wounds, max_wounds_shown=3):
     """Format expected_wounds into a list of results
 
-    Output format is {'player': 'active/reactive', 'wounds': 3, 'chance': 0.2432, 'raw_chance' 1341234.23}
+    Output format is {'player': 'active/reactive/fail', 'wounds': 3, 'chance': 0.2432, 'raw_chance' 1341234.23,
+                      'cumulative_chance': 0.53234, 'raw_guts_chance': 0, 'guts_chance': 0.0234, 'cumulative_guts': 0.0723}
     """
     # Squash items that are > than max_wounds_shown
     squashed = {'active': None, 'reactive': None, 'fail': wounds['fail']}
@@ -226,22 +231,36 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
             squashed[player] = wounds[player]
 
     # Create output table
+    active_base_guts = wounds['guts']['active']
+    reactive_base_guts = wounds['guts']['reactive']
+    counterpart = {
+        'active': 'reactive',
+        'reactive': 'active'
+    }
     expected_wounds = []
-    order = 0
+    index = 0
     for player in ['active', 'fail', 'reactive']:
         keys = sorted(squashed[player].keys())
         for key in keys:
             expected_wounds.append({
-                'id': order,
+                'id': index,
                 'player': player,
                 'wounds': key,
                 'raw_chance': squashed[player][key],
                 'cumulative_chance': reduce(
                     lambda x, y: x+y,
                     [squashed[player][i] for i in squashed[player].keys() if i >= key], 0) / wounds['total_rolls'],
-                'chance': squashed[player][key]/wounds['total_rolls']
+                'chance': squashed[player][key]/wounds['total_rolls'],
+                'raw_active_guts': active_base_guts if player == 'fail' else squashed[counterpart[player]].get(key, 0),
+                'raw_reactive_guts': reactive_base_guts if player == 'fail' else squashed[counterpart[player]].get(key, 0),
+                'cumulative_active_guts_chance': 0 if player == 'active' else (
+                    reduce(lambda x, y: x+y, [squashed['reactive'][i] for i in squashed['reactive'].keys() if i <= key], 0)
+                    + active_base_guts) / wounds['total_rolls'],
+                'cumulative_reactive_guts_chance': 0 if player == 'reactive' else (
+                    reduce(lambda x, y: x+y, [squashed['active'][i] for i in squashed['active'].keys() if i <= key], 0)
+                    + reactive_base_guts) / wounds['total_rolls'],
             })
-            order += 1
+            index += 1
     return expected_wounds
 
 
@@ -250,7 +269,7 @@ def roll_and_bridge_results(
         player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_bts, player_b_ammo, player_b_cont, player_b_crit_immune,
         dtw):
     if dtw:
-        outcomes = dtw_vs_dodge(player_a_burst, player_b_sv, player_b_burst)
+        outcomes = dtw_vs_dodge(player_a_burst, player_b_sv, player_b_burst)  # dtw_burst, dodge_sv, dodge_burst
     else:
         outcomes = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
     results = face_to_face_result(outcomes)

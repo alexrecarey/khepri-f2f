@@ -53,23 +53,13 @@ function ExpectedWoundsList(props){
         <Typography>Failure</Typography>
         {failurePlayer(rows).map((row) => {
           return <Stack direction="row" sx={{alignItems: 'center'}} key={row.id}>
-            <Box sx={{
-              width: 25,
-              height: 25,
-              display: 'flex',
-              justifyContent: 'center',
-              alignContent: 'center',
-              backgroundColor: 'lightgrey'
-            }}>
-              <div style={{
-                display: 'flex',
-                verticalAlign: 'middle',
-                justifyContent: 'center',
-                alignContent: 'center'
-              }}>
-              </div>
-            </Box>
-            <Typography ml={1} mr={1} lineHeight={1} variant="body2">{formatPercentage(row['cumulative_chance'])}% chance neither player causes wounds.</Typography></Stack>
+              <Box sx={{width: 25,height: 25, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor: 'lightgrey'}}>
+                <div style={{display: 'flex', verticalAlign: 'middle', justifyContent: 'center', alignContent: 'center'}}></div>
+              </Box>
+              <Typography ml={1} mr={1} lineHeight={1} variant="body2">
+                {formatPercentage(row['cumulative_chance'])}% chance neither player causes wounds ({formatPercentage(row['cumulative_reactive_guts_chance'])}% for reactive to guts).
+              </Typography>
+            </Stack>
         })}
       </Grid>
       <Grid item xs={12} sm={4} lg={12} sx={{textAlign: 'left'}}>
