@@ -3,7 +3,8 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import Input from '@mui/material/Input';
+import TextField from '@mui/material/TextField';
+
 import {
   ascendByWounds,
   activePlayer,
@@ -37,13 +38,16 @@ const style = {
 };
 
 export default function ShareResultsModal(props) {
-  const [isCopied, setIsCopied] = useState(false);
+  const [isURLCopied, setIsURLCopied] = useState(false);
+  const [isCompactCopied, setIsCompactCopied] = useState(false);
+  const [isFullCopied, setIsFullCopied] = useState(false);
   const open = props.open;
   const setClose = props.setClose;
   const faceToFace = props.faceToFace;
   const expectedWounds = props.expectedWounds;
   const parameters = props.parameters;
 
+  // Sharable data precalculation
   const activeWounds = ascendByWounds(activePlayer(expectedWounds));
   const reactiveWounds = ascendByWounds(reactivePlayer(expectedWounds));
   const failureWounds = ascendByWounds(failurePlayer(expectedWounds));
@@ -94,14 +98,14 @@ Wounds / Order: ${activeWPO} - - ${reactiveWPO}`
     }
   }
 
-  const handleCopyClick = (text) => {
+  const handleCopyClick = (text, setStatus) => {
     // Asynchronously call copyTextToClipboard
     copyTextToClipboard(text)
       .then(() => {
         // If successful, update the isCopied state value
-        setIsCopied(true);
+        setStatus(true);
         setTimeout(() => {
-          setIsCopied(false);
+          setStatus(false);
           setClose();
         }, 1000);
       })
@@ -122,18 +126,17 @@ Wounds / Order: ${activeWPO} - - ${reactiveWPO}`
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h4" component="h3" sx={{mb: 2}}>Share results</Typography>
 
-          <Typography variant="h6">Share URL</Typography>
-          <Input fullWidth readOnly value={shareURL}/>
-          <Button onClick={() => handleCopyClick(shareURL)}>{isCopied ? 'Copied!' : 'Copy to clipboard'}</Button>
+          <TextField fullWidth readOnly label='Share URL' variant='filled' value={shareURL} />
+          <Button onClick={() => handleCopyClick(shareURL, setIsURLCopied())}>{isURLCopied ? 'Copied!' : 'Copy URL'}</Button>
 
-          <Typography variant="h6">Compact version</Typography>
-          <Input fullWidth multiline readOnly value={compactResultText}/>
-          <Button onClick={() => handleCopyClick(compactResultText)}>{isCopied ? 'Copied!' : 'Copy to clipboard'}</Button>
+          <TextField fullWidth multiline readOnly label='Compact text' variant='filled' value={compactResultText}/>
+          <Button onClick={() => handleCopyClick(compactResultText, setIsCompactCopied)}>{isCompactCopied ? 'Copied!' : 'Copy compact text'}</Button>
 
-          <Typography variant="h6" mt={2}>Full version</Typography>
-          <Input fullWidth multiline readOnly value={fullResultText}/>
-          <Button onClick={() => handleCopyClick(fullResultText)}>{isCopied ? 'Copied!' : 'Copy to clipboard'}</Button>
-         </Box>
+          <TextField fullWidth multiline readOnly label='Full text' variant='filled' value={fullResultText}/>
+          <Button onClick={() => handleCopyClick(fullResultText, setIsFullCopied)}>{isFullCopied ? 'Copied!' : 'Copy full text'}</Button>
+          <Box sx={{flexGrow: 1}}></Box>
+          <Button onClick={() => setClose()}>Close share sheet</Button>
+        </Box>
        </Modal>
      </div>
    );
