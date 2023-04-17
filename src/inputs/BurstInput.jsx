@@ -1,10 +1,9 @@
 import {faDiceD20} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {Collapse, Grid, InputLabel, Rating, Tooltip, Typography} from "@mui/material";
+import {Collapse, Grid, InputLabel, Rating, Typography} from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 import {clamp} from "ramda";
 import UncontrolledInput from "../componets/UncontrolledInput.jsx";
-import InfoIcon from "@mui/icons-material/Info";
 
 
 function BurstInput(props) {
@@ -42,7 +41,7 @@ function BurstInput(props) {
     </Grid>
     <Grid item xs={12} sx={{textAlign: 'left'}}>
       <Collapse in={props.info}>
-        <Typography variant='caption'>Final burst after bonuses (fire team, multiple compatants in CC, etc). You can
+        <Typography variant='caption'>Final burst after bonuses (fire team, multiple combatants in CC, etc). You can
         set Reactive burst to 0 to calculate unopposed shots by double clicking on the die or typing 0 in the value box.
         </Typography>
       </Collapse>

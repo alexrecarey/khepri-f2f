@@ -47,7 +47,7 @@ function ArmorInput(props){
     <Grid item xs={12} sx={{textAlign: 'left'}}>
       <Collapse in={props.info}>
         <Typography variant='caption'>Final computed armor value, after all modifiers. You must halve and round up
-          if Reactive player uses AP ammo.</Typography>
+          if opposing player uses AP ammo.</Typography>
       </Collapse>
     </Grid>
     <Grid item xs={2} sx={gridStyle}

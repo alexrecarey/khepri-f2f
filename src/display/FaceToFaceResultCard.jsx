@@ -3,14 +3,15 @@ import ExpectedWoundsList from "./ExpectedWoundsList.jsx";
 import FaceToFaceGraph from "./Face2FaceGraph.jsx";
 import {
   Box, Card, CardActions,
-  CardContent, Collapse, IconButton, Tooltip,
+  CardContent, CardMedia, Collapse, IconButton, Tooltip,
   Typography
 } from "@mui/material";
 import { styled } from '@mui/material/styles';
-import StarOutlineIcon from '@mui/icons-material/StarOutline';
+import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 import TableRowsIcon from '@mui/icons-material/TableRows';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import ShareIcon from '@mui/icons-material/Share';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {useState} from "react";
 import ShareResultsModal from "./ShareResultsModal.jsx";
 import InlineEdit from "../componets/InlineEdit.jsx";
@@ -41,6 +42,7 @@ function FaceToFaceResultCard(props) {
   const index = props.index ?? "";
   const customTitle = props.f2fResults?.title ?? `Saved result ${index +1}`;
   const title = (variant === 'result' ? 'Results' : customTitle);
+  const remove = props.remove ? props.remove : () => void 0;
 
   // Expanded handler
   const [expandGraph, setExpandGraph] = useState(true);
@@ -65,20 +67,21 @@ function FaceToFaceResultCard(props) {
   return <Card>
     <CardContent>
       <Box sx={{display: "flex", flexDirection: "row", flexGrow: 1}}>
-        {/*<Typography variant="h6">{title}</Typography>*/}
         <InlineEdit sx={{flexGrow: 1}} variant="h6" value={title}/>
       </Box>
+    </CardContent>
+    <CardMedia sx={{pl:2, pr:2}}>
       <Box sx={{display: "flex", flexDirection: "row", justifyContent: "space-between", flexWrap: "wrap" }}>
         <Typography sx={{whiteSpace: "nowrap"}} variant="overline">{activeParameters}</Typography>
         <Typography sx={{whiteSpace: "nowrap", alignSelf: "end"}} variant="overline">{reactiveParameters}</Typography>
       </Box>
       <Collapse in={expandGraph} timeout="auto" >
-        <Typography sx={{mt: 1, textAlign: "left", }} >Face to face</Typography>
+        <Typography sx={{textAlign: "left", }} >Face to face</Typography>
         <FaceToFaceGraph rows={faceToFace}/>
         <Typography sx={{mt: 1, textAlign: "left", }}>Expected wounds</Typography>
         <ExpectedWoundsGraph rows={expectedWounds}/>
       </Collapse>
-    </CardContent>
+    </CardMedia>
     <Collapse in={expandTable} timeout="auto" >
       <CardContent>
         <ExpectedWoundsList rows={expectedWounds}/>
@@ -87,9 +90,12 @@ function FaceToFaceResultCard(props) {
     <CardActions >
       <IconButton onClick={handleOpen} size="small">
         <Tooltip title="Share results"><ShareIcon/></Tooltip></IconButton>
-      {variant === 'result' && <Tooltip title="Save result to comparison list">
-        <IconButton onClick={addToCompare} size="small"><StarOutlineIcon/></IconButton>
+      {variant === 'result' && <Tooltip title="Add result to comparison list">
+        <IconButton onClick={addToCompare} size="small"><LibraryAddIcon/></IconButton>
       </Tooltip>}
+      {variant === 'list' && <Tooltip title="Delete from comparison list">
+        <IconButton onClick={() => remove(props.f2fResults['id'])}><DeleteIcon/></IconButton></Tooltip>
+      }
       <Box sx={{flexGrow:1}}/>
       <ExpandMore
         expand={expandGraph}

@@ -43,7 +43,7 @@ function DamageInput(props) {
     </Grid>
     <Grid item xs={12} sx={{textAlign: 'left'}}>
       <Collapse in={props.info}>
-        <Typography variant='caption'>Final damage value of weapon being used. You must include all + damage mods.
+        <Typography variant='caption'>Final damage value of weapon being used. You must include all damage mods.
           You can also subtract cover from here instead of adding it to ARM.</Typography>
       </Collapse>
     </Grid>

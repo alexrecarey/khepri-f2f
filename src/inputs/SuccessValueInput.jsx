@@ -43,9 +43,10 @@ function SuccessValueInput(props){
     </Grid>
     <Grid item xs={12} sx={{textAlign: 'left'}}>
       <Collapse in={props.info}>
-        <Typography variant='caption'>Final Success Value for player after all positive and negative mods
+        <Typography variant='caption'>Target Success Value for player after all positive and negative mods
           (fireteam, mimetism, range, cover, etc) have been applied to the BS or CC attribute. Success values over 20
-          will be added to the roll and cause more critical hits. Remember mods cap out at +/-12</Typography>
+          will be added to the roll. Rolls equal or over 20 will cause critical hits. Remember mods cap out at +/-12.
+        </Typography>
       </Collapse>
     </Grid>
     <Grid item xs={2} sx={gridStyle}

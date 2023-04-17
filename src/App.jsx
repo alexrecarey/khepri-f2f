@@ -1,7 +1,7 @@
 import {useState, useEffect, useRef} from 'react'
 import CssBaseline from '@mui/material/CssBaseline';
 import './App.css'
-import {any, assoc, clone, findIndex, propEq, update} from "ramda";
+import {any, assoc, clone, findIndex, propEq, remove, update} from "ramda";
 import {
   Box,
   Card,
@@ -164,6 +164,12 @@ function App() {
     })
   }
 
+  const deleteResultFromCompareList = (id) => {
+    let index = findIndex(propEq('id', id))(savedResults);
+    if(index >= 0){
+      setSavedResults(prevState => remove(index, 1, prevState));
+    }
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -215,7 +221,13 @@ function App() {
           </Grid>
           {savedResults.map((result, index) => {
             return <Grid xs={12} sm={12} lg={4} xl={6} item key={result['id']}>
-              <FaceToFaceResultCard f2fResults={result} changeName={changeResultName} index={index} variant='list'/>
+              <FaceToFaceResultCard
+                f2fResults={result}
+                changeName={changeResultName}
+                remove={deleteResultFromCompareList}
+                index={index}
+                variant='list'
+              />
             </Grid>
           })}
           <Grid>
