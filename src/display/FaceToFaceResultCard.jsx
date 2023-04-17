@@ -3,7 +3,7 @@ import ExpectedWoundsList from "./ExpectedWoundsList.jsx";
 import FaceToFaceGraph from "./Face2FaceGraph.jsx";
 import {
   Box, Card, CardActions,
-  CardContent, Collapse, IconButton,
+  CardContent, Collapse, IconButton, Tooltip,
   Typography
 } from "@mui/material";
 import { styled } from '@mui/material/styles';
@@ -85,8 +85,11 @@ function FaceToFaceResultCard(props) {
       </CardContent>
     </Collapse>
     <CardActions >
-      <IconButton onClick={handleOpen} size="small"><ShareIcon/></IconButton>
-      {variant === 'result' && <IconButton onClick={addToCompare} size="small"><StarOutlineIcon/></IconButton>}
+      <IconButton onClick={handleOpen} size="small">
+        <Tooltip title="Share results"><ShareIcon/></Tooltip></IconButton>
+      {variant === 'result' && <Tooltip title="Save result to comparison list">
+        <IconButton onClick={addToCompare} size="small"><StarOutlineIcon/></IconButton>
+      </Tooltip>}
       <Box sx={{flexGrow:1}}/>
       <ExpandMore
         expand={expandGraph}
@@ -94,7 +97,9 @@ function FaceToFaceResultCard(props) {
         aria-expanded={expandTable}
         aria-label="show more"
       >
-        <AssessmentIcon />
+        <Tooltip title="Show / hide face to face result graph">
+          <AssessmentIcon />
+        </Tooltip>
       </ExpandMore>
       <ExpandMore
         expand={expandTable}
@@ -102,7 +107,9 @@ function FaceToFaceResultCard(props) {
         aria-expanded={expandTable}
         aria-label="show more"
       >
-        <TableRowsIcon />
+        <Tooltip title="Show / hide face to face result table">
+          <TableRowsIcon />
+        </Tooltip>
       </ExpandMore>
     </CardActions>
     <ShareResultsModal open={open} setClose={handleClose} expectedWounds={expectedWounds} faceToFace={faceToFace} parameters={p}/>

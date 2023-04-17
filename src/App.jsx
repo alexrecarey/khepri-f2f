@@ -6,13 +6,14 @@ import {
   Box,
   Card,
   CardContent,
-  Grid,
+  Grid, IconButton,
   ThemeProvider,
   Typography
 } from "@mui/material";
 
 import { createTheme } from '@mui/material/styles';
 import {grey} from "@mui/material/colors";
+import InfoIcon from '@mui/icons-material/Info';
 
 // Data input
 import SuccessValueInput from "./inputs/SuccessValueInput.jsx";
@@ -66,6 +67,9 @@ function App() {
 
   // Saved Result list
   const [savedResults, setSavedResults] = useState([]);
+
+  // Tooltips
+  const [showTooltips, setShowTooltips] = useState(false);
 
   // Theme
   const theme = createTheme({
@@ -167,7 +171,7 @@ function App() {
       <Box sx={{flexGrow: 1}}>
         <Grid container spacing={2}>
           <Grid xs={12} item>
-            <Typography variant="h5">Face 2 Face Calculator</Typography>
+            <Typography variant="h5">Face 2 Face Calculator <IconButton onClick={()=>setShowTooltips(!showTooltips)}><InfoIcon/></IconButton></Typography>
           </Grid>
           <Grid xs={12} sm={6} lg={4} xl={3} item>
             <Card style={{alignItems: "center", justifyContent: "center"}}>
@@ -176,13 +180,13 @@ function App() {
                   <Grid item xs={12}>
                     <Typography variant="h6" gutterBottom>Active</Typography>
                   </Grid>
-                  <BurstInput burst={burstA} update={setBurstA} color="#b14d8e"/>
-                  {dtwVsDodge === false && <SuccessValueInput successValue={successValueA} update={setSuccessValueA}/>}
-                  <DamageInput damage={damageA} update={setDamageA}/>
-                  <ArmorInput armor={armA} update={setArmA} hideBTS={ammoB === 'PLASMA'}/>
-                  {ammoB === 'PLASMA' && <BTSInput bts={btsA} update={setBtsA} />}
-                  <AmmoInput ammo={ammoA} cont={contA} update={setAmmoA} updateCont={setContA}/>
-                  <OtherInputs critImmune={critImmuneA} update={setCritImmuneA} dtwVsDodge={dtwVsDodge} updateDtw={setDtwVsDodge}/>
+                  <BurstInput burst={burstA} update={setBurstA} info={showTooltips}/>
+                  {dtwVsDodge === false && <SuccessValueInput successValue={successValueA} update={setSuccessValueA} info={showTooltips}/>}
+                  <DamageInput damage={damageA} update={setDamageA} info={showTooltips}/>
+                  <ArmorInput armor={armA} update={setArmA} hideBTS={ammoB === 'PLASMA'} info={showTooltips}/>
+                  {ammoB === 'PLASMA' && <BTSInput bts={btsA} update={setBtsA} info={showTooltips}/>}
+                  <AmmoInput ammo={ammoA} cont={contA} update={setAmmoA} updateCont={setContA} info={showTooltips}/>
+                  <OtherInputs critImmune={critImmuneA} update={setCritImmuneA} dtwVsDodge={dtwVsDodge} updateDtw={setDtwVsDodge} info={showTooltips}/>
                 </Grid>
               </CardContent>
             </Card>
@@ -194,13 +198,13 @@ function App() {
                   <Grid item xs={12}>
                     <Typography variant="h6" gutterBottom>Reactive</Typography>
                   </Grid>
-                  <BurstInput burst={burstB} update={setBurstB} variant='reactive'/>
-                  <SuccessValueInput successValue={successValueB} update={setSuccessValueB} variant='reactive'/>
-                  {dtwVsDodge === false &&<DamageInput damage={damageB} update={setDamageB} variant='reactive'/>}
-                  <ArmorInput armor={armB} update={setArmB} hideBTS={ammoA === 'PLASMA'} variant='reactive'/>
-                  {ammoA === 'PLASMA' && <BTSInput bts={btsB} update={setBtsB} variant='reactive'/>}
-                  <AmmoInput ammo={ammoB} cont={contB} update={setAmmoB} updateCont={setContB} variant='reactive' dtw={dtwVsDodge}/>
-                  <OtherInputs critImmune={critImmuneB} update={setCritImmuneB} variant='reactive'/>
+                  <BurstInput burst={burstB} update={setBurstB} variant='reactive' info={showTooltips}/>
+                  <SuccessValueInput successValue={successValueB} update={setSuccessValueB} variant='reactive' info={showTooltips}/>
+                  {dtwVsDodge === false &&<DamageInput damage={damageB} update={setDamageB} variant='reactive' info={showTooltips}/>}
+                  <ArmorInput armor={armB} update={setArmB} hideBTS={ammoA === 'PLASMA'} variant='reactive' info={showTooltips}/>
+                  {ammoA === 'PLASMA' && <BTSInput bts={btsB} update={setBtsB} variant='reactive' info={showTooltips}/>}
+                  <AmmoInput ammo={ammoB} cont={contB} update={setAmmoB} updateCont={setContB} variant='reactive' dtw={dtwVsDodge} info={showTooltips}/>
+                  <OtherInputs critImmune={critImmuneB} update={setCritImmuneB} variant='reactive' info={showTooltips}/>
                 </Grid>
               </CardContent>
             </Card>

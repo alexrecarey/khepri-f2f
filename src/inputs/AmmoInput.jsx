@@ -1,4 +1,4 @@
-import {Grid, InputLabel, ToggleButtonGroup} from "@mui/material";
+import {Collapse, Grid, InputLabel, ToggleButtonGroup, Typography} from "@mui/material";
 import MuiToggleButton from "@mui/material/ToggleButton";
 import { styled, useTheme } from "@mui/material/styles";
 
@@ -33,6 +33,12 @@ function AmmoInput(props){
   return  <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
       <InputLabel sx={{mt:1}}>Ammunition</InputLabel></Grid>
+    <Grid item xs={12} sx={{textAlign: 'left'}}>
+      <Collapse in={props.info}>
+        <Typography variant='caption'>AP ammo must be calculated by halving opposing ARM/BTS manually. Dodge will
+          use the burst value, so smoke dodges in fire teams can be calculated.</Typography>
+      </Collapse>
+    </Grid>
     <Grid item xs={12} sx={{display:"flex", justifyContent:"left", alignItems:"center", flexWrap: "wrap"}}>
       <ToggleButtonGroup
         exclusive

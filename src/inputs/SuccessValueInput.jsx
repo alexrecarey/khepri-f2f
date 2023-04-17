@@ -1,4 +1,4 @@
-import {Grid, InputLabel} from "@mui/material";
+import {Collapse, Grid, InputLabel, Typography} from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCrosshairs} from "@fortawesome/free-solid-svg-icons";
@@ -40,6 +40,13 @@ function SuccessValueInput(props){
   return <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
       <InputLabel sx={{mt:1}}>Success Value</InputLabel>
+    </Grid>
+    <Grid item xs={12} sx={{textAlign: 'left'}}>
+      <Collapse in={props.info}>
+        <Typography variant='caption'>Final Success Value for player after all positive and negative mods
+          (fireteam, mimetism, range, cover, etc) have been applied to the BS or CC attribute. Success values over 20
+          will be added to the roll and cause more critical hits. Remember mods cap out at +/-12</Typography>
+      </Collapse>
     </Grid>
     <Grid item xs={2} sx={gridStyle}
     >

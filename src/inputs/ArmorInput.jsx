@@ -1,4 +1,4 @@
-import {Grid, InputLabel} from "@mui/material";
+import {Collapse, Grid, InputLabel, Typography} from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faShieldHalved} from "@fortawesome/free-solid-svg-icons";
@@ -43,6 +43,12 @@ function ArmorInput(props){
   return <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
       <InputLabel sx={{mt:1}}>Armor {!hideBTS && <span>/ BTS</span>}</InputLabel>
+    </Grid>
+    <Grid item xs={12} sx={{textAlign: 'left'}}>
+      <Collapse in={props.info}>
+        <Typography variant='caption'>Final computed armor value, after all modifiers. You must halve and round up
+          if Reactive player uses AP ammo.</Typography>
+      </Collapse>
     </Grid>
     <Grid item xs={2} sx={gridStyle}
     >

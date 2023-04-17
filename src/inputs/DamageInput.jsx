@@ -1,4 +1,4 @@
-import {Grid, InputLabel} from "@mui/material";
+import {Collapse, Grid, InputLabel, Typography} from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBurst} from "@fortawesome/free-solid-svg-icons";
@@ -40,6 +40,12 @@ function DamageInput(props) {
   return <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
       <InputLabel sx={{mt:1}}>Damage</InputLabel>
+    </Grid>
+    <Grid item xs={12} sx={{textAlign: 'left'}}>
+      <Collapse in={props.info}>
+        <Typography variant='caption'>Final damage value of weapon being used. You must include all + damage mods.
+          You can also subtract cover from here instead of adding it to ARM.</Typography>
+      </Collapse>
     </Grid>
     <Grid item xs={2} sx={gridStyle}
     >

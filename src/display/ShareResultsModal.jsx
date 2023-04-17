@@ -18,7 +18,6 @@ import {useState} from "react";
 
 
 function encodeQueryData(data) {
-  console.log(data);
   const ret = [];
   for (let d in data)
     ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
