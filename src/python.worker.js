@@ -307,11 +307,11 @@ async function initPyodide() {
 async function calculateProbability(p) {
   let pythonFunction = await self.pyodide.runPythonAsync(PYTHON_CODE) // eslint-disable-line no-restricted-globals
   return pythonFunction(
-    p['player_a_sv'], p['player_a_burst'], p['player_a_dam'], p['player_a_arm'], p['player_a_bts'], p['player_a_ammo'],
-    p['player_a_cont'], p['player_a_crit_immune'],
-    p['player_b_sv'], p['player_b_burst'], p['player_b_dam'], p['player_b_arm'], p['player_b_bts'], p['player_b_ammo'],
-    p['player_b_cont'], p['player_b_crit_immune'],
-    p['dtw_vs_dodge'])
+    p['successValueA'], p['burstA'], p['damageA'], p['armA'], p['btsA'], p['ammoA'],
+    p['contA'], p['critImmuneA'],
+    p['successValueB'], p['burstB'], p['damageB'], p['armB'], p['btsB'], p['ammoB'],
+    p['contB'], p['critImmuneB'],
+    p['dtwVsDodge'])
 }
 
 

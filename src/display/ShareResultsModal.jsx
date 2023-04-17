@@ -16,6 +16,14 @@ import {reduce} from "ramda";
 import {useState} from "react";
 
 
+function encodeQueryData(data) {
+  console.log(data);
+  const ret = [];
+  for (let d in data)
+    ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
+  return ret.join('&');
+}
+
 const style = {
   position: 'absolute',
   top: '50%',
@@ -34,6 +42,7 @@ export default function ShareResultsModal(props) {
   const setClose = props.setClose;
   const faceToFace = props.faceToFace;
   const expectedWounds = props.expectedWounds;
+  const parameters = props.parameters;
 
   const activeWounds = ascendByWounds(activePlayer(expectedWounds));
   const reactiveWounds = ascendByWounds(reactivePlayer(expectedWounds));
@@ -54,6 +63,8 @@ export default function ShareResultsModal(props) {
   const activeWPO = twoDecimalPlaces(reduce(woundsByChance, 0, activePlayer(expectedWounds)));
   const reactiveWPO = twoDecimalPlaces(reduce(woundsByChance, 0,reactivePlayer(expectedWounds)));
 
+
+  const shareURL = `https://infinitythecalculator.com/?${encodeQueryData(parameters)}`;
 
   const fullResultText =
 `Active - ${activeWPO} wounds / order:
@@ -99,18 +110,6 @@ Wounds / Order: ${activeWPO} - - ${reactiveWPO}`
       });
   }
 
-  //const faceToFace = props.face_to_face;
-  //const p = props.parameters;
-  // 🔥 Fire	U+1F525
-  // 🟥 Red square	U+1F7E5
-  // 🟧 Orange square	U+1F7E5
-  // 🟨 Yellow square	U+1F7E8
-  // 🟩 Green square	U+1F7E9
-  // 🟦 Blue square	U+1F7E6
-  // 🟪 Purple square	U+1F7EA
-  // 🟫 Brown square	U+1F7EB
-  // ⬛ Black square	U+2B1B
-  // ⬜ White square	U+2B1C
 
   return (
     <div>
@@ -121,9 +120,12 @@ Wounds / Order: ${activeWPO} - - ${reactiveWPO}`
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h4" component="h3" sx={{mb: 2}}>
-            Share results
-          </Typography>
+          <Typography id="modal-modal-title" variant="h4" component="h3" sx={{mb: 2}}>Share results</Typography>
+
+          <Typography variant="h6">Share URL</Typography>
+          <Input fullWidth readOnly value={shareURL}/>
+          <Button onClick={() => handleCopyClick(shareURL)}>{isCopied ? 'Copied!' : 'Copy to clipboard'}</Button>
+
           <Typography variant="h6">Compact version</Typography>
           <Input fullWidth multiline readOnly value={compactResultText}/>
           <Button onClick={() => handleCopyClick(compactResultText)}>{isCopied ? 'Copied!' : 'Copy to clipboard'}</Button>
@@ -136,3 +138,16 @@ Wounds / Order: ${activeWPO} - - ${reactiveWPO}`
      </div>
    );
 }
+
+//const faceToFace = props.face_to_face;
+//const p = props.parameters;
+// 🔥 Fire	U+1F525
+// 🟥 Red square	U+1F7E5
+// 🟧 Orange square	U+1F7E5
+// 🟨 Yellow square	U+1F7E8
+// 🟩 Green square	U+1F7E9
+// 🟦 Blue square	U+1F7E6
+// 🟪 Purple square	U+1F7EA
+// 🟫 Brown square	U+1F7EB
+// ⬛ Black square	U+2B1B
+// ⬜ White square	U+2B1C

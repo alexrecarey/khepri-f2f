@@ -25,7 +25,8 @@ import BurstInput from "./inputs/BurstInput.jsx";
 import FaceToFaceResultCard from "./display/FaceToFaceResultCard.jsx";
 import OtherInputs from "./inputs/OtherInputs.jsx";
 import BTSInput from "./inputs/BTSInput.jsx";
-
+import {useSearchParams} from "react-router-dom";
+import validateParams from "./inputs/validateParams.js";
 
 
 function App() {
@@ -33,26 +34,32 @@ function App() {
   const [statusMessage, setStatusMessage] = useState("(loading...)");
   const workerRef = useRef(null);
 
+  // Search params
+  let [searchParams, setSearchParams] = useSearchParams();
+  let p = validateParams(searchParams);
+  console.log(`Validated search params are:`);
+  console.log(p);
+
   // Inputs Player A
-  const [burstA, setBurstA] = useState(3);
-  const [successValueA, setSuccessValueA] = useState(13);
-  const [damageA, setDamageA] = useState(13);
-  const [armA, setArmA] = useState(0);
-  const [btsA, setBtsA] = useState(0);
-  const [ammoA, setAmmoA] = useState('N');
-  const [contA, setContA] = useState(false);
-  const [critImmuneA, setCritImmuneA] = useState(false);
-  const [dtwVsDodge, setDtwVsDodge] = useState(false);
+  const [burstA, setBurstA] = useState(p.burstA);
+  const [successValueA, setSuccessValueA] = useState(p.successValueA);
+  const [damageA, setDamageA] = useState(p.damageA);
+  const [armA, setArmA] = useState(p.armA);
+  const [btsA, setBtsA] = useState(p.btsA);
+  const [ammoA, setAmmoA] = useState(p.ammoA);
+  const [contA, setContA] = useState(p.contA);
+  const [critImmuneA, setCritImmuneA] = useState(p.critImmuneA);
+  const [dtwVsDodge, setDtwVsDodge] = useState(p.dtwVsDodge);
 
   // Inputs Player B
-  const [burstB, setBurstB] = useState(1);
-  const [successValueB, setSuccessValueB] = useState(13);
-  const [damageB, setDamageB] = useState(13);
-  const [armB, setArmB] = useState(0);
-  const [btsB, setBtsB] = useState(0);
-  const [ammoB, setAmmoB] = useState('N');
-  const [contB, setContB] = useState(false);
-  const [critImmuneB, setCritImmuneB] = useState(false);
+  const [burstB, setBurstB] = useState(p.burstB);
+  const [successValueB, setSuccessValueB] = useState(p.successValueB);
+  const [damageB, setDamageB] = useState(p.damageB);
+  const [armB, setArmB] = useState(p.armB);
+  const [btsB, setBtsB] = useState(p.btsB);
+  const [ammoB, setAmmoB] = useState(p.ammoB);
+  const [contB, setContB] = useState(p.contB);
+  const [critImmuneB, setCritImmuneB] = useState(p.critImmuneB);
 
   // Outputs
   const [f2fResults, setF2fResults] = useState(null);
@@ -115,6 +122,7 @@ function App() {
 
   useEffect( ()=> {
     rollDice();
+    setSearchParams();
   },[
     burstA, successValueA, damageA, armA, btsA, ammoA, contA, critImmuneA,
     burstB, successValueB, damageB, armB, btsB, ammoB, contB, critImmuneB,
@@ -125,11 +133,11 @@ function App() {
   const rollDice = async () => {
     // get result from worker
     let parameters = {
-      player_a_sv: successValueA, player_a_burst: burstA, player_a_dam: damageA, player_a_arm: armA, player_a_bts: btsA,
-      player_a_ammo: ammoA, player_a_cont: contA, player_a_crit_immune: critImmuneA,
-      player_b_sv: successValueB, player_b_burst: burstB, player_b_dam: damageB, player_b_arm: armB, player_b_bts: btsB,
-      player_b_ammo: ammoB, player_b_cont: contB, player_b_crit_immune: critImmuneB,
-      dtw_vs_dodge: dtwVsDodge,
+      successValueA: successValueA, burstA: burstA, damageA: damageA, armA: armA, btsA: btsA,
+      ammoA: ammoA, contA: contA, critImmuneA: critImmuneA,
+      successValueB: successValueB, burstB: burstB, damageB: damageB, armB: armB, btsB: btsB,
+      ammoB: ammoB, contB: contB, critImmuneB: critImmuneB,
+      dtwVsDodge: dtwVsDodge,
     }
     await workerRef.current.postMessage({command: 'calculate', data: parameters})
   };

@@ -56,11 +56,11 @@ function FaceToFaceResultCard(props) {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  let activeParameters = `B${p.player_a_burst} ${p.dtw_vs_dodge ? "DTW" : "SV" + p.player_a_sv}\
- ${p.player_a_ammo !== "DODGE" ? "DAM" + p.player_a_dam : ""} ${p.player_a_ammo !== "N" ? p.player_a_ammo : ""} \
- ${p.player_a_cont ? "CONT" : ""} ARM${p.player_a_arm} ${p.player_a_crit_immune ? "CRIT_IMMUNE" : ""}`
-  let reactiveParameters = `B${p.player_b_burst} SV${p.player_b_sv} ${p.player_b_ammo !== "DODGE" ? "DAM" + p.player_b_dam : ""}\
- ${p.player_b_ammo !== "N" ? p.player_b_ammo : ""} ${p.player_b_cont ? "CONT" : ""} ARM${p.player_b_arm} ${p.player_b_crit_immune ? "CRIT_IMMUNE" : ""}`
+  let activeParameters = `B${p.burstA} ${p.dtwVsDodge ? "DTW" : "SV" + p.successValueA}\
+ ${p.ammoA !== "DODGE" ? "DAM" + p.damageA : ""} ${p.ammoA !== "N" ? p.ammoA : ""} \
+ ${p.contA ? "CONT" : ""} ARM${p.armA} ${p.critImmuneA ? "CRIT_IMMUNE" : ""}`
+  let reactiveParameters = `B${p.burstB} SV${p.successValueB} ${p.ammoB !== "DODGE" ? "DAM" + p.damageB : ""}\
+ ${p.ammoB !== "N" ? p.ammoB : ""} ${p.contB ? "CONT" : ""} ARM${p.armB} ${p.critImmuneB ? "CRIT_IMMUNE" : ""}`
 
   return <Card>
     <CardContent>
@@ -105,7 +105,7 @@ function FaceToFaceResultCard(props) {
         <TableRowsIcon />
       </ExpandMore>
     </CardActions>
-    <ShareResultsModal open={open} setClose={handleClose} expectedWounds={expectedWounds} faceToFace={faceToFace}/>
+    <ShareResultsModal open={open} setClose={handleClose} expectedWounds={expectedWounds} faceToFace={faceToFace} parameters={p}/>
   </Card>;
 
 }
