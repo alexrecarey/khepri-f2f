@@ -42,9 +42,10 @@ export default function ShareResultsModal(props) {
   const [isFullCopied, setIsFullCopied] = useState(false);
   const open = props.open;
   const setClose = props.setClose;
-  const faceToFace = props.faceToFace;
-  const expectedWounds = props.expectedWounds;
-  const parameters = props.parameters;
+  const faceToFace = props.results.face_to_face;
+  const expectedWounds = props.results.expected_wounds;
+  const parameters = props.results.parameters;
+  const title = props.results?.title ?? "Result";
 
   // Sharable data precalculation
   const activeWounds = ascendByWounds(activePlayer(expectedWounds));
@@ -90,7 +91,7 @@ ${reactiveSecondAmount ? ("\n  Causes " + activeSecondAmount + "+ wounds: " + re
 // Wounds / Order: ${activeWPO} - - ${reactiveWPO}`
 
   const discordText =  [
-    `# Result\n`,
+    `# ${title}\n`,
     `### Active (${twoDecimalPlaces(reduce(woundsByChance, 0, activePlayer(expectedWounds)))} wounds / order)\n`,
     (ascendByWounds(activePlayer(expectedWounds)).map((row) => {
       return `- ${formatPercentage(row['cumulative_chance'])}% chance ${row['wounds']} or more wounds.\n`

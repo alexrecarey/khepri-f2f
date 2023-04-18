@@ -40,9 +40,19 @@ function FaceToFaceResultCard(props) {
   const addToCompare = props.addToCompare;
   const variant = props.variant ?? 'result';
   const index = props.index ?? "";
-  const customTitle = props.f2fResults?.title ?? `Saved result ${index +1}`;
-  const title = (variant === 'result' ? 'Results' : customTitle);
+  const updateTitle = props.changeName ? props.changeName : () => void 0;
   const remove = props.remove ? props.remove : () => void 0;
+
+  // ?? `Saved result ${index +1}`;
+  // Calculate custom title
+  let title;
+  if (props.f2fResults?.title) {
+    title = props.f2fResults.title;
+  } else if (variant !== 'result' && index !== ""){
+    title = `Saved result ${index +1}`;
+  } else {
+    title = "Result"
+  }
 
   // Expanded handler
   const [expandGraph, setExpandGraph] = useState(true);
@@ -67,7 +77,7 @@ function FaceToFaceResultCard(props) {
   return <Card>
     <CardContent>
       <Box sx={{display: "flex", flexDirection: "row", flexGrow: 1}}>
-        <InlineEdit sx={{flexGrow: 1}} variant="h6" value={title}/>
+        <InlineEdit sx={{flexGrow: 1}} variant="h6" value={title} update={updateTitle}/>
       </Box>
     </CardContent>
     <CardMedia sx={{pl:2, pr:2}}>
@@ -118,7 +128,7 @@ function FaceToFaceResultCard(props) {
         </Tooltip>
       </ExpandMore>
     </CardActions>
-    <ShareResultsModal open={open} setClose={handleClose} expectedWounds={expectedWounds} faceToFace={faceToFace} parameters={p}/>
+    <ShareResultsModal open={open} setClose={handleClose} results={props.f2fResults}/>
   </Card>;
 
 }

@@ -28,6 +28,7 @@ import OtherInputs from "./inputs/OtherInputs.jsx";
 import BTSInput from "./inputs/BTSInput.jsx";
 import {useSearchParams} from "react-router-dom";
 import validateParams from "./inputs/validateParams.js";
+import curry from "ramda/src/curry.js";
 
 
 function App() {
@@ -102,7 +103,7 @@ function App() {
   // Worker message received
   const messageReceived = (msg) => {
     if(msg.data.command === 'result'){
-      setF2fResults(msg.data.value);
+      setF2fResults(clone(msg.data.value));
       setStatusMessage(`Done! Took ${msg.data.elapsed}ms to simulate ${msg.data.totalRolls.toLocaleString()} rolls.`);
     } else if (msg.data.command === 'status'){
       if(msg.data.value === 'ready'){
@@ -154,7 +155,14 @@ function App() {
     }
   }
 
-  const changeResultName = (id, name) => {
+  const updateResultTitle = (name) => {
+    setF2fResults(prevState => {
+      console.log(`Updating result title to "${name}"`)
+      return assoc('title', name, prevState);
+    })
+  }
+
+  const changeSavedResultName = (id, name) => {
     setSavedResults(prevState => {
       let index = findIndex(propEq('id', id))(prevState);
       let newSavedResults = update(index, assoc('title', name, prevState[index]))(prevState);
@@ -163,6 +171,7 @@ function App() {
       return newSavedResults;
     })
   }
+  const curriedChangeSavedResultName = curry(changeSavedResultName);
 
   const deleteResultFromCompareList = (id) => {
     let index = findIndex(propEq('id', id))(savedResults);
@@ -216,14 +225,18 @@ function App() {
             </Card>
           </Grid>
           <Grid xs={12} sm={12} lg={4} xl={6} item>
-            <FaceToFaceResultCard f2fResults={f2fResults} addToCompare={addResultToCompareList}/>
+            <FaceToFaceResultCard
+              f2fResults={f2fResults}
+              addToCompare={addResultToCompareList}
+              changeName={updateResultTitle}
+            />
             <Typography variant="caption" color="text.secondary">{statusMessage}</Typography>
           </Grid>
           {savedResults.map((result, index) => {
             return <Grid xs={12} sm={12} lg={4} xl={6} item key={result['id']}>
               <FaceToFaceResultCard
                 f2fResults={result}
-                changeName={changeResultName}
+                changeName={curriedChangeSavedResultName(result['id'])}
                 remove={deleteResultFromCompareList}
                 index={index}
                 variant='list'

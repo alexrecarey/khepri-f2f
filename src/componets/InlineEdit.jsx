@@ -7,20 +7,30 @@ import {useState} from "react";
 export default function InlineEdit(props) {
   const initialValue = props.value;
   const variant = props.variant;
+  const update = props.update;
 
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialValue);
 
   const onKeyDown = (event) => {
     if (event.key === "Enter" || event.key === "Escape") {
-      toggleIsEditing();
+      setIsEditing(false);
       event.target.blur();
+      update(value)
     }
   }
 
-  const handleFocus = (event) => event.target.select();
+  const saveEdit = () => {
+    update(value);
+    setIsEditing(false);
+  }
 
-  const toggleIsEditing = () => setIsEditing((b) => !b);
+  const startEdit = () => {
+    setIsEditing(true);
+    setValue("");
+  }
+
+  const handleFocus = (event) => event.target.select();
 
   if (isEditing) {
     return (
@@ -35,7 +45,7 @@ export default function InlineEdit(props) {
           onFocus={handleFocus}
         />
         <Typography variant={variant} style={{display: "none"}}/>
-        <IconButton color="primary" size="small" onClick={toggleIsEditing}>
+        <IconButton color="primary" size="small" onClick={saveEdit}>
           <SaveAltIcon/>
         </IconButton>
       </Box>
@@ -45,9 +55,9 @@ export default function InlineEdit(props) {
   return (
     <div style={{display: "flex", alignItems: "flex-start", flexGrow: 1}}>
       <Typography variant={variant} display="inline" sx={{flexGrow: 1, textAlign: "left"}}>
-        {value}
+        {initialValue}
       </Typography>
-      <IconButton size="small" onClick={toggleIsEditing}>
+      <IconButton size="small" onClick={startEdit}>
         <EditIcon/>
       </IconButton>
     </div>
