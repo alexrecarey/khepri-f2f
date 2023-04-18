@@ -83,11 +83,29 @@ ${reactiveFirstAmount ? ("\n  Causes " + reactiveFirstAmount + "+ wounds: " + re
 ${reactiveSecondAmount ? ("\n  Causes " + activeSecondAmount + "+ wounds: " + reactiveSecondWound + "%") : '' }
   Wounds / order: ${reactiveWPO}`
 
-  const compactResultText =
-`Active - Failure - Reactive
-Wins F2F:  ${activeWinsF2F}% - ${noWinF2F}% - ${reactiveWinsF2F}%
-1+ wounds: ${activeFirstWound}% - ${failureWound}% - ${reactiveFirstWound}%
-Wounds / Order: ${activeWPO} - - ${reactiveWPO}`
+//   const compactResultText =
+// `Active - Failure - Reactive
+// Wins F2F:  ${activeWinsF2F}% - ${noWinF2F}% - ${reactiveWinsF2F}%
+// 1+ wounds: ${activeFirstWound}% - ${failureWound}% - ${reactiveFirstWound}%
+// Wounds / Order: ${activeWPO} - - ${reactiveWPO}`
+
+  const discordText =  [
+    `# Result\n`,
+    `### Active (${twoDecimalPlaces(reduce(woundsByChance, 0, activePlayer(expectedWounds)))} wounds / order)\n`,
+    (ascendByWounds(activePlayer(expectedWounds)).map((row) => {
+      return `- ${formatPercentage(row['cumulative_chance'])}% chance ${row['wounds']} or more wounds.\n`
+    })).join(''),
+    `### Failure\n`,
+    (failurePlayer(expectedWounds).map((row) => {
+      return `- ${formatPercentage(row['cumulative_chance'])}% chance neither player causes wounds (${formatPercentage(row['cumulative_reactive_guts_chance'])}% for reactive to guts).\n`
+    })).join(''),
+    `### Reactive (${twoDecimalPlaces(reduce(woundsByChance, 0, reactivePlayer(expectedWounds)))} wounds / order)\n`,
+    (ascendByWounds(reactivePlayer(expectedWounds)).map((row) => {
+      return `- ${formatPercentage(row['cumulative_chance'])}% chance ${row['wounds']} or more wounds.\n`
+    })).join(''),
+    `[Edit this result](${shareURL})`
+  ].join('');
+
 
   async function copyTextToClipboard(text) {
     if ('clipboard' in navigator) {
@@ -126,13 +144,13 @@ Wounds / Order: ${activeWPO} - - ${reactiveWPO}`
           <Typography id="modal-modal-title" variant="h4" component="h3" sx={{mb: 2}}>Share results</Typography>
 
           <TextField fullWidth readOnly label='Share URL' variant='filled' value={shareURL} />
-          <Button onClick={() => handleCopyClick(shareURL, setIsURLCopied())}>{isURLCopied ? 'Copied!' : 'Copy URL'}</Button>
+          <Button onClick={() => handleCopyClick(shareURL, setIsURLCopied)}>{isURLCopied ? 'Copied!' : 'Copy URL'}</Button>
 
-          <TextField fullWidth multiline readOnly label='Compact text' variant='filled' value={compactResultText}/>
-          <Button onClick={() => handleCopyClick(compactResultText, setIsCompactCopied)}>{isCompactCopied ? 'Copied!' : 'Copy compact text'}</Button>
+          <TextField fullWidth multiline readOnly label='Discord optimized text' variant='filled' value={discordText}/>
+          <Button onClick={() => handleCopyClick(discordText, setIsCompactCopied)}>{isCompactCopied ? 'Copied!' : 'Copy Discord text'}</Button>
 
-          <TextField fullWidth multiline readOnly label='Full text' variant='filled' value={fullResultText}/>
-          <Button onClick={() => handleCopyClick(fullResultText, setIsFullCopied)}>{isFullCopied ? 'Copied!' : 'Copy full text'}</Button>
+          <TextField fullWidth multiline readOnly label='Plain text' variant='filled' value={fullResultText}/>
+          <Button onClick={() => handleCopyClick(fullResultText, setIsFullCopied)}>{isFullCopied ? 'Copied!' : 'Copy plain text'}</Button>
           <Box sx={{flexGrow: 1}}></Box>
           <Button onClick={() => setClose()}>Close share sheet</Button>
         </Box>
@@ -153,3 +171,4 @@ Wounds / Order: ${activeWPO} - - ${reactiveWPO}`
 // 🟫 Brown square	U+1F7EB
 // ⬛ Black square	U+2B1B
 // ⬜ White square	U+2B1C
+//  Lightning U+26F1
