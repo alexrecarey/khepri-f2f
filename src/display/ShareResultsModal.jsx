@@ -143,16 +143,20 @@ ${reactiveSecondAmount ? ("\n  Causes " + activeSecondAmount + "+ wounds: " + re
       >
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h4" component="h3" sx={{mb: 2}}>Share results</Typography>
-
+          
           <TextField fullWidth readOnly label='Share URL' variant='filled' value={shareURL} />
           <Button onClick={() => handleCopyClick(shareURL, setIsURLCopied)}>{isURLCopied ? 'Copied!' : 'Copy URL'}</Button>
-
-          <TextField fullWidth multiline readOnly label='Discord optimized text' variant='filled' value={discordText}/>
+          <Box sx={{height: 16}} />
+          
+          <TextField fullWidth multiline readOnly label='Discord optimized text' variant='filled' maxRows={5} value={discordText}/>
+          <Typography variant="caption">Note: Formatted text might not be available yet in every discord server.</Typography>
           <Button onClick={() => handleCopyClick(discordText, setIsCompactCopied)}>{isCompactCopied ? 'Copied!' : 'Copy Discord text'}</Button>
+          <Box sx={{height: 16}} />
 
-          <TextField fullWidth multiline readOnly label='Plain text' variant='filled' value={fullResultText}/>
+          <TextField fullWidth multiline readOnly label='Plain text' variant='filled' maxRows={5} value={fullResultText}/>
           <Button onClick={() => handleCopyClick(fullResultText, setIsFullCopied)}>{isFullCopied ? 'Copied!' : 'Copy plain text'}</Button>
-          <Box sx={{flexGrow: 1}}></Box>
+          <Box sx={{height: 16, flexGrow: 1}}></Box>
+          
           <Button onClick={() => setClose()}>Close share sheet</Button>
         </Box>
        </Modal>
