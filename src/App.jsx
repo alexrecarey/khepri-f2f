@@ -6,14 +6,16 @@ import {
   Box,
   Card,
   CardContent,
-  Grid, IconButton,
-  ThemeProvider,
+  Grid, IconButton, Stack,
+  ThemeProvider, Tooltip,
   Typography
 } from "@mui/material";
 
 import { createTheme } from '@mui/material/styles';
 import {grey} from "@mui/material/colors";
 import InfoIcon from '@mui/icons-material/Info';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 // Data input
 import SuccessValueInput from "./inputs/SuccessValueInput.jsx";
@@ -180,6 +182,34 @@ function App() {
     }
   }
 
+  const deleteAllResultsFromCompareList = () => {
+    setSavedResults([]);
+  }
+
+  const downloadResultsInCSV = () => {
+    // Title: Result ID, Result name,
+    // F2F results: Active Win %, Reactive win %, Failure win %,
+    // Parameters A: burstA, successValueA, damageA,armA, btsA, ammoA, contA, critImmuneA, dtwVsDodge,
+    // Parameters B: burstB, successValueB, damageB, armB, btsB, ammoB, contB, critImmuneB,
+    // Expected wounds results
+    const expectedWoundsHeaders = ["player", "wounds", "raw_chance", "cumulative_chance", "chance",
+      "raw_active_guts", "raw_reactive_guts", "cumulative_active_guts_chance", "cumulative_reactive_guts_chance"];
+    const parametersHeaders = ['burstA', 'successValueA', 'damageA', 'armA', 'btsA', 'ammoA', 'contA', 'critImmuneA',
+      'dtwVsDodge', 'burstB', 'successValueB', 'damageB', 'armB', 'btsB', 'ammoB', 'contB', 'critImmuneB'];
+    let csvContent = "data:text/csv;charset=utf-8,";
+    let headers =  "result id,title," + parametersHeaders.join(',') + ',' + expectedWoundsHeaders.join(',') + '\n';
+    let rows = savedResults.map((result, idx) => {
+      let paramValues = parametersHeaders.map(e => result['parameters'][e]);
+      return result.expected_wounds.map((row) => {
+        let title = result.title ? result.title : `Saved Result ${idx + 1}`;
+        let titleFields = `${result.id},${title},`;
+      return titleFields + paramValues.join(',') + ',' + (expectedWoundsHeaders.map(header => row[header]).join(","));
+    }).join('\n')}).join('\n');
+
+    let encodedUri = encodeURI(csvContent + headers + rows);
+    window.open(encodedUri);
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline/>
@@ -232,6 +262,13 @@ function App() {
             />
             <Typography variant="caption" color="text.secondary">{statusMessage}</Typography>
           </Grid>
+          {savedResults.length > 0 && <Grid item xs={12}>
+            <Stack justifyContent="center" direction="row">
+            <Typography variant="h5">Saved Results</Typography>
+              <IconButton onClick={deleteAllResultsFromCompareList}><Tooltip title="Delete all results"><DeleteSweepIcon/></Tooltip></IconButton>
+              <IconButton onClick={downloadResultsInCSV}><Tooltip title="Download CSV of results"><FileDownloadIcon/></Tooltip></IconButton>
+            </Stack>
+          </Grid>}
           {savedResults.map((result, index) => {
             return <Grid xs={12} sm={12} lg={4} xl={6} item key={result['id']}>
               <FaceToFaceResultCard
