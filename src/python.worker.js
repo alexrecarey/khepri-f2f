@@ -69,7 +69,7 @@ def dtw_vs_dodge(dtw_burst, dodge_sv, dodge_burst):
     if dodge_burst == 0:
         result.append(((0, dtw_burst, 0, 0), 1))
     else:
-        dDodge = Die([(1 if x <= dodge_sv else 0) for x in range(20)])
+        dDodge = Die([(1 if x < dodge_sv else 0) for x in range(20)])
         for outcome, amount in (dodge_burst @ dDodge).items():
             if outcome >= 1:
                 result.append(((0, 0, 0, 0), amount))
