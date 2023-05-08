@@ -12,6 +12,7 @@ import TableRowsIcon from '@mui/icons-material/TableRows';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import ShareIcon from '@mui/icons-material/Share';
 import DeleteIcon from '@mui/icons-material/Delete';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import {useState} from "react";
 import ShareResultsModal from "./ShareResultsModal.jsx";
 import InlineEdit from "../componets/InlineEdit.jsx";
@@ -106,6 +107,7 @@ function FaceToFaceResultCard(props) {
       {variant === 'list' && <Tooltip title="Delete from comparison list">
         <IconButton onClick={() => remove(props.f2fResults['id'])}><DeleteIcon/></IconButton></Tooltip>
       }
+      <IconButton><Tooltip title="Drill down"><QueryStatsIcon/></Tooltip></IconButton>
       <Box sx={{flexGrow:1}}/>
       <ExpandMore
         expand={expandGraph}

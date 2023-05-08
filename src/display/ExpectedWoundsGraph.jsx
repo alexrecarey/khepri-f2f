@@ -1,5 +1,6 @@
 import {Table, TableBody, TableCell, TableRow} from "@mui/material";
-import {activePlayer, ascendByWounds, descendByWounds, failurePlayer, reactivePlayer} from "./DataTransform.js";
+import {descendByWounds} from "./DataTransform.js";
+import {filter, equals, gt, where, __} from "ramda";
 
 
 function ExpectedWoundsGraphCell(props) {
@@ -35,14 +36,27 @@ function ExpectedWoundsGraph(props) {
     return null
   }
 
-  let activeResults = descendByWounds(activePlayer(results));
+  /* let activeResults = descendByWounds(activePlayer(results));
   let failureResults = failurePlayer(results);
-  let reactiveResults = ascendByWounds(reactivePlayer(results));
+  let reactiveResults = ascendByWounds(reactivePlayer(results)); */
+
+  let activeResults = filter(
+    where({
+      wounds: gt(__, 0), 
+      player: equals('active')}))(results);
+  let reactiveResults = filter(where({
+    wounds: gt(__, 0),
+    player: equals('reactive')
+  }))(results);
+  let failureResults = filter(where({
+    wounds: equals(__, 0),
+  }))(results);
+
 
   return <Table sx={{width: "100%"}}>
     <TableBody>
       <TableRow key="1">
-        {activeResults.map((result) => (<ExpectedWoundsGraphCell key={result['id']} row={result}/>))}
+        {descendByWounds(activeResults).map((result) => (<ExpectedWoundsGraphCell key={result['id']} row={result}/>))}
         {failureResults.map((result) => (<ExpectedWoundsGraphCell key={result['id']} row={result}/>))}
         {reactiveResults.map((result) => (<ExpectedWoundsGraphCell key={result['id']} row={result}/>))}
       </TableRow>

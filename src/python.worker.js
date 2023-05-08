@@ -69,7 +69,7 @@ def dtw_vs_dodge(dtw_burst, dodge_sv, dodge_burst):
     if dodge_burst == 0:
         result.append(((0, dtw_burst, 0, 0), 1))
     else:
-        dDodge = Die([(1 if x < dodge_sv else 0) for x in range(20)])
+        dDodge = Die([(1 if x <= dodge_sv else 0) for x in range(20)])
         for outcome, amount in (dodge_burst @ dDodge).items():
             if outcome >= 1:
                 result.append(((0, 0, 0, 0), amount))
@@ -192,11 +192,7 @@ def face_to_face_expected_wounds(
         ).sum()
         denominator = r.denominator()
         for w, occurrences in r.items():
-            if w == 0:
-                wounds['fail'][0] = wounds['fail'].get(0, 0.0) + (occurrences/denominator) * rolls
-                wounds['guts'][counterpart] += (occurrences/denominator) * rolls
-            else:
-                wounds[winner][w] = wounds[winner].get(w, 0) + (occurrences/denominator) * rolls
+            wounds[winner][w] = wounds[winner].get(w, 0) + (occurrences/denominator) * rolls
     return wounds
 
 
@@ -212,13 +208,7 @@ def format_face_to_face(face_to_face):
     return output
 
 
-def format_expected_wounds(wounds, max_wounds_shown=3):
-    """Format expected_wounds into a list of results
-
-    Output format is {'player': 'active/reactive/fail', 'wounds': 3, 'chance': 0.2432, 'raw_chance' 1341234.23,
-                      'cumulative_chance': 0.53234, 'raw_guts_chance': 0, 'guts_chance': 0.0234, 'cumulative_guts': 0.0723}
-    """
-    # Squash items that are > than max_wounds_shown
+def consolidate_wounds_over_maximum(wounds, max_wounds_shown=3):
     squashed = {'active': None, 'reactive': None, 'fail': wounds['fail']}
     for player in ['active', 'reactive']:
         over_max = {k: v for k, v in wounds[player].items() if k > max_wounds_shown}
@@ -229,14 +219,18 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
             squashed[player] = new_dict
         else:
             squashed[player] = wounds[player]
+    return squashed
 
-    # Create output table
-    active_base_guts = wounds['guts']['active']
-    reactive_base_guts = wounds['guts']['reactive']
-    counterpart = {
-        'active': 'reactive',
-        'reactive': 'active'
-    }
+
+def format_expected_wounds(wounds, max_wounds_shown=3):
+    """Format expected_wounds into a list of results
+
+    Output format is {'player': 'active/reactive/fail', 'wounds': 3, 'chance': 0.2432, 'raw_chance' 1341234.23,
+                      'cumulative_chance': 0.53234, 'raw_guts_chance': 0, 'guts_chance': 0.0234, 'cumulative_guts': 0.0723}
+    """
+    # Squash items that are > than max_wounds_shown
+    total_rolls = wounds['total_rolls']
+    squashed = consolidate_wounds_over_maximum(wounds, max_wounds_shown=max_wounds_shown)
     expected_wounds = []
     index = 0
     for player in ['active', 'fail', 'reactive']:
@@ -247,18 +241,10 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
                 'player': player,
                 'wounds': key,
                 'raw_chance': squashed[player][key],
+                'chance': squashed[player][key]/total_rolls,
                 'cumulative_chance': reduce(
                     lambda x, y: x+y,
-                    [squashed[player][i] for i in squashed[player].keys() if i >= key], 0) / wounds['total_rolls'],
-                'chance': squashed[player][key]/wounds['total_rolls'],
-                'raw_active_guts': active_base_guts if player == 'fail' else squashed[counterpart[player]].get(key, 0),
-                'raw_reactive_guts': reactive_base_guts if player == 'fail' else squashed[counterpart[player]].get(key, 0),
-                'cumulative_active_guts_chance': 0 if player == 'active' else (
-                    reduce(lambda x, y: x+y, [squashed['reactive'][i] for i in squashed['reactive'].keys() if i <= key], 0)
-                    + active_base_guts) / wounds['total_rolls'],
-                'cumulative_reactive_guts_chance': 0 if player == 'reactive' else (
-                    reduce(lambda x, y: x+y, [squashed['active'][i] for i in squashed['active'].keys() if i <= key], 0)
-                    + reactive_base_guts) / wounds['total_rolls'],
+                    [squashed[player][i] for i in squashed[player].keys() if i >= key], 0) / total_rolls,
             })
             index += 1
     return expected_wounds

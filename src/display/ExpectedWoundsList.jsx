@@ -15,6 +15,19 @@ import { useTheme } from '@mui/material/styles';
 const woundsByChance = (x, y) => x + y['wounds'] * y['chance'];
 
 
+function ExpectedWoundsListRow(props){
+  const color = props.color;
+  const text = props.text;
+
+  return(
+  <Stack direction="row" sx={{alignItems: 'center'}} >
+            <Box sx={{width: 25, height: 25, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor:color}}>
+              <div style={{display:'flex', verticalAlign:'middle', justifyContent: 'center', alignContent: 'center'}}></div>
+            </Box>
+            <Typography ml={1} mr={1} lineHeight={1} variant="body2">{text}</Typography></Stack>
+  )
+}
+
 function ExpectedWoundsList(props){
   const theme = useTheme();
   const rows = props.rows
@@ -42,11 +55,7 @@ function ExpectedWoundsList(props){
       <Grid item xs={12} sm={4} lg={12} sx={{textAlign: 'left'}}>
         <Typography>Active ({twoDecimalPlaces(reduce(woundsByChance, 0, activePlayer(rows)))} wounds / order)</Typography>
         {ascendByWounds(activePlayer(rows)).map((row) => {
-          return <Stack direction="row" sx={{alignItems: 'center'}} key={row.id}>
-            <Box sx={{width: 25, height: 25, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor:activeColors[row['wounds']]}}>
-              <div style={{display:'flex', verticalAlign:'middle', justifyContent: 'center', alignContent: 'center'}}></div>
-            </Box>
-            <Typography ml={1} mr={1} lineHeight={1} variant="body2">{formatPercentage(row['cumulative_chance'])}% chance {row['wounds']} or more wounds.</Typography></Stack>
+         return <ExpectedWoundsListRow key={row.id} color={activeColors[row['wounds']]} text={formatPercentage(row['cumulative_chance']) + "% chance " + row['wounds'] + "or more wounds."}/>
         })}
       </Grid>
       <Grid item xs={12} sm={4} lg={12} sx={{textAlign: 'left'}}>
@@ -77,3 +86,4 @@ function ExpectedWoundsList(props){
 }
 
 export default ExpectedWoundsList;
+
