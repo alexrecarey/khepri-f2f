@@ -1,9 +1,10 @@
 import {faDiceD20} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {Collapse, Grid, InputLabel, Rating, Typography} from "@mui/material";
+import {Collapse, Grid, IconButton, InputLabel, Rating, Typography} from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 import {clamp} from "ramda";
 import UncontrolledInput from "../componets/UncontrolledInput.jsx";
+import DiceD20NegatedIcon from "../componets/DiceD20NegatedIcon.jsx"
 
 
 function BurstInput(props) {
@@ -15,6 +16,9 @@ function BurstInput(props) {
   const colorLight = theme.palette.player[variant]["100"];
   const colorMid = theme.palette.player[variant]["500"];
   //const colorDark = theme.palette.player[variant]["700"];
+
+  const maxViewableBurst = variant === 'active' ? 6 : 5;
+  const zeroBurstColor = burst === 0 ? colorMid : 'lightGrey';
 
   const handleOnBlur = (newValue) => {
     let val = Number(newValue);
@@ -59,7 +63,7 @@ function BurstInput(props) {
       <Rating
         value={burst}
         min={1}
-        max={6}
+        max={maxViewableBurst}
         size="large"
         onChange={(event, newValue) => {
           if(newValue !== null){
@@ -71,6 +75,10 @@ function BurstInput(props) {
         icon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2, color: colorMid}} icon={faDiceD20}/>}
         emptyIcon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2, opacity: 0.55}} icon={faDiceD20}/>}
       />
+      {variant === 'reactive' &&     <IconButton
+        onClick={()=>update(0)}>
+        <DiceD20NegatedIcon sx={{height:30, width:30}} htmlColor={zeroBurstColor} />
+      </IconButton>}
     </Grid>
   </>
 }
