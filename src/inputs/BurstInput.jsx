@@ -18,7 +18,7 @@ function BurstInput(props) {
   //const colorDark = theme.palette.player[variant]["700"];
 
   const maxViewableBurst = variant === 'active' ? 6 : 5;
-  const zeroBurstColor = burst === 0 ? colorMid : 'lightGrey';
+  const zeroBurstColor = burst === 0 ? colorMid : 'grey';
 
   const handleOnBlur = (newValue) => {
     let val = Number(newValue);
