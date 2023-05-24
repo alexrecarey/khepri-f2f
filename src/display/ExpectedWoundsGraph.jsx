@@ -1,30 +1,38 @@
 import {Table, TableBody, TableCell, TableRow} from "@mui/material";
-import {descendByWounds} from "./DataTransform.js";
-import {filter, equals, gt, where, __} from "ramda";
+import {
+  activePlayerWithWounds,
+  ascendByWounds,
+  descendByWounds,
+  failurePlayerWithNoWounds,
+  reactivePlayerWithWounds,
+  sumChance
+} from "./DataTransform.js";
 
 
 function ExpectedWoundsGraphCell(props) {
   const active_colors = [ '#dd88ac', '#ca699d', '#b14d8e', '#91357d', '#6c2167'];
   const reactive_colors = ['#6cc08b', '#4c9b82', '#217a79', '#105965', '#074050'];
   //const active_colors = [theme.palette.player['active'][300], theme.palette.player[400], theme.palette.player[500], theme.palette.player['active'][600], theme.palette.player['active'][700]];
-  const data = props.row;
-  const width = (data['chance'] * 100).toFixed(1) + "%";
+  //const data = props.row;
+  const player = props.player;
+  const chance = props.chance;
+  const wounds = props.wounds;
+
+  const width = (chance * 100).toFixed(1) + "%";
   // const percentage = (data['chance'] * 100).toFixed(0) + "%";
 
   let color;
-  if(data['player'] === 'active'){
-    color = active_colors[data['wounds']];
-  } else if(data['player'] === 'reactive'){
-    color = reactive_colors[data['wounds']];
+  if(player === 'active' && wounds > 0){
+    color = active_colors[wounds];
+  } else if(player === 'reactive' && wounds > 0){
+    color = reactive_colors[wounds];
   } else {
     color = 'lightgrey';
   }
-  let key_ = data['player'] + '-' + data['wounds'];
-  console.debug(`Width of cell ${key_} is ${width}`);
 
   return <TableCell sx={{bgcolor: color, width: width, padding:0, height: '30px', textAlign: 'center'}}>
-    {data['chance'] >= 0.1 &&
-      <div>{data['wounds']}{data['wounds'] === 3 &&<span>+</span>}</div>
+    {chance >= 0.1 &&
+      <div>{wounds}{wounds === 3 &&<span>+</span>}</div>
     }
   </TableCell>;
 }
@@ -36,29 +44,35 @@ function ExpectedWoundsGraph(props) {
     return null
   }
 
-  /* let activeResults = descendByWounds(activePlayer(results));
-  let failureResults = failurePlayer(results);
-  let reactiveResults = ascendByWounds(reactivePlayer(results)); */
-
-  let activeResults = filter(
-    where({
-      wounds: gt(__, 0), 
-      player: equals('active')}))(results);
-  let reactiveResults = filter(where({
-    wounds: gt(__, 0),
-    player: equals('reactive')
-  }))(results);
-  let failureResults = filter(where({
-    wounds: equals(__, 0),
-  }))(results);
-
+  let totalFail = sumChance(failurePlayerWithNoWounds(results));
 
   return <Table sx={{width: "100%"}}>
     <TableBody>
       <TableRow key="1">
-        {descendByWounds(activeResults).map((result) => (<ExpectedWoundsGraphCell key={result['id']} row={result}/>))}
-        {failureResults.map((result) => (<ExpectedWoundsGraphCell key={result['id']} row={result}/>))}
-        {reactiveResults.map((result) => (<ExpectedWoundsGraphCell key={result['id']} row={result}/>))}
+        {descendByWounds(activePlayerWithWounds(results)).map((result) => (
+          <ExpectedWoundsGraphCell
+            key={result['id']}
+            wounds={result['wounds']}
+            chance={result['chance']}
+            player={result['player']}
+          />
+          ))}
+        {totalFail > 0 &&
+          <ExpectedWoundsGraphCell
+            key={-1}
+            wounds={0}
+            chance={totalFail}
+            player='fail'
+          />
+        }
+        {ascendByWounds(reactivePlayerWithWounds(results)).map((result) => (
+          <ExpectedWoundsGraphCell
+            key={result['id']}
+            wounds={result['wounds']}
+            chance={result['chance']}
+            player={result['player']}
+          />
+        ))}
       </TableRow>
     </TableBody>
   </Table>

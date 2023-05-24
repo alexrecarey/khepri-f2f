@@ -1,18 +1,17 @@
 import {Box, Grid, Stack, Typography} from "@mui/material";
 import {
   activePlayer,
-  failurePlayer,
   formatPercentage,
   reactivePlayer,
   ascendByWounds,
-  twoDecimalPlaces
+  twoDecimalPlaces,
+  woundsPerOrder,
+  activePlayerWithWounds,
+  reactivePlayerWithWounds,
+  failurePlayerWithNoWounds,
+  sumChance
 } from './DataTransform';
-import {reduce} from "ramda";
 import { useTheme } from '@mui/material/styles';
-
-
-// To calculate expected wounds per order
-const woundsByChance = (x, y) => x + y['wounds'] * y['chance'];
 
 
 function ExpectedWoundsListRow(props){
@@ -50,30 +49,55 @@ function ExpectedWoundsList(props){
     return null;
   }
 
+  const activeList = activePlayerWithWounds(rows);
+  const reactiveList = reactivePlayerWithWounds(rows);
+  const failureList = failurePlayerWithNoWounds(rows);
+  const totalFail = sumChance(failureList);
+  const activeNoWounds = activePlayer(failureList);
+  const reactiveNoWounds = reactivePlayer(failureList);
+
   return(
     <Grid container spacing={2}>
       <Grid item xs={12} sm={4} lg={12} sx={{textAlign: 'left'}}>
-        <Typography>Active ({twoDecimalPlaces(reduce(woundsByChance, 0, activePlayer(rows)))} wounds / order)</Typography>
-        {ascendByWounds(activePlayer(rows)).map((row) => {
-         return <ExpectedWoundsListRow key={row.id} color={activeColors[row['wounds']]} text={formatPercentage(row['cumulative_chance']) + "% chance " + row['wounds'] + "or more wounds."}/>
+        <Typography>Active ({twoDecimalPlaces(woundsPerOrder(activePlayer(rows)))} wounds / order)</Typography>
+        {ascendByWounds(activeList).map((row) => {
+         return <ExpectedWoundsListRow key={row.id} color={activeColors[row['wounds']]} text={formatPercentage(row['cumulative_chance']) + "% chance " + row['wounds'] + " or more wounds."}/>
         })}
       </Grid>
       <Grid item xs={12} sm={4} lg={12} sx={{textAlign: 'left'}}>
         <Typography>Failure</Typography>
-        {failurePlayer(rows).map((row) => {
-          return <Stack direction="row" sx={{alignItems: 'center'}} key={row.id}>
-              <Box sx={{width: 25,height: 25, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor: 'lightgrey'}}>
-                <div style={{display: 'flex', verticalAlign: 'middle', justifyContent: 'center', alignContent: 'center'}}></div>
-              </Box>
-              <Typography ml={1} mr={1} lineHeight={1} variant="body2">
-                {formatPercentage(row['cumulative_chance'])}% chance neither player causes wounds ({formatPercentage(row['cumulative_reactive_guts_chance'])}% for reactive to guts).
-              </Typography>
-            </Stack>
+        <Stack direction="row" sx={{alignItems: 'center'}} key={1}>
+          <Box sx={{width: 25,height: 25, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor: 'lightgrey'}}>
+            <div style={{display: 'flex', verticalAlign: 'middle', justifyContent: 'center', alignContent: 'center'}}></div>
+          </Box>
+          <Typography ml={1} mr={1} lineHeight={1} variant="body2">
+            {formatPercentage(totalFail)}% chance neither player causes wounds.
+          </Typography>
+        </Stack>
+        {activeNoWounds.map((row) => {
+          return <Stack direction="row" sx={{alignItems: 'center'}} key={2}>
+            <Box sx={{width: 25,height: 25, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor: 'none'}}>
+              <div style={{display: 'flex', verticalAlign: 'middle', justifyContent: 'center', alignContent: 'center'}}></div>
+            </Box>
+            <Typography ml={1} mr={1} lineHeight={1} variant="body2">
+              ({formatPercentage(row['chance'])}% active player causes no wounds.)
+            </Typography>
+          </Stack>
+        })}
+        {reactiveNoWounds.map((row) => {
+          return <Stack direction="row" sx={{alignItems: 'center'}} key={3}>
+            <Box sx={{width: 25,height: 25, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor: 'none'}}>
+              <div style={{display: 'flex', verticalAlign: 'middle', justifyContent: 'center', alignContent: 'center'}}></div>
+            </Box>
+            <Typography ml={1} mr={1} lineHeight={1} variant="body2">
+              ({formatPercentage(row['chance'])}% reactive player causes no wounds.)
+            </Typography>
+          </Stack>
         })}
       </Grid>
       <Grid item xs={12} sm={4} lg={12} sx={{textAlign: 'left'}}>
-        <Typography  >Reactive ({twoDecimalPlaces(reduce(woundsByChance, 0, reactivePlayer(rows)))} wounds / order)</Typography>
-        {ascendByWounds(reactivePlayer(rows)).map((row) => {
+        <Typography  >Reactive ({twoDecimalPlaces(woundsPerOrder(reactivePlayer(rows)))} wounds / order)</Typography>
+        {ascendByWounds(reactiveList).map((row) => {
           return <Stack direction="row" sx={{alignItems: 'center'}} key={row.id}>
             <Box sx={{width: 25, height: 25, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor:reactiveColors[row['wounds']]}}>
               <div style={{display:'flex', verticalAlign:'middle', justifyContent: 'center', alignContent: 'center'}}></div>

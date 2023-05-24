@@ -192,8 +192,7 @@ function App() {
     // Parameters A: burstA, successValueA, damageA,armA, btsA, ammoA, contA, critImmuneA, dtwVsDodge,
     // Parameters B: burstB, successValueB, damageB, armB, btsB, ammoB, contB, critImmuneB,
     // Expected wounds results
-    const expectedWoundsHeaders = ["player", "wounds", "raw_chance", "cumulative_chance", "chance",
-      "raw_active_guts", "raw_reactive_guts", "cumulative_active_guts_chance", "cumulative_reactive_guts_chance"];
+    const expectedWoundsHeaders = ["player", "wounds", "raw_chance", "cumulative_chance", "chance"];
     const parametersHeaders = ['burstA', 'successValueA', 'damageA', 'armA', 'btsA', 'ammoA', 'contA', 'critImmuneA',
       'dtwVsDodge', 'burstB', 'successValueB', 'damageB', 'armB', 'btsB', 'ammoB', 'contB', 'critImmuneB'];
     let csvContent = "data:text/csv;charset=utf-8,";
