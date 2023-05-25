@@ -265,7 +265,7 @@ def roll_and_bridge_results(
         player_a_dam, player_a_arm, player_a_ammo, player_b_dam, player_b_arm, player_b_ammo,
         player_a_cont=player_a_cont, player_a_bts=player_a_bts, player_a_crit_immune=player_a_crit_immune,
         player_b_cont=player_b_cont, player_b_bts=player_b_bts, player_b_crit_immune=player_b_crit_immune)
-    formatted_expected_wounds = format_expected_wounds(expected_wounds)
+    formatted_expected_wounds = format_expected_wounds(expected_wounds, max_wounds_shown=50)
     return_object = {
         'face_to_face': formatted_results,
         'expected_wounds': formatted_expected_wounds,

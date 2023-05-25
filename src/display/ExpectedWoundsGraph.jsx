@@ -5,13 +5,16 @@ import {
   descendByWounds,
   failurePlayerWithNoWounds,
   reactivePlayerWithWounds,
-  sumChance
+  sumChance,
+  squashResults
 } from "./DataTransform.js";
 
 
 function ExpectedWoundsGraphCell(props) {
-  const active_colors = [ '#dd88ac', '#ca699d', '#b14d8e', '#91357d', '#6c2167'];
-  const reactive_colors = ['#6cc08b', '#4c9b82', '#217a79', '#105965', '#074050'];
+  const active_colors = ['#dd88ac', '#ca699d', '#b14d8e',
+    '#91357d', '#6c2167'];
+  const reactive_colors = ['#6cc08b', '#4c9b82', '#217a79',
+    '#105965', '#074050'];
   //const active_colors = [theme.palette.player['active'][300], theme.palette.player[400], theme.palette.player[500], theme.palette.player['active'][600], theme.palette.player['active'][700]];
   //const data = props.row;
   const player = props.player;
@@ -23,16 +26,16 @@ function ExpectedWoundsGraphCell(props) {
 
   let color;
   if(player === 'active' && wounds > 0){
-    color = active_colors[wounds];
+    color = active_colors[wounds-1];
   } else if(player === 'reactive' && wounds > 0){
-    color = reactive_colors[wounds];
+    color = reactive_colors[wounds-1];
   } else {
     color = 'lightgrey';
   }
 
   return <TableCell sx={{bgcolor: color, width: width, padding:0, height: '30px', textAlign: 'center'}}>
     {chance >= 0.1 &&
-      <div>{wounds}{wounds === 3 &&<span>+</span>}</div>
+      <div>{wounds}</div>
     }
   </TableCell>;
 }
@@ -44,12 +47,18 @@ function ExpectedWoundsGraph(props) {
     return null
   }
 
-  let totalFail = sumChance(failurePlayerWithNoWounds(results));
+  console.log("Results: ")
+  console.log(results)
+  let squashedResults = squashResults(results, 5, 5);
+  console.log("Squashed Results: ")
+  console.log(squashedResults)
+
+  let totalFail = sumChance(failurePlayerWithNoWounds(squashedResults));
 
   return <Table sx={{width: "100%"}}>
     <TableBody>
       <TableRow key="1">
-        {descendByWounds(activePlayerWithWounds(results)).map((result) => (
+        {descendByWounds(activePlayerWithWounds(squashedResults)).map((result) => (
           <ExpectedWoundsGraphCell
             key={result['id']}
             wounds={result['wounds']}
@@ -65,7 +74,7 @@ function ExpectedWoundsGraph(props) {
             player='fail'
           />
         }
-        {ascendByWounds(reactivePlayerWithWounds(results)).map((result) => (
+        {ascendByWounds(reactivePlayerWithWounds(squashedResults)).map((result) => (
           <ExpectedWoundsGraphCell
             key={result['id']}
             wounds={result['wounds']}
