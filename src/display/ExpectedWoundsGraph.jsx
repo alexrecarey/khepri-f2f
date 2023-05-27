@@ -8,6 +8,7 @@ import {
   sumChance,
   squashResults
 } from "./DataTransform.js";
+import {clamp} from "ramda";
 
 
 function ExpectedWoundsGraphCell(props) {
@@ -46,8 +47,8 @@ function ExpectedWoundsGraph(props) {
   if (!results) {
     return null
   }
-  const activeMaxWounds = props.activeMaxWounds ? props.activeMaxWounds : 3;
-  const reactiveMaxWounds = props.reactiveMaxWounds ? props.reactiveMaxWounds : 3;
+  const activeMaxWounds = clamp(1, 5, props.activeMaxWounds ? props.activeMaxWounds : 3);
+  const reactiveMaxWounds = clamp(1, 5, props.reactiveMaxWounds ? props.reactiveMaxWounds : 3);
 
   const squashedResults = squashResults(results, activeMaxWounds, reactiveMaxWounds);
 
