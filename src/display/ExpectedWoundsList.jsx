@@ -9,6 +9,7 @@ import {
   activePlayerWithWounds,
   reactivePlayerWithWounds,
   failurePlayerWithNoWounds,
+  squashResults,
   sumChance
 } from './DataTransform';
 import { useTheme } from '@mui/material/styles';
@@ -18,18 +19,27 @@ function ExpectedWoundsListRow(props){
   const color = props.color;
   const text = props.text;
 
-  return(
+  return (
   <Stack direction="row" sx={{alignItems: 'center'}} >
-            <Box sx={{width: 25, height: 25, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor:color}}>
-              <div style={{display:'flex', verticalAlign:'middle', justifyContent: 'center', alignContent: 'center'}}></div>
-            </Box>
-            <Typography ml={1} mr={1} lineHeight={1} variant="body2">{text}</Typography></Stack>
+    <Box sx={{width: 25, height: 25, display: 'flex', justifyContent: 'center', alignContent: 'center', backgroundColor:color}}>
+      <div style={{display:'flex', verticalAlign:'middle', justifyContent: 'center', alignContent: 'center'}}></div>
+    </Box>
+    <Typography ml={1} mr={1} lineHeight={1} variant="body2">{text}</Typography></Stack>
   )
 }
 
 function ExpectedWoundsList(props){
-  const theme = useTheme();
+  // props handling
   const rows = props.rows
+  const activeMaxWounds = props.activeMaxWounds ? props.activeMaxWounds : 3;
+  const reactiveMaxWounds = props.reactiveMaxWounds ? props.reactiveMaxWounds : 3;
+
+  if (rows === null){
+    return null;
+  }
+
+  // colors
+  const theme = useTheme();
   const activeColors = {
     1: theme.palette.player['active'][300],
     2: theme.palette.player['active'][400],
@@ -45,13 +55,11 @@ function ExpectedWoundsList(props){
     5: theme.palette.player['reactive'][700],
   }
 
-  if (rows === null){
-    return null;
-  }
-
-  const activeList = activePlayerWithWounds(rows);
-  const reactiveList = reactivePlayerWithWounds(rows);
-  const failureList = failurePlayerWithNoWounds(rows);
+  // data
+  const squashedRows = squashResults(rows, activeMaxWounds, reactiveMaxWounds);
+  const activeList = activePlayerWithWounds(squashedRows);
+  const reactiveList = reactivePlayerWithWounds(squashedRows);
+  const failureList = failurePlayerWithNoWounds(squashedRows);
   const totalFail = sumChance(failureList);
   const activeNoWounds = activePlayer(failureList);
   const reactiveNoWounds = reactivePlayer(failureList);

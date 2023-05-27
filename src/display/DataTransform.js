@@ -13,13 +13,13 @@ import {
   anyPass,
   allPass,
   sum,
-  pluck,
+  pluck, append, concat,
 } from "ramda";
 
 // Conditions
-export const isActive = propEq('player', 'active');
-export const isReactive = propEq('player', 'reactive');
-export const isFailure = propEq('player', 'fail');
+export const isActive = propEq('active', 'player');
+export const isReactive = propEq('reactive', 'player');
+export const isFailure = propEq('fail', 'player');
 export const hasNoWounds = propSatisfies(x => x === 0, 'wounds');
 export const hasWounds = propSatisfies(x => x >= 1, 'wounds');
 
@@ -46,65 +46,66 @@ export const squashResults = (results, maxWoundsActive, maxWoundsReactive) => {
   let activeResults = activePlayerWithWounds(results);
   let reactiveResults = reactivePlayerWithWounds(results);
   let activeResultsOverMax = filter(propSatisfies(x => x > maxWoundsActive, 'wounds'), activeResults);
+  let activeResultsExactlyMax = filter(propSatisfies(x => x === maxWoundsActive, 'wounds'), activeResults);
+  let activeResultsUnderMax = filter(propSatisfies(x => x < maxWoundsActive, 'wounds'), activeResults);
   let activeOverMaxRawChance = sumRawChance(activeResultsOverMax);
   let reactiveResultsOverMax = filter(propSatisfies(x => x > maxWoundsReactive, 'wounds'), reactiveResults);
+  let reactiveResultsExactlyMax = filter(propSatisfies(x => x === maxWoundsReactive, 'wounds'), reactiveResults);
+  let reactiveResultsUnderMax = filter(propSatisfies(x => x < maxWoundsReactive, 'wounds'), reactiveResults);
   let reactiveOverMaxRawChance = sumRawChance(reactiveResultsOverMax);
 
   let newResults = [];
-  let idx = 0;
-  // iterate over results and add to newResults
-  for (let i = 0; i < results.length; i++) {
-    if (results[i].player === 'active') {
-      if (results[i].wounds < maxWoundsActive) {
-        // add to newResults
-        newResults.push(results[i]);
-        idx++;
-      } else if (results[i].wounds === maxWoundsActive) {
-        if (activeOverMaxRawChance > 0) {
-          let rawChance = results[i].raw_chance + activeOverMaxRawChance;
-          newResults.push({
-            id: idx,
-            player: 'active',
-            wounds: maxWoundsActive,
-            raw_chance: rawChance,
-            chance: rawChance / totalRawResults,
-            cumulative_chance: rawChance / totalRawResults,
-          });
-        } else {
-          newResults.push(results[i]);
-        }
-        idx++;
-      } else {
-        // Active result that is over maxWoundsActive, skip it
-      }
-    } else if (results[i].player === 'fail') {
-      // add all failures to newResults
-      newResults.push(results[i]);
-      idx++;
-    } else if (results[i].player === 'reactive') {
-      if (results[i].wounds < maxWoundsReactive) {
-        // add to newResults
-        newResults.push(results[i]);
-        idx++;
-      } else if (results[i].wounds === maxWoundsReactive) {
-        if (reactiveOverMaxRawChance > 0) {
-          let rawChance = results[i].raw_chance + reactiveOverMaxRawChance;
-          newResults.push({
-            id: idx,
-            player: 'reactive',
-            wounds: maxWoundsReactive,
-            raw_chance: rawChance,
-            chance: rawChance / totalRawResults,
-            cumulative_chance: rawChance / totalRawResults,
-          });
-        } else {
-          newResults.push(results[i]);
-        }
-        idx++;
-      } else {
-        // reactive result that is over maxWoundsReactive, skip it
-      }
+
+  // Add active < max
+  newResults = concat(newResults, activeResultsUnderMax);
+
+  // Add active == max
+  if (activeResultsExactlyMax.length > 0) {
+    if (activeOverMaxRawChance > 0) {
+      let r = activeResultsExactlyMax[0];
+      let rawChance = r.raw_chance + activeOverMaxRawChance;
+      newResults = append({
+        id: 0,
+        player: 'active',
+        wounds: maxWoundsActive,
+        raw_chance: rawChance,
+        chance: rawChance / totalRawResults,
+        cumulative_chance: rawChance / totalRawResults,
+      }, newResults);
+    } else {
+      newResults = append(activeResultsExactlyMax[0], newResults);
     }
   }
+
+  // Add failures
+  newResults = concat(newResults, failurePlayerWithNoWounds(results));
+
+  // Add reactive < max
+  newResults = concat(newResults, reactiveResultsUnderMax);
+
+  // Add reactive == max
+  if (reactiveResultsOverMax.length > 0) {
+    if (reactiveOverMaxRawChance > 0) {
+      let r = reactiveResultsExactlyMax[0];
+      let rawChance = r.raw_chance + reactiveOverMaxRawChance;
+      newResults = append({
+        id: 0,
+        player: 'reactive',
+        wounds: maxWoundsReactive,
+        raw_chance: rawChance,
+        chance: rawChance / totalRawResults,
+        cumulative_chance: rawChance / totalRawResults,
+      }, newResults);
+    } else {
+      newResults = append(reactiveResultsExactlyMax[0], newResults);
+    }
+  }
+
+  // Reindex results
+  newResults = newResults.map((r, i) => {
+    r.id = i;
+    return r;
+  });
+
   return newResults;
 }

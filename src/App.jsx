@@ -30,7 +30,7 @@ import OtherInputs from "./inputs/OtherInputs.jsx";
 import BTSInput from "./inputs/BTSInput.jsx";
 import {useSearchParams} from "react-router-dom";
 import validateParams from "./inputs/validateParams.js";
-import curry from "ramda/src/curry.js";
+import curry from "ramda/src/curry";
 
 
 function App() {
@@ -41,8 +41,6 @@ function App() {
   // Search params
   let [searchParams, setSearchParams] = useSearchParams();
   let p = validateParams(searchParams);
-  console.log(`Validated search params are:`);
-  console.log(p);
 
   // Inputs Player A
   const [burstA, setBurstA] = useState(p.burstA);
@@ -105,7 +103,9 @@ function App() {
   // Worker message received
   const messageReceived = (msg) => {
     if(msg.data.command === 'result'){
-      setF2fResults(clone(msg.data.value));
+      let value = msg.data.value;
+      let cl = clone(value);
+      setF2fResults(cl);
       setStatusMessage(`Done! Took ${msg.data.elapsed}ms to simulate ${msg.data.totalRolls.toLocaleString()} rolls.`);
     } else if (msg.data.command === 'status'){
       if(msg.data.value === 'ready'){

@@ -3,7 +3,7 @@ import ExpectedWoundsList from "./ExpectedWoundsList.jsx";
 import FaceToFaceGraph from "./Face2FaceGraph.jsx";
 import {
   Box, Card, CardActions,
-  CardContent, CardMedia, Collapse, IconButton, Tooltip,
+  CardContent, CardMedia, Collapse, FormControl, IconButton, InputLabel, MenuItem, Select, Tooltip,
   Typography
 } from "@mui/material";
 import { styled } from '@mui/material/styles';
@@ -12,7 +12,7 @@ import TableRowsIcon from '@mui/icons-material/TableRows';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import ShareIcon from '@mui/icons-material/Share';
 import DeleteIcon from '@mui/icons-material/Delete';
-import QueryStatsIcon from '@mui/icons-material/QueryStats';
+import HeartBrokenIcon from '@mui/icons-material/HeartBroken';
 import {useState} from "react";
 import ShareResultsModal from "./ShareResultsModal.jsx";
 import InlineEdit from "../componets/InlineEdit.jsx";
@@ -58,11 +58,25 @@ function FaceToFaceResultCard(props) {
   // Expanded handler
   const [expandGraph, setExpandGraph] = useState(true);
   const [expandTable, setExpandTable] = useState(variant === 'result');
+  const [expandWounds, setExpandWounds] = useState(false);
   const handleExpandGraphClick = () => {
     setExpandGraph(!expandGraph);
   };
   const handleExpandTableClick = () => {
     setExpandTable(!expandTable);
+  };
+  const handleExpandWoundsClick = () => {
+    setExpandWounds(!expandWounds);
+  }
+
+  // Active / Reactive max wounds handler
+  const [activeMaxWounds, setActiveMaxWounds] = useState(3);
+  const [reactiveMaxWounds, setReactiveMaxWounds] = useState(3);
+  const handleActiveChange = (event) => {
+    setActiveMaxWounds(event.target.value);
+  };
+  const handleReactiveChange = (event) => {
+    setReactiveMaxWounds(event.target.value);
   };
 
   // Modal sheet handlers
@@ -90,12 +104,59 @@ function FaceToFaceResultCard(props) {
         <Typography sx={{textAlign: "left", }} >Face to face</Typography>
         <FaceToFaceGraph rows={faceToFace}/>
         <Typography sx={{mt: 1, textAlign: "left", }}>Expected wounds</Typography>
-        <ExpectedWoundsGraph rows={expectedWounds}/>
+        <ExpectedWoundsGraph
+          rows={expectedWounds}
+          activeMaxWounds={activeMaxWounds}
+          reactiveMaxWounds={reactiveMaxWounds}
+        />
       </Collapse>
     </CardMedia>
     <Collapse in={expandTable} timeout="auto" >
       <CardContent>
-        <ExpectedWoundsList rows={expectedWounds}/>
+        <ExpectedWoundsList
+          rows={expectedWounds}
+          activeMaxWounds={activeMaxWounds}
+          reactiveMaxWounds={reactiveMaxWounds}
+        />
+      </CardContent>
+    </Collapse>
+    <Collapse in={expandWounds} timeout="auto" >
+      <CardContent>
+        <FormControl sx={{ m: 1, minWidth: 135}} size="small">
+          <InputLabel id="active-max-wounds">Active Max Wounds</InputLabel>
+          <Select
+            labelId="demo-select-small-label"
+            id="demo-select-small"
+            value={activeMaxWounds}
+            label="Active max wounds"
+            onChange={handleActiveChange}
+          >
+            <MenuItem value={1}>1</MenuItem>
+            <MenuItem value={2}>2</MenuItem>
+            <MenuItem value={3}>3</MenuItem>
+            <MenuItem value={4}>4</MenuItem>
+            <MenuItem value={5}>5</MenuItem>
+            <MenuItem value={100}>No limit</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl sx={{ m: 1, minWidth: 135 }} size="small">
+          <InputLabel id="demo-select-small-label">Rective Max Wounds</InputLabel>
+          <Select
+            labelId="demo-select-small-label"
+            id="demo-select-small"
+            value={reactiveMaxWounds}
+            label="Active max wounds"
+            onChange={handleReactiveChange}
+          >
+            <MenuItem value={1}>1</MenuItem>
+            <MenuItem value={2}>2</MenuItem>
+            <MenuItem value={3}>3</MenuItem>
+            <MenuItem value={4}>4</MenuItem>
+            <MenuItem value={5}>5</MenuItem>
+            <MenuItem value={100}>No limit</MenuItem>
+          </Select>
+        </FormControl>
+
       </CardContent>
     </Collapse>
     <CardActions >
@@ -107,7 +168,7 @@ function FaceToFaceResultCard(props) {
       {variant === 'list' && <Tooltip title="Delete from comparison list">
         <IconButton onClick={() => remove(props.f2fResults['id'])}><DeleteIcon/></IconButton></Tooltip>
       }
-      <IconButton><Tooltip title="Drill down"><QueryStatsIcon/></Tooltip></IconButton>
+      <IconButton onClick={handleExpandWoundsClick}><Tooltip title="Set maximum wounds"><HeartBrokenIcon/></Tooltip></IconButton>
       <Box sx={{flexGrow:1}}/>
       <ExpandMore
         expand={expandGraph}

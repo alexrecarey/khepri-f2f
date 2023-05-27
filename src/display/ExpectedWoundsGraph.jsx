@@ -46,12 +46,10 @@ function ExpectedWoundsGraph(props) {
   if (!results) {
     return null
   }
+  const activeMaxWounds = props.activeMaxWounds ? props.activeMaxWounds : 3;
+  const reactiveMaxWounds = props.reactiveMaxWounds ? props.reactiveMaxWounds : 3;
 
-  console.log("Results: ")
-  console.log(results)
-  let squashedResults = squashResults(results, 5, 5);
-  console.log("Squashed Results: ")
-  console.log(squashedResults)
+  const squashedResults = squashResults(results, activeMaxWounds, reactiveMaxWounds);
 
   let totalFail = sumChance(failurePlayerWithNoWounds(squashedResults));
 
