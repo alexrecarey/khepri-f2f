@@ -69,13 +69,27 @@ def dtw_vs_dodge(dtw_burst, dodge_sv, dodge_burst):
     if dodge_burst == 0:
         result.append(((0, dtw_burst, 0, 0), 1))
     else:
-        dDodge = Die([(1 if x <= dodge_sv else 0) for x in range(20)])
+        dDodge = d20 <= dodge_sv
         for outcome, amount in (dodge_burst @ dDodge).items():
             if outcome >= 1:
                 result.append(((0, 0, 0, 0), amount))
             elif outcome == 0:
                 result.append(((0, dtw_burst, 0, 0), amount))
     return result
+
+
+def fixed_face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst):
+    # Handle cases where SV > 20
+    a_sv = player_a_sv if player_a_sv <= 20 else 20
+    a_bonus = 0 if player_a_sv <= 20 else player_a_sv - 20
+    b_sv = 21  # make success value 21 to avoid crits
+    b_die_face = player_b_sv if player_b_sv <= 20 else 20
+    b_die = Die([b_die_face])  # Create a special die that always rolls the same number
+
+    result = InfinityFace2FaceEvaluator(a_sv=a_sv, b_sv=b_sv).evaluate(
+        lowest(d20+a_bonus, 20).pool(player_a_burst),
+        b_die.pool(player_b_burst))
+    return [i for i in result.items()]
 
 
 def face_to_face_result(outcomes):
@@ -181,11 +195,11 @@ def face_to_face_expected_wounds(
 
         # Generate die with 1's for wounds and 0's for successful armor saves
         if cont:
-            dSave = Die([(damage + Again() if x < armor_save else 0) for x in range(20)], again_depth=5)
+            dSave = Die([(damage + Again() if x <= armor_save else 0) for x in range(1, 21)], again_depth=5)
         else:
-            dSave = Die([(damage if x < armor_save else 0) for x in range(20)])
-        dCrit = Die([(1 if x < armor_save else 0) for x in range(20)])
-        dPlasma = Die([(1 if x < bts_save else 0) for x in range(20)])
+            dSave = d20 <= armor_save
+        dCrit = d20 <= armor_save
+        dPlasma = d20 <= bts_save
 
         r = Pool(
             [dSave for x in range(saves)] + [dCrit for x in range(crit_saves)] + [dPlasma for x in range(plasma_saves)]
@@ -253,9 +267,11 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
 def roll_and_bridge_results(
         player_a_sv, player_a_burst, player_a_dam, player_a_arm, player_a_bts, player_a_ammo, player_a_cont, player_a_crit_immune,
         player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_bts, player_b_ammo, player_b_cont, player_b_crit_immune,
-        dtw):
+        dtw, fixed):
     if dtw:
         outcomes = dtw_vs_dodge(player_a_burst, player_b_sv, player_b_burst)  # dtw_burst, dodge_sv, dodge_burst
+    elif fixed:
+        outcomes = fixed_face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
     else:
         outcomes = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
     results = face_to_face_result(outcomes)
@@ -297,7 +313,7 @@ async function calculateProbability(p) {
     p['contA'], p['critImmuneA'],
     p['successValueB'], p['burstB'], p['damageB'], p['armB'], p['btsB'], p['ammoB'],
     p['contB'], p['critImmuneB'],
-    p['dtwVsDodge'])
+    p['dtwVsDodge'], p['fixedFaceToFace'])
 }
 
 

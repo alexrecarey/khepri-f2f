@@ -62,6 +62,7 @@ function App() {
   const [ammoB, setAmmoB] = useState(p.ammoB);
   const [contB, setContB] = useState(p.contB);
   const [critImmuneB, setCritImmuneB] = useState(p.critImmuneB);
+  const [fixedFaceToFace, setFixedFaceToFace] = useState(p.fixedFaceToFace);
 
   // Outputs
   const [f2fResults, setF2fResults] = useState(null);
@@ -133,7 +134,7 @@ function App() {
   },[
     burstA, successValueA, damageA, armA, btsA, ammoA, contA, critImmuneA,
     burstB, successValueB, damageB, armB, btsB, ammoB, contB, critImmuneB,
-    dtwVsDodge
+    dtwVsDodge, fixedFaceToFace
   ]);
 
 
@@ -144,7 +145,7 @@ function App() {
       ammoA: ammoA, contA: contA, critImmuneA: critImmuneA,
       successValueB: successValueB, burstB: burstB, damageB: damageB, armB: armB, btsB: btsB,
       ammoB: ammoB, contB: contB, critImmuneB: critImmuneB,
-      dtwVsDodge: dtwVsDodge,
+      dtwVsDodge: dtwVsDodge, fixedFaceToFace: fixedFaceToFace
     }
     await workerRef.current.postMessage({command: 'calculate', data: parameters})
   };
@@ -248,7 +249,8 @@ function App() {
                   <ArmorInput armor={armB} update={setArmB} hideBTS={ammoA === 'PLASMA'} variant='reactive' info={showTooltips}/>
                   {ammoA === 'PLASMA' && <BTSInput bts={btsB} update={setBtsB} variant='reactive' info={showTooltips}/>}
                   <AmmoInput ammo={ammoB} cont={contB} update={setAmmoB} updateCont={setContB} variant='reactive' dtw={dtwVsDodge} info={showTooltips}/>
-                  <OtherInputs critImmune={critImmuneB} update={setCritImmuneB} variant='reactive' info={showTooltips}/>
+                  <OtherInputs critImmune={critImmuneB} update={setCritImmuneB} variant='reactive' info={showTooltips}
+                               fixedFaceToFace={fixedFaceToFace} updateFixedFaceToFace={setFixedFaceToFace}/>
                 </Grid>
               </CardContent>
             </Card>

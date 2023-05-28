@@ -1,7 +1,7 @@
-import micropip
-await micropip.install('icepool==0.20.1')
-import js
-from pyodide.ffi import to_js
+# import micropip
+# await micropip.install('icepool==0.20.1')
+# import js
+# from pyodide.ffi import to_js
 import icepool
 from icepool import d20, lowest, Again, Die, Pool
 from math import comb
@@ -67,13 +67,26 @@ def dtw_vs_dodge(dtw_burst, dodge_sv, dodge_burst):
     if dodge_burst == 0:
         result.append(((0, dtw_burst, 0, 0), 1))
     else:
-        dDodge = Die([(1 if x <= dodge_sv else 0) for x in range(20)])
+        dDodge = d20 <= dodge_sv
         for outcome, amount in (dodge_burst @ dDodge).items():
             if outcome >= 1:
                 result.append(((0, 0, 0, 0), amount))
             elif outcome == 0:
                 result.append(((0, dtw_burst, 0, 0), amount))
     return result
+
+
+def fixed_face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst):
+    # Handle cases where SV > 20
+    a_sv = player_a_sv if player_a_sv <= 20 else 20
+    a_bonus = 0 if player_a_sv <= 20 else player_a_sv - 20
+    b_sv = 21  # make success value 21 to avoid crits
+    b_die = Die([player_b_sv])  # Create a special die that always rolls the same number
+
+    result = InfinityFace2FaceEvaluator(a_sv=a_sv, b_sv=b_sv).evaluate(
+        lowest(d20+a_bonus, 20).pool(player_a_burst),
+        b_die.pool(player_b_burst))
+    return [i for i in result.items()]
 
 
 def face_to_face_result(outcomes):
@@ -179,22 +192,18 @@ def face_to_face_expected_wounds(
 
         # Generate die with 1's for wounds and 0's for successful armor saves
         if cont:
-            dSave = Die([(damage + Again() if x < armor_save else 0) for x in range(20)], again_depth=5)
+            dSave = Die([(damage + Again() if x <= armor_save else 0) for x in range(1, 21)], again_depth=5)
         else:
-            dSave = Die([(damage if x < armor_save else 0) for x in range(20)])
-        dCrit = Die([(1 if x < armor_save else 0) for x in range(20)])
-        dPlasma = Die([(1 if x < bts_save else 0) for x in range(20)])
+            dSave = d20 <= armor_save
+        dCrit = d20 <= armor_save
+        dPlasma = d20 <= bts_save
 
         r = Pool(
             [dSave for x in range(saves)] + [dCrit for x in range(crit_saves)] + [dPlasma for x in range(plasma_saves)]
         ).sum()
         denominator = r.denominator()
         for w, occurrences in r.items():
-            if w == 0:
-                wounds['fail'][0] = wounds['fail'].get(0, 0.0) + (occurrences/denominator) * rolls
-                wounds['guts'][counterpart] += (occurrences/denominator) * rolls
-            else:
-                wounds[winner][w] = wounds[winner].get(w, 0) + (occurrences/denominator) * rolls
+            wounds[winner][w] = wounds[winner].get(w, 0) + (occurrences/denominator) * rolls
     return wounds
 
 
@@ -210,13 +219,7 @@ def format_face_to_face(face_to_face):
     return output
 
 
-def format_expected_wounds(wounds, max_wounds_shown=3):
-    """Format expected_wounds into a list of results
-
-    Output format is {'player': 'active/reactive/fail', 'wounds': 3, 'chance': 0.2432, 'raw_chance' 1341234.23,
-                      'cumulative_chance': 0.53234, 'raw_guts_chance': 0, 'guts_chance': 0.0234, 'cumulative_guts': 0.0723}
-    """
-    # Squash items that are > than max_wounds_shown
+def consolidate_wounds_over_maximum(wounds, max_wounds_shown=3):
     squashed = {'active': None, 'reactive': None, 'fail': wounds['fail']}
     for player in ['active', 'reactive']:
         over_max = {k: v for k, v in wounds[player].items() if k > max_wounds_shown}
@@ -227,14 +230,18 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
             squashed[player] = new_dict
         else:
             squashed[player] = wounds[player]
+    return squashed
 
-    # Create output table
-    active_base_guts = wounds['guts']['active']
-    reactive_base_guts = wounds['guts']['reactive']
-    counterpart = {
-        'active': 'reactive',
-        'reactive': 'active'
-    }
+
+def format_expected_wounds(wounds, max_wounds_shown=3):
+    """Format expected_wounds into a list of results
+
+    Output format is {'player': 'active/reactive/fail', 'wounds': 3, 'chance': 0.2432, 'raw_chance' 1341234.23,
+                      'cumulative_chance': 0.53234, 'raw_guts_chance': 0, 'guts_chance': 0.0234, 'cumulative_guts': 0.0723}
+    """
+    # Squash items that are > than max_wounds_shown
+    total_rolls = wounds['total_rolls']
+    squashed = consolidate_wounds_over_maximum(wounds, max_wounds_shown=max_wounds_shown)
     expected_wounds = []
     index = 0
     for player in ['active', 'fail', 'reactive']:
@@ -245,18 +252,10 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
                 'player': player,
                 'wounds': key,
                 'raw_chance': squashed[player][key],
+                'chance': squashed[player][key]/total_rolls,
                 'cumulative_chance': reduce(
                     lambda x, y: x+y,
-                    [squashed[player][i] for i in squashed[player].keys() if i >= key], 0) / wounds['total_rolls'],
-                'chance': squashed[player][key]/wounds['total_rolls'],
-                'raw_active_guts': active_base_guts if player == 'fail' else squashed[counterpart[player]].get(key, 0),
-                'raw_reactive_guts': reactive_base_guts if player == 'fail' else squashed[counterpart[player]].get(key, 0),
-                'cumulative_active_guts_chance': 0 if player == 'active' else (
-                    reduce(lambda x, y: x+y, [squashed['reactive'][i] for i in squashed['reactive'].keys() if i <= key], 0)
-                    + active_base_guts) / wounds['total_rolls'],
-                'cumulative_reactive_guts_chance': 0 if player == 'reactive' else (
-                    reduce(lambda x, y: x+y, [squashed['active'][i] for i in squashed['active'].keys() if i <= key], 0)
-                    + reactive_base_guts) / wounds['total_rolls'],
+                    [squashed[player][i] for i in squashed[player].keys() if i >= key], 0) / total_rolls,
             })
             index += 1
     return expected_wounds
@@ -265,9 +264,11 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
 def roll_and_bridge_results(
         player_a_sv, player_a_burst, player_a_dam, player_a_arm, player_a_bts, player_a_ammo, player_a_cont, player_a_crit_immune,
         player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_bts, player_b_ammo, player_b_cont, player_b_crit_immune,
-        dtw):
+        dtw, fixed):
     if dtw:
         outcomes = dtw_vs_dodge(player_a_burst, player_b_sv, player_b_burst)  # dtw_burst, dodge_sv, dodge_burst
+    elif fixed:
+        outcomes = fixed_face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
     else:
         outcomes = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
     results = face_to_face_result(outcomes)
@@ -283,8 +284,10 @@ def roll_and_bridge_results(
         'expected_wounds': formatted_expected_wounds,
         'total_rolls': expected_wounds['total_rolls']
     }
-    return to_js(return_object, dict_converter=js.Object.fromEntries)
-    # return return_object
+    # return to_js(return_object, dict_converter=js.Object.fromEntries)
+    return return_object
 
 # Return value for Javascript
-to_js(roll_and_bridge_results)
+#to_js(roll_and_bridge_results)
+
+

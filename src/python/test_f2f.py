@@ -1,9 +1,12 @@
-from f2f import face_to_face_expected_wounds
+from functools import reduce
+
+import f2f
+from f2f import face_to_face_expected_wounds, face_to_face, consolidate_wounds_over_maximum
 import re
 from math import isclose
 
 
-def ghostlords_to_dict(string):
+def ghostlords_raw_to_dict(string):
     regex = r'(P\d) Scores\s+(\d\d*)\s*Success\(es\):\s*(\d*\.?\d+)%$'
     fail_regex = r'No Successes:\s+(\d*\.?\d+)%'
     go = {
@@ -24,12 +27,58 @@ def ghostlords_to_dict(string):
     return go
 
 
-def khepri_result_to_percentage(khepri_dict):
-    # Yeah, I could nest list comprehensions, but I'd like to be able to read this code
+def ghostlords_minimal_to_dict(active_str, reactive_str, fail_str):
+    """Example minimal result
+
+    Active Player
+
+29.33% Custom Unit inflicts 1 or more wounds on Custom Unit (1 W)
+10.11% Custom Unit inflicts 2 or more wounds on Custom Unit (Unconscious)
+3.08% Custom Unit inflicts 3 or more wounds on Custom Unit (Dead)
+
+Failures
+
+49.46% Neither player succeeds
+Reactive Player
+
+21.20% Custom Unit inflicts 1 or more wounds on Custom Unit (1 W)
+10.10% Custom Unit inflicts 2 or more wounds on Custom Unit (Unconscious)
+2.19% Custom Unit inflicts 3 or more wounds on Custom Unit (Dead)"""
+
+    regex = r'(\d*\.?\d+)% Custom Unit inflicts (\d) or more'
+    fail_regex = r'(\d*\.?\d+)% Neither player succeeds'
+    active = {}
+    reactive = {}
+    fail = {}
+
+    for m in re.finditer(regex, active_str, re.MULTILINE):
+        active[int(m[2])] = float(m[1]) / 100
+
+    for m in re.finditer(regex, reactive_str, re.MULTILINE):
+        reactive[int(m[2])] = float(m[1]) / 100
+
+    for m in re.findall(fail_regex, fail_str, re.MULTILINE):
+        fail[0] = float(m) / 100
+
+    # find the values not the cummulative ones.
     return {
-        'active':{k: v/khepri_dict['total_rolls'] for k, v in khepri_dict['active'].items()},
-        'reactive': {k: v/khepri_dict['total_rolls'] for k, v in khepri_dict['reactive'].items()},
-        'fail': {k: v/khepri_dict['total_rolls'] for k, v in khepri_dict['fail'].items()}}
+        'active': {k: (v - active.get(k+1, 0)) for k, v in active.items()},
+        'reactive': {k: (v - reactive.get(k+1, 0)) for k, v in reactive.items()},
+        'fail': {0: fail[0]}
+    }
+
+
+def khepri_result_to_percentage(khepri_dict, max_wounds_shown=100):
+    # Yeah, I could nest list comprehensions, but I'd like to be able to read this code
+    # As I've changed my return format, we now have to exclude 0 wounds from active and reactive successes
+    # we also have to add 0 wounds active and 0 wounds reactive to failure case
+    failure_rolls = khepri_dict['active'].get(0, 0) + khepri_dict['reactive'].get(0,0) + khepri_dict['fail'].get(0,0)
+    wounds = {
+        'active': {k: v/khepri_dict['total_rolls'] for k, v in khepri_dict['active'].items() if k > 0},
+        'reactive': {k: v/khepri_dict['total_rolls'] for k, v in khepri_dict['reactive'].items() if k > 0},
+        'fail': {0: failure_rolls/khepri_dict['total_rolls']}
+    }
+    return f2f.consolidate_wounds_over_maximum(wounds, max_wounds_shown=max_wounds_shown)
 
 
 def is_ghostlords_equal(gl_dict, kp_dict):
@@ -45,7 +94,6 @@ def is_ghostlords_equal(gl_dict, kp_dict):
                 print(f'For {player}[{outcome}] GL({gl_dict[player][outcome]}) not close to KP({kp_dict[player][outcome]})')
                 equals_flag = False
     return equals_flag
-
 
 
 class TestAgainstGhostlordsCalculator:
@@ -99,10 +147,12 @@ P2 Scores  1+ Successes:   8.987%"""
         player_b_dam_ = 14
         player_b_arm_ = 5
         player_b_ammo_ = 'N'
+        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
         kp_result = face_to_face_expected_wounds(
-            player_a_sv_, player_a_burst_, player_a_dam_, player_a_arm_, player_a_ammo_, False,
-            player_b_sv_, player_b_burst_, player_b_dam_, player_b_arm_, player_b_ammo_, False)
-        gl_dict = ghostlords_to_dict(gl_result)
+            outcomes,
+            player_a_dam_, player_a_arm_, player_a_ammo_,
+            player_b_dam_, player_b_arm_, player_b_ammo_)
+        gl_dict = ghostlords_raw_to_dict(gl_result)
         kp_dict = khepri_result_to_percentage(kp_result)
         is_ghostlords_equal(gl_dict, kp_dict)
         assert is_ghostlords_equal(gl_dict, kp_dict)
@@ -143,10 +193,12 @@ P2 Scores  1+ Successes:   4.654%"""
         player_b_dam_ = 12
         player_b_arm_ = 4
         player_b_ammo_ = 'N'
+        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
         kp_result = face_to_face_expected_wounds(
-            player_a_sv_, player_a_burst_, player_a_dam_, player_a_arm_, player_a_ammo_, False,
-            player_b_sv_, player_b_burst_, player_b_dam_, player_b_arm_, player_b_ammo_, False)
-        gl_dict = ghostlords_to_dict(gl_result)
+            outcomes,
+            player_a_dam_, player_a_arm_, player_a_ammo_,
+            player_b_dam_, player_b_arm_, player_b_ammo_)
+        gl_dict = ghostlords_raw_to_dict(gl_result)
         kp_dict = khepri_result_to_percentage(kp_result)
         is_ghostlords_equal(gl_dict, kp_dict)
         assert is_ghostlords_equal(gl_dict, kp_dict)
@@ -263,10 +315,12 @@ P2 Scores  1+ Successes:  14.245%"""
         player_b_dam_ = 12
         player_b_arm_ = 3
         player_b_ammo_ = 'N'
+        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
         kp_result = face_to_face_expected_wounds(
-            player_a_sv_, player_a_burst_, player_a_dam_, player_a_arm_, player_a_ammo_, False,
-            player_b_sv_, player_b_burst_, player_b_dam_, player_b_arm_, player_b_ammo_, False)
-        gl_dict = ghostlords_to_dict(gl_result)
+            outcomes,
+            player_a_dam_, player_a_arm_, player_a_ammo_,
+            player_b_dam_, player_b_arm_, player_b_ammo_)
+        gl_dict = ghostlords_raw_to_dict(gl_result)
         kp_dict = khepri_result_to_percentage(kp_result)
         assert is_ghostlords_equal(gl_dict, kp_dict)
 
@@ -358,10 +412,12 @@ P2 Scores  1+ Successes:  20.088%"""
         player_b_dam_ = 15
         player_b_arm_ = 3
         player_b_ammo_ = 'N'
+        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
         kp_result = face_to_face_expected_wounds(
-            player_a_sv_, player_a_burst_, player_a_dam_, player_a_arm_, player_a_ammo_, False,
-            player_b_sv_, player_b_burst_, player_b_dam_, player_b_arm_, player_b_ammo_, False)
-        gl_dict = ghostlords_to_dict(gl_result)
+            outcomes,
+            player_a_dam_, player_a_arm_, player_a_ammo_,
+            player_b_dam_, player_b_arm_, player_b_ammo_)
+        gl_dict = ghostlords_raw_to_dict(gl_result)
         kp_dict = khepri_result_to_percentage(kp_result)
         assert is_ghostlords_equal(gl_dict, kp_dict)
 
@@ -429,9 +485,98 @@ P2 Scores  1+ Successes:  22.705%"""
         player_b_dam_ = 16
         player_b_arm_ = 11
         player_b_ammo_ = 'EXP'
+        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
         kp_result = face_to_face_expected_wounds(
-            player_a_sv_, player_a_burst_, player_a_dam_, player_a_arm_, player_a_ammo_, False,
-            player_b_sv_, player_b_burst_, player_b_dam_, player_b_arm_, player_b_ammo_, False)
-        gl_dict = ghostlords_to_dict(gl_result)
+            outcomes,
+            player_a_dam_, player_a_arm_, player_a_ammo_,
+            player_b_dam_, player_b_arm_, player_b_ammo_)
+        gl_dict = ghostlords_raw_to_dict(gl_result)
         kp_dict = khepri_result_to_percentage(kp_result)
         assert is_ghostlords_equal(gl_dict, kp_dict)
+
+
+    def test_continuous_damage_azrail_vs_tag(self):
+        print("Testing Azra'il HMG vs TAG")
+        active_str = """29.33% Custom Unit inflicts 1 or more wounds on Custom Unit (1 W)
+10.11% Custom Unit inflicts 2 or more wounds on Custom Unit (Unconscious)
+3.08% Custom Unit inflicts 3 or more wounds on Custom Unit (Dead)"""
+        failure_str = """49.46% Neither player succeeds"""
+        reactive_str = """21.20% Custom Unit inflicts 1 or more wounds on Custom Unit (1 W)
+10.10% Custom Unit inflicts 2 or more wounds on Custom Unit (Unconscious)
+2.19% Custom Unit inflicts 3 or more wounds on Custom Unit (Dead)"""
+        gl_dict = {
+            'active': {1: 0.2933, 2: 0.1011, 3: 0.0308},
+            'reactive': {1: 0.2120, 2: 0.1010, 3: 0.0219},
+            'fail': {0: 0.4946}
+        }
+        player_a_sv_ = 13
+        player_a_burst_ = 3
+        player_a_dam_ = 14
+        player_a_arm_ = 8
+        player_a_ammo_ = 'DA'
+        player_b_sv_ = 14
+        player_b_burst_ = 1
+        player_b_dam_ = 16
+        player_b_arm_ = 11
+        player_b_ammo_ = 'EXP'
+        player_a_cont_ = True
+        player_b_cont_ = False
+        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
+        kp_result = face_to_face_expected_wounds(
+            outcomes,
+            player_a_dam_, player_a_arm_, player_a_ammo_,
+            player_b_dam_, player_b_arm_, player_b_ammo_, player_a_cont=player_a_cont_)
+        gl_dict = ghostlords_minimal_to_dict(active_str=active_str, reactive_str=reactive_str, fail_str=failure_str)
+        kp_dict = khepri_result_to_percentage(kp_result, max_wounds_shown=3)
+        assert is_ghostlords_equal(gl_dict, kp_dict)
+
+
+
+# TODO: Crit immune tests. Note: GL does not have a crit immune toggle
+# TODO: Dodge vs template weapon test
+# TODO: plasma tests
+# TODO: Extreme values tests: Reactive 0 burst
+# TODO: Extreme values tests: Minimum 5+ wounds
+# TODO: Extreme values tests: Active and reactive both cause 0 wounds
+
+
+# class SelfTests:
+    # def test_simple_continuous_damage(self):
+    #     player_a_sv_ = 20
+    #     player_a_burst_ = 1
+    #     player_a_dam_ = 10
+    #     player_a_arm_ = 0
+    #     player_a_ammo_ = 'N'
+    #     player_b_sv_ = 0
+    #     player_b_burst_ = 1
+    #     player_b_dam_ = 10
+    #     player_b_arm_ = 0
+    #     player_b_ammo_ = 'N'
+    #     result = face_to_face_expected_wounds(
+    #         player_a_sv_, player_a_burst_, player_a_dam_, player_a_arm_, player_a_ammo_,
+    #         player_b_sv_, player_b_burst_, player_b_dam_, player_b_arm_, player_b_ammo_, player_a_cont=True)
+        # Ghostlords calculator result
+        # P1 Scores 20+ Successes:   0.000%
+        # P1 Scores 19+ Successes:   0.000%
+        # P1 Scores 18+ Successes:   0.000%
+        # P1 Scores 17+ Successes:   0.001%
+        # P1 Scores 16+ Successes:   0.002%
+        # P1 Scores 15+ Successes:   0.003%
+        # P1 Scores 14+ Successes:   0.006%
+        # P1 Scores 13+ Successes:   0.013%
+        # P1 Scores 12+ Successes:   0.025%
+        # P1 Scores 11+ Successes:   0.050%
+        # P1 Scores 10+ Successes:   0.100%
+        # P1 Scores  9+ Successes:   0.200%
+        # P1 Scores  8+ Successes:   0.400%
+        # P1 Scores  7+ Successes:   0.801%
+        # P1 Scores  6+ Successes:   1.602%
+        # P1 Scores  5+ Successes:   3.203%
+        # P1 Scores  4+ Successes:   6.406%
+        # P1 Scores  3+ Successes:  12.812%
+        # P1 Scores  2+ Successes:  25.625%
+        # P1 Scores  1+ Successes:  51.250%
+    #     assert result == {'active': {1: 132982387311.80006, 2: 120001405942.39105, 3: 65727164981.19168, 4: 22266942310.045437,
+    #                                  5: 4287388973.3965435, 6: 358155514.2130559},
+    #                       'reactive': {1: 41592289828.72894, 2: 16712956943.140924, 3: 857520144.1465032, 4: 36956664.07491093,
+    #                                    5: 1074799.1400103127}, 'fail': {0: 107175756587.7309}, 'total_rolls': 512000000000}

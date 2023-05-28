@@ -32,6 +32,7 @@ function validateParams(p) {
     ammoB: 'N',
     contB: false,
     critImmuneB: false,
+    fixedFaceToFace: false,
   };
   let valid = {}
 
@@ -119,6 +120,12 @@ function validateParams(p) {
   let dtwVsDodge = p.get('dtwVsDodge');
   if(dtwVsDodge !== null){
     valid['dtwVsDodge'] = dtwVsDodge.toLowerCase() === 'true';
+  }
+
+  // DTW vs Dodge
+  let fixedFaceToFace = p.get('fixedFaceToFace');
+  if(fixedFaceToFace !== null){
+    valid['fixedFaceToFace'] = fixedFaceToFace.toLowerCase() === 'true';
   }
 
   return  Object.assign({}, defaultInputs, valid);
