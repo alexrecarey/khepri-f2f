@@ -86,7 +86,7 @@ function FaceToFaceResultCard(props) {
   let activeParameters = `B${p.burstA} ${p.dtwVsDodge ? "DTW" : "SV" + p.successValueA}\
  ${p.ammoA !== "DODGE" ? "DAM" + p.damageA : ""} ${p.ammoA !== "N" ? p.ammoA : ""} \
  ${p.contA ? "CONT" : ""} ARM${p.armA} ${p.critImmuneA ? "CRIT_IMMUNE" : ""}`
-  let reactiveParameters = `B${p.burstB} ${p.ammoB !== "DODGE" ? "SV" + p.successValueB : ""} ${p.ammoB !== "DODGE" ? "DAM" + p.damageB : ""}\
+  let reactiveParameters = `B${p.burstB} ${p.burstB !== 0 ? "SV" + p.successValueB : ""} ${p.ammoB !== "DODGE" && p.burstB !== 0 ? "DAM" + p.damageB : ""}\
  ${p.ammoB !== "N" ? p.ammoB : ""} ${p.contB ? "CONT" : ""} ARM${p.armB} ${p.critImmuneB ? "CRIT_IMMUNE" : ""}`
 
   return <Card>

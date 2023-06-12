@@ -227,7 +227,7 @@ function App() {
                   </Grid>
                   <BurstInput burst={burstA} update={setBurstA} info={showTooltips}/>
                   {dtwVsDodge === false && <SuccessValueInput successValue={successValueA} update={setSuccessValueA} info={showTooltips}/>}
-                  <DamageInput damage={damageA} update={setDamageA} info={showTooltips}/>
+                  {ammoA !== 'DODGE' && <DamageInput damage={damageA} update={setDamageA} info={showTooltips}/>}
                   <ArmorInput armor={armA} update={setArmA} hideBTS={ammoB === 'PLASMA'} info={showTooltips}/>
                   {ammoB === 'PLASMA' && <BTSInput bts={btsA} update={setBtsA} info={showTooltips}/>}
                   <AmmoInput ammo={ammoA} cont={contA} update={setAmmoA} updateCont={setContA} info={showTooltips}/>
@@ -244,8 +244,8 @@ function App() {
                     <Typography variant="h6" gutterBottom>Reactive</Typography>
                   </Grid>
                   <BurstInput burst={burstB} update={setBurstB} variant='reactive' info={showTooltips}/>
-                  { ammoB !== 'DODGE' && <SuccessValueInput successValue={successValueB} update={setSuccessValueB} variant='reactive' info={showTooltips}/>}
-                  {dtwVsDodge === false && ammoB !== 'DODGE' &&<DamageInput damage={damageB} update={setDamageB} variant='reactive' info={showTooltips}/>}
+                  {burstB !== 0 && <SuccessValueInput successValue={successValueB} update={setSuccessValueB} variant='reactive' info={showTooltips}/>}
+                  {dtwVsDodge === false && burstB !== 0 && ammoB !== 'DODGE' &&<DamageInput damage={damageB} update={setDamageB} variant='reactive' info={showTooltips}/>}
                   <ArmorInput armor={armB} update={setArmB} hideBTS={ammoA === 'PLASMA'} variant='reactive' info={showTooltips}/>
                   {ammoA === 'PLASMA' && <BTSInput bts={btsB} update={setBtsB} variant='reactive' info={showTooltips}/>}
                   <AmmoInput ammo={ammoB} cont={contB} update={setAmmoB} updateCont={setContB} variant='reactive' dtw={dtwVsDodge} info={showTooltips}/>
