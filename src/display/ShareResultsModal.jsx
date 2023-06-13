@@ -6,14 +6,17 @@ import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 
 import {
-  ascendByWounds,
   activePlayer,
   reactivePlayer,
-  failurePlayer,
-  twoDecimalPlaces,
-  formatPercentage
+  formatPercentage,
+  squashResults,
+  activePlayerWithWounds,
+  reactivePlayerWithWounds,
+  failurePlayerWithNoWounds,
+  sumChance,
+  woundsPerOrder,
+  twoDecimalPlaces
 } from "./DataTransform.js";
-import {reduce} from "ramda";
 import {useState} from "react";
 
 
@@ -37,73 +40,66 @@ const style = {
 };
 
 export default function ShareResultsModal(props) {
+  // state
   const [isURLCopied, setIsURLCopied] = useState(false);
   const [isCompactCopied, setIsCompactCopied] = useState(false);
   const [isFullCopied, setIsFullCopied] = useState(false);
+
+  // props handling
+  const activeMaxWounds = props.activeMaxWounds ? props.activeMaxWounds : 3;
+  const reactiveMaxWounds = props.reactiveMaxWounds ? props.reactiveMaxWounds : 3;
   const open = props.open;
   const setClose = props.setClose;
-  const faceToFace = props.results.face_to_face;
   const expectedWounds = props.results.expected_wounds;
   const parameters = props.results.parameters;
   const title = props.results?.title ?? "Result";
 
   // Sharable data precalculation
-  const activeWounds = ascendByWounds(activePlayer(expectedWounds));
-  const reactiveWounds = ascendByWounds(reactivePlayer(expectedWounds));
-  const failureWounds = ascendByWounds(failurePlayer(expectedWounds));
-  const activeWinsF2F = formatPercentage(activePlayer(faceToFace)[0]['chance']);
-  const reactiveWinsF2F = formatPercentage(reactivePlayer(faceToFace)[0]['chance']);
-  const noWinF2F = formatPercentage(failurePlayer(faceToFace)[0]['chance']);
-  const activeFirstWound = activeWounds?.[0] ? formatPercentage(activeWounds[0]['cumulative_chance']): 0;
-  const activeFirstAmount = activeWounds?.[0] ? activeWounds[0]['wounds'] : null;
-  const activeSecondWound = activeWounds?.[1] ? formatPercentage(activeWounds[1]['cumulative_chance']): 0;
-  const activeSecondAmount = activeWounds?.[1] ? activeWounds[1]['wounds'] : null;
-  const reactiveFirstWound = reactiveWounds?.[0] ? formatPercentage(reactiveWounds[0]['cumulative_chance']): 0;
-  const reactiveFirstAmount = reactiveWounds?.[0] ? reactiveWounds[0]['wounds'] : false;
-  const reactiveSecondWound = reactiveWounds?.[1] ? formatPercentage(reactiveWounds[1]['cumulative_chance']): 0;
-  const reactiveSecondAmount = reactiveWounds?.[1] ? reactiveWounds[1]['wounds'] : false;
-  const failureWound = failureWounds?.[0] ? formatPercentage(failureWounds[0]['cumulative_chance']): 0;
-  const woundsByChance = (x, y) => x + y['wounds'] * y['chance'];
-  const activeWPO = twoDecimalPlaces(reduce(woundsByChance, 0, activePlayer(expectedWounds)));
-  const reactiveWPO = twoDecimalPlaces(reduce(woundsByChance, 0,reactivePlayer(expectedWounds)));
-
-
+  const rows = squashResults(expectedWounds, activeMaxWounds, reactiveMaxWounds);
+  const activeList = activePlayerWithWounds(rows);
+  const reactiveList = reactivePlayerWithWounds(rows);
+  const failureList = failurePlayerWithNoWounds(rows);
+  const totalFail = formatPercentage(sumChance(failureList));
+  const activeNoWounds = activePlayer(failureList);
+  const reactiveNoWounds = reactivePlayer(failureList);
+  const activeWPO = twoDecimalPlaces(woundsPerOrder(activePlayer(rows)));
+  const reactiveWPO = twoDecimalPlaces(woundsPerOrder(reactivePlayer(rows)));
+  const activeWinsF2F = formatPercentage(sumChance(activePlayer(rows)));
+  const reactiveWinsF2F = formatPercentage(sumChance(reactivePlayer(rows)));
   const shareURL = `https://infinitythecalculator.com/?${encodeQueryData(parameters)}`;
 
+  // Full text
   const fullResultText =
-`Active - ${activeWPO} wounds / order:
+`Active (${activeWPO} wounds / order):
   Wins F2F: ${activeWinsF2F}%\
-  ${activeFirstAmount ? ("\n  Causes " + activeFirstAmount + "+ wounds: " + activeFirstWound + "%") : '' }\
-  ${activeSecondAmount ? ("\n  Causes " + activeSecondAmount + "+ wounds: " + activeSecondWound + "%") : '' }
+${activeList.map((x) => `\n  Causes ${x.wounds}+ wounds: ${formatPercentage(x.cumulative_chance)}%`)}
 Failure:
-  Ties F2F: ${noWinF2F}%
-  No wounds: ${failureWound}%
-Reactive - ${reactiveWPO} wounds / order:
+  No wounds caused: ${totalFail}%\
+${activeNoWounds.map((x) => `\n  (${formatPercentage(x.chance)}% chance active player causes no wounds)`)}\
+${reactiveNoWounds.map((x) => `\n  (${formatPercentage(x.chance)}% chance reactive player causes no wounds)`)}
+Reactive (${reactiveWPO} wounds / order):
   Wins F2F: ${reactiveWinsF2F}%\
-${reactiveFirstAmount ? ("\n  Causes " + reactiveFirstAmount + "+ wounds: " + reactiveFirstWound + "%") : '' }\
-${reactiveSecondAmount ? ("\n  Causes " + activeSecondAmount + "+ wounds: " + reactiveSecondWound + "%") : '' }
-  Wounds / order: ${reactiveWPO}`
+${reactiveList.map((x) => `\n  Causes ${x.wounds}+ wounds: ${formatPercentage(x.cumulative_chance)}%`)}`
 
-//   const compactResultText =
-// `Active - Failure - Reactive
-// Wins F2F:  ${activeWinsF2F}% - ${noWinF2F}% - ${reactiveWinsF2F}%
-// 1+ wounds: ${activeFirstWound}% - ${failureWound}% - ${reactiveFirstWound}%
-// Wounds / Order: ${activeWPO} - - ${reactiveWPO}`
-
+  // Discord text
   const discordText =  [
     `# ${title}\n`,
-    `### Active (${twoDecimalPlaces(reduce(woundsByChance, 0, activePlayer(expectedWounds)))} wounds / order)\n`,
-    (ascendByWounds(activePlayer(expectedWounds)).map((row) => {
+    `### Active (${activeWPO} wounds / order)\n`,
+    activeList.map((row) => {
       return `- ${formatPercentage(row['cumulative_chance'])}% chance ${row['wounds']} or more wounds.\n`
-    })).join(''),
+    }).join(''),
     `### Failure\n`,
-    (failurePlayer(expectedWounds).map((row) => {
-      return `- ${formatPercentage(row['cumulative_chance'])}% chance neither player causes wounds (${formatPercentage(row['cumulative_reactive_guts_chance'])}% for reactive to guts).\n`
-    })).join(''),
-    `### Reactive (${twoDecimalPlaces(reduce(woundsByChance, 0, reactivePlayer(expectedWounds)))} wounds / order)\n`,
-    (ascendByWounds(reactivePlayer(expectedWounds)).map((row) => {
+    `- ${totalFail}% chance neither player causes wounds.\n`,
+    activeNoWounds.map((x) => {
+      return `(${formatPercentage(x.chance)}% chance active player causes no wounds).\n`
+    }),
+    reactiveNoWounds.map((x) => {
+      return `(${formatPercentage(x.chance)}% chance reactive player causes no wounds).\n`
+    }),
+    `### Reactive (${reactiveWPO} wounds / order)\n`,
+    reactiveList.map((row) => {
       return `- ${formatPercentage(row['cumulative_chance'])}% chance ${row['wounds']} or more wounds.\n`
-    })).join(''),
+    }).join(''),
     `[Edit this result](${shareURL})`
   ].join('');
 

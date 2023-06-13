@@ -45,14 +45,7 @@ function FaceToFaceResultCard(props) {
   const index = props.index ?? "";
   const updateTitle = props.changeName ? props.changeName : () => void 0;
   const remove = props.remove ? props.remove : () => void 0;
-  console.log('expectedWounds:');
-  console.log(expectedWounds);
-  console.log('faceToFace');
-  console.log(faceToFace);
-  console.log('p');
-  console.log(p)
 
-  // ?? `Saved result ${index +1}`;
   // Calculate custom title
   let title;
   if (props.f2fResults?.title) {
@@ -199,7 +192,13 @@ function FaceToFaceResultCard(props) {
         </Tooltip>
       </ExpandMore>
     </CardActions>
-    <ShareResultsModal open={open} setClose={handleClose} results={props.f2fResults}/>
+    <ShareResultsModal
+      open={open}
+      setClose={handleClose}
+      results={props.f2fResults}
+      activeMaxWounds={activeMaxWounds}
+      reactiveMaxWounds={reactiveMaxWounds}
+    />
   </Card>;
 
 }
