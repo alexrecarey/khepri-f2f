@@ -151,7 +151,7 @@ function App() {
   };
 
   const addResultToCompareList = () => {
-    if(any(propEq('id', f2fResults.id))(savedResults)){
+    if(any(propEq(f2fResults.id, 'id'))(savedResults)){
       console.log("Not adding, duplicate key")
     } else {
       setSavedResults(prevState =>  clone([... prevState, f2fResults]));
@@ -166,8 +166,13 @@ function App() {
   }
 
   const changeSavedResultName = (id, name) => {
+    console.log(`received request to change saved result name with id ${id} and title ${name}`)
     setSavedResults(prevState => {
-      let index = findIndex(propEq('id', id))(prevState);
+      console.log('changeing saved results list. current value:');
+      console.log(prevState)
+
+      let index = findIndex(propEq(id, 'id'))(prevState);
+      console.log(`changing index ${index}`)
       let newSavedResults = update(index, assoc('title', name, prevState[index]))(prevState);
       console.log('New saved results');
       console.log(newSavedResults);
@@ -177,7 +182,7 @@ function App() {
   const curriedChangeSavedResultName = curry(changeSavedResultName);
 
   const deleteResultFromCompareList = (id) => {
-    let index = findIndex(propEq('id', id))(savedResults);
+    let index = findIndex(propEq(id, 'id'))(savedResults);
     if(index >= 0){
       setSavedResults(prevState => remove(index, 1, prevState));
     }

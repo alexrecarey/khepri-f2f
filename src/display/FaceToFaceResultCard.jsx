@@ -34,6 +34,8 @@ function FaceToFaceResultCard(props) {
   if(!props.f2fResults){
     return null;
   }
+  console.log('f2fResults')
+  console.log(props.f2fResults);
   // Props
   const expectedWounds = props.f2fResults.expected_wounds;
   const faceToFace = props.f2fResults.face_to_face;
@@ -43,6 +45,12 @@ function FaceToFaceResultCard(props) {
   const index = props.index ?? "";
   const updateTitle = props.changeName ? props.changeName : () => void 0;
   const remove = props.remove ? props.remove : () => void 0;
+  console.log('expectedWounds:');
+  console.log(expectedWounds);
+  console.log('faceToFace');
+  console.log(faceToFace);
+  console.log('p');
+  console.log(p)
 
   // ?? `Saved result ${index +1}`;
   // Calculate custom title

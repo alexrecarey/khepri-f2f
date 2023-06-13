@@ -17,8 +17,6 @@ function FaceToFaceGraphCell(props) {
   } else {
     color = 'lightgrey';
   }
-  let key_ = data['player'];
-  console.debug(`FaceToFaceGraphCell ${key_} is ${width}`);
 
   return <TableCell sx={{bgcolor: color, width: width, padding:0, height: '30px', textAlign: 'center'}}>
     {data['chance'] >= 0.1 &&
