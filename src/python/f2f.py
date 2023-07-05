@@ -81,7 +81,8 @@ def fixed_face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
     a_sv = player_a_sv if player_a_sv <= 20 else 20
     a_bonus = 0 if player_a_sv <= 20 else player_a_sv - 20
     b_sv = 21  # make success value 21 to avoid crits
-    b_die = Die([player_b_sv])  # Create a special die that always rolls the same number
+    b_die_face = player_b_sv if player_b_sv <= 20 else 20  # don't let fixed die be over 20
+    b_die = Die([b_die_face])  # Create a special die that always rolls the same number
 
     result = InfinityFace2FaceEvaluator(a_sv=a_sv, b_sv=b_sv).evaluate(
         lowest(d20+a_bonus, 20).pool(player_a_burst),
@@ -154,7 +155,6 @@ def face_to_face_expected_wounds(
         wounds['total_rolls'] += rolls
         if a_crit + a_hit > 0:
             winner = 'active'
-            counterpart = 'reactive'
             armor_save = player_a_dam - player_b_arm
             damage = 2 if player_a_ammo == 'T2' else 1
             cont = player_a_cont
@@ -163,7 +163,6 @@ def face_to_face_expected_wounds(
             bts_save = player_a_dam - player_b_bts
         elif b_crit + b_hit > 0:
             winner = 'reactive'
-            counterpart = 'active'
             armor_save = player_b_dam - player_a_arm
             damage = 2 if player_b_ammo == 'T2' else 1
             cont = player_b_cont
@@ -172,7 +171,6 @@ def face_to_face_expected_wounds(
             bts_save = player_b_dam - player_a_bts
         else:
             winner = 'fail'
-            counterpart = 'missed'
             armor_save = 0
             damage = 0
             cont = False
@@ -194,9 +192,9 @@ def face_to_face_expected_wounds(
         if cont:
             dSave = Die([(damage + Again() if x <= armor_save else 0) for x in range(1, 21)], again_depth=5)
         else:
-            dSave = d20 <= armor_save
-        dCrit = d20 <= armor_save
-        dPlasma = d20 <= bts_save
+            dSave = (d20 <= armor_save) * damage  # T2 ammo increases damage by 1
+        dCrit = d20 <= armor_save  # Crits are always 1 damage
+        dPlasma = d20 <= bts_save  # Plasma BTS hits are always 1 damage (so far)
 
         r = Pool(
             [dSave for x in range(saves)] + [dCrit for x in range(crit_saves)] + [dPlasma for x in range(plasma_saves)]

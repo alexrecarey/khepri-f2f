@@ -531,6 +531,37 @@ P2 Scores  1+ Successes:  22.705%"""
         assert is_ghostlords_equal(gl_dict, kp_dict)
 
 
+    def test_T2_ammo(self):
+        """This is actually a self test, GL is not calculating T2 correctly at this time"""
+        # TODO: create a testing framework for non ghostlords comparisons
+        print("Testing T2 ammo")
+        active_str = """28.543125% Custom Unit inflicts 1 or more wounds
+27.4625% Custom Unit inflicts 2 or more wounds
+2.006875% Custom Unit inflicts 3 or more wounds"""
+        failure_str = """42.90% Neither player succeeds"""
+        reactive_str = """28.543125% Custom Unit inflicts 1 or more wounds
+2.006875% Custom Unit inflicts 2 or more wounds"""
+        player_a_sv_ = 13
+        player_a_burst_ = 1
+        player_a_dam_ = 13
+        player_a_arm_ = 0
+        player_a_ammo_ = 'T2'
+        player_b_sv_ = 13
+        player_b_burst_ = 1
+        player_b_dam_ = 13
+        player_b_arm_ = 0
+        player_b_ammo_ = 'N'
+        player_a_cont_ = False
+        player_b_cont_ = False
+        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
+        kp_result = face_to_face_expected_wounds(
+            outcomes,
+            player_a_dam_, player_a_arm_, player_a_ammo_,
+            player_b_dam_, player_b_arm_, player_b_ammo_, player_a_cont=player_a_cont_)
+        gl_dict = ghostlords_minimal_to_dict(active_str=active_str, reactive_str=reactive_str, fail_str=failure_str)
+        kp_dict = khepri_result_to_percentage(kp_result, max_wounds_shown=3)
+        assert is_ghostlords_equal(gl_dict, kp_dict)
+
 
 # TODO: Crit immune tests. Note: GL does not have a crit immune toggle
 # TODO: Dodge vs template weapon test
