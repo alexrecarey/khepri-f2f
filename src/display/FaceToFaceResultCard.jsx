@@ -141,7 +141,7 @@ function FaceToFaceResultCard(props) {
           </Select>
         </FormControl>
         <FormControl sx={{ m: 1, minWidth: 135 }} size="small">
-          <InputLabel id="demo-select-small-label">Rective Max Wounds</InputLabel>
+          <InputLabel id="demo-select-small-label">Reactive Max Wounds</InputLabel>
           <Select
             labelId="demo-select-small-label"
             id="demo-select-small"
