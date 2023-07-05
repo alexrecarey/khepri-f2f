@@ -55,6 +55,9 @@ export default function ShareResultsModal(props) {
   const title = props.results?.title ?? "Result";
 
   // Sharable data precalculation
+  // Must calculate WPO on original, raw results instead of squashed ones
+  const activeWPO = twoDecimalPlaces(woundsPerOrder(activePlayer(expectedWounds)));
+  const reactiveWPO = twoDecimalPlaces(woundsPerOrder(reactivePlayer(expectedWounds)));
   const rows = squashResults(expectedWounds, activeMaxWounds, reactiveMaxWounds);
   const activeList = activePlayerWithWounds(rows);
   const reactiveList = reactivePlayerWithWounds(rows);
@@ -62,8 +65,6 @@ export default function ShareResultsModal(props) {
   const totalFail = formatPercentage(sumChance(failureList));
   const activeNoWounds = activePlayer(failureList);
   const reactiveNoWounds = reactivePlayer(failureList);
-  const activeWPO = twoDecimalPlaces(woundsPerOrder(activePlayer(rows)));
-  const reactiveWPO = twoDecimalPlaces(woundsPerOrder(reactivePlayer(rows)));
   const activeWinsF2F = formatPercentage(sumChance(activePlayer(rows)));
   const reactiveWinsF2F = formatPercentage(sumChance(reactivePlayer(rows)));
   const shareURL = `https://infinitythecalculator.com/?${encodeQueryData(parameters)}`;
