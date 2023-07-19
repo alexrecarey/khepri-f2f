@@ -1,6 +1,7 @@
 import ExpectedWoundsGraph from "./ExpectedWoundsGraph.jsx";
 import ExpectedWoundsList from "./ExpectedWoundsList.jsx";
-import FaceToFaceGraph from "./Face2FaceGraph.jsx";
+import FaceToFaceGraph from "./FaceToFaceGraph.jsx";
+import FaceToFaceRetries from "./FaceToFaceRetries.jsx";
 import {
   Box, Card, CardActions,
   CardContent, CardMedia, Collapse, FormControl, IconButton, InputLabel, MenuItem, Select, Tooltip,
@@ -13,6 +14,7 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import ShareIcon from '@mui/icons-material/Share';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HeartBrokenIcon from '@mui/icons-material/HeartBroken';
+import RetryIcon from '@mui/icons-material/Cached';
 import {useState} from "react";
 import ShareResultsModal from "./ShareResultsModal.jsx";
 import InlineEdit from "../componets/InlineEdit.jsx";
@@ -60,6 +62,7 @@ function FaceToFaceResultCard(props) {
   const [expandGraph, setExpandGraph] = useState(true);
   const [expandTable, setExpandTable] = useState(variant === 'result');
   const [expandWounds, setExpandWounds] = useState(false);
+  const [expandRetry, setExpandRetry] = useState(false);
   const handleExpandGraphClick = () => {
     setExpandGraph(!expandGraph);
   };
@@ -68,6 +71,9 @@ function FaceToFaceResultCard(props) {
   };
   const handleExpandWoundsClick = () => {
     setExpandWounds(!expandWounds);
+  }
+  const handleExpandRetryClick = () => {
+    setExpandRetry(!expandRetry);
   }
 
   // Active / Reactive max wounds handler
@@ -121,6 +127,13 @@ function FaceToFaceResultCard(props) {
         />
       </CardContent>
     </Collapse>
+    <Collapse in={expandRetry}>
+      <CardContent>
+        <FaceToFaceRetries
+          expectedWounds={expectedWounds}
+        />
+      </CardContent>
+    </Collapse>
     <Collapse in={expandWounds} timeout="auto" >
       <CardContent>
         <FormControl sx={{ m: 1, minWidth: 135}} size="small">
@@ -170,6 +183,7 @@ function FaceToFaceResultCard(props) {
         <IconButton onClick={() => remove(props.f2fResults['id'])}><DeleteIcon/></IconButton></Tooltip>
       }
       <IconButton onClick={handleExpandWoundsClick}><Tooltip title="Set maximum wounds"><HeartBrokenIcon/></Tooltip></IconButton>
+      <IconButton onClick={handleExpandRetryClick}><Tooltip title="Retry face to face"><RetryIcon/></Tooltip></IconButton>
       <Box sx={{flexGrow:1}}/>
       <ExpandMore
         expand={expandGraph}

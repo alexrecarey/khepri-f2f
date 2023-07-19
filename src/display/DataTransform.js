@@ -22,6 +22,7 @@ export const isReactive = propEq('reactive', 'player');
 export const isFailure = propEq('fail', 'player');
 export const hasNoWounds = propSatisfies(x => x === 0, 'wounds');
 export const hasWounds = propSatisfies(x => x >= 1, 'wounds');
+export const oneWound = propSatisfies(x => x === 1, 'wounds');
 
 // Utility functions
 export const oneDecimalPlace = (n, d=1) => n.toFixed(d);
@@ -35,6 +36,8 @@ export const descendByWounds = sort(descend(prop('wounds')));
 export const activePlayerWithWounds = filter(allPass([isActive, hasWounds]));
 export const reactivePlayerWithWounds = filter(allPass([isReactive, hasWounds]));
 export const failurePlayerWithNoWounds = filter(anyPass([isFailure, hasNoWounds]));
+export const activePlayerWithOneWound = filter(allPass([isActive, oneWound]));
+export const reactivePlayerWithOneWound = filter(allPass([isReactive, oneWound]));
 export const sumChance = pipe(pluck('chance'), sum)
 export const sumRawChance = pipe(pluck('raw_chance'), sum)
 export const woundsByChance = (x, y) => x + y['wounds'] * y['chance'];

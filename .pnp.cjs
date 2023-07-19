@@ -37,6 +37,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fortawesome/react-fontawesome", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:0.2.0"],\
             ["@mui/icons-material", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:5.11.0"],\
             ["@mui/material", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:5.11.0"],\
+            ["@stdlib/stats-base-dists-binomial-pmf", "npm:0.0.7"],\
             ["@types/react", "npm:18.0.26"],\
             ["@types/react-dom", "npm:18.0.9"],\
             ["@vitejs/plugin-react", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:3.0.0"],\
@@ -138,7 +139,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/traverse", "npm:7.20.13"],\
             ["@babel/types", "npm:7.20.7"],\
             ["convert-source-map", "npm:1.9.0"],\
-            ["debug", "virtual:dc0e9498d700f80ca3b0d172d2c879b3b5c09eb83d3efd647256b1daa54c605273cda90b8697936295a53fe89b5505efe928551dbf95d9b7e6c2bba5a81cb59c#npm:4.3.4"],\
+            ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"],\
             ["gensync", "npm:1.0.0-beta.2"],\
             ["json5", "npm:2.2.3"],\
             ["semver", "npm:6.3.0"]\
@@ -160,7 +161,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/traverse", "npm:7.20.5"],\
             ["@babel/types", "npm:7.20.5"],\
             ["convert-source-map", "npm:1.9.0"],\
-            ["debug", "virtual:dc0e9498d700f80ca3b0d172d2c879b3b5c09eb83d3efd647256b1daa54c605273cda90b8697936295a53fe89b5505efe928551dbf95d9b7e6c2bba5a81cb59c#npm:4.3.4"],\
+            ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"],\
             ["gensync", "npm:1.0.0-beta.2"],\
             ["json5", "npm:2.2.1"],\
             ["semver", "npm:6.3.0"]\
@@ -182,7 +183,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/traverse", "npm:7.21.2"],\
             ["@babel/types", "npm:7.21.2"],\
             ["convert-source-map", "npm:1.9.0"],\
-            ["debug", "virtual:dc0e9498d700f80ca3b0d172d2c879b3b5c09eb83d3efd647256b1daa54c605273cda90b8697936295a53fe89b5505efe928551dbf95d9b7e6c2bba5a81cb59c#npm:4.3.4"],\
+            ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"],\
             ["gensync", "npm:1.0.0-beta.2"],\
             ["json5", "npm:2.2.3"],\
             ["semver", "npm:6.3.0"]\
@@ -400,7 +401,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/helper-compilation-targets", "virtual:fb3817b0e53cbc77c47d1616e18944c5f2b8ddb525f3b65c3a205d6b1fbd4d99941471729c376857b964b26f98c52cc8e7eff85554331922c68ca1f4b0dcda72#npm:7.20.7"],\
             ["@babel/helper-plugin-utils", "npm:7.20.2"],\
             ["@types/babel__core", null],\
-            ["debug", "virtual:dc0e9498d700f80ca3b0d172d2c879b3b5c09eb83d3efd647256b1daa54c605273cda90b8697936295a53fe89b5505efe928551dbf95d9b7e6c2bba5a81cb59c#npm:4.3.4"],\
+            ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"],\
             ["lodash.debounce", "npm:4.0.8"],\
             ["resolve", "patch:resolve@npm%3A1.22.1#~builtin<compat/resolve>::version=1.22.1&hash=c3c19d"],\
             ["semver", "npm:6.3.0"]\
@@ -2508,7 +2509,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/helper-split-export-declaration", "npm:7.18.6"],\
             ["@babel/parser", "npm:7.20.13"],\
             ["@babel/types", "npm:7.20.7"],\
-            ["debug", "virtual:dc0e9498d700f80ca3b0d172d2c879b3b5c09eb83d3efd647256b1daa54c605273cda90b8697936295a53fe89b5505efe928551dbf95d9b7e6c2bba5a81cb59c#npm:4.3.4"],\
+            ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"],\
             ["globals", "npm:11.12.0"]\
           ],\
           "linkType": "HARD"\
@@ -2525,7 +2526,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/helper-split-export-declaration", "npm:7.18.6"],\
             ["@babel/parser", "npm:7.20.5"],\
             ["@babel/types", "npm:7.20.5"],\
-            ["debug", "virtual:dc0e9498d700f80ca3b0d172d2c879b3b5c09eb83d3efd647256b1daa54c605273cda90b8697936295a53fe89b5505efe928551dbf95d9b7e6c2bba5a81cb59c#npm:4.3.4"],\
+            ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"],\
             ["globals", "npm:11.12.0"]\
           ],\
           "linkType": "HARD"\
@@ -2542,7 +2543,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/helper-split-export-declaration", "npm:7.18.6"],\
             ["@babel/parser", "npm:7.21.2"],\
             ["@babel/types", "npm:7.21.2"],\
-            ["debug", "virtual:dc0e9498d700f80ca3b0d172d2c879b3b5c09eb83d3efd647256b1daa54c605273cda90b8697936295a53fe89b5505efe928551dbf95d9b7e6c2bba5a81cb59c#npm:4.3.4"],\
+            ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"],\
             ["globals", "npm:11.12.0"]\
           ],\
           "linkType": "HARD"\
@@ -3647,6 +3648,1694 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["@stdlib/array-base-filled", [\
+        ["npm:0.0.2", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-array-base-filled-npm-0.0.2-0e1267cc20/node_modules/@stdlib/array-base-filled/",\
+          "packageDependencies": [\
+            ["@stdlib/array-base-filled", "npm:0.0.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/array-base-zeros", [\
+        ["npm:0.0.2", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-array-base-zeros-npm-0.0.2-37cb3f5cdc/node_modules/@stdlib/array-base-zeros/",\
+          "packageDependencies": [\
+            ["@stdlib/array-base-zeros", "npm:0.0.2"],\
+            ["@stdlib/array-base-filled", "npm:0.0.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/array-float32", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-array-float32-npm-0.0.6-1f035f5ed6/node_modules/@stdlib/array-float32/",\
+          "packageDependencies": [\
+            ["@stdlib/array-float32", "npm:0.0.6"],\
+            ["@stdlib/assert-has-float32array-support", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/array-float64", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-array-float64-npm-0.0.6-925d814fbf/node_modules/@stdlib/array-float64/",\
+          "packageDependencies": [\
+            ["@stdlib/array-float64", "npm:0.0.6"],\
+            ["@stdlib/assert-has-float64array-support", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/array-uint16", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-array-uint16-npm-0.0.6-ee11d520c2/node_modules/@stdlib/array-uint16/",\
+          "packageDependencies": [\
+            ["@stdlib/array-uint16", "npm:0.0.6"],\
+            ["@stdlib/assert-has-uint16array-support", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/array-uint32", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-array-uint32-npm-0.0.6-adf050dc16/node_modules/@stdlib/array-uint32/",\
+          "packageDependencies": [\
+            ["@stdlib/array-uint32", "npm:0.0.6"],\
+            ["@stdlib/assert-has-uint32array-support", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/array-uint8", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-array-uint8-npm-0.0.7-488b49e728/node_modules/@stdlib/array-uint8/",\
+          "packageDependencies": [\
+            ["@stdlib/array-uint8", "npm:0.0.7"],\
+            ["@stdlib/assert-has-uint8array-support", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-has-float32array-support", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-has-float32array-support-npm-0.0.8-74fd9554b2/node_modules/@stdlib/assert-has-float32array-support/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-has-float32array-support", "npm:0.0.8"],\
+            ["@stdlib/assert-is-float32array", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/constants-float64-pinf", "npm:0.0.8"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-has-float64array-support", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-has-float64array-support-npm-0.0.8-304508345e/node_modules/@stdlib/assert-has-float64array-support/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-has-float64array-support", "npm:0.0.8"],\
+            ["@stdlib/assert-is-float64array", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-has-node-buffer-support", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-has-node-buffer-support-npm-0.0.8-b55fc4fdb8/node_modules/@stdlib/assert-has-node-buffer-support/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-has-node-buffer-support", "npm:0.0.8"],\
+            ["@stdlib/assert-is-buffer", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-has-own-property", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-has-own-property-npm-0.0.7-2b0ac74c5b/node_modules/@stdlib/assert-has-own-property/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-has-own-property", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-has-symbol-support", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-has-symbol-support-npm-0.0.8-9afad110f1/node_modules/@stdlib/assert-has-symbol-support/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-has-symbol-support", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-has-tostringtag-support", [\
+        ["npm:0.0.9", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-has-tostringtag-support-npm-0.0.9-32c861e61d/node_modules/@stdlib/assert-has-tostringtag-support/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-has-tostringtag-support", "npm:0.0.9"],\
+            ["@stdlib/assert-has-symbol-support", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-has-uint16array-support", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-has-uint16array-support-npm-0.0.8-137043a0a7/node_modules/@stdlib/assert-has-uint16array-support/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-has-uint16array-support", "npm:0.0.8"],\
+            ["@stdlib/assert-is-uint16array", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/constants-uint16-max", "npm:0.0.7"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-has-uint32array-support", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-has-uint32array-support-npm-0.0.8-f16c059fcb/node_modules/@stdlib/assert-has-uint32array-support/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-has-uint32array-support", "npm:0.0.8"],\
+            ["@stdlib/assert-is-uint32array", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/constants-uint32-max", "npm:0.0.7"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-has-uint8array-support", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-has-uint8array-support-npm-0.0.8-0a4f6472d2/node_modules/@stdlib/assert-has-uint8array-support/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-has-uint8array-support", "npm:0.0.8"],\
+            ["@stdlib/assert-is-uint8array", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/constants-uint8-max", "npm:0.0.7"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-array", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-array-npm-0.0.7-0ce0681631/node_modules/@stdlib/assert-is-array/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-array", "npm:0.0.7"],\
+            ["@stdlib/utils-native-class", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-big-endian", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-big-endian-npm-0.0.7-434f710815/node_modules/@stdlib/assert-is-big-endian/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-big-endian", "npm:0.0.7"],\
+            ["@stdlib/array-uint16", "npm:0.0.6"],\
+            ["@stdlib/array-uint8", "npm:0.0.7"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-boolean", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-boolean-npm-0.0.8-312c787683/node_modules/@stdlib/assert-is-boolean/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-boolean", "npm:0.0.8"],\
+            ["@stdlib/assert-has-tostringtag-support", "npm:0.0.9"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"],\
+            ["@stdlib/utils-native-class", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-buffer", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-buffer-npm-0.0.8-931ff2a8c1/node_modules/@stdlib/assert-is-buffer/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-buffer", "npm:0.0.8"],\
+            ["@stdlib/assert-is-object-like", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-float32array", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-float32array-npm-0.0.8-24edc5714d/node_modules/@stdlib/assert-is-float32array/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-float32array", "npm:0.0.8"],\
+            ["@stdlib/utils-native-class", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-float64array", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-float64array-npm-0.0.8-6d9f8eaa35/node_modules/@stdlib/assert-is-float64array/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-float64array", "npm:0.0.8"],\
+            ["@stdlib/utils-native-class", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-function", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-function-npm-0.0.8-22a1aea7cc/node_modules/@stdlib/assert-is-function/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-function", "npm:0.0.8"],\
+            ["@stdlib/utils-type-of", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-little-endian", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-little-endian-npm-0.0.7-bd6f9d6c5e/node_modules/@stdlib/assert-is-little-endian/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-little-endian", "npm:0.0.7"],\
+            ["@stdlib/array-uint16", "npm:0.0.6"],\
+            ["@stdlib/array-uint8", "npm:0.0.7"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-number", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-number-npm-0.0.7-c0e66015c1/node_modules/@stdlib/assert-is-number/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-number", "npm:0.0.7"],\
+            ["@stdlib/assert-has-tostringtag-support", "npm:0.0.9"],\
+            ["@stdlib/number-ctor", "npm:0.0.7"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"],\
+            ["@stdlib/utils-native-class", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-object", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-object-npm-0.0.8-8864d5f998/node_modules/@stdlib/assert-is-object/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-object", "npm:0.0.8"],\
+            ["@stdlib/assert-is-array", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-object-like", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-object-like-npm-0.0.8-276c45de03/node_modules/@stdlib/assert-is-object-like/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-object-like", "npm:0.0.8"],\
+            ["@stdlib/assert-tools-array-function", "npm:0.0.7"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-plain-object", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-plain-object-npm-0.0.7-08fc2d68d4/node_modules/@stdlib/assert-is-plain-object/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-plain-object", "npm:0.0.7"],\
+            ["@stdlib/assert-has-own-property", "npm:0.0.7"],\
+            ["@stdlib/assert-is-function", "npm:0.0.8"],\
+            ["@stdlib/assert-is-object", "npm:0.0.8"],\
+            ["@stdlib/utils-get-prototype-of", "npm:0.0.7"],\
+            ["@stdlib/utils-native-class", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-regexp", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-regexp-npm-0.0.7-de25f1db58/node_modules/@stdlib/assert-is-regexp/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-regexp", "npm:0.0.7"],\
+            ["@stdlib/assert-has-tostringtag-support", "npm:0.0.9"],\
+            ["@stdlib/utils-native-class", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-regexp-string", [\
+        ["npm:0.0.9", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-regexp-string-npm-0.0.9-1460371148/node_modules/@stdlib/assert-is-regexp-string/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-regexp-string", "npm:0.0.9"],\
+            ["@stdlib/assert-is-string", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"],\
+            ["@stdlib/process-read-stdin", "npm:0.0.7"],\
+            ["@stdlib/regexp-eol", "npm:0.0.7"],\
+            ["@stdlib/regexp-regexp", "npm:0.0.8"],\
+            ["@stdlib/streams-node-stdin", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-string", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-string-npm-0.0.8-d58490088f/node_modules/@stdlib/assert-is-string/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-string", "npm:0.0.8"],\
+            ["@stdlib/assert-has-tostringtag-support", "npm:0.0.9"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"],\
+            ["@stdlib/utils-native-class", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-uint16array", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-uint16array-npm-0.0.8-5c348867fd/node_modules/@stdlib/assert-is-uint16array/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-uint16array", "npm:0.0.8"],\
+            ["@stdlib/utils-native-class", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-uint32array", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-uint32array-npm-0.0.8-4c46adf8c6/node_modules/@stdlib/assert-is-uint32array/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-uint32array", "npm:0.0.8"],\
+            ["@stdlib/utils-native-class", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-is-uint8array", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-is-uint8array-npm-0.0.8-90c3153574/node_modules/@stdlib/assert-is-uint8array/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-is-uint8array", "npm:0.0.8"],\
+            ["@stdlib/utils-native-class", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/assert-tools-array-function", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-assert-tools-array-function-npm-0.0.7-402c5945ce/node_modules/@stdlib/assert-tools-array-function/",\
+          "packageDependencies": [\
+            ["@stdlib/assert-tools-array-function", "npm:0.0.7"],\
+            ["@stdlib/assert-is-array", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/buffer-ctor", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-buffer-ctor-npm-0.0.7-5154d77090/node_modules/@stdlib/buffer-ctor/",\
+          "packageDependencies": [\
+            ["@stdlib/buffer-ctor", "npm:0.0.7"],\
+            ["@stdlib/assert-has-node-buffer-support", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/buffer-from-string", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-buffer-from-string-npm-0.0.8-48d61b2dc2/node_modules/@stdlib/buffer-from-string/",\
+          "packageDependencies": [\
+            ["@stdlib/buffer-from-string", "npm:0.0.8"],\
+            ["@stdlib/assert-is-function", "npm:0.0.8"],\
+            ["@stdlib/assert-is-string", "npm:0.0.8"],\
+            ["@stdlib/buffer-ctor", "npm:0.0.7"],\
+            ["@stdlib/string-format", "npm:0.0.3"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/cli-ctor", [\
+        ["npm:0.0.3", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-cli-ctor-npm-0.0.3-a4966ae0a6/node_modules/@stdlib/cli-ctor/",\
+          "packageDependencies": [\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"],\
+            ["@stdlib/utils-noop", "npm:0.0.14"],\
+            ["minimist", "npm:1.2.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/complex-float32", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-complex-float32-npm-0.0.7-dbc77da427/node_modules/@stdlib/complex-float32/",\
+          "packageDependencies": [\
+            ["@stdlib/complex-float32", "npm:0.0.7"],\
+            ["@stdlib/assert-is-number", "npm:0.0.7"],\
+            ["@stdlib/number-float64-base-to-float32", "npm:0.0.7"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"],\
+            ["@stdlib/utils-define-property", "npm:0.0.9"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/complex-float64", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-complex-float64-npm-0.0.8-4bc3323d8d/node_modules/@stdlib/complex-float64/",\
+          "packageDependencies": [\
+            ["@stdlib/complex-float64", "npm:0.0.8"],\
+            ["@stdlib/assert-is-number", "npm:0.0.7"],\
+            ["@stdlib/complex-float32", "npm:0.0.7"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"],\
+            ["@stdlib/utils-define-property", "npm:0.0.9"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/complex-reim", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-complex-reim-npm-0.0.6-3808600ccb/node_modules/@stdlib/complex-reim/",\
+          "packageDependencies": [\
+            ["@stdlib/complex-reim", "npm:0.0.6"],\
+            ["@stdlib/array-float64", "npm:0.0.6"],\
+            ["@stdlib/complex-float64", "npm:0.0.8"],\
+            ["@stdlib/types", "npm:0.0.14"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/complex-reimf", [\
+        ["npm:0.0.1", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-complex-reimf-npm-0.0.1-b5a8bad25e/node_modules/@stdlib/complex-reimf/",\
+          "packageDependencies": [\
+            ["@stdlib/complex-reimf", "npm:0.0.1"],\
+            ["@stdlib/array-float32", "npm:0.0.6"],\
+            ["@stdlib/complex-float32", "npm:0.0.7"],\
+            ["@stdlib/types", "npm:0.0.14"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-eulergamma", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-eulergamma-npm-0.0.8-1d05fb4968/node_modules/@stdlib/constants-float64-eulergamma/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-eulergamma", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-exponent-bias", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-exponent-bias-npm-0.0.8-1d92c615b5/node_modules/@stdlib/constants-float64-exponent-bias/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-exponent-bias", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-high-word-abs-mask", [\
+        ["npm:0.0.1", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-high-word-abs-mask-npm-0.0.1-11e4727e6e/node_modules/@stdlib/constants-float64-high-word-abs-mask/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-high-word-abs-mask", "npm:0.0.1"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-high-word-exponent-mask", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-high-word-exponent-mask-npm-0.0.8-0af1e071b0/node_modules/@stdlib/constants-float64-high-word-exponent-mask/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-high-word-exponent-mask", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-high-word-sign-mask", [\
+        ["npm:0.0.1", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-high-word-sign-mask-npm-0.0.1-8c517af277/node_modules/@stdlib/constants-float64-high-word-sign-mask/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-high-word-sign-mask", "npm:0.0.1"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-high-word-significand-mask", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-high-word-significand-mask-npm-0.0.8-25dca194e6/node_modules/@stdlib/constants-float64-high-word-significand-mask/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-high-word-significand-mask", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-ln-sqrt-two-pi", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-ln-sqrt-two-pi-npm-0.0.8-9b7f5e1cf7/node_modules/@stdlib/constants-float64-ln-sqrt-two-pi/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-ln-sqrt-two-pi", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-ln-two", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-ln-two-npm-0.0.8-82d4944b79/node_modules/@stdlib/constants-float64-ln-two/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-ln-two", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-max-base2-exponent", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-max-base2-exponent-npm-0.0.8-0c4f29fe51/node_modules/@stdlib/constants-float64-max-base2-exponent/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-max-base2-exponent", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-max-base2-exponent-subnormal", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-max-base2-exponent-subnormal-npm-0.0.8-7f638e0db7/node_modules/@stdlib/constants-float64-max-base2-exponent-subnormal/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-max-base2-exponent-subnormal", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-min-base2-exponent-subnormal", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-min-base2-exponent-subnormal-npm-0.0.8-c5da23e9a6/node_modules/@stdlib/constants-float64-min-base2-exponent-subnormal/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-min-base2-exponent-subnormal", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-ninf", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-ninf-npm-0.0.8-711e7dba77/node_modules/@stdlib/constants-float64-ninf/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-ninf", "npm:0.0.8"],\
+            ["@stdlib/number-ctor", "npm:0.0.7"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-pi", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-pi-npm-0.0.8-cb5482af8a/node_modules/@stdlib/constants-float64-pi/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-pi", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-pinf", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-pinf-npm-0.0.8-485bdef42c/node_modules/@stdlib/constants-float64-pinf/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-pinf", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-smallest-normal", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-smallest-normal-npm-0.0.8-9fba0e1aea/node_modules/@stdlib/constants-float64-smallest-normal/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-smallest-normal", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-float64-sqrt-two-pi", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-float64-sqrt-two-pi-npm-0.0.8-1326485cd5/node_modules/@stdlib/constants-float64-sqrt-two-pi/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-float64-sqrt-two-pi", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-uint16-max", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-uint16-max-npm-0.0.7-823e686cc8/node_modules/@stdlib/constants-uint16-max/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-uint16-max", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-uint32-max", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-uint32-max-npm-0.0.7-c955209341/node_modules/@stdlib/constants-uint32-max/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-uint32-max", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/constants-uint8-max", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-constants-uint8-max-npm-0.0.7-f3ca8fa306/node_modules/@stdlib/constants-uint8-max/",\
+          "packageDependencies": [\
+            ["@stdlib/constants-uint8-max", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/fs-exists", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-fs-exists-npm-0.0.8-f5dcb3a273/node_modules/@stdlib/fs-exists/",\
+          "packageDependencies": [\
+            ["@stdlib/fs-exists", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"],\
+            ["@stdlib/process-cwd", "npm:0.0.8"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/fs-read-file", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-fs-read-file-npm-0.0.8-ef83d7afe4/node_modules/@stdlib/fs-read-file/",\
+          "packageDependencies": [\
+            ["@stdlib/fs-read-file", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/fs-resolve-parent-path", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-fs-resolve-parent-path-npm-0.0.8-e6000a34ea/node_modules/@stdlib/fs-resolve-parent-path/",\
+          "packageDependencies": [\
+            ["@stdlib/fs-resolve-parent-path", "npm:0.0.8"],\
+            ["@stdlib/assert-has-own-property", "npm:0.0.7"],\
+            ["@stdlib/assert-is-function", "npm:0.0.8"],\
+            ["@stdlib/assert-is-plain-object", "npm:0.0.7"],\
+            ["@stdlib/assert-is-string", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-exists", "npm:0.0.8"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"],\
+            ["@stdlib/process-cwd", "npm:0.0.8"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-assert-is-even", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-assert-is-even-npm-0.0.7-b3965457f5/node_modules/@stdlib/math-base-assert-is-even/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-assert-is-even", "npm:0.0.7"],\
+            ["@stdlib/math-base-assert-is-integer", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-assert-is-infinite", [\
+        ["npm:0.0.9", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-assert-is-infinite-npm-0.0.9-a9922021d1/node_modules/@stdlib/math-base-assert-is-infinite/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-assert-is-infinite", "npm:0.0.9"],\
+            ["@stdlib/constants-float64-ninf", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-pinf", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-assert-is-integer", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-assert-is-integer-npm-0.0.7-083b74c694/node_modules/@stdlib/math-base-assert-is-integer/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-assert-is-integer", "npm:0.0.7"],\
+            ["@stdlib/math-base-special-floor", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-assert-is-nan", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-assert-is-nan-npm-0.0.8-6f84648cc5/node_modules/@stdlib/math-base-assert-is-nan/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-assert-is-nan", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-assert-is-negative-zero", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-assert-is-negative-zero-npm-0.0.8-77309e2092/node_modules/@stdlib/math-base-assert-is-negative-zero/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-assert-is-negative-zero", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-ninf", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-assert-is-nonnegative-integer", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-assert-is-nonnegative-integer-npm-0.0.7-a06c3ac56f/node_modules/@stdlib/math-base-assert-is-nonnegative-integer/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-assert-is-nonnegative-integer", "npm:0.0.7"],\
+            ["@stdlib/math-base-special-floor", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-assert-is-odd", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-assert-is-odd-npm-0.0.7-a95fcaf02e/node_modules/@stdlib/math-base-assert-is-odd/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-assert-is-odd", "npm:0.0.7"],\
+            ["@stdlib/math-base-assert-is-even", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-assert-is-positive-zero", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-assert-is-positive-zero-npm-0.0.8-61fd842ea6/node_modules/@stdlib/math-base-assert-is-positive-zero/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-assert-is-positive-zero", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-pinf", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-napi-binary", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-napi-binary-npm-0.0.8-c0f1c0437f/node_modules/@stdlib/math-base-napi-binary/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-napi-binary", "npm:0.0.8"],\
+            ["@stdlib/complex-float32", "npm:0.0.7"],\
+            ["@stdlib/complex-float64", "npm:0.0.8"],\
+            ["@stdlib/complex-reim", "npm:0.0.6"],\
+            ["@stdlib/complex-reimf", "npm:0.0.1"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-napi-unary", [\
+        ["npm:0.0.9", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-napi-unary-npm-0.0.9-f79c04695a/node_modules/@stdlib/math-base-napi-unary/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-napi-unary", "npm:0.0.9"],\
+            ["@stdlib/complex-float32", "npm:0.0.7"],\
+            ["@stdlib/complex-float64", "npm:0.0.8"],\
+            ["@stdlib/complex-reim", "npm:0.0.6"],\
+            ["@stdlib/complex-reimf", "npm:0.0.1"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-abs", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-abs-npm-0.0.6-aaa3bbe644/node_modules/@stdlib/math-base-special-abs/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-abs", "npm:0.0.6"],\
+            ["@stdlib/math-base-napi-unary", "npm:0.0.9"],\
+            ["@stdlib/number-float64-base-to-words", "npm:0.0.7"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-betaln", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-betaln-npm-0.0.6-e401b72f96/node_modules/@stdlib/math-base-special-betaln/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-betaln", "npm:0.0.6"],\
+            ["@stdlib/constants-float64-ln-sqrt-two-pi", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-ninf", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-pinf", "npm:0.0.8"],\
+            ["@stdlib/math-base-special-gamma", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-gammaln", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-ln", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-log1p", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-max", "npm:0.0.7"],\
+            ["@stdlib/math-base-special-min", "npm:0.0.7"],\
+            ["@stdlib/math-base-special-pow", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-binomcoefln", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-binomcoefln-npm-0.0.7-aadd0b8d63/node_modules/@stdlib/math-base-special-binomcoefln/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-binomcoefln", "npm:0.0.7"],\
+            ["@stdlib/constants-float64-ninf", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-integer", "npm:0.0.7"],\
+            ["@stdlib/math-base-assert-is-nan", "npm:0.0.8"],\
+            ["@stdlib/math-base-special-abs", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-betaln", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-ln", "npm:0.0.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-ceil", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-ceil-npm-0.0.8-393dd8bd77/node_modules/@stdlib/math-base-special-ceil/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-ceil", "npm:0.0.8"],\
+            ["@stdlib/math-base-napi-unary", "npm:0.0.9"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-copysign", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-copysign-npm-0.0.7-cac021e775/node_modules/@stdlib/math-base-special-copysign/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-copysign", "npm:0.0.7"],\
+            ["@stdlib/constants-float64-high-word-abs-mask", "npm:0.0.1"],\
+            ["@stdlib/constants-float64-high-word-sign-mask", "npm:0.0.1"],\
+            ["@stdlib/math-base-napi-binary", "npm:0.0.8"],\
+            ["@stdlib/number-float64-base-from-words", "npm:0.0.6"],\
+            ["@stdlib/number-float64-base-get-high-word", "npm:0.0.6"],\
+            ["@stdlib/number-float64-base-to-words", "npm:0.0.7"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-cos", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-cos-npm-0.0.6-c17673578b/node_modules/@stdlib/math-base-special-cos/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-cos", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-kernel-cos", "npm:0.0.7"],\
+            ["@stdlib/math-base-special-kernel-sin", "npm:0.0.7"],\
+            ["@stdlib/math-base-special-rempio2", "npm:0.0.6"],\
+            ["@stdlib/number-float64-base-get-high-word", "npm:0.0.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-exp", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-exp-npm-0.0.6-f903aeeaba/node_modules/@stdlib/math-base-special-exp/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-exp", "npm:0.0.6"],\
+            ["@stdlib/constants-float64-ninf", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-pinf", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-nan", "npm:0.0.8"],\
+            ["@stdlib/math-base-special-ldexp", "npm:0.0.8"],\
+            ["@stdlib/math-base-special-trunc", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-floor", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-floor-npm-0.0.8-1b93458d81/node_modules/@stdlib/math-base-special-floor/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-floor", "npm:0.0.8"],\
+            ["@stdlib/math-base-napi-unary", "npm:0.0.9"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-gamma", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-gamma-npm-0.0.6-1b780854d2/node_modules/@stdlib/math-base-special-gamma/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-gamma", "npm:0.0.6"],\
+            ["@stdlib/constants-float64-eulergamma", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-ninf", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-pi", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-pinf", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-sqrt-two-pi", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-integer", "npm:0.0.7"],\
+            ["@stdlib/math-base-assert-is-nan", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-negative-zero", "npm:0.0.8"],\
+            ["@stdlib/math-base-special-abs", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-exp", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-floor", "npm:0.0.8"],\
+            ["@stdlib/math-base-special-pow", "npm:0.0.7"],\
+            ["@stdlib/math-base-special-sin", "npm:0.0.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-gammaln", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-gammaln-npm-0.0.6-dfc72202ba/node_modules/@stdlib/math-base-special-gammaln/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-gammaln", "npm:0.0.6"],\
+            ["@stdlib/constants-float64-pi", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-pinf", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-infinite", "npm:0.0.9"],\
+            ["@stdlib/math-base-assert-is-nan", "npm:0.0.8"],\
+            ["@stdlib/math-base-special-abs", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-ln", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-sinpi", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-trunc", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-kernel-cos", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-kernel-cos-npm-0.0.7-1161afd5de/node_modules/@stdlib/math-base-special-kernel-cos/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-kernel-cos", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-kernel-sin", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-kernel-sin-npm-0.0.7-566e4a3502/node_modules/@stdlib/math-base-special-kernel-sin/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-kernel-sin", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-ldexp", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-ldexp-npm-0.0.8-b983429664/node_modules/@stdlib/math-base-special-ldexp/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-ldexp", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-exponent-bias", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-max-base2-exponent", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-max-base2-exponent-subnormal", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-min-base2-exponent-subnormal", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-ninf", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-pinf", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-infinite", "npm:0.0.9"],\
+            ["@stdlib/math-base-assert-is-nan", "npm:0.0.8"],\
+            ["@stdlib/math-base-special-copysign", "npm:0.0.7"],\
+            ["@stdlib/number-float64-base-exponent", "npm:0.0.6"],\
+            ["@stdlib/number-float64-base-from-words", "npm:0.0.6"],\
+            ["@stdlib/number-float64-base-normalize", "npm:0.0.9"],\
+            ["@stdlib/number-float64-base-to-words", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-ln", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-ln-npm-0.0.6-a2dea360ee/node_modules/@stdlib/math-base-special-ln/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-ln", "npm:0.0.6"],\
+            ["@stdlib/constants-float64-exponent-bias", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-ninf", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-nan", "npm:0.0.8"],\
+            ["@stdlib/number-float64-base-get-high-word", "npm:0.0.6"],\
+            ["@stdlib/number-float64-base-set-high-word", "npm:0.0.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-log1p", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-log1p-npm-0.0.6-5724be147b/node_modules/@stdlib/math-base-special-log1p/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-log1p", "npm:0.0.6"],\
+            ["@stdlib/constants-float64-exponent-bias", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-ninf", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-pinf", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-nan", "npm:0.0.8"],\
+            ["@stdlib/number-float64-base-get-high-word", "npm:0.0.6"],\
+            ["@stdlib/number-float64-base-set-high-word", "npm:0.0.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-max", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-max-npm-0.0.7-80db614f9c/node_modules/@stdlib/math-base-special-max/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-max", "npm:0.0.7"],\
+            ["@stdlib/constants-float64-ninf", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-pinf", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-nan", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-positive-zero", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-min", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-min-npm-0.0.7-a3db009c7e/node_modules/@stdlib/math-base-special-min/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-min", "npm:0.0.7"],\
+            ["@stdlib/constants-float64-ninf", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-pinf", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-nan", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-negative-zero", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-pow", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-pow-npm-0.0.7-1f427abcff/node_modules/@stdlib/math-base-special-pow/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-pow", "npm:0.0.7"],\
+            ["@stdlib/constants-float64-exponent-bias", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-high-word-abs-mask", "npm:0.0.1"],\
+            ["@stdlib/constants-float64-high-word-significand-mask", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-ln-two", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-ninf", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-pinf", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-infinite", "npm:0.0.9"],\
+            ["@stdlib/math-base-assert-is-integer", "npm:0.0.7"],\
+            ["@stdlib/math-base-assert-is-nan", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-odd", "npm:0.0.7"],\
+            ["@stdlib/math-base-special-abs", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-copysign", "npm:0.0.7"],\
+            ["@stdlib/math-base-special-ldexp", "npm:0.0.8"],\
+            ["@stdlib/math-base-special-sqrt", "npm:0.0.8"],\
+            ["@stdlib/number-float64-base-get-high-word", "npm:0.0.6"],\
+            ["@stdlib/number-float64-base-set-high-word", "npm:0.0.6"],\
+            ["@stdlib/number-float64-base-set-low-word", "npm:0.0.6"],\
+            ["@stdlib/number-float64-base-to-words", "npm:0.0.7"],\
+            ["@stdlib/number-uint32-base-to-int32", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-rempio2", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-rempio2-npm-0.0.6-8c95230430/node_modules/@stdlib/math-base-special-rempio2/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-rempio2", "npm:0.0.6"],\
+            ["@stdlib/array-base-zeros", "npm:0.0.2"],\
+            ["@stdlib/math-base-special-floor", "npm:0.0.8"],\
+            ["@stdlib/math-base-special-ldexp", "npm:0.0.8"],\
+            ["@stdlib/math-base-special-round", "npm:0.0.7"],\
+            ["@stdlib/number-float64-base-from-words", "npm:0.0.6"],\
+            ["@stdlib/number-float64-base-get-high-word", "npm:0.0.6"],\
+            ["@stdlib/number-float64-base-get-low-word", "npm:0.0.6"],\
+            ["@stdlib/types", "npm:0.0.14"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-round", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-round-npm-0.0.7-4c25d6c73c/node_modules/@stdlib/math-base-special-round/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-round", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-sin", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-sin-npm-0.0.6-70a3d9f529/node_modules/@stdlib/math-base-special-sin/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-sin", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-kernel-cos", "npm:0.0.7"],\
+            ["@stdlib/math-base-special-kernel-sin", "npm:0.0.7"],\
+            ["@stdlib/math-base-special-rempio2", "npm:0.0.6"],\
+            ["@stdlib/number-float64-base-get-high-word", "npm:0.0.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-sinpi", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-sinpi-npm-0.0.6-a8c131e39e/node_modules/@stdlib/math-base-special-sinpi/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-sinpi", "npm:0.0.6"],\
+            ["@stdlib/constants-float64-pi", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-infinite", "npm:0.0.9"],\
+            ["@stdlib/math-base-assert-is-nan", "npm:0.0.8"],\
+            ["@stdlib/math-base-special-abs", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-copysign", "npm:0.0.7"],\
+            ["@stdlib/math-base-special-cos", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-sin", "npm:0.0.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-sqrt", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-sqrt-npm-0.0.8-6ab93b2237/node_modules/@stdlib/math-base-special-sqrt/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-sqrt", "npm:0.0.8"],\
+            ["@stdlib/math-base-napi-unary", "npm:0.0.9"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/math-base-special-trunc", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-math-base-special-trunc-npm-0.0.8-516c8ba9b8/node_modules/@stdlib/math-base-special-trunc/",\
+          "packageDependencies": [\
+            ["@stdlib/math-base-special-trunc", "npm:0.0.8"],\
+            ["@stdlib/math-base-napi-unary", "npm:0.0.9"],\
+            ["@stdlib/math-base-special-ceil", "npm:0.0.8"],\
+            ["@stdlib/math-base-special-floor", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/number-ctor", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-number-ctor-npm-0.0.7-5481aab1ab/node_modules/@stdlib/number-ctor/",\
+          "packageDependencies": [\
+            ["@stdlib/number-ctor", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/number-float64-base-exponent", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-number-float64-base-exponent-npm-0.0.6-519f1a8271/node_modules/@stdlib/number-float64-base-exponent/",\
+          "packageDependencies": [\
+            ["@stdlib/number-float64-base-exponent", "npm:0.0.6"],\
+            ["@stdlib/constants-float64-exponent-bias", "npm:0.0.8"],\
+            ["@stdlib/constants-float64-high-word-exponent-mask", "npm:0.0.8"],\
+            ["@stdlib/number-float64-base-get-high-word", "npm:0.0.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/number-float64-base-from-words", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-number-float64-base-from-words-npm-0.0.6-984139f6c9/node_modules/@stdlib/number-float64-base-from-words/",\
+          "packageDependencies": [\
+            ["@stdlib/number-float64-base-from-words", "npm:0.0.6"],\
+            ["@stdlib/array-float64", "npm:0.0.6"],\
+            ["@stdlib/array-uint32", "npm:0.0.6"],\
+            ["@stdlib/assert-is-little-endian", "npm:0.0.7"],\
+            ["@stdlib/number-float64-base-to-words", "npm:0.0.7"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/number-float64-base-get-high-word", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-number-float64-base-get-high-word-npm-0.0.6-9c6b831a7d/node_modules/@stdlib/number-float64-base-get-high-word/",\
+          "packageDependencies": [\
+            ["@stdlib/number-float64-base-get-high-word", "npm:0.0.6"],\
+            ["@stdlib/array-float64", "npm:0.0.6"],\
+            ["@stdlib/array-uint32", "npm:0.0.6"],\
+            ["@stdlib/assert-is-little-endian", "npm:0.0.7"],\
+            ["@stdlib/number-float64-base-to-words", "npm:0.0.7"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/number-float64-base-get-low-word", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-number-float64-base-get-low-word-npm-0.0.6-a119e42ce0/node_modules/@stdlib/number-float64-base-get-low-word/",\
+          "packageDependencies": [\
+            ["@stdlib/number-float64-base-get-low-word", "npm:0.0.6"],\
+            ["@stdlib/array-float64", "npm:0.0.6"],\
+            ["@stdlib/array-uint32", "npm:0.0.6"],\
+            ["@stdlib/assert-is-little-endian", "npm:0.0.7"],\
+            ["@stdlib/number-float64-base-to-words", "npm:0.0.7"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/number-float64-base-normalize", [\
+        ["npm:0.0.9", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-number-float64-base-normalize-npm-0.0.9-22cd85d439/node_modules/@stdlib/number-float64-base-normalize/",\
+          "packageDependencies": [\
+            ["@stdlib/number-float64-base-normalize", "npm:0.0.9"],\
+            ["@stdlib/constants-float64-smallest-normal", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-infinite", "npm:0.0.9"],\
+            ["@stdlib/math-base-assert-is-nan", "npm:0.0.8"],\
+            ["@stdlib/math-base-special-abs", "npm:0.0.6"],\
+            ["@stdlib/types", "npm:0.0.14"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"],\
+            ["node-gyp", "npm:9.3.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/number-float64-base-set-high-word", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-number-float64-base-set-high-word-npm-0.0.6-b7ea661998/node_modules/@stdlib/number-float64-base-set-high-word/",\
+          "packageDependencies": [\
+            ["@stdlib/number-float64-base-set-high-word", "npm:0.0.6"],\
+            ["@stdlib/array-float64", "npm:0.0.6"],\
+            ["@stdlib/array-uint32", "npm:0.0.6"],\
+            ["@stdlib/assert-is-little-endian", "npm:0.0.7"],\
+            ["@stdlib/number-float64-base-to-words", "npm:0.0.7"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/number-float64-base-set-low-word", [\
+        ["npm:0.0.6", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-number-float64-base-set-low-word-npm-0.0.6-7f25b6df8e/node_modules/@stdlib/number-float64-base-set-low-word/",\
+          "packageDependencies": [\
+            ["@stdlib/number-float64-base-set-low-word", "npm:0.0.6"],\
+            ["@stdlib/array-float64", "npm:0.0.6"],\
+            ["@stdlib/array-uint32", "npm:0.0.6"],\
+            ["@stdlib/assert-is-little-endian", "npm:0.0.7"],\
+            ["@stdlib/number-float64-base-to-words", "npm:0.0.7"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/number-float64-base-to-float32", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-number-float64-base-to-float32-npm-0.0.7-6548fa804e/node_modules/@stdlib/number-float64-base-to-float32/",\
+          "packageDependencies": [\
+            ["@stdlib/number-float64-base-to-float32", "npm:0.0.7"],\
+            ["@stdlib/array-float32", "npm:0.0.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/number-float64-base-to-words", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-number-float64-base-to-words-npm-0.0.7-7757af9288/node_modules/@stdlib/number-float64-base-to-words/",\
+          "packageDependencies": [\
+            ["@stdlib/number-float64-base-to-words", "npm:0.0.7"],\
+            ["@stdlib/array-float64", "npm:0.0.6"],\
+            ["@stdlib/array-uint32", "npm:0.0.6"],\
+            ["@stdlib/assert-is-little-endian", "npm:0.0.7"],\
+            ["@stdlib/os-byte-order", "npm:0.0.7"],\
+            ["@stdlib/os-float-word-order", "npm:0.0.7"],\
+            ["@stdlib/types", "npm:0.0.14"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/number-uint32-base-to-int32", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-number-uint32-base-to-int32-npm-0.0.7-d0b98d5b3f/node_modules/@stdlib/number-uint32-base-to-int32/",\
+          "packageDependencies": [\
+            ["@stdlib/number-uint32-base-to-int32", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/os-byte-order", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-os-byte-order-npm-0.0.7-5b5b8cb9a7/node_modules/@stdlib/os-byte-order/",\
+          "packageDependencies": [\
+            ["@stdlib/os-byte-order", "npm:0.0.7"],\
+            ["@stdlib/assert-is-big-endian", "npm:0.0.7"],\
+            ["@stdlib/assert-is-little-endian", "npm:0.0.7"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/os-float-word-order", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-os-float-word-order-npm-0.0.7-7a2407f0a3/node_modules/@stdlib/os-float-word-order/",\
+          "packageDependencies": [\
+            ["@stdlib/os-float-word-order", "npm:0.0.7"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"],\
+            ["@stdlib/os-byte-order", "npm:0.0.7"],\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/process-cwd", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-process-cwd-npm-0.0.8-917b6f1d50/node_modules/@stdlib/process-cwd/",\
+          "packageDependencies": [\
+            ["@stdlib/process-cwd", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/process-read-stdin", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-process-read-stdin-npm-0.0.7-ace3e1865a/node_modules/@stdlib/process-read-stdin/",\
+          "packageDependencies": [\
+            ["@stdlib/process-read-stdin", "npm:0.0.7"],\
+            ["@stdlib/assert-is-function", "npm:0.0.8"],\
+            ["@stdlib/assert-is-string", "npm:0.0.8"],\
+            ["@stdlib/buffer-ctor", "npm:0.0.7"],\
+            ["@stdlib/buffer-from-string", "npm:0.0.8"],\
+            ["@stdlib/streams-node-stdin", "npm:0.0.7"],\
+            ["@stdlib/utils-next-tick", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/regexp-eol", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-regexp-eol-npm-0.0.7-c3e7a77273/node_modules/@stdlib/regexp-eol/",\
+          "packageDependencies": [\
+            ["@stdlib/regexp-eol", "npm:0.0.7"],\
+            ["@stdlib/assert-has-own-property", "npm:0.0.7"],\
+            ["@stdlib/assert-is-boolean", "npm:0.0.8"],\
+            ["@stdlib/assert-is-plain-object", "npm:0.0.7"],\
+            ["@stdlib/assert-is-string", "npm:0.0.8"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/regexp-extended-length-path", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-regexp-extended-length-path-npm-0.0.7-02e63af5a4/node_modules/@stdlib/regexp-extended-length-path/",\
+          "packageDependencies": [\
+            ["@stdlib/regexp-extended-length-path", "npm:0.0.7"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/regexp-function-name", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-regexp-function-name-npm-0.0.7-d6bac752d6/node_modules/@stdlib/regexp-function-name/",\
+          "packageDependencies": [\
+            ["@stdlib/regexp-function-name", "npm:0.0.7"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/regexp-regexp", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-regexp-regexp-npm-0.0.8-159a90a7aa/node_modules/@stdlib/regexp-regexp/",\
+          "packageDependencies": [\
+            ["@stdlib/regexp-regexp", "npm:0.0.8"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/stats-base-dists-binomial-pmf", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-stats-base-dists-binomial-pmf-npm-0.0.7-78fcabcac2/node_modules/@stdlib/stats-base-dists-binomial-pmf/",\
+          "packageDependencies": [\
+            ["@stdlib/stats-base-dists-binomial-pmf", "npm:0.0.7"],\
+            ["@stdlib/constants-float64-pinf", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-nan", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-nonnegative-integer", "npm:0.0.7"],\
+            ["@stdlib/math-base-special-binomcoefln", "npm:0.0.7"],\
+            ["@stdlib/math-base-special-exp", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-ln", "npm:0.0.6"],\
+            ["@stdlib/math-base-special-log1p", "npm:0.0.6"],\
+            ["@stdlib/stats-base-dists-degenerate-pmf", "npm:0.0.8"],\
+            ["@stdlib/utils-constant-function", "npm:0.0.8"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/stats-base-dists-degenerate-pmf", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-stats-base-dists-degenerate-pmf-npm-0.0.8-c47424f9e3/node_modules/@stdlib/stats-base-dists-degenerate-pmf/",\
+          "packageDependencies": [\
+            ["@stdlib/stats-base-dists-degenerate-pmf", "npm:0.0.8"],\
+            ["@stdlib/math-base-assert-is-nan", "npm:0.0.8"],\
+            ["@stdlib/utils-constant-function", "npm:0.0.8"],\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/streams-node-stdin", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-streams-node-stdin-npm-0.0.7-7593dd7c1a/node_modules/@stdlib/streams-node-stdin/",\
+          "packageDependencies": [\
+            ["@stdlib/streams-node-stdin", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/string-base-format-interpolate", [\
+        ["npm:0.0.4", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-string-base-format-interpolate-npm-0.0.4-e86753df67/node_modules/@stdlib/string-base-format-interpolate/",\
+          "packageDependencies": [\
+            ["@stdlib/string-base-format-interpolate", "npm:0.0.4"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/string-base-format-tokenize", [\
+        ["npm:0.0.4", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-string-base-format-tokenize-npm-0.0.4-4a356188bc/node_modules/@stdlib/string-base-format-tokenize/",\
+          "packageDependencies": [\
+            ["@stdlib/string-base-format-tokenize", "npm:0.0.4"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/string-format", [\
+        ["npm:0.0.3", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-string-format-npm-0.0.3-2b0c493535/node_modules/@stdlib/string-format/",\
+          "packageDependencies": [\
+            ["@stdlib/string-format", "npm:0.0.3"],\
+            ["@stdlib/string-base-format-interpolate", "npm:0.0.4"],\
+            ["@stdlib/string-base-format-tokenize", "npm:0.0.4"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/string-lowercase", [\
+        ["npm:0.0.9", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-string-lowercase-npm-0.0.9-1ddd6ac93d/node_modules/@stdlib/string-lowercase/",\
+          "packageDependencies": [\
+            ["@stdlib/string-lowercase", "npm:0.0.9"],\
+            ["@stdlib/assert-is-string", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"],\
+            ["@stdlib/process-read-stdin", "npm:0.0.7"],\
+            ["@stdlib/streams-node-stdin", "npm:0.0.7"],\
+            ["@stdlib/string-format", "npm:0.0.3"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/string-replace", [\
+        ["npm:0.0.11", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-string-replace-npm-0.0.11-c3f2d951df/node_modules/@stdlib/string-replace/",\
+          "packageDependencies": [\
+            ["@stdlib/string-replace", "npm:0.0.11"],\
+            ["@stdlib/assert-is-function", "npm:0.0.8"],\
+            ["@stdlib/assert-is-regexp", "npm:0.0.7"],\
+            ["@stdlib/assert-is-regexp-string", "npm:0.0.9"],\
+            ["@stdlib/assert-is-string", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"],\
+            ["@stdlib/process-read-stdin", "npm:0.0.7"],\
+            ["@stdlib/regexp-eol", "npm:0.0.7"],\
+            ["@stdlib/streams-node-stdin", "npm:0.0.7"],\
+            ["@stdlib/string-format", "npm:0.0.3"],\
+            ["@stdlib/utils-escape-regexp-string", "npm:0.0.9"],\
+            ["@stdlib/utils-regexp-from-string", "npm:0.0.9"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/types", [\
+        ["npm:0.0.14", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-types-npm-0.0.14-f80dce3c0a/node_modules/@stdlib/types/",\
+          "packageDependencies": [\
+            ["@stdlib/types", "npm:0.0.14"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/utils-constant-function", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-utils-constant-function-npm-0.0.8-db3501e1d4/node_modules/@stdlib/utils-constant-function/",\
+          "packageDependencies": [\
+            ["@stdlib/utils-constant-function", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/utils-constructor-name", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-utils-constructor-name-npm-0.0.8-aae1fb903e/node_modules/@stdlib/utils-constructor-name/",\
+          "packageDependencies": [\
+            ["@stdlib/utils-constructor-name", "npm:0.0.8"],\
+            ["@stdlib/assert-is-buffer", "npm:0.0.8"],\
+            ["@stdlib/regexp-function-name", "npm:0.0.7"],\
+            ["@stdlib/utils-native-class", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/utils-convert-path", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-utils-convert-path-npm-0.0.8-a8fc83cdb9/node_modules/@stdlib/utils-convert-path/",\
+          "packageDependencies": [\
+            ["@stdlib/utils-convert-path", "npm:0.0.8"],\
+            ["@stdlib/assert-is-string", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-read-file", "npm:0.0.8"],\
+            ["@stdlib/process-read-stdin", "npm:0.0.7"],\
+            ["@stdlib/regexp-eol", "npm:0.0.7"],\
+            ["@stdlib/regexp-extended-length-path", "npm:0.0.7"],\
+            ["@stdlib/streams-node-stdin", "npm:0.0.7"],\
+            ["@stdlib/string-lowercase", "npm:0.0.9"],\
+            ["@stdlib/string-replace", "npm:0.0.11"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/utils-define-nonenumerable-read-only-property", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-utils-define-nonenumerable-read-only-property-npm-0.0.7-51d38cd0b6/node_modules/@stdlib/utils-define-nonenumerable-read-only-property/",\
+          "packageDependencies": [\
+            ["@stdlib/utils-define-nonenumerable-read-only-property", "npm:0.0.7"],\
+            ["@stdlib/types", "npm:0.0.14"],\
+            ["@stdlib/utils-define-property", "npm:0.0.9"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/utils-define-property", [\
+        ["npm:0.0.9", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-utils-define-property-npm-0.0.9-14dab7dc0f/node_modules/@stdlib/utils-define-property/",\
+          "packageDependencies": [\
+            ["@stdlib/utils-define-property", "npm:0.0.9"],\
+            ["@stdlib/types", "npm:0.0.14"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/utils-escape-regexp-string", [\
+        ["npm:0.0.9", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-utils-escape-regexp-string-npm-0.0.9-66af15b7c7/node_modules/@stdlib/utils-escape-regexp-string/",\
+          "packageDependencies": [\
+            ["@stdlib/utils-escape-regexp-string", "npm:0.0.9"],\
+            ["@stdlib/assert-is-string", "npm:0.0.8"],\
+            ["@stdlib/string-format", "npm:0.0.3"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/utils-get-prototype-of", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-utils-get-prototype-of-npm-0.0.7-eb3ba8f105/node_modules/@stdlib/utils-get-prototype-of/",\
+          "packageDependencies": [\
+            ["@stdlib/utils-get-prototype-of", "npm:0.0.7"],\
+            ["@stdlib/assert-is-function", "npm:0.0.8"],\
+            ["@stdlib/utils-native-class", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/utils-global", [\
+        ["npm:0.0.7", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-utils-global-npm-0.0.7-7e51ba54e2/node_modules/@stdlib/utils-global/",\
+          "packageDependencies": [\
+            ["@stdlib/utils-global", "npm:0.0.7"],\
+            ["@stdlib/assert-is-boolean", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/utils-library-manifest", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-utils-library-manifest-npm-0.0.8-17b511aa51/node_modules/@stdlib/utils-library-manifest/",\
+          "packageDependencies": [\
+            ["@stdlib/utils-library-manifest", "npm:0.0.8"],\
+            ["@stdlib/cli-ctor", "npm:0.0.3"],\
+            ["@stdlib/fs-resolve-parent-path", "npm:0.0.8"],\
+            ["@stdlib/utils-convert-path", "npm:0.0.8"],\
+            ["debug", "virtual:17b511aa51d893b15082d94af084f33cb1a745d5ab3c853ea09b505a5b26cc3a59b91479313435aaa9b01c070355a929d6820b02589ec3d300cd02f944cfa637#npm:2.6.9"],\
+            ["resolve", "patch:resolve@npm%3A1.22.3#~builtin<compat/resolve>::version=1.22.3&hash=c3c19d"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/utils-native-class", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-utils-native-class-npm-0.0.8-4f4c0b1171/node_modules/@stdlib/utils-native-class/",\
+          "packageDependencies": [\
+            ["@stdlib/utils-native-class", "npm:0.0.8"],\
+            ["@stdlib/assert-has-own-property", "npm:0.0.7"],\
+            ["@stdlib/assert-has-tostringtag-support", "npm:0.0.9"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/utils-next-tick", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-utils-next-tick-npm-0.0.8-a9ca294c5a/node_modules/@stdlib/utils-next-tick/",\
+          "packageDependencies": [\
+            ["@stdlib/utils-next-tick", "npm:0.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/utils-noop", [\
+        ["npm:0.0.14", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-utils-noop-npm-0.0.14-bbda4dba19/node_modules/@stdlib/utils-noop/",\
+          "packageDependencies": [\
+            ["@stdlib/utils-noop", "npm:0.0.14"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/utils-regexp-from-string", [\
+        ["npm:0.0.9", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-utils-regexp-from-string-npm-0.0.9-8c3a8e048a/node_modules/@stdlib/utils-regexp-from-string/",\
+          "packageDependencies": [\
+            ["@stdlib/utils-regexp-from-string", "npm:0.0.9"],\
+            ["@stdlib/assert-is-string", "npm:0.0.8"],\
+            ["@stdlib/regexp-regexp", "npm:0.0.8"],\
+            ["@stdlib/string-format", "npm:0.0.3"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@stdlib/utils-type-of", [\
+        ["npm:0.0.8", {\
+          "packageLocation": "./.yarn/unplugged/@stdlib-utils-type-of-npm-0.0.8-a79623d533/node_modules/@stdlib/utils-type-of/",\
+          "packageDependencies": [\
+            ["@stdlib/utils-type-of", "npm:0.0.8"],\
+            ["@stdlib/utils-constructor-name", "npm:0.0.8"],\
+            ["@stdlib/utils-global", "npm:0.0.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["@surma/rollup-plugin-off-main-thread", [\
         ["npm:2.2.3", {\
           "packageLocation": "./.yarn/cache/@surma-rollup-plugin-off-main-thread-npm-2.2.3-1f57d3eded-2c02134944.zip/node_modules/@surma/rollup-plugin-off-main-thread/",\
@@ -4089,7 +5778,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/agent-base-npm-6.0.2-428f325a93-f52b6872cc.zip/node_modules/agent-base/",\
           "packageDependencies": [\
             ["agent-base", "npm:6.0.2"],\
-            ["debug", "virtual:dc0e9498d700f80ca3b0d172d2c879b3b5c09eb83d3efd647256b1daa54c605273cda90b8697936295a53fe89b5505efe928551dbf95d9b7e6c2bba5a81cb59c#npm:4.3.4"]\
+            ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -4099,7 +5788,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/agentkeepalive-npm-4.2.1-b86a9fb343-39cb49ed8c.zip/node_modules/agentkeepalive/",\
           "packageDependencies": [\
             ["agentkeepalive", "npm:4.2.1"],\
-            ["debug", "virtual:dc0e9498d700f80ca3b0d172d2c879b3b5c09eb83d3efd647256b1daa54c605273cda90b8697936295a53fe89b5505efe928551dbf95d9b7e6c2bba5a81cb59c#npm:4.3.4"],\
+            ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"],\
             ["depd", "npm:1.1.2"],\
             ["humanize-ms", "npm:1.2.1"]\
           ],\
@@ -4637,6 +6326,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["debug", [\
+        ["npm:2.6.9", {\
+          "packageLocation": "./.yarn/cache/debug-npm-2.6.9-7d4cb597dc-d2f51589ca.zip/node_modules/debug/",\
+          "packageDependencies": [\
+            ["debug", "npm:2.6.9"]\
+          ],\
+          "linkType": "SOFT"\
+        }],\
         ["npm:4.3.4", {\
           "packageLocation": "./.yarn/cache/debug-npm-4.3.4-4513954577-3dbad3f94e.zip/node_modules/debug/",\
           "packageDependencies": [\
@@ -4644,10 +6340,24 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:dc0e9498d700f80ca3b0d172d2c879b3b5c09eb83d3efd647256b1daa54c605273cda90b8697936295a53fe89b5505efe928551dbf95d9b7e6c2bba5a81cb59c#npm:4.3.4", {\
-          "packageLocation": "./.yarn/__virtual__/debug-virtual-7a61cb7760/0/cache/debug-npm-4.3.4-4513954577-3dbad3f94e.zip/node_modules/debug/",\
+        ["virtual:17b511aa51d893b15082d94af084f33cb1a745d5ab3c853ea09b505a5b26cc3a59b91479313435aaa9b01c070355a929d6820b02589ec3d300cd02f944cfa637#npm:2.6.9", {\
+          "packageLocation": "./.yarn/__virtual__/debug-virtual-8f640f54ce/0/cache/debug-npm-2.6.9-7d4cb597dc-d2f51589ca.zip/node_modules/debug/",\
           "packageDependencies": [\
-            ["debug", "virtual:dc0e9498d700f80ca3b0d172d2c879b3b5c09eb83d3efd647256b1daa54c605273cda90b8697936295a53fe89b5505efe928551dbf95d9b7e6c2bba5a81cb59c#npm:4.3.4"],\
+            ["debug", "virtual:17b511aa51d893b15082d94af084f33cb1a745d5ab3c853ea09b505a5b26cc3a59b91479313435aaa9b01c070355a929d6820b02589ec3d300cd02f944cfa637#npm:2.6.9"],\
+            ["@types/supports-color", null],\
+            ["ms", "npm:2.0.0"],\
+            ["supports-color", null]\
+          ],\
+          "packagePeers": [\
+            "@types/supports-color",\
+            "supports-color"\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4", {\
+          "packageLocation": "./.yarn/__virtual__/debug-virtual-4488998e89/0/cache/debug-npm-4.3.4-4513954577-3dbad3f94e.zip/node_modules/debug/",\
+          "packageDependencies": [\
+            ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"],\
             ["@types/supports-color", null],\
             ["ms", "npm:2.1.2"],\
             ["supports-color", null]\
@@ -5332,7 +7042,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["http-proxy-agent", "npm:5.0.0"],\
             ["@tootallnate/once", "npm:2.0.0"],\
             ["agent-base", "npm:6.0.2"],\
-            ["debug", "virtual:dc0e9498d700f80ca3b0d172d2c879b3b5c09eb83d3efd647256b1daa54c605273cda90b8697936295a53fe89b5505efe928551dbf95d9b7e6c2bba5a81cb59c#npm:4.3.4"]\
+            ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -5343,7 +7053,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["https-proxy-agent", "npm:5.0.1"],\
             ["agent-base", "npm:6.0.2"],\
-            ["debug", "virtual:dc0e9498d700f80ca3b0d172d2c879b3b5c09eb83d3efd647256b1daa54c605273cda90b8697936295a53fe89b5505efe928551dbf95d9b7e6c2bba5a81cb59c#npm:4.3.4"]\
+            ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -5512,6 +7222,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/is-core-module-npm-2.11.0-70061e141a-f96fd490c6.zip/node_modules/is-core-module/",\
           "packageDependencies": [\
             ["is-core-module", "npm:2.11.0"],\
+            ["has", "npm:1.0.3"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:2.12.1", {\
+          "packageLocation": "./.yarn/cache/is-core-module-npm-2.12.1-ce74e89160-f04ea30533.zip/node_modules/is-core-module/",\
+          "packageDependencies": [\
+            ["is-core-module", "npm:2.12.1"],\
             ["has", "npm:1.0.3"]\
           ],\
           "linkType": "HARD"\
@@ -5829,6 +7547,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fortawesome/react-fontawesome", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:0.2.0"],\
             ["@mui/icons-material", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:5.11.0"],\
             ["@mui/material", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:5.11.0"],\
+            ["@stdlib/stats-base-dists-binomial-pmf", "npm:0.0.7"],\
             ["@types/react", "npm:18.0.26"],\
             ["@types/react-dom", "npm:18.0.9"],\
             ["@vitejs/plugin-react", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:3.0.0"],\
@@ -6015,6 +7734,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["minimist", [\
+        ["npm:1.2.8", {\
+          "packageLocation": "./.yarn/cache/minimist-npm-1.2.8-d7af7b1dce-75a6d645fb.zip/node_modules/minimist/",\
+          "packageDependencies": [\
+            ["minimist", "npm:1.2.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["minipass", [\
         ["npm:3.3.6", {\
           "packageLocation": "./.yarn/cache/minipass-npm-3.3.6-b8d93a945b-a30d083c80.zip/node_modules/minipass/",\
@@ -6107,6 +7835,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["ms", [\
+        ["npm:2.0.0", {\
+          "packageLocation": "./.yarn/cache/ms-npm-2.0.0-9e1101a471-0e6a22b8b7.zip/node_modules/ms/",\
+          "packageDependencies": [\
+            ["ms", "npm:2.0.0"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
         ["npm:2.1.2", {\
           "packageLocation": "./.yarn/cache/ms-npm-2.1.2-ec0c1512ff-673cdb2c31.zip/node_modules/ms/",\
           "packageDependencies": [\
@@ -6717,6 +8452,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["supports-preserve-symlinks-flag", "npm:1.0.0"]\
           ],\
           "linkType": "HARD"\
+        }],\
+        ["patch:resolve@npm%3A1.22.3#~builtin<compat/resolve>::version=1.22.3&hash=c3c19d", {\
+          "packageLocation": "./.yarn/cache/resolve-patch-bb62d3c3c5-ad59734723.zip/node_modules/resolve/",\
+          "packageDependencies": [\
+            ["resolve", "patch:resolve@npm%3A1.22.3#~builtin<compat/resolve>::version=1.22.3&hash=c3c19d"],\
+            ["is-core-module", "npm:2.12.1"],\
+            ["path-parse", "npm:1.0.7"],\
+            ["supports-preserve-symlinks-flag", "npm:1.0.0"]\
+          ],\
+          "linkType": "HARD"\
         }]\
       ]],\
       ["resolve-from", [\
@@ -6941,7 +8686,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["socks-proxy-agent", "npm:7.0.0"],\
             ["agent-base", "npm:6.0.2"],\
-            ["debug", "virtual:dc0e9498d700f80ca3b0d172d2c879b3b5c09eb83d3efd647256b1daa54c605273cda90b8697936295a53fe89b5505efe928551dbf95d9b7e6c2bba5a81cb59c#npm:4.3.4"],\
+            ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"],\
             ["socks", "npm:2.7.1"]\
           ],\
           "linkType": "HARD"\
@@ -7474,7 +9219,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/vite", null],\
             ["@types/workbox-build", null],\
             ["@types/workbox-window", null],\
-            ["debug", "virtual:dc0e9498d700f80ca3b0d172d2c879b3b5c09eb83d3efd647256b1daa54c605273cda90b8697936295a53fe89b5505efe928551dbf95d9b7e6c2bba5a81cb59c#npm:4.3.4"],\
+            ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"],\
             ["fast-glob", "npm:3.2.12"],\
             ["pretty-bytes", "npm:6.1.0"],\
             ["rollup", "npm:3.18.0"],\
