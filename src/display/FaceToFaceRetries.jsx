@@ -22,18 +22,19 @@ function FaceToFaceRetries(props) {
       reactive: 1 - pmf(0, i, reactiveOneWound),
       retry: i,
     })
-  };
+  }
 
 
   return(
     <Box sx={{textAlign: 'left'}}>
       <Typography variant="h6" sx={{flexGrow: 1}}>Retries</Typography>
+      <Typography variant="body2">Chance causing at least one wound after:</Typography>
       {
         retryResults.map((retry, index) => {
           let active = formatPercentage(retry['active']);
           let reactive = formatPercentage(retry['reactive']);
           return <Typography variant="body2" key={index}>
-            After {retry['retry']} tries: Active {active}% / Reactive {reactive}%
+            &nbsp;{retry['retry']} tries: Active {active}% / Reactive {reactive}%
           </Typography>
         })
       }
