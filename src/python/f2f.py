@@ -1,14 +1,14 @@
 # import micropip
-# await micropip.install('icepool==0.20.1')
+# await micropip.install('icepool==1.0.0')
 # import js
 # from pyodide.ffi import to_js
-import icepool
-from icepool import d20, lowest, Again, Die, Pool
+from icepool import d20, lowest, Again, Die
+from icepool import MultisetEvaluator
 from math import comb
 from functools import reduce
 
 
-class InfinityFace2FaceEvaluator(icepool.OutcomeCountEvaluator):
+class InfinityFace2FaceEvaluator(MultisetEvaluator):
     def __init__(self, a_sv, b_sv):
         self.a_sv = a_sv
         self.b_sv = b_sv
@@ -190,15 +190,13 @@ def face_to_face_expected_wounds(
 
         # Generate die with 1's for wounds and 0's for successful armor saves
         if cont:
-            dSave = Die([(damage + Again() if x <= armor_save else 0) for x in range(1, 21)], again_depth=5)
+            dSave = Die([(damage + Again if x <= armor_save else 0) for x in range(1, 21)], again_depth=5)
         else:
             dSave = (d20 <= armor_save) * damage  # T2 ammo increases damage by 1
         dCrit = d20 <= armor_save  # Crits are always 1 damage
         dPlasma = d20 <= bts_save  # Plasma BTS hits are always 1 damage (so far)
-
-        r = Pool(
-            [dSave for x in range(saves)] + [dCrit for x in range(crit_saves)] + [dPlasma for x in range(plasma_saves)]
-        ).sum()
+        # Thank you @HighDiceRoller for this beautiful line of code!
+        r = saves @ dSave + crit_saves @ dCrit + plasma_saves @ dPlasma
         denominator = r.denominator()
         for w, occurrences in r.items():
             wounds[winner][w] = wounds[winner].get(w, 0) + (occurrences/denominator) * rolls

@@ -1,16 +1,16 @@
 importScripts("https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.js");
 
 const PYTHON_CODE = `import micropip
-await micropip.install('icepool==0.20.1')
+await micropip.install('icepool==1.0.0')
 import js
 from pyodide.ffi import to_js
-import icepool
-from icepool import d20, lowest, Again, Die, Pool
+from icepool import d20, lowest, Again, Die
+from icepool import MultisetEvaluator
 from math import comb
 from functools import reduce
 
 
-class InfinityFace2FaceEvaluator(icepool.OutcomeCountEvaluator):
+class InfinityFace2FaceEvaluator(MultisetEvaluator):
     def __init__(self, a_sv, b_sv):
         self.a_sv = a_sv
         self.b_sv = b_sv
@@ -83,7 +83,7 @@ def fixed_face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
     a_sv = player_a_sv if player_a_sv <= 20 else 20
     a_bonus = 0 if player_a_sv <= 20 else player_a_sv - 20
     b_sv = 21  # make success value 21 to avoid crits
-    b_die_face = player_b_sv if player_b_sv <= 20 else 20
+    b_die_face = player_b_sv if player_b_sv <= 20 else 20  # don't let fixed die be over 20
     b_die = Die([b_die_face])  # Create a special die that always rolls the same number
 
     result = InfinityFace2FaceEvaluator(a_sv=a_sv, b_sv=b_sv).evaluate(
@@ -192,15 +192,13 @@ def face_to_face_expected_wounds(
 
         # Generate die with 1's for wounds and 0's for successful armor saves
         if cont:
-            dSave = Die([(damage + Again() if x <= armor_save else 0) for x in range(1, 21)], again_depth=5)
+            dSave = Die([(damage + Again if x <= armor_save else 0) for x in range(1, 21)], again_depth=5)
         else:
             dSave = (d20 <= armor_save) * damage  # T2 ammo increases damage by 1
         dCrit = d20 <= armor_save  # Crits are always 1 damage
         dPlasma = d20 <= bts_save  # Plasma BTS hits are always 1 damage (so far)
-
-        r = Pool(
-            [dSave for x in range(saves)] + [dCrit for x in range(crit_saves)] + [dPlasma for x in range(plasma_saves)]
-        ).sum()
+        # Thank you HighDiceRoller for this beautiful line of code!
+        r = saves @ dSave + crit_saves @ dCrit + plasma_saves @ dPlasma
         denominator = r.denominator()
         for w, occurrences in r.items():
             wounds[winner][w] = wounds[winner].get(w, 0) + (occurrences/denominator) * rolls
@@ -278,14 +276,13 @@ def roll_and_bridge_results(
         player_a_dam, player_a_arm, player_a_ammo, player_b_dam, player_b_arm, player_b_ammo,
         player_a_cont=player_a_cont, player_a_bts=player_a_bts, player_a_crit_immune=player_a_crit_immune,
         player_b_cont=player_b_cont, player_b_bts=player_b_bts, player_b_crit_immune=player_b_crit_immune)
-    formatted_expected_wounds = format_expected_wounds(expected_wounds, max_wounds_shown=50)
+    formatted_expected_wounds = format_expected_wounds(expected_wounds)
     return_object = {
         'face_to_face': formatted_results,
         'expected_wounds': formatted_expected_wounds,
         'total_rolls': expected_wounds['total_rolls']
     }
     return to_js(return_object, dict_converter=js.Object.fromEntries)
-    # return return_object
 
 # Return value for Javascript
 to_js(roll_and_bridge_results)`;
