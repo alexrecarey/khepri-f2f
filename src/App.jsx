@@ -126,8 +126,7 @@ function App() {
     setStatusMessage("Loading icepool engine");
     const run = async () => {
       // Web workers without comlink
-      workerRef.current = new Worker(new URL('./python.worker.js', import.meta.url),
-      );
+      workerRef.current = new Worker(new URL('./python.worker.js', import.meta.url),);
       workerRef.current.onmessage = messageReceived
       workerRef.current.onerror = workerError
       workerRef.current.postMessage({command:'init'});
@@ -154,7 +153,7 @@ function App() {
       ammoB: ammoB, contB: contB, critImmuneB: critImmuneB,
       dtwVsDodge: dtwVsDodge, fixedFaceToFace: fixedFaceToFace
     }
-    await workerRef.current.postMessage({command: 'calculate', data: parameters})
+    await workerRef?.current?.postMessage?.({command: 'calculate', data: parameters})
   };
 
   const addResultToCompareList = () => {
