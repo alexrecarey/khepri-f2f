@@ -32,3 +32,6 @@ dev-dist
 *.njsproj
 *.sln
 *.sw?
+
+# Sentry Config File
+.env.sentry-build-plugin

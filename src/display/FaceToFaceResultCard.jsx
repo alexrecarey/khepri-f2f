@@ -36,8 +36,7 @@ function FaceToFaceResultCard(props) {
   if(!props.f2fResults){
     return null;
   }
-  console.log('f2fResults')
-  console.log(props.f2fResults);
+  
   // Props
   const expectedWounds = props.f2fResults.expected_wounds;
   const faceToFace = props.f2fResults.face_to_face;

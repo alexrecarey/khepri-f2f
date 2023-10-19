@@ -115,6 +115,12 @@ function App() {
     }
   }
 
+  const workerError = (error) => {
+    console.log(`Worker error: ${error.message} \n`);
+    setStatusMessage(`Worker error: ${error.message}`);
+    throw error;
+  };
+
   // First load
   useEffect(() => {
     setStatusMessage("Loading icepool engine");
@@ -123,6 +129,7 @@ function App() {
       workerRef.current = new Worker(new URL('./python.worker.js', import.meta.url),
       );
       workerRef.current.onmessage = messageReceived
+      workerRef.current.onerror = workerError
       workerRef.current.postMessage({command:'init'});
     }
     run();
