@@ -1,4 +1,5 @@
 import {Table, TableBody, TableCell, TableRow} from "@mui/material";
+import { useTheme } from '@mui/material/styles';
 import {
   activePlayerWithWounds,
   ascendByWounds,
@@ -12,11 +13,22 @@ import {clamp} from "ramda";
 
 
 function ExpectedWoundsGraphCell(props) {
-  const active_colors = ['#dd88ac', '#ca699d', '#b14d8e',
-    '#91357d', '#6c2167'];
-  const reactive_colors = ['#6cc08b', '#4c9b82', '#217a79',
-    '#105965', '#074050'];
-  //const active_colors = [theme.palette.player['active'][300], theme.palette.player[400], theme.palette.player[500], theme.palette.player['active'][600], theme.palette.player['active'][700]];
+  const theme = useTheme();
+  const activeColors = {
+    1: theme.palette['active'][300],
+    2: theme.palette['active'][400],
+    3: theme.palette['active'][500],
+    4: theme.palette['active'][600],
+    5: theme.palette['active'][700],
+  }
+  const reactiveColors = {
+    1: theme.palette['reactive'][300],
+    2: theme.palette['reactive'][400],
+    3: theme.palette['reactive'][500],
+    4: theme.palette['reactive'][600],
+    5: theme.palette['reactive'][700],
+  }
+
   //const data = props.row;
   const player = props.player;
   const chance = props.chance;
@@ -27,11 +39,11 @@ function ExpectedWoundsGraphCell(props) {
 
   let color;
   if(player === 'active' && wounds > 0){
-    color = active_colors[wounds-1];
+    color = activeColors[wounds];
   } else if(player === 'reactive' && wounds > 0){
-    color = reactive_colors[wounds-1];
+    color = reactiveColors[wounds];
   } else {
-    color = 'lightgrey';
+    color = theme.palette['failure'][100];
   }
 
   return <TableCell sx={{bgcolor: color, width: width, padding:0, height: '30px', textAlign: 'center'}}>

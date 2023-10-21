@@ -41,18 +41,18 @@ function ExpectedWoundsList(props){
   // colors
   const theme = useTheme();
   const activeColors = {
-    1: theme.palette.player['active'][300],
-    2: theme.palette.player['active'][400],
-    3: theme.palette.player['active'][500],
-    4: theme.palette.player['active'][600],
-    5: theme.palette.player['active'][700],
+    1: theme.palette['active'][300],
+    2: theme.palette['active'][400],
+    3: theme.palette['active'][500],
+    4: theme.palette['active'][600],
+    5: theme.palette['active'][700],
   }
   const reactiveColors = {
-    1: theme.palette.player['reactive'][300],
-    2: theme.palette.player['reactive'][400],
-    3: theme.palette.player['reactive'][500],
-    4: theme.palette.player['reactive'][600],
-    5: theme.palette.player['reactive'][700],
+    1: theme.palette['reactive'][300],
+    2: theme.palette['reactive'][400],
+    3: theme.palette['reactive'][500],
+    4: theme.palette['reactive'][600],
+    5: theme.palette['reactive'][700],
   }
 
   // data

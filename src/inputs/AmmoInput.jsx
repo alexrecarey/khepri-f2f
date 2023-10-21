@@ -12,7 +12,7 @@ function AmmoInput(props){
   const dtw = props.dtw;
 
   const theme = useTheme();
-  const colorMid = theme.palette.player[variant]["500"];
+  const colorMid = theme.palette[variant]["500"];
 
   const selected = dtw ? "DODGE" : ammo;
 
@@ -20,7 +20,7 @@ function AmmoInput(props){
     fontWeight: 'bold',
     minWidth: '3em',
     "&.Mui-selected, &.Mui-selected:hover": {
-      color: "white",
+      //color: theme.palette.getContrastText(colorMid),
       backgroundColor: colorMid,
       fontWeight: 'bold'
     },

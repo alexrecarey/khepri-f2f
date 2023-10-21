@@ -45,7 +45,7 @@ export default function InlineEdit(props) {
           onFocus={handleFocus}
         />
         <Typography variant={variant} style={{display: "none"}}/>
-        <IconButton color="primary" size="small" onClick={saveEdit}>
+        <IconButton color="inherit" size="small" onClick={saveEdit}>
           <SaveAltIcon/>
         </IconButton>
       </Box>

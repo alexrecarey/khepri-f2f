@@ -16,12 +16,16 @@ export default function UncontrolledInput(props) {
   }
 
   const theme = useTheme();
-  //const colorLight = theme.palette.player[variant]["100"];
-  //const colorMid = theme.palette.player[variant]["500"];
-  const colorDark = theme.palette.player[variant]["700"];
+  //const colorLight = theme.palette[variant]["100"];
+  //const colorMid = theme.palette[variant]["500"];
+  const colorDark = theme.palette[variant]["700"];
 
   return <InputBase
-    sx={{fontWeight: "bold", color: colorDark, input: {textAlign: "center", paddingTop: 0, paddingBottom: 0}}}
+    sx={{ //fontWeight: "bold",
+      fontFamily: 'conthrax',
+      //color: theme.palette.getContrastText(theme.palette[variant]["100"]),
+      color: colorDark,
+      input: {textAlign: "center", paddingTop: 0, paddingBottom: 0}}}
     key={props.successValue}
     autoComplete="False"
     value={displayValue}

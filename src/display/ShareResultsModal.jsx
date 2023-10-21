@@ -146,7 +146,6 @@ ${reactiveList.map((x) => `\n  Causes ${x.wounds}+ wounds: ${formatPercentage(x.
           <Box sx={{height: 16}} />
           
           <TextField fullWidth multiline readOnly label='Discord optimized text' variant='filled' maxRows={5} value={discordText}/>
-          <Typography variant="caption">Note: Formatted text might not be available yet in every discord server.</Typography>
           <Button onClick={() => handleCopyClick(discordText, setIsCompactCopied)}>{isCompactCopied ? 'Copied!' : 'Copy Discord text'}</Button>
           <Box sx={{height: 16}} />
 

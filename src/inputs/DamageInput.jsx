@@ -14,8 +14,8 @@ function DamageInput(props) {
   const max = 30;
 
   const theme = useTheme();
-  const colorLight = theme.palette.player[variant]["100"];
-  const colorMid = theme.palette.player[variant]["500"];
+  const colorLight = theme.palette[variant]["100"];
+  const colorMid = theme.palette[variant]["500"];
 
   const handleOnBlur = (newValue) => {
     let val = Number(newValue);

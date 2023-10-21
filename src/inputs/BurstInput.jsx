@@ -13,9 +13,9 @@ function BurstInput(props) {
   const variant = props.variant ?? 'active';
 
   const theme = useTheme();
-  const colorLight = theme.palette.player[variant]["100"];
-  const colorMid = theme.palette.player[variant]["500"];
-  //const colorDark = theme.palette.player[variant]["700"];
+  const colorLight = theme.palette[variant]["100"];
+  const colorMid = theme.palette[variant]["500"];
+  //const colorDark = theme.palette[variant]["700"];
 
   const maxViewableBurst = variant === 'active' ? 6 : 5;
   const zeroBurstColor = burst === 0 ? colorMid : 'grey';

@@ -1,4 +1,4 @@
-import {useState, useEffect, useRef} from 'react'
+import {useState, useEffect, useRef, useMemo} from 'react'
 import CssBaseline from '@mui/material/CssBaseline';
 import './App.css'
 import {any, assoc, clone, findIndex, propEq, remove, update} from "ramda";
@@ -6,10 +6,18 @@ import {
   Box,
   Card,
   CardContent,
-  Grid, IconButton, Stack,
-  ThemeProvider, Tooltip,
-  Typography
+  Container,
+  Grid,
+  IconButton,
+  Link,
+  Stack,
+  Typography,
+  Button,
+  ThemeProvider,
+  Tooltip,
 } from "@mui/material";
+import { useAtom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
 
 import { createTheme } from '@mui/material/styles';
 import {grey} from "@mui/material/colors";
@@ -31,12 +39,17 @@ import BTSInput from "./inputs/BTSInput.jsx";
 import {useSearchParams} from "react-router-dom";
 import validateParams from "./inputs/validateParams.js";
 import curry from "ramda/src/curry";
+import {CustomAppBar} from "./componets/CustomAppBar.jsx";
 
+export const themeAtom = atomWithStorage('selectedTheme', 'dark')
 
 function App() {
   // App Status
   const [statusMessage, setStatusMessage] = useState("(loading...)");
   const workerRef = useRef(null);
+
+  // theme
+  const [selectedTheme, setSelectedTheme] = useAtom(themeAtom)
 
   // Search params
   let [searchParams, setSearchParams] = useSearchParams();
@@ -74,13 +87,14 @@ function App() {
   const [showTooltips, setShowTooltips] = useState(false);
 
   // Theme
-  const theme = createTheme({
+  const getDesignTokens = (mode) => ({
     palette: {
-      background: {
-        default: grey[100]
-      },
-      player: {
-        active: {
+      mode: mode,
+      ...(mode === 'light') ? {
+        background: {
+          default: grey[100],
+        },
+        reactive: {
           100: '#f3cbd3',
           200: '#eaa9bd',
           300: '#dd88ac',
@@ -89,7 +103,7 @@ function App() {
           600: '#91357d',
           700: '#6c2167',
         },
-        reactive: {
+        active: {
           100: '#d3f2a3',
           200: '#97e196',
           300: '#6cc08b',
@@ -98,9 +112,42 @@ function App() {
           600: '#105965',
           700: '#074050',
         },
-      },
-    },
-  });
+        failure: {
+          100: 'lightgrey'
+        },
+        appbar: grey[100],
+      } : {
+        reactive: {
+          700: '#f3cbd3',
+          600: '#eaa9bd',
+          500: '#dd88ac',
+          400: '#ca699d',
+          300: '#b14d8e',
+          200: '#91357d',
+          100: '#6c2167',
+        },
+        active: {
+          700: '#d3f2a3',
+          600: '#97e196',
+          500: '#6cc08b',
+          400: '#4c9b82',
+          300: '#217a79',
+          200: '#105965',
+          100: '#074050',
+        },
+        failure: {
+          300: '#424242',
+          200: '#212121',
+          100: '#121212',
+        },
+        appbar: '#121212',
+      }
+    }
+  })
+
+  let mode = selectedTheme === 'dark' ? 'dark' : 'light';
+  const theme = createTheme(useMemo(() => createTheme(getDesignTokens(mode)), [mode]));
+
   // Worker message received
   const messageReceived = (msg) => {
     if(msg.data.command === 'result'){
@@ -224,17 +271,15 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline/>
-      <Box sx={{flexGrow: 1}}>
+      <CustomAppBar/>
+      <Container mt={2}>
         <Grid container spacing={2}>
-          <Grid xs={12} item>
-            <Typography variant="h5">Face 2 Face Calculator <IconButton onClick={()=>setShowTooltips(!showTooltips)}><InfoIcon/></IconButton></Typography>
-          </Grid>
           <Grid xs={12} sm={6} lg={4} xl={3} item>
             <Card style={{alignItems: "center", justifyContent: "center"}}>
               <CardContent>
                 <Grid container>
                   <Grid item xs={12}>
-                    <Typography variant="h6" gutterBottom>Active</Typography>
+                    <Typography variant="h6" sx={{fontFamily: 'conthrax'}} gutterBottom>Active</Typography>
                   </Grid>
                   <BurstInput burst={burstA} update={setBurstA} info={showTooltips}/>
                   {dtwVsDodge === false && <SuccessValueInput successValue={successValueA} update={setSuccessValueA} info={showTooltips}/>}
@@ -252,7 +297,7 @@ function App() {
               <CardContent>
                 <Grid container>
                   <Grid item xs={12}>
-                    <Typography variant="h6" gutterBottom>Reactive</Typography>
+                    <Typography variant="h6" sx={{fontFamily: 'conthrax'}} gutterBottom>Reactive</Typography>
                   </Grid>
                   <BurstInput burst={burstB} update={setBurstB} variant='reactive' info={showTooltips}/>
                   {burstB !== 0 && <SuccessValueInput successValue={successValueB} update={setSuccessValueB} variant='reactive' info={showTooltips}/>}
@@ -293,15 +338,18 @@ function App() {
             </Grid>
           })}
           <Grid>
+            <IconButton onClick={()=>setShowTooltips(!showTooltips)}><InfoIcon/></IconButton>
+          </Grid>
+          <Grid>
             <Typography color="text.secondary" variant="body2" sx={{marginTop: 4, marginLeft: 2, marginRight: 2}}>
               Made with ❤️ for the Infinity community by Khepri.
-              Contact me with any bugs or suggestions on the <a href="https://www.infinitygloballeague.com/">
-              IGL Discord</a> or on the Corvus Belli forums. Source code <a
+              Contact me with any bugs or suggestions on the <Link href="https://www.infinitygloballeague.com/">
+              IGL Discord</Link> or on the Corvus Belli forums. Source code <Link
               href="https://github.com/alexrecarey/khepri-f2f">
-              available on github</a>.</Typography>
+              available on github</Link>.</Typography>
           </Grid>
         </Grid>
-      </Box>
+      </Container>
     </ThemeProvider>
   )
 }

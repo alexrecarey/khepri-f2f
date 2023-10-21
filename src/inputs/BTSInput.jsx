@@ -14,9 +14,9 @@ function BTSInput(props){
   const max = 12;
 
   const theme = useTheme();
-  const colorLight = theme.palette.player[variant]["100"];
-  const colorMid = theme.palette.player[variant]["500"];
-  //const colorDark = theme.palette.player[variant]["700"];
+  const colorLight = theme.palette[variant]["100"];
+  const colorMid = theme.palette[variant]["500"];
+  //const colorDark = theme.palette[variant]["700"];
 
   const handleOnBlur = (newValue) => {
     let val = Number(newValue);

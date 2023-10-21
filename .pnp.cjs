@@ -44,6 +44,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/react-dom", "npm:18.0.9"],\
             ["@vitejs/plugin-react", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:3.0.0"],\
             ["comlink", "npm:4.4.1"],\
+            ["jotai", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:2.4.3"],\
             ["pyodide", "npm:0.22.1"],\
             ["ramda", "npm:0.29.0"],\
             ["react", "npm:18.2.0"],\
@@ -7699,6 +7700,28 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["jotai", [\
+        ["npm:2.4.3", {\
+          "packageLocation": "./.yarn/cache/jotai-npm-2.4.3-d1b6748c9e-4991faba32.zip/node_modules/jotai/",\
+          "packageDependencies": [\
+            ["jotai", "npm:2.4.3"]\
+          ],\
+          "linkType": "SOFT"\
+        }],\
+        ["virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:2.4.3", {\
+          "packageLocation": "./.yarn/__virtual__/jotai-virtual-108918cbef/0/cache/jotai-npm-2.4.3-d1b6748c9e-4991faba32.zip/node_modules/jotai/",\
+          "packageDependencies": [\
+            ["jotai", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:2.4.3"],\
+            ["@types/react", "npm:18.0.26"],\
+            ["react", "npm:18.2.0"]\
+          ],\
+          "packagePeers": [\
+            "@types/react",\
+            "react"\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["js-tokens", [\
         ["npm:4.0.0", {\
           "packageLocation": "./.yarn/cache/js-tokens-npm-4.0.0-0ac852e9e2-8a95213a5a.zip/node_modules/js-tokens/",\
@@ -7808,6 +7831,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/react-dom", "npm:18.0.9"],\
             ["@vitejs/plugin-react", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:3.0.0"],\
             ["comlink", "npm:4.4.1"],\
+            ["jotai", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:2.4.3"],\
             ["pyodide", "npm:0.22.1"],\
             ["ramda", "npm:0.29.0"],\
             ["react", "npm:18.2.0"],\
