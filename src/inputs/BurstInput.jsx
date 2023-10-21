@@ -32,7 +32,7 @@ function BurstInput(props) {
   }
 
   const gridStyle = {
-    bgcolor: colorLight,
+    //bgcolor: colorLight,
     display: "flex",
     justifyContent:"center",
     alignItems:"center",

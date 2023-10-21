@@ -9,9 +9,10 @@ function IncrementDecrementIconButtonGroup(props){
   const icon = props.icon;
   const min = props.min;
   const max = props.max;
+  const variant = props.variant || 'active';
 
   const theme = useTheme();
-
+  const color = variant === 'active' ? 'primary' : 'secondary';
 
   const handleButtonPress = (amount) => {
     update(clamp(min, max, amount + value));
@@ -19,19 +20,12 @@ function IncrementDecrementIconButtonGroup(props){
 
 
   return ( <>
-      <ButtonGroup
-        color='active'
-      >
-        <Button sx={{fontFamily: 'conthrax',
-        //  color: theme.palette["active"][700]
-        }}
-
-                //color={theme.palette["active"][700]}
-                variant="outlined" onClick={() => handleButtonPress(-3)} tabIndex={-1} disabled={value === min}>-3</Button>
+      <ButtonGroup color={color}>
+        <Button sx={{fontFamily: 'conthrax'}} variant="outlined" onClick={() => handleButtonPress(-3)} tabIndex={-1} disabled={value === min}>-3</Button>
         <Button sx={{fontFamily: 'conthrax'}} variant="outlined" onClick={() => handleButtonPress(-1)} tabIndex={-1} disabled={value === min}>-1</Button>
       </ButtonGroup>
       {icon}
-      <ButtonGroup>
+      <ButtonGroup color={color}>
         <Button sx={{fontFamily: 'conthrax'}} variant="outlined" onClick={() => handleButtonPress(+1)} tabIndex={-1} disabled={value === max}>+1</Button>
         <Button sx={{fontFamily: 'conthrax'}} variant="outlined" onClick={() => handleButtonPress(+3)} tabIndex={-1} disabled={value === max}>+3</Button>
       </ButtonGroup>

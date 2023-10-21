@@ -91,10 +91,16 @@ function App() {
     palette: {
       mode: mode,
       ...(mode === 'light') ? {
+        primary: {
+          main: '#217a79'
+        },
         background: {
           default: grey[100],
         },
         reactive: {
+          light: '#f3cbd3',
+          main: '#b14d8e',
+          dark: '#6c2167',
           100: '#f3cbd3',
           200: '#eaa9bd',
           300: '#dd88ac',
@@ -104,6 +110,9 @@ function App() {
           700: '#6c2167',
         },
         active: {
+          light: '#d3f2a3',
+          main: '#217a79',
+          dark: '#074050',
           100: '#d3f2a3',
           200: '#97e196',
           300: '#6cc08b',
@@ -113,10 +122,13 @@ function App() {
           700: '#074050',
         },
         failure: {
-          100: 'lightgrey'
+          100: grey[100],
         },
         appbar: grey[100],
       } : {
+        primary: {
+          main: '#6cc08b',
+        },
         reactive: {
           700: '#f3cbd3',
           600: '#eaa9bd',

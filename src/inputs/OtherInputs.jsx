@@ -2,6 +2,7 @@ import { Grid, InputLabel, Checkbox, FormControlLabel} from "@mui/material";
 
 function OtherInputs(props){
   const variant = props.variant ?? 'active';
+  const color = variant === 'active' ? 'primary' : 'secondary'
   const critImmune = props.critImmune;
   const dtwVsDodge = props.dtwVsDodge;
   const update = props.update;
@@ -29,6 +30,7 @@ function OtherInputs(props){
       <FormControlLabel
         label="Immunity (Critical)"
         control={<Checkbox
+          color={color}
           checked={critImmune}
           onChange={handleChange}
         />}/>
@@ -38,6 +40,7 @@ function OtherInputs(props){
       <FormControlLabel
         label="Direct Template Weapon"
         control={<Checkbox
+          color={color}
           checked={dtwVsDodge}
           onChange={handleDtwChange}
         />}/></Grid>: <></>}
@@ -46,6 +49,7 @@ function OtherInputs(props){
       <FormControlLabel
         label="Fixed value die (AC2)"
         control={<Checkbox
+          color={color}
           checked={fixedFaceToFace}
           onChange={handleFixedFaceToFaceChange}
         />}/></Grid>: <></>}

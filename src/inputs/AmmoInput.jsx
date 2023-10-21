@@ -12,6 +12,7 @@ function AmmoInput(props){
   const dtw = props.dtw;
 
   const theme = useTheme();
+  const color = variant === 'active' ? 'primary' : 'secondary'
   const colorMid = theme.palette[variant]["500"];
 
   const selected = dtw ? "DODGE" : ammo;
@@ -19,15 +20,15 @@ function AmmoInput(props){
   const ToggleButton = styled(MuiToggleButton)({
     fontWeight: 'bold',
     minWidth: '3em',
-    "&.Mui-selected, &.Mui-selected:hover": {
-      //color: theme.palette.getContrastText(colorMid),
-      backgroundColor: colorMid,
-      fontWeight: 'bold'
-    },
-    "MuiToggleButton-root": {
-      color: colorMid,
-      fontWeight: 'bold',
-    }
+    // "&.Mui-selected, &.Mui-selected:hover": {
+    //   color: theme.palette.getContrastText(colorMid),
+    //   backgroundColor: colorMid,
+    //   fontWeight: 'bold'
+    // },
+    // "MuiToggleButton-root": {
+    //   color: colorMid,
+    //   fontWeight: 'bold',
+    // }
   });
 
   return  <>
@@ -41,6 +42,7 @@ function AmmoInput(props){
     </Grid>
     <Grid item xs={12} sx={{display:"flex", justifyContent:"left", alignItems:"center", flexWrap: "wrap"}}>
       <ToggleButtonGroup
+        color={color}
         exclusive
         value={selected}
         size="small"
@@ -58,6 +60,7 @@ function AmmoInput(props){
         <ToggleButton value="DODGE">Dodge</ToggleButton>
       </ToggleButtonGroup>
       <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}}
+                    color={color}
                     value="CONT"
                     size="small"
                     selected={cont}

@@ -65,9 +65,10 @@ function SuccessValueInput(props){
         update={update}
         min={min}
         max={max}
+        variant={variant}
         icon={<FontAwesomeIcon
           icon={faCrosshairs}
-          style={{paddingLeft: 4, paddingRight: 4, color: colorMid, alignSelf: "center"}}
+          style={{paddingLeft: 4, paddingRight: 4, alignSelf: "center"}}
           className="fa-xl"/>}
       />
     </Grid>
