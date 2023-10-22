@@ -25,32 +25,28 @@ const NavLink = forwardRef((props, ref) => (
 NavLink.displayName = 'NavLink';
 NavLink.propTypes = NavLinkBase.propTypes;
 
-const NavigationButton = styled(Button)(({ theme }) => ({
-  // color: 'white', // theme.palette.primary.contrastText,
-  // backgroundColor: 'red', //theme.palette.primary.main,
-  '&.Mui-selected': {
-    backgroundColor: 'rgba(144, 202, 249, 0.16)',
-  },
-  '&.MuiButton-root': {
-    color: 'white',
-  }
-}));
+// const NavigationButton = styled(Button)(({ theme }) => ({
+//   // color: 'white', // theme.palette.primary.contrastText,
+//   // backgroundColor: 'red', //theme.palette.primary.main,
+//   '&.Mui-selected': {
+//     backgroundColor: 'rgba(144, 202, 249, 0.16)',
+//   },
+//   '&.MuiButton-root': {
+//     color: 'white',
+//   }
+// }));
 
 
 const Offset = styled('div')(({ theme }) => theme.mixins.toolbar);
 
-const navItems = [
-  {to: '/', label: 'Dice Calculator'},
-  {to: '/settings', label: 'Settings'}]
-// tournament winners
-// contact
-
+// const navItems = [
+//   {to: '/', label: 'Dice Calculator'},
+//   {to: '/settings', label: 'Settings'}]
 
 
 export function CustomAppBar() {
   const theme = useTheme()
   const [selectedTheme, setSelectedTheme] = useAtom(themeAtom)
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const changeTheme = () => selectedTheme === 'dark' ? setSelectedTheme('light') : setSelectedTheme('dark')
   return (
