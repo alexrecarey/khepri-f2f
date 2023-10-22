@@ -87,7 +87,7 @@ export const squashResults = (results, maxWoundsActive, maxWoundsReactive) => {
   newResults = concat(newResults, reactiveResultsUnderMax);
 
   // Add reactive == max
-  if (reactiveResultsOverMax.length > 0) {
+  if (reactiveResultsExactlyMax.length > 0) {
     if (reactiveOverMaxRawChance > 0) {
       let r = reactiveResultsExactlyMax[0];
       let rawChance = r.raw_chance + reactiveOverMaxRawChance;
