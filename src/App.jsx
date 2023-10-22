@@ -278,7 +278,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline/>
       <CustomAppBar/>
-      <Container mt={2}>
+      <Container maxWidth='xl'>
         <Grid container spacing={2}>
           <Grid xs={12} sm={6} lg={4} xl={3} item>
             <Card style={{alignItems: "center", justifyContent: "center"}}>
