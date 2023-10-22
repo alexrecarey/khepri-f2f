@@ -1,21 +1,15 @@
-import {Collapse, Grid, InputLabel, Tooltip, Typography} from "@mui/material";
-import { useTheme } from '@mui/material/styles';
+import {Grid, InputLabel, Tooltip} from "@mui/material";
+import PropTypes from "prop-types";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBurst} from "@fortawesome/free-solid-svg-icons";
 import UncontrolledInput from "../componets/UncontrolledInput.jsx";
 import IncrementDecrementIconButtonGroup from '../componets/IncrementDecrementIconButtonGroup';
 import {clamp} from "ramda";
 
-function DamageInput(props) {
-  const damage = props.damage;
-  const update = props.update;
-  const variant = props.variant ?? 'active';
+
+function DamageInput({damage, update, variant, ...rest}) {
   const min = 0;
   const max = 30;
-
-  const theme = useTheme();
-  const colorLight = theme.palette[variant]["100"];
-  const colorMid = theme.palette[variant]["500"];
 
   const handleOnBlur = (newValue) => {
     let val = Number(newValue);
@@ -46,7 +40,7 @@ function DamageInput(props) {
     <Grid item xs={2} sx={gridStyle}
     >
       <UncontrolledInput
-        key={props.damage}
+        key={damage}
         value={damage}
         onBlur={(event) => handleOnBlur(event.target.value)}
         variant={variant}
@@ -67,6 +61,16 @@ function DamageInput(props) {
       />
     </Grid>
   </>
+}
+
+DamageInput.propTypes = {
+  damage: PropTypes.number,
+  update: PropTypes.func,
+  variant: PropTypes.string,
+}
+
+DamageInput.defaultProps = {
+  variant: 'active',
 }
 
 export default DamageInput;

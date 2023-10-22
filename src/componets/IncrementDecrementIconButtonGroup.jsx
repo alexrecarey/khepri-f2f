@@ -10,14 +10,11 @@ function IncrementDecrementIconButtonGroup(props){
   const min = props.min;
   const max = props.max;
   const variant = props.variant || 'active';
-
-  const theme = useTheme();
   const color = variant === 'active' ? 'primary' : 'secondary';
 
   const handleButtonPress = (amount) => {
     update(clamp(min, max, amount + value));
   };
-
 
   return ( <>
       <ButtonGroup color={color}>

@@ -22,6 +22,7 @@
     "@stdlib/stats-base-dists-binomial-pmf": "^0.0.7",
     "comlink": "^4.4.1",
     "jotai": "^2.4.3",
+    "prop-types": "^15.8.1",
     "pyodide": "^0.22.1",
     "ramda": "^0.29.0",
     "react": "^18.2.0",

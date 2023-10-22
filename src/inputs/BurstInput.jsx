@@ -2,22 +2,15 @@ import {faDiceD20} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Grid, IconButton, InputLabel, Rating, Tooltip} from "@mui/material";
 import { useTheme } from '@mui/material/styles';
+import PropTypes from "prop-types";
 import {clamp} from "ramda";
 import UncontrolledInput from "../componets/UncontrolledInput.jsx";
 import DiceD20NegatedIcon from "../componets/DiceD20NegatedIcon.jsx"
 
 
-
-function BurstInput(props) {
-  const burst = props.burst;
-  const update = props.update;
-  const variant = props.variant ?? 'active';
-
+function BurstInput({burst, update, variant, ...rest}) {
   const theme = useTheme();
-  const colorLight = theme.palette[variant]["100"];
   const colorMid = theme.palette[variant]["500"];
-  //const colorDark = theme.palette[variant]["700"];
-
   const maxViewableBurst = variant === 'active' ? 6 : 5;
   const zeroBurstColor = burst === 0 ? colorMid : 'grey';
 
@@ -49,7 +42,7 @@ function BurstInput(props) {
     </Grid>
     <Grid item xs={2} sx={gridStyle}>
       <UncontrolledInput
-        key={props.burst}
+        key={burst}
         value={burst}
         onBlur={(event) => handleOnBlur(event.target.value)}
         variant={variant}
@@ -72,12 +65,23 @@ function BurstInput(props) {
         icon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2, color: colorMid}} icon={faDiceD20}/>}
         emptyIcon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2, opacity: 0.55}} icon={faDiceD20}/>}
       />
-      {variant === 'reactive' &&     <IconButton
+      {variant === 'reactive' && <IconButton
         onClick={()=>update(0)}>
         <DiceD20NegatedIcon sx={{height:30, width:30}} htmlColor={zeroBurstColor} />
       </IconButton>}
     </Grid>
   </>
 }
+
+BurstInput.propTypes = {
+  burst: PropTypes.number,
+  update: PropTypes.func,
+  variant: PropTypes.string,
+}
+
+BurstInput.defaultProps = {
+  variant: 'active',
+}
+
 
 export default BurstInput;

@@ -10,10 +10,7 @@ function AmmoInput(props){
   const setCont = props.updateCont;
   const variant = props.variant ?? 'active';
   const dtw = props.dtw;
-
-  const theme = useTheme();
   const color = variant === 'active' ? 'primary' : 'secondary'
-  const colorMid = theme.palette[variant]["500"];
 
   const selected = dtw ? "DODGE" : ammo;
 

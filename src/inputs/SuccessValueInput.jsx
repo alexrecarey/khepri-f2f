@@ -1,21 +1,15 @@
-import {Collapse, Grid, InputLabel, Tooltip, Typography} from "@mui/material";
-import { useTheme } from '@mui/material/styles';
+import {Grid, InputLabel, Tooltip} from "@mui/material";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCrosshairs} from "@fortawesome/free-solid-svg-icons";
 import {clamp} from "ramda";
 import UncontrolledInput from "../componets/UncontrolledInput";
 import IncrementDecrementIconButtonGroup from '../componets/IncrementDecrementIconButtonGroup';
+import PropTypes from "prop-types";
 
-function SuccessValueInput(props){
-  const successValue = props.successValue;
-  const update = props.update;
-  const variant = props.variant ?? 'active';
+
+function SuccessValueInput({successValue, update, variant}){
   const min = 1;
   const max = 30;
-
-  const theme = useTheme();
-  const colorLight = theme.palette[variant]["100"];
-  const colorMid = theme.palette[variant]["500"];
 
   const handleOnBlur = (newValue) => {
     let val = Number(newValue);
@@ -47,7 +41,7 @@ function SuccessValueInput(props){
     </Grid>
     <Grid item xs={2} sx={gridStyle}>
       <UncontrolledInput
-        key={props.successValue}
+        key={successValue}
         value={successValue}
         onBlur={(event) => handleOnBlur(event.target.value)}
         variant={variant}
@@ -68,6 +62,16 @@ function SuccessValueInput(props){
       />
     </Grid>
   </>
+}
+
+SuccessValueInput.propTypes = {
+  successValue: PropTypes.number,
+  update: PropTypes.func,
+  variant: PropTypes.string,
+}
+
+SuccessValueInput.defaultProps = {
+  variant: 'active',
 }
 
 export default SuccessValueInput;

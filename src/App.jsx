@@ -3,7 +3,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import './App.css'
 import {any, assoc, clone, findIndex, propEq, remove, update} from "ramda";
 import {
-  Box,
   Card,
   CardContent,
   Container,
@@ -12,7 +11,6 @@ import {
   Link,
   Stack,
   Typography,
-  Button,
   ThemeProvider,
   Tooltip,
 } from "@mui/material";

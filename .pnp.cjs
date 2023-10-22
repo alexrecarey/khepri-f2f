@@ -45,6 +45,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@vitejs/plugin-react", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:3.0.0"],\
             ["comlink", "npm:4.4.1"],\
             ["jotai", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:2.4.3"],\
+            ["prop-types", "npm:15.8.1"],\
             ["pyodide", "npm:0.22.1"],\
             ["ramda", "npm:0.29.0"],\
             ["react", "npm:18.2.0"],\
@@ -7854,6 +7855,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@vitejs/plugin-react", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:3.0.0"],\
             ["comlink", "npm:4.4.1"],\
             ["jotai", "virtual:8f797f3cd8943d1e46e14e8b08cf8c559611b65c519a05654afd0c98e8b042da77b06cccb71f8c06e52417f7508f70800848fae8addf477b31d7a7eeeea3fb17#npm:2.4.3"],\
+            ["prop-types", "npm:15.8.1"],\
             ["pyodide", "npm:0.22.1"],\
             ["ramda", "npm:0.29.0"],\
             ["react", "npm:18.2.0"],\

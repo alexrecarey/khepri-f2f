@@ -1,22 +1,15 @@
 import {Grid, InputLabel, Tooltip} from "@mui/material";
-import { useTheme } from '@mui/material/styles';
+import PropTypes from "prop-types";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faShieldVirus} from "@fortawesome/free-solid-svg-icons";
 import {clamp} from "ramda";
 import UncontrolledInput from "../componets/UncontrolledInput.jsx";
 import IncrementDecrementIconButtonGroup from '../componets/IncrementDecrementIconButtonGroup';
 
-function BTSInput(props){
-  const bts = props.bts;
-  const update = props.update;
-  const variant = props.variant ?? 'active';
+
+function BTSInput({bts, update, variant, ...rest}){
   const min = 0;
   const max = 12;
-
-  const theme = useTheme();
-  const colorLight = theme.palette[variant]["100"];
-  const colorMid = theme.palette[variant]["500"];
-  //const colorDark = theme.palette[variant]["700"];
 
   const handleOnBlur = (newValue) => {
     let val = Number(newValue);
@@ -67,6 +60,16 @@ function BTSInput(props){
       />
     </Grid>
   </>
+}
+
+BTSInput.propTypes = {
+  bts: PropTypes.number,
+  update: PropTypes.func,
+  variant: PropTypes.string,
+}
+
+BTSInput.defaultProps = {
+  variant: 'active',
 }
 
 export default BTSInput;

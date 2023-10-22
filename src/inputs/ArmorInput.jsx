@@ -1,5 +1,5 @@
-import {Collapse, Grid, InputLabel, Tooltip, Typography} from "@mui/material";
-import { useTheme } from '@mui/material/styles';
+import {Grid, InputLabel, Tooltip} from "@mui/material";
+import PropTypes from "prop-types";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faShieldHalved} from "@fortawesome/free-solid-svg-icons";
 import {clamp} from "ramda";
@@ -7,18 +7,9 @@ import UncontrolledInput from "../componets/UncontrolledInput.jsx";
 import IncrementDecrementIconButtonGroup from '../componets/IncrementDecrementIconButtonGroup';
 
 
-function ArmorInput(props){
-  const armor = props.armor;
-  const update = props.update;
-  const variant = props.variant ?? 'active';
-  const hideBTS = props.hideBTS ?? false;
+function ArmorInput({armor, update, variant, hideBTS, ...rest}){
   const min = 0;
   const max = 13;
-
-  const theme = useTheme();
-  const colorLight = theme.palette[variant]["100"];
-  const colorMid = theme.palette[variant]["500"];
-  //const colorDark = theme.palette[variant]["700"];
 
   const handleOnBlur = (newValue) => {
     let val = Number(newValue);
@@ -49,7 +40,7 @@ function ArmorInput(props){
     </Grid>
     <Grid item xs={2} sx={gridStyle}>
       <UncontrolledInput
-        key={props.armor}
+        key={armor}
         value={armor}
         onBlur={(event) => handleOnBlur(event.target.value)}
         variant={variant}
@@ -71,5 +62,19 @@ function ArmorInput(props){
     </Grid>
   </>
 }
+
+
+ArmorInput.propTypes = {
+  armor: PropTypes.number,
+  update: PropTypes.func,
+  variant: PropTypes.string,
+  hideBTS: PropTypes.bool
+}
+
+ArmorInput.defaultProps = {
+  variant: 'active',
+  hideBTS: false
+}
+
 
 export default ArmorInput;
