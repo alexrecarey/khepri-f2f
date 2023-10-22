@@ -3,10 +3,7 @@ import { useTheme } from '@mui/material/styles';
 import {useState} from "react";
 
 
-export default function UncontrolledInput(props) {
-  const value = props.value;
-  const onBlur = props.onBlur;
-  const variant = props.variant;
+export default function UncontrolledInput({successValue, value, onBlur, variant, ...rest}) {
   const [displayValue, setDisplayValue] = useState(value);
 
   const handleFocus = (event) => event.target.select();
@@ -26,7 +23,7 @@ export default function UncontrolledInput(props) {
       //color: theme.palette.getContrastText(theme.palette[variant]["100"]),
       color: colorDark,
       input: {textAlign: "center", paddingTop: 0, paddingBottom: 0}}}
-    key={props.successValue}
+    key={successValue}
     autoComplete="False"
     value={displayValue}
     onBlur={onBlur}

@@ -166,7 +166,7 @@ function App() {
       let value = msg.data.value;
       let cl = clone(value);
       setF2fResults(cl);
-      setStatusMessage(`Done! Took ${msg.data.elapsed}ms to simulate ${msg.data.totalRolls.toLocaleString()} rolls.`);
+      setStatusMessage(`Done! Took ${msg.data.elapsed}ms to calculate all ${msg.data.totalRolls.toLocaleString()} possible rolls.`);
     } else if (msg.data.command === 'status'){
       if(msg.data.value === 'ready'){
         rollDice()

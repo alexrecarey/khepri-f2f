@@ -1,4 +1,4 @@
-import {Collapse, Grid, InputLabel, Typography} from "@mui/material";
+import {Collapse, Grid, InputLabel, Tooltip, Typography} from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCrosshairs} from "@fortawesome/free-solid-svg-icons";
@@ -39,18 +39,13 @@ function SuccessValueInput(props){
 
   return <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
-      <InputLabel sx={{mt:1}}>Success Value</InputLabel>
-    </Grid>
-    <Grid item xs={12} sx={{textAlign: 'left'}}>
-      <Collapse in={props.info}>
-        <Typography variant='caption'>Target Success Value for player after all positive and negative mods
+      <Tooltip title="Target Success Value for player after all positive and negative mods
           (fireteam, mimetism, range, cover, etc) have been applied to the BS or CC attribute. Success values over 20
-          will be added to the roll. Rolls equal or over 20 will cause critical hits. Remember mods cap out at +/-12.
-        </Typography>
-      </Collapse>
+          will be added to the roll. Rolls equal or over 20 will cause critical hits. Remember mods cap out at +/-12.">
+        <InputLabel sx={{mt:1}}>Success Value</InputLabel>
+      </Tooltip>
     </Grid>
-    <Grid item xs={2} sx={gridStyle}
-    >
+    <Grid item xs={2} sx={gridStyle}>
       <UncontrolledInput
         key={props.successValue}
         value={successValue}

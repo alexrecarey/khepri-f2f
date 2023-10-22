@@ -53,7 +53,7 @@ function ExpectedWoundsGraphCell(props) {
   </TableCell>;
 }
 
-
+// TODO: BUG in reactive max wounds graph!
 function ExpectedWoundsGraph(props) {
   const results = props.rows;
   if (!results) {

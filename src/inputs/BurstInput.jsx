@@ -1,10 +1,11 @@
 import {faDiceD20} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {Collapse, Grid, IconButton, InputLabel, Rating, Typography} from "@mui/material";
+import {Grid, IconButton, InputLabel, Rating, Tooltip} from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 import {clamp} from "ramda";
 import UncontrolledInput from "../componets/UncontrolledInput.jsx";
 import DiceD20NegatedIcon from "../componets/DiceD20NegatedIcon.jsx"
+
 
 
 function BurstInput(props) {
@@ -41,14 +42,10 @@ function BurstInput(props) {
 
   return <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
-      <InputLabel>Burst</InputLabel>
-    </Grid>
-    <Grid item xs={12} sx={{textAlign: 'left'}}>
-      <Collapse in={props.info}>
-        <Typography variant='caption'>Final burst after bonuses (fire team, multiple combatants in CC, etc). You can
-        set Reactive burst to 0 to calculate unopposed shots by double clicking on the die or typing 0 in the value box.
-        </Typography>
-      </Collapse>
+      <Tooltip title="Final burst after bonuses (fire team, multiple combatants in CC, etc). You can
+        set Reactive burst to 0 to calculate unopposed shots by double clicking on the die or typing 0 in the value box.">
+        <InputLabel>Burst</InputLabel>
+      </Tooltip>
     </Grid>
     <Grid item xs={2} sx={gridStyle}>
       <UncontrolledInput

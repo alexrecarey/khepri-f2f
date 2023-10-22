@@ -1,4 +1,4 @@
-import {Grid, InputLabel} from "@mui/material";
+import {Grid, InputLabel, Tooltip} from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faShieldVirus} from "@fortawesome/free-solid-svg-icons";
@@ -40,10 +40,11 @@ function BTSInput(props){
 
   return <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
-      <InputLabel sx={{mt:1}}>BTS</InputLabel>
+      <Tooltip title="BTS value. This box only shows if plasma ammo is used.">
+        <InputLabel sx={{mt:1}}>BTS</InputLabel>
+      </Tooltip>
     </Grid>
-    <Grid item xs={2} sx={gridStyle}
-    >
+    <Grid item xs={2} sx={gridStyle}>
       <UncontrolledInput
         key={props.bts}
         value={bts}
