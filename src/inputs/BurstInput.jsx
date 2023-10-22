@@ -8,7 +8,7 @@ import UncontrolledInput from "../componets/UncontrolledInput.jsx";
 import DiceD20NegatedIcon from "../componets/DiceD20NegatedIcon.jsx"
 
 
-function BurstInput({burst, update, variant, ...rest}) {
+function BurstInput({burst, update, variant}) {
   const theme = useTheme();
   const colorMid = theme.palette[variant]["500"];
   const maxViewableBurst = variant === 'active' ? 6 : 5;

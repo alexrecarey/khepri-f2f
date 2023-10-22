@@ -7,7 +7,7 @@ import UncontrolledInput from "../componets/UncontrolledInput.jsx";
 import IncrementDecrementIconButtonGroup from '../componets/IncrementDecrementIconButtonGroup';
 
 
-function BTSInput({bts, update, variant, ...rest}){
+function BTSInput({bts, update, variant}){
   const min = 0;
   const max = 12;
 

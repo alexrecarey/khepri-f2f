@@ -7,7 +7,7 @@ import UncontrolledInput from "../componets/UncontrolledInput.jsx";
 import IncrementDecrementIconButtonGroup from '../componets/IncrementDecrementIconButtonGroup';
 
 
-function ArmorInput({armor, update, variant, hideBTS, ...rest}){
+function ArmorInput({armor, update, variant, hideBTS}){
   const min = 0;
   const max = 13;
 

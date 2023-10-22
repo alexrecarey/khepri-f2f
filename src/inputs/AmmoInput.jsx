@@ -1,6 +1,6 @@
-import {Collapse, Grid, InputLabel, ToggleButtonGroup, Tooltip, Typography} from "@mui/material";
+import {Grid, InputLabel, ToggleButtonGroup, Tooltip} from "@mui/material";
 import MuiToggleButton from "@mui/material/ToggleButton";
-import { styled, useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 
 
 function AmmoInput(props){
@@ -17,15 +17,6 @@ function AmmoInput(props){
   const ToggleButton = styled(MuiToggleButton)({
     fontWeight: 'bold',
     minWidth: '3em',
-    // "&.Mui-selected, &.Mui-selected:hover": {
-    //   color: theme.palette.getContrastText(colorMid),
-    //   backgroundColor: colorMid,
-    //   fontWeight: 'bold'
-    // },
-    // "MuiToggleButton-root": {
-    //   color: colorMid,
-    //   fontWeight: 'bold',
-    // }
   });
 
   return  <>

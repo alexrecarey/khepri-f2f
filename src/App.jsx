@@ -47,7 +47,7 @@ function App() {
   const workerRef = useRef(null);
 
   // theme
-  const [selectedTheme, setSelectedTheme] = useAtom(themeAtom)
+  const [selectedTheme, ] = useAtom(themeAtom)
 
   // Search params
   let [searchParams, setSearchParams] = useSearchParams();

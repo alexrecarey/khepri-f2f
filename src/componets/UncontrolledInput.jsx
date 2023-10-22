@@ -3,7 +3,7 @@ import { useTheme } from '@mui/material/styles';
 import {useState} from "react";
 
 
-export default function UncontrolledInput({successValue, value, onBlur, variant, ...rest}) {
+export default function UncontrolledInput({successValue, value, onBlur, variant}) {
   const [displayValue, setDisplayValue] = useState(value);
 
   const handleFocus = (event) => event.target.select();

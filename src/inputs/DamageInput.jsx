@@ -7,7 +7,7 @@ import IncrementDecrementIconButtonGroup from '../componets/IncrementDecrementIc
 import {clamp} from "ramda";
 
 
-function DamageInput({damage, update, variant, ...rest}) {
+function DamageInput({damage, update, variant}) {
   const min = 0;
   const max = 30;
 
