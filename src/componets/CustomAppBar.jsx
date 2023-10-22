@@ -62,38 +62,37 @@ export function CustomAppBar() {
         sx={{backgroundColor: theme.palette.appbar}}
       >
         <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={() => setIsDrawerOpen(true)}
-            sx={{ mr: 2, display: { sm: 'none' }, color: theme.palette.getContrastText(theme.palette.appbar)}}
-          >
-            <MenuIcon/>
-          </IconButton>
+          {/*<IconButton*/}
+          {/*  edge="start"*/}
+          {/*  color="inherit"*/}
+          {/*  aria-label="menu"*/}
+          {/*  onClick={() => setIsDrawerOpen(true)}*/}
+          {/*  sx={{ mr: 2, display: { sm: 'none' }, color: theme.palette.getContrastText(theme.palette.appbar)}}*/}
+          {/*>*/}
+          {/*  <MenuIcon/>*/}
+          {/*</IconButton>*/}
           <Typography sx={{fontFamily: 'conthrax', flexGrow: 1, color: theme.palette.getContrastText(theme.palette.appbar)}}>
             Infinity the Calculator
           </Typography>
 
           {/* Items in header */}
-          <Box sx={{ display: { xs: 'none', sm: 'block' }, ml: 2 }}>
-            <IconButton sx={{ ml: 1 }} onClick={changeTheme} // color="inherit"
-            >
+          <Box sx={{ display: { xs: 'block', sm: 'block' }, ml: 2 }}>
+            <IconButton sx={{ ml: 1 }} onClick={changeTheme}>
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
           </Box>
 
-          <Drawer open={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}>
-            <List className='drawer'>
-              {navItems.map((item) => {
-                return (
-                  <ListItemButton key={item.to} component={NavLink} to={item.to}>
-                    <ListItemText primary={item.label}/>
-                  </ListItemButton>
-                )
-              })}
-            </List>
-          </Drawer>
+          {/*<Drawer open={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}>*/}
+          {/*  <List className='drawer'>*/}
+          {/*    {navItems.map((item) => {*/}
+          {/*      return (*/}
+          {/*        <ListItemButton key={item.to} component={NavLink} to={item.to}>*/}
+          {/*          <ListItemText primary={item.label}/>*/}
+          {/*        </ListItemButton>*/}
+          {/*      )*/}
+          {/*    })}*/}
+          {/*  </List>*/}
+          {/*</Drawer>*/}
         </Toolbar>
       </AppBar>
       <Offset/>

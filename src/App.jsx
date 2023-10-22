@@ -348,9 +348,6 @@ function App() {
             </Grid>
           })}
           <Grid>
-            <IconButton onClick={()=>setShowTooltips(!showTooltips)}><InfoIcon/></IconButton>
-          </Grid>
-          <Grid>
             <Typography color="text.secondary" variant="body2" sx={{marginTop: 4, marginLeft: 2, marginRight: 2}}>
               Made with ❤️ for the Infinity community by Khepri.
               Contact me with any bugs or suggestions on the <Link href="https://www.infinitygloballeague.com/">
