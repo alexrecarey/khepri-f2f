@@ -39,7 +39,7 @@ function BTSInput({bts, update, variant}){
     </Grid>
     <Grid item xs={2} sx={gridStyle}>
       <UncontrolledInput
-        key={props.bts}
+        key={bts}
         value={bts}
         onBlur={(event) => handleOnBlur(event.target.value)}
         variant={variant}
