@@ -12,10 +12,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Infinity Face Off',
-        short_name: 'Face Off',
+        name: 'Infinity the Calculator',
+        short_name: 'the Calculator',
         description: 'An app for simulating face to face results from Infinity the Game by Corvus Belli.',
-        theme_color: '#ffffff',
+        theme_color: '#121212',
         icons: [
           {
             src: 'khepri_f2f.svg',
