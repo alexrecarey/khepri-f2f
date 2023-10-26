@@ -13,7 +13,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       manifest: {
         name: 'Infinity the Calculator',
-        short_name: 'the Calculator',
+        short_name: 'Infinity Calculator',
         description: 'An app for simulating face to face results from Infinity the Game by Corvus Belli.',
         theme_color: '#121212',
         icons: [
