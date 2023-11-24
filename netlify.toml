@@ -9,8 +9,8 @@ status = 301
 force = true
 
 [[redirects]]
-  from = "/pyodide"
-  to = "https://cdn.jsdelivr.net/pyodide"
+  from = "/pyodide/*"
+  to = "https://cdn.jsdelivr.net/pyodide/:splat"
   status = 200
   force = true
 
