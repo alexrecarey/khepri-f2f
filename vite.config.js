@@ -46,7 +46,8 @@ export default defineConfig({
         runtimeCaching: [
           {
             urlPattern: ({ url }) => {
-              return url.host.startsWith("cdn.jsdelivr.net") || url.host.startsWith("pypi.org") || url.host.startsWith("files.pythonhosted.org");
+              return url.host.startsWith("pypi.org") || url.host.startsWith("files.pythonhosted.org") ||
+                url.pathname.startsWith("/assets") || url.pathname.startsWith("/pyodide");
             },
             handler: "StaleWhileRevalidate",
             options: {
