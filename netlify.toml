@@ -9,15 +9,15 @@ status = 301
 force = true
 
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
   from = "/pyodide"
   to = "https://cdn.jsdelivr.net/pyodide"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [[headers]]
   for = "/manifest.webmanifest"
