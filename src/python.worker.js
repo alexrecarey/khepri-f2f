@@ -1,4 +1,4 @@
-importScripts("https://infinitythecalculator.com/pyodide/v0.22.1/full/pyodide.js");
+importScripts("/pyodide/v0.22.1/full/pyodide.js");
 
 const PYTHON_CODE = `import micropip
 await micropip.install('icepool==1.0.0')
@@ -293,7 +293,7 @@ let pyodide;
 async function initPyodide() {
   self.postMessage({command: 'status', value: 'loading', description: 'Initializing icepool worker'})
   self.pyodide = await self.loadPyodide({
-    indexURL: 'https://infinitythecalculator.com/pyodide/v0.22.1/full/'
+    indexURL: '/pyodide/v0.22.1/full/'
   }) // eslint-disable-line no-restricted-globals
   await self.pyodide.loadPackage(['micropip']) // eslint-disable-line no-restricted-globals
   self.postMessage({command: 'status', value: 'ready', description: 'Icepool worker ready'})
