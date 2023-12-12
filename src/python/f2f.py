@@ -1,8 +1,8 @@
 # import micropip
-# await micropip.install('icepool==1.0.0')
+# await micropip.install('icepool==1.1.2')
 # import js
 # from pyodide.ffi import to_js
-from icepool import d20, lowest, Again, Die
+from icepool import d20, lowest, Die, tupleize
 from icepool import MultisetEvaluator
 from math import comb
 from functools import reduce
@@ -56,23 +56,16 @@ def face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst):
     result = InfinityFace2FaceEvaluator(a_sv=a_sv, b_sv=b_sv).evaluate(
         lowest(d20+a_bonus, 20).pool(player_a_burst),
         lowest(d20+b_bonus, 20).pool(player_b_burst))
-    return [i for i in result.items()]
+    return result
 
 
 def dtw_vs_dodge(dtw_burst, dodge_sv, dodge_burst):
     """Results should be in format:
 
     (a_crit, a_hit, b_crit, b_hit), rolls"""
-    result = []
-    if dodge_burst == 0:
-        result.append(((0, dtw_burst, 0, 0), 1))
-    else:
-        dDodge = d20 <= dodge_sv
-        for outcome, amount in (dodge_burst @ dDodge).items():
-            if outcome >= 1:
-                result.append(((0, 0, 0, 0), amount))
-            elif outcome == 0:
-                result.append(((0, dtw_burst, 0, 0), amount))
+    dodged = (dodge_burst @ (d20 <= dodge_sv)) >= 1
+    # tupleize converts a tuple of dice (or individual outcomes) into a die of tuples.
+    result = tupleize(0, dodged.if_else(0, dtw_burst), 0, 0)
     return result
 
 
@@ -87,33 +80,20 @@ def fixed_face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
     result = InfinityFace2FaceEvaluator(a_sv=a_sv, b_sv=b_sv).evaluate(
         lowest(d20+a_bonus, 20).pool(player_a_burst),
         b_die.pool(player_b_burst))
-    return [i for i in result.items()]
-
-
-def face_to_face_result(outcomes):
-    result = {'active': 0,
-              'fail': 0,
-              'reactive': 0,
-              'total_rolls': 0}
-    for outcome, amount in outcomes:
-        result['total_rolls'] += amount
-        squash = outcome[0] + outcome[1] - outcome[2] - outcome[3]
-        # check if failure result
-        if squash == 0:
-            result['fail'] += amount
-        # Player A wins F2F
-        elif squash > 0:
-            result['active'] += amount
-        # Player B wins F2F
-        elif squash < 0:
-            result['reactive'] += amount
     return result
-    #return to_js(result, dict_converter=js.Object.fromEntries)
 
 
-def binomial_success(successes: int, trials: int, probability: float):
-    """Binomial theory success probability"""
-    return comb(trials, successes) * pow(probability, successes) * pow(1 - probability, trials - successes)
+def face_to_face_result(raw):
+    def winner(a_crit, a_success, b_crit, b_success):
+        squash = a_crit + a_success - b_crit - b_success
+        if squash > 0:
+            return 'active'
+        elif squash < 0:
+            return 'reactive'
+        else:
+            return 'fail'
+    # star unpacks each outcome before feeding it to winner().
+    return raw.map(winner, star=True)
 
 
 AMMO = {
@@ -125,83 +105,44 @@ AMMO = {
     'PLASMA': 1,
 }
 
-
-def face_to_face_expected_wounds(
-        outcomes,
-        player_a_dam, player_a_arm, player_a_ammo, player_b_dam, player_b_arm, player_b_ammo,
-        player_a_cont=False, player_a_bts=0, player_a_crit_immune=False,
-        player_b_cont=False, player_b_bts=0, player_b_crit_immune=False):
-    """Calculates the wounds expected from a face to face encounter
-
-    Return format is {
-        'active': {1: 11111, 2: 222222, 3: 33333},
-        'reactive': {},
-        'fail': {0: 122, guts: {'active': 0, 'reactive': 0}},
-        'total_rolls': 0
-    }
+def face_to_face_wounds(
+        atk_raw,
+        atk_dam, atk_ammo, atk_cont, def_arm, def_bts, def_crit_immune):
+    """Computes the number of wounds dealt by one side.
+    
+    Args:
+        atk_raw: A Die where the outcomes are (atk_crit, atk_hit).
+        
+    Returns:
+        A die with `int` outcomes indicating the number of wounds dealt.
     """
-    wounds = {
-        'active': {},
-        'reactive': {},
-        'fail': {},
-        'guts': {
-            'active': 0,
-            'reactive': 0,
-            'missed': 0
-        },
-        'total_rolls': 0
-    }
-    for (a_crit, a_hit, b_crit, b_hit), rolls in outcomes:
-        wounds['total_rolls'] += rolls
-        if a_crit + a_hit > 0:
-            winner = 'active'
-            armor_save = player_a_dam - player_b_arm
-            damage = 2 if player_a_ammo == 'T2' else 1
-            cont = player_a_cont
-            crit_immune = player_b_crit_immune
-            plasma = True if player_a_ammo == 'PLASMA' else False
-            bts_save = player_a_dam - player_b_bts
-        elif b_crit + b_hit > 0:
-            winner = 'reactive'
-            armor_save = player_b_dam - player_a_arm
-            damage = 2 if player_b_ammo == 'T2' else 1
-            cont = player_b_cont
-            crit_immune = player_a_crit_immune
-            plasma = True if player_b_ammo == 'PLASMA' else False
-            bts_save = player_b_dam - player_a_bts
-        else:
-            winner = 'fail'
-            armor_save = 0
-            damage = 0
-            cont = False
-            crit_immune = False
-            plasma = False
-            bts_save = 0
-
+    armor_save = atk_dam - def_arm
+    damage = 2 if atk_ammo == 'T2' else 1
+    plasma = atk_ammo == 'PLASMA'
+    bts_save = atk_dam - def_bts
+    
+    def compute_wounds(atk_crit, atk_hit):
         # Calculate total amount of saves that must be made.
         # Each crit deals AMMO saves plus one extra save per crit. The extra save per crit is in 'crit_saves', as
         # neither CONT damage nor T2 apply their special effects to crit saves
         # For DODGE AMMO we run "min" to keep 0 (for dodge) or original value of crit, as 3 crits = 3 crit saves
         # Each regular hit causes AMMO number of 'saves'. We also have to add the regular hit portion of a crit,
         # as 1 crit causes a AMMO saves for the regular portion, and 1 extra crit save that is not.
-        crit_saves = 0 if crit_immune else min(a_crit, AMMO[player_a_ammo] * a_crit) + min(b_crit, AMMO[player_b_ammo] * b_crit)
-        saves = ((a_crit + a_hit) * AMMO[player_a_ammo]) + ((b_crit + b_hit) * AMMO[player_b_ammo])
-        plasma_saves = ((a_crit + a_hit) * AMMO[player_a_ammo]) + ((b_crit + b_hit) * AMMO[player_b_ammo]) if plasma else 0
-
-        # Generate die with 1's for wounds and 0's for successful armor saves
-        if cont:
-            dSave = Die([(damage + Again if x <= armor_save else 0) for x in range(1, 21)], again_depth=5)
+        crit_saves = 0 if def_crit_immune else min(atk_crit, AMMO[atk_ammo] * atk_crit)
+        saves = (atk_crit + atk_hit) * AMMO[atk_ammo]
+        plasma_saves = (atk_crit + atk_hit) * AMMO[atk_ammo] if plasma else 0
+        if atk_cont:
+            dSave = (d20 <= armor_save).explode(depth=5)
         else:
             dSave = (d20 <= armor_save) * damage  # T2 ammo increases damage by 1
         dCrit = d20 <= armor_save  # Crits are always 1 damage
         dPlasma = d20 <= bts_save  # Plasma BTS hits are always 1 damage (so far)
         # Thank you @HighDiceRoller for this beautiful line of code!
         r = saves @ dSave + crit_saves @ dCrit + plasma_saves @ dPlasma
-        denominator = r.denominator()
-        for w, occurrences in r.items():
-            wounds[winner][w] = wounds[winner].get(w, 0) + (occurrences/denominator) * rolls
-    return wounds
-
+        return r
+    
+    # star unpacks each outcome before feeding it to compute_wounds().
+    return atk_raw.map(compute_wounds, star=True)
 
 def format_face_to_face(face_to_face):
     output = []
@@ -209,52 +150,61 @@ def format_face_to_face(face_to_face):
         output.append({
             'id': index,
             'player': player,
-            'raw_chance': face_to_face[player],
-            'chance': face_to_face[player]/face_to_face['total_rolls'],
+            'raw_chance': face_to_face.quantity(player),
+            # From 1.1, icepool returns Fractions for probabilities.
+            # We convert to float so we can bridge to js.
+            'chance': float(face_to_face.probability(player)),
         })
     return output
 
+def format_wounds(raw, active_wounds, reactive_wounds, max_wounds_shown=3):
+    """Format wounds into a list of results
 
-def consolidate_wounds_over_maximum(wounds, max_wounds_shown=3):
-    squashed = {'active': None, 'reactive': None, 'fail': wounds['fail']}
-    for player in ['active', 'reactive']:
-        over_max = {k: v for k, v in wounds[player].items() if k > max_wounds_shown}
-        if len(over_max) > 0:
-            additional_successes = reduce(lambda x, y: x+y, over_max.values(), 0)
-            new_dict = {k: v for k, v in wounds[player].items() if k <= max_wounds_shown}
-            new_dict[max_wounds_shown] = new_dict.get(max_wounds_shown, 0) + additional_successes
-            squashed[player] = new_dict
-        else:
-            squashed[player] = wounds[player]
-    return squashed
-
-
-def format_expected_wounds(wounds, max_wounds_shown=3):
-    """Format expected_wounds into a list of results
-
-    Output format is {'player': 'active/reactive/fail', 'wounds': 3, 'chance': 0.2432, 'raw_chance' 1341234.23,
-                      'cumulative_chance': 0.53234, 'raw_guts_chance': 0, 'guts_chance': 0.0234, 'cumulative_guts': 0.0723}
+    Output format is {'player': 'active/reactive/fail', 'wounds': 3, 'chance': 0.2432, 'raw_chance' 1341234,
+                      'cumulative_chance': 0.53234}
     """
     # Squash items that are > than max_wounds_shown
-    total_rolls = wounds['total_rolls']
-    squashed = consolidate_wounds_over_maximum(wounds, max_wounds_shown=max_wounds_shown)
-    expected_wounds = []
-    index = 0
-    for player in ['active', 'fail', 'reactive']:
-        keys = sorted(squashed[player].keys())
-        for key in keys:
-            expected_wounds.append({
-                'id': index,
-                'player': player,
-                'wounds': key,
-                'raw_chance': squashed[player][key],
-                'chance': squashed[player][key]/total_rolls,
-                'cumulative_chance': reduce(
-                    lambda x, y: x+y,
-                    [squashed[player][i] for i in squashed[player].keys() if i >= key], 0) / total_rolls,
-            })
-            index += 1
-    return expected_wounds
+    active_wounds = lowest(active_wounds, max_wounds_shown)
+    reactive_wounds = lowest(reactive_wounds, max_wounds_shown)
+    result = []
+    
+    for wounds, raw_chance, chance, cumulative_chance in zip(
+            active_wounds.outcomes(),
+            active_wounds.quantities(),
+            active_wounds.probabilities(),
+            active_wounds.probabilities_ge()):
+        result.append({
+            'id': len(result),
+            'player': 'active',
+            'wounds': wounds,
+            'raw_chance': raw_chance,
+            'chance': float(chance),
+            'cumulative_chance': float(cumulative_chance),
+        })
+    
+    result.append({
+        'id': len(result),
+        'player': 'fail',
+        'wounds': 0,
+        'raw_chance': raw.quantity((0, 0, 0, 0)),
+        'chance': float(raw.probability((0, 0, 0, 0))),
+        'cumulative_chance': raw.probability((0, 0, 0, 0)),
+    })
+    
+    for wounds, raw_chance, chance, cumulative_chance in zip(
+            reactive_wounds.outcomes(),
+            reactive_wounds.quantities(),
+            reactive_wounds.probabilities(),
+            reactive_wounds.probabilities_ge()):
+        result.append({
+            'id': len(result),
+            'player': 'reactive',
+            'wounds': wounds,
+            'raw_chance': raw_chance,
+            'chance': float(chance),
+            'cumulative_chance': float(cumulative_chance),
+        })
+    return result
 
 
 def roll_and_bridge_results(
@@ -262,23 +212,26 @@ def roll_and_bridge_results(
         player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_bts, player_b_ammo, player_b_cont, player_b_crit_immune,
         dtw, fixed):
     if dtw:
-        outcomes = dtw_vs_dodge(player_a_burst, player_b_sv, player_b_burst)  # dtw_burst, dodge_sv, dodge_burst
+        raw = dtw_vs_dodge(player_a_burst, player_b_sv, player_b_burst)  # dtw_burst, dodge_sv, dodge_burst
     elif fixed:
-        outcomes = fixed_face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
+        raw = fixed_face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
     else:
-        outcomes = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
-    results = face_to_face_result(outcomes)
+        raw = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
+    results = face_to_face_result(raw)
     formatted_results = format_face_to_face(results)
-    expected_wounds = face_to_face_expected_wounds(
-        outcomes,
-        player_a_dam, player_a_arm, player_a_ammo, player_b_dam, player_b_arm, player_b_ammo,
-        player_a_cont=player_a_cont, player_a_bts=player_a_bts, player_a_crit_immune=player_a_crit_immune,
-        player_b_cont=player_b_cont, player_b_bts=player_b_bts, player_b_crit_immune=player_b_crit_immune)
-    formatted_expected_wounds = format_expected_wounds(expected_wounds)
+    active_wounds = face_to_face_wounds(
+            raw.marginals[:2],  # extract the first two elements (a_crit, a_hit)
+            player_a_dam, player_a_ammo, player_a_cont,
+            player_b_arm, player_b_bts, player_b_crit_immune)
+    reactive_wounds = face_to_face_wounds(
+            raw.marginals[2:],  # extract the last two elements (b_crit, b_hit)
+            player_b_dam, player_b_ammo, player_b_cont,
+            player_a_arm, player_a_bts, player_a_crit_immune)
+    formatted_wounds = format_wounds(raw, active_wounds, reactive_wounds)
     return_object = {
         'face_to_face': formatted_results,
-        'expected_wounds': formatted_expected_wounds,
-        'total_rolls': expected_wounds['total_rolls']
+        'expected_wounds': formatted_wounds,
+        'total_rolls': raw.denominator(),
     }
     # return to_js(return_object, dict_converter=js.Object.fromEntries)
     return return_object
