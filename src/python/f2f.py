@@ -64,6 +64,7 @@ def dtw_vs_dodge(dtw_burst, dodge_sv, dodge_burst):
 
     (a_crit, a_hit, b_crit, b_hit), rolls"""
     dodged = (dodge_burst @ (d20 <= dodge_sv)) >= 1
+    # tupleize converts a tuple of dice (or individual outcomes) into a die of tuples.
     result = tupleize(0, dodged.if_else(0, dtw_burst), 0, 0)
     return result
 
@@ -91,7 +92,7 @@ def face_to_face_result(raw):
             return 'reactive'
         else:
             return 'fail'
-    # star unpacks each outcome before feeding it to winner()
+    # star unpacks each outcome before feeding it to winner().
     return raw.map(winner, star=True)
 
 
@@ -111,6 +112,9 @@ def face_to_face_wounds(
     
     Args:
         atk_raw: A Die where the outcomes are (atk_crit, atk_hit).
+        
+    Returns:
+        A die with `int` outcomes indicating the number of wounds dealt.
     """
     armor_save = atk_dam - def_arm
     damage = 2 if atk_ammo == 'T2' else 1
@@ -137,6 +141,7 @@ def face_to_face_wounds(
         r = saves @ dSave + crit_saves @ dCrit + plasma_saves @ dPlasma
         return r
     
+    # star unpacks each outcome before feeding it to compute_wounds().
     return atk_raw.map(compute_wounds, star=True)
 
 def format_face_to_face(face_to_face):
@@ -146,6 +151,8 @@ def format_face_to_face(face_to_face):
             'id': index,
             'player': player,
             'raw_chance': face_to_face.quantity(player),
+            # From 1.1, icepool returns Fractions for probabilities.
+            # We convert to float so we can bridge to js.
             'chance': float(face_to_face.probability(player)),
         })
     return output
