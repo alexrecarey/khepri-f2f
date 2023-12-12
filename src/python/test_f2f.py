@@ -1,7 +1,9 @@
 import f2f
-from f2f import face_to_face_expected_wounds, face_to_face, dtw_vs_dodge
+from f2f import face_to_face_wounds, face_to_face, dtw_vs_dodge
 import re
+from icepool import lowest
 from math import isclose
+from unittest import TestCase
 
 
 def ghostlords_raw_to_dict(string):
@@ -66,17 +68,18 @@ Reactive Player
     }
 
 
-def khepri_result_to_percentage(khepri_dict, max_wounds_shown=100):
+def khepri_result_to_percentage(active_wounds, reactive_wounds, max_wounds_shown=100):
     # Yeah, I could nest list comprehensions, but I'd like to be able to read this code
     # As I've changed my return format, we now have to exclude 0 wounds from active and reactive successes
     # we also have to add 0 wounds active and 0 wounds reactive to failure case
-    failure_rolls = khepri_dict['active'].get(0, 0) + khepri_dict['reactive'].get(0,0) + khepri_dict['fail'].get(0,0)
+    active_wounds = lowest(active_wounds, max_wounds_shown)
+    reactive_wounds = lowest(reactive_wounds, max_wounds_shown)
     wounds = {
-        'active': {k: v/khepri_dict['total_rolls'] for k, v in khepri_dict['active'].items() if k > 0},
-        'reactive': {k: v/khepri_dict['total_rolls'] for k, v in khepri_dict['reactive'].items() if k > 0},
-        'fail': {0: failure_rolls/khepri_dict['total_rolls']}
+        'active': {w: float(p) for w, p in zip(active_wounds.outcomes(), active_wounds.probabilities()) if w > 0},
+        'reactive': {w: float(p) for w, p in zip(reactive_wounds.outcomes(), reactive_wounds.probabilities()) if w > 0},
+        'fail': {0: 1.0 - float((active_wounds > 0).mean()) - float((reactive_wounds > 0).mean()) }
     }
-    return f2f.consolidate_wounds_over_maximum(wounds, max_wounds_shown=max_wounds_shown)
+    return wounds
 
 
 def is_ghostlords_equal(gl_dict, kp_dict):
@@ -94,7 +97,7 @@ def is_ghostlords_equal(gl_dict, kp_dict):
     return equals_flag
 
 
-class TestAgainstGhostlordsCalculator:
+class TestAgainstGhostlordsCalculator(TestCase):
 
     def test_regular_roll(self):
         # URL: http://inf-dice.ghostlords.com/n4/?p1.faction=Aleph&p1.unit=Custom+Unit&p1.w_type=W&p1.type=LI&p1.cc=10&p1.bs=16&p1.ph=10&p1.wip=10&p1.arm=2&p1.bts=0&p1.w=3&p1.w_taken=0&p1.transmutation_w=0&p1.operator=0&p1.immunity=&p1.hyperdynamics=0&p1.ikohl=0&p1.ch=0&p1.msv=0&p1.marksmanship=0&p1.xvisor=0&p1.fatality=0&p1.full_auto=0&p1.surprise=0&p1.action=bs&p1.weapon=Custom+Weapon&p1.stat=BS&p1.ammo=N&p1.b=3&p1.save=ARM&p1.dam=13&p1.range=0&p1.link=0&p1.viz=0&p1.ma=0&p1.guard=0&p1.protheion=0&p1.nbw=0&p1.gang_up=0&p1.coordinated=0&p1.misc_mod=0&p2.faction=Aleph&p2.unit=Custom+Unit&p2.w_type=W&p2.type=LI&p2.cc=10&p2.bs=13&p2.ph=10&p2.wip=10&p2.arm=5&p2.bts=0&p2.w=3&p2.w_taken=0&p2.transmutation_w=0&p2.operator=0&p2.immunity=&p2.hyperdynamics=0&p2.ikohl=0&p2.ch=0&p2.msv=0&p2.marksmanship=0&p2.xvisor=0&p2.fatality=0&p2.full_auto=0&p2.surprise=0&p2.action=bs&p2.weapon=Custom+Weapon&p2.stat=BS&p2.ammo=N&p2.b=1&p2.save=ARM&p2.dam=14&p2.range=0&p2.link=0&p2.viz=0&p2.ma=0&p2.guard=0&p2.protheion=0&p2.nbw=0&p2.gang_up=0&p2.coordinated=0&p2.misc_mod=0
@@ -145,13 +148,25 @@ P2 Scores  1+ Successes:   8.987%"""
         player_b_dam_ = 14
         player_b_arm_ = 5
         player_b_ammo_ = 'N'
-        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
-        kp_result = face_to_face_expected_wounds(
-            outcomes,
-            player_a_dam_, player_a_arm_, player_a_ammo_,
-            player_b_dam_, player_b_arm_, player_b_ammo_)
+        
+        player_a_cont_ = False
+        player_a_bts_ = 0
+        player_a_crit_immune_ = False
+        player_b_cont_ = False
+        player_b_bts_ = 0
+        player_b_crit_immune_ = False
+        
+        raw = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
+        active_wounds = face_to_face_wounds(
+                raw.marginals[:2],
+                player_a_dam_, player_a_ammo_, player_a_cont_,
+                player_b_arm_, player_b_bts_, player_b_crit_immune_)
+        reactive_wounds = face_to_face_wounds(
+                raw.marginals[2:],
+                player_b_dam_, player_b_ammo_, player_b_cont_,
+                player_a_arm_, player_a_bts_, player_a_crit_immune_)
         gl_dict = ghostlords_raw_to_dict(gl_result)
-        kp_dict = khepri_result_to_percentage(kp_result)
+        kp_dict = khepri_result_to_percentage(active_wounds, reactive_wounds)
         is_ghostlords_equal(gl_dict, kp_dict)
         assert is_ghostlords_equal(gl_dict, kp_dict)
 
@@ -191,13 +206,25 @@ P2 Scores  1+ Successes:   4.654%"""
         player_b_dam_ = 12
         player_b_arm_ = 4
         player_b_ammo_ = 'N'
-        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
-        kp_result = face_to_face_expected_wounds(
-            outcomes,
-            player_a_dam_, player_a_arm_, player_a_ammo_,
-            player_b_dam_, player_b_arm_, player_b_ammo_)
+        
+        player_a_cont_ = False
+        player_a_bts_ = 0
+        player_a_crit_immune_ = False
+        player_b_cont_ = False
+        player_b_bts_ = 0
+        player_b_crit_immune_ = False
+        
+        raw = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
+        active_wounds = face_to_face_wounds(
+                raw.marginals[:2],
+                player_a_dam_, player_a_ammo_, player_a_cont_,
+                player_b_arm_, player_b_bts_, player_b_crit_immune_)
+        reactive_wounds = face_to_face_wounds(
+                raw.marginals[2:],
+                player_b_dam_, player_b_ammo_, player_b_cont_,
+                player_a_arm_, player_a_bts_, player_a_crit_immune_)
         gl_dict = ghostlords_raw_to_dict(gl_result)
-        kp_dict = khepri_result_to_percentage(kp_result)
+        kp_dict = khepri_result_to_percentage(active_wounds, reactive_wounds)
         is_ghostlords_equal(gl_dict, kp_dict)
         assert is_ghostlords_equal(gl_dict, kp_dict)
 
@@ -313,13 +340,25 @@ P2 Scores  1+ Successes:  14.245%"""
         player_b_dam_ = 12
         player_b_arm_ = 3
         player_b_ammo_ = 'N'
-        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
-        kp_result = face_to_face_expected_wounds(
-            outcomes,
-            player_a_dam_, player_a_arm_, player_a_ammo_,
-            player_b_dam_, player_b_arm_, player_b_ammo_)
+        
+        player_a_cont_ = False
+        player_a_bts_ = 0
+        player_a_crit_immune_ = False
+        player_b_cont_ = False
+        player_b_bts_ = 0
+        player_b_crit_immune_ = False
+        
+        raw = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
+        active_wounds = face_to_face_wounds(
+                raw.marginals[:2],
+                player_a_dam_, player_a_ammo_, player_a_cont_,
+                player_b_arm_, player_b_bts_, player_b_crit_immune_)
+        reactive_wounds = face_to_face_wounds(
+                raw.marginals[2:],
+                player_b_dam_, player_b_ammo_, player_b_cont_,
+                player_a_arm_, player_a_bts_, player_a_crit_immune_)
         gl_dict = ghostlords_raw_to_dict(gl_result)
-        kp_dict = khepri_result_to_percentage(kp_result)
+        kp_dict = khepri_result_to_percentage(active_wounds, reactive_wounds)
         assert is_ghostlords_equal(gl_dict, kp_dict)
 
 
@@ -410,13 +449,25 @@ P2 Scores  1+ Successes:  20.088%"""
         player_b_dam_ = 15
         player_b_arm_ = 3
         player_b_ammo_ = 'N'
-        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
-        kp_result = face_to_face_expected_wounds(
-            outcomes,
-            player_a_dam_, player_a_arm_, player_a_ammo_,
-            player_b_dam_, player_b_arm_, player_b_ammo_)
+        
+        player_a_cont_ = False
+        player_a_bts_ = 0
+        player_a_crit_immune_ = False
+        player_b_cont_ = False
+        player_b_bts_ = 0
+        player_b_crit_immune_ = False
+        
+        raw = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
+        active_wounds = face_to_face_wounds(
+                raw.marginals[:2],
+                player_a_dam_, player_a_ammo_, player_a_cont_,
+                player_b_arm_, player_b_bts_, player_b_crit_immune_)
+        reactive_wounds = face_to_face_wounds(
+                raw.marginals[2:],
+                player_b_dam_, player_b_ammo_, player_b_cont_,
+                player_a_arm_, player_a_bts_, player_a_crit_immune_)
         gl_dict = ghostlords_raw_to_dict(gl_result)
-        kp_dict = khepri_result_to_percentage(kp_result)
+        kp_dict = khepri_result_to_percentage(active_wounds, reactive_wounds)
         assert is_ghostlords_equal(gl_dict, kp_dict)
 
 
@@ -483,13 +534,25 @@ P2 Scores  1+ Successes:  22.705%"""
         player_b_dam_ = 16
         player_b_arm_ = 11
         player_b_ammo_ = 'EXP'
-        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
-        kp_result = face_to_face_expected_wounds(
-            outcomes,
-            player_a_dam_, player_a_arm_, player_a_ammo_,
-            player_b_dam_, player_b_arm_, player_b_ammo_)
+        
+        player_a_cont_ = False
+        player_a_bts_ = 0
+        player_a_crit_immune_ = False
+        player_b_cont_ = False
+        player_b_bts_ = 0
+        player_b_crit_immune_ = False
+        
+        raw = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
+        active_wounds = face_to_face_wounds(
+                raw.marginals[:2],
+                player_a_dam_, player_a_ammo_, player_a_cont_,
+                player_b_arm_, player_b_bts_, player_b_crit_immune_)
+        reactive_wounds = face_to_face_wounds(
+                raw.marginals[2:],
+                player_b_dam_, player_b_ammo_, player_b_cont_,
+                player_a_arm_, player_a_bts_, player_a_crit_immune_)
         gl_dict = ghostlords_raw_to_dict(gl_result)
-        kp_dict = khepri_result_to_percentage(kp_result)
+        kp_dict = khepri_result_to_percentage(active_wounds, reactive_wounds)
         assert is_ghostlords_equal(gl_dict, kp_dict)
 
 
@@ -517,15 +580,25 @@ P2 Scores  1+ Successes:  22.705%"""
         player_b_dam_ = 16
         player_b_arm_ = 11
         player_b_ammo_ = 'EXP'
+        
         player_a_cont_ = True
+        player_a_bts_ = 0
+        player_a_crit_immune_ = False
         player_b_cont_ = False
-        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
-        kp_result = face_to_face_expected_wounds(
-            outcomes,
-            player_a_dam_, player_a_arm_, player_a_ammo_,
-            player_b_dam_, player_b_arm_, player_b_ammo_, player_a_cont=player_a_cont_)
+        player_b_bts_ = 0
+        player_b_crit_immune_ = False
+        
+        raw = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
+        active_wounds = face_to_face_wounds(
+                raw.marginals[:2],
+                player_a_dam_, player_a_ammo_, player_a_cont_,
+                player_b_arm_, player_b_bts_, player_b_crit_immune_)
+        reactive_wounds = face_to_face_wounds(
+                raw.marginals[2:],
+                player_b_dam_, player_b_ammo_, player_b_cont_,
+                player_a_arm_, player_a_bts_, player_a_crit_immune_)
         gl_dict = ghostlords_minimal_to_dict(active_str=active_str, reactive_str=reactive_str, fail_str=failure_str)
-        kp_dict = khepri_result_to_percentage(kp_result, max_wounds_shown=3)
+        kp_dict = khepri_result_to_percentage(active_wounds, reactive_wounds, max_wounds_shown=3)
         assert is_ghostlords_equal(gl_dict, kp_dict)
 
 
@@ -548,15 +621,25 @@ P2 Scores  1+ Successes:  22.705%"""
         player_b_dam_ = 13
         player_b_arm_ = 0
         player_b_ammo_ = 'N'
+        
         player_a_cont_ = False
+        player_a_bts_ = 0
+        player_a_crit_immune_ = False
         player_b_cont_ = False
-        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
-        kp_result = face_to_face_expected_wounds(
-            outcomes,
-            player_a_dam_, player_a_arm_, player_a_ammo_,
-            player_b_dam_, player_b_arm_, player_b_ammo_, player_a_cont=player_a_cont_)
+        player_b_bts_ = 0
+        player_b_crit_immune_ = False
+        
+        raw = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
+        active_wounds = face_to_face_wounds(
+                raw.marginals[:2],
+                player_a_dam_, player_a_ammo_, player_a_cont_,
+                player_b_arm_, player_b_bts_, player_b_crit_immune_)
+        reactive_wounds = face_to_face_wounds(
+                raw.marginals[2:],
+                player_b_dam_, player_b_ammo_, player_b_cont_,
+                player_a_arm_, player_a_bts_, player_a_crit_immune_)
         gl_dict = ghostlords_minimal_to_dict(active_str=active_str, reactive_str=reactive_str, fail_str=failure_str)
-        kp_dict = khepri_result_to_percentage(kp_result, max_wounds_shown=3)
+        kp_dict = khepri_result_to_percentage(active_wounds, reactive_wounds, max_wounds_shown=3)
         assert is_ghostlords_equal(gl_dict, kp_dict)
 
 
