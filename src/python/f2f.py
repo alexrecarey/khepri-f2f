@@ -64,7 +64,7 @@ def dtw_vs_dodge(dtw_burst, dodge_sv, dodge_burst):
 
     (a_crit, a_hit, b_crit, b_hit), rolls"""
     dodged = (dodge_burst @ (d20 <= dodge_sv)) >= 1
-    result = tupleize(0, dodged * dtw_burst, 0, 0)
+    result = tupleize(0, dodged.if_else(0, dtw_burst), 0, 0)
     return result
 
 
@@ -145,7 +145,7 @@ def format_face_to_face(face_to_face):
         output.append({
             'id': index,
             'player': player,
-            'raw_chance': face_to_face[player],
+            'raw_chance': face_to_face.quantity(player),
             'chance': float(face_to_face.probability(player)),
         })
     return output
