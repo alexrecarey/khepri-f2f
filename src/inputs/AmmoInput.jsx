@@ -8,6 +8,8 @@ function AmmoInput(props){
   const update = props.update;
   const cont = props.cont;
   const setCont = props.updateCont;
+  const title = props.title;
+  const tooltip = props.tooltip;
   const variant = props.variant ?? 'active';
   const dtw = props.dtw;
   const color = variant === 'active' ? 'primary' : 'secondary'
@@ -21,9 +23,8 @@ function AmmoInput(props){
 
   return  <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
-      <Tooltip title="Calculate AP ammo by halving opposing ARM/BTS manually. Dodge will use the burst value, so smoke
-       dodges in fire teams can be calculated.">
-        <InputLabel sx={{mt:1}}>Ammunition</InputLabel>
+      <Tooltip title={tooltip}>
+        <InputLabel sx={{mt:1}}>{title}</InputLabel>
       </Tooltip>
     </Grid>
     <Grid item xs={12} sx={{display:"flex", justifyContent:"left", alignItems:"center", flexWrap: "wrap"}}>

@@ -7,9 +7,9 @@ import IncrementDecrementIconButtonGroup from '../componets/IncrementDecrementIc
 import {clamp} from "ramda";
 
 
-function DamageInput({damage, update, variant}) {
+function DamageInput({damage, update, variant, title, tooltip}) {
   const min = 0;
-  const max = 30;
+  const max = 20;
 
   const handleOnBlur = (newValue) => {
     let val = Number(newValue);
@@ -17,7 +17,7 @@ function DamageInput({damage, update, variant}) {
       // do nothing
       return
     } else {
-      val = clamp(0, 30, val);
+      val = clamp(min, max, val);
     }
     update(val);
   }
@@ -32,9 +32,8 @@ function DamageInput({damage, update, variant}) {
 
   return <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
-      <Tooltip title="Final damage value of weapon being used. You must include all damage mods.
-          You can also subtract cover from here instead of adding it to ARM.">
-        <InputLabel sx={{mt:1}}>Damage</InputLabel>
+      <Tooltip title={tooltip}>
+        <InputLabel sx={{mt:1}}>{title}</InputLabel>
       </Tooltip>
     </Grid>
     <Grid item xs={2} sx={gridStyle}

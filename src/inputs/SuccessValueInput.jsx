@@ -7,7 +7,7 @@ import IncrementDecrementIconButtonGroup from '../componets/IncrementDecrementIc
 import PropTypes from "prop-types";
 
 
-function SuccessValueInput({successValue, update, variant}){
+function SuccessValueInput({successValue, update, variant, title, tooltip}){
   const min = 1;
   const max = 30;
 
@@ -33,10 +33,8 @@ function SuccessValueInput({successValue, update, variant}){
 
   return <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
-      <Tooltip title="Target Success Value for player after all positive and negative mods
-          (fireteam, mimetism, range, cover, etc) have been applied to the BS or CC attribute. Success values over 20
-          will be added to the roll. Rolls equal or over 20 will cause critical hits. Remember mods cap out at +/-12.">
-        <InputLabel sx={{mt:1}}>Success Value</InputLabel>
+      <Tooltip title={tooltip}>
+        <InputLabel sx={{mt:1}}>{title}</InputLabel>
       </Tooltip>
     </Grid>
     <Grid item xs={2} sx={gridStyle}>

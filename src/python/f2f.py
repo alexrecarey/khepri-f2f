@@ -2,100 +2,111 @@
 # await micropip.install('icepool==1.0.0')
 # import js
 # from pyodide.ffi import to_js
-from icepool import d20, lowest, Again, Die
+from icepool import d20, lowest, Again, Die, Pool
 from icepool import MultisetEvaluator
-from math import comb
 from functools import reduce
 
 
 class InfinityFace2FaceEvaluator(MultisetEvaluator):
-    def __init__(self, a_sv, b_sv):
-        self.a_sv = a_sv
-        self.b_sv = b_sv
-
     # Note that outcomes are seen in ascending order by default.
     def next_state(self, state, outcome, a_count, b_count):
         # Initial state is all zeros.
         a_crit, a_success, b_crit, b_success = state or (0, 0, 0, 0)
 
-        # First, accumulate scores.
-        if outcome < self.a_sv:
+        if outcome == 0:
+            # miss
+            pass
+        elif outcome < 20:
+            # hit
             a_success += a_count
-        elif outcome == self.a_sv:
-            a_crit += a_count
-        if outcome < self.b_sv:
             b_success += b_count
-        elif outcome == self.b_sv:
+            if a_count > 0:
+                b_success = 0
+            if b_count > 0:
+                a_success = 0
+        else:
+            # crit
+            a_crit += a_count
             b_crit += b_count
-
-        # Then, cancel the other side's current and previous successes,
-        # which must all have been equal or less than the current outcome.
-        # Crits continue to cancel future (higher) successes as well.
-        if a_crit or (a_count > 0 and outcome <= self.a_sv):
-            b_success = 0
-        if b_crit or (b_count > 0 and outcome <= self.b_sv):
-            a_success = 0
-
-        # Finally, cancel all crits if both sides scored any crit.
-        if a_crit > 0 and b_crit > 0:
-            # Note that successes were already cancelled above.
-            # Also, no more outcomes will matter since
-            # all remaining outcomes are above SV.
-            a_crit = 0
-            b_crit = 0
+            if a_count > 0:
+                b_success = 0
+                b_crit = 0
+            if b_count > 0:
+                a_success = 0
+                a_crit = 0
         return a_crit, a_success, b_crit, b_success
 
 
-def face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst):
-    # Handle cases where SV > 20
-    a_sv = player_a_sv if player_a_sv <= 20 else 20
-    a_bonus = 0 if player_a_sv <= 20 else player_a_sv - 20
-    b_sv = player_b_sv if player_b_sv <= 20 else 20
-    b_bonus = 0 if player_b_sv <= 20 else player_b_sv - 20
+f2f_evaluator = InfinityFace2FaceEvaluator()
 
-    result = InfinityFace2FaceEvaluator(a_sv=a_sv, b_sv=b_sv).evaluate(
-        lowest(d20+a_bonus, 20).pool(player_a_burst),
-        lowest(d20+b_bonus, 20).pool(player_b_burst))
-    return [i for i in result.items()]
+
+def infinity_die(roll, sv):
+    """Maps a raw d20 roll to an Infinity outcome.
+
+    The resulting die will use 0 for misses (values over success value) and 20 for crits (values equal to the success
+    value). The resulting die will have values like:
+
+    0 = miss
+    1-19 = hit
+    20 = crit
+    """
+    if sv > 20:
+        roll += sv - 20
+        sv = 20
+    if roll == sv or roll > 20:
+        return 20
+    elif roll < sv:
+        return roll
+    else:
+        return 0
+
+
+def face_to_face(
+        a_success_value,
+        a_burst,
+        b_success_value,
+        b_burst,
+        a_bonus_burst=0,
+        b_bonus_burst=0
+):
+    a_die = d20.map(infinity_die, a_success_value)
+    b_die = d20.map(infinity_die, b_success_value)
+
+    return (
+        InfinityFace2FaceEvaluator()
+        .evaluate(
+            Pool([a_die], a_burst + a_bonus_burst).highest(keep=a_burst),
+            Pool([b_die], b_burst + b_bonus_burst).highest(keep=b_burst)
+        )
+    )
 
 
 def dtw_vs_dodge(dtw_burst, dodge_sv, dodge_burst):
-    """Results should be in format:
-
-    (a_crit, a_hit, b_crit, b_hit), rolls"""
-    result = []
-    if dodge_burst == 0:
-        result.append(((0, dtw_burst, 0, 0), 1))
-    else:
-        dDodge = d20 <= dodge_sv
-        for outcome, amount in (dodge_burst @ dDodge).items():
-            if outcome >= 1:
-                result.append(((0, 0, 0, 0), amount))
-            elif outcome == 0:
-                result.append(((0, dtw_burst, 0, 0), amount))
-    return result
+    """Should return a Die"""
+    hit_die = ((d20 > dodge_sv) * dtw_burst)   # returns hits. Successful dodges are 0 hits,
+    result_die = lowest([hit_die] * dodge_burst)
+    return result_die.map(lambda x: (0, x, 0, 0))  # Convert into (crit, hit, crit, hit) format
 
 
-def fixed_face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst):
-    # Handle cases where SV > 20
-    a_sv = player_a_sv if player_a_sv <= 20 else 20
-    a_bonus = 0 if player_a_sv <= 20 else player_a_sv - 20
-    b_sv = 21  # make success value 21 to avoid crits
-    b_die_face = player_b_sv if player_b_sv <= 20 else 20  # don't let fixed die be over 20
+def fixed_face_to_face(a_success_value, a_burst, a_bonus_burst, b_success_value, b_burst):
+    a_die = d20.map(infinity_die, a_success_value)
+    b_die_face = b_success_value if b_success_value <= 19 else 19  # don't let fixed die be over 19. Fix later to
+                                                                   # allow 20, but at the moment 20 is critical hit.
     b_die = Die([b_die_face])  # Create a special die that always rolls the same number
 
-    result = InfinityFace2FaceEvaluator(a_sv=a_sv, b_sv=b_sv).evaluate(
-        lowest(d20+a_bonus, 20).pool(player_a_burst),
-        b_die.pool(player_b_burst))
-    return [i for i in result.items()]
+    return InfinityFace2FaceEvaluator().evaluate(
+        Pool([a_die], a_burst + a_bonus_burst).highest(keep=a_burst),
+        b_die.pool(b_burst))
 
 
 def face_to_face_result(outcomes):
-    result = {'active': 0,
-              'fail': 0,
-              'reactive': 0,
-              'total_rolls': 0}
-    for outcome, amount in outcomes:
+    result = {
+        'active': 0,
+        'fail': 0,
+        'reactive': 0,
+        'total_rolls': 0
+    }
+    for outcome, amount in outcomes.items():
         result['total_rolls'] += amount
         squash = outcome[0] + outcome[1] - outcome[2] - outcome[3]
         # check if failure result
@@ -111,11 +122,6 @@ def face_to_face_result(outcomes):
     #return to_js(result, dict_converter=js.Object.fromEntries)
 
 
-def binomial_success(successes: int, trials: int, probability: float):
-    """Binomial theory success probability"""
-    return comb(trials, successes) * pow(probability, successes) * pow(1 - probability, trials - successes)
-
-
 AMMO = {
     'N': 1,
     'DA': 2,
@@ -128,10 +134,14 @@ AMMO = {
 
 def face_to_face_expected_wounds(
         outcomes,
-        player_a_dam, player_a_arm, player_a_ammo, player_b_dam, player_b_arm, player_b_ammo,
-        player_a_cont=False, player_a_bts=0, player_a_crit_immune=False,
-        player_b_cont=False, player_b_bts=0, player_b_crit_immune=False):
-    """Calculates the wounds expected from a face to face encounter
+        a_opponent_save, a_arm, a_ammo, b_opponent_save, b_arm, b_ammo,
+        a_cont=False, a_bts=0, a_crit_immune=False,
+        b_cont=False, b_bts=0, b_crit_immune=False,
+        n5_beta_criticals=False
+):
+    """Calculates the wounds expected from a face to face encounter.
+
+    Damage now is a save change. So the stronger the weapon the lower its "save chance".
 
     Return format is {
         'active': {1: 11111, 2: 222222, 3: 33333},
@@ -151,24 +161,24 @@ def face_to_face_expected_wounds(
         },
         'total_rolls': 0
     }
-    for (a_crit, a_hit, b_crit, b_hit), rolls in outcomes:
+    for (a_crit, a_hit, b_crit, b_hit), rolls in outcomes.items():
         wounds['total_rolls'] += rolls
         if a_crit + a_hit > 0:
             winner = 'active'
-            armor_save = player_a_dam - player_b_arm
-            damage = 2 if player_a_ammo == 'T2' else 1
-            cont = player_a_cont
-            crit_immune = player_b_crit_immune
-            plasma = True if player_a_ammo == 'PLASMA' else False
-            bts_save = player_a_dam - player_b_bts
+            armor_save = a_opponent_save + b_arm
+            damage = 2 if a_ammo == 'T2' else 1
+            cont = a_cont
+            crit_immune = b_crit_immune
+            plasma = True if a_ammo == 'PLASMA' else False
+            bts_save = a_opponent_save + b_bts
         elif b_crit + b_hit > 0:
             winner = 'reactive'
-            armor_save = player_b_dam - player_a_arm
-            damage = 2 if player_b_ammo == 'T2' else 1
-            cont = player_b_cont
-            crit_immune = player_a_crit_immune
-            plasma = True if player_b_ammo == 'PLASMA' else False
-            bts_save = player_b_dam - player_a_bts
+            armor_save = b_opponent_save + a_arm
+            damage = 2 if b_ammo == 'T2' else 1
+            cont = b_cont
+            crit_immune = a_crit_immune
+            plasma = True if b_ammo == 'PLASMA' else False
+            bts_save = b_opponent_save + a_bts
         else:
             winner = 'fail'
             armor_save = 0
@@ -184,19 +194,28 @@ def face_to_face_expected_wounds(
         # For DODGE AMMO we run "min" to keep 0 (for dodge) or original value of crit, as 3 crits = 3 crit saves
         # Each regular hit causes AMMO number of 'saves'. We also have to add the regular hit portion of a crit,
         # as 1 crit causes a AMMO saves for the regular portion, and 1 extra crit save that is not.
-        crit_saves = 0 if crit_immune else min(a_crit, AMMO[player_a_ammo] * a_crit) + min(b_crit, AMMO[player_b_ammo] * b_crit)
-        saves = ((a_crit + a_hit) * AMMO[player_a_ammo]) + ((b_crit + b_hit) * AMMO[player_b_ammo])
-        plasma_saves = ((a_crit + a_hit) * AMMO[player_a_ammo]) + ((b_crit + b_hit) * AMMO[player_b_ammo]) if plasma else 0
+        crit_saves = 0 if crit_immune else min(a_crit, AMMO[a_ammo] * a_crit) + min(b_crit, AMMO[b_ammo] * b_crit)
+        saves = ((a_crit + a_hit) * AMMO[a_ammo]) + ((b_crit + b_hit) * AMMO[b_ammo])
+        plasma_saves = ((a_crit + a_hit) * AMMO[a_ammo]) + ((b_crit + b_hit) * AMMO[b_ammo]) if plasma else 0
+        if n5_beta_criticals and plasma:
+            plasma_crit_saves = 0 if crit_immune else min(a_crit, AMMO[a_ammo] * a_crit) + min(b_crit, AMMO[b_ammo] * b_crit)
+        else:
+            plasma_crit_saves = 0
 
         # Generate die with 1's for wounds and 0's for successful armor saves
         if cont:
-            dSave = Die([(damage + Again if x <= armor_save else 0) for x in range(1, 21)], again_depth=5)
+            dSave = Die([(damage + Again if x > armor_save else 0) for x in range(1, 21)], again_depth=5)
         else:
-            dSave = (d20 <= armor_save) * damage  # T2 ammo increases damage by 1
-        dCrit = d20 <= armor_save  # Crits are always 1 damage
-        dPlasma = d20 <= bts_save  # Plasma BTS hits are always 1 damage (so far)
-        # Thank you @HighDiceRoller for this beautiful line of code!
-        r = saves @ dSave + crit_saves @ dCrit + plasma_saves @ dPlasma
+            dSave = (d20 > armor_save) * damage  # T2 ammo increases damage by 1
+
+        if n5_beta_criticals:
+            dCrit = dSave  # Criticals can apply Cont and T2 damage, just like regular saves
+        else:
+            dCrit = d20 > armor_save  # Crits are always 1 damage
+        dPlasma = d20 > bts_save  # Plasma BTS hits are always 1 damage (so far)
+
+        # Thank you HighDiceRoller for this beautiful line of code!
+        r = saves @ dSave + crit_saves @ dCrit + plasma_saves @ dPlasma + plasma_crit_saves @ dPlasma
         denominator = r.denominator()
         for w, occurrences in r.items():
             wounds[winner][w] = wounds[winner].get(w, 0) + (occurrences/denominator) * rolls
@@ -257,23 +276,37 @@ def format_expected_wounds(wounds, max_wounds_shown=3):
     return expected_wounds
 
 
-def roll_and_bridge_results(
-        player_a_sv, player_a_burst, player_a_dam, player_a_arm, player_a_bts, player_a_ammo, player_a_cont, player_a_crit_immune,
-        player_b_sv, player_b_burst, player_b_dam, player_b_arm, player_b_bts, player_b_ammo, player_b_cont, player_b_crit_immune,
-        dtw, fixed):
-    if dtw:
-        outcomes = dtw_vs_dodge(player_a_burst, player_b_sv, player_b_burst)  # dtw_burst, dodge_sv, dodge_burst
-    elif fixed:
-        outcomes = fixed_face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
+def reroll_value_to_list(reroll_value):
+    if reroll_value.lower() == 'none':
+        return ()
+    elif reroll_value.lower() == 'misses':
+        return (0,)
     else:
-        outcomes = face_to_face(player_a_sv, player_a_burst, player_b_sv, player_b_burst)
+        return list(range(int(reroll_value) + 1))
+
+
+def roll_and_bridge_results(
+        a_success_value, a_burst, a_bonus_burst, a_save, a_arm, a_bts, a_ammo, a_cont, a_crit_immune,
+        b_success_value, b_burst, b_bonus_burst, b_save, b_arm, b_bts, b_ammo, b_cont, b_crit_immune,
+        dtw, fixed,
+):
+    if dtw:
+        outcomes = dtw_vs_dodge(a_burst, b_success_value, b_burst)  # dtw_burst, dodge_sv, dodge_burst
+    elif fixed:
+        outcomes = fixed_face_to_face(a_success_value, a_burst, a_bonus_burst, b_success_value, b_burst)
+    else:
+        outcomes = face_to_face(
+            a_success_value, a_burst, b_success_value, b_burst,
+            a_bonus_burst=a_bonus_burst, b_bonus_burst=b_bonus_burst,
+        )
     results = face_to_face_result(outcomes)
     formatted_results = format_face_to_face(results)
     expected_wounds = face_to_face_expected_wounds(
         outcomes,
-        player_a_dam, player_a_arm, player_a_ammo, player_b_dam, player_b_arm, player_b_ammo,
-        player_a_cont=player_a_cont, player_a_bts=player_a_bts, player_a_crit_immune=player_a_crit_immune,
-        player_b_cont=player_b_cont, player_b_bts=player_b_bts, player_b_crit_immune=player_b_crit_immune)
+        a_save, a_arm, a_ammo, b_save, b_arm, b_ammo,
+        a_cont=a_cont, a_bts=a_bts, a_crit_immune=a_crit_immune,
+        b_cont=b_cont, b_bts=b_bts, b_crit_immune=b_crit_immune,
+    )
     formatted_expected_wounds = format_expected_wounds(expected_wounds)
     return_object = {
         'face_to_face': formatted_results,

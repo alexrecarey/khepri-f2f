@@ -12,7 +12,7 @@ import {
   Stack,
   Typography,
   ThemeProvider,
-  Tooltip,
+  Tooltip, Alert,
 } from "@mui/material";
 import { useAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
@@ -193,8 +193,8 @@ function App() {
     rollDice();
     setSearchParams();
   },[
-    burstA, successValueA, damageA, armA, btsA, ammoA, contA, critImmuneA,
-    burstB, successValueB, damageB, armB, btsB, ammoB, contB, critImmuneB,
+    burstA, bonusBurstA, successValueA, damageA, armA, btsA, ammoA, contA, critImmuneA,
+    burstB, bonusBurstB, successValueB, damageB, armB, btsB, ammoB, contB, critImmuneB,
     dtwVsDodge, fixedFaceToFace
   ]);
 
@@ -202,9 +202,9 @@ function App() {
   const rollDice = async () => {
     // get result from worker
     let parameters = {
-      successValueA: successValueA, burstA: burstA, damageA: damageA, armA: armA, btsA: btsA,
+      successValueA: successValueA, burstA: burstA, bonusBurstA: bonusBurstA, damageA: damageA, armA: armA, btsA: btsA,
       ammoA: ammoA, contA: contA, critImmuneA: critImmuneA,
-      successValueB: successValueB, burstB: burstB, damageB: damageB, armB: armB, btsB: btsB,
+      successValueB: successValueB, burstB: burstB, bonusBurstB: bonusBurstB, damageB: damageB, armB: armB, btsB: btsB,
       ammoB: ammoB, contB: contB, critImmuneB: critImmuneB,
       dtwVsDodge: dtwVsDodge, fixedFaceToFace: fixedFaceToFace
     }
@@ -276,6 +276,11 @@ function App() {
     window.open(encodedUri);
   }
 
+  // Small calculations for titles if plasma
+  let armorTitleA = ammoB === "PLASMA" ? "ARM" : "ARM / BTS"
+  let armorTitleB = ammoA === "PLASMA" ? "ARM" : "ARM / BTS"
+
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline/>
@@ -293,15 +298,28 @@ function App() {
                               tooltip="Final burst after bonuses (fire team, multiple combatants in CC, etc). You can
                               set Reactive burst to 0 to calculate unopposed shots by double clicking on the die or
                               typing 0 in the value box."/>
-                  <BurstInput burst={bonusBurstA} update={setBonusBurstA} role='bonus' title="Bonus burst"
+                  <BurstInput burst={bonusBurstA} update={setBonusBurstA} role='bonus' title="Extra dice"
                               tooltip="Additional dies that are added to the burst but cannot be kept. Only *burst* die
-                              will be kept, but *burst* + *bonus burst* die will be rolled. Highest die will be kept.
+                              will be kept, but *burst* + *extra dice* die will be rolled. Highest die will be kept.
                               You can set to zero by double clicking any value or typing 0 into the value box"/>
-                  {dtwVsDodge === false && <SuccessValueInput successValue={successValueA} update={setSuccessValueA}/>}
-                  {ammoA !== 'DODGE' && <DamageInput damage={damageA} update={setDamageA}/>}
-                  <ArmorInput armor={armA} update={setArmA} hideBTS={ammoB === 'PLASMA'}/>
+                  {dtwVsDodge === false &&
+                    <SuccessValueInput successValue={successValueA} update={setSuccessValueA} title="Success Value"
+                                       tooltip="Target Success Value for player after all positive and negative mods
+                                       (fireteam, mimetism, range, cover, etc) have been applied to the BS or CC
+                                       attribute. Success values over 20 will cause critical hits starting at 1.
+                                       Remember mods cap out at +/-12."/>}
+                  {ammoA !== 'DODGE' &&
+                    <DamageInput damage={damageA} update={setDamageA} title="Save Roll"
+                                 tooltip="Final saving roll value of weapon being used. You must include all damage mods
+                                 like SR-1. You should add cover bonus here."/>}
+                  <ArmorInput armor={armA} update={setArmA} title={armorTitleA}
+                              tooltip="Final computed armor value, after all modifiers. You must halve and round up if
+                              opposing player uses AP ammo. If a weapon only targets BTS (like breaker), use BTS value
+                              here"/>
                   {ammoB === 'PLASMA' && <BTSInput bts={btsA} update={setBtsA}/>}
-                  <AmmoInput ammo={ammoA} cont={contA} update={setAmmoA} updateCont={setContA}/>
+                  <AmmoInput ammo={ammoA} cont={contA} update={setAmmoA} updateCont={setContA} title="Ammunition"
+                             tooltip="Calculate AP ammo by halving opposing ARM/BTS manually. Dodge will use the burst
+                             value, so smoke dodges in fire teams can be calculated."/>
                   <OtherInputs critImmune={critImmuneA} update={setCritImmuneA} dtwVsDodge={dtwVsDodge} updateDtw={setDtwVsDodge}/>
                 </Grid>
               </CardContent>
@@ -318,15 +336,31 @@ function App() {
                               tooltip="Final burst after bonuses (fire team, multiple combatants in CC, etc). You can
                               set Reactive burst to 0 to calculate unopposed shots by double clicking on the die or
                               typing 0 in the value box."/>
-                  <BurstInput burst={bonusBurstB} update={setBonusBurstB} variant='reactive' role='bonus' title="Bonus burst"
+                  <BurstInput burst={bonusBurstB} update={setBonusBurstB} variant='reactive' role='bonus' title="Extra dice"
                               tooltip="Additional dies that are added to the burst but cannot be kept. Only *burst* die
-                              will be kept, but *burst* + *bonus burst* die will be rolled. Highest die will be kept.
+                              will be kept, but *burst* + *extra dice* die will be rolled. Highest die will be kept.
                               You can set to zero by double clicking any value or typing 0 into the value box"/>
-                  {burstB !== 0 && <SuccessValueInput successValue={successValueB} update={setSuccessValueB} variant='reactive'/>}
-                  {dtwVsDodge === false && burstB !== 0 && ammoB !== 'DODGE' &&<DamageInput damage={damageB} update={setDamageB} variant='reactive'/>}
-                  <ArmorInput armor={armB} update={setArmB} hideBTS={ammoA === 'PLASMA'} variant='reactive'/>
-                  {ammoA === 'PLASMA' && <BTSInput bts={btsB} update={setBtsB} variant='reactive'/>}
-                  <AmmoInput ammo={ammoB} cont={contB} update={setAmmoB} updateCont={setContB} variant='reactive' dtw={dtwVsDodge}/>
+                  {burstB !== 0 &&
+                    <SuccessValueInput successValue={successValueB} update={setSuccessValueB} variant='reactive'
+                                       title="Success Value"
+                                       tooltip="Target Success Value for player after all positive and negative mods
+                                       (fireteam, mimetism, range, cover, etc) have been applied to the BS or CC
+                                       attribute. Success values over 20 will cause critical hits starting at 1.
+                                       Remember mods cap out at +/-12."/>}
+                  {dtwVsDodge === false && burstB !== 0 && ammoB !== 'DODGE' &&
+                    <DamageInput damage={damageB} update={setDamageB} variant='reactive' title="Save Roll"
+                                 tooltip="Final saving roll value of weapon being used. You must include all damage mods
+                                 like SR-1. You should add cover bonus here."/>}
+                  <ArmorInput armor={armB} update={setArmB} variant='reactive' title={armorTitleB}
+                              tooltip="Final computed armor value, after all modifiers. You must halve and round up if
+                              opposing player uses AP ammo. If a weapon only targets BTS (like breaker), use BTS value
+                              here"/>
+                  {ammoA === 'PLASMA' &&
+                    <BTSInput bts={btsB} update={setBtsB} variant='reactive' title="BTS"
+                              tooltip="BTS value. This box only shows if plasma ammo is used."/>}
+                  <AmmoInput ammo={ammoB} cont={contB} update={setAmmoB} updateCont={setContB} variant='reactive'
+                             dtw={dtwVsDodge} title="Ammunition" tooltip="Calculate AP ammo by halving opposing ARM/BTS
+                             manually. Dodge will use the burst value, so smoke dodges in fire teams can be calculated."/>
                   <OtherInputs critImmune={critImmuneB} update={setCritImmuneB} variant='reactive'
                                fixedFaceToFace={fixedFaceToFace} updateFixedFaceToFace={setFixedFaceToFace}/>
                 </Grid>
@@ -360,12 +394,19 @@ function App() {
             </Grid>
           })}
           <Grid>
+            <Alert severity="warning">
+              This N5 version of the Infinity Dice Calculator is still beta software. Expect interface changes.
+            </Alert>
             <Typography color="text.secondary" variant="body2" sx={{marginTop: 4, marginLeft: 2, marginRight: 2}}>
               Made with ❤️ for the Infinity community by Khepri.
               Contact me with any bugs or suggestions on the <Link href="https://www.infinitygloballeague.com/">
-              IGL Discord</Link> or on the Corvus Belli forums. Source code <Link
-              href="https://github.com/alexrecarey/khepri-f2f">
-              available on github</Link>.</Typography>
+              IGL Discord</Link> or on the Corvus Belli forums.
+              Source code <Link href="https://github.com/alexrecarey/khepri-f2f"> available on github</Link>.
+              Powered by the amazing <Link href="https://github.com/HighDiceRoller/icepool">icepool library</Link>.
+            </Typography>
+            <Typography color="text.secondary" variant="body2" sx={{marginTop: 1, marginLeft: 2, marginRight: 2}}>
+              Looking for the <Link href="https://n4.infinitythecalculator.com">N4 Calculator</Link>?
+            </Typography>
           </Grid>
         </Grid>
       </Container>

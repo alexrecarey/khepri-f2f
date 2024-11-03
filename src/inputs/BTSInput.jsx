@@ -7,7 +7,7 @@ import UncontrolledInput from "../componets/UncontrolledInput.jsx";
 import IncrementDecrementIconButtonGroup from '../componets/IncrementDecrementIconButtonGroup';
 
 
-function BTSInput({bts, update, variant}){
+function BTSInput({bts, update, variant, title, tooltip}){
   const min = 0;
   const max = 12;
 
@@ -33,8 +33,8 @@ function BTSInput({bts, update, variant}){
 
   return <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
-      <Tooltip title="BTS value. This box only shows if plasma ammo is used.">
-        <InputLabel sx={{mt:1}}>BTS</InputLabel>
+      <Tooltip title={tooltip}>
+        <InputLabel sx={{mt:1}}>{title}</InputLabel>
       </Tooltip>
     </Grid>
     <Grid item xs={2} sx={gridStyle}>
