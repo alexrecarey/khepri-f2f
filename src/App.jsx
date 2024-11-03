@@ -54,6 +54,7 @@ function App() {
 
   // Inputs Player A
   const [burstA, setBurstA] = useState(p.burstA);
+  const [bonusBurstA, setBonusBurstA] = useState(p.bonusBurstA);
   const [successValueA, setSuccessValueA] = useState(p.successValueA);
   const [damageA, setDamageA] = useState(p.damageA);
   const [armA, setArmA] = useState(p.armA);
@@ -65,6 +66,7 @@ function App() {
 
   // Inputs Player B
   const [burstB, setBurstB] = useState(p.burstB);
+  const [bonusBurstB, setBonusBurstB] = useState(p.bonusBurstB);
   const [successValueB, setSuccessValueB] = useState(p.successValueB);
   const [damageB, setDamageB] = useState(p.damageB);
   const [armB, setArmB] = useState(p.armB);
@@ -287,7 +289,14 @@ function App() {
                   <Grid item xs={12}>
                     <Typography variant="h6" sx={{fontFamily: 'conthrax'}} gutterBottom>Active</Typography>
                   </Grid>
-                  <BurstInput burst={burstA} update={setBurstA}/>
+                  <BurstInput burst={burstA} update={setBurstA} title="Burst"
+                              tooltip="Final burst after bonuses (fire team, multiple combatants in CC, etc). You can
+                              set Reactive burst to 0 to calculate unopposed shots by double clicking on the die or
+                              typing 0 in the value box."/>
+                  <BurstInput burst={bonusBurstA} update={setBonusBurstA} role='bonus' title="Bonus burst"
+                              tooltip="Additional dies that are added to the burst but cannot be kept. Only *burst* die
+                              will be kept, but *burst* + *bonus burst* die will be rolled. Highest die will be kept.
+                              You can set to zero by double clicking any value or typing 0 into the value box"/>
                   {dtwVsDodge === false && <SuccessValueInput successValue={successValueA} update={setSuccessValueA}/>}
                   {ammoA !== 'DODGE' && <DamageInput damage={damageA} update={setDamageA}/>}
                   <ArmorInput armor={armA} update={setArmA} hideBTS={ammoB === 'PLASMA'}/>
@@ -305,7 +314,14 @@ function App() {
                   <Grid item xs={12}>
                     <Typography variant="h6" sx={{fontFamily: 'conthrax'}} gutterBottom>Reactive</Typography>
                   </Grid>
-                  <BurstInput burst={burstB} update={setBurstB} variant='reactive'/>
+                  <BurstInput burst={burstB} update={setBurstB} variant='reactive' title="Burst"
+                              tooltip="Final burst after bonuses (fire team, multiple combatants in CC, etc). You can
+                              set Reactive burst to 0 to calculate unopposed shots by double clicking on the die or
+                              typing 0 in the value box."/>
+                  <BurstInput burst={bonusBurstB} update={setBonusBurstB} variant='reactive' role='bonus' title="Bonus burst"
+                              tooltip="Additional dies that are added to the burst but cannot be kept. Only *burst* die
+                              will be kept, but *burst* + *bonus burst* die will be rolled. Highest die will be kept.
+                              You can set to zero by double clicking any value or typing 0 into the value box"/>
                   {burstB !== 0 && <SuccessValueInput successValue={successValueB} update={setSuccessValueB} variant='reactive'/>}
                   {dtwVsDodge === false && burstB !== 0 && ammoB !== 'DODGE' &&<DamageInput damage={damageB} update={setDamageB} variant='reactive'/>}
                   <ArmorInput armor={armB} update={setArmB} hideBTS={ammoA === 'PLASMA'} variant='reactive'/>

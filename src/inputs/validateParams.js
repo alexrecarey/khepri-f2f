@@ -16,6 +16,7 @@ const VALID_AMMO = ['N', 'DA', 'EXP', 'DODGE', 'T2', 'PLASMA'];
 function validateParams(p) {
   const defaultInputs = {
     burstA: 3,
+    bonusBurstA: 0,
     successValueA: 13,
     damageA: 13,
     armA: 0,
@@ -25,6 +26,7 @@ function validateParams(p) {
     critImmuneA: false,
     dtwVsDodge: false,
     burstB: 1,
+    bonusBurstB: 0,
     successValueB: 13,
     damageB: 13,
     armB: 0,

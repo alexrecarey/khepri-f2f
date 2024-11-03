@@ -8,11 +8,22 @@ import UncontrolledInput from "../componets/UncontrolledInput.jsx";
 import DiceD20NegatedIcon from "../componets/DiceD20NegatedIcon.jsx"
 
 
-function BurstInput({burst, update, variant}) {
+function BurstInput({burst, update, variant, role, title, tooltip}) {
   const theme = useTheme();
   const colorMid = theme.palette[variant]["500"];
-  const maxViewableBurst = variant === 'active' ? 6 : 5;
   const zeroBurstColor = burst === 0 ? colorMid : 'grey';
+  let maxViewableBurst;
+  if(role === 'bonus') {
+    maxViewableBurst = 3;
+  } else {
+    if(variant === 'active'){
+      maxViewableBurst = 6;
+    } else {
+      maxViewableBurst = 5;
+    }
+  }
+
+
 
   const handleOnBlur = (newValue) => {
     let val = Number(newValue);
@@ -35,9 +46,8 @@ function BurstInput({burst, update, variant}) {
 
   return <>
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
-      <Tooltip title="Final burst after bonuses (fire team, multiple combatants in CC, etc). You can
-        set Reactive burst to 0 to calculate unopposed shots by double clicking on the die or typing 0 in the value box.">
-        <InputLabel>Burst</InputLabel>
+      <Tooltip title={tooltip}>
+        <InputLabel>{title}</InputLabel>
       </Tooltip>
     </Grid>
     <Grid item xs={2} sx={gridStyle}>
@@ -58,14 +68,14 @@ function BurstInput({burst, update, variant}) {
         onChange={(event, newValue) => {
           if(newValue !== null){
             update(newValue);
-          } else if(variant === 'reactive'){
+          } else if(!(variant === 'active' && role === 'burst')){
             update(0)
           }
         }}
         icon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2, color: colorMid}} icon={faDiceD20}/>}
         emptyIcon={<FontAwesomeIcon fontSize="inherit" style={{padding: 2, opacity: 0.55}} icon={faDiceD20}/>}
       />
-      {variant === 'reactive' && <IconButton
+      {(role === 'bonus' || variant === 'reactive') && <IconButton
         onClick={()=>update(0)}>
         <DiceD20NegatedIcon sx={{height:30, width:30}} htmlColor={zeroBurstColor} />
       </IconButton>}
@@ -81,6 +91,7 @@ BurstInput.propTypes = {
 
 BurstInput.defaultProps = {
   variant: 'active',
+  role: 'burst'
 }
 
 
