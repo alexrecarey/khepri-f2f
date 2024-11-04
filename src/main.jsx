@@ -11,13 +11,7 @@ import * as Sentry from "@sentry/react";
 
 Sentry.init({
   dsn: "https://43af9393fc55104e36288fc1844716be@o4506078646239232.ingest.sentry.io/4506078647943168",
-  integrations: [
-    new Sentry.BrowserTracing({
-      // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-      tracePropagationTargets: ["localhost", /^https:\/\/infinitythecalculator\.com\//],
-    }),
-    new Sentry.Replay(),
-  ],
+  integrations: [],
   // Performance Monitoring
   // tracesSampleRate: 1.0, // Capture 100% of the transactions
   // Session Replay
