@@ -2,6 +2,8 @@ import {clamp} from 'ramda';
 
 const MIN_BURST = 0;
 const MAX_BURST = 6;
+const MIN_BONUS_BURST = 0;
+const MAX_BONUS_BURST = 3;
 const MIN_SUCCESS_VALUE = 1;
 const MAX_SUCCESS_VALUE = 30;
 const MIN_DAMAGE = 0;
@@ -46,6 +48,16 @@ function validateParams(p) {
   let burstB = p.get('burstB')
   if(burstB !== null && !isNaN(Number(burstB))){
     valid['burstB'] = clamp(MIN_BURST, MAX_BURST, Number(burstB));
+  }
+
+  // Bonus burst
+  let bonusBurstA = p.get('bonusBurstA')
+  if(bonusBurstA !== null && !isNaN(Number(bonusBurstA))){
+    valid['bonusBurstA'] = clamp(MIN_BONUS_BURST, MAX_BONUS_BURST, Number(bonusBurstA));
+  }
+  let bonusBurstB = p.get('bonusBurstB')
+  if(burstB !== null && !isNaN(Number(burstB))){
+    valid['bonusBurstB'] = clamp(MIN_BONUS_BURST, MIN_BONUS_BURST, Number(bonusBurstB));
   }
 
   // Success Value
