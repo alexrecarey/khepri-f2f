@@ -57,7 +57,7 @@ function validateParams(p) {
   }
   let bonusBurstB = p.get('bonusBurstB')
   if(burstB !== null && !isNaN(Number(burstB))){
-    valid['bonusBurstB'] = clamp(MIN_BONUS_BURST, MIN_BONUS_BURST, Number(bonusBurstB));
+    valid['bonusBurstB'] = clamp(MIN_BONUS_BURST, MAX_BONUS_BURST, Number(bonusBurstB));
   }
 
   // Success Value
