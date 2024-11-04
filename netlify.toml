@@ -2,6 +2,10 @@
   publish = "dist"
   command = "vite build"
 
+[build.environment]
+  NODE_VERSION = "18.12.1"
+  YARN_VERSION = "3.3.0"
+
 [[redirects]]
 from = "https://khepri.netlify.app"
 to = "https://infinitythecalculator.com"
