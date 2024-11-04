@@ -313,9 +313,9 @@ function App() {
                                  tooltip="Possiblity of Survival for the weapon being used. You must include all damage
                                  mods like SR-1. You can add cover bonus here or add it to reactive player's ARM."/>}
                   <ArmorInput armor={armA} update={setArmA} title={armorTitleA}
-                              tooltip="Final computed armor value, after all modifiers. You must halve and round up if
+                              tooltip="Final save roll value, after all modifiers. You must halve and round up if
                               opposing player uses AP ammo. If a weapon only targets BTS (like breaker), use BTS value
-                              here"/>
+                              here. Generally I like to add the +3 cover bonus here."/>
                   {ammoB === 'PLASMA' && <BTSInput bts={btsA} update={setBtsA}/>}
                   <AmmoInput ammo={ammoA} cont={contA} update={setAmmoA} updateCont={setContA} title="Ammunition"
                              tooltip="Calculate AP ammo by halving opposing ARM/BTS manually. Dodge will use the burst
@@ -354,7 +354,7 @@ function App() {
                   <ArmorInput armor={armB} update={setArmB} variant='reactive' title={armorTitleB}
                               tooltip="Final computed armor value, after all modifiers. You must halve and round up if
                               opposing player uses AP ammo. If a weapon only targets BTS (like breaker), use BTS value
-                              here"/>
+                              here. Generally I like to add the +3 cover bonus here."/>
                   {ammoA === 'PLASMA' &&
                     <BTSInput bts={btsB} update={setBtsB} variant='reactive' title="BTS"
                               tooltip="BTS value. This box only shows if plasma ammo is used."/>}
