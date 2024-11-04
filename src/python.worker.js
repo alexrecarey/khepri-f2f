@@ -237,7 +237,7 @@ def format_face_to_face(face_to_face):
     return output
 
 
-def consolidate_wounds_over_maximum(wounds, max_wounds_shown=3):
+def consolidate_wounds_over_maximum(wounds, max_wounds_shown=25):
     squashed = {'active': None, 'reactive': None, 'fail': wounds['fail']}
     for player in ['active', 'reactive']:
         over_max = {k: v for k, v in wounds[player].items() if k > max_wounds_shown}
@@ -251,7 +251,7 @@ def consolidate_wounds_over_maximum(wounds, max_wounds_shown=3):
     return squashed
 
 
-def format_expected_wounds(wounds, max_wounds_shown=3):
+def format_expected_wounds(wounds, max_wounds_shown=25):
     """Format expected_wounds into a list of results
 
     Output format is {'player': 'active/reactive/fail', 'wounds': 3, 'chance': 0.2432, 'raw_chance' 1341234.23,
