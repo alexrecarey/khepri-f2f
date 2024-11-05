@@ -348,7 +348,7 @@ function App() {
                                        attribute. Success values over 20 will cause critical hits starting at 1.
                                        Remember mods cap out at +/-12."/>}
                   {dtwVsDodge === false && burstB !== 0 && ammoB !== 'DODGE' &&
-                    <DamageInput damage={damageB} update={setDamageB} variant='reactive' title="Save Roll"
+                    <DamageInput damage={damageB} update={setDamageB} variant='reactive' title="Weapon PS"
                                  tooltip="Possiblity of Survival for the weapon being used. You must include all damage
                                  mods like SR-1. You can add cover bonus here or add it to active player's ARM"/>}
                   <ArmorInput armor={armB} update={setArmB} variant='reactive' title={armorTitleB}
