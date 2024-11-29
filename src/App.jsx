@@ -298,9 +298,9 @@ function App() {
                               tooltip="Final burst after bonuses (fire team, multiple combatants in CC, etc). You can
                               set Reactive burst to 0 to calculate unopposed shots by double clicking on the die or
                               typing 0 in the value box."/>
-                  <BurstInput burst={bonusBurstA} update={setBonusBurstA} role='bonus' title="Extra dice"
+                  <BurstInput burst={bonusBurstA} update={setBonusBurstA} role='bonus' title="Special dice"
                               tooltip="Additional dies that are added to the burst but cannot be kept. Only *burst* die
-                              will be kept, but *burst* + *extra dice* die will be rolled. Highest die will be kept.
+                              will be kept, but *burst* + *special dice* die will be rolled. Highest die will be kept.
                               You can set to zero by double clicking any value or typing 0 into the value box"/>
                   {dtwVsDodge === false &&
                     <SuccessValueInput successValue={successValueA} update={setSuccessValueA} title="Success Value"
@@ -336,9 +336,9 @@ function App() {
                               tooltip="Final burst after bonuses (fire team, multiple combatants in CC, etc). You can
                               set Reactive burst to 0 to calculate unopposed shots by double clicking on the die or
                               typing 0 in the value box."/>
-                  <BurstInput burst={bonusBurstB} update={setBonusBurstB} variant='reactive' role='bonus' title="Extra dice"
+                  <BurstInput burst={bonusBurstB} update={setBonusBurstB} variant='reactive' role='bonus' title="Special dice"
                               tooltip="Additional dies that are added to the burst but cannot be kept. Only *burst* die
-                              will be kept, but *burst* + *extra dice* die will be rolled. Highest die will be kept.
+                              will be kept, but *burst* + *special dice* die will be rolled. Highest die will be kept.
                               You can set to zero by double clicking any value or typing 0 into the value box"/>
                   {burstB !== 0 &&
                     <SuccessValueInput successValue={successValueB} update={setSuccessValueB} variant='reactive'
