@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>A — Segmented modifier bar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  body{margin:0;background:#121212;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  @font-face{font-family:'Conthrax SB';src:url('/_blob/983817161e2381a37b4860d4c9999559') format('woff');font-weight:600;font-style:normal}
+  .rb-cell{cursor:pointer;transition:transform .12s ease,filter .12s ease}
+  .rb-cell:hover{filter:brightness(1.25)}
+</style>
+</helmet>
+<div style="width: 960px; height: 460px; box-sizing: border-box; background: #121212; padding: 36px 44px; display: flex; flex-direction: column; gap: 30px">
+  <div style="display: flex; align-items: baseline; justify-content: space-between">
+    <div style="font-family: 'Conthrax SB', sans-serif; font-size: 15px; letter-spacing: 2px; color: rgba(255,255,255,0.85)">A &middot; SEGMENTED MODIFIER BAR</div>
+    <div style="display: flex; align-items: center; gap: 10px; padding: 6px 16px; border-radius: 20px; background: #1c1c1c; border: 1px solid rgba(255,255,255,0.1)">
+      <span style="font-family: 'Conthrax SB', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.45)">DISTANCE</span>
+      <span style="font-family: 'Conthrax SB', sans-serif; font-size: 15px; font-weight: 700; color: #fff">{{distanceLabel}}</span>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <span style="font-family: 'Conthrax SB', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.45)">RANGE &middot; ACTIVE &middot; MULTI Sniper Rifle (A-M)</span>
+    <div style="display: flex; align-items: center; gap: 18px">
+      <div style="width: 56px; text-align: right; font-family: 'Conthrax SB', sans-serif; font-size: 28px; font-weight: 700; color: #d3f2a3">{{activeModText}}</div>
+      <div style="flex-grow: 1; display: flex; gap: 6px">
+        <sc-for list="{{activeItems}}" as="item" hint-placeholder-count="7">
+          <div class="rb-cell" style="{{item.cellStyle}}" onClick="{{item.pick}}">
+            <span style="{{item.textStyle}}">{{item.label}}</span>
+            <span style="{{item.capStyle}}">{{item.inches}}&Prime;</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <span style="font-family: 'Conthrax SB', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.45)">RANGE &middot; REACTIVE &middot; Hyper-Rapid Magnetic Cannon (AP)</span>
+    <div style="display: flex; align-items: center; gap: 18px">
+      <div style="width: 56px; text-align: right; font-family: 'Conthrax SB', sans-serif; font-size: 28px; font-weight: 700; color: #f3cbd3">{{reactiveModText}}</div>
+      <div style="flex-grow: 1; display: flex; gap: 6px">
+        <sc-for list="{{reactiveItems}}" as="item" hint-placeholder-count="7">
+          <div class="rb-cell" style="{{item.cellStyle}}" onClick="{{item.pick}}">
+            <span style="{{item.textStyle}}">{{item.label}}</span>
+            <span style="{{item.capStyle}}">{{item.inches}}&Prime;</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.5">
+    Click any cell on either row &mdash; both rows share one distance, so the highlighted band moves together and the number on the left updates for each weapon.
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":960,"height":460}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { bandIndex: 0 };
+  }
+
+  pick(i) {
+    this.setState({ bandIndex: i });
+  }
+
+  buildItems(mods, accent, accentDim, accentBorder) {
+    const BANDS = [8, 16, 24, 32, 40, 48, 96];
+    return BANDS.map((inches, i) => {
+      const mod = mods[i];
+      const selected = i === this.state.bandIndex;
+      const label = mod === null ? '—' : (mod > 0 ? '+' : '') + mod;
+      let cellStyle = 'flex:1;height:50px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;';
+      if (selected) {
+        cellStyle += 'background:' + accent + ';box-shadow:0 0 0 1px ' + accent + ';';
+      } else if (mod === null) {
+        cellStyle += 'background:transparent;border:1px dashed rgba(255,255,255,0.15);';
+      } else {
+        cellStyle += 'background:' + accentDim + ';border:1px solid ' + accentBorder + ';';
+      }
+      const textStyle = 'font-family:\'Conthrax SB\',sans-serif;font-size:14px;font-weight:700;color:' +
+        (selected ? '#121212' : (mod === null ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.8)')) + ';';
+      const capStyle = 'font-size:9px;color:' + (selected ? 'rgba(18,18,18,0.55)' : 'rgba(255,255,255,0.35)') + ';';
+      return { i, inches, label, cellStyle, textStyle, capStyle, pick: () => this.pick(i) };
+    });
+  }
+
+  renderVals() {
+    const ACTIVE_MODS = [-3, 0, 3, 3, -3, -6, null];
+    const REACTIVE_MODS = [-3, 0, 3, 0, -3, -6, null];
+    const BAND_LABELS = ['0-8"', '8-16"', '16-24"', '24-32"', '32-40"', '40-48"', '48-96"'];
+    const i = this.state.bandIndex;
+    const modText = (m) => (m === null ? '—' : (m > 0 ? '+' : '') + m);
+    return {
+      distanceLabel: BAND_LABELS[i],
+      activeModText: modText(ACTIVE_MODS[i]),
+      reactiveModText: modText(REACTIVE_MODS[i]),
+      activeItems: this.buildItems(ACTIVE_MODS, '#6cc08b', 'rgba(108,192,139,0.08)', 'rgba(108,192,139,0.35)'),
+      reactiveItems: this.buildItems(REACTIVE_MODS, '#dd88ac', 'rgba(221,136,172,0.08)', 'rgba(221,136,172,0.35)'),
+    };
+  }
+}
+</script>
+</body>
+</html>

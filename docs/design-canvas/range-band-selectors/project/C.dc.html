@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>C — Weighted diverging bars</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  body{margin:0;background:#121212;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  @font-face{font-family:'Conthrax SB';src:url('/_blob/983817161e2381a37b4860d4c9999559') format('woff');font-weight:600;font-style:normal}
+  .rb-col{cursor:pointer}
+</style>
+</helmet>
+<div style="width: 960px; height: 460px; box-sizing: border-box; background: #121212; padding: 36px 44px; display: flex; flex-direction: column; gap: 26px">
+  <div style="display: flex; align-items: baseline; justify-content: space-between">
+    <div style="font-family: 'Conthrax SB', sans-serif; font-size: 15px; letter-spacing: 2px; color: rgba(255,255,255,0.85)">C &middot; WEIGHTED DIVERGING BARS</div>
+    <div style="display: flex; align-items: center; gap: 10px; padding: 6px 16px; border-radius: 20px; background: #1c1c1c; border: 1px solid rgba(255,255,255,0.1)">
+      <span style="font-family: 'Conthrax SB', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.45)">DISTANCE</span>
+      <span style="font-family: 'Conthrax SB', sans-serif; font-size: 15px; font-weight: 700; color: #fff">{{distanceLabel}}</span>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-family: 'Conthrax SB', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.45)">RANGE &middot; ACTIVE &middot; MULTI Sniper Rifle (A-M)</span>
+    <div style="display: flex; align-items: center; gap: 18px">
+      <div style="width: 56px; text-align: right; font-family: 'Conthrax SB', sans-serif; font-size: 28px; font-weight: 700; color: #d3f2a3">{{activeModText}}</div>
+      <div style="flex-grow: 1; position: relative; height: 92px">
+        <div style="position: absolute; left: 0; right: 0; top: 46px; height: 1px; background: rgba(255,255,255,0.15)"></div>
+        <div style="position: absolute; inset: 0; display: flex">
+          <sc-for list="{{activeItems}}" as="item" hint-placeholder-count="7">
+            <div class="rb-col" style="{{item.colStyle}}" onClick="{{item.pick}}">
+              <div style="{{item.barStyle}}"></div>
+              <span style="{{item.numStyle}}">{{item.label}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    <div style="display: flex; padding-left: 74px">
+      <sc-for list="{{activeItems}}" as="item" hint-placeholder-count="7">
+        <div style="flex:1; text-align: center; font-size: 9px; color: rgba(255,255,255,0.35)">{{item.inches}}&Prime;</div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-family: 'Conthrax SB', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.45)">RANGE &middot; REACTIVE &middot; Hyper-Rapid Magnetic Cannon (AP)</span>
+    <div style="display: flex; align-items: center; gap: 18px">
+      <div style="width: 56px; text-align: right; font-family: 'Conthrax SB', sans-serif; font-size: 28px; font-weight: 700; color: #f3cbd3">{{reactiveModText}}</div>
+      <div style="flex-grow: 1; position: relative; height: 92px">
+        <div style="position: absolute; left: 0; right: 0; top: 46px; height: 1px; background: rgba(255,255,255,0.15)"></div>
+        <div style="position: absolute; inset: 0; display: flex">
+          <sc-for list="{{reactiveItems}}" as="item" hint-placeholder-count="7">
+            <div class="rb-col" style="{{item.colStyle}}" onClick="{{item.pick}}">
+              <div style="{{item.barStyle}}"></div>
+              <span style="{{item.numStyle}}">{{item.label}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    <div style="display: flex; padding-left: 74px">
+      <sc-for list="{{reactiveItems}}" as="item" hint-placeholder-count="7">
+        <div style="flex:1; text-align: center; font-size: 9px; color: rgba(255,255,255,0.35)">{{item.inches}}&Prime;</div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.5">
+    Bar height reads the modifier's size at a glance &mdash; one hue per side instead of the rulebook's red/yellow/green/blue, so it stays legible against the dark UI.
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":960,"height":460}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { bandIndex: 0 };
+  }
+
+  pick(i) {
+    this.setState({ bandIndex: i });
+  }
+
+  buildItems(mods, accent, accentMuted, accentHi) {
+    const BANDS = [8, 16, 24, 32, 40, 48, 96];
+    const baseline = 46;
+    const perPoint = 6;
+    return BANDS.map((inches, i) => {
+      const mod = mods[i];
+      const selected = i === this.state.bandIndex;
+      const label = mod === null ? '—' : (mod > 0 ? '+' : '') + mod;
+      const magPx = mod === null ? 0 : Math.max(Math.abs(mod) * perPoint, mod === 0 ? 4 : 0);
+      const barTop = mod !== null && mod > 0 ? baseline - magPx : baseline;
+      const barHeight = mod === null ? 0 : Math.max(magPx, 3);
+      const barColor = selected ? accent : (mod === null ? 'transparent' : accentMuted);
+      const barStyle = 'position:absolute;left:50%;transform:translateX(-50%);width:22px;border-radius:4px;top:' + barTop + 'px;height:' + barHeight + 'px;background:' + barColor + ';';
+      const numTop = mod === null ? baseline - 8 : (mod >= 0 ? barTop - 18 : barTop + barHeight + 4);
+      const numStyle = 'position:absolute;left:50%;transform:translateX(-50%);top:' + numTop + 'px;font-family:\'Conthrax SB\',sans-serif;font-size:12px;font-weight:700;white-space:nowrap;color:' +
+        (selected ? accentHi : (mod === null ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.7)')) + ';';
+      const colStyle = 'flex:1;position:relative;height:100%;border-radius:6px;cursor:pointer;background:' + (selected ? accentMuted : 'transparent') + ';' +
+        (selected ? 'box-shadow:0 0 0 1px ' + accent + ' inset;' : '');
+      return { i, inches, label, colStyle, barStyle, numStyle, pick: () => this.pick(i) };
+    });
+  }
+
+  renderVals() {
+    const ACTIVE_MODS = [-3, 0, 3, 3, -3, -6, null];
+    const REACTIVE_MODS = [-3, 0, 3, 0, -3, -6, null];
+    const BAND_LABELS = ['0-8"', '8-16"', '16-24"', '24-32"', '32-40"', '40-48"', '48-96"'];
+    const i = this.state.bandIndex;
+    const modText = (m) => (m === null ? '—' : (m > 0 ? '+' : '') + m);
+    return {
+      distanceLabel: BAND_LABELS[i],
+      activeModText: modText(ACTIVE_MODS[i]),
+      reactiveModText: modText(REACTIVE_MODS[i]),
+      activeItems: this.buildItems(ACTIVE_MODS, '#6cc08b', 'rgba(108,192,139,0.22)', '#d3f2a3'),
+      reactiveItems: this.buildItems(REACTIVE_MODS, '#dd88ac', 'rgba(221,136,172,0.22)', '#f3cbd3'),
+    };
+  }
+}
+</script>
+</body>
+</html>

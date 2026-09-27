@@ -1,0 +1,59 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-09-27T00:00:00Z"},
+  "title": "Range Band Selector Directions",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 960, "h": 460, "is_interactive": true},
+    "B.dc.html": {"x": 1040, "y": 0, "w": 960, "h": 460, "is_interactive": true},
+    "C.dc.html": {"x": 0, "y": 580, "w": 960, "h": 460, "is_interactive": true},
+    "D.dc.html": {"x": 1040, "y": 580, "w": 960, "h": 460, "is_interactive": true},
+    "E.dc.html": {"x": 0, "y": 1160, "w": 1000, "h": 420, "is_interactive": true}
+  },
+  "order": ["Main.dc.html", "B.dc.html", "C.dc.html", "D.dc.html", "E.dc.html"],
+  "notes": {
+    "title-main": {
+      "x": 0,
+      "y": -260,
+      "text": "Range band selector — 5 directions",
+      "kind": "title1",
+      "maxW": 2000
+    },
+    "note-a": {
+      "x": 0,
+      "y": 484,
+      "w": 440,
+      "text": "A keeps today's icon-row layout but swaps the icons for cells: each cell is the modifier itself, the current one solid-filled, and the final number moves to the left in the same slot Fireteam Purity already uses. Closest to a drop-in replacement for RangeInput.jsx.",
+      "fill": "gray"
+    },
+    "note-b": {
+      "x": 1040,
+      "y": 484,
+      "w": 440,
+      "text": "B keeps the physical ruler metaphor the app already has (RulerIcon) and adds a pin so the selected band still reads as a point on a tape measure, not a menu of buttons.",
+      "fill": "gray"
+    },
+    "note-c": {
+      "x": 0,
+      "y": 1064,
+      "w": 440,
+      "text": "C borrows the rulebook chart's idea that bar height should tell you the size of the modifier, but restrained to one hue per side instead of red/yellow/green/blue — answers 'do we want all that color' with 'the shape, not the palette'.",
+      "fill": "gray"
+    },
+    "note-d": {
+      "x": 1040,
+      "y": 1064,
+      "w": 440,
+      "text": "D is the most compact: a stepper plus a 7-dot sparkline. Best if the Range row ever needs to shrink, but the modifier-per-band view is smallest here too — a hover/tap shows it, nothing is visible at rest beyond the current value.",
+      "fill": "gray"
+    },
+    "note-e": {
+      "x": 1040,
+      "y": 1160,
+      "w": 440,
+      "text": "E takes the reciprocity requirement literally: since it's one distance, it's one ruler, with both weapons' modifiers stacked in each cell instead of two separate synced rows. Bigger change — Active and Reactive currently live in separate Grid columns — but it makes the shared value the point instead of an implementation detail. Every board above already demonstrates the sync live: click a band on either row and both rows (in A-D) move together, because both are driven by one shared bandIndex, exactly like rangeCm is shared in useMatchup.js today.",
+      "fill": "gray"
+    }
+  }
+}
