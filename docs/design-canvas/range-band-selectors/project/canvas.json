@@ -9,14 +9,15 @@
     "B.dc.html": {"x": 1040, "y": 0, "w": 960, "h": 460, "is_interactive": true},
     "C.dc.html": {"x": 0, "y": 580, "w": 960, "h": 460, "is_interactive": true},
     "D.dc.html": {"x": 1040, "y": 580, "w": 960, "h": 460, "is_interactive": true},
-    "E.dc.html": {"x": 0, "y": 1160, "w": 1000, "h": 420, "is_interactive": true}
+    "E.dc.html": {"x": 0, "y": 1160, "w": 1000, "h": 420, "is_interactive": true},
+    "F.dc.html": {"x": 1040, "y": 1160, "w": 960, "h": 500, "is_interactive": true}
   },
-  "order": ["Main.dc.html", "B.dc.html", "C.dc.html", "D.dc.html", "E.dc.html"],
+  "order": ["Main.dc.html", "B.dc.html", "C.dc.html", "D.dc.html", "E.dc.html", "F.dc.html"],
   "notes": {
     "title-main": {
       "x": 0,
       "y": -260,
-      "text": "Range band selector — 5 directions",
+      "text": "Range band selector — 6 directions",
       "kind": "title1",
       "maxW": 2000
     },
@@ -49,10 +50,17 @@
       "fill": "gray"
     },
     "note-e": {
-      "x": 1040,
-      "y": 1160,
+      "x": 0,
+      "y": 1604,
       "w": 440,
       "text": "E takes the reciprocity requirement literally: since it's one distance, it's one ruler, with both weapons' modifiers stacked in each cell instead of two separate synced rows. Bigger change — Active and Reactive currently live in separate Grid columns — but it makes the shared value the point instead of an implementation detail. Every board above already demonstrates the sync live: click a band on either row and both rows (in A-D) move together, because both are driven by one shared bandIndex, exactly like rangeCm is shared in useMatchup.js today.",
+      "fill": "gray"
+    },
+    "note-f": {
+      "x": 1040,
+      "y": 1684,
+      "w": 440,
+      "text": "F answers 'can we keep yellow/blue/green/red': yes, but mapped by MOD VALUE (−3 always yellow, 0 always blue, +3 always green, −6 always red — that's the rulebook's own code, not something invented here), desaturated into a translucent tint so it sits on dark instead of shouting. Selection is a separate layer: an accent pin plus a halo in the row's teal/pink, so picking a band never overwrites the tier color underneath it. Best of both worlds if the rulebook color code is something players already read at a glance and shouldn't lose.",
       "fill": "gray"
     }
   }
