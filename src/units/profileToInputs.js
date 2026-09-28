@@ -116,7 +116,7 @@ export function weaponLabel(row, mods) {
   return `${row.name}${modeSuffix(row.mode)} · B${burst}${sd} · PS${dmg} · ${row.ammo ?? 'N'}`;
 }
 
-// Single-mode first, then "Hit Mode", so the default pick is the plain shot.
+// Weapon menu order: single-mode first, then "Hit Mode", then other modes.
 const modeRank = (row) => (!row.mode ? 0 : /^hit/i.test(row.mode) ? 1 : 2);
 
 // BS-attack capable weapons of a loadout, one entry per firing mode.
@@ -133,6 +133,38 @@ export function bsWeapons(option, weapons) {
     }
   }
   return out;
+}
+
+// Ammo precedence for the default weapon, best first. Plasma rows list N ammo
+// with an ARM and BTS save; Bioweapon (DA+SHOCK) counts as its ammo. Ammo not
+// listed (AP, T2, E/M...) ranks with N.
+const AMMO_PRECEDENCE = ['PLASMA', 'EXP', 'DA', 'SHOCK'];
+function ammoRank(row) {
+  const bio = (row.props ?? []).map((p) => /^Bioweapon \((.+)\)$/.exec(p)?.[1]).find(Boolean) ?? '';
+  const types = `${row.ammo ?? ''}+${bio}`.toUpperCase().split('+');
+  if (row.saves === '1 and 1') types.push('PLASMA');
+  const i = AMMO_PRECEDENCE.findIndex((a) => types.includes(a));
+  return i === -1 ? AMMO_PRECEDENCE.length : i;
+}
+
+const isBlastMode = (w) => /^blast/i.test(w.mode ?? '');
+
+// Sort keys per role, lower wins, ties keep menu order. Active: highest
+// burst, then Blast Mode, then ammo. Reactive: a +1 SD weapon, then Blast
+// Mode, then ammo.
+const DEFAULT_WEAPON_KEYS = {
+  active: (w) => [-((w.row.burst ?? 1) + w.mods.burst), isBlastMode(w) ? 0 : 1, ammoRank(w.row)],
+  reactive: (w) => [w.mods.sd > 0 ? 0 : 1, isBlastMode(w) ? 0 : 1, ammoRank(w.row)],
+};
+
+// Weapon picked once a loadout is chosen, from bsWeapons(); null if none.
+export function defaultWeapon(weapons, role) {
+  const key = DEFAULT_WEAPON_KEYS[role];
+  const compare = (a, b) => {
+    const kb = key(b);
+    return key(a).reduce((d, x, i) => d || x - kb[i], 0);
+  };
+  return [...weapons].sort(compare)[0] ?? null;
 }
 
 // Fireteam bonuses by member count (N5, cumulative, assuming all members are

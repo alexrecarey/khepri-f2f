@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import {useTheme} from '@mui/material/styles';
 import PropTypes from 'prop-types';
-import {SKILL, bsWeapons, effectiveTraits, loadoutLabels, searchKey} from './profileToInputs.js';
+import {SKILL, bsWeapons, defaultWeapon, effectiveTraits, loadoutLabels, searchKey} from './profileToInputs.js';
 import SelectField, {compactText} from './SelectField.jsx';
 import {EMPTY_SELECTION} from './useMatchup.js';
 
@@ -29,8 +29,8 @@ const filterOptions = (units, {inputValue}) => {
   return units.filter((u) => u.search.includes(q));
 };
 
-// Unit, faction, profile and loadout for one side. The weapon (auto-set to the
-// loadout's first BS weapon) and cover are set in the calculator column.
+// Unit, faction, profile and loadout for one side. The weapon (auto-set by
+// defaultWeapon) and cover are set in the calculator column.
 function UnitPicker({variant, army, value, onChange, headerAction}) {
   const theme = useTheme();
   const color = variant === 'active' ? 'primary' : 'secondary';
@@ -51,7 +51,7 @@ function UnitPicker({variant, army, value, onChange, headerAction}) {
   // Team-Ops troopers can take one chart upgrade and one TacBall item (both optional).
   const teamOps = Boolean(profile) && Boolean(unit?.upgrades)
     && effectiveTraits(profile, option).skills.some((s) => s.id === SKILL.TEAM_OPS);
-  // Changing upgrades can remove the weapon in use; fall back to the first one.
+  // Changing upgrades can remove the weapon in use; fall back to the default.
   const setUpgrade = (patch) => {
     const keep = !value.weaponKey || ['dodge', 'none'].includes(value.weaponKey)
       || weapons.some((w) => w.key === value.weaponKey);
@@ -66,12 +66,12 @@ function UnitPicker({variant, army, value, onChange, headerAction}) {
   const highlighted = useRef(null);
   const inputRef = useRef(null);
 
-  // Defaults that need a state write: a single loadout, and the first BS weapon.
+  // Defaults that need a state write: a single loadout, and the default weapon.
   useEffect(() => {
     if (group && !value.optionId && labels.length === 1) {
       set({optionId: labels[0].id, weaponKey: null});
     } else if (option && !value.weaponKey && weapons.length > 0) {
-      set({weaponKey: weapons[0].key});
+      set({weaponKey: defaultWeapon(weapons, variant).key});
     }
   });
 

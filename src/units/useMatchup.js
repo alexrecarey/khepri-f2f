@@ -95,7 +95,7 @@ export default function useMatchup({enabled, calculate, onApply, initial = null,
   }, [derived, enabled, hasSelection]);
 
   // "No ARO" only exists on the reactive side; drop it so the new active side
-  // auto-picks its first BS weapon. Dodge is valid on both sides.
+  // auto-picks its default weapon. Dodge is valid on both sides.
   const swapSides = () => {
     setPickA({...pickB, weaponKey: pickB.weaponKey === 'none' ? null : pickB.weaponKey});
     setPickB(pickA);

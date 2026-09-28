@@ -23,7 +23,7 @@ function previewText(preview) {
 
 // Weapon choice for one side of the matchup, first in its calculator column.
 // Disabled until a loadout is picked; the unit picker then auto-selects the
-// first BS weapon.
+// default weapon (defaultWeapon).
 function WeaponSelect({variant, matchup}) {
   const side = variant === 'active' ? 'A' : 'B';
   const {sel, setSel, resolved, previews} = matchup[side];
