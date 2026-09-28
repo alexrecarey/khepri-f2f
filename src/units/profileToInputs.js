@@ -11,6 +11,7 @@ export const SKILL = {
   MARKSMANSHIP: 156,
   IMMUNITY: 162,
   SURPRISE_ATTACK: 191,
+  VULNERABILITY: 220,
   NO_COVER: 264,
   LIMITED_COVER: 268,
   BS_ATTACK: 201,
@@ -42,8 +43,7 @@ export const RANGE_BANDS = [
 
 // Same limits as src/inputs/validateParams.js
 const LIMITS = {
-  burstA: [1, 6],
-  burstB: [0, 6],
+  burst: [0, 6],
   bonusBurst: [0, 3],
   successValue: [1, 30],
   damage: [0, 30],
@@ -331,9 +331,75 @@ const bioweaponAmmo = (row) => {
   return null;
 };
 
+// Vulnerability (wiki): no Immunity against the bracketed weapon, e.g. any
+// weapon with "Viral" in its name. Returns the bracketed name, or null.
+function vulnerabilityTo(targetTraits, row) {
+  const name = (row?.name ?? '').toLowerCase();
+  return (targetTraits?.skills ?? [])
+    .filter((s) => s.id === SKILL.VULNERABILITY)
+    .flatMap((s) => s.extra ?? [])
+    .find((e) => name.includes(e.toLowerCase())) ?? null;
+}
+
+const hasImmunity = (targetTraits, kind, row) =>
+  hasSkill(targetTraits, SKILL.IMMUNITY, kind) && !vulnerabilityTo(targetTraits, row);
+
+// Plasma's combined save counts as ARM: its BTS half is a plain Saving Roll,
+// with nothing for an Immunity to ignore.
+const saveAttribute = (row) => ((row?.saving ?? '').startsWith('BTS') ? 'BTS' : 'ARM');
+
+function immunityFor(targetTraits, row) {
+  if (!row) return null;
+  if (hasSkill(targetTraits, SKILL.IMMUNITY, 'Enhanced')) return 'Enhanced';
+  const attr = saveAttribute(row);
+  return hasSkill(targetTraits, SKILL.IMMUNITY, attr) ? attr : null;
+}
+
+// Immunity (ARM) / (BTS) (wiki): when the Saving Roll uses that Attribute, the
+// Ammunition is treated as Normal: one Saving Roll per hit, one Wound per
+// failure, Attribute not halved. Weapon Traits that cause States, reduce the
+// Attribute or refer to Wounds (ARM=0, Continuous Damage) are ignored too. A
+// Critical still adds its Saving Roll, and a combined ARM+BTS save (Plasma)
+// still rolls both. Immunity (Enhanced) is Immunity (ARM) plus Immunity (BTS).
+// Returns the bracketed name of the Immunity that applies, or null.
+export function immunityAgainst(targetTraits, row) {
+  return vulnerabilityTo(targetTraits, row) ? null : immunityFor(targetTraits, row);
+}
+
+const hasContinuousDamage = (row, mods) => Boolean(mods?.cont) || (row?.props ?? []).includes('Continous Damage');
+
+// Non-Lethal weapons, and ones without Ammunition (Sepsitor), cause States
+// instead of Wounds.
+const causesWounds = (row) => row.ammo != null && !(row.props ?? []).includes('Non-lethal');
+
+// Against an Immunity those States are ignored too, so nothing is left of the
+// attack. The exception is State: Stunned, which always applies (wiki example
+// 4, Flash Pulse).
+// An attack that cannot affect its target opposes nothing (wiki, Face to Face
+// Rolls): it gets burst 0 and the target makes a Normal Roll.
+export const hasNoEffect = (targetTraits, row) =>
+  Boolean(immunityAgainst(targetTraits, row))
+  && !causesWounds(row)
+  && !(row.props ?? []).some((p) => p.startsWith('State: Stunned'));
+
+// What the Immunity takes away from this attack, for the matchup note.
+function immunityNote(immunity, row, mods) {
+  const parts = [];
+  const ammo = (row.ammo ?? 'N').split('+').filter((a) => a !== 'N');
+  if (mods?.forceAP && !ammo.includes('AP')) ammo.unshift('AP');
+  const bio = (row.props ?? []).find((p) => p.startsWith('Bioweapon ('));
+  if (bio) ammo.push(bio);
+  if (ammo.length > 0) parts.push(`${ammo.join('+')} treated as N`);
+  const traits = [];
+  if (row.saving === 'ARM=0') traits.push('ARM=0');
+  if (hasContinuousDamage(row, mods)) traits.push('Continuous Damage');
+  if (traits.length > 0) parts.push(`${traits.join(', ')} ignored`);
+  return parts.length > 0 ? `target has Immunity (${immunity}); ${parts.join('; ')}` : null;
+}
+
 export function calcAmmo(row, targetTraits) {
   if (row.saves === '1 and 1') return 'PLASMA';
-  if (hasSkill(targetTraits, SKILL.IMMUNITY, 'Enhanced')) return 'N';
+  if (immunityAgainst(targetTraits, row)) return 'N';
   if (row.saves === '2') return 'DA';
   if (row.saves === '3') return 'EXP';
   const bio = bioweaponAmmo(row);
@@ -348,11 +414,12 @@ const hasShockAmmo = (row) =>
 // Shock (wiki): a target with VITA 1 that fails a Saving Roll skips
 // Unconscious and goes straight to Dead, which the calculator counts as one
 // extra wound. Troopers with STR or with 2+ VITA are unaffected. Immunity
-// (Shock) and (Enhanced) treat the hit as Normal Ammunition.
+// (Shock), and Immunity (ARM) / (BTS) / (Enhanced) on that save, treat the hit
+// as Normal Ammunition. Vulnerability cancels any of them.
 export function shockApplies(row, target) {
   if (!hasShockAmmo(row) || !target?.profile) return false;
   if (target.profile.str || target.profile.w !== 1) return false;
-  return !hasSkill(target.traits, SKILL.IMMUNITY, 'Shock') && !hasSkill(target.traits, SKILL.IMMUNITY, 'Enhanced');
+  return !immunityAgainst(target.traits, row) && !hasImmunity(target.traits, 'Shock', row);
 }
 
 const IGNORED = [
@@ -369,7 +436,6 @@ function unsupportedTraits(side) {
   const found = IGNORED
     .filter(([kind, id]) => (kind === 'skill' ? hasSkill(side.traits, id) : hasEquip(side.traits, id)))
     .map(([, , name]) => name);
-  if (hasSkill(side.traits, SKILL.IMMUNITY, 'ARM')) found.push('Immunity (ARM)');
   if (fireteamBonuses(side.ftSize).sixthSense) found.push('Sixth Sense');
   return found;
 }
@@ -378,10 +444,13 @@ function unsupportedTraits(side) {
 const isSpecOps = (side) =>
   (side?.group?.profiles ?? []).some((p) => (p.skills ?? []).some((sk) => sk.id === SKILL.SPEC_OPS));
 
-function approximationWarnings(label, side) {
+function approximationWarnings(label, side, target) {
   const warnings = [];
-  if (side?.weapon?.row && (side.weapon.row.props ?? []).includes('Non-lethal')) {
-    warnings.push(`${label}: ${side.weapon.row.name} is non-lethal; results shown as wounds`);
+  const row = side?.weapon?.row;
+  if (row && hasNoEffect(target?.traits, row)) {
+    warnings.push(`${label}: ${row.name} has no effect on a target with Immunity (${immunityAgainst(target.traits, row)}); not rolled`);
+  } else if (row && (row.props ?? []).includes('Non-lethal')) {
+    warnings.push(`${label}: ${row.name} is non-lethal; results shown as wounds`);
   }
   for (const name of side?.unsupportedUpgradeWeapons ?? []) {
     warnings.push(`${label}: ${name} (upgrade) not supported by the calculator`);
@@ -441,31 +510,39 @@ function attackInputs(x, y, rangeCm, side, errors, notes) {
     ? 0
     : clamp(LIMITS.successValue, attackStat(x.profile, row) + rangeMod + mim + albedo + cover + mods.sv + bonus.bs);
 
+  const noEffect = hasNoEffect(y?.traits, row);
   let burst = (row.burst ?? 1) + bonus.burst;
   if (side === 'B' && !keepsAroBurst(x)) burst = 1;
+  if (noEffect) burst = 0;
+  const immunity = immunityAgainst(y?.traits, row);
   const out = {
     [`successValue${side}`]: sv,
-    [`burst${side}`]: clamp(side === 'A' ? LIMITS.burstA : LIMITS.burstB, burst),
-    [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, bonus.sd),
+    [`burst${side}`]: clamp(LIMITS.burst, burst),
+    [`bonusBurst${side}`]: noEffect ? 0 : clamp(LIMITS.bonusBurst, bonus.sd),
     [`damage${side}`]: clamp(LIMITS.damage, mods.ps ?? row.dmg),
     [`ammo${side}`]: calcAmmo(row, y?.traits),
-    [`cont${side}`]: mods.cont || (row.props ?? []).includes('Continous Damage'),
+    [`cont${side}`]: !immunity && hasContinuousDamage(row, mods),
     [`shock${side}`]: shockApplies(row, y),
   };
   if (out[`shock${side}`]) notes.push(`${label}: Shock against VITA 1; a failed save is Dead, counted as one extra wound`);
-  if (hasSkill(y?.traits, SKILL.IMMUNITY, 'Enhanced') && row.saves !== '1 and 1' && row.saves !== '1') {
-    notes.push(`${label}: target has Immunity (Enhanced); special ammo treated as N`);
-  }
+  // State-only weapons get a warning instead (no effect), or play as always (Stunned).
+  const note = immunity && causesWounds(row) && immunityNote(immunity, row, mods);
+  if (note) notes.push(`${label}: ${note}`);
+  const vulnerable = vulnerabilityTo(y?.traits, row);
+  const lost = vulnerable && immunityFor(y.traits, row);
+  if (lost) notes.push(`${label}: target has Vulnerability (${vulnerable}); Immunity (${lost}) does not apply`);
   return out;
 }
 
 function defenseInputs(y, incoming, side) {
   const p = y.profile;
   const saving = incoming?.row?.saving ?? 'ARM';
-  let base = saving.startsWith('BTS') ? p.bts : saving === 'ARM=0' ? 0 : p.arm;
+  // Immune: the Attribute is rolled as printed, no ARM=0 and no AP halving.
+  const immune = Boolean(immunityAgainst(y.traits, incoming?.row));
+  let base = saving.startsWith('BTS') ? p.bts : saving === 'ARM=0' && !immune ? 0 : p.arm;
   base = Math.max(0, base ?? 0);
   const halve = saving.endsWith('/2') || Boolean(incoming?.mods?.forceAP);
-  const apImmune = hasSkill(y.traits, SKILL.IMMUNITY, 'AP') || hasSkill(y.traits, SKILL.IMMUNITY, 'Enhanced');
+  const apImmune = immune || hasImmunity(y.traits, 'AP', incoming?.row);
   if (halve && !apImmune) base = Math.ceil(base / 2);
   // Cover's +3 is a Saving Roll MOD, not ARM: add it after AP halving. The
   // calculator saves on d20 <= PS + ARM, so this input is where the MOD goes.
@@ -476,13 +553,13 @@ function defenseInputs(y, incoming, side) {
   return {
     [`arm${side}`]: clamp(LIMITS.arm, base + cover),
     [`bts${side}`]: clamp(LIMITS.bts, Math.max(0, p.bts ?? 0) + cover),
-    [`critImmune${side}`]: hasSkill(y.traits, SKILL.IMMUNITY, 'Critical'),
+    [`critImmune${side}`]: hasImmunity(y.traits, 'Critical', incoming?.row),
   };
 }
 
-const MODELED_SKILLS = [SKILL.MIMETISM, SKILL.NO_COVER, SKILL.TOTAL_REACTION, SKILL.NEUROCINETICS];
+const MODELED_SKILLS = [SKILL.MIMETISM, SKILL.NO_COVER, SKILL.TOTAL_REACTION, SKILL.NEUROCINETICS, SKILL.VULNERABILITY];
 const MODELED_EQUIP = [EQUIP.NANOSCREEN, EQUIP.MSV1, EQUIP.MSV2, EQUIP.MSV3, EQUIP.X_VISOR, EQUIP.ALBEDO];
-const MODELED_IMMUNITIES = ['AP', 'Critical', 'Enhanced', 'Shock'];
+const MODELED_IMMUNITIES = ['AP', 'ARM', 'BTS', 'Critical', 'Enhanced', 'Shock'];
 const traitLabel = (t) => (t.extra?.length ? `${t.name} (${t.extra.join(', ')})` : t.name);
 
 // Skills, equipment and state on this side that the converter actually uses,
@@ -536,9 +613,10 @@ export function deriveInputs({active, reactive, rangeCm}) {
   let incomplete = false;
   const a = active?.profile ? active : null;
   const b = reactive?.profile ? reactive : null;
-  const aTemplate = Boolean(a?.weapon?.row && isTemplate(a.weapon.row));
-
-  const bTemplate = Boolean(b?.weapon?.row && isTemplate(b.weapon.row));
+  // A template with no effect on its target forces no Dodge.
+  const usesTemplate = (x, y) => Boolean(x?.weapon?.row && isTemplate(x.weapon.row) && !hasNoEffect(y?.traits, x.weapon.row));
+  const aTemplate = usesTemplate(a, b);
+  const bTemplate = usesTemplate(b, a);
 
   if (a) {
     if (!a.weapon) {
@@ -594,7 +672,7 @@ export function deriveInputs({active, reactive, rangeCm}) {
   const warnings = [];
   const unsupported = [...new Set([...unsupportedTraits(a), ...unsupportedTraits(b)])];
   if (unsupported.length > 0) warnings.push(`Support for ${unsupported.join(', ')} not implemented yet`);
-  warnings.push(...approximationWarnings('Active', a), ...approximationWarnings('Reactive', b));
+  warnings.push(...approximationWarnings('Active', a, b), ...approximationWarnings('Reactive', b, a));
   if (isSpecOps(a) || isSpecOps(b)) warnings.push('Spec-Ops upgrades and SpecBall not supported yet');
 
   return {inputs, ok: errors.length === 0 && !incomplete && (a !== null || b !== null), errors, warnings, notes};

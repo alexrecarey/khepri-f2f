@@ -1,5 +1,6 @@
 import {clamp} from 'ramda';
 
+// 0 = not rolled: the other side makes a Normal Roll (unopposed).
 const MIN_BURST = 0;
 const MAX_BURST = 6;
 const MIN_BONUS_BURST = 0;
@@ -46,7 +47,7 @@ function validateParams(p) {
   // Burst
   let burstA = p.get('burstA')
   if(burstA !== null && !isNaN(Number(burstA))){
-    valid['burstA'] = clamp(1, MAX_BURST, Number(burstA));
+    valid['burstA'] = clamp(MIN_BURST, MAX_BURST, Number(burstA));
   }
   let burstB = p.get('burstB')
   if(burstB !== null && !isNaN(Number(burstB))){

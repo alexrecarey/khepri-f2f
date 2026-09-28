@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {PARAM_KEYS, fullParams, paramsKey, previewCandidates, woundsFor} from './previews.js';
 import {bsWeapons} from './profileToInputs.js';
+import validateParams from '../inputs/validateParams.js';
 
 const army = JSON.parse(readFileSync(new URL('../data/army.json', import.meta.url), 'utf8'));
 const byIsc = (isc) => army.units.find((u) => u.isc === isc);
@@ -66,6 +67,13 @@ test('paramsKey ignores key order; fullParams fills defaults', () => {
   assert.equal(paramsKey(a), paramsKey(b));
   assert.equal(a.burstB, 1);
   assert.equal(a.fixedFaceToFace, false);
+});
+
+test('burst 0 (not rolled) survives a share link on either side', () => {
+  const p = validateParams(new URLSearchParams({burstA: '0', burstB: '0'}));
+  assert.equal(p.burstA, 0);
+  assert.equal(p.burstB, 0);
+  assert.equal(validateParams(new URLSearchParams()).burstA, 3);
 });
 
 test('woundsFor sums wounds × chance for one player', () => {
