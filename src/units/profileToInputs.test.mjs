@@ -247,6 +247,14 @@ test('reactive burst: total reaction keeps weapon burst, "none" is unopposed', (
   assert.equal(none.ok, true);
 });
 
+test('loadout BS MOD extras: "+3" and "+3 BS" add to the attack roll', () => {
+  const sv = (extra) => deriveInputs({active: side(profile(), option([{id: 1, name: 'x', extra}]), '1:'), reactive: null, rangeCm: 40}).inputs.successValueA;
+  assert.equal(sv([]), 15);
+  assert.equal(sv(['+3']), 18);
+  assert.equal(sv(['+3 BS']), 18);
+  assert.equal(sv(['-3 BS']), 12);
+});
+
 test('loadout extras and crit immunity', () => {
   const o = option([{id: 1, name: 'Combi Rifle', extra: ['+1B', 'PS=9']}]);
   const target = profile({skills: [{id: 162, name: 'Immunity', extra: ['Critical']}]});
@@ -798,6 +806,11 @@ test('army ammo extras: Corax Combi Rifle (Viral), Treitak Combi Rifle (T2), Igu
   assert.equal(t2.weapon.label, 'Combi Rifle · B3 · PS7 · T2');
   assert.equal(deriveInputs({active: t2, reactive: null, rangeCm: 40}).inputs.ammoA, 'T2');
   assert.equal(defaultWeapon(bsWeapons(t2.option, army.weapons), 'active').key, '33:');
+
+  // Robin Hook: Tactical Bow (+3 BS). BS11, +3 range at 0-8".
+  const robin = byIsc('Robin Hook, outlaw AI');
+  const bow = resolveSelection(army, {unitId: robin.id, factionId: 503, groupId: 1, profileId: 1, optionId: 1, weaponKey: '193:'});
+  assert.equal(deriveInputs({active: bow, reactive: null, rangeCm: 20}).inputs.successValueA, 11 + 3 + 3);
 
   // The Mine Dispenser is not a BS Attack, whatever mines it lays.
   const iguana = byIsc("'Iguana' Squadron").byFaction['403'].groups[0].options[0];

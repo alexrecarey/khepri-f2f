@@ -105,7 +105,8 @@ export function parseWeaponMods(extra = []) {
     else if (e === 'AP') mods.forceAP = true;
     else if (AMMO_EXTRAS.includes(e)) mods.ammo = e;
     else if (e === 'Continous Damage') mods.cont = true;
-    else if ((m = /^([+-]\d+)$/.exec(e))) mods.sv += Number(m[1]);
+    // BS MOD for this weapon: "+3" (Flash Pulse), "+3 BS" (Tactical Bow).
+    else if ((m = /^([+-]\d+)(?: BS)?$/.exec(e))) mods.sv += Number(m[1]);
   }
   return mods;
 }
