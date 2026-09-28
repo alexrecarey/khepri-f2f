@@ -202,6 +202,58 @@ test('unsupported traits are reported as warnings', () => {
   assert.ok(r.warnings.some((n) => n === 'Support for Surprise Attack, Marksmanship not implemented yet'), r.warnings.join(' | '));
 });
 
+test('Shock takes effect on VITA 1 targets only, unless immune', () => {
+  const W2 = {...W, 12: [{name: 'Uragan MRL', mode: 'Hit Mode', ammo: 'AP+Shock', burst: 3, dmg: 6, saving: 'ARM/2', saves: '1', props: [], ranges: RIFLE_RANGES}]};
+  const shooter = (id, key) => {
+    const o = option([{id, name: 'x'}]);
+    return {...side(profile(), o, null), weapon: bsWeapons(o, W2).find((w) => w.key === key)};
+  };
+  const immunity = (extra) => ({skills: [{id: 162, name: 'Immunity', extra: [extra]}]});
+  const vs = (id, key, target) =>
+    deriveInputs({active: shooter(id, key), reactive: side(profile({arm: 5, bts: 6, ...target}), combi, '1:'), rangeCm: 40});
+
+  // Shock, AP+Shock, Bioweapon (DA+SHOCK)
+  for (const [id, key] of [[6, '6:'], [12, '12:Hit Mode'], [4, '4:']]) {
+    const plain = vs(id, key, {});
+    assert.equal(plain.inputs.shockA, true, key);
+    assert.ok(plain.notes.some((n) => n.startsWith('Active: Shock against VITA 1')), key);
+    assert.equal(vs(id, key, {w: 2}).inputs.shockA, false, key);
+    assert.equal(vs(id, key, {str: true}).inputs.shockA, false, key);
+    assert.equal(vs(id, key, immunity('Enhanced')).inputs.shockA, false, key);
+
+    // Immunity only takes the Shock away: AP still halves, Viral is still DA.
+    const immune = vs(id, key, immunity('Shock'));
+    assert.deepEqual(immune.warnings, [], key);
+    assert.deepEqual(immune.notes, [], key);
+    assert.deepEqual(immune.inputs, {...plain.inputs, shockA: false}, key);
+  }
+  assert.equal(vs(12, '12:Hit Mode', {}).inputs.armB, 3);
+  assert.equal(vs(4, '4:', {}).inputs.ammoA, 'DA');
+
+  // Other ammunition, and the reactive side.
+  assert.equal(deriveInputs({active: side(profile(), combi, '1:'), reactive: side(profile(), combi, '1:'), rangeCm: 40}).inputs.shockA, false);
+  const pistol = option([{id: 6, name: 'Heavy Pistol'}]);
+  const aro = (target) => deriveInputs({active: side(profile(target), combi, '1:'), reactive: side(profile(), pistol, '6:'), rangeCm: 20});
+  assert.equal(aro({}).inputs.shockB, true);
+  assert.equal(aro({}).inputs.shockA, false);
+  assert.equal(aro(immunity('Shock')).inputs.shockB, false);
+});
+
+test('Shock is cleared when the side stops shooting', () => {
+  const pistol = option([{id: 6, name: 'Heavy Pistol'}]);
+  const armed = option([{id: 6, name: 'Heavy Pistol'}, {id: 3, name: 'Heavy Flamethrower'}]);
+  const dodgeA = deriveInputs({active: side(profile(), pistol, 'dodge'), reactive: side(profile(), combi, '1:'), rangeCm: 20});
+  assert.equal(dodgeA.inputs.shockA, false);
+  for (const key of ['dodge', 'none']) {
+    const r = deriveInputs({active: side(profile(), combi, '1:'), reactive: side(profile(), pistol, key), rangeCm: 20});
+    assert.equal(r.inputs.shockB, false, key);
+  }
+  // Forced to Dodge by a template, with a Shock weapon still selected.
+  const forced = deriveInputs({active: side(profile(), armed, '3:'), reactive: side(profile(), pistol, '6:'), rangeCm: 20});
+  assert.equal(forced.inputs.ammoB, 'DODGE');
+  assert.equal(forced.inputs.shockB, false);
+});
+
 test('Albedo penalises MSV and Marksmanship attackers only', () => {
   const albedo6 = profile({equip: [{id: 183, name: 'Albedo', extra: ['-6']}]});
   const plain = profile();
@@ -261,8 +313,8 @@ test('matchupTraits lists only the traits the converter uses', () => {
   const plain = side(profile({arm: 3}), combi, '1:', true);
   assert.deepEqual(matchupTraits(plain), ['In cover']);
   const dodger = side(profile({skills: [{id: 40, name: 'Dodge', extra: ['+3']}, {id: 162, name: 'Immunity', extra: ['Shock']}]}), combi, 'dodge');
-  assert.deepEqual(matchupTraits(dodger), ['Dodge +3']);
-  assert.deepEqual(matchupTraits({...dodger, ftSize: 3}), ['Dodge +4']);
+  assert.deepEqual(matchupTraits(dodger), ['Immunity (Shock)', 'Dodge +3']);
+  assert.deepEqual(matchupTraits({...dodger, ftSize: 3}), ['Immunity (Shock)', 'Dodge +4']);
 });
 
 test('Hatamoto plasma vs Sierra Dronbot HMG at 8-16"', () => {

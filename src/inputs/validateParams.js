@@ -26,6 +26,7 @@ function validateParams(p) {
     btsA: 0,
     ammoA: 'N',
     contA: false,
+    shockA: false,
     critImmuneA: false,
     dtwVsDodge: false,
     burstB: 1,
@@ -36,6 +37,7 @@ function validateParams(p) {
     btsB: 0,
     ammoB: 'N',
     contB: false,
+    shockB: false,
     critImmuneB: false,
     fixedFaceToFace: false,
   };
@@ -119,6 +121,16 @@ function validateParams(p) {
   let contB = p.get('contB');
   if(contB !== null){
     valid['contB'] = contB.toLowerCase() === 'true';
+  }
+
+  // Shock taking effect (target has VITA 1 and no immunity)
+  let shockA = p.get('shockA');
+  if(shockA !== null){
+    valid['shockA'] = shockA.toLowerCase() === 'true';
+  }
+  let shockB = p.get('shockB');
+  if(shockB !== null){
+    valid['shockB'] = shockB.toLowerCase() === 'true';
   }
 
   // Crit immunity

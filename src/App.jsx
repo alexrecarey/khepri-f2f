@@ -100,6 +100,7 @@ function App() {
   const [btsA, setBtsA] = useState(p.btsA);
   const [ammoA, setAmmoA] = useState(p.ammoA);
   const [contA, setContA] = useState(p.contA);
+  const [shockA, setShockA] = useState(p.shockA);
   const [critImmuneA, setCritImmuneA] = useState(p.critImmuneA);
   const [dtwVsDodge, setDtwVsDodge] = useState(p.dtwVsDodge);
 
@@ -112,6 +113,7 @@ function App() {
   const [btsB, setBtsB] = useState(p.btsB);
   const [ammoB, setAmmoB] = useState(p.ammoB);
   const [contB, setContB] = useState(p.contB);
+  const [shockB, setShockB] = useState(p.shockB);
   const [critImmuneB, setCritImmuneB] = useState(p.critImmuneB);
   const [fixedFaceToFace, setFixedFaceToFace] = useState(p.fixedFaceToFace);
 
@@ -119,10 +121,10 @@ function App() {
   // into one render, so the calculation effect below runs once.
   const setters = {
     burstA: setBurstA, bonusBurstA: setBonusBurstA, successValueA: setSuccessValueA, damageA: setDamageA,
-    armA: setArmA, btsA: setBtsA, ammoA: setAmmoA, contA: setContA, critImmuneA: setCritImmuneA,
+    armA: setArmA, btsA: setBtsA, ammoA: setAmmoA, contA: setContA, shockA: setShockA, critImmuneA: setCritImmuneA,
     dtwVsDodge: setDtwVsDodge,
     burstB: setBurstB, bonusBurstB: setBonusBurstB, successValueB: setSuccessValueB, damageB: setDamageB,
-    armB: setArmB, btsB: setBtsB, ammoB: setAmmoB, contB: setContB, critImmuneB: setCritImmuneB,
+    armB: setArmB, btsB: setBtsB, ammoB: setAmmoB, contB: setContB, shockB: setShockB, critImmuneB: setCritImmuneB,
     fixedFaceToFace: setFixedFaceToFace,
   };
   const applyInputs = (partial) => {
@@ -271,8 +273,8 @@ function App() {
     // Drop any shared calculator params once applied, but keep the mode.
     setSearchParams({mode: calcMode}, {replace: true});
   },[
-    burstA, bonusBurstA, successValueA, damageA, armA, btsA, ammoA, contA, critImmuneA,
-    burstB, bonusBurstB, successValueB, damageB, armB, btsB, ammoB, contB, critImmuneB,
+    burstA, bonusBurstA, successValueA, damageA, armA, btsA, ammoA, contA, shockA, critImmuneA,
+    burstB, bonusBurstB, successValueB, damageB, armB, btsB, ammoB, contB, shockB, critImmuneB,
     dtwVsDodge, fixedFaceToFace
   ]);
 
@@ -282,9 +284,9 @@ function App() {
     // get result from worker
     let parameters = {
       successValueA: successValueA, burstA: burstA, bonusBurstA: bonusBurstA, damageA: damageA, armA: armA, btsA: btsA,
-      ammoA: ammoA, contA: contA, critImmuneA: critImmuneA,
+      ammoA: ammoA, contA: contA, shockA: shockA, critImmuneA: critImmuneA,
       successValueB: successValueB, burstB: burstB, bonusBurstB: bonusBurstB, damageB: damageB, armB: armB, btsB: btsB,
-      ammoB: ammoB, contB: contB, critImmuneB: critImmuneB,
+      ammoB: ammoB, contB: contB, shockB: shockB, critImmuneB: critImmuneB,
       dtwVsDodge: dtwVsDodge, fixedFaceToFace: fixedFaceToFace
     }
     await workerRef?.current?.postMessage?.({command: 'calculate', data: parameters})
@@ -337,12 +339,13 @@ function App() {
   const downloadResultsInCSV = () => {
     // Title: Result ID, Result name,
     // F2F results: Active Win %, Reactive win %, Failure win %,
-    // Parameters A: burstA, successValueA, damageA,armA, btsA, ammoA, contA, critImmuneA, dtwVsDodge,
-    // Parameters B: burstB, successValueB, damageB, armB, btsB, ammoB, contB, critImmuneB,
+    // Parameters A: burstA, successValueA, damageA,armA, btsA, ammoA, contA, shockA, critImmuneA, dtwVsDodge,
+    // Parameters B: burstB, successValueB, damageB, armB, btsB, ammoB, contB, shockB, critImmuneB,
     // Expected wounds results
     const expectedWoundsHeaders = ["player", "wounds", "raw_chance", "cumulative_chance", "chance"];
-    const parametersHeaders = ['burstA', 'successValueA', 'damageA', 'armA', 'btsA', 'ammoA', 'contA', 'critImmuneA',
-      'dtwVsDodge', 'burstB', 'successValueB', 'damageB', 'armB', 'btsB', 'ammoB', 'contB', 'critImmuneB'];
+    const parametersHeaders = ['burstA', 'successValueA', 'damageA', 'armA', 'btsA', 'ammoA', 'contA', 'shockA',
+      'critImmuneA', 'dtwVsDodge', 'burstB', 'successValueB', 'damageB', 'armB', 'btsB', 'ammoB', 'contB', 'shockB',
+      'critImmuneB'];
     let csvContent = "data:text/csv;charset=utf-8,";
     let headers =  "result id,title," + parametersHeaders.join(',') + ',' + expectedWoundsHeaders.join(',') + '\n';
     let rows = savedResults.map((result, idx) => {
@@ -448,7 +451,8 @@ function App() {
                   </>}
                   {showDerivedInputs ? scalesA : <OverridesSection open={showOverrides} onToggle={toggleOverrides}>{scalesA}</OverridesSection>}
                   {showDerivedInputs && <>
-                  <AmmoInput ammo={ammoA} cont={contA} update={setAmmoA} updateCont={setContA} title="Ammunition"
+                  <AmmoInput ammo={ammoA} cont={contA} update={setAmmoA} updateCont={setContA}
+                             shock={shockA} updateShock={setShockA} title="Ammunition"
                              tooltip="Calculate AP ammo by halving opposing ARM/BTS manually. Dodge will use the burst
                              value, so smoke dodges in fire teams can be calculated."/>
                   <OtherInputs critImmune={critImmuneA} update={setCritImmuneA} dtwVsDodge={dtwVsDodge} updateDtw={setDtwVsDodge}/>
@@ -481,6 +485,7 @@ function App() {
                   {showDerivedInputs ? scalesB : <OverridesSection open={showOverrides} onToggle={toggleOverrides}>{scalesB}</OverridesSection>}
                   {showDerivedInputs && <>
                   <AmmoInput ammo={ammoB} cont={contB} update={setAmmoB} updateCont={setContB} variant='reactive'
+                             shock={shockB} updateShock={setShockB}
                              dtw={dtwVsDodge} title="Ammunition" tooltip="Calculate AP ammo by halving opposing ARM/BTS
                              manually. Dodge will use the burst value, so smoke dodges in fire teams can be calculated."/>
                   <OtherInputs critImmune={critImmuneB} update={setCritImmuneB} variant='reactive'
