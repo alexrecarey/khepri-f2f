@@ -90,9 +90,11 @@ test('defaultWeapon (reactive) prefers +SD, then best range band, then Impact Te
   assert.equal(pick([{id: 1, name: 'Combi Rifle'}, {id: 4, name: 'Viral Combi Rifle'}], 'reactive'), '4:');
 });
 
-test('defaultWeapon (reactive) takes a Non-lethal weapon only when there is nothing else', () => {
-  assert.equal(pick([{id: 17, name: 'Flash Pulse', extra: ['+1SD']}, {id: 6, name: 'Heavy Pistol'}], 'reactive'), '6:');
-  assert.equal(pick([{id: 16, name: 'E/Mitter'}, {id: 17, name: 'Flash Pulse'}], 'reactive'), '16:');
+test('defaultWeapon (reactive) ranks range band above ammo, Non-lethal weapons included', () => {
+  const flashPulse = {name: 'Flash Pulse', mode: null, ammo: 'Stun', burst: 1, dmg: 7, saving: 'BTS', saves: '1', props: ['BS Weapon (WIP)', 'State: Stunned', 'Non-lethal'], ranges: [{to: 20, mod: 0}, {to: 60, mod: 3}, {to: 120, mod: -3}, {to: 240, mod: -6}]};
+  const o = option([{id: 1, name: 'Combi Rifle'}, {id: 21, name: 'Flash Pulse'}]);
+  assert.equal(defaultWeapon(bsWeapons(o, {...W, 21: [flashPulse]}), 'reactive').key, '21:');
+  assert.equal(pick([{id: 17, name: 'Flash Pulse', extra: ['+1SD']}, {id: 7, name: 'HMG'}], 'reactive'), '17:');
 });
 
 test('defaultWeapon ammo precedence is PLASMA > EXP > DA > Viral > T2 > AP > Shock > N > E/M > Stun', () => {

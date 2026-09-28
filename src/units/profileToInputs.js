@@ -188,23 +188,13 @@ function bestRangeBand({row}) {
   return Math.max(...row.ranges.filter((b) => b.mod === best).map((b) => b.to));
 }
 
-const isNonLethal = ({row}) => (row.props ?? []).includes('Non-lethal');
-
 // Sort keys per role, lower wins, ties keep menu order. Neither depends on the
 // shared range, so changing it never swaps the weapon. Active: highest burst,
 // then Impact Template (Circular), then ammo. Reactive: a +SD weapon, then the
-// farthest best range band, then Impact Template (Circular), then ammo; a
-// Non-lethal weapon (Flash Pulse, E/M) only when there is nothing else, as its
-// range bands would otherwise beat most rifles.
+// farthest best range band, then Impact Template (Circular), then ammo.
 const DEFAULT_WEAPON_KEYS = {
   active: (w) => [-((w.row.burst ?? 1) + w.mods.burst), hasCircularImpactTemplate(w) ? 0 : 1, ammoRank(w)],
-  reactive: (w) => [
-    isNonLethal(w) ? 1 : 0,
-    w.mods.sd > 0 ? 0 : 1,
-    -bestRangeBand(w),
-    hasCircularImpactTemplate(w) ? 0 : 1,
-    ammoRank(w),
-  ],
+  reactive: (w) => [w.mods.sd > 0 ? 0 : 1, -bestRangeBand(w), hasCircularImpactTemplate(w) ? 0 : 1, ammoRank(w)],
 };
 
 // Weapon picked once a loadout is chosen, from bsWeapons(); null if none.
