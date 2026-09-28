@@ -10,6 +10,7 @@ import {
   isBsAttackWeapon,
   loadoutLabels,
   matchupTraits,
+  parseWeaponMods,
   pseudoWeapons,
   rangeModFor,
   resolveSelection,
@@ -44,6 +45,7 @@ const W = {
   16: [{name: 'E/Mitter', mode: null, ammo: 'E/M', burst: 2, dmg: 7, saving: 'BTS/2', saves: '2', props: ['Non-lethal', '[**]'], ranges: RIFLE_RANGES}],
   17: [{name: 'Flash Pulse', mode: null, ammo: 'Stun', burst: 1, dmg: 7, saving: 'BTS', saves: '1', props: ['BS Weapon (WIP)', 'State: Stunned', 'Non-lethal'], ranges: RIFLE_RANGES}],
   19: [{name: 'Light Rocket Launcher', mode: 'Blast Mode', ammo: 'N', burst: 2, dmg: 6, saving: 'ARM', saves: '1', props: ['Continous Damage', 'Impact Template (Circular)'], ranges: RIFLE_RANGES}],
+  20: [{name: 'Boarding Pistol', mode: 'Blast Mode', ammo: 'N', burst: 1, dmg: 7, saving: 'ARM', saves: '1', props: ['Intuitive Attack', 'Direct Template (Small Teardrop)'], ranges: null}],
   18: [{name: 'Sepsitor', mode: null, ammo: null, burst: 1, dmg: 4, saving: 'BTS', saves: '1', props: ['Intuitive Attack', 'Disposable (2)', 'State: Sepsitorized', 'Direct Template (Large Teardrop)', '[*]'], ranges: null}],
 };
 
@@ -70,29 +72,53 @@ test('defaultWeapon (active) takes the highest burst, loadout +B included', () =
   assert.equal(pick([{id: 1, name: 'Combi Rifle'}, {id: 6, name: 'Heavy Pistol', extra: ['+2B']}], 'active'), '6:');
 });
 
-test('defaultWeapon (active) breaks burst ties by Blast Mode, then ammo', () => {
+test('defaultWeapon (active) breaks burst ties by Impact Template (Circular), then ammo', () => {
   assert.equal(pick([{id: 11, name: 'Plasma Carbine'}], 'active'), '11:Blast Mode');
-  assert.equal(pick([{id: 1, name: 'Combi Rifle'}, {id: 2, name: 'MULTI Rifle'}], 'active'), '2:Shock Mode');
+  // A Blast Mode that is a Direct Template is not an Impact Template.
+  assert.equal(pick([{id: 20, name: 'Boarding Pistol'}, {id: 9, name: 'Missile Launcher'}], 'active'), '9:Hit Mode');
+  assert.equal(pick([{id: 1, name: 'Combi Rifle'}, {id: 2, name: 'MULTI Rifle'}], 'active'), '2:AP Mode');
   assert.equal(pick([{id: 2, name: 'MULTI Rifle'}, {id: 4, name: 'Viral Combi Rifle'}], 'active'), '4:');
+  assert.equal(pick([{id: 1, name: 'Combi Rifle'}, {id: 10, name: 'T2 Rifle'}], 'active'), '10:');
 });
 
-test('defaultWeapon (reactive) prefers +1 SD, then Blast Mode, then ammo', () => {
-  assert.equal(pick([{id: 11, name: 'Plasma Carbine'}, {id: 1, name: 'Combi Rifle', extra: ['+1SD']}], 'reactive'), '1:');
+test('defaultWeapon (reactive) prefers +SD, then best range band, then Impact Template, then ammo', () => {
+  assert.equal(pick([{id: 7, name: 'HMG'}, {id: 6, name: 'Heavy Pistol', extra: ['+1SD']}], 'reactive'), '6:');
+  assert.equal(pick([{id: 6, name: 'Heavy Pistol'}, {id: 1, name: 'Combi Rifle'}], 'reactive'), '1:');
+  assert.equal(pick([{id: 1, name: 'Combi Rifle'}, {id: 7, name: 'HMG'}], 'reactive'), '7:');
+  assert.equal(pick([{id: 3, name: 'Heavy Flamethrower'}, {id: 1, name: 'Combi Rifle'}], 'reactive'), '1:');
   assert.equal(pick([{id: 12, name: 'Panzerfaust'}, {id: 19, name: 'Light Rocket Launcher'}], 'reactive'), '19:Blast Mode');
-  assert.equal(pick([{id: 7, name: 'HMG'}, {id: 6, name: 'Heavy Pistol'}], 'reactive'), '6:');
+  assert.equal(pick([{id: 1, name: 'Combi Rifle'}, {id: 4, name: 'Viral Combi Rifle'}], 'reactive'), '4:');
 });
 
-test('defaultWeapon ammo precedence is PLASMA > EXP > DA > Shock > N', () => {
-  const order = [{id: 1, name: 'Combi Rifle'}, {id: 6, name: 'Heavy Pistol'}, {id: 4, name: 'Viral Combi Rifle'},
-    {id: 9, name: 'Missile Launcher'}, {id: 5, name: 'Plasma Carbine'}];
-  const picks = [];
-  for (let n = order.length; n > 0; n -= 1) picks.push(pick(order.slice(0, n), 'reactive'));
-  assert.deepEqual(picks, ['5:Hit Mode', '9:Hit Mode', '4:', '6:', '1:']);
+test('defaultWeapon (reactive) takes a Non-lethal weapon only when there is nothing else', () => {
+  assert.equal(pick([{id: 17, name: 'Flash Pulse', extra: ['+1SD']}, {id: 6, name: 'Heavy Pistol'}], 'reactive'), '6:');
+  assert.equal(pick([{id: 16, name: 'E/Mitter'}, {id: 17, name: 'Flash Pulse'}], 'reactive'), '16:');
 });
 
-test('defaultWeapon ranks other ammo with N and keeps menu order on ties', () => {
-  assert.equal(pick([{id: 15, name: 'Breaker Rifle'}, {id: 1, name: 'Combi Rifle'}], 'reactive'), '15:');
-  assert.equal(pick([{id: 1, name: 'Combi Rifle'}, {id: 10, name: 'T2 Rifle'}], 'active'), '1:');
+test('defaultWeapon ammo precedence is PLASMA > EXP > DA > Viral > T2 > AP > Shock > N > E/M > Stun', () => {
+  const entry = (key, over) => ({key, row: {burst: 3, saves: '1', ammo: 'N', props: [], ranges: RIFLE_RANGES, ...over}, mods: parseWeaponMods([])});
+  const ranked = [
+    entry('PLASMA', {saves: '1 and 1'}), entry('EXP', {ammo: 'AP+Exp'}), entry('DA', {ammo: 'DA'}),
+    entry('VIRAL', {props: ['Bioweapon (DA+SHOCK)']}), entry('T2', {ammo: 'T2'}), entry('AP', {ammo: 'AP'}),
+    entry('SHOCK', {ammo: 'Shock'}), entry('N', {ammo: null}), entry('E/M', {ammo: 'E/M'}), entry('STUN', {ammo: 'Stun'}),
+  ];
+  for (const role of ['active', 'reactive']) {
+    const left = [...ranked].reverse();
+    const picks = [];
+    while (left.length > 0) {
+      const w = defaultWeapon(left, role);
+      picks.push(w.key);
+      left.splice(left.indexOf(w), 1);
+    }
+    assert.deepEqual(picks, ranked.map((w) => w.key), role);
+  }
+  // A loadout "AP" extra counts as AP ammo.
+  assert.equal(pick([{id: 6, name: 'Heavy Pistol'}, {id: 1, name: 'Combi Rifle', extra: ['AP']}], 'active'), '1:');
+});
+
+test('defaultWeapon keeps menu order on ties', () => {
+  assert.equal(pick([{id: 1, name: 'Combi Rifle'}, {id: 13, name: 'K1 Combi Rifle'}], 'reactive'), '1:');
+  assert.equal(pick([{id: 13, name: 'K1 Combi Rifle'}, {id: 1, name: 'Combi Rifle'}], 'reactive'), '13:');
   assert.equal(defaultWeapon([], 'active'), null);
 });
 
