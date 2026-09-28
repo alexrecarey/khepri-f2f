@@ -136,25 +136,45 @@ export function bsWeapons(option, weapons) {
 }
 
 // Ammo precedence for the default weapon, best first. Plasma rows list N ammo
-// with an ARM and BTS save; Bioweapon (DA+SHOCK) counts as its ammo. Ammo not
-// listed (AP, T2, E/M...) ranks with N.
-const AMMO_PRECEDENCE = ['PLASMA', 'EXP', 'DA', 'SHOCK'];
-function ammoRank(row) {
-  const bio = (row.props ?? []).map((p) => /^Bioweapon \((.+)\)$/.exec(p)?.[1]).find(Boolean) ?? '';
-  const types = `${row.ammo ?? ''}+${bio}`.toUpperCase().split('+');
+// with an ARM and BTS save, and Viral weapons N ammo with Bioweapon (DA+SHOCK).
+// Combined ammo (AP+Exp) ranks as its best part.
+const AMMO_PRECEDENCE = ['PLASMA', 'EXP', 'DA', 'VIRAL', 'T2', 'AP', 'SHOCK', 'N', 'E/M', 'STUN'];
+function ammoRank({row, mods}) {
+  const types = (row.ammo ?? 'N').toUpperCase().split('+');
   if (row.saves === '1 and 1') types.push('PLASMA');
-  const i = AMMO_PRECEDENCE.findIndex((a) => types.includes(a));
-  return i === -1 ? AMMO_PRECEDENCE.length : i;
+  if ((row.props ?? []).some((p) => p.startsWith('Bioweapon ('))) types.push('VIRAL');
+  if (mods.forceAP) types.push('AP');
+  const ranks = types.map((t) => AMMO_PRECEDENCE.indexOf(t)).filter((i) => i !== -1);
+  return ranks.length > 0 ? Math.min(...ranks) : AMMO_PRECEDENCE.length;
 }
 
-const isBlastMode = (w) => /^blast/i.test(w.mode ?? '');
+const hasCircularImpactTemplate = ({row}) => (row.props ?? []).includes('Impact Template (Circular)');
 
-// Sort keys per role, lower wins, ties keep menu order. Active: highest
-// burst, then Blast Mode, then ammo. Reactive: a +1 SD weapon, then Blast
-// Mode, then ammo.
+// Far edge (cm) of the band with the weapon's best range MOD, the farthest one
+// if several tie. Direct Templates reach about the first band (0-8").
+function bestRangeBand({row}) {
+  if (!row.ranges?.length) return RANGE_BANDS[0].to;
+  const best = Math.max(...row.ranges.map((b) => b.mod));
+  return Math.max(...row.ranges.filter((b) => b.mod === best).map((b) => b.to));
+}
+
+const isNonLethal = ({row}) => (row.props ?? []).includes('Non-lethal');
+
+// Sort keys per role, lower wins, ties keep menu order. Neither depends on the
+// shared range, so changing it never swaps the weapon. Active: highest burst,
+// then Impact Template (Circular), then ammo. Reactive: a +SD weapon, then the
+// farthest best range band, then Impact Template (Circular), then ammo; a
+// Non-lethal weapon (Flash Pulse, E/M) only when there is nothing else, as its
+// range bands would otherwise beat most rifles.
 const DEFAULT_WEAPON_KEYS = {
-  active: (w) => [-((w.row.burst ?? 1) + w.mods.burst), isBlastMode(w) ? 0 : 1, ammoRank(w.row)],
-  reactive: (w) => [w.mods.sd > 0 ? 0 : 1, isBlastMode(w) ? 0 : 1, ammoRank(w.row)],
+  active: (w) => [-((w.row.burst ?? 1) + w.mods.burst), hasCircularImpactTemplate(w) ? 0 : 1, ammoRank(w)],
+  reactive: (w) => [
+    isNonLethal(w) ? 1 : 0,
+    w.mods.sd > 0 ? 0 : 1,
+    -bestRangeBand(w),
+    hasCircularImpactTemplate(w) ? 0 : 1,
+    ammoRank(w),
+  ],
 };
 
 // Weapon picked once a loadout is chosen, from bsWeapons(); null if none.
