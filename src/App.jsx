@@ -435,7 +435,8 @@ function App() {
                   </Grid>
                   {!showDerivedInputs && <>
                     <WeaponSelect variant='active' matchup={matchup}/>
-                    <RangeInput rangeCm={matchup.rangeCm} update={matchup.setRangeCm} row={matchup.A.resolved?.weapon?.row}/>
+                    <RangeInput rangeCm={matchup.rangeCm} update={matchup.setRangeCm} row={matchup.A.resolved?.weapon?.row}
+                                traits={matchup.A.resolved?.traits}/>
                     <CoverInput variant='active' matchup={matchup}/>
                     <FireteamPurityInput value={matchup.ftSize.A} update={(n) => matchup.setFtSize('A', n)}/>
                   </>}
@@ -466,7 +467,8 @@ function App() {
                   </Grid>
                   {!showDerivedInputs && <>
                     <WeaponSelect variant='reactive' matchup={matchup}/>
-                    <RangeInput rangeCm={matchup.rangeCm} update={matchup.setRangeCm} row={matchup.B.resolved?.weapon?.row} variant='reactive'/>
+                    <RangeInput rangeCm={matchup.rangeCm} update={matchup.setRangeCm} row={matchup.B.resolved?.weapon?.row}
+                                traits={matchup.B.resolved?.traits} variant='reactive'/>
                     <CoverInput variant='reactive' matchup={matchup}/>
                     <FireteamPurityInput value={matchup.ftSize.B} update={(n) => matchup.setFtSize('B', n)}
                                          variant='reactive'/>

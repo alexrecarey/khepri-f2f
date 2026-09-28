@@ -167,11 +167,14 @@ export function pseudoWeapons(profile, traits, side = 'B', dodgeMod = 0) {
 }
 
 // BS MOD of a weapon at the chosen distance; null when out of range.
-export function rangeModFor(row, distanceCm) {
+// X Visor (shooter's traits) turns a -3 Range MOD into 0 and a -6 into -3.
+export function rangeModFor(row, distanceCm, traits) {
   if (isTemplate(row)) return 0;
   if (!row?.ranges) return null;
   const band = row.ranges.find((b) => distanceCm <= b.to);
-  return band ? band.mod : null;
+  if (!band) return null;
+  if (band.mod < 0 && hasEquip(traits, EQUIP.X_VISOR)) return Math.min(0, band.mod + 3);
+  return band.mod;
 }
 
 function bsWeaponNames(option, weapons) {
@@ -416,12 +419,11 @@ const keepsAroBurst = (x) => hasSkill(x.traits, SKILL.TOTAL_REACTION) || hasSkil
 function attackInputs(x, y, rangeCm, side, errors, notes) {
   const label = side === 'A' ? 'Active' : 'Reactive';
   const {row, mods} = x.weapon;
-  let rangeMod = rangeModFor(row, rangeCm);
+  let rangeMod = rangeModFor(row, rangeCm, x.traits);
   // Out of range: the attack still happens but always fails. A success value
   // of 0 misses on every roll, with no crit.
   const outOfRange = rangeMod === null;
   if (outOfRange) rangeMod = 0;
-  if (rangeMod === -6 && hasEquip(x.traits, EQUIP.X_VISOR)) rangeMod = -3;
   const mim = y ? mimetismMod(y.traits, x.traits) : 0;
   const albedo = y ? albedoMod(y.traits, x.traits) : 0;
   const cover = benefitsFromCover(y) || hasNanoscreen(y) ? -3 : 0;

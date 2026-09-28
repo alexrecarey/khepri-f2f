@@ -55,6 +55,9 @@ function UnitPicker({variant, army, value, onChange, headerAction}) {
 
   const [inputValue, setInputValue] = useState(unit?.label ?? '');
   const [open, setOpen] = useState(false);
+  // Suggestion the list highlights: the first one, unless moved with the arrow keys.
+  const highlighted = useRef(null);
+  const inputRef = useRef(null);
 
   // Defaults that need a state write: a single loadout, and the first BS weapon.
   useEffect(() => {
@@ -89,6 +92,24 @@ function UnitPicker({variant, army, value, onChange, headerAction}) {
     onClose: () => setOpenField(null),
   });
 
+  const selectUnit = (u) => {
+    onChange({...EMPTY_SELECTION, unitId: u?.id ?? null, inCover: value.inCover});
+    if (u) setPendingFocus(true);
+  };
+  // Enter (or the soft keyboard's action key) takes the highlighted suggestion,
+  // else the first one. Done here because MUI skips Enter when nothing is
+  // highlighted or the keyboard is still composing.
+  const pickSuggestion = (event) => {
+    event.preventDefault();
+    if (!open) return;
+    const matches = filterOptions(army.units, {inputValue});
+    const u = matches.includes(highlighted.current) ? highlighted.current : matches[0];
+    if (!u) return;
+    selectUnit(u);
+    setOpen(false);
+    inputRef.current?.blur();
+  };
+
   const factionName = (id) => army.factions[id]?.name ?? `Faction ${id}`;
   const factionLogo = (id, size) => {
     const src = army.factions[id]?.logo;
@@ -118,14 +139,20 @@ function UnitPicker({variant, army, value, onChange, headerAction}) {
         </Typography>
         {headerAction}
       </Grid>
-      <Grid item xs={12}>
+      {/* A search form: keeps contact AutoFill off the field, and its submit
+          catches a soft keyboard Enter that never arrives as a key event. */}
+      <Grid item xs={12} component="form" role="search" autoComplete="off" onSubmit={pickSuggestion}>
         <Autocomplete
+          id={`unit-search-${variant}`}
           size="small"
           options={army.units}
           value={unit}
-          onChange={(event, u) => {
-            onChange({...EMPTY_SELECTION, unitId: u?.id ?? null, inCover: value.inCover});
-            if (u) setPendingFocus(true);
+          onChange={(event, u) => selectUnit(u)}
+          onHighlightChange={(event, u) => { highlighted.current = u; }}
+          onKeyDown={(event) => {
+            if (event.key !== 'Enter') return;
+            event.defaultMuiPrevented = true;
+            pickSuggestion(event);
           }}
           getOptionLabel={(u) => u.label}
           isOptionEqualToValue={(a, b) => a.id === b.id}
@@ -157,8 +184,18 @@ function UnitPicker({variant, army, value, onChange, headerAction}) {
               {...params}
               label="Unit"
               color={color}
-              placeholder="Type a unit name"
-              sx={{'& .MuiInputBase-input': {fontSize: compactText.fontSize}}}
+              // No "name" in the placeholder: it made browsers offer contact AutoFill.
+              placeholder="Search units"
+              inputRef={inputRef}
+              inputProps={{
+                ...params.inputProps,
+                name: `unit-search-${variant}`,
+                autoCorrect: 'off',
+                // Not "next": Android then moves focus itself and sends no Enter.
+                enterKeyHint: 'search',
+              }}
+              // iOS zooms the page in on focus when an input's text is under 16px.
+              sx={{'& .MuiInputBase-input': {fontSize: 'max(16px, 1rem)'}}}
             />
           )}
           ListboxProps={{sx: {'& .MuiAutocomplete-option': {fontSize: compactText.fontSize}}}}
