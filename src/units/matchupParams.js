@@ -28,7 +28,7 @@ export function encodeMatchup({selA, selB, ftSize, rangeCm}) {
       if (sel[field] !== null && sel[field] !== undefined) out[`${param}${side}`] = String(sel[field]);
     }
     if (sel.inCover) out[`cover${side}`] = '1';
-    if (ftSize?.[side]) out[`ft${side}`] = String(ftSize[side]);
+    if (ftSize?.[side] > 1) out[`ft${side}`] = String(ftSize[side]);
   }
   if (Object.keys(out).length > 0 && rangeCm) out.range = String(rangeCm);
   return out;
@@ -56,7 +56,7 @@ export function decodeMatchup(params) {
   if (!A && !B) return null;
   const ft = (s) => {
     const n = Number(get(`ft${s}`));
-    return Number.isInteger(n) && n >= 2 && n <= 5 ? n : 0;
+    return Number.isInteger(n) && n >= 2 && n <= 5 ? n : 1;
   };
   const range = Number(get('range'));
   return {

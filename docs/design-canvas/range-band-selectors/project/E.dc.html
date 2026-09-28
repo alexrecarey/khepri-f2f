@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>E — Unified shared ruler</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  body{margin:0;background:#121212;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  @font-face{font-family:'Conthrax SB';src:url('/_blob/983817161e2381a37b4860d4c9999559') format('woff');font-weight:600;font-style:normal}
+  .rb-cell:hover{filter:brightness(1.35)}
+</style>
+</helmet>
+<div style="width: 1000px; height: 420px; box-sizing: border-box; background: #121212; padding: 36px 46px; display: flex; flex-direction: column; gap: 26px">
+  <div style="font-family: 'Conthrax SB', sans-serif; font-size: 15px; letter-spacing: 2px; color: rgba(255,255,255,0.85)">E &middot; ONE SHARED RULER, TWO OUTCOMES</div>
+
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+    <div style="font-family: 'Conthrax SB', sans-serif; font-size: 36px; font-weight: 700; color: #fff">{{distanceLabel}}</div>
+    <div style="display: flex; align-items: center; gap: 16px; font-family: 'Conthrax SB', sans-serif; font-size: 13px; letter-spacing: 1px">
+      <span style="color: #6cc08b">ACTIVE {{activeModText}}</span>
+      <span style="color: rgba(255,255,255,0.25)">&middot;</span>
+      <span style="color: #dd88ac">REACTIVE {{reactiveModText}}</span>
+    </div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; padding: 0 4px">
+    <span style="font-family: 'Conthrax SB', sans-serif; font-size: 10px; letter-spacing: 2px; color: #6cc08b">ACTIVE &middot; MULTI Sniper Rifle (A-M) &rarr;</span>
+    <span style="font-family: 'Conthrax SB', sans-serif; font-size: 10px; letter-spacing: 2px; color: #dd88ac">&larr; Hyper-Rapid Magnetic Cannon (AP) &middot; REACTIVE</span>
+  </div>
+
+  <div style="position: relative; padding-top: 14px">
+    <div style="display: flex; gap: 6px">
+      <sc-for list="{{items}}" as="item" hint-placeholder-count="7">
+        <div class="rb-cell" style="{{item.cellStyle}}" onClick="{{item.pick}}">
+          <sc-if value="{{item.selected}}" hint-placeholder-val="{{false}}">
+            <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid rgba(255,255,255,0.8)"></div>
+          </sc-if>
+          <span style="{{item.activeStyle}}">{{item.activeLabel}}</span>
+          <div style="width: 60%; height: 1px; background: rgba(255,255,255,0.12); margin: 3px 0"></div>
+          <span style="{{item.reactiveStyle}}">{{item.reactiveLabel}}</span>
+          <span style="{{item.inchesStyle}}">{{item.inches}}&Prime;</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.5">
+    Reframes it as one control instead of two synced ones &mdash; there is only one distance, so it only needs one ruler. Both weapons' modifiers read off the same cell. Bigger change: today Active and Reactive sit in separate columns.
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1000,"height":420}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { bandIndex: 0 };
+  }
+
+  pick(i) {
+    this.setState({ bandIndex: i });
+  }
+
+  renderVals() {
+    const BANDS = [8, 16, 24, 32, 40, 48, 96];
+    const ACTIVE_MODS = [-3, 0, 3, 3, -3, -6, null];
+    const REACTIVE_MODS = [-3, 0, 3, 0, -3, -6, null];
+    const BAND_LABELS = ['0-8"', '8-16"', '16-24"', '24-32"', '32-40"', '40-48"', '48-96"'];
+    const bandIndex = this.state.bandIndex;
+    const modText = (m) => (m === null ? '—' : (m > 0 ? '+' : '') + m);
+
+    const items = BANDS.map((inches, i) => {
+      const selected = i === bandIndex;
+      const cellStyle = 'flex:1;position:relative;height:78px;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+        (selected
+          ? 'background:rgba(255,255,255,0.12);box-shadow:0 0 0 1px rgba(255,255,255,0.4);'
+          : 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);');
+      const activeStyle = 'font-family:\'Conthrax SB\',sans-serif;font-weight:700;color:#6cc08b;font-size:' + (selected ? '15px' : '12px') + ';opacity:' + (selected ? '1' : '0.55') + ';';
+      const reactiveStyle = 'font-family:\'Conthrax SB\',sans-serif;font-weight:700;color:#dd88ac;font-size:' + (selected ? '15px' : '12px') + ';opacity:' + (selected ? '1' : '0.55') + ';';
+      const inchesStyle = 'font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;';
+      return {
+        i, inches, selected,
+        activeLabel: modText(ACTIVE_MODS[i]),
+        reactiveLabel: modText(REACTIVE_MODS[i]),
+        cellStyle, activeStyle, reactiveStyle, inchesStyle,
+        pick: () => this.pick(i),
+      };
+    });
+
+    return {
+      distanceLabel: BAND_LABELS[bandIndex],
+      activeModText: modText(ACTIVE_MODS[bandIndex]),
+      reactiveModText: modText(REACTIVE_MODS[bandIndex]),
+      items,
+    };
+  }
+}
+</script>
+</body>
+</html>

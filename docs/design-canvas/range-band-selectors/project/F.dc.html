@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>F — Official value colors, muted for dark UI</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  body{margin:0;background:#121212;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  @font-face{font-family:'Conthrax SB';src:url('/_blob/983817161e2381a37b4860d4c9999559') format('woff');font-weight:600;font-style:normal}
+  .rb-cell{cursor:pointer;transition:transform .12s ease}
+  .rb-cell:hover{transform:translateY(-2px)}
+</style>
+</helmet>
+<div style="width: 960px; height: 500px; box-sizing: border-box; background: #121212; padding: 36px 44px; display: flex; flex-direction: column; gap: 26px">
+  <div style="display: flex; align-items: baseline; justify-content: space-between">
+    <div style="font-family: 'Conthrax SB', sans-serif; font-size: 15px; letter-spacing: 2px; color: rgba(255,255,255,0.85)">F &middot; OFFICIAL VALUE COLORS, MUTED FOR DARK UI</div>
+    <div style="display: flex; align-items: center; gap: 10px; padding: 6px 16px; border-radius: 20px; background: #1c1c1c; border: 1px solid rgba(255,255,255,0.1)">
+      <span style="font-family: 'Conthrax SB', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.45)">DISTANCE</span>
+      <span style="font-family: 'Conthrax SB', sans-serif; font-size: 15px; font-weight: 700; color: #fff">{{distanceLabel}}</span>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <span style="font-family: 'Conthrax SB', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.45)">RANGE &middot; ACTIVE &middot; MULTI Sniper Rifle (A-M)</span>
+    <div style="display: flex; align-items: center; gap: 18px">
+      <div style="width: 56px; text-align: right; font-family: 'Conthrax SB', sans-serif; font-size: 28px; font-weight: 700; color: {{activeModColor}}">{{activeModText}}</div>
+      <div style="flex-grow: 1; display: flex; gap: 6px; padding-top: 12px">
+        <sc-for list="{{activeItems}}" as="item" hint-placeholder-count="7">
+          <div class="rb-cell" style="{{item.cellStyle}}" onClick="{{item.pick}}">
+            <sc-if value="{{item.selected}}" hint-placeholder-val="{{false}}">
+              <div style="position: absolute; top: -13px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid #6cc08b"></div>
+            </sc-if>
+            <span style="{{item.textStyle}}">{{item.label}}</span>
+            <span style="{{item.capStyle}}">{{item.inches}}&Prime;</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <span style="font-family: 'Conthrax SB', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.45)">RANGE &middot; REACTIVE &middot; Hyper-Rapid Magnetic Cannon (AP)</span>
+    <div style="display: flex; align-items: center; gap: 18px">
+      <div style="width: 56px; text-align: right; font-family: 'Conthrax SB', sans-serif; font-size: 28px; font-weight: 700; color: {{reactiveModColor}}">{{reactiveModText}}</div>
+      <div style="flex-grow: 1; display: flex; gap: 6px; padding-top: 12px">
+        <sc-for list="{{reactiveItems}}" as="item" hint-placeholder-count="7">
+          <div class="rb-cell" style="{{item.cellStyle}}" onClick="{{item.pick}}">
+            <sc-if value="{{item.selected}}" hint-placeholder-val="{{false}}">
+              <div style="position: absolute; top: -13px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid #dd88ac"></div>
+            </sc-if>
+            <span style="{{item.textStyle}}">{{item.label}}</span>
+            <span style="{{item.capStyle}}">{{item.inches}}&Prime;</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 22px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px">
+    <span style="font-size: 10px; letter-spacing: 1.5px; color: rgba(255,255,255,0.35)">KEY</span>
+    <div style="display: flex; align-items: center; gap: 6px">
+      <span style="width: 10px; height: 10px; border-radius: 3px; background: #FFD54F; display: inline-block"></span>
+      <span style="font-size: 11px; color: rgba(255,255,255,0.55)">&minus;3</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px">
+      <span style="width: 10px; height: 10px; border-radius: 3px; background: #64B5F6; display: inline-block"></span>
+      <span style="font-size: 11px; color: rgba(255,255,255,0.55)">0</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px">
+      <span style="width: 10px; height: 10px; border-radius: 3px; background: #81C995; display: inline-block"></span>
+      <span style="font-size: 11px; color: rgba(255,255,255,0.55)">+3</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px">
+      <span style="width: 10px; height: 10px; border-radius: 3px; background: #EF9A9A; display: inline-block"></span>
+      <span style="font-size: 11px; color: rgba(255,255,255,0.55)">&minus;6</span>
+    </div>
+    <span style="font-size: 11px; color: rgba(255,255,255,0.3); margin-left: 4px">same hues the rulebook chart uses, dimmed to sit on dark &mdash; the accent pin (teal / pink) marks the pick, the hue never changes</span>
+  </div>
+
+  <div style="font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.5">
+    Every cell keeps its rulebook color always &mdash; a player who knows the chart reads the tier without thinking. Selection is a separate layer (an accent pin + halo in the row's own color) instead of overwriting the hue, so choosing a band never hides which tier it is.
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":960,"height":500}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { bandIndex: 0 };
+  }
+
+  pick(i) {
+    this.setState({ bandIndex: i });
+  }
+
+  hueFor(mod) {
+    if (mod === null) return null;
+    if (mod >= 3) return { bg: 'rgba(129,201,149,0.16)', ring: 'rgba(129,201,149,0.55)', text: '#9FD9AC' };
+    if (mod === 0) return { bg: 'rgba(100,181,246,0.16)', ring: 'rgba(100,181,246,0.55)', text: '#8FC5F5' };
+    if (mod === -3) return { bg: 'rgba(255,213,79,0.16)', ring: 'rgba(255,213,79,0.55)', text: '#F2CE72' };
+    return { bg: 'rgba(239,154,154,0.16)', ring: 'rgba(239,154,154,0.55)', text: '#E9A3A3' };
+  }
+
+  buildItems(mods, rowAccent) {
+    const BANDS = [8, 16, 24, 32, 40, 48, 96];
+    return BANDS.map((inches, i) => {
+      const mod = mods[i];
+      const selected = i === this.state.bandIndex;
+      const label = mod === null ? '—' : (mod > 0 ? '+' : '') + mod;
+      const hue = this.hueFor(mod);
+      let cellStyle = 'position:relative;flex:1;height:48px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;';
+      if (hue === null) {
+        cellStyle += 'background:transparent;border:1px dashed rgba(255,255,255,0.15);';
+      } else {
+        cellStyle += 'background:' + hue.bg + ';border:1px solid ' + hue.ring + ';';
+      }
+      if (selected) {
+        cellStyle += 'box-shadow:0 0 0 2px ' + rowAccent + ';';
+      }
+      const textStyle = 'font-family:\'Conthrax SB\',sans-serif;font-size:14px;font-weight:700;color:' +
+        (hue === null ? 'rgba(255,255,255,0.3)' : hue.text) + ';opacity:' + (selected ? '1' : '0.85') + ';';
+      const capStyle = 'font-size:9px;color:rgba(255,255,255,0.35);';
+      return { i, inches, label, selected, cellStyle, textStyle, capStyle, pick: () => this.pick(i) };
+    });
+  }
+
+  renderVals() {
+    const ACTIVE_MODS = [-3, 0, 3, 3, -3, -6, null];
+    const REACTIVE_MODS = [-3, 0, 3, 0, -3, -6, null];
+    const BAND_LABELS = ['0-8"', '8-16"', '16-24"', '24-32"', '32-40"', '40-48"', '48-96"'];
+    const i = this.state.bandIndex;
+    const modText = (m) => (m === null ? '—' : (m > 0 ? '+' : '') + m);
+    const modColor = (m) => {
+      const hue = this.hueFor(m);
+      return hue === null ? 'rgba(255,255,255,0.3)' : hue.text;
+    };
+    return {
+      distanceLabel: BAND_LABELS[i],
+      activeModText: modText(ACTIVE_MODS[i]),
+      reactiveModText: modText(REACTIVE_MODS[i]),
+      activeModColor: modColor(ACTIVE_MODS[i]),
+      reactiveModColor: modColor(REACTIVE_MODS[i]),
+      activeItems: this.buildItems(ACTIVE_MODS, '#6cc08b'),
+      reactiveItems: this.buildItems(REACTIVE_MODS, '#dd88ac'),
+    };
+  }
+}
+</script>
+</body>
+</html>

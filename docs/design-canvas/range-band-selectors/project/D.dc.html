@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>D — Compact stepper + sparkline</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  body{margin:0;background:#121212;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  @font-face{font-family:'Conthrax SB';src:url('/_blob/983817161e2381a37b4860d4c9999559') format('woff');font-weight:600;font-style:normal}
+  .rb-btn:hover{filter:brightness(1.3)}
+  .rb-dot:hover{filter:brightness(1.3)}
+</style>
+</helmet>
+<div style="width: 960px; height: 460px; box-sizing: border-box; background: #121212; padding: 36px 44px; display: flex; flex-direction: column; gap: 34px">
+  <div style="display: flex; align-items: baseline; justify-content: space-between">
+    <div style="font-family: 'Conthrax SB', sans-serif; font-size: 15px; letter-spacing: 2px; color: rgba(255,255,255,0.85)">D &middot; COMPACT STEPPER + SPARKLINE</div>
+    <div style="display: flex; align-items: center; gap: 10px; padding: 6px 16px; border-radius: 20px; background: #1c1c1c; border: 1px solid rgba(255,255,255,0.1)">
+      <span style="font-family: 'Conthrax SB', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.45)">DISTANCE</span>
+      <span style="font-family: 'Conthrax SB', sans-serif; font-size: 15px; font-weight: 700; color: #fff">{{distanceLabel}}</span>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <span style="font-family: 'Conthrax SB', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.45)">RANGE &middot; ACTIVE &middot; MULTI Sniper Rifle (A-M)</span>
+    <div style="display: flex; align-items: center; gap: 14px">
+      <button class="rb-btn" style="{{activeMinusStyle}}" onClick="{{activeMinus}}">&minus;</button>
+      <div style="width: 52px; text-align: center; font-family: 'Conthrax SB', sans-serif; font-size: 26px; font-weight: 700; color: #d3f2a3">{{activeModText}}</div>
+      <button class="rb-btn" style="{{activePlusStyle}}" onClick="{{activePlus}}">+</button>
+      <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1); margin: 0 6px"></div>
+      <div style="flex-grow: 1; position: relative">
+        <div style="position: absolute; left: 6px; right: 6px; top: 32px; height: 1px; background: rgba(255,255,255,0.15)"></div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end">
+          <sc-for list="{{activeItems}}" as="item" hint-placeholder-count="7">
+            <div class="rb-dot" style="display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; padding: 2px" onClick="{{item.pick}}">
+              <span style="{{item.labelStyle}}">{{item.label}}</span>
+              <div style="{{item.dotStyle}}"></div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <span style="font-family: 'Conthrax SB', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.45)">RANGE &middot; REACTIVE &middot; Hyper-Rapid Magnetic Cannon (AP)</span>
+    <div style="display: flex; align-items: center; gap: 14px">
+      <button class="rb-btn" style="{{reactiveMinusStyle}}" onClick="{{reactiveMinus}}">&minus;</button>
+      <div style="width: 52px; text-align: center; font-family: 'Conthrax SB', sans-serif; font-size: 26px; font-weight: 700; color: #f3cbd3">{{reactiveModText}}</div>
+      <button class="rb-btn" style="{{reactivePlusStyle}}" onClick="{{reactivePlus}}">+</button>
+      <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1); margin: 0 6px"></div>
+      <div style="flex-grow: 1; position: relative">
+        <div style="position: absolute; left: 6px; right: 6px; top: 32px; height: 1px; background: rgba(255,255,255,0.15)"></div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end">
+          <sc-for list="{{reactiveItems}}" as="item" hint-placeholder-count="7">
+            <div class="rb-dot" style="display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; padding: 2px" onClick="{{item.pick}}">
+              <span style="{{item.labelStyle}}">{{item.label}}</span>
+              <div style="{{item.dotStyle}}"></div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; padding-left: 154px; justify-content: space-between; padding-right: 4px">
+    <span style="font-size: 9px; color: rgba(255,255,255,0.3)">0-8&Prime;</span>
+    <span style="font-size: 9px; color: rgba(255,255,255,0.3)">48-96&Prime;</span>
+  </div>
+
+  <div style="font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.5">
+    The densest option: step with &minus;/+, jump with a dot, read the curve's shape at a glance. Best fit if the column gets tight.
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":960,"height":460}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { bandIndex: 0 };
+  }
+
+  pick(i) {
+    this.setState({ bandIndex: Math.max(0, Math.min(6, i)) });
+  }
+
+  buttonStyle(disabled) {
+    return 'width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#fff;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;' +
+      (disabled ? 'opacity:0.25;cursor:default;' : 'cursor:pointer;');
+  }
+
+  buildItems(mods, accent, accentHi) {
+    const BANDS = [8, 16, 24, 32, 40, 48, 96];
+    return BANDS.map((inches, i) => {
+      const mod = mods[i];
+      const selected = i === this.state.bandIndex;
+      const label = mod === null ? '—' : (mod > 0 ? '+' : '') + mod;
+      const size = selected ? 14 : 8;
+      const dotStyle = 'width:' + size + 'px;height:' + size + 'px;border-radius:50%;background:' +
+        (selected ? accent : 'rgba(255,255,255,0.25)') + ';' +
+        (selected ? 'box-shadow:0 0 0 4px ' + accentHi + ';' : '');
+      const labelStyle = 'font-family:\'Conthrax SB\',sans-serif;font-size:9px;font-weight:700;color:' +
+        (selected ? accent : 'rgba(255,255,255,0.3)') + ';';
+      return { i, inches, label, dotStyle, labelStyle, pick: () => this.pick(i) };
+    });
+  }
+
+  renderVals() {
+    const ACTIVE_MODS = [-3, 0, 3, 3, -3, -6, null];
+    const REACTIVE_MODS = [-3, 0, 3, 0, -3, -6, null];
+    const BAND_LABELS = ['0-8"', '8-16"', '16-24"', '24-32"', '32-40"', '40-48"', '48-96"'];
+    const i = this.state.bandIndex;
+    const modText = (m) => (m === null ? '—' : (m > 0 ? '+' : '') + m);
+    return {
+      distanceLabel: BAND_LABELS[i],
+      activeModText: modText(ACTIVE_MODS[i]),
+      reactiveModText: modText(REACTIVE_MODS[i]),
+      activeItems: this.buildItems(ACTIVE_MODS, '#6cc08b', 'rgba(108,192,139,0.28)'),
+      reactiveItems: this.buildItems(REACTIVE_MODS, '#dd88ac', 'rgba(221,136,172,0.28)'),
+      activeMinusStyle: this.buttonStyle(i === 0),
+      activePlusStyle: this.buttonStyle(i === 6),
+      reactiveMinusStyle: this.buttonStyle(i === 0),
+      reactivePlusStyle: this.buttonStyle(i === 6),
+      activeMinus: () => this.pick(i - 1),
+      activePlus: () => this.pick(i + 1),
+      reactiveMinus: () => this.pick(i - 1),
+      reactivePlus: () => this.pick(i + 1),
+    };
+  }
+}
+</script>
+</body>
+</html>
