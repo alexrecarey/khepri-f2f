@@ -379,13 +379,13 @@ function App() {
   // between targets.
   const scalesA = <>
     {!showDerivedInputs && burstInputA}
-    {dtwVsDodge === false &&
+    {dtwVsDodge === false && burstA !== 0 &&
       <SuccessValueInput successValue={successValueA} update={setSuccessValueA} title="Success Value"
                          tooltip="Target Success Value for player after all positive and negative mods
                          (fireteam, mimetism, range, cover, etc) have been applied to the BS or CC
                          attribute. Success values over 20 will cause critical hits starting at 1.
                          Remember mods cap out at +/-12."/>}
-    {ammoA !== 'DODGE' &&
+    {ammoA !== 'DODGE' && burstA !== 0 &&
       <DamageInput damage={damageA} update={setDamageA} title="Weapon PS"
                    tooltip="Possiblity of Survival for the weapon being used. You must include all damage
                    mods like SR-1. You can add cover bonus here or add it to reactive player's ARM."/>}
