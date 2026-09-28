@@ -633,3 +633,19 @@ class TestAgainstSelf:
         outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
         result = face_to_face_expected_wounds(outcomes, a_dam, a_arm, a_ammo, b_dam, b_arm, b_ammo)
         assert result == {'active': {0: 1.0}, 'fail': {0: 19.0}, 'guts': {'active': 0, 'missed': 0, 'reactive': 0}, 'reactive': {}, 'total_rolls': 20}
+
+    def test_shock(self):
+        a_sv, a_burst, a_dam, a_arm, a_ammo = 13, 3, 13, 2, 'DA'
+        b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 1, 13, 2, 'N'
+        outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
+        plain = face_to_face_expected_wounds(outcomes, a_dam, a_arm, a_ammo, b_dam, b_arm, b_ammo)
+        for winner, loser, flag in [('active', 'reactive', 'a_shock'), ('reactive', 'active', 'b_shock')]:
+            shock = face_to_face_expected_wounds(
+                outcomes, a_dam, a_arm, a_ammo, b_dam, b_arm, b_ammo, **{flag: True})
+            # One extra wound, once, whenever a save is failed
+            expected = {(wounds + 1 if wounds > 0 else 0): rolls for wounds, rolls in plain[winner].items()}
+            assert shock[winner].keys() == expected.keys()
+            assert all(isclose(shock[winner][wounds], expected[wounds]) for wounds in expected)
+            assert shock[loser] == plain[loser]
+            assert shock['fail'] == plain['fail']
+            assert shock['total_rolls'] == plain['total_rolls']

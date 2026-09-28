@@ -345,6 +345,19 @@ export function calcAmmo(row, targetTraits) {
   return 'N';
 }
 
+const hasShockAmmo = (row) =>
+  /\bshock\b/i.test(row?.ammo ?? '') || (row?.props ?? []).some((p) => p.startsWith('Bioweapon (') && /\bshock\b/i.test(p));
+
+// Shock (wiki): a target with VITA 1 that fails a Saving Roll skips
+// Unconscious and goes straight to Dead, which the calculator counts as one
+// extra wound. Troopers with STR or with 2+ VITA are unaffected. Immunity
+// (Shock) and (Enhanced) treat the hit as Normal Ammunition.
+export function shockApplies(row, target) {
+  if (!hasShockAmmo(row) || !target?.profile) return false;
+  if (target.profile.str || target.profile.w !== 1) return false;
+  return !hasSkill(target.traits, SKILL.IMMUNITY, 'Shock') && !hasSkill(target.traits, SKILL.IMMUNITY, 'Enhanced');
+}
+
 const IGNORED = [
   ['skill', SKILL.LIMITED_COVER, 'Limited Cover'],
   ['skill', SKILL.SAPPER, 'Sapper'],
@@ -359,9 +372,7 @@ function unsupportedTraits(side) {
   const found = IGNORED
     .filter(([kind, id]) => (kind === 'skill' ? hasSkill(side.traits, id) : hasEquip(side.traits, id)))
     .map(([, , name]) => name);
-  for (const extra of ['ARM', 'Shock']) {
-    if (hasSkill(side.traits, SKILL.IMMUNITY, extra)) found.push(`Immunity (${extra})`);
-  }
+  if (hasSkill(side.traits, SKILL.IMMUNITY, 'ARM')) found.push('Immunity (ARM)');
   if (fireteamBonuses(side.ftSize).sixthSense) found.push('Sixth Sense');
   return found;
 }
@@ -441,7 +452,9 @@ function attackInputs(x, y, rangeCm, side, errors, notes) {
     [`damage${side}`]: clamp(LIMITS.damage, mods.ps ?? row.dmg),
     [`ammo${side}`]: calcAmmo(row, y?.traits),
     [`cont${side}`]: mods.cont || (row.props ?? []).includes('Continous Damage'),
+    [`shock${side}`]: shockApplies(row, y),
   };
+  if (out[`shock${side}`]) notes.push(`${label}: Shock against VITA 1; a failed save is Dead, counted as one extra wound`);
   if (hasSkill(y?.traits, SKILL.IMMUNITY, 'Enhanced') && row.saves !== '1 and 1' && row.saves !== '1') {
     notes.push(`${label}: target has Immunity (Enhanced); special ammo treated as N`);
   }
@@ -471,7 +484,7 @@ function defenseInputs(y, incoming, side) {
 
 const MODELED_SKILLS = [SKILL.MIMETISM, SKILL.NO_COVER, SKILL.TOTAL_REACTION, SKILL.NEUROCINETICS];
 const MODELED_EQUIP = [EQUIP.NANOSCREEN, EQUIP.MSV1, EQUIP.MSV2, EQUIP.MSV3, EQUIP.X_VISOR, EQUIP.ALBEDO];
-const MODELED_IMMUNITIES = ['AP', 'Critical', 'Enhanced'];
+const MODELED_IMMUNITIES = ['AP', 'Critical', 'Enhanced', 'Shock'];
 const traitLabel = (t) => (t.extra?.length ? `${t.name} (${t.extra.join(', ')})` : t.name);
 
 // Skills, equipment and state on this side that the converter actually uses,
@@ -540,6 +553,7 @@ export function deriveInputs({active, reactive, rangeCm}) {
       inputs.bonusBurstA = 0;
       inputs.successValueA = dodgeSuccessValue(a.profile, a.traits, fireteamBonuses(a.ftSize).dodge);
       inputs.contA = false;
+      inputs.shockA = false;
       inputs.dtwVsDodge = false;
     } else if (a.weapon.pseudo) {
       incomplete = true; // e.g. "No ARO" carried over; the active side needs a real choice
@@ -563,9 +577,11 @@ export function deriveInputs({active, reactive, rangeCm}) {
       inputs.bonusBurstB = 0;
       inputs.successValueB = dodgeSuccessValue(b.profile, b.traits, fireteamBonuses(b.ftSize).dodge);
       inputs.contB = false;
+      inputs.shockB = false;
     } else if (b.weapon.pseudo === 'none') {
       inputs.burstB = 0;
       inputs.bonusBurstB = 0;
+      inputs.shockB = false;
     } else if (attackStat(b.profile, b.weapon.row) <= 0) {
       errors.push('Reactive: this profile cannot make BS attacks; pick Dodge or No ARO');
     } else {
