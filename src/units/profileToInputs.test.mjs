@@ -61,6 +61,17 @@ test('rangeModFor uses the shared distance band', () => {
   assert.equal(rangeModFor(W[3][0], 120), 0);
 });
 
+test('X Visor softens negative range MODs', () => {
+  const xVisor = {equip: [{id: 117, name: 'X Visor'}]};
+  const plasma = army.weapons[111].find((r) => r.mode === 'Hit Mode');
+  assert.deepEqual([40, 80, 100, 120].map((cm) => rangeModFor(plasma, cm)), [3, -3, -6, null]);
+  assert.deepEqual([40, 80, 100, 120].map((cm) => rangeModFor(plasma, cm, xVisor)), [3, 0, -3, null]);
+  const hatamoto = byIsc('Hatamoto Imperial Guard');
+  const active = resolveSelection(army, {unitId: hatamoto.id, factionId: 1102, optionId: 1, weaponKey: '111:Hit Mode'});
+  const reactive = side(profile({arm: 3}), combi, '1:');
+  assert.equal(deriveInputs({active, reactive, rangeCm: 80}).inputs.successValueA, 13);
+});
+
 test('combi vs combi at 8-16", reactive in cover', () => {
   const r = deriveInputs({active: side(profile({bs: 13}), combi, '1:'), reactive: side(profile(), combi, '1:', true), rangeCm: 40});
   assert.equal(r.ok, true);

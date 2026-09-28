@@ -7,9 +7,9 @@ import SelectField from './SelectField.jsx';
 
 // "+3" / "-6" / "out of range" for the weapon at the shared distance.
 // Direct Templates auto-hit what they cover and take no range MODs.
-function rangeText(row, rangeCm) {
+function rangeText(row, rangeCm, traits) {
   if (isTemplate(row)) return 'template';
-  const mod = rangeModFor(row, rangeCm);
+  const mod = rangeModFor(row, rangeCm, traits);
   if (mod === null) return 'out of range';
   return `${mod > 0 ? '+' : ''}${mod} range`;
 }
@@ -51,7 +51,7 @@ function WeaponSelect({variant, matchup}) {
         {[
           ...weapons.map((w) => (
             <MenuItem key={w.key} value={w.key}>
-              {`${w.label} · ${rangeText(w.row, rangeCm)}${previewText(previews?.[w.key])}`}
+              {`${w.label} · ${rangeText(w.row, rangeCm, resolved?.traits)}${previewText(previews?.[w.key])}`}
             </MenuItem>
           )),
           ...pseudo.map((w) => <MenuItem key={w.key} value={w.key}>{w.label}</MenuItem>),
