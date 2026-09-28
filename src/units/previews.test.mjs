@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {PARAM_KEYS, fullParams, paramsKey, previewCandidates, woundsFor} from './previews.js';
 import {bsWeapons} from './profileToInputs.js';
+import validateParams from '../inputs/validateParams.js';
 
 const army = JSON.parse(readFileSync(new URL('../data/army.json', import.meta.url), 'utf8'));
 const byIsc = (isc) => army.units.find((u) => u.isc === isc);
@@ -55,7 +56,8 @@ test('no params without an opposing weapon; out-of-range weapons preview as alwa
   const far = previewCandidates({army, side: 'A', selX: selA, selY: selB, rangeCm: 80});
   const pistol = far.find((c) => c.weaponKey === '107:');
   assert.equal(pistol.params.successValueA, 0);
-  assert.equal(far.find((c) => c.weaponKey === '111:Hit Mode').params.successValueA, 10);
+  // BS13, -3 range cancelled by X Visor.
+  assert.equal(far.find((c) => c.weaponKey === '111:Hit Mode').params.successValueA, 13);
 });
 
 test('paramsKey ignores key order; fullParams fills defaults', () => {
@@ -66,6 +68,13 @@ test('paramsKey ignores key order; fullParams fills defaults', () => {
   assert.equal(paramsKey(a), paramsKey(b));
   assert.equal(a.burstB, 1);
   assert.equal(a.fixedFaceToFace, false);
+});
+
+test('burst 0 (not rolled) survives a share link on either side', () => {
+  const p = validateParams(new URLSearchParams({burstA: '0', burstB: '0'}));
+  assert.equal(p.burstA, 0);
+  assert.equal(p.burstB, 0);
+  assert.equal(validateParams(new URLSearchParams()).burstA, 3);
 });
 
 test('woundsFor sums wounds × chance for one player', () => {

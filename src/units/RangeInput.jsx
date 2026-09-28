@@ -13,14 +13,15 @@ function modText(mod) {
 // same matchup.rangeCm/setRangeCm pair to the active and reactive columns),
 // so picking a band here moves it there too: lines of fire are reciprocal.
 // `row` is the currently selected weapon's row (null for Dodge/No ARO/no
-// pick yet), used to show that weapon's own MOD at each band.
-function RangeInput({rangeCm, update, row, variant}) {
+// pick yet), used to show that weapon's own MOD at each band. `traits` are
+// the shooter's: an X Visor softens the MODs.
+function RangeInput({rangeCm, update, row, traits, variant}) {
   const theme = useTheme();
   const accent = theme.palette[variant]['500'];
   const accentText = theme.palette[variant]['700'];
   const index = RANGE_BANDS.findIndex((b) => b.to === rangeCm);
   const selectedIndex = index === -1 ? 0 : index;
-  const currentMod = row ? rangeModFor(row, rangeCm) : null;
+  const currentMod = row ? rangeModFor(row, rangeCm, traits) : null;
 
   return (
     <>
@@ -47,7 +48,7 @@ function RangeInput({rangeCm, update, row, variant}) {
         <Box sx={{position: 'relative', pt: 1.75}}>
           <Box sx={{display: 'flex', height: 30, borderRadius: 1, overflow: 'hidden', bgcolor: 'action.hover', border: 1, borderColor: 'divider'}}>
             {RANGE_BANDS.map((band, i) => {
-              const mod = row ? rangeModFor(row, band.to) : null;
+              const mod = row ? rangeModFor(row, band.to, traits) : null;
               const selected = i === selectedIndex;
               return (
                 <Tooltip key={band.to} title={`${band.label}${row ? ` · ${modText(mod)}` : ''}`}>
@@ -115,11 +116,13 @@ RangeInput.propTypes = {
   rangeCm: PropTypes.number.isRequired,
   update: PropTypes.func.isRequired,
   row: PropTypes.object,
+  traits: PropTypes.object,
   variant: PropTypes.oneOf(['active', 'reactive']),
 };
 
 RangeInput.defaultProps = {
   row: null,
+  traits: null,
   variant: 'active',
 };
 

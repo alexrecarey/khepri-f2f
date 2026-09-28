@@ -4,14 +4,14 @@ import {activePlayer, reactivePlayer, woundsPerOrder} from '../display/DataTrans
 import {bsWeapons, deriveInputs, resolveSelection} from './profileToInputs.js';
 
 export const PARAM_KEYS = [
-  'burstA', 'bonusBurstA', 'successValueA', 'damageA', 'armA', 'btsA', 'ammoA', 'contA', 'critImmuneA',
-  'burstB', 'bonusBurstB', 'successValueB', 'damageB', 'armB', 'btsB', 'ammoB', 'contB', 'critImmuneB',
+  'burstA', 'bonusBurstA', 'successValueA', 'damageA', 'armA', 'btsA', 'ammoA', 'contA', 'shockA', 'critImmuneA',
+  'burstB', 'bonusBurstB', 'successValueB', 'damageB', 'armB', 'btsB', 'ammoB', 'contB', 'shockB', 'critImmuneB',
   'dtwVsDodge', 'fixedFaceToFace',
 ];
 
 const DEFAULTS = validateParams(new URLSearchParams());
 
-// Full 20-key calculator input, defaults filled in for anything not derived.
+// Full calculator input, defaults filled in for anything not derived.
 export function fullParams(inputs) {
   const params = {};
   for (const k of PARAM_KEYS) params[k] = inputs[k] !== undefined ? inputs[k] : DEFAULTS[k];

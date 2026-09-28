@@ -137,11 +137,15 @@ def face_to_face_expected_wounds(
         a_opponent_save, a_arm, a_ammo, b_opponent_save, b_arm, b_ammo,
         a_cont=False, a_bts=0, a_crit_immune=False,
         b_cont=False, b_bts=0, b_crit_immune=False,
-        n5_beta_criticals=False
+        n5_beta_criticals=False,
+        a_shock=False, b_shock=False
 ):
     """Calculates the wounds expected from a face to face encounter.
 
     Damage now is a save change. So the stronger the weapon the lower its "save chance".
+
+    a_shock / b_shock mean that player's Shock ammunition takes effect: the opponent has VITA 1 and is not immune,
+    so any failed save sends them straight to Dead, skipping Unconscious. That is counted as one extra wound.
 
     Return format is {
         'active': {1: 11111, 2: 222222, 3: 33333},
@@ -171,6 +175,7 @@ def face_to_face_expected_wounds(
             crit_immune = b_crit_immune
             plasma = True if a_ammo == 'PLASMA' else False
             bts_save = a_opponent_save + b_bts
+            shock = a_shock
         elif b_crit + b_hit > 0:
             winner = 'reactive'
             armor_save = b_opponent_save + a_arm
@@ -179,6 +184,7 @@ def face_to_face_expected_wounds(
             crit_immune = a_crit_immune
             plasma = True if b_ammo == 'PLASMA' else False
             bts_save = b_opponent_save + a_bts
+            shock = b_shock
         else:
             winner = 'fail'
             armor_save = 0
@@ -187,6 +193,7 @@ def face_to_face_expected_wounds(
             crit_immune = False
             plasma = False
             bts_save = 0
+            shock = False
 
         # Calculate total amount of saves that must be made.
         # Each crit deals AMMO saves plus one extra save per crit. The extra save per crit is in 'crit_saves', as
@@ -216,6 +223,8 @@ def face_to_face_expected_wounds(
 
         # Thank you HighDiceRoller for this beautiful line of code!
         r = saves @ dSave + crit_saves @ dCrit + plasma_saves @ dPlasma + plasma_crit_saves @ dPlasma
+        if shock:
+            r = r.map(lambda w: w + 1 if w > 0 else w)  # Straight to Dead: one extra wound, once
         denominator = r.denominator()
         for w, occurrences in r.items():
             wounds[winner][w] = wounds[winner].get(w, 0) + (occurrences/denominator) * rolls
@@ -234,7 +243,7 @@ def format_face_to_face(face_to_face):
     return output
 
 
-def consolidate_wounds_over_maximum(wounds, max_wounds_shown=3):
+def consolidate_wounds_over_maximum(wounds, max_wounds_shown=25):
     squashed = {'active': None, 'reactive': None, 'fail': wounds['fail']}
     for player in ['active', 'reactive']:
         over_max = {k: v for k, v in wounds[player].items() if k > max_wounds_shown}
@@ -248,7 +257,7 @@ def consolidate_wounds_over_maximum(wounds, max_wounds_shown=3):
     return squashed
 
 
-def format_expected_wounds(wounds, max_wounds_shown=3):
+def format_expected_wounds(wounds, max_wounds_shown=25):
     """Format expected_wounds into a list of results
 
     Output format is {'player': 'active/reactive/fail', 'wounds': 3, 'chance': 0.2432, 'raw_chance' 1341234.23,
@@ -286,8 +295,8 @@ def reroll_value_to_list(reroll_value):
 
 
 def roll_and_bridge_results(
-        a_success_value, a_burst, a_bonus_burst, a_save, a_arm, a_bts, a_ammo, a_cont, a_crit_immune,
-        b_success_value, b_burst, b_bonus_burst, b_save, b_arm, b_bts, b_ammo, b_cont, b_crit_immune,
+        a_success_value, a_burst, a_bonus_burst, a_save, a_arm, a_bts, a_ammo, a_cont, a_crit_immune, a_shock,
+        b_success_value, b_burst, b_bonus_burst, b_save, b_arm, b_bts, b_ammo, b_cont, b_crit_immune, b_shock,
         dtw, fixed,
 ):
     if dtw:
@@ -306,6 +315,7 @@ def roll_and_bridge_results(
         a_save, a_arm, a_ammo, b_save, b_arm, b_ammo,
         a_cont=a_cont, a_bts=a_bts, a_crit_immune=a_crit_immune,
         b_cont=b_cont, b_bts=b_bts, b_crit_immune=b_crit_immune,
+        a_shock=a_shock, b_shock=b_shock,
     )
     formatted_expected_wounds = format_expected_wounds(expected_wounds)
     return_object = {

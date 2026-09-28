@@ -1,7 +1,18 @@
+# Run with: uv run --python 3.10 --with icepool==1.0.0 --with pytest pytest src/python/test_f2f.py
+# f2f.py mirrors the engine embedded in src/python.worker.js; keep the two in sync.
 import f2f
 from f2f import face_to_face_expected_wounds, face_to_face, dtw_vs_dodge
 import re
 from math import isclose
+
+
+def ps(n4_dam):
+    """N4 DAM -> N5 PS with the same wound chance.
+
+    The reference data below is from the N4 era, where a save failed on d20 <= DAM - ARM. In N5 it fails on
+    d20 > PS + ARM, so PS = 20 - DAM gives identical odds, Criticals and Continuous Damage included.
+    """
+    return 20 - n4_dam
 
 
 def ghostlords_raw_to_dict(string):
@@ -148,8 +159,8 @@ P2 Scores  1+ Successes:   8.987%"""
         outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
         kp_result = face_to_face_expected_wounds(
             outcomes,
-            player_a_dam_, player_a_arm_, player_a_ammo_,
-            player_b_dam_, player_b_arm_, player_b_ammo_)
+            ps(player_a_dam_), player_a_arm_, player_a_ammo_,
+            ps(player_b_dam_), player_b_arm_, player_b_ammo_)
         gl_dict = ghostlords_raw_to_dict(gl_result)
         kp_dict = khepri_result_to_percentage(kp_result)
         is_ghostlords_equal(gl_dict, kp_dict)
@@ -194,8 +205,8 @@ P2 Scores  1+ Successes:   4.654%"""
         outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
         kp_result = face_to_face_expected_wounds(
             outcomes,
-            player_a_dam_, player_a_arm_, player_a_ammo_,
-            player_b_dam_, player_b_arm_, player_b_ammo_)
+            ps(player_a_dam_), player_a_arm_, player_a_ammo_,
+            ps(player_b_dam_), player_b_arm_, player_b_ammo_)
         gl_dict = ghostlords_raw_to_dict(gl_result)
         kp_dict = khepri_result_to_percentage(kp_result)
         is_ghostlords_equal(gl_dict, kp_dict)
@@ -316,8 +327,8 @@ P2 Scores  1+ Successes:  14.245%"""
         outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
         kp_result = face_to_face_expected_wounds(
             outcomes,
-            player_a_dam_, player_a_arm_, player_a_ammo_,
-            player_b_dam_, player_b_arm_, player_b_ammo_)
+            ps(player_a_dam_), player_a_arm_, player_a_ammo_,
+            ps(player_b_dam_), player_b_arm_, player_b_ammo_)
         gl_dict = ghostlords_raw_to_dict(gl_result)
         kp_dict = khepri_result_to_percentage(kp_result)
         assert is_ghostlords_equal(gl_dict, kp_dict)
@@ -413,8 +424,8 @@ P2 Scores  1+ Successes:  20.088%"""
         outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
         kp_result = face_to_face_expected_wounds(
             outcomes,
-            player_a_dam_, player_a_arm_, player_a_ammo_,
-            player_b_dam_, player_b_arm_, player_b_ammo_)
+            ps(player_a_dam_), player_a_arm_, player_a_ammo_,
+            ps(player_b_dam_), player_b_arm_, player_b_ammo_)
         gl_dict = ghostlords_raw_to_dict(gl_result)
         kp_dict = khepri_result_to_percentage(kp_result)
         assert is_ghostlords_equal(gl_dict, kp_dict)
@@ -486,8 +497,8 @@ P2 Scores  1+ Successes:  22.705%"""
         outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
         kp_result = face_to_face_expected_wounds(
             outcomes,
-            player_a_dam_, player_a_arm_, player_a_ammo_,
-            player_b_dam_, player_b_arm_, player_b_ammo_)
+            ps(player_a_dam_), player_a_arm_, player_a_ammo_,
+            ps(player_b_dam_), player_b_arm_, player_b_ammo_)
         gl_dict = ghostlords_raw_to_dict(gl_result)
         kp_dict = khepri_result_to_percentage(kp_result)
         assert is_ghostlords_equal(gl_dict, kp_dict)
@@ -522,8 +533,8 @@ P2 Scores  1+ Successes:  22.705%"""
         outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
         kp_result = face_to_face_expected_wounds(
             outcomes,
-            player_a_dam_, player_a_arm_, player_a_ammo_,
-            player_b_dam_, player_b_arm_, player_b_ammo_, player_a_cont=player_a_cont_)
+            ps(player_a_dam_), player_a_arm_, player_a_ammo_,
+            ps(player_b_dam_), player_b_arm_, player_b_ammo_, a_cont=player_a_cont_)
         gl_dict = ghostlords_minimal_to_dict(active_str=active_str, reactive_str=reactive_str, fail_str=failure_str)
         kp_dict = khepri_result_to_percentage(kp_result, max_wounds_shown=3)
         assert is_ghostlords_equal(gl_dict, kp_dict)
@@ -553,8 +564,8 @@ P2 Scores  1+ Successes:  22.705%"""
         outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
         kp_result = face_to_face_expected_wounds(
             outcomes,
-            player_a_dam_, player_a_arm_, player_a_ammo_,
-            player_b_dam_, player_b_arm_, player_b_ammo_, player_a_cont=player_a_cont_)
+            ps(player_a_dam_), player_a_arm_, player_a_ammo_,
+            ps(player_b_dam_), player_b_arm_, player_b_ammo_, a_cont=player_a_cont_)
         gl_dict = ghostlords_minimal_to_dict(active_str=active_str, reactive_str=reactive_str, fail_str=failure_str)
         kp_dict = khepri_result_to_percentage(kp_result, max_wounds_shown=3)
         assert is_ghostlords_equal(gl_dict, kp_dict)
@@ -565,7 +576,7 @@ class TestAgainstSelf:
         a_sv, a_burst, a_dam, a_arm, a_ammo = 13, 3, 14, 6, 'DA'
         b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 1, 16, 6, 'EXP'
         outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
-        result = face_to_face_expected_wounds(outcomes, a_dam, a_arm, a_ammo, b_dam, b_arm, b_ammo, player_a_cont=True)
+        result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo, a_cont=True)
         assert result == {'active': {0: 22190.725799424, 1: 25253.871405465597, 2: 21241.052930211838,
                                      3: 15887.243378589697, 4: 11066.76271660401, 5: 7314.86697692332,
                                      6: 4796.023127937123, 7: 2887.195025879964, 8: 1673.2309999994693,
@@ -588,14 +599,14 @@ class TestAgainstSelf:
         a_sv, a_burst, a_dam, a_arm, a_ammo = 25, 2, 15, 6, 'N'
         b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 1, 13, 6, 'N'
         outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
-        result = face_to_face_expected_wounds(outcomes, a_dam, a_arm, a_ammo, b_dam, b_arm, b_ammo, player_b_crit_immune=True)
+        result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo, b_crit_immune=True)
         assert result == {'active': {0: 2464.5499999999997, 1: 3654.8999999999996, 2: 1340.55}, 'fail': {0: 253.0}, 'guts': {'active': 0, 'missed': 0, 'reactive': 0}, 'reactive': {0: 141.96, 1: 121.03, 2: 24.009999999999998}, 'total_rolls': 8000}
 
     def test_dodge_vs_template(self):
         a_sv, a_burst, a_dam, a_arm, a_ammo = 25, 2, 15, 6, 'N'
         b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 1, 13, 6, 'N'
         outcomes = dtw_vs_dodge(a_burst, b_sv, b_burst)
-        result = face_to_face_expected_wounds(outcomes, a_dam, a_arm, a_ammo, b_dam, b_arm, b_ammo)
+        result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo)
         assert result == {'active': {0: 2.1174999999999997, 1: 3.465, 2: 1.4175},
                            'fail': {0: 13.0}, 'guts': {'active': 0, 'missed': 0, 'reactive': 0},
                            'reactive': {}, 'total_rolls': 20}
@@ -604,7 +615,7 @@ class TestAgainstSelf:
         a_sv, a_burst, a_dam, a_arm, a_ammo = 13, 3, 14, 6, 'PLASMA'
         b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 1, 13, 3, 'N'
         outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
-        result = face_to_face_expected_wounds(outcomes, a_dam, a_arm, a_ammo, b_dam, b_arm, b_ammo)
+        result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo)
         assert result == {'active': {0: 6567.584857528641, 1: 27000.717685382388, 2: 35015.890689458254,
                                      3: 23489.99869272637, 4: 14627.696396870906, 5: 5665.637580835031,
                                      6: 1719.0338085648748, 7: 187.37418932925002, 8: 8.885704569328125,
@@ -617,19 +628,47 @@ class TestAgainstSelf:
         a_sv, a_burst, a_dam, a_arm, a_ammo = 13, 3, 14, 6, 'N'
         b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 0, 13, 3, 'N'
         outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
-        result = face_to_face_expected_wounds(outcomes, a_dam, a_arm, a_ammo, b_dam, b_arm, b_ammo)
+        result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo)
         assert result == {'active': {0: 1658.566936265625, 1: 3380.54768803125, 2: 2047.324565859375, 3: 519.4431309375001, 4: 49.14228773437499, 5: 1.94771053125, 6: 0.027680640625}, 'reactive': {}, 'fail': {0: 343.0}, 'guts': {'active': 0, 'reactive': 0, 'missed': 0}, 'total_rolls': 8000}
+
+    def test_active_0_burst(self):
+        """Active burst 0 is a reactive Normal Roll: the mirror of reactive burst 0."""
+        sv, burst, save, arm, ammo = 13, 3, 6, 3, 'N'
+        reactive_only = face_to_face_expected_wounds(
+            face_to_face(13, 0, sv, burst), 7, 2, 'N', save, arm, ammo)
+        active_only = face_to_face_expected_wounds(
+            face_to_face(sv, burst, 13, 0), save, arm, ammo, 7, 2, 'N')
+        assert reactive_only['active'] == {}
+        assert reactive_only['reactive'] == active_only['active']
+        assert reactive_only['fail'] == active_only['fail'] == {0: 343.0}
+        assert reactive_only['total_rolls'] == 8000
 
     def test_minimum_5_wounds(self):
         a_sv, a_burst, a_dam, a_arm, a_ammo = 25, 3, 20, 6, 'DA'
         b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 0, 13, 0, 'N'
         outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
-        result = face_to_face_expected_wounds(outcomes, a_dam, a_arm, a_ammo, b_dam, b_arm, b_ammo)
+        result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo)
         assert result == {'active': {6: 2744.0, 7: 3528.0, 8: 1512.0, 9: 216.0}, 'fail': {}, 'guts': {'active': 0, 'missed': 0, 'reactive': 0}, 'reactive': {}, 'total_rolls': 8000}
 
     def test_active_reactive_both_0_wounds(self):
         a_sv, a_burst, a_dam, a_arm, a_ammo = 1, 1, 1, 13, 'N'
         b_sv, b_burst, b_dam, b_arm, b_ammo = 1, 0, 1, 13, 'N'
         outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
-        result = face_to_face_expected_wounds(outcomes, a_dam, a_arm, a_ammo, b_dam, b_arm, b_ammo)
+        result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo)
         assert result == {'active': {0: 1.0}, 'fail': {0: 19.0}, 'guts': {'active': 0, 'missed': 0, 'reactive': 0}, 'reactive': {}, 'total_rolls': 20}
+
+    def test_shock(self):
+        a_sv, a_burst, a_dam, a_arm, a_ammo = 13, 3, 13, 2, 'DA'
+        b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 1, 13, 2, 'N'
+        outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
+        plain = face_to_face_expected_wounds(outcomes, a_dam, a_arm, a_ammo, b_dam, b_arm, b_ammo)
+        for winner, loser, flag in [('active', 'reactive', 'a_shock'), ('reactive', 'active', 'b_shock')]:
+            shock = face_to_face_expected_wounds(
+                outcomes, a_dam, a_arm, a_ammo, b_dam, b_arm, b_ammo, **{flag: True})
+            # One extra wound, once, whenever a save is failed
+            expected = {(wounds + 1 if wounds > 0 else 0): rolls for wounds, rolls in plain[winner].items()}
+            assert shock[winner].keys() == expected.keys()
+            assert all(isclose(shock[winner][wounds], expected[wounds]) for wounds in expected)
+            assert shock[loser] == plain[loser]
+            assert shock['fail'] == plain['fail']
+            assert shock['total_rolls'] == plain['total_rolls']

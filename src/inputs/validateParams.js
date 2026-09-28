@@ -1,5 +1,6 @@
 import {clamp} from 'ramda';
 
+// 0 = not rolled: the other side makes a Normal Roll (unopposed).
 const MIN_BURST = 0;
 const MAX_BURST = 6;
 const MIN_BONUS_BURST = 0;
@@ -26,6 +27,7 @@ function validateParams(p) {
     btsA: 0,
     ammoA: 'N',
     contA: false,
+    shockA: false,
     critImmuneA: false,
     dtwVsDodge: false,
     burstB: 1,
@@ -36,6 +38,7 @@ function validateParams(p) {
     btsB: 0,
     ammoB: 'N',
     contB: false,
+    shockB: false,
     critImmuneB: false,
     fixedFaceToFace: false,
   };
@@ -44,7 +47,7 @@ function validateParams(p) {
   // Burst
   let burstA = p.get('burstA')
   if(burstA !== null && !isNaN(Number(burstA))){
-    valid['burstA'] = clamp(1, MAX_BURST, Number(burstA));
+    valid['burstA'] = clamp(MIN_BURST, MAX_BURST, Number(burstA));
   }
   let burstB = p.get('burstB')
   if(burstB !== null && !isNaN(Number(burstB))){
@@ -119,6 +122,16 @@ function validateParams(p) {
   let contB = p.get('contB');
   if(contB !== null){
     valid['contB'] = contB.toLowerCase() === 'true';
+  }
+
+  // Shock taking effect (target has VITA 1 and no immunity)
+  let shockA = p.get('shockA');
+  if(shockA !== null){
+    valid['shockA'] = shockA.toLowerCase() === 'true';
+  }
+  let shockB = p.get('shockB');
+  if(shockB !== null){
+    valid['shockB'] = shockB.toLowerCase() === 'true';
   }
 
   // Crit immunity

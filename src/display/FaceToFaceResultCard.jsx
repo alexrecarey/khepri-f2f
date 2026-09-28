@@ -89,11 +89,12 @@ function FaceToFaceResultCard(props) {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  let activeParameters = `B${p.burstA}${p.bonusBurstA >0 ? "+" + p.bonusBurstA : ""} ${p.dtwVsDodge ? "DTW" : "SV" + p.successValueA}\
- ${p.ammoA !== "DODGE" ? "PS" + p.damageA : ""} ${p.ammoA !== "N" ? p.ammoA : ""} \
- ${p.contA ? "CONT" : ""} ARM${p.armA} ${p.critImmuneA ? "CRIT_IMMUNE" : ""}`
+  let activeSv = p.dtwVsDodge ? "DTW" : "SV" + p.successValueA;
+  let activeParameters = `B${p.burstA}${p.bonusBurstA >0 ? "+" + p.bonusBurstA : ""} ${p.burstA !== 0 ? activeSv : ""}\
+ ${p.ammoA !== "DODGE" && p.burstA !== 0 ? "PS" + p.damageA : ""} ${p.ammoA !== "N" ? p.ammoA : ""} \
+ ${p.contA ? "CONT" : ""} ${p.shockA ? "SHOCK" : ""} ARM${p.armA} ${p.critImmuneA ? "CRIT_IMMUNE" : ""}`
   let reactiveParameters = `B${p.burstB}${p.bonusBurstB >0 ? "+" + p.bonusBurstB : ""} ${p.burstB !== 0 ? "SV" + p.successValueB : ""} ${p.ammoB !== "DODGE" && p.burstB !== 0 ? "PS" + p.damageB : ""}\
- ${p.ammoB !== "N" ? p.ammoB : ""} ${p.contB ? "CONT" : ""} ARM${p.armB} ${p.critImmuneB ? "CRIT_IMMUNE" : ""}`
+ ${p.ammoB !== "N" ? p.ammoB : ""} ${p.contB ? "CONT" : ""} ${p.shockB ? "SHOCK" : ""} ARM${p.armB} ${p.critImmuneB ? "CRIT_IMMUNE" : ""}`
 
   return <Card>
     <CardContent>
