@@ -436,8 +436,8 @@ function App() {
                   {!showDerivedInputs && <>
                     <WeaponSelect variant='active' matchup={matchup}/>
                     <RangeInput rangeCm={matchup.rangeCm} update={matchup.setRangeCm} row={matchup.A.resolved?.weapon?.row}/>
-                    <CoverInput variant='active' matchup={matchup}/>
                     <FireteamPurityInput value={matchup.ftSize.A} update={(n) => matchup.setFtSize('A', n)}/>
+                    <CoverInput variant='active' matchup={matchup}/>
                   </>}
                   {showDerivedInputs && <>
                   {burstInputA}
@@ -467,9 +467,9 @@ function App() {
                   {!showDerivedInputs && <>
                     <WeaponSelect variant='reactive' matchup={matchup}/>
                     <RangeInput rangeCm={matchup.rangeCm} update={matchup.setRangeCm} row={matchup.B.resolved?.weapon?.row} variant='reactive'/>
-                    <CoverInput variant='reactive' matchup={matchup}/>
                     <FireteamPurityInput value={matchup.ftSize.B} update={(n) => matchup.setFtSize('B', n)}
                                          variant='reactive'/>
+                    <CoverInput variant='reactive' matchup={matchup}/>
                   </>}
                   {showDerivedInputs && <>
                   {burstInputB}
