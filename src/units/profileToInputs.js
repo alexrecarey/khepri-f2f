@@ -295,7 +295,7 @@ export function resolveSelection(army, sel) {
     unit, factionId, groups, group, profile, option, traits, weapon,
     upgrades, unsupportedUpgradeWeapons,
     inCover: Boolean(sel.inCover),
-    ftSize: sel.ftSize ?? 0,
+    ftSize: sel.ftSize ?? 1,
   };
 }
 

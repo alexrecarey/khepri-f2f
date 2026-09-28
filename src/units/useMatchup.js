@@ -16,7 +16,7 @@ export const EMPTY_SELECTION = {
   ball: null,
 };
 
-const NO_FIRETEAM = {A: 0, B: 0};
+const NO_FIRETEAM = {A: 1, B: 1};
 
 // Matchup state shared by the unit picker card and the calculator columns
 // (weapon and Fireteam Purity live there). Army data loads once `enabled`.
