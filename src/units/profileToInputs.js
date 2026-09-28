@@ -177,11 +177,13 @@ export function rangeModFor(row, distanceCm, traits) {
   return band.mod;
 }
 
+// Extras such as "+1B" tell otherwise identical loadouts apart.
+const nameWithExtras = (x) => (x.extra?.length ? `${x.name} (${x.extra.join(', ')})` : x.name);
+
 function bsWeaponNames(option, weapons) {
   const names = [];
   for (const w of option?.weapons ?? []) {
-    // Extras such as "+1B" tell otherwise identical loadouts apart.
-    const name = w.extra?.length ? `${w.name} (${w.extra.join(', ')})` : w.name;
+    const name = nameWithExtras(w);
     if ((weapons?.[w.id] ?? []).some(isBsAttackWeapon) && !names.includes(name)) names.push(name);
   }
   return names;
@@ -199,14 +201,55 @@ const loadoutFingerprint = (o, weapons) => JSON.stringify([
   (o.equip ?? []).map(traitKey).sort(),
 ]);
 
+// Lowest value over the loadouts collapsed into a row, with a "+" when some cost more.
+function lowestCost(values) {
+  const distinct = [...new Set(values)].sort((a, b) => Number(a) - Number(b));
+  return `${distinct[0]}${distinct.length > 1 ? '+' : ''}`;
+}
+
+// Short forms players use for skills and equipment, to keep the labels short.
+// Hand-kept; names not listed are shown as in the Army data.
+const ABBREVIATIONS = {
+  'Chain of Command': 'CoC',
+  'EVO Hacking Device': 'EVO HD',
+  'Forward Observer': 'FO',
+  'Hacking Device': 'HD',
+  'Hacking Device Plus': 'HD+',
+  'Killer Hacking Device': 'KHD',
+  Lieutenant: 'Lt',
+  'Multispectral Visor L1': 'MSV1',
+  'Multispectral Visor L2': 'MSV2',
+  'Multispectral Visor L3': 'MSV3',
+};
+const shortNameWithExtras = (x) => nameWithExtras({...x, name: ABBREVIATIONS[x.name] ?? x.name});
+
+// Weapons the label leaves out: the BS weapons every loadout has and the ones
+// that aren't BS weapons. Collapsed loadouts can differ in the latter, listed
+// as alternatives ("optional" when some have none).
+function omittedWeapons(row, shown) {
+  const perLoadout = row.map((o) =>
+    [...new Set((o.weapons ?? []).map(nameWithExtras))].filter((n) => !shown.includes(n)));
+  const common = perLoadout[0].filter((n) => perLoadout.every((names) => names.includes(n)));
+  const others = [...new Set(perLoadout.map((names) => names.filter((n) => !common.includes(n)).join(', ')))];
+  const alternatives = others.filter(Boolean);
+  const parts = [];
+  if (common.length > 0) parts.push(common.join(', '));
+  if (alternatives.length > 0) parts.push(`${others.includes('') ? 'optional ' : ''}${alternatives.join(' or ')}`);
+  return parts.join(' · ');
+}
+
+// Per row: `label` tells the loadouts apart, skills and equipment (abbreviated)
+// first as in the Army list's name column; `swc` and `points` mark the row as
+// a profile, not a weapon; `detail` is the rest of the loadout ('' when the
+// label has it all).
 export function loadoutLabels(group, weapons) {
-  const seen = new Set();
-  const options = (group?.options ?? []).filter((o) => {
+  const collapsed = new Map();
+  for (const o of group?.options ?? []) {
     const fp = loadoutFingerprint(o, weapons);
-    if (seen.has(fp)) return false;
-    seen.add(fp);
-    return true;
-  });
+    collapsed.set(fp, [...(collapsed.get(fp) ?? []), o]);
+  }
+  const rows = [...collapsed.values()];
+  const options = rows.map((row) => row[0]);
   const namesDiffer = new Set(options.map((o) => o.name)).size > 1;
   const perOption = options.map((o) => bsWeaponNames(o, weapons));
   const labels = options.map((o, i) => {
@@ -214,13 +257,18 @@ export function loadoutLabels(group, weapons) {
     const common = mine.filter((n) => perOption.every((names) => names.includes(n)));
     let shown = mine.filter((n) => !common.includes(n));
     if (shown.length === 0) shown = mine;
-    const extras = [...(o.skills ?? []), ...(o.equip ?? [])].map((x) =>
-      x.extra?.length ? `${x.name} (${x.extra.join(', ')})` : x.name);
+    const extras = [...(o.skills ?? []), ...(o.equip ?? [])].map(shortNameWithExtras);
     const parts = [];
     if (namesDiffer && o.name) parts.push(o.name);
-    if (shown.length > 0) parts.push(shown.join(', '));
     if (extras.length > 0) parts.push(extras.join(', '));
-    return {id: o.id, label: parts.join(' · ') || o.name || `Profile ${o.id}`};
+    if (shown.length > 0) parts.push(shown.join(', '));
+    return {
+      id: o.id,
+      label: parts.join(' · ') || o.name || `Profile ${o.id}`,
+      swc: lowestCost(rows[i].map((x) => x.swc)),
+      points: lowestCost(rows[i].map((x) => x.points)),
+      detail: omittedWeapons(rows[i], shown),
+    };
   });
   const counts = labels.reduce((acc, l) => acc.set(l.label, (acc.get(l.label) ?? 0) + 1), new Map());
   return labels.map((l) => (counts.get(l.label) > 1 ? {...l, label: `${l.label} #${l.id}`} : l));

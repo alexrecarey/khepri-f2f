@@ -16,6 +16,13 @@ import {EMPTY_SELECTION} from './useMatchup.js';
 // Faction logos shown per unit row before collapsing the rest into "+N".
 const MAX_LOGOS = 4;
 
+// Profile rows: a one-line label, with the cost and the second line smaller.
+const truncated = {overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'};
+const subText = {fontSize: '0.8em'};
+// Phones get the short SWC/points form of the cost, e.g. "0/31".
+const phoneOnly = {xs: 'inline', sm: 'none'};
+const abovePhone = {xs: 'none', sm: 'inline'};
+
 // Match the short ISC only, ignoring case and accents (`label` and `search` are built at load).
 const filterOptions = (units, {inputValue}) => {
   const q = searchKey(inputValue.trim());
@@ -271,7 +278,21 @@ function UnitPicker({variant, army, value, onChange, headerAction}) {
             onChange={(id) => set({optionId: id, weaponKey: null})}
           >
             {labels.map((l) => (
-              <MenuItem key={l.id} value={l.id}>{l.label}</MenuItem>
+              // Cost to the right of a label that truncates before it; the rest of the loadout below.
+              <MenuItem key={l.id} value={l.id}>
+                <Box component="span" sx={{display: 'block', flex: 1, minWidth: 0}}>
+                  <Box component="span" sx={{display: 'flex', alignItems: 'baseline', gap: 1}}>
+                    <Box component="span" title={l.label} sx={{flex: 1, minWidth: 0, ...truncated}}>{l.label}</Box>
+                    <Box component="span" sx={{flexShrink: 0, whiteSpace: 'nowrap', ...subText}}>
+                      <Box component="span" sx={{display: phoneOnly}}>{l.swc}/{l.points}</Box>
+                      <Box component="span" sx={{display: abovePhone}}>{l.swc} SWC / {l.points} pts</Box>
+                    </Box>
+                  </Box>
+                  {l.detail && (
+                    <Box component="span" sx={{display: 'block', color: 'text.secondary', ...subText}}>{l.detail}</Box>
+                  )}
+                </Box>
+              </MenuItem>
             ))}
           </SelectField>
         </Grid>

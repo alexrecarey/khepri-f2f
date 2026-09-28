@@ -697,17 +697,53 @@ test('template burst comes from loadout extras (Dog-Warrior B2 Chain Rifle)', ()
   assert.deepEqual(matchupTraits(x), []);
 });
 
-test('loadout labels: no pts/SWC, same-playing loadouts collapse, extras disambiguate', () => {
+test('loadout labels: same-playing loadouts collapse to the lowest SWC/pts, extras disambiguate', () => {
   const w = [{id: 1, name: 'Combi Rifle'}, {id: 8, name: 'CC Weapon'}];
   const group = {options: [
-    option(w, {id: 1, points: 10}),
-    option([...w].reverse(), {id: 2, points: 12, swc: '0.5'}),
-    option([{id: 1, name: 'Combi Rifle', extra: ['+1B']}, w[1]], {id: 3}),
+    option(w, {id: 1, points: 12, swc: '0.5'}),
+    option([...w].reverse(), {id: 2, points: 9}),
+    option(w, {id: 3, points: 10}),
+    option([{id: 1, name: 'Combi Rifle', extra: ['+1B']}, w[1]], {id: 4}),
+    option([{id: 1, name: 'Combi Rifle', extra: ['+1B']}, w[1]], {id: 5}),
   ]};
   assert.deepEqual(loadoutLabels(group, W), [
-    {id: 1, label: 'Combi Rifle'},
-    {id: 3, label: 'Combi Rifle (+1B)'},
+    {id: 1, label: 'Combi Rifle', swc: '0+', points: '9+', detail: 'CC Weapon'},
+    {id: 4, label: 'Combi Rifle (+1B)', swc: '0', points: '10', detail: 'CC Weapon'},
   ]);
+});
+
+test('loadout labels: name, then abbreviated skills and equipment, then weapons', () => {
+  const group = {options: [
+    option([{id: 1, name: 'Combi Rifle'}], {id: 1, skills: [{id: 64, name: 'Paramedic'}], equip: [{id: 106, name: 'MediKit'}]}),
+    option([{id: 7, name: 'Heavy Machine Gun'}], {
+      id: 2,
+      name: 'O FTO',
+      skills: [{id: 119, name: 'Lieutenant', extra: ['+1 Order']}],
+      equip: [{id: 115, name: 'Multispectral Visor L2'}],
+    }),
+  ]};
+  assert.deepEqual(loadoutLabels(group, W).map((l) => l.label), [
+    'O · Paramedic, MediKit · Combi Rifle',
+    'O FTO · Lt (+1 Order), MSV2 · Heavy Machine Gun',
+  ]);
+});
+
+test('loadout detail: weapons the label leaves out, alternatives over collapsed loadouts', () => {
+  const rifle = {id: 1, name: 'Combi Rifle'};
+  const pistol = {id: 6, name: 'Heavy Pistol'};
+  const cc = {id: 8, name: 'CC Weapon'};
+  const da = {id: 8, name: 'DA CC Weapon'};
+  const mines = {id: 99, name: 'Mines'};
+  // First row of a group whose other row also has the pistol, so the label drops it.
+  const first = (...loadouts) => loadoutLabels({options: [
+    ...loadouts.map((weapons, i) => option(weapons, {id: i + 1})),
+    option([{id: 7, name: 'Heavy Machine Gun'}, pistol], {id: 9}),
+  ]}, W)[0];
+  assert.deepEqual(first([rifle, pistol, cc]),
+    {id: 1, label: 'Combi Rifle', swc: '0', points: '10', detail: 'Heavy Pistol, CC Weapon'});
+  assert.equal(first([rifle, pistol, cc], [rifle, pistol, cc, mines]).detail, 'Heavy Pistol, CC Weapon · optional Mines');
+  assert.equal(first([rifle, pistol, cc], [rifle, pistol, da]).detail, 'Heavy Pistol · CC Weapon or DA CC Weapon');
+  assert.equal(loadoutLabels({options: [option([rifle])]}, W)[0].detail, '');
 });
 
 test('loadout stat overrides (BS=11, BTS=3) replace the profile stat', () => {
