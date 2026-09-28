@@ -55,7 +55,8 @@ test('no params without an opposing weapon; out-of-range weapons preview as alwa
   const far = previewCandidates({army, side: 'A', selX: selA, selY: selB, rangeCm: 80});
   const pistol = far.find((c) => c.weaponKey === '107:');
   assert.equal(pistol.params.successValueA, 0);
-  assert.equal(far.find((c) => c.weaponKey === '111:Hit Mode').params.successValueA, 10);
+  // BS13, -3 range cancelled by X Visor.
+  assert.equal(far.find((c) => c.weaponKey === '111:Hit Mode').params.successValueA, 13);
 });
 
 test('paramsKey ignores key order; fullParams fills defaults', () => {
