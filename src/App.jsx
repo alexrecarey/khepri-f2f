@@ -520,9 +520,9 @@ function App() {
             </Grid>
           })}
           <Grid>
-            <Alert severity="warning">
-              This N5 version of the Infinity Dice Calculator is still beta software. Expect interface changes.
-            </Alert>
+            {calcMode === MODES.matchup && <Alert severity="warning">
+              Matchup mode is a new feature that might still have bugs issues. Feedback is greatly appreciated!
+            </Alert>}
             <Typography color="text.secondary" variant="body2" sx={{marginTop: 4, marginLeft: 2, marginRight: 2}}>
               Made with ❤️ for the Infinity community by Khepri and Bebop.
               Contact me with any bugs or suggestions on the <Link href="https://www.infinitygloballeague.com/">
