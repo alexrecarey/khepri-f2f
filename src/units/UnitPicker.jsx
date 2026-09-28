@@ -103,12 +103,24 @@ function UnitPicker({variant, army, value, onChange, headerAction}) {
     onChange({...EMPTY_SELECTION, unitId: u?.id ?? null, inCover: value.inCover});
     if (u) setPendingFocus(true);
   };
+  // Focus and open the first select that needs a choice, else the first one.
+  const openNextField = () => {
+    const el = rootRef.current?.querySelector('[data-field][data-needs-choice="true"]')
+      ?? rootRef.current?.querySelector('[data-field]');
+    if (!el) return;
+    el.focus();
+    setOpenField(el.dataset.field);
+  };
   // Enter (or the soft keyboard's action key) takes the highlighted suggestion,
   // else the first one. Done here because MUI skips Enter when nothing is
-  // highlighted or the keyboard is still composing.
+  // highlighted or the keyboard is still composing. With no suggestions
+  // showing it moves on from the unit already in the field.
   const pickSuggestion = (event) => {
     event.preventDefault();
-    if (!open) return;
+    if (!open) {
+      if (unit) openNextField();
+      return;
+    }
     const matches = filterOptions(army.units, {inputValue});
     const u = matches.includes(highlighted.current) ? highlighted.current : matches[0];
     if (!u) return;
@@ -198,8 +210,9 @@ function UnitPicker({variant, army, value, onChange, headerAction}) {
                 ...params.inputProps,
                 name: `unit-search-${variant}`,
                 autoCorrect: 'off',
-                // Not "next": Android then moves focus itself and sends no Enter.
-                enterKeyHint: 'search',
+                // An explicit hint still sends Enter; Android only moves focus
+                // itself when there is none.
+                enterKeyHint: 'next',
               }}
               // iOS zooms the page in on focus when an input's text is under 16px.
               sx={{'& .MuiInputBase-input': {fontSize: 'max(16px, 1rem)'}}}
