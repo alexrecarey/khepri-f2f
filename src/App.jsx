@@ -522,7 +522,7 @@ function App() {
               This N5 version of the Infinity Dice Calculator is still beta software. Expect interface changes.
             </Alert>
             <Typography color="text.secondary" variant="body2" sx={{marginTop: 4, marginLeft: 2, marginRight: 2}}>
-              Made with ❤️ for the Infinity community by Khepri.
+              Made with ❤️ for the Infinity community by Khepri and Bebop.
               Contact me with any bugs or suggestions on the <Link href="https://www.infinitygloballeague.com/">
               IGL Discord</Link> or on the Corvus Belli forums.
               Source code <Link href="https://github.com/alexrecarey/khepri-f2f"> available on github</Link>.
