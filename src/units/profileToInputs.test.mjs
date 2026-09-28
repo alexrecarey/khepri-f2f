@@ -122,6 +122,20 @@ test('defaultWeapon keeps menu order on ties', () => {
   assert.equal(defaultWeapon([], 'active'), null);
 });
 
+test('defaultWeapon ranks loadout ammo extras by the ammo they give', () => {
+  // Viral and T2 beat the MULTI Rifle's AP Mode at equal burst; N does not.
+  const multi = {id: 2, name: 'MULTI Rifle'};
+  assert.equal(pick([multi, {id: 1, name: 'Combi Rifle'}], 'active'), '2:AP Mode');
+  assert.equal(pick([multi, {id: 1, name: 'Combi Rifle', extra: ['Viral']}], 'active'), '1:');
+  assert.equal(pick([multi, {id: 1, name: 'Combi Rifle', extra: ['T2']}], 'active'), '1:');
+  // Viral beats T2.
+  assert.equal(pick([{id: 10, name: 'T2 Rifle'}, {id: 1, name: 'Combi Rifle', extra: ['Viral']}], 'active'), '1:');
+  // Shock beats N at the same range bands.
+  const k1 = {id: 13, name: 'K1 Combi Rifle'};
+  assert.equal(pick([k1, {id: 1, name: 'Combi Rifle'}], 'reactive'), '13:');
+  assert.equal(pick([k1, {id: 1, name: 'Combi Rifle', extra: ['Shock']}], 'reactive'), '1:');
+});
+
 test('rangeModFor uses the shared distance band', () => {
   assert.equal(rangeModFor(W[1][0], 40), 3);
   assert.equal(rangeModFor(W[1][0], 60), -3);
@@ -476,6 +490,68 @@ test('Vulnerability (Viral): no Immunity against Viral weapons', () => {
   assert.deepEqual(matchupTraits(side(chaksa, combi, '1:')), ['Immunity (BTS)', 'Immunity (Critical)', 'Vulnerability (Viral)']);
 });
 
+// --- Loadout ammo extras: Combi Rifle (T2), Combi Rifle (Viral)... ---------
+const withExtra = (extra, id = 1) => bsWeapons(option([{id, name: 'x', extra}]), W)[0];
+
+test('ammo extras: the weapon menu label shows the ammo', () => {
+  assert.equal(withExtra([]).label, 'Combi Rifle · B3 · PS7 · N');
+  assert.equal(withExtra(['T2']).label, 'Combi Rifle · B3 · PS7 · T2');
+  assert.equal(withExtra(['Shock']).label, 'Combi Rifle · B3 · PS7 · Shock');
+  assert.equal(withExtra(['AP']).label, 'Combi Rifle · B3 · PS7 · AP');
+  assert.equal(withExtra(['+1B', 'T2']).label, 'Combi Rifle · B4 · PS7 · T2');
+  // Added to other ammo, not in place of it; an AP weapon doesn't say AP twice.
+  assert.equal(withExtra(['T2'], 6).label, 'Heavy Pistol · B2 · PS6 · Shock+T2');
+  assert.equal(withExtra(['AP'], 15).label, 'Breaker Rifle · B3 · PS7 · AP');
+  // Viral is N ammo on a BTS save, like the chart's Viral Combi Rifle.
+  assert.equal(withExtra(['Viral']).label, 'Viral Combi Rifle · B3 · PS7 · N');
+  assert.equal(withExtra(['Viral']).label, withExtra([], 4).label);
+});
+
+test('ammo extras: T2 fires T2 ammo, treated as N by Immunity (ARM)', () => {
+  const t2 = {extra: ['T2']};
+  assert.equal(shotAt(profile({arm: 5}), 1, '1:', t2).inputs.ammoA, 'T2');
+  assert.equal(shotAt(profile({arm: 5}), 1, '1:').inputs.ammoA, 'N');
+  const r = shotAt(immune('ARM'), 1, '1:', t2);
+  assert.equal(r.inputs.ammoA, 'N');
+  assert.deepEqual(r.notes, ['Active: target has Immunity (ARM); T2 treated as N']);
+  // Same as the (PS6) T2 Rifle.
+  for (const target of [profile({arm: 5}), immune('ARM'), immune('BTS')]) {
+    assert.deepEqual(shotAt(target, 1, '1:', {extra: ['T2', 'PS=6']}), shotAt(target, 10, '10:'));
+  }
+});
+
+test('ammo extras: Viral plays as Bioweapon (DA+SHOCK), like the Viral Combi Rifle', () => {
+  const viral = {extra: ['Viral']};
+  const plain = shotAt(profile({arm: 5, bts: 6}), 1, '1:', viral).inputs;
+  assert.equal(plain.ammoA, 'DA');
+  assert.equal(plain.shockA, true);
+  assert.equal(plain.armB, 6); // BTS save
+  const targets = {
+    plain: profile({arm: 5, bts: 6}),
+    vita2: profile({w: 2}),
+    immuneARM: immune('ARM'),
+    immuneBTS: immune('BTS'),
+    immuneShock: immune('Shock'),
+    immuneEnhanced: immune('Enhanced'),
+    chaksa: profile({bts: 5, skills: [{id: 162, name: 'Immunity', extra: ['BTS']}, {id: 220, name: 'Vulnerability', extra: ['Viral']}]}),
+  };
+  for (const [name, target] of Object.entries(targets)) {
+    assert.deepEqual(shotAt(target, 1, '1:', viral), shotAt(target, 4, '4:'), name);
+  }
+});
+
+test('ammo extras: Shock turns on the Shock rule', () => {
+  const vs = (target) => shotAt(target, 1, '1:', {extra: ['Shock']}).inputs;
+  assert.equal(vs(profile()).shockA, true);
+  assert.equal(vs(profile()).ammoA, 'N');
+  assert.equal(vs(profile({w: 2})).shockA, false);
+  assert.equal(vs(immune('Shock')).shockA, false);
+  assert.equal(vs(immune('ARM')).shockA, false);
+  assert.equal(shotAt(profile(), 1, '1:').inputs.shockA, false);
+  // Same as a Shock weapon from the chart.
+  assert.deepEqual(vs(profile({arm: 5})), shotAt(profile({arm: 5}), 2, '2:Shock Mode').inputs);
+});
+
 test('out of range weapon always fails: success value 0, no error', () => {
   const pistol = option([{id: 6, name: 'Heavy Pistol'}]);
   const r = deriveInputs({active: side(profile(), pistol, '6:'), reactive: side(profile(), combi, '1:'), rangeCm: 120});
@@ -702,6 +778,31 @@ test('Chaksa Longarm: Immunity (BTS) against a Breaker, not against Viral', () =
   const viral = deriveInputs({active: shooter('VIRAL Sniper Rifle'), reactive, rangeCm: 40});
   assert.equal(viral.inputs.ammoA, 'DA');
   assert.ok(viral.notes.some((n) => n.includes('Vulnerability (Viral)')), viral.notes.join(' | '));
+});
+
+test('army ammo extras: Corax Combi Rifle (Viral), Treitak Combi Rifle (T2), Iguana Mine Dispenser (Shock)', () => {
+  const corax = byIsc('Shasvastii Team-Ops');
+  const active = resolveSelection(army, {unitId: corax.id, factionId: 603, groupId: 1, optionId: 4, weaponKey: '33:'});
+  assert.equal(active.weapon.label, 'Viral Combi Rifle · B3 · PS7 · N');
+  const chaksa = byIsc('Chaksa Longarms');
+  const f = chaksa.inFactions[0];
+  const group = chaksa.byFaction[f].groups[0];
+  const reactive = resolveSelection(army, {unitId: chaksa.id, factionId: f, groupId: group.id, optionId: group.options[0].id, weaponKey: 'dodge'});
+  const r = deriveInputs({active, reactive, rangeCm: 40});
+  assert.equal(r.inputs.ammoA, 'DA');
+  assert.equal(r.inputs.armB, reactive.profile.bts);
+  assert.ok(r.notes.some((n) => n.includes('Vulnerability (Viral)')), r.notes.join(' | '));
+
+  const treitak = byIsc('Treitak Spec-Ops');
+  const t2 = resolveSelection(army, {unitId: treitak.id, factionId: 601, groupId: 1, profileId: 1, optionId: 4, weaponKey: '33:'});
+  assert.equal(t2.weapon.label, 'Combi Rifle · B3 · PS7 · T2');
+  assert.equal(deriveInputs({active: t2, reactive: null, rangeCm: 40}).inputs.ammoA, 'T2');
+  assert.equal(defaultWeapon(bsWeapons(t2.option, army.weapons), 'active').key, '33:');
+
+  // The Mine Dispenser is not a BS Attack, whatever mines it lays.
+  const iguana = byIsc("'Iguana' Squadron").byFaction['403'].groups[0].options[0];
+  assert.ok(iguana.weapons.some((w) => w.name === 'Mine Dispenser' && w.extra?.includes('Shock')));
+  assert.ok(bsWeapons(iguana, army.weapons).every((w) => w.name !== 'Mine Dispenser'));
 });
 
 test('searchKey folds case and accents', () => {
