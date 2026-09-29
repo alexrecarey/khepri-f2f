@@ -1,13 +1,14 @@
 // MODs and bonuses to the roll: cover, Nanoscreen, Mimetism, Albedo, Fireteams,
 // BS Attack, ARO burst and Dodge.
-import {LIMITS as ENGINE_LIMITS} from '../engine/params.js';
+import {LIMITS} from '../engine/params.js';
 import {EQUIP, SKILL} from '../army/ids.js';
 import {equipExtra, hasEquip, hasSkill, skillExtra, skillExtras} from '../army/traits.js';
 import {attackAttribute, isImpactTemplate, isTemplate, parseWeaponMods} from '../army/weapons.js';
 
-// The engine's limits, except that a rolled Success Value never drops below 1
-// here: 0 (always fails, no crit) is kept for attacks out of range.
-export const LIMITS = {...ENGINE_LIMITS, successValue: [1, ENGINE_LIMITS.successValue[1]]};
+// A Success Value below 1 is an automatic failure (no roll can pass or crit):
+// it is clamped to 0, which the engine treats exactly that way. The same
+// value stands for an attack out of range.
+export {LIMITS};
 export const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
 
 // Direct and Impact (Blast mode) templates ignore cover's +3 to the Saving
