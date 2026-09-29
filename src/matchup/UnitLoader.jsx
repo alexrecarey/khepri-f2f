@@ -16,7 +16,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import PropTypes from 'prop-types';
 import UnitPicker from './UnitPicker.jsx';
-import {matchupTraits} from './profileToInputs.js';
+import {matchupTraits} from './labels.js';
 
 // "HATAMOTO Plasma Carbine (Hit)" for the collapsed summary: the loadout's
 // short name from Army, then the weapon.

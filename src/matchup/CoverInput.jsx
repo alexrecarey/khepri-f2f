@@ -2,8 +2,8 @@ import {Grid, InputLabel, Rating, Tooltip} from '@mui/material';
 import {useTheme} from '@mui/material/styles';
 import PropTypes from 'prop-types';
 import {CONTROL_ROW_HEIGHT} from './layout.js';
-import BrickWallIcon from '../componets/BrickWallIcon.jsx';
-import {SKILL} from './profileToInputs.js';
+import BrickWallIcon from '../components/BrickWallIcon.jsx';
+import {SKILL} from '../army/ids.js';
 
 // "In cover" for one side of the matchup, in the Burst pattern: a single brick
 // wall toggles cover on/off. Units with No Cover can't take cover.

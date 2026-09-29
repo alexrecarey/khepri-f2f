@@ -23,4 +23,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - run: uv run --python 3.10 --with icepool==1.0.0 --with pytest pytest -q src/python
+      - run: uv run --python 3.10 --with icepool==1.0.0 --with pytest pytest -q src/engine

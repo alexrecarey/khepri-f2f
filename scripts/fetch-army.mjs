@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Fetches unit data for the given faction ids from Corvus Belli's Army API and
-// writes a compact, name-resolved snapshot to src/data/army.json.
+// writes a compact, name-resolved snapshot to src/army/army.json.
 //
 //   node scripts/fetch-army.mjs 1102 107
 //
@@ -30,7 +30,7 @@ const DEFAULT_FACTIONS = [
   1101, 1102, 1103,                        // JSA
 ];
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const OUT = path.join(ROOT, 'src', 'data', 'army.json');
+const OUT = path.join(ROOT, 'src', 'army', 'army.json');
 
 const args = process.argv.slice(2);
 // Every faction file also carries the ~50-unit mercenary pool the Army app

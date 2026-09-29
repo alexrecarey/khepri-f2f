@@ -17,7 +17,7 @@ import HeartBrokenIcon from '@mui/icons-material/HeartBroken';
 import RetryIcon from '@mui/icons-material/Cached';
 import {useState} from "react";
 import ShareResultsModal from "./ShareResultsModal.jsx";
-import InlineEdit from "../componets/InlineEdit.jsx";
+import InlineEdit from "../components/InlineEdit.jsx";
 
 
 const ExpandMore = styled((props) => {

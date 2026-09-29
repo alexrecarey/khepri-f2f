@@ -35,19 +35,19 @@ import OtherInputs from "./inputs/OtherInputs.jsx";
 import BTSInput from "./inputs/BTSInput.jsx";
 import {useSearchParams} from "react-router-dom";
 import curry from "ramda/src/curry";
-import {CustomAppBar} from "./componets/CustomAppBar.jsx";
-import UnitLoader from "./units/UnitLoader.jsx";
-import FireteamPurityInput from "./units/FireteamPurityInput.jsx";
-import WeaponSelect from "./units/WeaponSelect.jsx";
-import RangeInput from "./units/RangeInput.jsx";
-import CoverInput from "./units/CoverInput.jsx";
-import OverridesSection from "./units/OverridesSection.jsx";
-import useMatchup from "./units/useMatchup.js";
-import {decodeMatchup, encodeMatchup} from "./units/matchupParams.js";
+import {CustomAppBar} from "./components/CustomAppBar.jsx";
+import UnitLoader from "./matchup/UnitLoader.jsx";
+import FireteamPurityInput from "./matchup/FireteamPurityInput.jsx";
+import WeaponSelect from "./matchup/WeaponSelect.jsx";
+import RangeInput from "./matchup/RangeInput.jsx";
+import CoverInput from "./matchup/CoverInput.jsx";
+import OverridesSection from "./matchup/OverridesSection.jsx";
+import useMatchup from "./matchup/useMatchup.js";
+import {decodeMatchup, encodeMatchup} from "./matchup/matchupParams.js";
 import {PARAM_KEYS, parseParams} from "./engine/params.js";
-import {createF2fClient} from "./lib/f2fClient.js";
-import engineSource from "./python/f2f.py?raw";
-import ModeTabs, {MODES} from "./componets/ModeTabs.jsx";
+import {createF2fClient} from "./engine/client.js";
+import engineSource from "./engine/f2f.py?raw";
+import ModeTabs, {MODES} from "./components/ModeTabs.jsx";
 
 export const themeAtom = atomWithStorage('selectedTheme', 'dark')
 // 'basic' = the original inputs only; 'matchup' = unit picker on top of them.
@@ -263,7 +263,7 @@ function App() {
     setStatusMessage("Loading icepool engine");
     const run = async () => {
       // Web workers without comlink
-      workerRef.current = new Worker(new URL('./python.worker.js', import.meta.url),);
+      workerRef.current = new Worker(new URL('./engine/worker.js', import.meta.url));
       clientRef.current = createF2fClient(workerRef.current);
       workerRef.current.onmessage = messageReceived
       workerRef.current.onerror = workerError

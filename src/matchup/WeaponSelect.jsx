@@ -2,7 +2,10 @@ import {useMemo} from 'react';
 import {Grid, MenuItem, Typography} from '@mui/material';
 import PropTypes from 'prop-types';
 import {twoDecimalPlaces} from '../display/DataTransform.js';
-import {bsWeapons, fireteamBonuses, isTemplate, pseudoWeapons, rangeModFor} from './profileToInputs.js';
+import {bsWeapons, isTemplate} from '../army/weapons.js';
+import {fireteamBonuses} from '../rules/modifiers.js';
+import {rangeModFor} from '../rules/ranges.js';
+import {pseudoWeapons} from '../rules/trooper.js';
 import SelectField from './SelectField.jsx';
 
 // "+3" / "-6" / "out of range" for the weapon at the shared distance.

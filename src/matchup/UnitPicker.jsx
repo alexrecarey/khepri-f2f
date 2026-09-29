@@ -9,7 +9,12 @@ import {
 } from '@mui/material';
 import {useTheme} from '@mui/material/styles';
 import PropTypes from 'prop-types';
-import {SKILL, bsWeapons, defaultWeapon, effectiveTraits, loadoutLabels, searchKey} from './profileToInputs.js';
+import {SKILL} from '../army/ids.js';
+import {effectiveTraits} from '../army/traits.js';
+import {bsWeapons} from '../army/weapons.js';
+import {searchKey} from '../lib/searchKey.js';
+import {defaultWeapon} from '../rules/defaultWeapon.js';
+import {loadoutLabels} from './labels.js';
 import SelectField, {compactText} from './SelectField.jsx';
 import {EMPTY_SELECTION} from './useMatchup.js';
 

@@ -1,5 +1,7 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
-import {deriveInputs, resolveSelection, searchKey} from './profileToInputs.js';
+import {searchKey} from '../lib/searchKey.js';
+import {deriveInputs} from '../rules/matchup.js';
+import {resolveSelection} from '../rules/trooper.js';
 import {previewCandidates} from './previews.js';
 import usePreviewWounds from './usePreviewWounds.js';
 
@@ -31,7 +33,7 @@ export default function useMatchup({enabled, calculate, onApply, initial = null,
   useEffect(() => {
     if (!enabled || loading.current) return;
     loading.current = true;
-    import('../data/army.json')
+    import('../army/army.json')
       .then((m) => {
         // List units by the short ISC ("Taguraida", not "Taguraida, JSA TAG
         // Support Pilots"), keeping the full one where short names collide.

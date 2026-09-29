@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {AMMO, DEFAULT_PARAMS, PARAM_KEYS, fullParams, paramsKey, parseParams} from './params.js';
 
-const f2f = readFileSync(new URL('../python/f2f.py', import.meta.url), 'utf8');
+const f2f = readFileSync(new URL('./f2f.py', import.meta.url), 'utf8');
 
 test('f2f.py reads exactly the calculator params', () => {
   const calculate = f2f.slice(f2f.indexOf('def calculate('));

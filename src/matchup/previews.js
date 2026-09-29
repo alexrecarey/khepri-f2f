@@ -1,7 +1,9 @@
 // Pure helpers for the per-weapon "wounds per order" previews.
 import {fullParams, paramsKey} from '../engine/params.js';
 import {activePlayer, reactivePlayer, woundsPerOrder} from '../display/DataTransform.js';
-import {bsWeapons, deriveInputs, resolveSelection} from './profileToInputs.js';
+import {bsWeapons} from '../army/weapons.js';
+import {deriveInputs} from '../rules/matchup.js';
+import {resolveSelection} from '../rules/trooper.js';
 
 // Expected wounds per order for one side from a worker result.
 export function woundsFor(value, side) {

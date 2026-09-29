@@ -4,8 +4,8 @@ import {Grid, IconButton, InputLabel, Rating, Tooltip} from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 import PropTypes from "prop-types";
 import {clamp} from "ramda";
-import UncontrolledInput from "../componets/UncontrolledInput.jsx";
-import DiceD20NegatedIcon from "../componets/DiceD20NegatedIcon.jsx"
+import UncontrolledInput from "../components/UncontrolledInput.jsx";
+import DiceD20NegatedIcon from "../components/DiceD20NegatedIcon.jsx"
 
 
 function BurstInput({burst, update, variant, role, title, tooltip}) {

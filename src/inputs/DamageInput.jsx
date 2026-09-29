@@ -2,8 +2,8 @@ import {Grid, InputLabel, Tooltip} from "@mui/material";
 import PropTypes from "prop-types";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBurst} from "@fortawesome/free-solid-svg-icons";
-import UncontrolledInput from "../componets/UncontrolledInput.jsx";
-import IncrementDecrementIconButtonGroup from '../componets/IncrementDecrementIconButtonGroup';
+import UncontrolledInput from "../components/UncontrolledInput.jsx";
+import IncrementDecrementIconButtonGroup from '../components/IncrementDecrementIconButtonGroup';
 import {clamp} from "ramda";
 
 

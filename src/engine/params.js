@@ -1,7 +1,7 @@
 // The dice engine's input: one flat object of calculator params, the same in
 // Basic mode, Matchup mode, share links, saved results and the CSV export.
 // Keys end in A (active) or B (reactive), plus two flags for the kind of roll.
-// src/python/f2f.py calculate() reads exactly these keys (checked by params.test.mjs).
+// src/engine/f2f.py calculate() reads exactly these keys (checked by params.test.mjs).
 
 // Ammunition the engine knows: the keys of AMMO in f2f.py. DODGE stands for a
 // Dodge, which wins the Face to Face Roll but causes no Saving Rolls.

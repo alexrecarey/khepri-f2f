@@ -1,8 +1,8 @@
-// Runs the icepool dice engine (src/python/f2f.py) in Pyodide, off the main thread.
+// Runs the icepool dice engine (src/engine/f2f.py) in Pyodide, off the main thread.
 //
 // Messages in:
 //   {command: 'init', source}                   source = text of f2f.py
-//   {command: 'calculate', data, requestId?, quiet?}   data = calculator params (src/calculator/params.js)
+//   {command: 'calculate', data, requestId?, quiet?}   data = calculator params (src/engine/params.js)
 // Messages out:
 //   {command: 'status', value: 'loading' | 'ready' | 'notready' | 'error', description}
 //   {command: 'result', value, requestId, elapsed, totalRolls}

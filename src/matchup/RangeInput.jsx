@@ -1,7 +1,7 @@
 import {Box, Grid, InputLabel, Tooltip} from '@mui/material';
 import {alpha, useTheme} from '@mui/material/styles';
 import PropTypes from 'prop-types';
-import {RANGE_BANDS, rangeModFor} from './profileToInputs.js';
+import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 
 // "+3" / "-6" / "—" (out of range, or no weapon picked yet).
 function modText(mod) {
