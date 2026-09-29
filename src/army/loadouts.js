@@ -1,16 +1,9 @@
 // A trooper's profile as modified by the chosen loadout and upgrades.
 
-// Some loadouts replace a stat, listed as an option skill like "BS=12"
-// (Konduktor FTO, Polaris Bearpode Beta) or "BTS=3" (Alguacil Gatta).
-const STAT_FIELDS = {MOV: 'move', CC: 'cc', BS: 'bs', PH: 'ph', WIP: 'wip', ARM: 'arm', BTS: 'bts', W: 'w', STR: 'str', S: 's'};
+// Some loadouts replace a stat (Konduktor FTO: BS=12, Alguacil Gatta: BTS=3);
+// the pipeline stores those as option.statOverrides.
 export function applyStatOverrides(profile, option) {
-  let out = profile;
-  for (const s of option?.skills ?? []) {
-    const m = /^([A-Z]+)=(\d+)$/.exec(s.name ?? '');
-    const field = m && STAT_FIELDS[m[1]];
-    if (field) out = {...out, [field]: Number(m[2])};
-  }
-  return out;
+  return option?.statOverrides ? {...profile, ...option.statOverrides} : profile;
 }
 
 // Team-Ops upgrades (unit.upgrades, from the Army "spectables"): one optional

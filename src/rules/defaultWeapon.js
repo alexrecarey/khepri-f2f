@@ -1,5 +1,5 @@
 // The weapon picked once a loadout is chosen.
-import {hasCircularImpactTemplate} from '../army/weapons.js';
+import {bioweaponProp, hasCircularImpactTemplate, isPlasma} from '../army/weapons.js';
 import {RANGE_BANDS} from './ranges.js';
 
 // Ammo precedence for the default weapon, best first. Plasma rows list N ammo
@@ -8,9 +8,9 @@ import {RANGE_BANDS} from './ranges.js';
 // Viral, Shock) are already in the row (withAmmoExtra).
 const AMMO_PRECEDENCE = ['PLASMA', 'EXP', 'DA', 'VIRAL', 'T2', 'AP', 'SHOCK', 'N', 'E/M', 'STUN'];
 function ammoRank({row, mods}) {
-  const types = (row.ammo ?? 'N').toUpperCase().split('+');
-  if (row.saves === '1 and 1') types.push('PLASMA');
-  if ((row.props ?? []).some((p) => p.startsWith('Bioweapon ('))) types.push('VIRAL');
+  const types = (row.ammo ?? ['N']).map((a) => a.toUpperCase());
+  if (isPlasma(row)) types.push('PLASMA');
+  if (bioweaponProp(row)) types.push('VIRAL');
   if (mods.forceAP) types.push('AP');
   const ranks = types.map((t) => AMMO_PRECEDENCE.indexOf(t)).filter((i) => i !== -1);
   return ranks.length > 0 ? Math.min(...ranks) : AMMO_PRECEDENCE.length;
