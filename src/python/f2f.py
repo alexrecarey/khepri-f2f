@@ -1,13 +1,45 @@
-# import micropip
-# await micropip.install('icepool==1.0.0')
-# import js
-# from pyodide.ffi import to_js
-from icepool import d20, lowest, Again, Die, Pool
-from icepool import MultisetEvaluator
+"""Face to Face dice engine.
+
+Plain Python on top of icepool. The browser runs this exact file: src/python.worker.js receives it as text and
+calls calculate() with the calculator params (src/calculator/params.js). Tests import it directly:
+
+    uv run --python 3.10 --with icepool==1.0.0 --with pytest pytest src/python/test_f2f.py
+
+Everything the game rules decide (range, MODs, Immunity, AP halving, ...) happens before this point, in
+src/rules/. What is left here is dice: success values, bursts, and Saving Rolls per ammunition.
+"""
+from dataclasses import dataclass
 from functools import reduce
 
+from icepool import d20, lowest, Again, Die, Pool
+from icepool import MultisetEvaluator
+
+
+# --- Ammunition: how many Saving Rolls each hit causes, and what a failed one costs -------------------------------
+
+@dataclass(frozen=True)
+class Ammo:
+    saves: int          # Saving Rolls per hit. A Critical adds one more, which never has T2 or Continuous Damage.
+    damage: int = 1     # Wounds per failed Saving Roll (T2 = 2).
+    bts_save: bool = False  # Every ARM Saving Roll also needs a BTS one (Plasma).
+
+
+AMMO = {
+    'N': Ammo(saves=1),
+    'DA': Ammo(saves=2),
+    'EXP': Ammo(saves=3),
+    'T2': Ammo(saves=1, damage=2),
+    'PLASMA': Ammo(saves=1, bts_save=True),
+    # A Dodge wins the Face to Face Roll but causes no Saving Rolls.
+    'DODGE': Ammo(saves=0),
+}
+
+
+# --- Face to Face Roll -------------------------------------------------------------------------------------------
 
 class InfinityFace2FaceEvaluator(MultisetEvaluator):
+    """Outcome of a Face to Face Roll as (a_crit, a_hit, b_crit, b_hit) after cancellation."""
+
     # Note that outcomes are seen in ascending order by default.
     def next_state(self, state, outcome, a_count, b_count):
         # Initial state is all zeros.
@@ -35,9 +67,6 @@ class InfinityFace2FaceEvaluator(MultisetEvaluator):
                 a_success = 0
                 a_crit = 0
         return a_crit, a_success, b_crit, b_success
-
-
-f2f_evaluator = InfinityFace2FaceEvaluator()
 
 
 def infinity_die(roll, sv):
@@ -82,7 +111,9 @@ def face_to_face(
 
 
 def dtw_vs_dodge(dtw_burst, dodge_sv, dodge_burst):
-    """Should return a Die"""
+    """Direct Template Weapon against Dodge: every hit lands unless a Dodge succeeds. Returns a Die."""
+    if dodge_burst == 0:
+        return Die([(0, dtw_burst, 0, 0)])  # Nobody dodges: the template always hits
     hit_die = ((d20 > dodge_sv) * dtw_burst)   # returns hits. Successful dodges are 0 hits,
     result_die = lowest([hit_die] * dodge_burst)
     return result_die.map(lambda x: (0, x, 0, 0))  # Convert into (crit, hit, crit, hit) format
@@ -119,17 +150,38 @@ def face_to_face_result(outcomes):
         elif squash < 0:
             result['reactive'] += amount
     return result
-    #return to_js(result, dict_converter=js.Object.fromEntries)
 
 
-AMMO = {
-    'N': 1,
-    'DA': 2,
-    'EXP': 3,
-    'DODGE': 0,
-    'T2': 1,
-    'PLASMA': 1,
-}
+# --- Saving Rolls ------------------------------------------------------------------------------------------------
+
+def wounds_die(crits, hits, ammo, armor_save, bts_save=0, cont=False, crit_immune=False, shock=False):
+    """Die of wounds caused by `crits` + `hits` successes with this ammunition.
+
+    armor_save / bts_save: highest d20 roll that saves (PS + ARM or BTS). A save fails on d20 > save.
+    cont: Continuous Damage, a failed save means rolling again (up to 5 times).
+    crit_immune: target ignores the extra Saving Roll of a Critical.
+    shock: target has VITA 1 and no immunity, so any failed save sends it straight to Dead, skipping Unconscious.
+    That is counted as one extra wound.
+    """
+    rule = AMMO[ammo]
+    # Each hit, Critical or not, causes rule.saves Saving Rolls. Each Critical adds one more, which never gets the
+    # ammunition's damage or Continuous Damage. Ammunition without Saving Rolls (Dodge) has no Critical ones either.
+    saves = (crits + hits) * rule.saves
+    crit_saves = 0 if crit_immune else min(crits, rule.saves * crits)
+    plasma_saves = saves if rule.bts_save else 0
+
+    if cont:
+        d_save = Die([(rule.damage + Again if x > armor_save else 0) for x in range(1, 21)], again_depth=5)
+    else:
+        d_save = (d20 > armor_save) * rule.damage
+    d_crit = d20 > armor_save  # Crits are always 1 damage
+    d_plasma = d20 > bts_save  # Plasma BTS hits are always 1 damage (so far)
+
+    # Thank you HighDiceRoller for this beautiful line of code!
+    r = saves @ d_save + crit_saves @ d_crit + plasma_saves @ d_plasma
+    if shock:
+        r = r.map(lambda w: w + 1 if w > 0 else w)  # Straight to Dead: one extra wound, once
+    return r
 
 
 def face_to_face_expected_wounds(
@@ -137,20 +189,17 @@ def face_to_face_expected_wounds(
         a_opponent_save, a_arm, a_ammo, b_opponent_save, b_arm, b_ammo,
         a_cont=False, a_bts=0, a_crit_immune=False,
         b_cont=False, b_bts=0, b_crit_immune=False,
-        n5_beta_criticals=False,
         a_shock=False, b_shock=False
 ):
     """Calculates the wounds expected from a face to face encounter.
 
-    Damage now is a save change. So the stronger the weapon the lower its "save chance".
-
-    a_shock / b_shock mean that player's Shock ammunition takes effect: the opponent has VITA 1 and is not immune,
-    so any failed save sends them straight to Dead, skipping Unconscious. That is counted as one extra wound.
+    a_opponent_save is player A's weapon PS, the save the opponent adds their ARM (or BTS) to. a_arm / a_bts /
+    a_crit_immune describe player A as a target. a_cont / a_shock describe player A's attack.
 
     Return format is {
         'active': {1: 11111, 2: 222222, 3: 33333},
         'reactive': {},
-        'fail': {0: 122, guts: {'active': 0, 'reactive': 0}},
+        'fail': {0: 122},
         'total_rolls': 0
     }
     """
@@ -158,78 +207,28 @@ def face_to_face_expected_wounds(
         'active': {},
         'reactive': {},
         'fail': {},
-        'guts': {
-            'active': 0,
-            'reactive': 0,
-            'missed': 0
-        },
         'total_rolls': 0
     }
     for (a_crit, a_hit, b_crit, b_hit), rolls in outcomes.items():
         wounds['total_rolls'] += rolls
         if a_crit + a_hit > 0:
             winner = 'active'
-            armor_save = a_opponent_save + b_arm
-            damage = 2 if a_ammo == 'T2' else 1
-            cont = a_cont
-            crit_immune = b_crit_immune
-            plasma = True if a_ammo == 'PLASMA' else False
-            bts_save = a_opponent_save + b_bts
-            shock = a_shock
+            r = wounds_die(a_crit, a_hit, a_ammo, a_opponent_save + b_arm, bts_save=a_opponent_save + b_bts,
+                           cont=a_cont, crit_immune=b_crit_immune, shock=a_shock)
         elif b_crit + b_hit > 0:
             winner = 'reactive'
-            armor_save = b_opponent_save + a_arm
-            damage = 2 if b_ammo == 'T2' else 1
-            cont = b_cont
-            crit_immune = a_crit_immune
-            plasma = True if b_ammo == 'PLASMA' else False
-            bts_save = b_opponent_save + a_bts
-            shock = b_shock
+            r = wounds_die(b_crit, b_hit, b_ammo, b_opponent_save + a_arm, bts_save=b_opponent_save + a_bts,
+                           cont=b_cont, crit_immune=a_crit_immune, shock=b_shock)
         else:
             winner = 'fail'
-            armor_save = 0
-            damage = 0
-            cont = False
-            crit_immune = False
-            plasma = False
-            bts_save = 0
-            shock = False
-
-        # Calculate total amount of saves that must be made.
-        # Each crit deals AMMO saves plus one extra save per crit. The extra save per crit is in 'crit_saves', as
-        # neither CONT damage nor T2 apply their special effects to crit saves
-        # For DODGE AMMO we run "min" to keep 0 (for dodge) or original value of crit, as 3 crits = 3 crit saves
-        # Each regular hit causes AMMO number of 'saves'. We also have to add the regular hit portion of a crit,
-        # as 1 crit causes a AMMO saves for the regular portion, and 1 extra crit save that is not.
-        crit_saves = 0 if crit_immune else min(a_crit, AMMO[a_ammo] * a_crit) + min(b_crit, AMMO[b_ammo] * b_crit)
-        saves = ((a_crit + a_hit) * AMMO[a_ammo]) + ((b_crit + b_hit) * AMMO[b_ammo])
-        plasma_saves = ((a_crit + a_hit) * AMMO[a_ammo]) + ((b_crit + b_hit) * AMMO[b_ammo]) if plasma else 0
-        if n5_beta_criticals and plasma:
-            plasma_crit_saves = 0 if crit_immune else min(a_crit, AMMO[a_ammo] * a_crit) + min(b_crit, AMMO[b_ammo] * b_crit)
-        else:
-            plasma_crit_saves = 0
-
-        # Generate die with 1's for wounds and 0's for successful armor saves
-        if cont:
-            dSave = Die([(damage + Again if x > armor_save else 0) for x in range(1, 21)], again_depth=5)
-        else:
-            dSave = (d20 > armor_save) * damage  # T2 ammo increases damage by 1
-
-        if n5_beta_criticals:
-            dCrit = dSave  # Criticals can apply Cont and T2 damage, just like regular saves
-        else:
-            dCrit = d20 > armor_save  # Crits are always 1 damage
-        dPlasma = d20 > bts_save  # Plasma BTS hits are always 1 damage (so far)
-
-        # Thank you HighDiceRoller for this beautiful line of code!
-        r = saves @ dSave + crit_saves @ dCrit + plasma_saves @ dPlasma + plasma_crit_saves @ dPlasma
-        if shock:
-            r = r.map(lambda w: w + 1 if w > 0 else w)  # Straight to Dead: one extra wound, once
+            r = wounds_die(0, 0, 'N', 0)
         denominator = r.denominator()
         for w, occurrences in r.items():
             wounds[winner][w] = wounds[winner].get(w, 0) + (occurrences/denominator) * rolls
     return wounds
 
+
+# --- Output formatting -------------------------------------------------------------------------------------------
 
 def format_face_to_face(face_to_face):
     output = []
@@ -261,7 +260,7 @@ def format_expected_wounds(wounds, max_wounds_shown=25):
     """Format expected_wounds into a list of results
 
     Output format is {'player': 'active/reactive/fail', 'wounds': 3, 'chance': 0.2432, 'raw_chance' 1341234.23,
-                      'cumulative_chance': 0.53234, 'raw_guts_chance': 0, 'guts_chance': 0.0234, 'cumulative_guts': 0.0723}
+                      'cumulative_chance': 0.53234}
     """
     # Squash items that are > than max_wounds_shown
     total_rolls = wounds['total_rolls']
@@ -285,48 +284,31 @@ def format_expected_wounds(wounds, max_wounds_shown=25):
     return expected_wounds
 
 
-def reroll_value_to_list(reroll_value):
-    if reroll_value.lower() == 'none':
-        return ()
-    elif reroll_value.lower() == 'misses':
-        return (0,)
-    else:
-        return list(range(int(reroll_value) + 1))
+# --- Entry point -------------------------------------------------------------------------------------------------
 
-
-def roll_and_bridge_results(
-        a_success_value, a_burst, a_bonus_burst, a_save, a_arm, a_bts, a_ammo, a_cont, a_crit_immune, a_shock,
-        b_success_value, b_burst, b_bonus_burst, b_save, b_arm, b_bts, b_ammo, b_cont, b_crit_immune, b_shock,
-        dtw, fixed,
-):
-    if dtw:
-        outcomes = dtw_vs_dodge(a_burst, b_success_value, b_burst)  # dtw_burst, dodge_sv, dodge_burst
-    elif fixed:
-        outcomes = fixed_face_to_face(a_success_value, a_burst, a_bonus_burst, b_success_value, b_burst)
+def calculate(p):
+    """Runs one calculation. `p` holds the calculator params by name (see PARAMS in src/calculator/params.js):
+    successValueA, burstA, bonusBurstA, damageA, armA, btsA, ammoA, contA, critImmuneA, shockA, the same with a
+    B suffix, and dtwVsDodge / fixedFaceToFace for the kind of roll.
+    """
+    if p['dtwVsDodge']:
+        outcomes = dtw_vs_dodge(p['burstA'], p['successValueB'], p['burstB'])
+    elif p['fixedFaceToFace']:
+        outcomes = fixed_face_to_face(p['successValueA'], p['burstA'], p['bonusBurstA'], p['successValueB'], p['burstB'])
     else:
         outcomes = face_to_face(
-            a_success_value, a_burst, b_success_value, b_burst,
-            a_bonus_burst=a_bonus_burst, b_bonus_burst=b_bonus_burst,
+            p['successValueA'], p['burstA'], p['successValueB'], p['burstB'],
+            a_bonus_burst=p['bonusBurstA'], b_bonus_burst=p['bonusBurstB'],
         )
-    results = face_to_face_result(outcomes)
-    formatted_results = format_face_to_face(results)
     expected_wounds = face_to_face_expected_wounds(
         outcomes,
-        a_save, a_arm, a_ammo, b_save, b_arm, b_ammo,
-        a_cont=a_cont, a_bts=a_bts, a_crit_immune=a_crit_immune,
-        b_cont=b_cont, b_bts=b_bts, b_crit_immune=b_crit_immune,
-        a_shock=a_shock, b_shock=b_shock,
+        p['damageA'], p['armA'], p['ammoA'], p['damageB'], p['armB'], p['ammoB'],
+        a_cont=p['contA'], a_bts=p['btsA'], a_crit_immune=p['critImmuneA'],
+        b_cont=p['contB'], b_bts=p['btsB'], b_crit_immune=p['critImmuneB'],
+        a_shock=p['shockA'], b_shock=p['shockB'],
     )
-    formatted_expected_wounds = format_expected_wounds(expected_wounds)
-    return_object = {
-        'face_to_face': formatted_results,
-        'expected_wounds': formatted_expected_wounds,
+    return {
+        'face_to_face': format_face_to_face(face_to_face_result(outcomes)),
+        'expected_wounds': format_expected_wounds(expected_wounds),
         'total_rolls': expected_wounds['total_rolls']
     }
-    # return to_js(return_object, dict_converter=js.Object.fromEntries)
-    return return_object
-
-# Return value for Javascript
-#to_js(roll_and_bridge_results)
-
-

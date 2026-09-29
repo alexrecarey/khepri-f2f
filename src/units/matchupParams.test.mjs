@@ -1,4 +1,4 @@
-// Run with: yarn test:units
+// Run with: yarn test:js
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {decodeMatchup, encodeMatchup} from './matchupParams.js';

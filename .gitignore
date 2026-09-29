@@ -35,3 +35,7 @@ dev-dist
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Python
+__pycache__/
+.pytest_cache/

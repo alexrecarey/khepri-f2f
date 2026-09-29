@@ -47,6 +47,7 @@ import useMatchup from "./units/useMatchup.js";
 import {decodeMatchup, encodeMatchup} from "./units/matchupParams.js";
 import {PARAM_KEYS} from "./units/previews.js";
 import {createF2fClient} from "./lib/f2fClient.js";
+import engineSource from "./python/f2f.py?raw";
 import ModeTabs, {MODES} from "./componets/ModeTabs.jsx";
 
 export const themeAtom = atomWithStorage('selectedTheme', 'dark')
@@ -243,7 +244,11 @@ function App() {
         // This handler is bound once at mount; use the latest rollDice so inputs
         // set before the worker was ready (e.g. from a share link) are used.
         rollDiceRef.current()
+      } else if (msg.data.value === 'error') {
+        setStatusMessage(`Could not start the dice engine: ${msg.data.description}`);
       }
+    } else if (msg.data.command === 'error') {
+      setStatusMessage(`Calculation failed: ${msg.data.value}`);
     }
   }
 
@@ -263,7 +268,7 @@ function App() {
       clientRef.current = createF2fClient(workerRef.current);
       workerRef.current.onmessage = messageReceived
       workerRef.current.onerror = workerError
-      workerRef.current.postMessage({command:'init'});
+      workerRef.current.postMessage({command: 'init', source: engineSource});
     }
     run();
   }, []);

@@ -1,7 +1,7 @@
 # Run with: uv run --python 3.10 --with icepool==1.0.0 --with pytest pytest src/python/test_f2f.py
-# f2f.py mirrors the engine embedded in src/python.worker.js; keep the two in sync.
+# f2f.py is the engine the browser runs (src/python.worker.js loads it as text).
 import f2f
-from f2f import face_to_face_expected_wounds, face_to_face, dtw_vs_dodge
+from f2f import face_to_face_expected_wounds, face_to_face, dtw_vs_dodge, calculate
 import re
 from math import isclose
 
@@ -592,7 +592,7 @@ class TestAgainstSelf:
                                      36: 2.0035044038145404e-10, 37: 1.3254058223344986e-11, 38: 4.175327549494025e-13,
                                      39: 5.7423976431694885e-15},
                           'reactive': {0: 4028.6875, 1: 12514.75, 2: 13372.125, 3: 5314.75, 4: 428.6875},
-                          'fail': {0: 10058.0}, 'guts': {'active': 0, 'reactive': 0, 'missed': 0},
+                          'fail': {0: 10058.0},
                           'total_rolls': 160000}
 
     def test_crit_immune(self):
@@ -600,7 +600,7 @@ class TestAgainstSelf:
         b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 1, 13, 6, 'N'
         outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
         result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo, b_crit_immune=True)
-        assert result == {'active': {0: 2464.5499999999997, 1: 3654.8999999999996, 2: 1340.55}, 'fail': {0: 253.0}, 'guts': {'active': 0, 'missed': 0, 'reactive': 0}, 'reactive': {0: 141.96, 1: 121.03, 2: 24.009999999999998}, 'total_rolls': 8000}
+        assert result == {'active': {0: 2464.5499999999997, 1: 3654.8999999999996, 2: 1340.55}, 'fail': {0: 253.0}, 'reactive': {0: 141.96, 1: 121.03, 2: 24.009999999999998}, 'total_rolls': 8000}
 
     def test_dodge_vs_template(self):
         a_sv, a_burst, a_dam, a_arm, a_ammo = 25, 2, 15, 6, 'N'
@@ -608,7 +608,7 @@ class TestAgainstSelf:
         outcomes = dtw_vs_dodge(a_burst, b_sv, b_burst)
         result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo)
         assert result == {'active': {0: 2.1174999999999997, 1: 3.465, 2: 1.4175},
-                           'fail': {0: 13.0}, 'guts': {'active': 0, 'missed': 0, 'reactive': 0},
+                           'fail': {0: 13.0},
                            'reactive': {}, 'total_rolls': 20}
 
     def test_plasma(self):
@@ -621,7 +621,7 @@ class TestAgainstSelf:
                                      6: 1719.0338085648748, 7: 187.37418932925002, 8: 8.885704569328125,
                                      9: 0.180394734953125},
                           'reactive': {0: 21617.927499999998, 1: 13200.845000000001, 2: 840.2275},
-                          'fail': {0: 10058.0}, 'guts': {'active': 0, 'reactive': 0, 'missed': 0},
+                          'fail': {0: 10058.0},
                           'total_rolls': 160000}
 
     def test_reactive_0_burst(self):
@@ -629,7 +629,7 @@ class TestAgainstSelf:
         b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 0, 13, 3, 'N'
         outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
         result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo)
-        assert result == {'active': {0: 1658.566936265625, 1: 3380.54768803125, 2: 2047.324565859375, 3: 519.4431309375001, 4: 49.14228773437499, 5: 1.94771053125, 6: 0.027680640625}, 'reactive': {}, 'fail': {0: 343.0}, 'guts': {'active': 0, 'reactive': 0, 'missed': 0}, 'total_rolls': 8000}
+        assert result == {'active': {0: 1658.566936265625, 1: 3380.54768803125, 2: 2047.324565859375, 3: 519.4431309375001, 4: 49.14228773437499, 5: 1.94771053125, 6: 0.027680640625}, 'reactive': {}, 'fail': {0: 343.0}, 'total_rolls': 8000}
 
     def test_active_0_burst(self):
         """Active burst 0 is a reactive Normal Roll: the mirror of reactive burst 0."""
@@ -648,14 +648,14 @@ class TestAgainstSelf:
         b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 0, 13, 0, 'N'
         outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
         result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo)
-        assert result == {'active': {6: 2744.0, 7: 3528.0, 8: 1512.0, 9: 216.0}, 'fail': {}, 'guts': {'active': 0, 'missed': 0, 'reactive': 0}, 'reactive': {}, 'total_rolls': 8000}
+        assert result == {'active': {6: 2744.0, 7: 3528.0, 8: 1512.0, 9: 216.0}, 'fail': {}, 'reactive': {}, 'total_rolls': 8000}
 
     def test_active_reactive_both_0_wounds(self):
         a_sv, a_burst, a_dam, a_arm, a_ammo = 1, 1, 1, 13, 'N'
         b_sv, b_burst, b_dam, b_arm, b_ammo = 1, 0, 1, 13, 'N'
         outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
         result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo)
-        assert result == {'active': {0: 1.0}, 'fail': {0: 19.0}, 'guts': {'active': 0, 'missed': 0, 'reactive': 0}, 'reactive': {}, 'total_rolls': 20}
+        assert result == {'active': {0: 1.0}, 'fail': {0: 19.0}, 'reactive': {}, 'total_rolls': 20}
 
     def test_shock(self):
         a_sv, a_burst, a_dam, a_arm, a_ammo = 13, 3, 13, 2, 'DA'
@@ -672,3 +672,30 @@ class TestAgainstSelf:
             assert shock[loser] == plain[loser]
             assert shock['fail'] == plain['fail']
             assert shock['total_rolls'] == plain['total_rolls']
+
+
+    def test_dodge_vs_template_no_dodgers(self):
+        """Reactive burst 0 against a template: nobody dodges, every hit lands."""
+        outcomes = dtw_vs_dodge(2, 13, 0)
+        assert dict(outcomes.items()) == {(0, 2, 0, 0): 1}
+
+
+PARAMS = {
+    'successValueA': 13, 'burstA': 3, 'bonusBurstA': 1, 'damageA': 14, 'armA': 6, 'btsA': 3, 'ammoA': 'DA',
+    'contA': False, 'critImmuneA': False, 'shockA': False,
+    'successValueB': 12, 'burstB': 1, 'bonusBurstB': 0, 'damageB': 13, 'armB': 3, 'btsB': 6, 'ammoB': 'PLASMA',
+    'contB': False, 'critImmuneB': True, 'shockB': False,
+    'dtwVsDodge': False, 'fixedFaceToFace': False,
+}
+
+
+class TestCalculate:
+    def test_matches_the_building_blocks(self):
+        result = calculate(PARAMS)
+        outcomes = face_to_face(13, 3, 12, 1, a_bonus_burst=1)
+        wounds = face_to_face_expected_wounds(outcomes, 14, 6, 'DA', 13, 3, 'PLASMA',
+                                              a_bts=3, b_bts=6, b_crit_immune=True)
+        assert result['total_rolls'] == wounds['total_rolls']
+        assert result['expected_wounds'] == f2f.format_expected_wounds(wounds)
+        assert [r['player'] for r in result['face_to_face']] == ['active', 'reactive', 'fail']
+        assert isclose(sum(r['chance'] for r in result['face_to_face']), 1)
