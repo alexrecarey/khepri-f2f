@@ -1,5 +1,6 @@
 // Pure helpers that turn Army unit profiles + weapons into calculator inputs.
 // No React here so the rules can be unit-tested with `node --test`.
+import {LIMITS as ENGINE_LIMITS} from '../engine/params.js';
 
 export const SKILL = {
   MIMETISM: 28,
@@ -41,15 +42,9 @@ export const RANGE_BANDS = [
   {to: 240, inches: 96, label: '48-96"'},
 ];
 
-// Same limits as src/inputs/validateParams.js
-const LIMITS = {
-  burst: [0, 6],
-  bonusBurst: [0, 3],
-  successValue: [1, 30],
-  damage: [0, 30],
-  arm: [0, 13],
-  bts: [0, 12],
-};
+// The engine's limits, except that a rolled Success Value never drops below 1
+// here: 0 (always fails, no crit) is kept for attacks out of range.
+const LIMITS = {...ENGINE_LIMITS, successValue: [1, ENGINE_LIMITS.successValue[1]]};
 const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
 
 const BS_SAVINGS = new Set(['ARM', 'ARM/2', 'BTS', 'BTS/2', 'ARM=0', 'ARM and BTS']);

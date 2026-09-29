@@ -1,25 +1,7 @@
 // Pure helpers for the per-weapon "wounds per order" previews.
-import validateParams from '../inputs/validateParams.js';
+import {fullParams, paramsKey} from '../engine/params.js';
 import {activePlayer, reactivePlayer, woundsPerOrder} from '../display/DataTransform.js';
 import {bsWeapons, deriveInputs, resolveSelection} from './profileToInputs.js';
-
-export const PARAM_KEYS = [
-  'burstA', 'bonusBurstA', 'successValueA', 'damageA', 'armA', 'btsA', 'ammoA', 'contA', 'shockA', 'critImmuneA',
-  'burstB', 'bonusBurstB', 'successValueB', 'damageB', 'armB', 'btsB', 'ammoB', 'contB', 'shockB', 'critImmuneB',
-  'dtwVsDodge', 'fixedFaceToFace',
-];
-
-const DEFAULTS = validateParams(new URLSearchParams());
-
-// Full calculator input, defaults filled in for anything not derived.
-export function fullParams(inputs) {
-  const params = {};
-  for (const k of PARAM_KEYS) params[k] = inputs[k] !== undefined ? inputs[k] : DEFAULTS[k];
-  return params;
-}
-
-// Cache key independent of object key order.
-export const paramsKey = (params) => JSON.stringify(PARAM_KEYS.map((k) => params[k]));
 
 // Expected wounds per order for one side from a worker result.
 export function woundsFor(value, side) {
