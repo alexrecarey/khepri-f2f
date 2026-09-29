@@ -10,7 +10,7 @@ import {searchKey} from '../lib/searchKey.js';
 import {loadoutLabels, matchupTraits} from '../matchup/labels.js';
 import {defaultWeapon} from './defaultWeapon.js';
 import {deriveInputs} from './matchup.js';
-import {attackStat} from './modifiers.js';
+import {attackStat, dodgeSuccessValue} from './modifiers.js';
 import {rangeModFor} from './ranges.js';
 import {pseudoWeapons, resolveSelection} from './trooper.js';
 
@@ -998,4 +998,15 @@ test('Spec-Ops charts are not applied (deferred)', () => {
     // Once, even with Spec-Ops on both sides.
     assert.equal(r.warnings.filter((m) => m === 'Spec-Ops upgrades and SpecBall not supported yet').length, 1, `${p.name}: ${r.warnings.join(' | ')}`);
   }
+});
+
+test('a Success Value below 1 is an automatic failure (0), not a roll on 1', () => {
+  // BS 4 at 24-32" (-3), target in cover (-3) and Mimetism (-6): 4 - 12 = -8.
+  const shooter = side(profile({bs: 4}), combi, '1:');
+  const target = side(profile({skills: [{id: 28, name: 'Mimetism', extra: ['-6']}]}), combi, '1:', true);
+  assert.equal(deriveInputs({active: shooter, reactive: target, rangeCm: 80}).inputs.successValueA, 0);
+  // BS 7 at 8-16" (+3), cover (-3) and Mimetism (-6) is exactly 1: still rolled.
+  const one = side(profile({bs: 7}), combi, '1:');
+  assert.equal(deriveInputs({active: one, reactive: target, rangeCm: 40}).inputs.successValueA, 1);
+  assert.equal(dodgeSuccessValue(profile({ph: 2}), {skills: [{id: 40, name: 'Dodge', extra: ['-6']}]}), 0);
 });
