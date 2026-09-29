@@ -39,3 +39,6 @@ dev-dist
 # Python
 __pycache__/
 .pytest_cache/
+
+# Army API downloads (scripts/fetch-army.mjs)
+.cache/

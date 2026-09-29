@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-25T18:10:22.072Z",
+ "generatedAt": "2026-09-29T18:48:05.956Z",
  "source": "https://api.corvusbelli.com/army (Corvus Belli, Infinity Army). Unofficial snapshot.",
  "factions": {
   "101": {
@@ -5156,7 +5156,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -45000,7 +45000,7 @@
            "id": 162,
            "name": "Immunity",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -45229,7 +45229,7 @@
            "id": 162,
            "name": "Immunity",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -45458,7 +45458,7 @@
            "id": 162,
            "name": "Immunity",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -60916,7 +60916,10 @@
            "name": "BTS=3"
           }
          ],
-         "equip": []
+         "equip": [],
+         "statOverrides": {
+          "bts": 3
+         }
         },
         {
          "id": 13,
@@ -60947,7 +60950,10 @@
            "name": "BTS=3"
           }
          ],
-         "equip": []
+         "equip": [],
+         "statOverrides": {
+          "bts": 3
+         }
         },
         {
          "id": 14,
@@ -60982,7 +60988,10 @@
            "name": "BTS=3"
           }
          ],
-         "equip": []
+         "equip": [],
+         "statOverrides": {
+          "bts": 3
+         }
         }
        ]
       }
@@ -84094,7 +84103,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -84281,7 +84290,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -84468,7 +84477,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -84655,7 +84664,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -84842,7 +84851,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -85029,7 +85038,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -85841,7 +85850,7 @@
            "id": 162,
            "name": "Immunity",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -86112,7 +86121,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -129277,7 +129286,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           }
          ],
@@ -130161,7 +130170,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -130310,7 +130319,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -140785,7 +140794,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -142204,7 +142213,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -142370,7 +142379,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -184580,7 +184589,10 @@
            "name": "BS=12"
           }
          ],
-         "equip": []
+         "equip": [],
+         "statOverrides": {
+          "bs": 12
+         }
         },
         {
          "id": 3,
@@ -184746,7 +184758,10 @@
            "name": "BS=12"
           }
          ],
-         "equip": []
+         "equip": [],
+         "statOverrides": {
+          "bs": 12
+         }
         },
         {
          "id": 3,
@@ -255523,14 +255538,14 @@
            "id": 240,
            "name": "CC Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -257747,7 +257762,7 @@
            "id": 162,
            "name": "Immunity",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -257810,7 +257825,7 @@
            "id": 162,
            "name": "Immunity",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -257891,7 +257906,7 @@
            "id": 44,
            "name": "Grenades",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -260399,7 +260414,7 @@
            "id": 152,
            "name": "Red Fury",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -260428,7 +260443,7 @@
            "id": 152,
            "name": "Red Fury",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -260474,7 +260489,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           }
          ],
@@ -262240,7 +262255,10 @@
            "name": "BS=11"
           }
          ],
-         "equip": []
+         "equip": [],
+         "statOverrides": {
+          "bs": 11
+         }
         }
        ]
       }
@@ -262467,7 +262485,10 @@
            "name": "BS=11"
           }
          ],
-         "equip": []
+         "equip": [],
+         "statOverrides": {
+          "bs": 11
+         }
         }
        ]
       }
@@ -272516,7 +272537,7 @@
            "id": 194,
            "name": "Grenade Launcher",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           }
          ],
@@ -272665,7 +272686,7 @@
            "id": 194,
            "name": "Grenade Launcher",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           }
          ],
@@ -272814,7 +272835,7 @@
            "id": 194,
            "name": "Grenade Launcher",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           }
          ],
@@ -294760,7 +294781,7 @@
            "id": 2,
            "name": "Heavy Machine Gun",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -294941,7 +294962,7 @@
            "id": 2,
            "name": "Heavy Machine Gun",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -295122,7 +295143,7 @@
            "id": 2,
            "name": "Heavy Machine Gun",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -295303,7 +295324,7 @@
            "id": 2,
            "name": "Heavy Machine Gun",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -297114,7 +297135,7 @@
            "id": 147,
            "name": "Chest Mine",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           }
          ]
@@ -310892,7 +310913,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           }
          ],
@@ -311002,7 +311023,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           }
          ],
@@ -314471,7 +314492,10 @@
            "name": "Tactical Awareness"
           }
          ],
-         "equip": []
+         "equip": [],
+         "statOverrides": {
+          "bs": 12
+         }
         }
        ]
       }
@@ -314662,7 +314686,10 @@
            "name": "Tactical Awareness"
           }
          ],
-         "equip": []
+         "equip": [],
+         "statOverrides": {
+          "bs": 12
+         }
         }
        ]
       }
@@ -314853,7 +314880,10 @@
            "name": "Tactical Awareness"
           }
          ],
-         "equip": []
+         "equip": [],
+         "statOverrides": {
+          "bs": 12
+         }
         }
        ]
       }
@@ -315044,7 +315074,10 @@
            "name": "Tactical Awareness"
           }
          ],
-         "equip": []
+         "equip": [],
+         "statOverrides": {
+          "bs": 12
+         }
         }
        ]
       }
@@ -315235,7 +315268,10 @@
            "name": "Tactical Awareness"
           }
          ],
-         "equip": []
+         "equip": [],
+         "statOverrides": {
+          "bs": 12
+         }
         }
        ]
       }
@@ -317701,7 +317737,10 @@
            "name": "BS=12"
           }
          ],
-         "equip": []
+         "equip": [],
+         "statOverrides": {
+          "bs": 12
+         }
         },
         {
          "id": 3,
@@ -318013,7 +318052,10 @@
            "name": "BS=12"
           }
          ],
-         "equip": []
+         "equip": [],
+         "statOverrides": {
+          "bs": 12
+         }
         },
         {
          "id": 3,
@@ -321416,7 +321458,10 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "statOverrides": {
+          "cc": 21
+         }
         },
         {
          "id": 6,
@@ -321481,7 +321526,10 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "statOverrides": {
+          "cc": 21
+         }
         }
        ]
       }
@@ -321712,7 +321760,10 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "statOverrides": {
+          "cc": 21
+         }
         },
         {
          "id": 6,
@@ -321777,7 +321828,10 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "statOverrides": {
+          "cc": 21
+         }
         }
        ]
       }
@@ -340459,7 +340513,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           }
          ],
@@ -370770,7 +370824,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -370917,7 +370971,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -371064,7 +371118,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -371211,7 +371265,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -371358,7 +371412,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -371505,7 +371559,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "Continous Damage"
+            "Continuous Damage"
            ]
           },
           {
@@ -395896,16 +395950,8 @@
    {
     "name": "Akrylat-Kanone",
     "mode": null,
-    "ammo": "PARA",
     "burst": 1,
     "dmg": null,
-    "saving": "PH-6",
-    "saves": "1",
-    "props": [
-     "Disposable (2)",
-     "State: IMM-A",
-     "Non-lethal"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -395923,6 +395969,19 @@
       "to": 120,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "PARA"
+    ],
+    "save": {
+     "attr": "PH",
+     "mod": -6
+    },
+    "saveRolls": 1,
+    "props": [
+     "Disposable (2)",
+     "State: IMM-A",
+     "Non-lethal"
     ]
    }
   ],
@@ -395930,14 +395989,8 @@
    {
     "name": "Heavy Machine Gun",
     "mode": null,
-    "ammo": "N",
     "burst": 4,
     "dmg": 5,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -395955,6 +396008,16 @@
       "to": 120,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -395962,14 +396025,8 @@
    {
     "name": "AP Heavy Machine Gun",
     "mode": null,
-    "ammo": "AP",
     "burst": 4,
     "dmg": 5,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -395987,6 +396044,17 @@
       "to": 120,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -395994,14 +396062,8 @@
    {
     "name": "MULTI Heavy Machine Gun",
     "mode": "Anti-materiel Mode",
-    "ammo": "Exp",
     "burst": 1,
     "dmg": 5,
-    "saving": "ARM",
-    "saves": "3",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396019,19 +396081,23 @@
       "to": 120,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "Exp"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 3,
+    "props": [
+     "Anti-materiel"
     ]
    },
    {
     "name": "MULTI Heavy Machine Gun",
     "mode": "AP Mode",
-    "ammo": "AP",
     "burst": 4,
     "dmg": 5,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396049,19 +396115,24 @@
       "to": 120,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    },
    {
     "name": "MULTI Heavy Machine Gun",
     "mode": "Shock Mode",
-    "ammo": "Shock",
     "burst": 4,
     "dmg": 5,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396079,6 +396150,16 @@
       "to": 120,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -396086,141 +396167,169 @@
    {
     "name": "CC Weapon",
     "mode": null,
-    "ammo": "N",
     "burst": 1,
     "dmg": 8,
-    "saving": "ARM",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "CC"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "6": [
    {
     "name": "AP CC Weapon",
     "mode": null,
-    "ammo": "AP",
     "burst": 1,
     "dmg": 8,
-    "saving": "ARM/2",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
     "props": [
      "CC"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "7": [
    {
     "name": "E/M CC Weapon",
     "mode": null,
-    "ammo": "N+E/M",
     "burst": 1,
     "dmg": 8,
-    "saving": "BTS/2",
-    "saves": "2",
+    "ranges": null,
+    "ammo": [
+     "N",
+     "E/M"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 2,
     "props": [
      "CC",
      "[**]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "8": [
    {
     "name": "EXP CC Weapon",
     "mode": null,
-    "ammo": "Exp",
     "burst": 1,
     "dmg": 8,
-    "saving": "ARM",
-    "saves": "3",
+    "ranges": null,
+    "ammo": [
+     "Exp"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 3,
     "props": [
      "Anti-materiel",
      "CC"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "9": [
    {
     "name": "Monofilament CC Weapon",
     "mode": null,
-    "ammo": "N",
     "burst": 1,
     "dmg": 8,
-    "saving": "ARM=0",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM",
+     "armZero": true
+    },
+    "saveRolls": 1,
     "props": [
      "CC",
      "State: Dead"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "10": [
    {
     "name": "Shock CC Weapon",
     "mode": null,
-    "ammo": "Shock",
     "burst": 1,
     "dmg": 8,
-    "saving": "ARM",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "CC"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "11": [
    {
     "name": "DA CC Weapon",
     "mode": null,
-    "ammo": "DA",
     "burst": 1,
     "dmg": 8,
-    "saving": "ARM",
-    "saves": "2",
+    "ranges": null,
+    "ammo": [
+     "DA"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 2,
     "props": [
      "Anti-materiel",
      "CC"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "13": [
    {
     "name": "Viral CC Weapon",
     "mode": null,
-    "ammo": "N",
     "burst": 1,
     "dmg": 8,
-    "saving": "BTS",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 1,
     "props": [
      "CC",
      "Bioweapon (DA+SHOCK)"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "14": [
    {
     "name": "Blitzen",
     "mode": null,
-    "ammo": "E/M",
     "burst": 1,
     "dmg": 6,
-    "saving": "BTS/2",
-    "saves": "2",
-    "props": [
-     "Disposable (2)",
-     "Non-lethal",
-     "[**]"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396238,6 +396347,19 @@
       "to": 120,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "E/M"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 2,
+    "props": [
+     "Disposable (2)",
+     "Non-lethal",
+     "[**]"
     ]
    }
   ],
@@ -396245,14 +396367,8 @@
    {
     "name": "Hyper-Rapid Magnetic Cannon",
     "mode": "Anti-Materiel Mode",
-    "ammo": "DA",
     "burst": 1,
     "dmg": 5,
-    "saving": "ARM",
-    "saves": "2",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396270,19 +396386,23 @@
       "to": 120,
       "mod": 0
      }
+    ],
+    "ammo": [
+     "DA"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 2,
+    "props": [
+     "Anti-materiel"
     ]
    },
    {
     "name": "Hyper-Rapid Magnetic Cannon",
     "mode": "AP Mode",
-    "ammo": "AP",
     "burst": 5,
     "dmg": 5,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396300,19 +396420,24 @@
       "to": 120,
       "mod": 0
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    },
    {
     "name": "Hyper-Rapid Magnetic Cannon",
     "mode": "Shock Mode",
-    "ammo": "Shock",
     "burst": 5,
     "dmg": 5,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396330,6 +396455,16 @@
       "to": 120,
       "mod": 0
      }
+    ],
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -396337,14 +396472,8 @@
    {
     "name": "Portable Autocannon",
     "mode": null,
-    "ammo": "AP+Exp",
     "burst": 2,
     "dmg": 5,
-    "saving": "ARM/2",
-    "saves": "3",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396362,6 +396491,18 @@
       "to": 120,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "AP",
+     "Exp"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 3,
+    "props": [
+     "Anti-materiel"
     ]
    }
   ],
@@ -396369,64 +396510,74 @@
    {
     "name": "D-Charges",
     "mode": "CC Mode",
-    "ammo": "AP+Exp",
     "burst": 1,
     "dmg": 6,
-    "saving": "ARM/2",
-    "saves": "3",
+    "ranges": null,
+    "ammo": [
+     "AP",
+     "Exp"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 3,
     "props": [
      "Anti-materiel",
      "CC",
      "Disposable (3)",
      "Improvised",
      "[*]"
-    ],
-    "ranges": null
+    ]
    },
    {
     "name": "D-Charges",
     "mode": "Demolition Mode",
-    "ammo": "AP+Exp",
     "burst": 1,
     "dmg": 6,
-    "saving": "ARM/2",
-    "saves": "3",
+    "ranges": null,
+    "ammo": [
+     "AP",
+     "Exp"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 3,
     "props": [
      "Anti-materiel",
      "Disposable (3)",
      "[*]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "18": [
    {
     "name": "Chain Rifle",
     "mode": null,
-    "ammo": "N",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "Intuitive Attack",
      "Direct Template (Large Teardrop)"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "19": [
    {
     "name": "Contender",
     "mode": null,
-    "ammo": "T2",
     "burst": 2,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396440,6 +396591,16 @@
       "to": 80,
       "mod": 0
      }
+    ],
+    "ammo": [
+     "T2"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Anti-materiel"
     ]
    }
   ],
@@ -396447,52 +396608,54 @@
    {
     "name": "Crazykoala",
     "mode": null,
-    "ammo": "Shock",
     "burst": 1,
     "dmg": 5,
-    "saving": "ARM",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "Disposable (2)",
      "Boost",
      "Perimeter",
      "Deployable",
      "[*]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "23": [
    {
     "name": "E/Marat",
     "mode": null,
-    "ammo": "E/M",
     "burst": 1,
     "dmg": 7,
-    "saving": "BTS/2",
-    "saves": "2",
+    "ranges": null,
+    "ammo": [
+     "E/M"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 2,
     "props": [
      "Intuitive Attack",
      "Non-lethal",
      "Direct Template (Large Teardrop)",
      "[**]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "25": [
    {
     "name": "E/Mitter",
     "mode": null,
-    "ammo": "E/M",
     "burst": 2,
     "dmg": 7,
-    "saving": "BTS/2",
-    "saves": "2",
-    "props": [
-     "Non-lethal",
-     "[**]"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396510,6 +396673,18 @@
       "to": 120,
       "mod": 0
      }
+    ],
+    "ammo": [
+     "E/M"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 2,
+    "props": [
+     "Non-lethal",
+     "[**]"
     ]
    }
   ],
@@ -396517,12 +396692,8 @@
    {
     "name": "Boarding Shotgun",
     "mode": null,
-    "ammo": "AP",
     "burst": 2,
     "dmg": 6,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -396536,21 +396707,24 @@
       "to": 60,
       "mod": -3
      }
-    ]
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "27": [
    {
     "name": "T2 Boarding Shotgun",
     "mode": null,
-    "ammo": "T2",
     "burst": 2,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396564,6 +396738,16 @@
       "to": 60,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "T2"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Anti-materiel"
     ]
    }
   ],
@@ -396571,12 +396755,8 @@
    {
     "name": "Light Shotgun",
     "mode": null,
-    "ammo": "N",
     "burst": 2,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -396590,19 +396770,23 @@
       "to": 60,
       "mod": -3
      }
-    ]
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "29": [
    {
     "name": "Heavy Shotgun",
     "mode": null,
-    "ammo": "AP",
     "burst": 2,
     "dmg": 5,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -396616,21 +396800,24 @@
       "to": 60,
       "mod": -3
      }
-    ]
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "30": [
    {
     "name": "Feuerbach",
     "mode": "Burst Mode",
-    "ammo": "AP+DA",
     "burst": 2,
     "dmg": 6,
-    "saving": "ARM/2",
-    "saves": "2",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396648,19 +396835,25 @@
       "to": 120,
       "mod": 0
      }
+    ],
+    "ammo": [
+     "AP",
+     "DA"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 2,
+    "props": [
+     "Anti-materiel"
     ]
    },
    {
     "name": "Feuerbach",
     "mode": "Explosive Mode",
-    "ammo": "Exp",
     "burst": 1,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "3",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396678,6 +396871,16 @@
       "to": 120,
       "mod": 0
      }
+    ],
+    "ammo": [
+     "Exp"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 3,
+    "props": [
+     "Anti-materiel"
     ]
    }
   ],
@@ -396685,14 +396888,8 @@
    {
     "name": "Rifle",
     "mode": null,
-    "ammo": "N",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396710,6 +396907,16 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -396717,14 +396924,8 @@
    {
     "name": "AP Rifle",
     "mode": null,
-    "ammo": "AP",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396742,6 +396943,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -396749,14 +396961,8 @@
    {
     "name": "Combi Rifle",
     "mode": null,
-    "ammo": "N",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 40,
@@ -396770,6 +396976,16 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -396777,12 +396993,8 @@
    {
     "name": "Sniper Rifle",
     "mode": null,
-    "ammo": "Shock",
     "burst": 2,
     "dmg": 5,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -396800,19 +397012,23 @@
       "to": 240,
       "mod": -3
      }
-    ]
+    ],
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "35": [
    {
     "name": "AP Sniper Rifle",
     "mode": null,
-    "ammo": "AP",
     "burst": 2,
     "dmg": 5,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -396830,21 +397046,24 @@
       "to": 240,
       "mod": -3
      }
-    ]
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "36": [
    {
     "name": "MULTI Sniper Rifle",
     "mode": "Anti-Materiel Mode",
-    "ammo": "DA",
     "burst": 2,
     "dmg": 5,
-    "saving": "ARM",
-    "saves": "2",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396862,17 +397081,23 @@
       "to": 240,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "DA"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 2,
+    "props": [
+     "Anti-materiel"
     ]
    },
    {
     "name": "MULTI Sniper Rifle",
     "mode": "AP Mode",
-    "ammo": "AP",
     "burst": 2,
     "dmg": 5,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -396890,17 +397115,22 @@
       "to": 240,
       "mod": -3
      }
-    ]
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": []
    },
    {
     "name": "MULTI Sniper Rifle",
     "mode": "Shock Mode",
-    "ammo": "Shock",
     "burst": 2,
     "dmg": 5,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -396918,21 +397148,23 @@
       "to": 240,
       "mod": -3
      }
-    ]
+    ],
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "38": [
    {
     "name": "T2 Sniper Rifle",
     "mode": null,
-    "ammo": "T2",
     "burst": 2,
     "dmg": 5,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396950,6 +397182,16 @@
       "to": 240,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "T2"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Anti-materiel"
     ]
    }
   ],
@@ -396957,14 +397199,8 @@
    {
     "name": "VIRAL Sniper Rifle",
     "mode": null,
-    "ammo": "N",
     "burst": 2,
     "dmg": 5,
-    "saving": "BTS",
-    "saves": "1",
-    "props": [
-     "Bioweapon (DA+SHOCK)"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -396982,6 +397218,16 @@
       "to": 240,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Bioweapon (DA+SHOCK)"
     ]
    }
   ],
@@ -396989,15 +397235,8 @@
    {
     "name": "Plasma Rifle",
     "mode": "Blast Mode",
-    "ammo": "N",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM and BTS",
-    "saves": "1 and 1",
-    "props": [
-     "Suppressive Fire",
-     "Impact Template (Circular)"
-    ],
     "ranges": [
      {
       "to": 40,
@@ -397011,19 +397250,25 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM",
+     "alsoBts": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire",
+     "Impact Template (Circular)"
     ]
    },
    {
     "name": "Plasma Rifle",
     "mode": "Hit Mode",
-    "ammo": "N",
     "burst": 3,
     "dmg": 6,
-    "saving": "ARM and BTS",
-    "saves": "1 and 1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 40,
@@ -397037,6 +397282,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM",
+     "alsoBts": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -397044,14 +397300,8 @@
    {
     "name": "MULTI Rifle",
     "mode": "Anti-Materiel Mode",
-    "ammo": "DA",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "2",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 40,
@@ -397065,19 +397315,23 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "DA"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 2,
+    "props": [
+     "Anti-materiel"
     ]
    },
    {
     "name": "MULTI Rifle",
     "mode": "AP Mode",
-    "ammo": "AP",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 40,
@@ -397091,19 +397345,24 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    },
    {
     "name": "MULTI Rifle",
     "mode": "Shock Mode",
-    "ammo": "Shock",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 40,
@@ -397117,6 +397376,16 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -397124,15 +397393,8 @@
    {
     "name": "T2 Rifle",
     "mode": null,
-    "ammo": "T2",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Anti-materiel",
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397150,6 +397412,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "T2"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Anti-materiel",
+     "Suppressive Fire"
     ]
    }
   ],
@@ -397157,15 +397430,8 @@
    {
     "name": "Viral Rifle",
     "mode": null,
-    "ammo": "N",
     "burst": 3,
     "dmg": 7,
-    "saving": "BTS",
-    "saves": "1",
-    "props": [
-     "Bioweapon (DA+SHOCK)",
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397183,6 +397449,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Bioweapon (DA+SHOCK)",
+     "Suppressive Fire"
     ]
    }
   ],
@@ -397190,16 +397467,8 @@
    {
     "name": "Grenades",
     "mode": null,
-    "ammo": "N",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Speculative Attack",
-     "BS Weapon (PH)",
-     "Impact Template (Circular)"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397209,6 +397478,18 @@
       "to": 40,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Speculative Attack",
+     "BS Weapon (PH)",
+     "Impact Template (Circular)"
     ]
    }
   ],
@@ -397216,19 +397497,8 @@
    {
     "name": "Smoke Grenades",
     "mode": null,
-    "ammo": "Smoke",
     "burst": 1,
     "dmg": null,
-    "saving": "-",
-    "saves": "-",
-    "props": [
-     "Speculative Attack",
-     "BS Weapon (PH)",
-     "Impact Template (Circular)",
-     "Non-lethal",
-     "Targetless",
-     "[**]"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397238,6 +397508,19 @@
       "to": 40,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "Smoke"
+    ],
+    "save": null,
+    "saveRolls": null,
+    "props": [
+     "Speculative Attack",
+     "BS Weapon (PH)",
+     "Impact Template (Circular)",
+     "Non-lethal",
+     "Targetless",
+     "[**]"
     ]
    }
   ],
@@ -397245,11 +397528,23 @@
    {
     "name": "Eclipse Grenades",
     "mode": null,
-    "ammo": "Eclipse",
     "burst": 1,
     "dmg": null,
-    "saving": "-",
-    "saves": "-",
+    "ranges": [
+     {
+      "to": 20,
+      "mod": 0
+     },
+     {
+      "to": 40,
+      "mod": -3
+     }
+    ],
+    "ammo": [
+     "Eclipse"
+    ],
+    "save": null,
+    "saveRolls": null,
     "props": [
      "Speculative Attack",
      "BS Weapon (PH)",
@@ -397258,16 +397553,6 @@
      "Reflective",
      "Targetless",
      "[**]"
-    ],
-    "ranges": [
-     {
-      "to": 20,
-      "mod": 0
-     },
-     {
-      "to": 40,
-      "mod": -3
-     }
     ]
    }
   ],
@@ -397275,18 +397560,8 @@
    {
     "name": "E/M Grenades",
     "mode": null,
-    "ammo": "E/M",
     "burst": 1,
     "dmg": 7,
-    "saving": "BTS/2",
-    "saves": "2",
-    "props": [
-     "Speculative Attack",
-     "BS Weapon (PH)",
-     "Impact Template (Circular)",
-     "Non-lethal",
-     "[**]"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397296,6 +397571,21 @@
       "to": 40,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "E/M"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 2,
+    "props": [
+     "Speculative Attack",
+     "BS Weapon (PH)",
+     "Impact Template (Circular)",
+     "Non-lethal",
+     "[**]"
     ]
    }
   ],
@@ -397303,16 +397593,8 @@
    {
     "name": "Katyusha MRL",
     "mode": null,
-    "ammo": "DA",
     "burst": 1,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "2",
-    "props": [
-     "Anti-materiel",
-     "Speculative Attack",
-     "Impact Template (Circular)"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397330,6 +397612,18 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "DA"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 2,
+    "props": [
+     "Anti-materiel",
+     "Speculative Attack",
+     "Impact Template (Circular)"
     ]
    }
   ],
@@ -397337,49 +397631,50 @@
    {
     "name": "Light Flamethrower",
     "mode": null,
-    "ammo": "N",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "Intuitive Attack",
      "Direct Template (Small Teardrop)",
-     "Continous Damage"
-    ],
-    "ranges": null
+     "Continuous Damage"
+    ]
    }
   ],
   "57": [
    {
     "name": "Heavy Flamethrower",
     "mode": null,
-    "ammo": "N",
     "burst": 1,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "Intuitive Attack",
      "Direct Template (Large Teardrop)",
-     "Continous Damage"
-    ],
-    "ranges": null
+     "Continuous Damage"
+    ]
    }
   ],
   "58": [
    {
     "name": "Missile Launcher",
     "mode": "Blast Mode",
-    "ammo": "Exp",
     "burst": 1,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "3",
-    "props": [
-     "Anti-materiel",
-     "Impact Template (Circular)"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397397,19 +397692,24 @@
       "to": 240,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "Exp"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 3,
+    "props": [
+     "Anti-materiel",
+     "Impact Template (Circular)"
     ]
    },
    {
     "name": "Missile Launcher",
     "mode": "Hit Mode",
-    "ammo": "AP+Exp",
     "burst": 1,
     "dmg": 6,
-    "saving": "ARM/2",
-    "saves": "3",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397427,6 +397727,18 @@
       "to": 240,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "AP",
+     "Exp"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 3,
+    "props": [
+     "Anti-materiel"
     ]
    }
   ],
@@ -397434,11 +397746,17 @@
    {
     "name": "Monofilament Mine",
     "mode": null,
-    "ammo": "N",
     "burst": 1,
     "dmg": 8,
-    "saving": "ARM=0",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM",
+     "armZero": true
+    },
+    "saveRolls": 1,
     "props": [
      "Intuitive Attack",
      "Concealed",
@@ -397447,19 +397765,23 @@
      "Deployable",
      "State: Dead",
      "[*]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "63": [
    {
     "name": "Viral Mine",
     "mode": null,
-    "ammo": "N",
     "burst": 1,
     "dmg": 7,
-    "saving": "BTS",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 1,
     "props": [
      "Intuitive Attack",
      "Bioweapon (DA+SHOCK)",
@@ -397468,22 +397790,15 @@
      "Direct Template (Small Teardrop)",
      "Deployable",
      "[*]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "64": [
    {
     "name": "Mk12",
     "mode": null,
-    "ammo": "N",
     "burst": 3,
     "dmg": 5,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397501,6 +397816,16 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -397508,30 +397833,28 @@
    {
     "name": "Nanopulser",
     "mode": null,
-    "ammo": "N",
     "burst": 1,
     "dmg": 7,
-    "saving": "BTS",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 1,
     "props": [
      "Direct Template (Small Teardrop)",
      "Intuitive Attack"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "67": [
    {
     "name": "Ohotnik",
     "mode": null,
-    "ammo": "T2",
     "burst": 2,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397549,6 +397872,16 @@
       "to": 240,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "T2"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Anti-materiel"
     ]
    }
   ],
@@ -397556,15 +397889,8 @@
    {
     "name": "Panzerfaust",
     "mode": null,
-    "ammo": "AP+Exp",
     "burst": 1,
     "dmg": 6,
-    "saving": "ARM/2",
-    "saves": "3",
-    "props": [
-     "Anti-materiel",
-     "Disposable (2)"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397582,6 +397908,19 @@
       "to": 120,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "AP",
+     "Exp"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 3,
+    "props": [
+     "Anti-materiel",
+     "Disposable (2)"
     ]
    }
   ],
@@ -397589,12 +397928,8 @@
    {
     "name": "Pistol",
     "mode": null,
-    "ammo": "N",
     "burst": 2,
     "dmg": 9,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -397608,19 +397943,23 @@
       "to": 60,
       "mod": -6
      }
-    ]
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "70": [
    {
     "name": "Assault Pistol",
     "mode": null,
-    "ammo": "N",
     "burst": 4,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -397634,40 +397973,45 @@
       "to": 60,
       "mod": -6
      }
-    ]
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "71": [
    {
     "name": "PARA CC Weapon",
     "mode": null,
-    "ammo": "PARA",
     "burst": 1,
     "dmg": null,
-    "saving": "PH-6",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "PARA"
+    ],
+    "save": {
+     "attr": "PH",
+     "mod": -6
+    },
+    "saveRolls": 1,
     "props": [
      "CC",
      "Non-lethal",
      "State: IMM-A"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "72": [
    {
     "name": "Flash Pulse",
     "mode": null,
-    "ammo": "Stun",
     "burst": 1,
     "dmg": 7,
-    "saving": "BTS",
-    "saves": "1",
-    "props": [
-     "BS Weapon (WIP)",
-     "State: Stunned",
-     "Non-lethal"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397685,6 +398029,18 @@
       "to": 240,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "Stun"
+    ],
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 1,
+    "props": [
+     "BS Weapon (WIP)",
+     "State: Stunned",
+     "Non-lethal"
     ]
    }
   ],
@@ -397692,33 +398048,29 @@
    {
     "name": "Sepsitor",
     "mode": null,
-    "ammo": null,
     "burst": 1,
     "dmg": 4,
-    "saving": "BTS",
-    "saves": "1",
+    "ranges": null,
+    "ammo": null,
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 1,
     "props": [
      "Intuitive Attack",
      "Disposable (2)",
      "State: Sepsitorized",
      "Direct Template (Large Teardrop)",
      "[*]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "74": [
    {
     "name": "Spitfire",
     "mode": null,
-    "ammo": "N",
     "burst": 4,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397736,6 +398088,16 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -397743,16 +398105,8 @@
    {
     "name": "Uragan MRL",
     "mode": "Blast Mode",
-    "ammo": "AP+Shock",
     "burst": 3,
     "dmg": 6,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Speculative Attack",
-     "Impact Template (Circular)",
-     "Burst: Single Target"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397770,19 +398124,27 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP",
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Speculative Attack",
+     "Impact Template (Circular)",
+     "Burst: Single Target"
     ]
    },
    {
     "name": "Uragan MRL",
     "mode": "Hit Mode",
-    "ammo": "AP+Shock",
     "burst": 3,
     "dmg": 5,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Burst: Single Target"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397800,6 +398162,18 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP",
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Burst: Single Target"
     ]
    }
   ],
@@ -397807,19 +398181,8 @@
    {
     "name": "Eclipse Grenade Launcher",
     "mode": null,
-    "ammo": "Eclipse",
     "burst": 1,
     "dmg": null,
-    "saving": "-",
-    "saves": "1",
-    "props": [
-     "Speculative Attack",
-     "Non-lethal",
-     "Impact Template (Circular)",
-     "Reflective",
-     "Targetless",
-     "[**]"
-    ],
     "ranges": [
      {
       "to": 60,
@@ -397833,6 +398196,19 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "Eclipse"
+    ],
+    "save": null,
+    "saveRolls": 1,
+    "props": [
+     "Speculative Attack",
+     "Non-lethal",
+     "Impact Template (Circular)",
+     "Reflective",
+     "Targetless",
+     "[**]"
     ]
    }
   ],
@@ -397840,14 +398216,8 @@
    {
     "name": "Submachine Gun",
     "mode": null,
-    "ammo": "N",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397865,6 +398235,16 @@
       "to": 80,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -397872,46 +398252,50 @@
    {
     "name": "AP + DA CC Weapon",
     "mode": null,
-    "ammo": "AP+DA",
     "burst": 1,
     "dmg": 8,
-    "saving": "ARM/2",
-    "saves": "2",
+    "ranges": null,
+    "ammo": [
+     "AP",
+     "DA"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 2,
     "props": [
      "Anti-materiel",
      "CC"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "80": [
    {
     "name": "Chain-colt",
     "mode": null,
-    "ammo": "N",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "Intuitive Attack",
      "Direct Template (Small Teardrop)"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "81": [
    {
     "name": "Vulkan Shotgun",
     "mode": null,
-    "ammo": "AP",
     "burst": 2,
     "dmg": 6,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Continous Damage"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397925,6 +398309,17 @@
       "to": 60,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Continuous Damage"
     ]
    }
   ],
@@ -397932,16 +398327,8 @@
    {
     "name": "Flammenspeer",
     "mode": "Blast Mode",
-    "ammo": "N",
     "burst": 1,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Continous Damage",
-     "Disposable (2)",
-     "Impact Template (Circular)"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397959,20 +398346,25 @@
       "to": 120,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Continuous Damage",
+     "Disposable (2)",
+     "Impact Template (Circular)"
     ]
    },
    {
     "name": "Flammenspeer",
     "mode": "Hit Mode",
-    "ammo": "AP",
     "burst": 1,
     "dmg": 6,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Continous Damage",
-     "Disposable (2)"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -397990,6 +398382,18 @@
       "to": 120,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Continuous Damage",
+     "Disposable (2)"
     ]
    }
   ],
@@ -397997,15 +398401,8 @@
    {
     "name": "Viral Combi Rifle",
     "mode": null,
-    "ammo": "N",
     "burst": 3,
     "dmg": 7,
-    "saving": "BTS",
-    "saves": "1",
-    "props": [
-     "Bioweapon (DA+SHOCK)",
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 40,
@@ -398019,6 +398416,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Bioweapon (DA+SHOCK)",
+     "Suppressive Fire"
     ]
    }
   ],
@@ -398026,14 +398434,8 @@
    {
     "name": "Marksman Rifle",
     "mode": null,
-    "ammo": "N",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -398051,6 +398453,16 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -398058,14 +398470,8 @@
    {
     "name": "AP Marksman Rifle",
     "mode": null,
-    "ammo": "AP",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -398083,6 +398489,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -398090,11 +398507,16 @@
    {
     "name": "Jammer",
     "mode": null,
-    "ammo": "N",
     "burst": 1,
     "dmg": 7,
-    "saving": "BTS",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 1,
     "props": [
      "BS Weapon (WIP)",
      "Comms. Attack",
@@ -398104,23 +398526,15 @@
      "Non-lethal",
      "No LoF",
      "Zone of Control"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "88": [
    {
     "name": "Light Rocket Launcher",
     "mode": "Blast Mode",
-    "ammo": "N",
     "burst": 2,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Continous Damage",
-     "Impact Template (Circular)"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -398138,19 +398552,24 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Continuous Damage",
+     "Impact Template (Circular)"
     ]
    },
    {
     "name": "Light Rocket Launcher",
     "mode": "Hit Mode",
-    "ammo": "N",
     "burst": 2,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Continous Damage"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -398168,6 +398587,16 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Continuous Damage"
     ]
    }
   ],
@@ -398175,15 +398604,8 @@
    {
     "name": "Heavy Rocket Launcher",
     "mode": "Blast Mode",
-    "ammo": "N",
     "burst": 2,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Continous Damage",
-     "Impact Template (Circular)"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -398201,19 +398623,24 @@
       "to": 120,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Continuous Damage",
+     "Impact Template (Circular)"
     ]
    },
    {
     "name": "Heavy Rocket Launcher",
     "mode": "Hit Mode",
-    "ammo": "N",
     "burst": 2,
     "dmg": 5,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Continous Damage"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -398231,6 +398658,16 @@
       "to": 120,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Continuous Damage"
     ]
    }
   ],
@@ -398238,15 +398675,8 @@
    {
     "name": "Stun Pistol",
     "mode": null,
-    "ammo": "Stun",
     "burst": 2,
     "dmg": 8,
-    "saving": "BTS",
-    "saves": "1",
-    "props": [
-     "State: Stunned",
-     "Non-lethal"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -398260,6 +398690,17 @@
       "to": 60,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "Stun"
+    ],
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 1,
+    "props": [
+     "State: Stunned",
+     "Non-lethal"
     ]
    }
   ],
@@ -398267,15 +398708,8 @@
    {
     "name": "K1 Combi Rifle",
     "mode": null,
-    "ammo": "N",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM=0",
-    "saves": "1",
-    "props": [
-     "Anti-materiel",
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 40,
@@ -398289,6 +398723,18 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM",
+     "armZero": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Anti-materiel",
+     "Suppressive Fire"
     ]
    }
   ],
@@ -398296,11 +398742,21 @@
    {
     "name": "Drop Bears",
     "mode": "BS Mode",
-    "ammo": null,
     "burst": 1,
     "dmg": null,
-    "saving": "-",
-    "saves": "1",
+    "ranges": [
+     {
+      "to": 20,
+      "mod": 3
+     },
+     {
+      "to": 40,
+      "mod": -3
+     }
+    ],
+    "ammo": null,
+    "save": null,
+    "saveRolls": 1,
     "props": [
      "BS Weapon (PH)",
      "Throwing Weapon",
@@ -398308,46 +398764,36 @@
      "Disposable (3)",
      "Targetless",
      "[*]"
-    ],
-    "ranges": [
-     {
-      "to": 20,
-      "mod": 3
-     },
-     {
-      "to": 40,
-      "mod": -3
-     }
     ]
    },
    {
     "name": "Drop Bears",
     "mode": "Deployable Mode",
-    "ammo": "Shock",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "Intuitive Attack",
      "Disposable (3)",
      "Direct Template (Small Teardrop)",
      "Deployable",
      "[*]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "98": [
    {
     "name": "Breaker Pistol",
     "mode": null,
-    "ammo": "AP",
     "burst": 2,
     "dmg": 8,
-    "saving": "BTS/2",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -398361,19 +398807,24 @@
       "to": 60,
       "mod": -6
      }
-    ]
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "100": [
    {
     "name": "AP Heavy Pistol",
     "mode": null,
-    "ammo": "AP",
     "burst": 2,
     "dmg": 6,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -398387,21 +398838,24 @@
       "to": 60,
       "mod": -6
      }
-    ]
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "103": [
    {
     "name": "Breaker Combi Rifle",
     "mode": null,
-    "ammo": "AP",
     "burst": 3,
     "dmg": 7,
-    "saving": "BTS/2",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 40,
@@ -398415,6 +398869,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -398422,12 +398887,8 @@
    {
     "name": "Heavy Pistol",
     "mode": null,
-    "ammo": "Shock",
     "burst": 2,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -398441,21 +398902,23 @@
       "to": 60,
       "mod": -6
      }
-    ]
+    ],
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "109": [
    {
     "name": "Breaker Rifle",
     "mode": null,
-    "ammo": "AP",
     "burst": 3,
     "dmg": 7,
-    "saving": "BTS/2",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -398473,6 +398936,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -398480,14 +398954,8 @@
    {
     "name": "K1 Sniper Rifle",
     "mode": null,
-    "ammo": "N",
     "burst": 2,
     "dmg": 7,
-    "saving": "ARM=0",
-    "saves": "1",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -398505,6 +398973,17 @@
       "to": 240,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM",
+     "armZero": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Anti-materiel"
     ]
    }
   ],
@@ -398512,14 +398991,8 @@
    {
     "name": "Plasma Carbine",
     "mode": "Blast Mode",
-    "ammo": "N",
     "burst": 2,
     "dmg": 7,
-    "saving": "ARM and BTS",
-    "saves": "1 and 1",
-    "props": [
-     "Impact Template (Circular)"
-    ],
     "ranges": [
      {
       "to": 40,
@@ -398533,17 +399006,24 @@
       "to": 100,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM",
+     "alsoBts": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Impact Template (Circular)"
     ]
    },
    {
     "name": "Plasma Carbine",
     "mode": "Hit Mode",
-    "ammo": "N",
     "burst": 2,
     "dmg": 6,
-    "saving": "ARM and BTS",
-    "saves": "1 and 1",
-    "props": [],
     "ranges": [
      {
       "to": 40,
@@ -398557,21 +399037,24 @@
       "to": 100,
       "mod": -6
      }
-    ]
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM",
+     "alsoBts": true
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "113": [
    {
     "name": "Plasma Sniper Rifle",
     "mode": "Blast Mode",
-    "ammo": "N",
     "burst": 2,
     "dmg": 6,
-    "saving": "ARM and BTS",
-    "saves": "1 and 1",
-    "props": [
-     "Impact Template (Circular)"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -398589,17 +399072,24 @@
       "to": 240,
       "mod": -3
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM",
+     "alsoBts": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Impact Template (Circular)"
     ]
    },
    {
     "name": "Plasma Sniper Rifle",
     "mode": "Hit Mode",
-    "ammo": "N",
     "burst": 2,
     "dmg": 5,
-    "saving": "ARM and BTS",
-    "saves": "1 and 1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -398617,38 +399107,43 @@
       "to": 240,
       "mod": -3
      }
-    ]
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM",
+     "alsoBts": true
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "114": [
    {
     "name": "Sepsitor Plus",
     "mode": null,
-    "ammo": null,
     "burst": 1,
     "dmg": 3,
-    "saving": "BTS",
-    "saves": "1",
+    "ranges": null,
+    "ammo": null,
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 1,
     "props": [
      "Intuitive Attack",
      "State: Sepsitorized",
      "Direct Template (Large Teardrop)"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "127": [
    {
     "name": "Suppressive Fire Mode Weapon",
     "mode": null,
-    "ammo": null,
     "burst": 3,
     "dmg": null,
-    "saving": "*",
-    "saves": "*",
-    "props": [
-     "[***]"
-    ],
     "ranges": [
      {
       "to": 40,
@@ -398658,6 +399153,12 @@
       "to": 60,
       "mod": -3
      }
+    ],
+    "ammo": null,
+    "save": null,
+    "saveRolls": null,
+    "props": [
+     "[***]"
     ]
    }
   ],
@@ -398665,98 +399166,126 @@
    {
     "name": "Pulzar",
     "mode": null,
-    "ammo": "N",
     "burst": 1,
     "dmg": 7,
-    "saving": "BTS",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 1,
     "props": [
      "Intuitive Attack",
      "Direct Template (Large Teardrop)"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "147": [
    {
     "name": "Chest Mine",
     "mode": "BS Mode",
-    "ammo": "Shock",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "Intuitive Attack",
      "Disposable (2)",
      "Direct Template (Small Teardrop)",
      "Double Shot",
      "[*]"
-    ],
-    "ranges": null
+    ]
    },
    {
     "name": "Chest Mine",
     "mode": "CC Mode",
-    "ammo": "Shock",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "CC Attack (+3)",
      "Disposable (2)",
      "[*]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "149": [
    {
     "name": "Vorpal CC Weapon",
     "mode": "BS Mode",
-    "ammo": "N",
     "burst": 1,
     "dmg": 8,
-    "saving": "ARM=0",
-    "saves": "1",
-    "props": [
-     "BS Weapon (PH)",
-     "State: Dead",
-     "[*]"
-    ],
     "ranges": [
      {
       "to": 20,
       "mod": 3
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM",
+     "armZero": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "BS Weapon (PH)",
+     "State: Dead",
+     "[*]"
     ]
    },
    {
     "name": "Vorpal CC Weapon",
     "mode": "CC Mode",
-    "ammo": "N",
     "burst": 1,
     "dmg": 8,
-    "saving": "ARM=0",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM",
+     "armZero": true
+    },
+    "saveRolls": 1,
     "props": [
      "CC",
      "State: Dead",
      "[*]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "150": [
    {
     "name": "Madtraps",
     "mode": null,
-    "ammo": "PARA",
     "burst": 1,
     "dmg": null,
-    "saving": "PH-6",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "PARA"
+    ],
+    "save": {
+     "attr": "PH",
+     "mod": -6
+    },
+    "saveRolls": 1,
     "props": [
      "Disposable (2)",
      "Boost",
@@ -398764,22 +399293,15 @@
      "Perimeter",
      "Deployable",
      "[*]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "152": [
    {
     "name": "Red Fury",
     "mode": null,
-    "ammo": "Shock",
     "burst": 4,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -398797,6 +399319,16 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -398804,35 +399336,28 @@
    {
     "name": "T2 CC Weapon",
     "mode": null,
-    "ammo": "T2",
     "burst": 1,
     "dmg": 8,
-    "saving": "ARM",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "T2"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "Anti-materiel",
      "CC"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "154": [
    {
     "name": "Pitcher",
     "mode": null,
-    "ammo": null,
     "burst": 1,
     "dmg": null,
-    "saving": "-",
-    "saves": "-",
-    "props": [
-     "Speculative Attack",
-     "Disposable (2)",
-     "Indiscriminate",
-     "Non-lethal",
-     "Targetless",
-     "[*]"
-    ],
     "ranges": [
      {
       "to": 40,
@@ -398846,6 +399371,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": null,
+    "save": null,
+    "saveRolls": null,
+    "props": [
+     "Speculative Attack",
+     "Disposable (2)",
+     "Indiscriminate",
+     "Non-lethal",
+     "Targetless",
+     "[*]"
     ]
    }
   ],
@@ -398853,14 +399389,8 @@
    {
     "name": "Shock Marksman Rifle",
     "mode": null,
-    "ammo": "Shock",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -398878,6 +399408,16 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -398885,14 +399425,8 @@
    {
     "name": "Viral Pistol",
     "mode": null,
-    "ammo": "N",
     "burst": 2,
     "dmg": 8,
-    "saving": "BTS",
-    "saves": "1",
-    "props": [
-     "Bioweapon (DA+SHOCK)"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -398906,6 +399440,16 @@
       "to": 60,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Bioweapon (DA+SHOCK)"
     ]
    }
   ],
@@ -398913,14 +399457,8 @@
    {
     "name": "AP Spitfire",
     "mode": null,
-    "ammo": "AP",
     "burst": 4,
     "dmg": 6,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -398938,6 +399476,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -398945,14 +399494,8 @@
    {
     "name": "MULTI Marksman Rifle",
     "mode": "Anti-Material Mode",
-    "ammo": "DA",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "2",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -398970,19 +399513,23 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "DA"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 2,
+    "props": [
+     "Anti-materiel"
     ]
    },
    {
     "name": "MULTI Marksman Rifle",
     "mode": "AP Mode",
-    "ammo": "AP",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399000,19 +399547,24 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    },
    {
     "name": "MULTI Marksman Rifle",
     "mode": "Shock Mode",
-    "ammo": "Shock",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399030,6 +399582,16 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -399037,26 +399599,35 @@
    {
     "name": "AP + Shock CC Weapon",
     "mode": null,
-    "ammo": "AP+Shock",
     "burst": 1,
     "dmg": 8,
-    "saving": "ARM/2",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "AP",
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
     "props": [
      "CC"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "174": [
    {
     "name": "Cybermine",
     "mode": null,
-    "ammo": null,
     "burst": 1,
     "dmg": 5,
-    "saving": "BTS",
-    "saves": "2",
+    "ranges": null,
+    "ammo": null,
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 2,
     "props": [
      "Comms. Attack",
      "Intuitive Attack",
@@ -399067,44 +399638,38 @@
      "Deployable",
      "State: Stunned / Immbolized-B",
      "[*]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "175": [
    {
     "name": "Zapper",
     "mode": null,
-    "ammo": "E/M",
     "burst": 1,
     "dmg": 7,
-    "saving": "BTS/2",
-    "saves": "2",
+    "ranges": null,
+    "ammo": [
+     "E/M"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 2,
     "props": [
      "Intuitive Attack",
      "Non-lethal",
      "Direct Template (Small Teardrop)",
      "[**]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "176": [
    {
     "name": "Mine Dispenser",
     "mode": null,
-    "ammo": null,
     "burst": 1,
     "dmg": null,
-    "saving": "-",
-    "saves": "1",
-    "props": [
-     "Double Shot",
-     "Speculative Attack",
-     "Disposable (2)",
-     "Targetless",
-     "[*]"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399122,6 +399687,16 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": null,
+    "save": null,
+    "saveRolls": 1,
+    "props": [
+     "Double Shot",
+     "Speculative Attack",
+     "Disposable (2)",
+     "Targetless",
+     "[*]"
     ]
    }
   ],
@@ -399129,52 +399704,53 @@
    {
     "name": "Trench-Hammer",
     "mode": "BS Mode",
-    "ammo": "DA",
     "burst": 1,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "2",
-    "props": [
-     "Anti-materiel",
-     "BS Weapon (PH)",
-     "[*]"
-    ],
     "ranges": [
      {
       "to": 20,
       "mod": 0
      }
+    ],
+    "ammo": [
+     "DA"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 2,
+    "props": [
+     "Anti-materiel",
+     "BS Weapon (PH)",
+     "[*]"
     ]
    },
    {
     "name": "Trench-Hammer",
     "mode": "CC Mode",
-    "ammo": "DA",
     "burst": 1,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "2",
+    "ranges": null,
+    "ammo": [
+     "DA"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 2,
     "props": [
      "Anti-materiel",
      "CC",
      "[*]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "179": [
    {
     "name": "Viral Tactical Bow",
     "mode": null,
-    "ammo": "N",
     "burst": 1,
     "dmg": 8,
-    "saving": "BTS",
-    "saves": "1",
-    "props": [
-     "Bioweapon (DA+SHOCK)",
-     "Silent (-6)"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399188,6 +399764,17 @@
       "to": 60,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Bioweapon (DA+SHOCK)",
+     "Silent (-6)"
     ]
    }
   ],
@@ -399195,15 +399782,8 @@
    {
     "name": "T2 Marksman Rifle",
     "mode": null,
-    "ammo": "T2",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Anti-materiel",
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399221,6 +399801,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "T2"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Anti-materiel",
+     "Suppressive Fire"
     ]
    }
   ],
@@ -399228,15 +399819,8 @@
    {
     "name": "K1 Marksman Rifle",
     "mode": null,
-    "ammo": "N",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM=0",
-    "saves": "1",
-    "props": [
-     "Anti-materiel",
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399254,6 +399838,18 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM",
+     "armZero": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Anti-materiel",
+     "Suppressive Fire"
     ]
    }
   ],
@@ -399261,11 +399857,17 @@
    {
     "name": "WildParrot",
     "mode": null,
-    "ammo": "E/M",
     "burst": 1,
     "dmg": 7,
-    "saving": "BTS/2",
-    "saves": "2",
+    "ranges": null,
+    "ammo": [
+     "E/M"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 2,
     "props": [
      "Intuitive Attack",
      "Disposable (1)",
@@ -399273,58 +399875,61 @@
      "Deployable",
      "Perimeter",
      "[*]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "187": [
    {
     "name": "Light Riotstopper",
     "mode": null,
-    "ammo": "PARA",
     "burst": 1,
     "dmg": null,
-    "saving": "PH-6",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "PARA"
+    ],
+    "save": {
+     "attr": "PH",
+     "mod": -6
+    },
+    "saveRolls": 1,
     "props": [
      "State: IMM-A",
      "Non-lethal",
      "Direct Template (Small Teardrop)",
      "Intuitive Attack"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "188": [
    {
     "name": "Heavy Riotstopper",
     "mode": null,
-    "ammo": "PARA",
     "burst": 1,
     "dmg": null,
-    "saving": "PH-6",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "PARA"
+    ],
+    "save": {
+     "attr": "PH",
+     "mod": -6
+    },
+    "saveRolls": 1,
     "props": [
      "State: IMM-A",
      "Non-lethal",
      "Direct Template (Large Teardrop)",
      "Intuitive Attack"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "189": [
    {
     "name": "MULTI Pistol",
     "mode": "Anti-Material Mode",
-    "ammo": "DA",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "2",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399338,17 +399943,23 @@
       "to": 60,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "DA"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 2,
+    "props": [
+     "Anti-materiel"
     ]
    },
    {
     "name": "MULTI Pistol",
     "mode": "AP Mode",
-    "ammo": "AP",
     "burst": 2,
     "dmg": 7,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -399362,17 +399973,22 @@
       "to": 60,
       "mod": -6
      }
-    ]
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": []
    },
    {
     "name": "MULTI Pistol",
     "mode": "Shock Mode",
-    "ammo": "Shock",
     "burst": 2,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -399386,22 +400002,23 @@
       "to": 60,
       "mod": -6
      }
-    ]
+    ],
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "193": [
    {
     "name": "Tactical Bow",
     "mode": null,
-    "ammo": "DA",
     "burst": 1,
     "dmg": 8,
-    "saving": "ARM",
-    "saves": "2",
-    "props": [
-     "Anti-materiel",
-     "Silent (-6)"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399415,6 +400032,17 @@
       "to": 60,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "DA"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 2,
+    "props": [
+     "Anti-materiel",
+     "Silent (-6)"
     ]
    }
   ],
@@ -399422,15 +400050,8 @@
    {
     "name": "Grenade Launcher",
     "mode": null,
-    "ammo": "N",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Speculative Attack",
-     "Impact Template (Circular)"
-    ],
     "ranges": [
      {
       "to": 60,
@@ -399444,6 +400065,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Speculative Attack",
+     "Impact Template (Circular)"
     ]
    }
   ],
@@ -399451,18 +400083,8 @@
    {
     "name": "Smoke Grenade Launcher",
     "mode": null,
-    "ammo": "Smoke",
     "burst": 1,
     "dmg": null,
-    "saving": "-",
-    "saves": "-",
-    "props": [
-     "Speculative Attack",
-     "Non-lethal",
-     "Impact Template (Circular)",
-     "Targetless",
-     "[**]"
-    ],
     "ranges": [
      {
       "to": 60,
@@ -399476,6 +400098,18 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "Smoke"
+    ],
+    "save": null,
+    "saveRolls": null,
+    "props": [
+     "Speculative Attack",
+     "Non-lethal",
+     "Impact Template (Circular)",
+     "Targetless",
+     "[**]"
     ]
    }
   ],
@@ -399483,11 +400117,16 @@
    {
     "name": "Shock Mine",
     "mode": null,
-    "ammo": "Shock",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "Intuitive Attack",
      "Concealed",
@@ -399495,19 +400134,24 @@
      "Direct Template (Small Teardrop)",
      "Deployable",
      "[*]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "197": [
    {
     "name": "E/M Mine",
     "mode": null,
-    "ammo": "E/M",
     "burst": 1,
     "dmg": 7,
-    "saving": "BTS/2",
-    "saves": "2",
+    "ranges": null,
+    "ammo": [
+     "E/M"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 2,
     "props": [
      "Intuitive Attack",
      "Concealed",
@@ -399516,19 +400160,24 @@
      "Non-lethal",
      "Deployable",
      "[**]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "199": [
    {
     "name": "AP Mine",
     "mode": null,
-    "ammo": "AP",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM/2",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
     "props": [
      "Intuitive Attack",
      "Concealed",
@@ -399536,25 +400185,15 @@
      "Direct Template (Small Teardrop)",
      "Deployable",
      "[*]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "201": [
    {
     "name": "E/M Grenade Launcher",
     "mode": null,
-    "ammo": "E/M",
     "burst": 1,
     "dmg": 7,
-    "saving": "BTS/2",
-    "saves": "2",
-    "props": [
-     "Speculative Attack",
-     "Non-lethal",
-     "Impact Template (Circular)",
-     "[**]"
-    ],
     "ranges": [
      {
       "to": 60,
@@ -399568,6 +400207,20 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "E/M"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 2,
+    "props": [
+     "Speculative Attack",
+     "Non-lethal",
+     "Impact Template (Circular)",
+     "[**]"
     ]
    }
   ],
@@ -399575,11 +400228,17 @@
    {
     "name": "PT: Endgame",
     "mode": null,
-    "ammo": "AP",
     "burst": 1,
     "dmg": 7,
-    "saving": "BTS/2",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 1,
     "props": [
      "Technical Weapon",
      "Comms. Attack",
@@ -399587,19 +400246,23 @@
      "Target (VITA)",
      "No LoF",
      "Zone of Control"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "204": [
    {
     "name": "PT: Eraser",
     "mode": null,
-    "ammo": "DA",
     "burst": 2,
     "dmg": 6,
-    "saving": "BTS",
-    "saves": "2",
+    "ranges": null,
+    "ammo": [
+     "DA"
+    ],
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 2,
     "props": [
      "Technical Weapon",
      "Comms. Attack",
@@ -399608,19 +400271,21 @@
      "Non-lethal",
      "No LoF",
      "Zone of Control"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "205": [
    {
     "name": "PT: Mirrorball",
     "mode": null,
-    "ammo": "Eclipse",
     "burst": 1,
     "dmg": null,
-    "saving": "-",
-    "saves": "-",
+    "ranges": null,
+    "ammo": [
+     "Eclipse"
+    ],
+    "save": null,
+    "saveRolls": null,
     "props": [
      "Technical Weapon",
      "Comms. Attack",
@@ -399630,23 +400295,15 @@
      "No LoF",
      "Targetless",
      "Zone of Control"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "206": [
    {
     "name": "Viral Marksman Rifle",
     "mode": null,
-    "ammo": "N",
     "burst": 3,
     "dmg": 7,
-    "saving": "BTS",
-    "saves": "1",
-    "props": [
-     "Bioweapon (DA+SHOCK)",
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399664,6 +400321,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "BTS"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Bioweapon (DA+SHOCK)",
+     "Suppressive Fire"
     ]
    }
   ],
@@ -399671,12 +400339,8 @@
    {
     "name": "Thunderbolt",
     "mode": null,
-    "ammo": "N",
     "burst": 2,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -399694,25 +400358,23 @@
       "to": 120,
       "mod": 0
      }
-    ]
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "208": [
    {
     "name": "Disco Baller",
     "mode": null,
-    "ammo": null,
     "burst": 1,
     "dmg": null,
-    "saving": "-",
-    "saves": "-",
-    "props": [
-     "Speculative Attack",
-     "Disposable (2)",
-     "Double Shot",
-     "Targetless",
-     "[*]"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399730,32 +400392,36 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": null,
+    "save": null,
+    "saveRolls": null,
+    "props": [
+     "Speculative Attack",
+     "Disposable (2)",
+     "Double Shot",
+     "Targetless",
+     "[*]"
     ]
    },
    {
     "name": "Disco Baller",
     "mode": "Disco Ball",
-    "ammo": null,
     "burst": null,
     "dmg": null,
-    "saving": "-",
-    "saves": "-",
-    "props": [],
-    "ranges": null
+    "ranges": null,
+    "ammo": null,
+    "save": null,
+    "saveRolls": null,
+    "props": []
    }
   ],
   "210": [
    {
     "name": "MULTI Red Fury",
     "mode": "Antimaterial Mode",
-    "ammo": "DA",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "2",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399773,19 +400439,23 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "DA"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 2,
+    "props": [
+     "Anti-materiel"
     ]
    },
    {
     "name": "MULTI Red Fury",
     "mode": "AP Mode",
-    "ammo": "AP",
     "burst": 4,
     "dmg": 7,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399803,19 +400473,24 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    },
    {
     "name": "MULTI Red Fury",
     "mode": "Shock Mode",
-    "ammo": "Shock",
     "burst": 4,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399833,6 +400508,16 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -399840,14 +400525,8 @@
    {
     "name": "Silenced Pistol",
     "mode": null,
-    "ammo": "AP+Shock",
     "burst": 2,
     "dmg": 8,
-    "saving": "BTS/2",
-    "saves": "1",
-    "props": [
-     "Silent (-6)"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399861,6 +400540,18 @@
       "to": 60,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP",
+     "Shock"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Silent (-6)"
     ]
    }
   ],
@@ -399868,26 +400559,26 @@
    {
     "name": "Boarding Pistol",
     "mode": "Blast Mode",
-    "ammo": "N",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "Intuitive Attack",
      "Direct Template (Small Teardrop)"
-    ],
-    "ranges": null
+    ]
    },
    {
     "name": "Boarding Pistol",
     "mode": "Hit Mode",
-    "ammo": "N",
     "burst": 2,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -399901,22 +400592,23 @@
       "to": 60,
       "mod": -6
      }
-    ]
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ],
   "213": [
    {
     "name": "E/M Carbine",
     "mode": null,
-    "ammo": "E/M",
     "burst": 2,
     "dmg": 7,
-    "saving": "BTS/2",
-    "saves": "2",
-    "props": [
-     "Non-lethal",
-     "[**]"
-    ],
     "ranges": [
      {
       "to": 40,
@@ -399930,6 +400622,18 @@
       "to": 100,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "E/M"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 2,
+    "props": [
+     "Non-lethal",
+     "[**]"
     ]
    }
   ],
@@ -399937,14 +400641,8 @@
    {
     "name": "AP Submachine Gun",
     "mode": null,
-    "ammo": "AP",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399962,6 +400660,17 @@
       "to": 80,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -399969,14 +400678,8 @@
    {
     "name": "Adhesive Launcher Rifle",
     "mode": null,
-    "ammo": "PARA",
     "burst": 2,
     "dmg": null,
-    "saving": "PH-6",
-    "saves": "1",
-    "props": [
-     "Non-lethal"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -399994,6 +400697,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "PARA"
+    ],
+    "save": {
+     "attr": "PH",
+     "mod": -6
+    },
+    "saveRolls": 1,
+    "props": [
+     "Non-lethal"
     ]
    }
   ],
@@ -400001,14 +400715,8 @@
    {
     "name": "Spitfire MULTI",
     "mode": "Anti-Material Mode",
-    "ammo": "DA",
     "burst": 1,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "2",
-    "props": [
-     "Anti-materiel"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -400026,19 +400734,23 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "DA"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 2,
+    "props": [
+     "Anti-materiel"
     ]
    },
    {
     "name": "Spitfire MULTI",
     "mode": "AP Mode",
-    "ammo": "AP",
     "burst": 4,
     "dmg": 6,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -400056,19 +400768,24 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    },
    {
     "name": "Spitfire MULTI",
     "mode": "Shock Mode",
-    "ammo": "Shock",
     "burst": 4,
     "dmg": 6,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -400086,6 +400803,16 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -400093,11 +400820,17 @@
    {
     "name": "PARA Mine",
     "mode": null,
-    "ammo": "PARA",
     "burst": 1,
     "dmg": null,
-    "saving": "PH-6",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "PARA"
+    ],
+    "save": {
+     "attr": "PH",
+     "mod": -6
+    },
+    "saveRolls": 1,
     "props": [
      "Intuitive Attack",
      "Concealed",
@@ -400106,22 +400839,15 @@
      "Non-lethal",
      "Deployable",
      "[**]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "221": [
    {
     "name": "Kobra Pistol",
     "mode": "BS Mode",
-    "ammo": "Shock",
     "burst": 2,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "[*]"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -400135,52 +400861,66 @@
       "to": 60,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "Shock"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "[*]"
     ]
    },
    {
     "name": "Kobra Pistol",
     "mode": "CC Mode",
-    "ammo": "DA",
     "burst": 1,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "2",
+    "ranges": null,
+    "ammo": [
+     "DA"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 2,
     "props": [
      "Anti-materiel",
      "CC",
      "[*]"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "224": [
    {
     "name": "AP + T2 CC Weapon",
     "mode": null,
-    "ammo": "AP+T2",
     "burst": 1,
     "dmg": 8,
-    "saving": "ARM/2",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "AP",
+     "T2"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
     "props": [
      "Anti-materiel",
      "CC"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "225": [
    {
     "name": "Breaker Marksman Rifle",
     "mode": null,
-    "ammo": "AP",
     "burst": 3,
     "dmg": 7,
-    "saving": "BTS/2",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -400198,6 +400938,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -400205,33 +400956,24 @@
    {
     "name": "Armed Turret",
     "mode": null,
-    "ammo": null,
     "burst": null,
     "dmg": null,
-    "saving": "-",
-    "saves": "1",
+    "ranges": null,
+    "ammo": null,
+    "save": null,
+    "saveRolls": 1,
     "props": [
      "Disposable (1)",
      "Perimeter",
      "Deployable",
      "Non-Reloadable"
-    ],
-    "ranges": null
+    ]
    },
    {
     "name": "Armed Turret",
     "mode": "Adhesive Launcher Rifle",
-    "ammo": "PARA",
     "burst": 2,
     "dmg": null,
-    "saving": "PH-6",
-    "saves": "1",
-    "props": [
-     "Disposable (1)",
-     "Perimeter",
-     "Deployable",
-     "Non-Reloadable"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -400249,22 +400991,27 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "PARA"
+    ],
+    "save": {
+     "attr": "PH",
+     "mod": -6
+    },
+    "saveRolls": 1,
+    "props": [
+     "Disposable (1)",
+     "Perimeter",
+     "Deployable",
+     "Non-Reloadable"
     ]
    },
    {
     "name": "Armed Turret",
     "mode": "AP Rifle",
-    "ammo": "AP",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Disposable (1)",
-     "Perimeter",
-     "Deployable",
-     "Non-Reloadable"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -400282,22 +401029,27 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Disposable (1)",
+     "Perimeter",
+     "Deployable",
+     "Non-Reloadable"
     ]
    },
    {
     "name": "Armed Turret",
     "mode": "Combi Rifle",
-    "ammo": "N",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Disposable (1)",
-     "Perimeter",
-     "Deployable",
-     "Non-Reloadable"
-    ],
     "ranges": [
      {
       "to": 40,
@@ -400311,22 +401063,26 @@
       "to": 120,
       "mod": -6
      }
-    ]
-   },
-   {
-    "name": "Armed Turret",
-    "mode": "E/Mitter",
-    "ammo": "E/M",
-    "burst": 2,
-    "dmg": 7,
-    "saving": "BTS/2",
-    "saves": "1",
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "Disposable (1)",
      "Perimeter",
      "Deployable",
      "Non-Reloadable"
-    ],
+    ]
+   },
+   {
+    "name": "Armed Turret",
+    "mode": "E/Mitter",
+    "burst": 2,
+    "dmg": 7,
     "ranges": [
      {
       "to": 20,
@@ -400344,22 +401100,27 @@
       "to": 120,
       "mod": 0
      }
-    ]
-   },
-   {
-    "name": "Armed Turret",
-    "mode": "Marksman Rifle",
-    "ammo": "N",
-    "burst": 3,
-    "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
+    ],
+    "ammo": [
+     "E/M"
+    ],
+    "save": {
+     "attr": "BTS",
+     "halved": true
+    },
+    "saveRolls": 1,
     "props": [
      "Disposable (1)",
      "Perimeter",
      "Deployable",
      "Non-Reloadable"
-    ],
+    ]
+   },
+   {
+    "name": "Armed Turret",
+    "mode": "Marksman Rifle",
+    "burst": 3,
+    "dmg": 7,
     "ranges": [
      {
       "to": 20,
@@ -400377,22 +401138,26 @@
       "to": 120,
       "mod": -6
      }
-    ]
-   },
-   {
-    "name": "Armed Turret",
-    "mode": "Mk12",
-    "ammo": "N",
-    "burst": 3,
-    "dmg": 5,
-    "saving": "ARM",
-    "saves": "1",
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "Disposable (1)",
      "Perimeter",
      "Deployable",
      "Non-Reloadable"
-    ],
+    ]
+   },
+   {
+    "name": "Armed Turret",
+    "mode": "Mk12",
+    "burst": 3,
+    "dmg": 5,
     "ranges": [
      {
       "to": 20,
@@ -400410,38 +401175,47 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Disposable (1)",
+     "Perimeter",
+     "Deployable",
+     "Non-Reloadable"
     ]
    },
    {
     "name": "Armed Turret",
     "mode": "PARA CC Weapon",
-    "ammo": "PARA",
     "burst": 1,
     "dmg": null,
-    "saving": "PH-6",
-    "saves": "1",
+    "ranges": null,
+    "ammo": [
+     "PARA"
+    ],
+    "save": {
+     "attr": "PH",
+     "mod": -6
+    },
+    "saveRolls": 1,
     "props": [
      "Disposable (1)",
      "Perimeter",
      "Deployable",
      "Non-Reloadable"
-    ],
-    "ranges": null
+    ]
    },
    {
     "name": "Armed Turret",
     "mode": "Rifle",
-    "ammo": "N",
     "burst": 3,
     "dmg": 7,
-    "saving": "ARM",
-    "saves": "1",
-    "props": [
-     "Disposable (1)",
-     "Perimeter",
-     "Deployable",
-     "Non-Reloadable"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -400459,22 +401233,26 @@
       "to": 120,
       "mod": -6
      }
-    ]
-   },
-   {
-    "name": "Armed Turret",
-    "mode": "Thunderbolt",
-    "ammo": "N",
-    "burst": 2,
-    "dmg": 6,
-    "saving": "ARM",
-    "saves": "1",
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
     "props": [
      "Disposable (1)",
      "Perimeter",
      "Deployable",
      "Non-Reloadable"
-    ],
+    ]
+   },
+   {
+    "name": "Armed Turret",
+    "mode": "Thunderbolt",
+    "burst": 2,
+    "dmg": 6,
     "ranges": [
      {
       "to": 20,
@@ -400492,6 +401270,19 @@
       "to": 120,
       "mod": 0
      }
+    ],
+    "ammo": [
+     "N"
+    ],
+    "save": {
+     "attr": "ARM"
+    },
+    "saveRolls": 1,
+    "props": [
+     "Disposable (1)",
+     "Perimeter",
+     "Deployable",
+     "Non-Reloadable"
     ]
    }
   ],
@@ -400499,30 +401290,30 @@
    {
     "name": "AP + EXP CC Weapon",
     "mode": null,
-    "ammo": "AP+Exp",
     "burst": 1,
     "dmg": 8,
-    "saving": "ARM/2",
-    "saves": "3",
+    "ranges": null,
+    "ammo": [
+     "AP",
+     "Exp"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 3,
     "props": [
      "Anti-materiel",
      "CC"
-    ],
-    "ranges": null
+    ]
    }
   ],
   "229": [
    {
     "name": "AP Red Fury",
     "mode": null,
-    "ammo": "AP",
     "burst": 4,
     "dmg": 7,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [
-     "Suppressive Fire"
-    ],
     "ranges": [
      {
       "to": 20,
@@ -400540,6 +401331,17 @@
       "to": 120,
       "mod": -6
      }
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": [
+     "Suppressive Fire"
     ]
    }
   ],
@@ -400547,12 +401349,8 @@
    {
     "name": "AP Thunderbolt",
     "mode": null,
-    "ammo": "AP",
     "burst": 2,
     "dmg": 6,
-    "saving": "ARM/2",
-    "saves": "1",
-    "props": [],
     "ranges": [
      {
       "to": 20,
@@ -400570,7 +401368,16 @@
       "to": 120,
       "mod": 0
      }
-    ]
+    ],
+    "ammo": [
+     "AP"
+    ],
+    "save": {
+     "attr": "ARM",
+     "halved": true
+    },
+    "saveRolls": 1,
+    "props": []
    }
   ]
  }

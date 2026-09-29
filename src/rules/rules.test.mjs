@@ -3,6 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {applyStatOverrides} from '../army/loadouts.js';
+import {normalizeWeaponRow, statOverrides} from '../army/normalize.js';
 import {effectiveTraits} from '../army/traits.js';
 import {bsWeapons, isBsAttackWeapon, parseWeaponMods} from '../army/weapons.js';
 import {searchKey} from '../lib/searchKey.js';
@@ -14,7 +15,9 @@ import {rangeModFor} from './ranges.js';
 import {pseudoWeapons, resolveSelection} from './trooper.js';
 
 const RIFLE_RANGES = [{to: 40, mod: 3}, {to: 80, mod: -3}, {to: 120, mod: -6}];
-const W = {
+// Weapon rows as the Army API gives them, normalized like the pipeline does.
+const weaponTable = (t) => Object.fromEntries(Object.entries(t).map(([id, rows]) => [id, rows.map(normalizeWeaponRow)]));
+const W = weaponTable({
   1: [{name: 'Combi Rifle', mode: null, ammo: 'N', burst: 3, dmg: 7, saving: 'ARM', saves: '1', props: ['Suppressive Fire'], ranges: RIFLE_RANGES}],
   2: [
     {name: 'MULTI Rifle', mode: 'AP Mode', ammo: 'AP', burst: 3, dmg: 7, saving: 'ARM/2', saves: '1', props: [], ranges: RIFLE_RANGES},
@@ -41,7 +44,7 @@ const W = {
   19: [{name: 'Light Rocket Launcher', mode: 'Blast Mode', ammo: 'N', burst: 2, dmg: 6, saving: 'ARM', saves: '1', props: ['Continous Damage', 'Impact Template (Circular)'], ranges: RIFLE_RANGES}],
   20: [{name: 'Boarding Pistol', mode: 'Blast Mode', ammo: 'N', burst: 1, dmg: 7, saving: 'ARM', saves: '1', props: ['Intuitive Attack', 'Direct Template (Small Teardrop)'], ranges: null}],
   18: [{name: 'Sepsitor', mode: null, ammo: null, burst: 1, dmg: 4, saving: 'BTS', saves: '1', props: ['Intuitive Attack', 'Disposable (2)', 'State: Sepsitorized', 'Direct Template (Large Teardrop)', '[*]'], ranges: null}],
-};
+});
 
 const profile = (over = {}) => ({id: 1, name: 'P', bs: 12, ph: 12, arm: 2, bts: 3, w: 1, skills: [], equip: [], ...over});
 const option = (weapons, over = {}) => ({id: 1, name: 'O', points: 10, swc: '0', weapons, skills: [], equip: [], ...over});
@@ -85,16 +88,16 @@ test('defaultWeapon (reactive) prefers +SD, then best range band, then Impact Te
 });
 
 test('defaultWeapon (reactive) ranks range band above ammo, Non-lethal weapons included', () => {
-  const flashPulse = {name: 'Flash Pulse', mode: null, ammo: 'Stun', burst: 1, dmg: 7, saving: 'BTS', saves: '1', props: ['BS Weapon (WIP)', 'State: Stunned', 'Non-lethal'], ranges: [{to: 20, mod: 0}, {to: 60, mod: 3}, {to: 120, mod: -3}, {to: 240, mod: -6}]};
+  const flashPulse = normalizeWeaponRow({name: 'Flash Pulse', mode: null, ammo: 'Stun', burst: 1, dmg: 7, saving: 'BTS', saves: '1', props: ['BS Weapon (WIP)', 'State: Stunned', 'Non-lethal'], ranges: [{to: 20, mod: 0}, {to: 60, mod: 3}, {to: 120, mod: -3}, {to: 240, mod: -6}]});
   const o = option([{id: 1, name: 'Combi Rifle'}, {id: 21, name: 'Flash Pulse'}]);
   assert.equal(defaultWeapon(bsWeapons(o, {...W, 21: [flashPulse]}), 'reactive').key, '21:');
   assert.equal(pick([{id: 17, name: 'Flash Pulse', extra: ['+1SD']}, {id: 7, name: 'HMG'}], 'reactive'), '17:');
 });
 
 test('defaultWeapon ammo precedence is PLASMA > EXP > DA > Viral > T2 > AP > Shock > N > E/M > Stun', () => {
-  const entry = (key, over) => ({key, row: {burst: 3, saves: '1', ammo: 'N', props: [], ranges: RIFLE_RANGES, ...over}, mods: parseWeaponMods([])});
+  const entry = (key, over) => ({key, row: normalizeWeaponRow({burst: 3, saving: 'ARM', saves: '1', ammo: 'N', props: [], ranges: RIFLE_RANGES, ...over}), mods: parseWeaponMods([])});
   const ranked = [
-    entry('PLASMA', {saves: '1 and 1'}), entry('EXP', {ammo: 'AP+Exp'}), entry('DA', {ammo: 'DA'}),
+    entry('PLASMA', {saving: 'ARM and BTS', saves: '1 and 1'}), entry('EXP', {ammo: 'AP+Exp'}), entry('DA', {ammo: 'DA'}),
     entry('VIRAL', {props: ['Bioweapon (DA+SHOCK)']}), entry('T2', {ammo: 'T2'}), entry('AP', {ammo: 'AP'}),
     entry('SHOCK', {ammo: 'Shock'}), entry('N', {ammo: null}), entry('E/M', {ammo: 'E/M'}), entry('STUN', {ammo: 'Stun'}),
   ];
@@ -300,8 +303,8 @@ test('Immunity (ARM): ARM=0 and Continuous Damage are ignored', () => {
   assert.equal(vulkan.armB, 5);
   assert.equal(shotAt(profile({arm: 5}), 14, '14:').inputs.contA, true);
   // Continuous Damage from a loadout extra.
-  assert.equal(shotAt(dog, 7, '7:', {extra: ['Continous Damage']}).inputs.contA, false);
-  assert.equal(shotAt(profile(), 7, '7:', {extra: ['Continous Damage']}).inputs.contA, true);
+  assert.equal(shotAt(dog, 7, '7:', {extra: ['Continuous Damage']}).inputs.contA, false);
+  assert.equal(shotAt(profile(), 7, '7:', {extra: ['Continuous Damage']}).inputs.contA, true);
   // Templates still force the Dodge.
   const flamer = deriveInputs({active: side(profile(), option([{id: 3, name: 'Heavy Flamethrower'}]), '3:'), reactive: side(dog, combi, '1:'), rangeCm: 20}).inputs;
   assert.equal(flamer.contA, false);
@@ -350,7 +353,7 @@ test('Immunity (ARM) is listed as used, with a note of what it ignored', () => {
   assert.deepEqual(r.notes, ['Active: target has Immunity (ARM); AP+Exp treated as N']);
   assert.deepEqual(r.warnings, []);
   assert.deepEqual(shotAt(dog, 13, '13:').notes, ['Active: target has Immunity (ARM); ARM=0 ignored']);
-  assert.deepEqual(shotAt(dog, 1, '1:', {extra: ['AP', 'Continous Damage']}).notes,
+  assert.deepEqual(shotAt(dog, 1, '1:', {extra: ['AP', 'Continuous Damage']}).notes,
     ['Active: target has Immunity (ARM); AP treated as N; Continuous Damage ignored']);
   assert.deepEqual(shotAt(dog, 1, '1:').notes, []);   // plain N: nothing to ignore
   assert.deepEqual(matchupTraits(side(dog, combi, '1:')), ['Immunity (ARM)']);
@@ -596,7 +599,7 @@ test('unsupported traits are reported as warnings', () => {
 });
 
 test('Shock takes effect on VITA 1 targets only, unless immune', () => {
-  const W2 = {...W, 12: [{name: 'Uragan MRL', mode: 'Hit Mode', ammo: 'AP+Shock', burst: 3, dmg: 6, saving: 'ARM/2', saves: '1', props: [], ranges: RIFLE_RANGES}]};
+  const W2 = {...W, ...weaponTable({12: [{name: 'Uragan MRL', mode: 'Hit Mode', ammo: 'AP+Shock', burst: 3, dmg: 6, saving: 'ARM/2', saves: '1', props: [], ranges: RIFLE_RANGES}]})};
   const shooter = (id, key) => {
     const o = option([{id, name: 'x'}]);
     return {...side(profile(), o, null), weapon: bsWeapons(o, W2).find((w) => w.key === key)};
@@ -919,7 +922,8 @@ test('loadout detail: weapons the label leaves out, alternatives over collapsed 
 
 test('loadout stat overrides (BS=11, BTS=3) replace the profile stat', () => {
   const p = profile({bs: 5, bts: 0});
-  const o = option([], {skills: [{id: 279, name: 'BS=11'}, {id: 280, name: 'BTS=3'}]});
+  const skills = [{id: 279, name: 'BS=11'}, {id: 280, name: 'BTS=3'}];
+  const o = option([], {skills, statOverrides: statOverrides(skills)});
   const q = applyStatOverrides(p, o);
   assert.equal(q.bs, 11);
   assert.equal(q.bts, 3);

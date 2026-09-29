@@ -2,7 +2,8 @@
 import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
 import {
-  ammoTypes, bioweaponAmmo, causesWounds, hasContinuousDamage, hasShockAmmo, saveAttribute,
+  ammoTypes, bioweaponAmmo, bioweaponProp, causesStunned, causesWounds, hasAmmo, hasContinuousDamage, hasShockAmmo,
+  isPlasma, saveAttribute,
 } from '../army/weapons.js';
 
 // Vulnerability (wiki): no Immunity against the bracketed weapon, e.g. any
@@ -45,17 +46,17 @@ export function immunityAgainst(targetTraits, row) {
 export const hasNoEffect = (targetTraits, row) =>
   Boolean(immunityAgainst(targetTraits, row))
   && !causesWounds(row)
-  && !(row.props ?? []).some((p) => p.startsWith('State: Stunned'));
+  && !causesStunned(row);
 
 // What the Immunity takes away from this attack, for the matchup note.
 export function immunityNote(immunity, row, mods) {
   const parts = [];
   const ammo = ammoTypes(row, mods);
-  const bio = (row.props ?? []).find((p) => p.startsWith('Bioweapon ('));
+  const bio = bioweaponProp(row);
   if (bio) ammo.push(bio);
   if (ammo.length > 0) parts.push(`${ammo.join('+')} treated as N`);
   const traits = [];
-  if (row.saving === 'ARM=0') traits.push('ARM=0');
+  if (row.save?.armZero) traits.push('ARM=0');
   if (hasContinuousDamage(row, mods)) traits.push('Continuous Damage');
   if (traits.length > 0) parts.push(`${traits.join(', ')} ignored`);
   return parts.length > 0 ? `target has Immunity (${immunity}); ${parts.join('; ')}` : null;
@@ -63,13 +64,13 @@ export function immunityNote(immunity, row, mods) {
 
 // The engine's ammunition for this weapon against this target.
 export function calcAmmo(row, targetTraits) {
-  if (row.saves === '1 and 1') return 'PLASMA';
+  if (isPlasma(row)) return 'PLASMA';
   if (immunityAgainst(targetTraits, row)) return 'N';
-  if (row.saves === '2') return 'DA';
-  if (row.saves === '3') return 'EXP';
+  if (row.saveRolls === 2) return 'DA';
+  if (row.saveRolls === 3) return 'EXP';
   const bio = bioweaponAmmo(row);
   if (bio) return bio;
-  if (['T2', 'AP+T2'].includes(row.ammo)) return 'T2';
+  if (hasAmmo(row, 'T2')) return 'T2';
   return 'N';
 }
 

@@ -3,7 +3,7 @@
 // notes and warnings to show next to it.
 import {EQUIP, SKILL} from '../army/ids.js';
 import {hasEquip, hasSkill} from '../army/traits.js';
-import {causesWounds, hasContinuousDamage, isTemplate} from '../army/weapons.js';
+import {causesWounds, hasContinuousDamage, isNonLethal, isTemplate} from '../army/weapons.js';
 import {
   LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, clamp, dodgeSuccessValue, fireteamBonuses,
   hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod,
@@ -44,7 +44,7 @@ function approximationWarnings(label, side, target) {
   const row = side?.weapon?.row;
   if (row && hasNoEffect(target?.traits, row)) {
     warnings.push(`${label}: ${row.name} has no effect on a target with Immunity (${immunityAgainst(target.traits, row)}); not rolled`);
-  } else if (row && (row.props ?? []).includes('Non-lethal')) {
+  } else if (row && isNonLethal(row)) {
     warnings.push(`${label}: ${row.name} is non-lethal; results shown as wounds`);
   }
   for (const name of side?.unsupportedUpgradeWeapons ?? []) {
@@ -108,12 +108,12 @@ function dodgeInputs(x, side) {
 
 function defenseInputs(y, incoming, side) {
   const p = y.profile;
-  const saving = incoming?.row?.saving ?? 'ARM';
+  const save = incoming?.row?.save ?? {attr: 'ARM'};
   // Immune: the Attribute is rolled as printed, no ARM=0 and no AP halving.
   const immune = Boolean(immunityAgainst(y.traits, incoming?.row));
-  let base = saving.startsWith('BTS') ? p.bts : saving === 'ARM=0' && !immune ? 0 : p.arm;
+  let base = save.attr === 'BTS' ? p.bts : save.armZero && !immune ? 0 : p.arm;
   base = Math.max(0, base ?? 0);
-  const halve = saving.endsWith('/2') || Boolean(incoming?.mods?.forceAP);
+  const halve = Boolean(save.halved) || Boolean(incoming?.mods?.forceAP);
   const apImmune = immune || hasImmunity(y.traits, 'AP', incoming?.row);
   if (halve && !apImmune) base = Math.ceil(base / 2);
   // Cover's +3 is a Saving Roll MOD, not ARM: add it after AP halving. The
