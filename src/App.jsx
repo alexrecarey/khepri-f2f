@@ -34,7 +34,6 @@ import FaceToFaceResultCard from "./display/FaceToFaceResultCard.jsx";
 import OtherInputs from "./inputs/OtherInputs.jsx";
 import BTSInput from "./inputs/BTSInput.jsx";
 import {useSearchParams} from "react-router-dom";
-import validateParams from "./inputs/validateParams.js";
 import curry from "ramda/src/curry";
 import {CustomAppBar} from "./componets/CustomAppBar.jsx";
 import UnitLoader from "./units/UnitLoader.jsx";
@@ -45,7 +44,7 @@ import CoverInput from "./units/CoverInput.jsx";
 import OverridesSection from "./units/OverridesSection.jsx";
 import useMatchup from "./units/useMatchup.js";
 import {decodeMatchup, encodeMatchup} from "./units/matchupParams.js";
-import {PARAM_KEYS} from "./units/previews.js";
+import {PARAM_KEYS, parseParams} from "./engine/params.js";
 import {createF2fClient} from "./lib/f2fClient.js";
 import engineSource from "./python/f2f.py?raw";
 import ModeTabs, {MODES} from "./componets/ModeTabs.jsx";
@@ -73,7 +72,7 @@ function App() {
 
   // Search params
   let [searchParams, setSearchParams] = useSearchParams();
-  let p = validateParams(searchParams);
+  let p = parseParams(searchParams);
   // The URL as first opened; calculator and matchup params are cleared from the
   // address bar once applied, so read share-link state from this copy.
   const [initialParams] = useState(() => new URLSearchParams(searchParams));
@@ -344,13 +343,10 @@ function App() {
   const downloadResultsInCSV = () => {
     // Title: Result ID, Result name,
     // F2F results: Active Win %, Reactive win %, Failure win %,
-    // Parameters A: burstA, successValueA, damageA,armA, btsA, ammoA, contA, shockA, critImmuneA, dtwVsDodge,
-    // Parameters B: burstB, successValueB, damageB, armB, btsB, ammoB, contB, shockB, critImmuneB,
+    // Parameters: every calculator param (PARAM_KEYS)
     // Expected wounds results
     const expectedWoundsHeaders = ["player", "wounds", "raw_chance", "cumulative_chance", "chance"];
-    const parametersHeaders = ['burstA', 'successValueA', 'damageA', 'armA', 'btsA', 'ammoA', 'contA', 'shockA',
-      'critImmuneA', 'dtwVsDodge', 'burstB', 'successValueB', 'damageB', 'armB', 'btsB', 'ammoB', 'contB', 'shockB',
-      'critImmuneB'];
+    const parametersHeaders = PARAM_KEYS;
     let csvContent = "data:text/csv;charset=utf-8,";
     let headers =  "result id,title," + parametersHeaders.join(',') + ',' + expectedWoundsHeaders.join(',') + '\n';
     let rows = savedResults.map((result, idx) => {

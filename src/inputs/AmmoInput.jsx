@@ -1,6 +1,7 @@
 import {Grid, InputLabel, ToggleButtonGroup, Tooltip} from "@mui/material";
 import MuiToggleButton from "@mui/material/ToggleButton";
 import { styled } from "@mui/material/styles";
+import {AMMO} from "../engine/params.js";
 
 
 function AmmoInput(props){
@@ -41,12 +42,7 @@ function AmmoInput(props){
               update(newAmmo);
             }}}
       >
-        <ToggleButton value="N">N</ToggleButton>
-        <ToggleButton value="DA">DA</ToggleButton>
-        <ToggleButton value="EXP">EXP</ToggleButton>
-        <ToggleButton value="T2">T2</ToggleButton>
-        <ToggleButton value="PLASMA">PLASMA</ToggleButton>
-        <ToggleButton value="DODGE">Dodge</ToggleButton>
+        {AMMO.map((a) => <ToggleButton key={a} value={a}>{a === 'DODGE' ? 'Dodge' : a}</ToggleButton>)}
       </ToggleButtonGroup>
       <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}}
                     color={color}
