@@ -1,6 +1,6 @@
 // Matchup selections <-> URL params, for share links. Both sides use the same
 // keys with an A (active) / B (reactive) suffix; range is shared.
-import {RANGE_BANDS} from './profileToInputs.js';
+import {RANGE_BANDS} from '../rules/ranges.js';
 
 const EMPTY = {
   unitId: null, factionId: null, groupId: null, profileId: null, optionId: null,

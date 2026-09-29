@@ -1,0 +1,97 @@
+// MODs and bonuses to the roll: cover, Nanoscreen, Mimetism, Albedo, Fireteams,
+// BS Attack, ARO burst and Dodge.
+import {LIMITS as ENGINE_LIMITS} from '../engine/params.js';
+import {EQUIP, SKILL} from '../army/ids.js';
+import {equipExtra, hasEquip, hasSkill, skillExtra, skillExtras} from '../army/traits.js';
+import {attackAttribute, isImpactTemplate, isTemplate, parseWeaponMods} from '../army/weapons.js';
+
+// The engine's limits, except that a rolled Success Value never drops below 1
+// here: 0 (always fails, no crit) is kept for attacks out of range.
+export const LIMITS = {...ENGINE_LIMITS, successValue: [1, ENGINE_LIMITS.successValue[1]]};
+export const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
+
+// Direct and Impact (Blast mode) templates ignore cover's +3 to the Saving
+// Roll. The -3 BS MOD still applies to the attack roll.
+export const ignoresCoverOnSaves = (row) => isTemplate(row) || isImpactTemplate(row);
+
+// Units with the No Cover skill (TAGs, bikes, Redeye...) get nothing from cover.
+export const benefitsFromCover = (side) => Boolean(side?.inCover) && !hasSkill(side?.traits, SKILL.NO_COVER);
+
+// Nanoscreen (wiki): -3 BS MOD on BS Attack Rolls against the user and +3 to
+// the user's Saving Rolls against BS Attacks, templates included. Treated as
+// the same MOD as cover, so the two do not stack.
+export const hasNanoscreen = (side) => hasEquip(side?.traits, EQUIP.NANOSCREEN);
+
+const hasMsv = (traits) => hasEquip(traits, EQUIP.MSV1) || hasEquip(traits, EQUIP.MSV2) || hasEquip(traits, EQUIP.MSV3);
+
+// Albedo (wiki): an enemy with a Multispectral Visor or Marksmanship who
+// declares a BS Attack requiring LoF against the bearer applies the bracketed
+// MOD (-3 / -6). Not applied to CC. Other attackers are unaffected.
+export function albedoMod(targetTraits, attackerTraits) {
+  if (!hasEquip(targetTraits, EQUIP.ALBEDO)) return 0;
+  if (!hasMsv(attackerTraits) && !hasSkill(attackerTraits, SKILL.MARKSMANSHIP)) return 0;
+  const mod = Number(equipExtra(targetTraits, EQUIP.ALBEDO));
+  return Number.isFinite(mod) && mod < 0 ? mod : -3;
+}
+
+export function mimetismMod(targetTraits, attackerTraits) {
+  const extra = skillExtra(targetTraits, SKILL.MIMETISM);
+  if (!hasSkill(targetTraits, SKILL.MIMETISM)) return 0;
+  const mod = Number(extra);
+  const value = Number.isFinite(mod) && mod < 0 ? mod : -3;
+  if (hasEquip(attackerTraits, EQUIP.MSV2) || hasEquip(attackerTraits, EQUIP.MSV3)) return 0;
+  if (hasEquip(attackerTraits, EQUIP.MSV1) && value === -3) return 0;
+  return value;
+}
+
+// Fireteam bonuses by member count (N5, cumulative, assuming all members are
+// the same Unit): 2 = BS Attack +1 SD, 3 = +3 Discover and +1 Dodge MOD,
+// 4 = +1 BS, 5 = Sixth Sense. 0 means not in a Fireteam.
+export const FIRETEAM_MIN = 2;
+export const FIRETEAM_MAX = 5;
+export function fireteamBonuses(size = 0) {
+  return {
+    sd: size >= 2 ? 1 : 0,
+    dodge: size >= 3 ? 1 : 0,
+    bs: size >= 4 ? 1 : 0,
+    sixthSense: size >= 5,
+  };
+}
+
+export function dodgeSuccessValue(profile, traits, mod = 0) {
+  let sv = profile?.ph ?? 0;
+  const extra = skillExtra(traits, SKILL.DODGE);
+  let m;
+  if (extra && (m = /^PH=(\d+)$/.exec(extra))) sv = Number(m[1]);
+  else if (extra && (m = /^([+-]\d+)$/.exec(extra))) sv += Number(m[1]);
+  return clamp(LIMITS.successValue, sv + mod);
+}
+
+// The Attribute a weapon rolls against: BS, or PH / WIP for BS Weapon (PH) /
+// (WIP) (e.g. Grenades, Flash Pulse). BS MODs still apply.
+export function attackStat(profile, row) {
+  return profile?.[attackAttribute(row)] ?? 0;
+}
+
+// Only Total Reaction / Neurocinetics keep their full burst in ARO.
+export const keepsAroBurst = (x) => hasSkill(x.traits, SKILL.TOTAL_REACTION) || hasSkill(x.traits, SKILL.NEUROCINETICS);
+
+// Burst, SD and BS bonuses on a BS Attack, summed over the weapon's loadout
+// extras, the profile's BS Attack (+1SD / +1B) skill and the Fireteam.
+// Templates keep their burst bonuses but don't roll, so get no SD or BS.
+export function attackBonuses(x) {
+  const row = x.weapon?.row;
+  if (!row) return {burst: 0, sd: 0, bs: 0, skillBurst: 0};
+  const skillMods = parseWeaponMods(
+    skillExtras(x.traits, SKILL.BS_ATTACK).filter((e) => /^\+\d+(B|SD)$/.test(e)),
+  );
+  const burst = x.weapon.mods.burst + skillMods.burst;
+  if (isTemplate(row)) return {burst, sd: 0, bs: 0, skillBurst: skillMods.burst};
+  const ft = fireteamBonuses(x.ftSize);
+  return {
+    burst,
+    sd: x.weapon.mods.sd + skillMods.sd + ft.sd,
+    bs: ft.bs,
+    skillBurst: skillMods.burst,
+  };
+}

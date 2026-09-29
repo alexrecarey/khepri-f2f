@@ -2,22 +2,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {
-  bsWeapons,
-  defaultWeapon,
-  deriveInputs,
-  effectiveTraits,
-  isBsAttackWeapon,
-  loadoutLabels,
-  matchupTraits,
-  parseWeaponMods,
-  pseudoWeapons,
-  rangeModFor,
-  resolveSelection,
-  searchKey,
-  applyStatOverrides,
-  attackStat,
-} from './profileToInputs.js';
+import {applyStatOverrides} from '../army/loadouts.js';
+import {effectiveTraits} from '../army/traits.js';
+import {bsWeapons, isBsAttackWeapon, parseWeaponMods} from '../army/weapons.js';
+import {searchKey} from '../lib/searchKey.js';
+import {loadoutLabels, matchupTraits} from '../matchup/labels.js';
+import {defaultWeapon} from './defaultWeapon.js';
+import {deriveInputs} from './matchup.js';
+import {attackStat} from './modifiers.js';
+import {rangeModFor} from './ranges.js';
+import {pseudoWeapons, resolveSelection} from './trooper.js';
 
 const RIFLE_RANGES = [{to: 40, mod: 3}, {to: 80, mod: -3}, {to: 120, mod: -6}];
 const W = {
@@ -698,7 +692,7 @@ test('Nanoscreen works like cover, also against templates, and does not stack wi
 });
 
 // --- real data -------------------------------------------------------------
-const army = JSON.parse(readFileSync(new URL('../data/army.json', import.meta.url), 'utf8'));
+const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 const byIsc = (isc) => army.units.find((u) => u.isc === isc);
 
 test('Hatamoto: six distinguishable loadouts and only BS weapons listed', () => {

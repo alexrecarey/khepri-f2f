@@ -1,9 +1,9 @@
 """Face to Face dice engine.
 
-Plain Python on top of icepool. The browser runs this exact file: src/python.worker.js receives it as text and
-calls calculate() with the calculator params (src/calculator/params.js). Tests import it directly:
+Plain Python on top of icepool. The browser runs this exact file: src/engine/worker.js receives it as text and
+calls calculate() with the calculator params (src/engine/params.js). Tests import it directly:
 
-    uv run --python 3.10 --with icepool==1.0.0 --with pytest pytest src/python/test_f2f.py
+    uv run --python 3.10 --with icepool==1.0.0 --with pytest pytest src/engine/test_f2f.py
 
 Everything the game rules decide (range, MODs, Immunity, AP halving, ...) happens before this point, in
 src/rules/. What is left here is dice: success values, bursts, and Saving Rolls per ammunition.
@@ -287,7 +287,7 @@ def format_expected_wounds(wounds, max_wounds_shown=25):
 # --- Entry point -------------------------------------------------------------------------------------------------
 
 def calculate(p):
-    """Runs one calculation. `p` holds the calculator params by name (see PARAMS in src/calculator/params.js):
+    """Runs one calculation. `p` holds the calculator params by name (see PARAMS in src/engine/params.js):
     successValueA, burstA, bonusBurstA, damageA, armA, btsA, ammoA, contA, critImmuneA, shockA, the same with a
     B suffix, and dtwVsDodge / fixedFaceToFace for the kind of roll.
     """

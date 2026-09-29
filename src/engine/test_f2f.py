@@ -1,5 +1,5 @@
-# Run with: uv run --python 3.10 --with icepool==1.0.0 --with pytest pytest src/python/test_f2f.py
-# f2f.py is the engine the browser runs (src/python.worker.js loads it as text).
+# Run with: uv run --python 3.10 --with icepool==1.0.0 --with pytest pytest src/engine/test_f2f.py
+# f2f.py is the engine the browser runs (src/engine/worker.js loads it as text).
 import f2f
 from f2f import face_to_face_expected_wounds, face_to_face, dtw_vs_dodge, calculate
 import re

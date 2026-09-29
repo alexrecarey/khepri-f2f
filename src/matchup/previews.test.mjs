@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {previewCandidates, woundsFor} from './previews.js';
 import {PARAM_KEYS, paramsKey} from '../engine/params.js';
-import {bsWeapons} from './profileToInputs.js';
+import {bsWeapons} from '../army/weapons.js';
 
-const army = JSON.parse(readFileSync(new URL('../data/army.json', import.meta.url), 'utf8'));
+const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 const byIsc = (isc) => army.units.find((u) => u.isc === isc);
 const hatamoto = byIsc('Hatamoto Imperial Guard');
 const sierra = byIsc('Sierra Dronbot');

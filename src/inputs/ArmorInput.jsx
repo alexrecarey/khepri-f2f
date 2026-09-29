@@ -3,8 +3,8 @@ import PropTypes from "prop-types";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faShieldHalved} from "@fortawesome/free-solid-svg-icons";
 import {clamp} from "ramda";
-import UncontrolledInput from "../componets/UncontrolledInput.jsx";
-import IncrementDecrementIconButtonGroup from '../componets/IncrementDecrementIconButtonGroup';
+import UncontrolledInput from "../components/UncontrolledInput.jsx";
+import IncrementDecrementIconButtonGroup from '../components/IncrementDecrementIconButtonGroup';
 
 
 function ArmorInput({armor, update, variant, title, tooltip}){

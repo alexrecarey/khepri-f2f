@@ -5,8 +5,8 @@ import {useTheme} from '@mui/material/styles';
 import PropTypes from 'prop-types';
 import {useState} from 'react';
 import {CONTROL_ROW_HEIGHT} from './layout.js';
-import UncontrolledInput from '../componets/UncontrolledInput.jsx';
-import {FIRETEAM_MAX, FIRETEAM_MIN} from './profileToInputs.js';
+import UncontrolledInput from '../components/UncontrolledInput.jsx';
+import {FIRETEAM_MAX, FIRETEAM_MIN} from '../rules/modifiers.js';
 
 // 1 (not in a Fireteam, just this trooper) or FIRETEAM_MIN..FIRETEAM_MAX.
 const normalize = (n) => Math.max(1, Math.min(FIRETEAM_MAX, n));
