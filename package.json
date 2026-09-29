@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "fetch-army": "node --no-warnings scripts/fetch-army.mjs",
-    "test:units": "node --test src/units/"
+    "test": "yarn test:js && yarn test:engine",
+    "test:js": "node --test src/",
+    "test:engine": "uv run --python 3.10 --with icepool==1.0.0 --with pytest pytest -q src/python"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",

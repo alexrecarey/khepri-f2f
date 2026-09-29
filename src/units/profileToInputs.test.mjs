@@ -1,4 +1,4 @@
-// Run with: yarn test:units   (node --test, no extra dependencies)
+// Run with: yarn test:js   (node --test, no extra dependencies)
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
