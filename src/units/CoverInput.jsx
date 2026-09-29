@@ -22,7 +22,7 @@ function CoverInput({variant, matchup}) {
           <InputLabel>Cover</InputLabel>
         </Tooltip>
       </Grid>
-      {/* Wall indented like the Range rulers. */}
+      {/* Wall indented to sit under the number boxes. */}
       <Grid item xs={12} sx={{display: 'flex', alignItems: 'center', pl: 3, height: CONTROL_ROW_HEIGHT}}>
         {/* span: a Tooltip needs an enabled child to hang on. */}
         <Tooltip title={noCover ? 'Unit has No Cover' : ''}>

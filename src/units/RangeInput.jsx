@@ -1,7 +1,6 @@
 import {Box, Grid, InputLabel, Tooltip} from '@mui/material';
 import {alpha, useTheme} from '@mui/material/styles';
 import PropTypes from 'prop-types';
-import {CONTROL_ROW_HEIGHT} from './layout.js';
 import {RANGE_BANDS, rangeModFor} from './profileToInputs.js';
 
 // "+3" / "-6" / "—" (out of range, or no weapon picked yet).
@@ -31,23 +30,22 @@ function RangeInput({rangeCm, update, row, traits, variant}) {
           <InputLabel>Range</InputLabel>
         </Tooltip>
       </Grid>
-      {/* Indented to line up with the number boxes of the inputs below. */}
-      <Grid item xs={12} sx={{display: 'flex', alignItems: 'center', gap: 2, pl: 3, pt: 1.5, pb: 1}}>
+      {/* Same columns and number style as Fireteam Purity below. */}
+      <Grid item xs={2} sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', px: 1, pt: 1.5, pb: 1}}>
         <Box
           sx={{
-            width: 40,
-            flexShrink: 0,
-            textAlign: 'right',
+            typography: 'body1',
             fontFamily: 'conthrax',
-            fontWeight: 700,
-            fontSize: '1.4rem',
-            lineHeight: `${CONTROL_ROW_HEIGHT}px`,
+            whiteSpace: 'nowrap',
             color: row ? accentText : 'text.disabled',
           }}
         >
           {row ? modText(currentMod) : '—'}
         </Box>
-        <Box sx={{flexGrow: 1, position: 'relative', pt: 1.75}}>
+      </Grid>
+      <Grid item xs={1} />
+      <Grid item xs={9} sx={{pt: 1.5, pb: 1}}>
+        <Box sx={{position: 'relative', pt: 1.75}}>
           <Box sx={{display: 'flex', height: 30, borderRadius: 1, overflow: 'hidden', bgcolor: 'action.hover', border: 1, borderColor: 'divider'}}>
             {RANGE_BANDS.map((band, i) => {
               const mod = row ? rangeModFor(row, band.to, traits) : null;
