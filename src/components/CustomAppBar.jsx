@@ -11,7 +11,7 @@ import {forwardRef} from 'react'
 import {NavLink as NavLinkBase} from "react-router-dom";
 import {styled, useTheme} from "@mui/material/styles";
 import { useAtom } from 'jotai'
-import {themeAtom} from '../App.jsx'
+import {themeAtom} from '../theme.js'
 
 
 const NavLink = forwardRef((props, ref) => (
