@@ -8,9 +8,9 @@ const EXCLUDED_PROPS = new Set(['CC', 'CC Attack (+3)', 'Deployable', 'Perimeter
 
 export const isTemplate = (row) => (row?.props ?? []).some((p) => p.startsWith('Direct Template'));
 
+// Blast Mode weapons. The only Impact Template in the Army data is (Circular);
+// the pipeline stops if another shape appears (scripts/army-validate.mjs).
 export const isImpactTemplate = (row) => (row?.props ?? []).some((p) => p.startsWith('Impact Template'));
-
-export const hasCircularImpactTemplate = (row) => (row.props ?? []).includes('Impact Template (Circular)');
 
 export function isBsAttackWeapon(row) {
   if (!row || typeof row.dmg !== 'number') return false;
