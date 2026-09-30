@@ -4,14 +4,16 @@ import assert from 'node:assert/strict';
 import {decodeMatchup, encodeMatchup} from './matchupParams.js';
 
 const selA = {unitId: 42, factionId: 1102, groupId: 1, profileId: null, optionId: 3, weaponKey: '111:Hit Mode',
-  inCover: true, upgrade: 2, ball: null};
+  inCover: true, surpriseAttack: true, upgrade: 2, ball: null};
 const selB = {unitId: 7, factionId: 107, groupId: null, profileId: 2, optionId: 1, weaponKey: 'dodge',
-  inCover: false, upgrade: null, ball: 0};
+  inCover: false, surpriseAttack: false, upgrade: null, ball: 0};
 
 test('matchup round-trips through URL params', () => {
   const params = encodeMatchup({selA, selB, ftSize: {A: 3, B: 1}, rangeCm: 60});
   assert.equal(params.weaponA, '111:Hit Mode');
   assert.equal(params.coverA, '1');
+  assert.equal(params.surpriseA, '1');
+  assert.equal(params.surpriseB, undefined);
   assert.equal(params.ftA, '3');
   assert.equal(params.ftB, undefined);
   assert.equal(params.profileA, undefined);           // unset fields are left out

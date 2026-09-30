@@ -35,6 +35,7 @@ const TRAIT_EXTRAS = [
   // +1" etc. is extra movement: read, and correctly nothing to roll.
   {kind: 'skill', id: SKILL.DODGE, name: 'Dodge', read: /^(PH=\d+|[+-]\d+|\+\d+SD|ARM \+\d+|\+\d+")$/, known: []},
   {kind: 'skill', id: SKILL.MIMETISM, name: 'Mimetism', read: /^-\d+$/, known: []},
+  {kind: 'skill', id: SKILL.SURPRISE_ATTACK, name: 'Surprise Attack', read: /^-\d+$/, known: []},
   {kind: 'equip', id: EQUIP.ALBEDO, name: 'Albedo', read: /^-\d+$/, known: []},
   {kind: 'skill', id: SKILL.BS_ATTACK, name: 'BS Attack', read: /^(\+\d+(B|SD)|AP|T2|SR-\d+|Continuous Damage|-\d+)$/,
     known: ['Shock', 'Guided']},

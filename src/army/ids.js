@@ -19,6 +19,7 @@ const SKILLS = {
   TEAM_OPS: [282, 'Infinity Team-Ops'],
   SPEC_OPS: [281, 'Infinity Spec-Ops'],
   WARHORSE: [267, 'Warhorse'],
+  COMBAT_INSTINCT: [262, 'Combat Instinct'],
 };
 
 const EQUIPS = {
