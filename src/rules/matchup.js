@@ -3,7 +3,7 @@
 // notes and warnings to show next to it.
 import {EQUIP, SKILL} from '../army/ids.js';
 import {hasEquip, hasSkill} from '../army/traits.js';
-import {causesWounds, hasAmmo, hasContinuousDamage, isNonLethal, isTemplate} from '../army/weapons.js';
+import {causesWounds, hasAmmo, hasContinuousDamage, isNonLethal, isTemplate, weaponPS} from '../army/weapons.js';
 import {
   LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, clamp, dodgeSuccessValue, fireteamBonuses,
   hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod,
@@ -18,7 +18,7 @@ import {isSpecOps} from './trooper.js';
 // matchup summary (matchup/labels.js).
 export const MODELED_SKILLS = [SKILL.MIMETISM, SKILL.NO_COVER, SKILL.TOTAL_REACTION, SKILL.NEUROCINETICS, SKILL.VULNERABILITY];
 export const MODELED_EQUIP = [EQUIP.NANOSCREEN, EQUIP.MSV1, EQUIP.MSV2, EQUIP.MSV3, EQUIP.X_VISOR, EQUIP.ALBEDO];
-export const MODELED_IMMUNITIES = ['AP', 'ARM', 'BTS', 'Critical', 'Enhanced', 'Shock'];
+export const MODELED_IMMUNITIES = ['AP', 'ARM', 'BTS', 'Continuous Damage', 'Critical', 'Enhanced', 'Shock'];
 
 // Traits that matter to the roll but aren't modelled yet: a warning.
 const IGNORED = [
@@ -74,17 +74,22 @@ function attackInputs(x, y, rangeCm, side, errors, notes) {
   if (side === 'B' && !keepsAroBurst(x)) burst = 1;
   if (noEffect) burst = 0;
   const immunity = immunityAgainst(y?.traits, row);
+  // Immunity (Continuous Damage): the Trait is ignored, the hit is not.
+  const contImmune = hasImmunity(y?.traits, 'Continuous Damage', row);
   const out = {
     [`successValue${side}`]: sv,
     [`burst${side}`]: clamp(LIMITS.burst, burst),
     [`bonusBurst${side}`]: noEffect ? 0 : clamp(LIMITS.bonusBurst, bonus.sd),
-    [`damage${side}`]: clamp(LIMITS.damage, mods.ps ?? row.dmg),
+    [`damage${side}`]: clamp(LIMITS.damage, weaponPS(row, mods)),
     [`ammo${side}`]: calcAmmo(row, y?.traits),
-    [`cont${side}`]: !immunity && hasContinuousDamage(row, mods),
+    [`cont${side}`]: !immunity && !contImmune && hasContinuousDamage(row, mods),
     [`shock${side}`]: shockApplies(row, y),
   };
   if (out[`shock${side}`]) notes.push(`${label}: Shock against VITA 1; a failed save is Dead, counted as one extra wound`);
   // State-only weapons get a warning instead (no effect), or play as always (Stunned).
+  if (!immunity && contImmune && hasContinuousDamage(row, mods)) {
+    notes.push(`${label}: target has Immunity (Continuous Damage); Continuous Damage ignored`);
+  }
   const note = immunity && causesWounds(row) && immunityNote(immunity, row, mods);
   if (note) notes.push(`${label}: ${note}`);
   const vulnerable = vulnerabilityTo(y?.traits, row);

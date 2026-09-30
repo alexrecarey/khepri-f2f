@@ -5,6 +5,7 @@ import {skillExtra, skillExtras, traitLabel} from '../army/traits.js';
 import {isBsAttackWeapon} from '../army/weapons.js';
 import {attackBonuses, benefitsFromCover, fireteamBonuses, keepsAroBurst} from '../rules/modifiers.js';
 import {MODELED_EQUIP, MODELED_IMMUNITIES, MODELED_SKILLS} from '../rules/matchup.js';
+import {BS_ATTACK_WEAPON_EXTRAS} from '../rules/trooper.js';
 
 // Extras such as "+1B" tell otherwise identical loadouts apart.
 const nameWithExtras = traitLabel;
@@ -117,7 +118,9 @@ export function matchupTraits(side, role = 'A') {
   for (const e of side.traits.equip) {
     if (MODELED_EQUIP.includes(e.id)) out.push(traitLabel(e));
   }
-  if (skillExtras(side.traits, SKILL.BS_ATTACK).includes('AP')) out.push('BS Attack (AP)');
+  for (const e of skillExtras(side.traits, SKILL.BS_ATTACK)) {
+    if (BS_ATTACK_WEAPON_EXTRAS.test(e)) out.push(`BS Attack (${e})`);
+  }
   if (benefitsFromCover(side)) out.push('In cover');
   out.push(...(side.upgrades ?? []).map((u) => u.label));
   out.push(...rollBonusLabels(side, role));

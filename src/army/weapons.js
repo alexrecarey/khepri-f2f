@@ -83,7 +83,8 @@ function addWeaponMod(mods, e) {
 
 // Loadout-level weapon extras such as "+1B", "+1SD", "PS=6", "AP", "T2".
 export function parseWeaponMods(extra = []) {
-  const mods = {burst: 0, sd: 0, ps: null, forceAP: false, cont: false, sv: 0, ammo: null};
+  // psMod: MOD to the target's Saving Rolls, as a change to PS (BS Attack (SR-1)).
+  const mods = {burst: 0, sd: 0, ps: null, psMod: 0, forceAP: false, cont: false, sv: 0, ammo: null};
   for (const e of extra ?? []) addWeaponMod(mods, e);
   return mods;
 }
@@ -115,12 +116,16 @@ function withAmmoExtra(row, mods) {
 
 const modeSuffix = (mode) => (mode ? ` (${mode.replace(/ Mode$/i, '')})` : '');
 
+// The PS the target saves against: the loadout's "PS=6" or the chart's, with
+// any Saving Roll MOD (BS Attack (SR-1)).
+export const weaponPS = (row, mods) => (mods?.ps ?? row.dmg) + (mods?.psMod ?? 0);
+
 export function weaponLabel(row, mods) {
   // Templates show their burst too (e.g. a Dog-Warrior's B2 Chain Rifle); the
   // weapon menu marks them "template" in place of the range MOD.
   const burst = (row.burst ?? 1) + mods.burst;
   const sd = mods.sd > 0 ? `+${mods.sd}SD` : '';
-  const dmg = mods.ps ?? row.dmg;
+  const dmg = weaponPS(row, mods);
   const ammo = ammoTypes(row, mods).join('+') || 'N';
   return `${row.name}${modeSuffix(row.mode)} · B${burst}${sd} · PS${dmg} · ${ammo}`;
 }
