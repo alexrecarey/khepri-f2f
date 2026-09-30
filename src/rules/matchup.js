@@ -5,8 +5,8 @@ import {EQUIP, SKILL} from '../army/ids.js';
 import {hasEquip, hasSkill} from '../army/traits.js';
 import {causesWounds, hasAmmo, hasContinuousDamage, isNonLethal, isTemplate, weaponPS} from '../army/weapons.js';
 import {
-  LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, clamp, dodgeSuccessValue, fireteamBonuses,
-  hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod,
+  LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, bsAttackMod, capMods, clamp, dodgeSuccessValue,
+  fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod,
 } from './modifiers.js';
 import {rangeModFor} from './ranges.js';
 import {
@@ -53,7 +53,31 @@ function approximationWarnings(label, side, target) {
   return warnings;
 }
 
-function attackInputs(x, y, rangeCm, side, errors, notes) {
+const signed = (n) => `${n > 0 ? '+' : ''}${n}`;
+
+// Does this side roll? A Dodge, or an attack that can affect its target
+// (anything else is not rolled, or not opposed).
+function rolls(x, y) {
+  const w = x?.weapon;
+  if (!w) return false;
+  if (w.pseudo) return w.pseudo === 'dodge';
+  return !isTemplate(w.row) && !hasNoEffect(y?.traits, w.row) && attackStat(x.profile, w.row) > 0;
+}
+
+// The MOD x's BS Attack (-X) puts on y's Face to Face Roll (rules/modifiers.js
+// bsAttackMod): only while x makes a rolled BS Attack and y rolls against it.
+function opposingMod(x, y, yLabel, notes) {
+  if (!x?.weapon?.row || !rolls(x, y) || !rolls(y, x)) return 0;
+  const mod = bsAttackMod(x.traits);
+  if (!mod) return 0;
+  if (hasSkill(y.traits, SKILL.WARHORSE)) {
+    notes.push(`${yLabel}: Warhorse; the opponent's BS Attack (${mod}) has no effect`);
+    return 0;
+  }
+  return mod;
+}
+
+function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0) {
   const label = side === 'A' ? 'Active' : 'Reactive';
   const {row, mods} = x.weapon;
   let rangeMod = rangeModFor(row, rangeCm, x.traits);
@@ -65,9 +89,13 @@ function attackInputs(x, y, rangeCm, side, errors, notes) {
   const albedo = y ? albedoMod(y.traits, x.traits) : 0;
   const cover = benefitsFromCover(y) || hasNanoscreen(y) ? -3 : 0;
   const bonus = attackBonuses(x);
+  // Fireteam +1 BS changes the Attribute; everything else is a MOD, capped.
+  const modSum = rangeMod + mim + albedo + cover + mods.sv + opposing;
+  const modTotal = capMods(modSum);
+  if (!outOfRange && modTotal !== modSum) notes.push(`${label}: MODs add up to ${signed(modSum)}, capped at ${signed(modTotal)}`);
   const sv = outOfRange
     ? 0
-    : clamp(LIMITS.successValue, attackStat(x.profile, row) + rangeMod + mim + albedo + cover + mods.sv + bonus.bs);
+    : clamp(LIMITS.successValue, attackStat(x.profile, row) + bonus.bs + modTotal);
 
   const noEffect = hasNoEffect(y?.traits, row);
   let burst = (row.burst ?? 1) + bonus.burst;
@@ -100,12 +128,12 @@ function attackInputs(x, y, rangeCm, side, errors, notes) {
 
 // A Dodge: one PH roll (Dodge MODs and the Fireteam's +1 included) that
 // causes no Saving Rolls.
-function dodgeInputs(x, side) {
+function dodgeInputs(x, side, opposing = 0) {
   return {
     [`ammo${side}`]: 'DODGE',
     [`burst${side}`]: 1,
     [`bonusBurst${side}`]: 0,
-    [`successValue${side}`]: dodgeSuccessValue(x.profile, x.traits, fireteamBonuses(x.ftSize).dodge),
+    [`successValue${side}`]: dodgeSuccessValue(x.profile, x.traits, fireteamBonuses(x.ftSize).dodge + opposing),
     [`cont${side}`]: false,
     [`shock${side}`]: false,
   };
@@ -153,6 +181,9 @@ export function deriveInputs({active, reactive, rangeCm}) {
   const usesTemplate = (x, y) => Boolean(x?.weapon?.row && isTemplate(x.weapon.row) && !hasNoEffect(y?.traits, x.weapon.row));
   const aTemplate = usesTemplate(a, b);
   const bTemplate = usesTemplate(b, a);
+  // BS Attack (-X) MODs on each side's roll.
+  const onA = opposingMod(b, a, 'Active', notes);
+  const onB = opposingMod(a, b, 'Reactive', notes);
 
   if (a) {
     if (!a.weapon) {
@@ -160,14 +191,14 @@ export function deriveInputs({active, reactive, rangeCm}) {
     } else if (a.weapon.pseudo === 'dodge') {
       // The calculator only models templates against a dodging *reactive* trooper.
       if (bTemplate) errors.push('Active Dodge against a reactive template weapon is not supported');
-      Object.assign(inputs, dodgeInputs(a, 'A'));
+      Object.assign(inputs, dodgeInputs(a, 'A', onA));
       inputs.dtwVsDodge = false;
     } else if (a.weapon.pseudo) {
       incomplete = true; // e.g. "No ARO" carried over; the active side needs a real choice
     } else if (attackStat(a.profile, a.weapon.row) <= 0) {
       errors.push('Active: this profile cannot make BS attacks; pick Dodge');
     } else {
-      Object.assign(inputs, attackInputs(a, b, rangeCm, 'A', errors, notes));
+      Object.assign(inputs, attackInputs(a, b, rangeCm, 'A', errors, notes, onA));
       inputs.dtwVsDodge = aTemplate;
     }
     if (b?.weapon?.row) Object.assign(inputs, defenseInputs(a, b.weapon, 'A'));
@@ -179,7 +210,7 @@ export function deriveInputs({active, reactive, rangeCm}) {
       incomplete = true;
     } else if (aTemplate || b.weapon.pseudo === 'dodge') {
       if (aTemplate && !b.weapon.pseudo) notes.push('Reactive: template weapon forces a Dodge');
-      Object.assign(inputs, dodgeInputs(b, 'B'));
+      Object.assign(inputs, dodgeInputs(b, 'B', onB));
     } else if (b.weapon.pseudo === 'none') {
       inputs.burstB = 0;
       inputs.bonusBurstB = 0;
@@ -187,7 +218,7 @@ export function deriveInputs({active, reactive, rangeCm}) {
     } else if (attackStat(b.profile, b.weapon.row) <= 0) {
       errors.push('Reactive: this profile cannot make BS attacks; pick Dodge or No ARO');
     } else {
-      Object.assign(inputs, attackInputs(b, a, rangeCm, 'B', errors, notes));
+      Object.assign(inputs, attackInputs(b, a, rangeCm, 'B', errors, notes, onB));
     }
     if (a?.weapon?.row) Object.assign(inputs, defenseInputs(b, a.weapon, 'B'));
     else if (a) Object.assign(inputs, defenseInputs(b, null, 'B'));

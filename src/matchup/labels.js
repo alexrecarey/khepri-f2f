@@ -119,7 +119,7 @@ export function matchupTraits(side, role = 'A') {
     if (MODELED_EQUIP.includes(e.id)) out.push(traitLabel(e));
   }
   for (const e of skillExtras(side.traits, SKILL.BS_ATTACK)) {
-    if (BS_ATTACK_WEAPON_EXTRAS.test(e)) out.push(`BS Attack (${e})`);
+    if (BS_ATTACK_WEAPON_EXTRAS.test(e) || /^-\d+$/.test(e)) out.push(`BS Attack (${e})`);
   }
   if (benefitsFromCover(side)) out.push('In cover');
   out.push(...(side.upgrades ?? []).map((u) => u.label));
