@@ -10,7 +10,7 @@ import {searchKey} from '../lib/searchKey.js';
 import {loadoutLabels, matchupTraits} from '../matchup/labels.js';
 import {defaultWeapon} from './defaultWeapon.js';
 import {deriveInputs} from './matchup.js';
-import {attackStat, dodgeSuccessValue} from './modifiers.js';
+import {attackStat, dodgeSuccessValue, surpriseAttackMod} from './modifiers.js';
 import {rangeModFor} from './ranges.js';
 import {pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
 
@@ -1333,4 +1333,74 @@ test('Surprise Attack in the Army data and in a share link', () => {
   const sel = {unitId: u.id, factionId: f, groupId: g.id, profileId: g.profiles[0].id, optionId: g.options[0].id, surpriseAttack: true};
   assert.equal(resolveSelection(army, sel).surpriseAttack, true);
   assert.equal(resolveSelection(army, {...sel, surpriseAttack: false}).surpriseAttack, false);
+});
+
+test('Surprise Attack: still -3 out of range and against an attack the target is immune to', () => {
+  const infiltrator = profile({skills: [surprise()]});
+  // Out of range: declared, fails automatically, the opponent's Dodge still takes -3.
+  const far = duel(using(side(infiltrator, combi, '1:')), side(profile(), combi, 'dodge'), 240);
+  assert.equal(far.inputs.successValueA, 0);
+  assert.equal(far.inputs.successValueB, 9);
+  // E/Mitter vs Immunity (BTS): harmless, but still an opposed roll.
+  const emitter = option([{id: 16, name: 'E/Mitter'}]);
+  const r = duel(using(side(infiltrator, emitter, '16:')), side(immune('BTS'), combi, '1:'));
+  assert.equal(r.inputs.ammoA, 'NONE');
+  assert.equal(r.inputs.successValueB, 12);
+});
+
+test('Surprise Attack counts toward the +/-12 cap on the opponent\'s roll', () => {
+  // Reactive HMG at 0-8" (-3) against Mimetism (-6), in cover (-3), plus Surprise Attack (-3): -15 -> -12.
+  const infiltrator = profile({skills: [surprise(), {id: 28, name: 'Mimetism', extra: ['-6']}]});
+  const r = duel(using(side(infiltrator, combi, '1:', true)), side(profile({bs: 14}), option([{id: 7, name: 'HMG'}]), '7:'), 20);
+  assert.equal(r.inputs.successValueB, 2);
+  assert.ok(r.notes.includes('Reactive: MODs add up to -15, capped at -12'), r.notes.join(' | '));
+});
+
+test('Surprise Attack and the reactive Dodge (-3): each side takes the other\'s MOD', () => {
+  const infiltrator = profile({skills: [surprise()]});
+  const firebat = profile({skills: dodgeSkill('-3')});
+  const r = duel(using(side(infiltrator, combi, '1:')), side(firebat, combi, 'dodge'));
+  assert.equal(r.inputs.successValueA, 12);   // BS 12 +3 range, Dodge (-3)
+  assert.equal(r.inputs.successValueB, 9);    // PH 12, Surprise Attack (-3)
+});
+
+test('Surprise Attack with real units: Lù Duān, Hassassin Áyyār (-6), Combat Instinct (Al Fasid)', () => {
+  const sel = (unitId, factionId, weaponKey, extra = {}) =>
+    ({unitId, factionId, groupId: 1, profileId: 1, optionId: 1, weaponKey, ...extra});
+  const weaponOf = (s) => {
+    const r = resolveSelection(army, s);
+    return defaultWeapon(trooperWeapons(r.option, army.weapons, r.traits), 'active').key;
+  };
+  const vs = (a, b) => deriveInputs({active: resolveSelection(army, a), reactive: resolveSelection(army, b), rangeCm: 40});
+  const chaksa = {unitId: 1310, factionId: 801, groupId: 1, optionId: 1, weaponKey: 'dodge'};
+
+  const luDuan = sel(160, 201, null);
+  luDuan.weaponKey = weaponOf(luDuan);
+  const off = vs(luDuan, chaksa);
+  const on = vs({...luDuan, surpriseAttack: true}, chaksa);
+  assert.equal(on.inputs.successValueB, off.inputs.successValueB - 3);
+  assert.equal(on.inputs.successValueA, off.inputs.successValueA);
+
+  const ayyar = sel(779, 402, null);
+  ayyar.weaponKey = weaponOf(ayyar);
+  assert.equal(vs({...ayyar, surpriseAttack: true}, chaksa).inputs.successValueB, vs(ayyar, chaksa).inputs.successValueB - 6);
+
+  const alFasid = {unitId: 343, factionId: 404, groupId: 1, profileId: 1, optionId: 1, weaponKey: 'dodge'};
+  const ci = vs({...luDuan, surpriseAttack: true}, alFasid);
+  assert.equal(ci.inputs.successValueB, vs(luDuan, alFasid).inputs.successValueB);
+  assert.ok(ci.notes.includes("Reactive: Combat Instinct; the opponent's Surprise Attack (-3) has no effect"), ci.notes.join(' | '));
+
+  // Swapped: Lù Duān reacting with the switch still on imposes nothing.
+  const reactive = deriveInputs({active: resolveSelection(army, {...chaksa, weaponKey: 'dodge'}),
+    reactive: resolveSelection(army, {...luDuan, surpriseAttack: true}), rangeCm: 40});
+  const reactiveOff = deriveInputs({active: resolveSelection(army, {...chaksa, weaponKey: 'dodge'}),
+    reactive: resolveSelection(army, luDuan), rangeCm: 40});
+  assert.deepEqual(reactive.inputs, reactiveOff.inputs);
+});
+
+test('surpriseAttackMod: the switch only exists for troopers with the skill', () => {
+  assert.equal(surpriseAttackMod({skills: [surprise('-3')]}), -3);
+  assert.equal(surpriseAttackMod({skills: [surprise('-6')]}), -6);
+  assert.equal(surpriseAttackMod({skills: []}), 0);
+  assert.equal(surpriseAttackMod(null), 0);
 });
