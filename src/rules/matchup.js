@@ -3,7 +3,7 @@
 // notes and warnings to show next to it.
 import {EQUIP, SKILL} from '../army/ids.js';
 import {hasEquip, hasSkill} from '../army/traits.js';
-import {causesWounds, hasContinuousDamage, isNonLethal, isTemplate} from '../army/weapons.js';
+import {causesWounds, hasAmmo, hasContinuousDamage, isNonLethal, isTemplate} from '../army/weapons.js';
 import {
   LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, clamp, dodgeSuccessValue, fireteamBonuses,
   hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod,
@@ -113,9 +113,14 @@ function defenseInputs(y, incoming, side) {
   const immune = Boolean(immunityAgainst(y.traits, incoming?.row));
   let base = save.attr === 'BTS' ? p.bts : save.armZero && !immune ? 0 : p.arm;
   base = Math.max(0, base ?? 0);
-  const halve = Boolean(save.halved) || Boolean(incoming?.mods?.forceAP);
-  const apImmune = immune || hasImmunity(y.traits, 'AP', incoming?.row);
-  if (halve && !apImmune) base = Math.ceil(base / 2);
+  // Halved by AP Ammunition (the weapon's own, a loadout "AP", BS Attack (AP)),
+  // or printed halved for another reason (E/M: BTS/2). Immunity (AP) only
+  // ignores the first.
+  const row = incoming?.row;
+  const apHalving = Boolean(incoming?.mods?.forceAP) || (Boolean(save.halved) && hasAmmo(row, 'AP'));
+  const otherHalving = Boolean(save.halved) && !hasAmmo(row, 'AP');
+  const halve = !immune && (otherHalving || (apHalving && !hasImmunity(y.traits, 'AP', row)));
+  if (halve) base = Math.ceil(base / 2);
   // Cover's +3 is a Saving Roll MOD, not ARM: add it after AP halving. The
   // calculator saves on d20 <= PS + ARM, so this input is where the MOD goes.
   const templateIncoming = ignoresCoverOnSaves(incoming?.row);
