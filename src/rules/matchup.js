@@ -5,7 +5,7 @@ import {EQUIP, SKILL} from '../army/ids.js';
 import {hasEquip, hasSkill} from '../army/traits.js';
 import {causesWounds, hasAmmo, hasContinuousDamage, isNonLethal, isTemplate, weaponPS} from '../army/weapons.js';
 import {
-  LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, bsAttackMod, capMods, clamp, dodgeExtras,
+  LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, bsAttackMod, capMods, clamp, coverBsMod, dodgeExtras,
   dodgeSuccessValue,
   fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod,
 } from './modifiers.js';
@@ -17,7 +17,10 @@ import {isSpecOps} from './trooper.js';
 
 // Skills, equipment and Immunities the rules below take into account, for the
 // matchup summary (matchup/labels.js).
-export const MODELED_SKILLS = [SKILL.MIMETISM, SKILL.NO_COVER, SKILL.TOTAL_REACTION, SKILL.NEUROCINETICS, SKILL.VULNERABILITY];
+export const MODELED_SKILLS = [
+  SKILL.MIMETISM, SKILL.NO_COVER, SKILL.LIMITED_COVER, SKILL.MARKSMANSHIP, SKILL.TOTAL_REACTION, SKILL.NEUROCINETICS,
+  SKILL.VULNERABILITY,
+];
 export const MODELED_EQUIP = [EQUIP.NANOSCREEN, EQUIP.MSV1, EQUIP.MSV2, EQUIP.MSV3, EQUIP.X_VISOR, EQUIP.ALBEDO];
 export const MODELED_IMMUNITIES = ['AP', 'ARM', 'BTS', 'Continuous Damage', 'Critical', 'Enhanced', 'Shock'];
 // Immunities to States the calculator doesn't model (E/M's IMM-B and Isolated,
@@ -28,10 +31,8 @@ export const STATE_IMMUNITIES = ['IMM-B', 'Isolated', 'POS'];
 
 // Traits that matter to the roll but aren't modelled yet: a warning.
 const IGNORED = [
-  ['skill', SKILL.LIMITED_COVER, 'Limited Cover'],
   ['skill', SKILL.SAPPER, 'Sapper'],
   ['skill', SKILL.SURPRISE_ATTACK, 'Surprise Attack'],
-  ['skill', SKILL.MARKSMANSHIP, 'Marksmanship'],
   ['skill', SKILL.SIXTH_SENSE, 'Sixth Sense'],
 ];
 
@@ -96,7 +97,7 @@ function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0) {
   if (outOfRange) rangeMod = 0;
   const mim = y ? mimetismMod(y.traits, x.traits) : 0;
   const albedo = y ? albedoMod(y.traits, x.traits) : 0;
-  const cover = benefitsFromCover(y) || hasNanoscreen(y) ? -3 : 0;
+  const cover = y ? coverBsMod(y, x.traits) : 0;
   const bonus = attackBonuses(x);
   // Fireteam +1 BS changes the Attribute; everything else is a MOD, capped.
   const modSum = rangeMod + mim + albedo + cover + mods.sv + opposing;

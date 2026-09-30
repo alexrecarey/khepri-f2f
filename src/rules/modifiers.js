@@ -28,6 +28,18 @@ export const benefitsFromCover = (side) => Boolean(side?.inCover) && !hasSkill(s
 // the same MOD as cover, so the two do not stack.
 export const hasNanoscreen = (side) => hasEquip(side?.traits, EQUIP.NANOSCREEN);
 
+// The BS MOD a target's cover or Nanoscreen imposes on this attacker (they
+// don't stack):
+// - Limited Cover: the trooper keeps cover's +3 to its saves, not the -3 BS.
+// - No Cover: neither (benefitsFromCover). Nanoscreen still works.
+// - Marksmanship (attacker): ignores the -3 from cover and from Nanoscreen,
+//   not the target's +3 to its saves.
+export function coverBsMod(target, attackerTraits) {
+  if (hasSkill(attackerTraits, SKILL.MARKSMANSHIP)) return 0;
+  const cover = benefitsFromCover(target) && !hasSkill(target?.traits, SKILL.LIMITED_COVER);
+  return cover || hasNanoscreen(target) ? -3 : 0;
+}
+
 const hasMsv = (traits) => hasEquip(traits, EQUIP.MSV1) || hasEquip(traits, EQUIP.MSV2) || hasEquip(traits, EQUIP.MSV3);
 
 // Albedo (wiki): an enemy with a Multispectral Visor or Marksmanship who
