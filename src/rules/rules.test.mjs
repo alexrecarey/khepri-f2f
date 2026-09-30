@@ -1124,3 +1124,56 @@ test('BS Attack extras combine, and the summary lists them', () => {
   const s = side(profile({skills}), combi, '1:');
   assert.deepEqual(matchupTraits(s, 'A'), ['BS Attack (SR-1)', 'BS Attack (Continuous Damage)', '+1B']);
 });
+
+const minus3 = {id: 201, name: 'BS Attack', extra: ['-3']};
+const warhorse = {id: 267, name: 'Warhorse'};
+const flamer = option([{id: 3, name: 'Heavy Flamethrower'}]);
+const duel = (a, b, rangeCm = 40) => deriveInputs({active: a, reactive: b, rangeCm});
+
+test('BS Attack (-3): the opponent takes -3 when shooting back or dodging', () => {
+  const shooter = side(profile({skills: [minus3]}), combi, '1:');
+  // BS 12 +3 range = 15, the -3 makes it 12. PH 12 dodge -> 9.
+  assert.equal(duel(shooter, side(profile(), combi, '1:')).inputs.successValueB, 12);
+  assert.equal(duel(shooter, side(profile(), combi, 'dodge')).inputs.successValueB, 9);
+  // Its own roll is untouched.
+  assert.equal(duel(shooter, side(profile(), combi, '1:')).inputs.successValueA, 15);
+  // From the reactive side too: the active trooper's attack and Dodge take it.
+  assert.equal(duel(side(profile(), combi, '1:'), shooter).inputs.successValueA, 12);
+  assert.equal(duel(side(profile(), combi, 'dodge'), shooter).inputs.successValueA, 9);
+});
+
+test('BS Attack (-3) only while its trooper makes a rolled BS Attack', () => {
+  const skills = [minus3];
+  // Dodging: nothing.
+  assert.equal(duel(side(profile({skills}), combi, 'dodge'), side(profile(), combi, '1:')).inputs.successValueB, 15);
+  // Direct Template: no roll, so the Dodge is a Normal Roll: nothing.
+  assert.equal(duel(side(profile({skills}), flamer, '3:'), side(profile(), combi, '1:')).inputs.successValueB, 12);
+  // An attack with no effect isn't rolled (E/Mitter vs Immunity (BTS)): nothing.
+  const emitter = option([{id: 16, name: 'E/Mitter'}]);
+  assert.equal(duel(side(profile({skills}), emitter, '16:'), side(immune('BTS'), combi, '1:')).inputs.successValueB, 15);
+  // Out of range: declared, fails automatically, still -3 on the opponent.
+  const far = duel(side(profile({skills}), combi, '1:'), side(profile(), combi, 'dodge'), 240);
+  assert.equal(far.inputs.successValueA, 0);
+  assert.equal(far.inputs.successValueB, 9);              // PH 12, BS Attack -3
+});
+
+test('Warhorse ignores BS Attack (-3), however it is gained', () => {
+  const fromLoadout = side(profile(), option([{id: 1, name: 'Combi Rifle'}], {skills: [minus3]}), '1:');
+  const r = duel(fromLoadout, side(profile({skills: [warhorse]}), combi, '1:'));
+  assert.equal(r.inputs.successValueB, 15);
+  assert.ok(r.notes.includes("Reactive: Warhorse; the opponent's BS Attack (-3) has no effect"), r.notes.join(' | '));
+  assert.equal(duel(fromLoadout, side(profile({skills: [warhorse]}), combi, 'dodge')).inputs.successValueB, 12);
+  assert.deepEqual(matchupTraits(fromLoadout, 'A'), ['BS Attack (-3)']);
+});
+
+test('MODs to a roll are capped at +/-12; Fireteam +1 BS is not a MOD', () => {
+  // HMG at 0-8" (-3), Mimetism (-6), cover (-3), BS Attack (-3) from the target: -15 -> -12.
+  const mim6 = profile({skills: [minus3, {id: 28, name: 'Mimetism', extra: ['-6']}]});
+  const r = duel(side(profile({bs: 14}), option([{id: 7, name: 'HMG'}]), '7:'), side(mim6, combi, '1:', true), 20);
+  assert.equal(r.inputs.successValueA, 2);
+  assert.ok(r.notes.includes('Active: MODs add up to -15, capped at -12'), r.notes.join(' | '));
+  const ft4 = {...side(profile({bs: 14}), option([{id: 7, name: 'HMG'}]), '7:'), ftSize: 4};
+  assert.equal(duel(ft4, side(mim6, combi, '1:', true), 20).inputs.successValueA, 3);
+  // Dodge: Dodge (-6) and the opponent's -3 and more still cap at -12.
+  assert.equal(dodgeSuccessValue(profile({ph: 13}), {skills: [{id: 40, name: 'Dodge', extra: ['-6']}]}, -9), 1);
+});

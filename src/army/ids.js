@@ -18,6 +18,7 @@ const SKILLS = {
   BS_ATTACK: [201, 'BS Attack'],
   TEAM_OPS: [282, 'Infinity Team-Ops'],
   SPEC_OPS: [281, 'Infinity Spec-Ops'],
+  WARHORSE: [267, 'Warhorse'],
 };
 
 const EQUIPS = {

@@ -11,6 +11,11 @@ import {attackAttribute, isImpactTemplate, isTemplate, parseWeaponMods} from '..
 export {LIMITS};
 export const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
 
+// "The sum total of the Modifiers applied to a Roll can never exceed +12 or
+// -12." Attribute changes (Fireteam +1 BS, Dodge (PH=14)) are not MODs.
+export const MOD_CAP = [-12, 12];
+export const capMods = (sum) => clamp(MOD_CAP, sum);
+
 // Direct and Impact (Blast mode) templates ignore cover's +3 to the Saving
 // Roll. The -3 BS MOD still applies to the attack roll.
 export const ignoresCoverOnSaves = (row) => isTemplate(row) || isImpactTemplate(row);
@@ -59,14 +64,30 @@ export function fireteamBonuses(size = 0) {
   };
 }
 
+// Dodge Success Value: PH (or the Dodge (PH=14) replacement) plus the MODs:
+// Dodge (+3) / (-3), and `mod` (Fireteam +1, the opponent's BS Attack (-3)),
+// capped at +/-12.
 export function dodgeSuccessValue(profile, traits, mod = 0) {
   let sv = profile?.ph ?? 0;
+  let mods = mod;
   const extra = skillExtra(traits, SKILL.DODGE);
   let m;
   if (extra && (m = /^PH=(\d+)$/.exec(extra))) sv = Number(m[1]);
-  else if (extra && (m = /^([+-]\d+)$/.exec(extra))) sv += Number(m[1]);
-  return clamp(LIMITS.successValue, sv + mod);
+  else if (extra && (m = /^([+-]\d+)$/.exec(extra))) mods += Number(m[1]);
+  return clamp(LIMITS.successValue, sv + capMods(mods));
 }
+
+// BS Attack (-X): while the trooper makes a BS Attack that is rolled, the
+// opponent takes -X on its Face to Face Roll, whatever it does (shoot or
+// Dodge). Nothing when the trooper Dodges, uses a Direct Template (no roll, so
+// the opponent's Dodge is a Normal Roll) or can't affect the target (a Normal
+// Roll too). Still applies out of range: the attack is declared and fails.
+// Warhorse ignores BS Attack (-X), however it is gained.
+export function bsAttackMod(traits) {
+  const mods = skillExtras(traits, SKILL.BS_ATTACK).map((e) => /^-(\d+)$/.exec(e)).filter(Boolean);
+  return mods.length > 0 ? Math.min(...mods.map((m) => -Number(m[1]))) : 0;
+}
+
 
 // The Attribute a weapon rolls against: BS, or PH / WIP for BS Weapon (PH) /
 // (WIP) (e.g. Grenades, Flash Pulse). BS MODs still apply.
