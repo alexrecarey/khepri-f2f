@@ -1053,3 +1053,16 @@ test('BS Attack (AP) in the Army data: Scouts (profile) and one Bashi Bazouk loa
   assert.ok(ap('Bashi Bazouks', (os) => os.find(hasSkill)).every(Boolean));
   assert.ok(ap('Bashi Bazouks', (os) => os.find((o) => !hasSkill(o) && o.weapons.length > 0)).some((x) => !x));
 });
+
+test('Immunity (AP) ignores AP halving only, not E/M BTS/2', () => {
+  const target = side(immune('AP'), combi, '1:');
+  const vs = (weapons, key, extra) => deriveInputs({
+    active: side(profile(), option(weapons, extra ? {skills: [bsAttackAP]} : {}), key), reactive: target, rangeCm: 40,
+  }).inputs.armB;
+  assert.equal(vs([{id: 2, name: 'MULTI Rifle'}], '2:AP Mode'), 5);            // AP ammo: ARM 5 kept
+  assert.equal(vs([{id: 1, name: 'Combi Rifle'}], '1:', true), 5);             // BS Attack (AP): kept
+  assert.equal(vs([{id: 15, name: 'Breaker Rifle'}], '15:'), 3);               // AP on BTS: BTS 3 kept
+  assert.equal(vs([{id: 16, name: 'E/Mitter'}], '16:'), 2);                    // E/M BTS/2: halved
+  const plain = side(profile({arm: 5, bts: 3}), combi, '1:');
+  assert.equal(deriveInputs({active: side(profile(), option([{id: 16, name: 'E/Mitter'}]), '16:'), reactive: plain, rangeCm: 40}).inputs.armB, 2);
+});
