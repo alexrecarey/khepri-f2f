@@ -13,6 +13,8 @@ export const EMPTY_SELECTION = {
   optionId: null,
   weaponKey: null,
   inCover: false,
+  // Use Surprise Attack (active side, units with the skill).
+  surpriseAttack: false,
   // Team-Ops: index into unit.upgrades.chart / .ball, or null.
   upgrade: null,
   ball: null,

@@ -6,8 +6,7 @@ import {hasEquip, hasSkill} from '../army/traits.js';
 import {causesWounds, hasAmmo, hasContinuousDamage, isNonLethal, isTemplate, weaponPS} from '../army/weapons.js';
 import {
   LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, bsAttackMod, capMods, clamp, coverBsMod, dodgeExtras,
-  dodgeSuccessValue,
-  fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod,
+  dodgeSuccessValue, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, surpriseAttackMod,
 } from './modifiers.js';
 import {rangeModFor} from './ranges.js';
 import {
@@ -32,7 +31,6 @@ export const STATE_IMMUNITIES = ['IMM-B', 'Isolated', 'POS'];
 // Traits that matter to the roll but aren't modelled yet: a warning.
 const IGNORED = [
   ['skill', SKILL.SAPPER, 'Sapper'],
-  ['skill', SKILL.SURPRISE_ATTACK, 'Surprise Attack'],
   ['skill', SKILL.SIXTH_SENSE, 'Sixth Sense'],
 ];
 
@@ -71,20 +69,27 @@ function rolls(x, y) {
   return !isTemplate(w.row) && attackStat(x.profile, w.row) > 0;
 }
 
-// The MOD x puts on y's Face to Face Roll, when both roll against each other:
+// The MODs x puts on y's Face to Face Roll. Negative MODs from x's skills
+// apply to the opponent, and only in opposed rolls: both roll against each
+// other (a Direct Template hits automatically, so nothing is opposed).
 // - x Dodges with Dodge (-X) and y attacks: y takes -X (wiki, Dodge).
-// - x makes a BS Attack with BS Attack (-X): y takes -X attacking or Dodging,
-//   unless y has Warhorse (rules/modifiers.js bsAttackMod).
-function opposingMod(x, y, yLabel, notes) {
+// - x attacks with BS Attack (-X): y takes -X attacking or Dodging, unless y
+//   has Warhorse (rules/modifiers.js bsAttackMod).
+// - x is the active trooper, attacks, and uses Surprise Attack (-X) (a player
+//   toggle): y takes -X attacking or Dodging, unless y has Combat Instinct.
+function opposingMod(x, y, xActive, yLabel, notes) {
   if (!rolls(x, y) || !rolls(y, x)) return 0;
   if (x.weapon.pseudo === 'dodge') return y.weapon.pseudo ? 0 : dodgeExtras(x.traits).opponentMod;
-  const mod = bsAttackMod(x.traits);
-  if (!mod) return 0;
-  if (hasSkill(y.traits, SKILL.WARHORSE)) {
-    notes.push(`${yLabel}: Warhorse; the opponent's BS Attack (${mod}) has no effect`);
-    return 0;
-  }
-  return mod;
+  let total = 0;
+  const bs = bsAttackMod(x.traits);
+  if (bs && hasSkill(y.traits, SKILL.WARHORSE)) {
+    notes.push(`${yLabel}: Warhorse; the opponent's BS Attack (${bs}) has no effect`);
+  } else total += bs;
+  const surprise = xActive && x.surpriseAttack ? surpriseAttackMod(x.traits) : 0;
+  if (surprise && hasSkill(y.traits, SKILL.COMBAT_INSTINCT)) {
+    notes.push(`${yLabel}: Combat Instinct; the opponent's Surprise Attack (${surprise}) has no effect`);
+  } else total += surprise;
+  return total;
 }
 
 function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0) {
@@ -192,8 +197,8 @@ export function deriveInputs({active, reactive, rangeCm}) {
   const aTemplate = usesTemplate(a);
   const bTemplate = usesTemplate(b);
   // BS Attack (-X) MODs on each side's roll.
-  const onA = opposingMod(b, a, 'Active', notes);
-  const onB = opposingMod(a, b, 'Reactive', notes);
+  const onA = opposingMod(b, a, false, 'Active', notes);
+  const onB = opposingMod(a, b, true, 'Reactive', notes);
 
   if (a) {
     if (!a.weapon) {

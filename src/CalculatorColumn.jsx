@@ -11,6 +11,7 @@ import CoverInput from './matchup/CoverInput.jsx';
 import FireteamPurityInput from './matchup/FireteamPurityInput.jsx';
 import OverridesSection from './matchup/OverridesSection.jsx';
 import RangeInput from './matchup/RangeInput.jsx';
+import SurpriseAttackInput from './matchup/SurpriseAttackInput.jsx';
 import WeaponSelect from './matchup/WeaponSelect.jsx';
 
 const SIDES = {
@@ -82,6 +83,7 @@ function CalculatorColumn({side, params, setParam, matchup, matchupMode, overrid
                         traits={matchup[side].resolved?.traits} variant={variant}/>
             <FireteamPurityInput value={matchup.ftSize[side]} update={(n) => matchup.setFtSize(side, n)} variant={variant}/>
             <CoverInput variant={variant} matchup={matchup}/>
+            {side === 'A' && <SurpriseAttackInput matchup={matchup}/>}
           </>}
           {!matchupMode && <>
             {burstInput}

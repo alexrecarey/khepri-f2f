@@ -591,9 +591,9 @@ test('No Cover units get nothing from "in cover"', () => {
 });
 
 test('unsupported traits are reported as warnings', () => {
-  const p = profile({skills: [{id: 191, name: 'Surprise Attack', extra: ['-3']}, {id: 89, name: 'Sapper'}]});
+  const p = profile({skills: [{id: 67, name: 'Sixth Sense'}, {id: 89, name: 'Sapper'}]});
   const r = deriveInputs({active: side(p, combi, '1:'), reactive: side(profile(), combi, '1:'), rangeCm: 40});
-  assert.ok(r.warnings.some((n) => n === 'Support for Sapper, Surprise Attack not implemented yet'), r.warnings.join(' | '));
+  assert.ok(r.warnings.some((n) => n === 'Support for Sapper, Sixth Sense not implemented yet'), r.warnings.join(' | '));
 });
 
 test('Shock takes effect on VITA 1 targets only, unless immune', () => {
@@ -1282,4 +1282,55 @@ test('Albedo (-X) hits MSV L1/L2/L3 and Marksmanship attackers; Marksmanship sti
   for (const level of [1, 2, 3]) assert.deepEqual(at(profile({equip: [msv(level)]}), profile({equip: [albedo('-6')]})), [9, 2], `MSV${level}`);
   assert.deepEqual(at(profile(), profile({equip: [albedo('-6')]})), [15, 2]);
   assert.deepEqual(at(profile({skills: [marksman]}), profile({equip: [albedo('-3')]}), true), [12, 5]);   // Albedo, no cover
+});
+
+const surprise = (mod = '-3') => ({id: 191, name: 'Surprise Attack', extra: [mod]});
+const combatInstinct = {id: 262, name: 'Combat Instinct'};
+// A side with the Surprise Attack toggle set.
+const using = (s, on = true) => ({...s, surpriseAttack: on});
+
+test('Surprise Attack (-3): only when toggled on, the opponent takes -3 attacking or Dodging', () => {
+  const infiltrator = profile({skills: [surprise()]});
+  // Off: nothing.
+  assert.equal(duel(using(side(infiltrator, combi, '1:'), false), side(profile(), combi, '1:')).inputs.successValueB, 15);
+  // On: the reactive ARO and the reactive Dodge take -3; the attacker's own roll is untouched.
+  const on = duel(using(side(infiltrator, combi, '1:')), side(profile(), combi, '1:'));
+  assert.equal(on.inputs.successValueB, 12);
+  assert.equal(on.inputs.successValueA, 15);
+  assert.equal(duel(using(side(infiltrator, combi, '1:')), side(profile(), combi, 'dodge')).inputs.successValueB, 9);
+  // Surprise Attack (-6).
+  assert.equal(duel(using(side(profile({skills: [surprise('-6')]}), combi, '1:')), side(profile(), combi, '1:')).inputs.successValueB, 9);
+  assert.deepEqual(matchupTraits(using(side(infiltrator, combi, '1:')), 'A'), ['Surprise Attack (-3)']);
+  assert.deepEqual(matchupTraits(using(side(infiltrator, combi, '1:'), false), 'A'), []);
+});
+
+test('Surprise Attack: not from the reactive side, not with a template, not when Dodging, not without the skill', () => {
+  const infiltrator = profile({skills: [surprise()]});
+  // Reactive trooper with the skill and the toggle: nothing.
+  assert.equal(duel(side(profile(), combi, '1:'), using(side(infiltrator, combi, '1:'))).inputs.successValueA, 15);
+  // Direct Template: automatic hit, not a Face to Face Roll.
+  assert.equal(duel(using(side(infiltrator, flamer, '3:')), side(profile(), combi, '1:')).inputs.successValueB, 12);
+  // Active Dodge: no attack to surprise with.
+  assert.equal(duel(using(side(infiltrator, combi, 'dodge')), side(profile(), combi, '1:')).inputs.successValueB, 15);
+  // Toggle left on for a trooper without the skill.
+  assert.equal(duel(using(side(profile(), combi, '1:')), side(profile(), combi, '1:')).inputs.successValueB, 15);
+});
+
+test('Combat Instinct ignores Surprise Attack; stacks with BS Attack (-3) otherwise, under the cap', () => {
+  const infiltrator = profile({skills: [surprise(), minus3]});
+  const r = duel(using(side(infiltrator, combi, '1:')), side(profile({skills: [combatInstinct]}), combi, '1:'));
+  assert.equal(r.inputs.successValueB, 12);                     // BS Attack (-3) only
+  assert.ok(r.notes.includes("Reactive: Combat Instinct; the opponent's Surprise Attack (-3) has no effect"), r.notes.join(' | '));
+  assert.equal(duel(using(side(infiltrator, combi, '1:')), side(profile(), combi, '1:')).inputs.successValueB, 9);
+  // Warhorse drops the BS Attack (-3) but not the Surprise Attack.
+  assert.equal(duel(using(side(infiltrator, combi, '1:')), side(profile({skills: [warhorse]}), combi, '1:')).inputs.successValueB, 12);
+});
+
+test('Surprise Attack in the Army data and in a share link', () => {
+  const u = army.units.find((x) => x.byFaction[x.inFactions[0]].groups.some((g) => g.profiles.some((p) => p.skills.some((s) => s.id === 191))));
+  const f = u.inFactions[0];
+  const g = u.byFaction[f].groups.find((gr) => gr.profiles.some((p) => p.skills.some((s) => s.id === 191)));
+  const sel = {unitId: u.id, factionId: f, groupId: g.id, profileId: g.profiles[0].id, optionId: g.options[0].id, surpriseAttack: true};
+  assert.equal(resolveSelection(army, sel).surpriseAttack, true);
+  assert.equal(resolveSelection(army, {...sel, surpriseAttack: false}).surpriseAttack, false);
 });

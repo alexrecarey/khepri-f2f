@@ -84,6 +84,8 @@ export function resolveSelection(army, sel) {
     unit, factionId, groups, group, profile, option, traits, weapon,
     upgrades, unsupportedUpgradeWeapons,
     inCover: Boolean(sel.inCover),
+    // The player chose to use Surprise Attack (active side only).
+    surpriseAttack: Boolean(sel.surpriseAttack),
     ftSize: sel.ftSize ?? 1,
   };
 }

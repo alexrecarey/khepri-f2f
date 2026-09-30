@@ -113,6 +113,13 @@ export function dodgeSuccessValue(profile, traits, mod = 0) {
 // the opponent's Dodge is a Normal Roll) or can't affect the target (a Normal
 // Roll too). Still applies out of range: the attack is declared and fails.
 // Warhorse ignores BS Attack (-X), however it is gained.
+// Surprise Attack (-X): the -X MOD, 0 without the skill. Whether it is used is
+// the player's call (rules/matchup.js opposingMod).
+export function surpriseAttackMod(traits) {
+  const mods = skillExtras(traits, SKILL.SURPRISE_ATTACK).map((e) => /^-(\d+)$/.exec(e)).filter(Boolean);
+  return mods.length > 0 ? Math.min(...mods.map((m) => -Number(m[1]))) : 0;
+}
+
 export function bsAttackMod(traits) {
   const mods = skillExtras(traits, SKILL.BS_ATTACK).map((e) => /^-(\d+)$/.exec(e)).filter(Boolean);
   return mods.length > 0 ? Math.min(...mods.map((m) => -Number(m[1]))) : 0;

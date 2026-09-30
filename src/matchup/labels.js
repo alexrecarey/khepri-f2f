@@ -3,7 +3,9 @@
 import {SKILL} from '../army/ids.js';
 import {skillExtras, traitLabel} from '../army/traits.js';
 import {isBsAttackWeapon} from '../army/weapons.js';
-import {attackBonuses, benefitsFromCover, dodgeExtras, fireteamBonuses, keepsAroBurst} from '../rules/modifiers.js';
+import {
+  attackBonuses, benefitsFromCover, dodgeExtras, fireteamBonuses, keepsAroBurst, surpriseAttackMod,
+} from '../rules/modifiers.js';
 import {MODELED_EQUIP, MODELED_IMMUNITIES, MODELED_SKILLS} from '../rules/matchup.js';
 import {BS_ATTACK_WEAPON_EXTRAS} from '../rules/trooper.js';
 
@@ -122,6 +124,8 @@ export function matchupTraits(side, role = 'A') {
     if (BS_ATTACK_WEAPON_EXTRAS.test(e) || /^-\d+$/.test(e)) out.push(`BS Attack (${e})`);
   }
   if (benefitsFromCover(side)) out.push('In cover');
+  const surprise = surpriseAttackMod(side.traits);
+  if (role === 'A' && side.surpriseAttack && surprise) out.push(`Surprise Attack (${surprise})`);
   out.push(...(side.upgrades ?? []).map((u) => u.label));
   out.push(...rollBonusLabels(side, role));
   return [...new Set(out)];
