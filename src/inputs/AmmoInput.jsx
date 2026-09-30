@@ -42,7 +42,8 @@ function AmmoInput(props){
               update(newAmmo);
             }}}
       >
-        {AMMO.map((a) => <ToggleButton key={a} value={a}>{a === 'DODGE' ? 'Dodge' : a}</ToggleButton>)}
+        {/* NONE is only set by Matchup mode (an attack its target is immune to). */}
+        {AMMO.filter((a) => a !== 'NONE').map((a) => <ToggleButton key={a} value={a}>{a === 'DODGE' ? 'Dodge' : a}</ToggleButton>)}
       </ToggleButtonGroup>
       <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}}
                     color={color}

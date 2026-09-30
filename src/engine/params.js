@@ -4,8 +4,9 @@
 // src/engine/f2f.py calculate() reads exactly these keys (checked by params.test.mjs).
 
 // Ammunition the engine knows: the keys of AMMO in f2f.py. DODGE stands for a
-// Dodge, which wins the Face to Face Roll but causes no Saving Rolls.
-export const AMMO = ['N', 'DA', 'EXP', 'T2', 'PLASMA', 'DODGE'];
+// Dodge, which wins the Face to Face Roll but causes no Saving Rolls; NONE for
+// an attack the target is immune to, rolled and opposed but harmless.
+export const AMMO = ['N', 'DA', 'EXP', 'T2', 'PLASMA', 'DODGE', 'NONE'];
 
 // [min, max] of each numeric param, per side.
 export const LIMITS = {

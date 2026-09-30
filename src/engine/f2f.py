@@ -32,6 +32,9 @@ AMMO = {
     'PLASMA': Ammo(saves=1, bts_save=True),
     # A Dodge wins the Face to Face Roll but causes no Saving Rolls.
     'DODGE': Ammo(saves=0),
+    # An attack whose hits do nothing to the target (e.g. E/M against Immunity
+    # (BTS)): still rolled and opposed, but causes no Saving Rolls.
+    'NONE': Ammo(saves=0),
 }
 
 

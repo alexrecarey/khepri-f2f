@@ -43,7 +43,7 @@ function approximationWarnings(label, side, target) {
   const warnings = [];
   const row = side?.weapon?.row;
   if (row && hasNoEffect(target?.traits, row)) {
-    warnings.push(`${label}: ${row.name} has no effect on a target with Immunity (${immunityAgainst(target.traits, row)}); not rolled`);
+    warnings.push(`${label}: ${row.name} has no effect on a target with Immunity (${immunityAgainst(target.traits, row)}); its hits cause no damage`);
   } else if (row && isNonLethal(row)) {
     warnings.push(`${label}: ${row.name} is non-lethal; results shown as wounds`);
   }
@@ -55,13 +55,13 @@ function approximationWarnings(label, side, target) {
 
 const signed = (n) => `${n > 0 ? '+' : ''}${n}`;
 
-// Does this side roll? A Dodge, or an attack that can affect its target
-// (anything else is not rolled, or not opposed).
+// Does this side roll? A Dodge, or a BS Attack that isn't a Direct Template
+// (even one its target is immune to: the rolls are still opposed).
 function rolls(x, y) {
   const w = x?.weapon;
   if (!w) return false;
   if (w.pseudo) return w.pseudo === 'dodge';
-  return !isTemplate(w.row) && !hasNoEffect(y?.traits, w.row) && attackStat(x.profile, w.row) > 0;
+  return !isTemplate(w.row) && attackStat(x.profile, w.row) > 0;
 }
 
 // The MOD x's BS Attack (-X) puts on y's Face to Face Roll (rules/modifiers.js
@@ -100,16 +100,15 @@ function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0) {
   const noEffect = hasNoEffect(y?.traits, row);
   let burst = (row.burst ?? 1) + bonus.burst;
   if (side === 'B' && !keepsAroBurst(x)) burst = 1;
-  if (noEffect) burst = 0;
   const immunity = immunityAgainst(y?.traits, row);
   // Immunity (Continuous Damage): the Trait is ignored, the hit is not.
   const contImmune = hasImmunity(y?.traits, 'Continuous Damage', row);
   const out = {
     [`successValue${side}`]: sv,
     [`burst${side}`]: clamp(LIMITS.burst, burst),
-    [`bonusBurst${side}`]: noEffect ? 0 : clamp(LIMITS.bonusBurst, bonus.sd),
+    [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, bonus.sd),
     [`damage${side}`]: clamp(LIMITS.damage, weaponPS(row, mods)),
-    [`ammo${side}`]: calcAmmo(row, y?.traits),
+    [`ammo${side}`]: noEffect ? 'NONE' : calcAmmo(row, y?.traits),
     [`cont${side}`]: !immunity && !contImmune && hasContinuousDamage(row, mods),
     [`shock${side}`]: shockApplies(row, y),
   };
@@ -177,10 +176,9 @@ export function deriveInputs({active, reactive, rangeCm}) {
   let incomplete = false;
   const a = active?.profile ? active : null;
   const b = reactive?.profile ? reactive : null;
-  // A template with no effect on its target forces no Dodge.
-  const usesTemplate = (x, y) => Boolean(x?.weapon?.row && isTemplate(x.weapon.row) && !hasNoEffect(y?.traits, x.weapon.row));
-  const aTemplate = usesTemplate(a, b);
-  const bTemplate = usesTemplate(b, a);
+  const usesTemplate = (x) => Boolean(x?.weapon?.row && isTemplate(x.weapon.row));
+  const aTemplate = usesTemplate(a);
+  const bTemplate = usesTemplate(b);
   // BS Attack (-X) MODs on each side's roll.
   const onA = opposingMod(b, a, 'Active', notes);
   const onB = opposingMod(a, b, 'Reactive', notes);
