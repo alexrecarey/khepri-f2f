@@ -6,7 +6,7 @@
 
 import {EXPECTED_NAMES, SKILL, EQUIP} from '../src/army/ids.js';
 import {isBsAttackWeapon, unreadWeaponExtras} from '../src/army/weapons.js';
-import {MODELED_IMMUNITIES} from '../src/rules/matchup.js';
+import {MODELED_IMMUNITIES, STATE_IMMUNITIES} from '../src/rules/matchup.js';
 
 // Ammunition names. The rules read AP, T2, Shock (and N); the default-weapon
 // ranking reads the rest by name (rules/defaultWeapon.js).
@@ -37,8 +37,8 @@ const TRAIT_EXTRAS = [
   {kind: 'equip', id: EQUIP.ALBEDO, name: 'Albedo', read: /^-\d+$/, known: []},
   {kind: 'skill', id: SKILL.BS_ATTACK, name: 'BS Attack', read: /^(\+\d+(B|SD)|AP|T2|SR-\d+|Continuous Damage|-\d+)$/,
     known: ['Shock', 'Guided']},
-  {kind: 'skill', id: SKILL.IMMUNITY, name: 'Immunity', read: new RegExp(`^(${MODELED_IMMUNITIES.join('|')})$`),
-    known: ['IMM-B', 'Isolated', 'POS']},
+  {kind: 'skill', id: SKILL.IMMUNITY, name: 'Immunity',
+    read: new RegExp(`^(${[...MODELED_IMMUNITIES, ...STATE_IMMUNITIES].join('|')})$`), known: []},
 ];
 
 // Every place a trait or weapon ref appears: profiles, loadouts, upgrades.
