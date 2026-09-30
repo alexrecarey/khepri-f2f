@@ -2,9 +2,23 @@
 // Army data into the trooper that rolls.
 import {SKILL} from '../army/ids.js';
 import {applyStatOverrides, applyUpgrades, pickedUpgrades} from '../army/loadouts.js';
-import {effectiveTraits, hasSkill} from '../army/traits.js';
-import {bsWeapons, isBsAttackWeapon} from '../army/weapons.js';
+import {effectiveTraits, hasSkill, skillExtras} from '../army/traits.js';
+import {bsWeapons, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
 import {dodgeSuccessValue} from './modifiers.js';
+
+// The weapons a trooper can make a BS Attack with (army/weapons.js bsWeapons),
+// with the trooper's BS Attack skill applied. BS Attack (AP), on the profile
+// or the loadout, gives every BS Attack AP Ammunition: the target's ARM or BTS
+// is halved, as with a loadout "AP" extra. `traits` are effectiveTraits().
+export function trooperWeapons(option, weapons, traits) {
+  const list = bsWeapons(option, weapons);
+  if (!skillExtras(traits, SKILL.BS_ATTACK).includes('AP')) return list;
+  return list.map((w) => {
+    if (w.mods.forceAP) return w;
+    const mods = {...w.mods, forceAP: true};
+    return {...w, mods, label: weaponLabel(w.row, mods)};
+  });
+}
 
 // Choices that are not weapons.
 // Dodge is valid for both sides; "No ARO" only makes sense for the reactive one.
@@ -39,7 +53,7 @@ export function resolveSelection(army, sel) {
   const traits = profile ? effectiveTraits(profile, option) : null;
   let weapon = null;
   if (option && profile && sel.weaponKey) {
-    weapon = bsWeapons(option, army.weapons).find((w) => w.key === sel.weaponKey)
+    weapon = trooperWeapons(option, army.weapons, traits).find((w) => w.key === sel.weaponKey)
       ?? pseudoWeapons(profile, traits, 'B').find((w) => w.key === sel.weaponKey)
       ?? null;
   }

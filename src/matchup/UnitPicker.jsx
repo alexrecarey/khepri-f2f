@@ -11,9 +11,9 @@ import {useTheme} from '@mui/material/styles';
 import PropTypes from 'prop-types';
 import {SKILL} from '../army/ids.js';
 import {effectiveTraits} from '../army/traits.js';
-import {bsWeapons} from '../army/weapons.js';
 import {searchKey} from '../lib/searchKey.js';
 import {defaultWeapon} from '../rules/defaultWeapon.js';
+import {trooperWeapons} from '../rules/trooper.js';
 import {loadoutLabels} from './labels.js';
 import SelectField, {compactText} from './SelectField.jsx';
 import {EMPTY_SELECTION} from './useMatchup.js';
@@ -52,7 +52,10 @@ function UnitPicker({variant, army, value, onChange, headerAction}) {
   const option = options.find((o) => o.id === value.optionId) ?? null;
 
   const labels = useMemo(() => (group ? loadoutLabels(group, army.weapons) : []), [group, army.weapons]);
-  const weapons = useMemo(() => (option ? bsWeapons(option, army.weapons) : []), [option, army.weapons]);
+  const weapons = useMemo(
+    () => (option ? trooperWeapons(option, army.weapons, effectiveTraits(profile, option)) : []),
+    [option, profile, army.weapons],
+  );
   // Team-Ops troopers can take one chart upgrade and one TacBall item (both optional).
   const teamOps = Boolean(profile) && Boolean(unit?.upgrades)
     && effectiveTraits(profile, option).skills.some((s) => s.id === SKILL.TEAM_OPS);
