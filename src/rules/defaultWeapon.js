@@ -1,5 +1,5 @@
 // The weapon picked once a loadout is chosen.
-import {bioweaponProp, hasCircularImpactTemplate, isPlasma} from '../army/weapons.js';
+import {bioweaponProp, isImpactTemplate, isPlasma} from '../army/weapons.js';
 import {RANGE_BANDS} from './ranges.js';
 
 // Ammo precedence for the default weapon, best first. Plasma rows list N ammo
@@ -16,7 +16,7 @@ function ammoRank({row, mods}) {
   return ranks.length > 0 ? Math.min(...ranks) : AMMO_PRECEDENCE.length;
 }
 
-const circularImpactTemplate = ({row}) => hasCircularImpactTemplate(row);
+const impactTemplate = ({row}) => isImpactTemplate(row);
 
 // Far edge (cm) of the band with the weapon's best range MOD, the farthest one
 // if several tie. Direct Templates reach about the first band (0-8").
@@ -31,8 +31,8 @@ function bestRangeBand({row}) {
 // then Impact Template (Circular), then ammo. Reactive: a +SD weapon, then the
 // farthest best range band, then Impact Template (Circular), then ammo.
 const DEFAULT_WEAPON_KEYS = {
-  active: (w) => [-((w.row.burst ?? 1) + w.mods.burst), circularImpactTemplate(w) ? 0 : 1, ammoRank(w)],
-  reactive: (w) => [w.mods.sd > 0 ? 0 : 1, -bestRangeBand(w), circularImpactTemplate(w) ? 0 : 1, ammoRank(w)],
+  active: (w) => [-((w.row.burst ?? 1) + w.mods.burst), impactTemplate(w) ? 0 : 1, ammoRank(w)],
+  reactive: (w) => [w.mods.sd > 0 ? 0 : 1, -bestRangeBand(w), impactTemplate(w) ? 0 : 1, ammoRank(w)],
 };
 
 // Weapon picked once a loadout is chosen, from bsWeapons(); null if none.
