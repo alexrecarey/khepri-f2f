@@ -1,9 +1,8 @@
 // Pure helpers for the per-weapon "wounds per order" previews.
 import {fullParams, paramsKey} from '../engine/params.js';
 import {activePlayer, reactivePlayer, woundsPerOrder} from '../display/DataTransform.js';
-import {bsWeapons} from '../army/weapons.js';
 import {deriveInputs} from '../rules/matchup.js';
-import {resolveSelection} from '../rules/trooper.js';
+import {resolveSelection, trooperWeapons} from '../rules/trooper.js';
 
 // Expected wounds per order for one side from a worker result.
 export function woundsFor(value, side) {
@@ -19,7 +18,7 @@ export function previewCandidates({army, side, selX, selY, rangeCm}) {
   if (!x?.option || !x.profile) return [];
   const y = resolveSelection(army, selY);
   const opponentReady = Boolean(y?.profile && y.weapon);
-  return bsWeapons(x.option, army.weapons).map((weapon) => {
+  return trooperWeapons(x.option, army.weapons, x.traits).map((weapon) => {
     const unavailable = {weaponKey: weapon.key, side, params: null, key: null};
     if (!opponentReady) return unavailable;
     const xs = {...x, weapon};
