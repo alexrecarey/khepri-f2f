@@ -1177,3 +1177,13 @@ test('MODs to a roll are capped at +/-12; Fireteam +1 BS is not a MOD', () => {
   // Dodge: Dodge (-6) and the opponent's -3 and more still cap at -12.
   assert.equal(dodgeSuccessValue(profile({ph: 13}), {skills: [{id: 40, name: 'Dodge', extra: ['-6']}]}, -9), 1);
 });
+
+test('Immunity (IMM-B / Isolated / POS) changes nothing: the calculator models no States', () => {
+  const emitter = option([{id: 16, name: 'E/Mitter'}]);
+  const plain = duel(side(profile(), emitter, '16:'), side(profile({bts: 6}), combi, '1:'));
+  for (const state of ['IMM-B', 'Isolated', 'POS']) {
+    const r = duel(side(profile(), emitter, '16:'), side(immune(state, {bts: 6}), combi, '1:'));
+    assert.deepEqual(r.inputs, plain.inputs, state);
+    assert.deepEqual(r.notes, plain.notes, state);
+  }
+});
