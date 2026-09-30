@@ -35,8 +35,8 @@ const TRAIT_EXTRAS = [
   {kind: 'skill', id: SKILL.DODGE, name: 'Dodge', read: /^(PH=\d+|[+-]\d+)$/, known: ['+1"', '+2"', '+3"', 'ARM +3', '+1SD']},
   {kind: 'skill', id: SKILL.MIMETISM, name: 'Mimetism', read: /^-\d+$/, known: []},
   {kind: 'equip', id: EQUIP.ALBEDO, name: 'Albedo', read: /^-\d+$/, known: []},
-  {kind: 'skill', id: SKILL.BS_ATTACK, name: 'BS Attack', read: /^\+\d+(B|SD)$/,
-    known: ['SR-1', 'SR-2', '-3', 'Continuous Damage', 'Shock', 'AP', 'Guided', 'T2']},
+  {kind: 'skill', id: SKILL.BS_ATTACK, name: 'BS Attack', read: /^(\+\d+(B|SD)|AP)$/,
+    known: ['SR-1', 'SR-2', '-3', 'Continuous Damage', 'Shock', 'Guided', 'T2']},
   {kind: 'skill', id: SKILL.IMMUNITY, name: 'Immunity', read: new RegExp(`^(${MODELED_IMMUNITIES.join('|')})$`),
     known: ['IMM-B', 'Isolated', 'POS', 'Continuous Damage']},
 ];

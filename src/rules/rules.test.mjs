@@ -12,7 +12,7 @@ import {defaultWeapon} from './defaultWeapon.js';
 import {deriveInputs} from './matchup.js';
 import {attackStat, dodgeSuccessValue} from './modifiers.js';
 import {rangeModFor} from './ranges.js';
-import {pseudoWeapons, resolveSelection} from './trooper.js';
+import {pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
 
 const RIFLE_RANGES = [{to: 40, mod: 3}, {to: 80, mod: -3}, {to: 120, mod: -6}];
 // Weapon rows as the Army API gives them, normalized like the pipeline does.
@@ -50,7 +50,7 @@ const profile = (over = {}) => ({id: 1, name: 'P', bs: 12, ph: 12, arm: 2, bts: 
 const option = (weapons, over = {}) => ({id: 1, name: 'O', points: 10, swc: '0', weapons, skills: [], equip: [], ...over});
 const side = (p, o, weaponKey, inCover = false) => {
   const traits = effectiveTraits(p, o);
-  const weapon = bsWeapons(o, W).find((w) => w.key === weaponKey) ?? pseudoWeapons(p, traits).find((w) => w.key === weaponKey) ?? null;
+  const weapon = trooperWeapons(o, W, traits).find((w) => w.key === weaponKey) ?? pseudoWeapons(p, traits).find((w) => w.key === weaponKey) ?? null;
   return {profile: p, option: o, traits, weapon, inCover};
 };
 const combi = option([{id: 1, name: 'Combi Rifle'}, {id: 8, name: 'CC Weapon'}]);
@@ -1009,4 +1009,47 @@ test('a Success Value below 1 is an automatic failure (0), not a roll on 1', () 
   const one = side(profile({bs: 7}), combi, '1:');
   assert.equal(deriveInputs({active: one, reactive: target, rangeCm: 40}).inputs.successValueA, 1);
   assert.equal(dodgeSuccessValue(profile({ph: 2}), {skills: [{id: 40, name: 'Dodge', extra: ['-6']}]}), 0);
+});
+
+const bsAttackAP = {id: 201, name: 'BS Attack', extra: ['AP']};
+
+test('BS Attack (AP) on the profile gives every BS weapon AP', () => {
+  const p = profile({skills: [bsAttackAP]});
+  const o = option([{id: 1, name: 'Combi Rifle'}, {id: 3, name: 'Heavy Flamethrower'}, {id: 2, name: 'MULTI Rifle'}]);
+  const labels = trooperWeapons(o, W, effectiveTraits(p, o)).map((w) => w.label);
+  assert.deepEqual(labels, [
+    'Combi Rifle · B3 · PS7 · AP',
+    'Heavy Flamethrower · B1 · PS6 · AP+Fire',
+    'MULTI Rifle (AP) · B3 · PS7 · AP',        // already AP: not doubled
+    'MULTI Rifle (Shock) · B3 · PS7 · AP+Shock',
+  ]);
+  // ARM 5 halved, rounding up.
+  const r = deriveInputs({active: side(p, o, '1:'), reactive: side(profile({arm: 5}), combi, '1:'), rangeCm: 40});
+  assert.equal(r.inputs.armB, 3);
+  assert.deepEqual(matchupTraits(side(p, o, '1:'), 'A'), ['BS Attack (AP)']);
+});
+
+test('BS Attack (AP) on the loadout works the same; without it nothing changes', () => {
+  const o = option([{id: 1, name: 'Combi Rifle'}], {skills: [bsAttackAP]});
+  const target = side(profile({arm: 4}), combi, '1:');
+  assert.equal(deriveInputs({active: side(profile(), o, '1:'), reactive: target, rangeCm: 40}).inputs.armB, 2);
+  assert.equal(deriveInputs({active: side(profile(), combi, '1:'), reactive: target, rangeCm: 40}).inputs.armB, 4);
+  // BTS weapons halve BTS.
+  const breaker = option([{id: 4, name: 'Viral Combi Rifle'}], {skills: [bsAttackAP]});
+  assert.equal(deriveInputs({active: side(profile(), breaker, '4:'), reactive: side(profile({bts: 6}), combi, '1:'), rangeCm: 40}).inputs.armB, 3);
+});
+
+test('BS Attack (AP) in the Army data: Scouts (profile) and one Bashi Bazouk loadout', () => {
+  const ap = (isc, pickOption) => {
+    const u = byIsc(isc);
+    const f = u.inFactions[0];
+    const g = u.byFaction[f].groups[0];
+    const o = pickOption(g.options);
+    const r = resolveSelection(army, {unitId: u.id, factionId: f, groupId: g.id, profileId: g.profiles[0].id, optionId: o.id});
+    return trooperWeapons(r.option, army.weapons, r.traits).map((w) => w.mods.forceAP);
+  };
+  assert.ok(ap('Scouts', (os) => os[0]).every(Boolean));
+  const hasSkill = (o) => o.skills.some((s) => s.id === 201 && (s.extra ?? []).includes('AP'));
+  assert.ok(ap('Bashi Bazouks', (os) => os.find(hasSkill)).every(Boolean));
+  assert.ok(ap('Bashi Bazouks', (os) => os.find((o) => !hasSkill(o) && o.weapons.length > 0)).some((x) => !x));
 });

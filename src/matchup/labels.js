@@ -1,7 +1,7 @@
 // Text for the Matchup UI: loadout rows in the profile menu and the traits
 // line under each side's summary.
 import {SKILL} from '../army/ids.js';
-import {skillExtra, traitLabel} from '../army/traits.js';
+import {skillExtra, skillExtras, traitLabel} from '../army/traits.js';
 import {isBsAttackWeapon} from '../army/weapons.js';
 import {attackBonuses, benefitsFromCover, fireteamBonuses, keepsAroBurst} from '../rules/modifiers.js';
 import {MODELED_EQUIP, MODELED_IMMUNITIES, MODELED_SKILLS} from '../rules/matchup.js';
@@ -117,6 +117,7 @@ export function matchupTraits(side, role = 'A') {
   for (const e of side.traits.equip) {
     if (MODELED_EQUIP.includes(e.id)) out.push(traitLabel(e));
   }
+  if (skillExtras(side.traits, SKILL.BS_ATTACK).includes('AP')) out.push('BS Attack (AP)');
   if (benefitsFromCover(side)) out.push('In cover');
   out.push(...(side.upgrades ?? []).map((u) => u.label));
   out.push(...rollBonusLabels(side, role));
