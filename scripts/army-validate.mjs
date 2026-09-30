@@ -32,7 +32,8 @@ const KNOWN_PROPS = [
 // Bracketed values of the skills and equipment the rules read. `read` is what
 // the rules parse; `known` is seen in the data but not modelled yet.
 const TRAIT_EXTRAS = [
-  {kind: 'skill', id: SKILL.DODGE, name: 'Dodge', read: /^(PH=\d+|[+-]\d+)$/, known: ['+1"', '+2"', '+3"', 'ARM +3', '+1SD']},
+  // +1" etc. is extra movement: read, and correctly nothing to roll.
+  {kind: 'skill', id: SKILL.DODGE, name: 'Dodge', read: /^(PH=\d+|[+-]\d+|\+\d+SD|ARM \+\d+|\+\d+")$/, known: []},
   {kind: 'skill', id: SKILL.MIMETISM, name: 'Mimetism', read: /^-\d+$/, known: []},
   {kind: 'equip', id: EQUIP.ALBEDO, name: 'Albedo', read: /^-\d+$/, known: []},
   {kind: 'skill', id: SKILL.BS_ATTACK, name: 'BS Attack', read: /^(\+\d+(B|SD)|AP|T2|SR-\d+|Continuous Damage|-\d+)$/,

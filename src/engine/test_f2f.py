@@ -699,3 +699,11 @@ class TestCalculate:
         assert result['expected_wounds'] == f2f.format_expected_wounds(wounds)
         assert [r['player'] for r in result['face_to_face']] == ['active', 'reactive', 'fail']
         assert isclose(sum(r['chance'] for r in result['face_to_face']), 1)
+
+    def test_dodge_vs_template_special_dice(self):
+        """A Special Die on the Dodge is one more chance to pass: 2 dice at SV 10 fail together 1/4 of the time."""
+        p = dict(PARAMS, dtwVsDodge=True, burstA=2, successValueB=10, burstB=1, bonusBurstB=1, ammoB='DODGE')
+        one = dict(p, bonusBurstB=0)
+        fail = lambda r: next(x['chance'] for x in r['face_to_face'] if x['player'] == 'active')
+        assert isclose(fail(calculate(one)), 0.5)
+        assert isclose(fail(calculate(p)), 0.25)

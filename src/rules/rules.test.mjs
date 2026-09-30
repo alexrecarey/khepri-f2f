@@ -1006,7 +1006,7 @@ test('a Success Value below 1 is an automatic failure (0), not a roll on 1', () 
   // BS 7 at 8-16" (+3), cover (-3) and Mimetism (-6) is exactly 1: still rolled.
   const one = side(profile({bs: 7}), combi, '1:');
   assert.equal(deriveInputs({active: one, reactive: target, rangeCm: 40}).inputs.successValueA, 1);
-  assert.equal(dodgeSuccessValue(profile({ph: 2}), {skills: [{id: 40, name: 'Dodge', extra: ['-6']}]}), 0);
+  assert.equal(dodgeSuccessValue(profile({ph: 2}), {skills: []}, -6), 0);
 });
 
 const bsAttackAP = {id: 201, name: 'BS Attack', extra: ['AP']};
@@ -1174,8 +1174,9 @@ test('MODs to a roll are capped at +/-12; Fireteam +1 BS is not a MOD', () => {
   assert.ok(r.notes.includes('Active: MODs add up to -15, capped at -12'), r.notes.join(' | '));
   const ft4 = {...side(profile({bs: 14}), option([{id: 7, name: 'HMG'}]), '7:'), ftSize: 4};
   assert.equal(duel(ft4, side(mim6, combi, '1:', true), 20).inputs.successValueA, 3);
-  // Dodge: Dodge (-6) and the opponent's -3 and more still cap at -12.
-  assert.equal(dodgeSuccessValue(profile({ph: 13}), {skills: [{id: 40, name: 'Dodge', extra: ['-6']}]}, -9), 1);
+  // Dodge: MODs cap at -12 and +12, Dodge (+6) included.
+  assert.equal(dodgeSuccessValue(profile({ph: 13}), {skills: []}, -15), 1);
+  assert.equal(dodgeSuccessValue(profile({ph: 13}), {skills: [{id: 40, name: 'Dodge', extra: ['+6']}]}, 9), 25);
 });
 
 test('Immunity (IMM-B / Isolated / POS) changes nothing: the calculator models no States', () => {
@@ -1186,4 +1187,53 @@ test('Immunity (IMM-B / Isolated / POS) changes nothing: the calculator models n
     assert.deepEqual(r.inputs, plain.inputs, state);
     assert.deepEqual(r.notes, plain.notes, state);
   }
+});
+
+const dodgeSkill = (...extra) => extra.map((e) => ({id: 40, name: 'Dodge', extra: [e]}));
+
+test('Dodge reads every bracketed value; movement ones change nothing', () => {
+  // Confessor-style: Dodge (+1") listed before Dodge (+3). Both read.
+  assert.equal(dodgeSuccessValue(profile({ph: 10}), {skills: dodgeSkill('+1"', '+3')}), 13);
+  assert.equal(dodgeSuccessValue(profile({ph: 10}), {skills: dodgeSkill('+2"')}), 10);
+  // PH=11 and +3 together: replaced PH, then the MOD.
+  assert.equal(dodgeSuccessValue(profile({ph: 10}), {skills: dodgeSkill('PH=11', '+3')}), 14);
+});
+
+test('Dodge (-3): the attacker takes -3 while the user Dodges; not its own Dodge', () => {
+  const firebat = profile({ph: 12, skills: dodgeSkill('-3')});
+  const r = duel(side(profile(), combi, '1:'), side(firebat, combi, 'dodge'));
+  assert.equal(r.inputs.successValueB, 12);               // own Dodge untouched
+  assert.equal(r.inputs.successValueA, 12);               // BS 12 +3 range -3
+  // Active Dodging with it: the reactive shot takes it.
+  assert.equal(duel(side(firebat, combi, 'dodge'), side(profile(), combi, '1:')).inputs.successValueB, 12);
+  // Shooting instead of dodging: nothing.
+  assert.equal(duel(side(profile(), combi, '1:'), side(firebat, combi, '1:')).inputs.successValueA, 15);
+  // Against a template (no roll): nothing to apply to.
+  assert.equal(duel(side(profile(), flamer, '3:'), side(firebat, combi, 'dodge')).inputs.successValueB, 12);
+  // Not Warhorse's business.
+  assert.equal(duel(side(profile({skills: [warhorse]}), combi, '1:'), side(firebat, combi, 'dodge')).inputs.successValueA, 12);
+  assert.deepEqual(matchupTraits(side(firebat, combi, 'dodge'), 'B'), ['Dodge (-3)']);
+});
+
+test('Dodge (+1SD): a Special Die on the Dodge Roll, template or not', () => {
+  const kazak = profile({skills: dodgeSkill('+1SD')});
+  assert.equal(duel(side(profile(), combi, '1:'), side(kazak, combi, 'dodge')).inputs.bonusBurstB, 1);
+  const vsTemplate = duel(side(profile(), flamer, '3:'), side(kazak, combi, '1:'));
+  assert.equal(vsTemplate.inputs.ammoB, 'DODGE');
+  assert.equal(vsTemplate.inputs.bonusBurstB, 1);
+  assert.equal(duel(side(kazak, combi, 'dodge'), side(profile(), combi, '1:')).inputs.bonusBurstA, 1);
+  assert.equal(duel(side(profile(), combi, '1:'), side(profile(), combi, 'dodge')).inputs.bonusBurstB, 0);
+  assert.deepEqual(matchupTraits(side(kazak, combi, 'dodge'), 'B'), ['+1SD']);
+});
+
+test('Dodge (ARM +3): +3 ARM against the attack it Dodges', () => {
+  const coyote = profile({arm: 2, skills: dodgeSkill('ARM +3')});
+  assert.equal(duel(side(profile(), combi, '1:'), side(coyote, combi, 'dodge')).inputs.armB, 5);
+  assert.equal(duel(side(profile(), combi, '1:'), side(coyote, combi, '1:')).inputs.armB, 2);       // shooting back
+  assert.equal(duel(side(profile(), flamer, '3:'), side(coyote, combi, '1:')).inputs.armB, 5);      // forced Dodge
+  // AP halves the whole ARM: (2 + 3) / 2 = 3.
+  const multi = option([{id: 2, name: 'MULTI Rifle'}]);
+  assert.equal(duel(side(profile(), multi, '2:AP Mode'), side(coyote, combi, 'dodge')).inputs.armB, 3);
+  // BTS saves are untouched.
+  assert.equal(duel(side(profile(), option([{id: 15, name: 'Breaker Rifle'}]), '15:'), side(coyote, combi, 'dodge')).inputs.armB, 2);
 });

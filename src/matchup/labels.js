@@ -1,9 +1,9 @@
 // Text for the Matchup UI: loadout rows in the profile menu and the traits
 // line under each side's summary.
 import {SKILL} from '../army/ids.js';
-import {skillExtra, skillExtras, traitLabel} from '../army/traits.js';
+import {skillExtras, traitLabel} from '../army/traits.js';
 import {isBsAttackWeapon} from '../army/weapons.js';
-import {attackBonuses, benefitsFromCover, fireteamBonuses, keepsAroBurst} from '../rules/modifiers.js';
+import {attackBonuses, benefitsFromCover, dodgeExtras, fireteamBonuses, keepsAroBurst} from '../rules/modifiers.js';
 import {MODELED_EQUIP, MODELED_IMMUNITIES, MODELED_SKILLS} from '../rules/matchup.js';
 import {BS_ATTACK_WEAPON_EXTRAS} from '../rules/trooper.js';
 
@@ -132,12 +132,14 @@ const signed = (n) => `${n > 0 ? '+' : ''}${n}`;
 function rollBonusLabels(side, role) {
   const ft = fireteamBonuses(side.ftSize);
   if (side.weapon?.pseudo === 'dodge') {
-    const extra = skillExtra(side.traits, SKILL.DODGE);
-    const mod = extra && /^[+-]\d+$/.test(extra) ? Number(extra) : 0;
+    const dodge = dodgeExtras(side.traits);
     const labels = [];
     // "Dodge (PH=14)" replaces PH; the Fireteam MOD still applies on top.
-    if (extra && !/^[+-]\d+$/.test(extra)) labels.push(`Dodge (${extra})`);
-    if (mod + ft.dodge !== 0) labels.push(`Dodge ${signed(mod + ft.dodge)}`);
+    if (dodge.ph !== null) labels.push(`Dodge (PH=${dodge.ph})`);
+    if (dodge.mod + ft.dodge !== 0) labels.push(`Dodge ${signed(dodge.mod + ft.dodge)}`);
+    if (dodge.opponentMod) labels.push(`Dodge (${dodge.opponentMod})`);   // on the opponent
+    if (dodge.sd > 0) labels.push(`+${dodge.sd}SD`);
+    if (dodge.arm > 0) labels.push(`Dodge (ARM +${dodge.arm})`);
     return labels;
   }
   const b = attackBonuses(side);

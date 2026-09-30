@@ -5,7 +5,8 @@ import {EQUIP, SKILL} from '../army/ids.js';
 import {hasEquip, hasSkill} from '../army/traits.js';
 import {causesWounds, hasAmmo, hasContinuousDamage, isNonLethal, isTemplate, weaponPS} from '../army/weapons.js';
 import {
-  LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, bsAttackMod, capMods, clamp, dodgeSuccessValue,
+  LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, bsAttackMod, capMods, clamp, dodgeExtras,
+  dodgeSuccessValue,
   fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod,
 } from './modifiers.js';
 import {rangeModFor} from './ranges.js';
@@ -69,10 +70,13 @@ function rolls(x, y) {
   return !isTemplate(w.row) && attackStat(x.profile, w.row) > 0;
 }
 
-// The MOD x's BS Attack (-X) puts on y's Face to Face Roll (rules/modifiers.js
-// bsAttackMod): only while x makes a rolled BS Attack and y rolls against it.
+// The MOD x puts on y's Face to Face Roll, when both roll against each other:
+// - x Dodges with Dodge (-X) and y attacks: y takes -X (wiki, Dodge).
+// - x makes a BS Attack with BS Attack (-X): y takes -X attacking or Dodging,
+//   unless y has Warhorse (rules/modifiers.js bsAttackMod).
 function opposingMod(x, y, yLabel, notes) {
-  if (!x?.weapon?.row || !rolls(x, y) || !rolls(y, x)) return 0;
+  if (!rolls(x, y) || !rolls(y, x)) return 0;
+  if (x.weapon.pseudo === 'dodge') return y.weapon.pseudo ? 0 : dodgeExtras(x.traits).opponentMod;
   const mod = bsAttackMod(x.traits);
   if (!mod) return 0;
   if (hasSkill(y.traits, SKILL.WARHORSE)) {
@@ -130,25 +134,27 @@ function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0) {
   return out;
 }
 
-// A Dodge: one PH roll (Dodge MODs and the Fireteam's +1 included) that
-// causes no Saving Rolls.
+// A Dodge: one PH roll (Dodge MODs and the Fireteam's +1 included, Dodge
+// (+1SD) as Special Dice) that causes no Saving Rolls.
 function dodgeInputs(x, side, opposing = 0) {
   return {
     [`ammo${side}`]: 'DODGE',
     [`burst${side}`]: 1,
-    [`bonusBurst${side}`]: 0,
+    [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, dodgeExtras(x.traits).sd),
     [`successValue${side}`]: dodgeSuccessValue(x.profile, x.traits, fireteamBonuses(x.ftSize).dodge + opposing),
     [`cont${side}`]: false,
     [`shock${side}`]: false,
   };
 }
 
-function defenseInputs(y, incoming, side) {
+// `dodging`: y Dodges this attack, so Dodge (ARM +3) adds to its ARM.
+function defenseInputs(y, incoming, side, dodging = false) {
   const p = y.profile;
   const save = incoming?.row?.save ?? {attr: 'ARM'};
   // Immune: the Attribute is rolled as printed, no ARM=0 and no AP halving.
   const immune = Boolean(immunityAgainst(y.traits, incoming?.row));
-  let base = save.attr === 'BTS' ? p.bts : save.armZero && !immune ? 0 : p.arm;
+  const arm = (p.arm ?? 0) + (dodging ? dodgeExtras(y.traits).arm : 0);
+  let base = save.attr === 'BTS' ? p.bts : save.armZero && !immune ? 0 : arm;
   base = Math.max(0, base ?? 0);
   // Halved by AP Ammunition (the weapon's own, a loadout "AP", BS Attack (AP)),
   // or printed halved for another reason (E/M: BTS/2). Immunity (AP) only
@@ -204,7 +210,7 @@ export function deriveInputs({active, reactive, rangeCm}) {
       Object.assign(inputs, attackInputs(a, b, rangeCm, 'A', errors, notes, onA));
       inputs.dtwVsDodge = aTemplate;
     }
-    if (b?.weapon?.row) Object.assign(inputs, defenseInputs(a, b.weapon, 'A'));
+    if (b?.weapon?.row) Object.assign(inputs, defenseInputs(a, b.weapon, 'A', a.weapon?.pseudo === 'dodge'));
     else if (b) Object.assign(inputs, defenseInputs(a, null, 'A'));
   }
 
@@ -223,7 +229,7 @@ export function deriveInputs({active, reactive, rangeCm}) {
     } else {
       Object.assign(inputs, attackInputs(b, a, rangeCm, 'B', errors, notes, onB));
     }
-    if (a?.weapon?.row) Object.assign(inputs, defenseInputs(b, a.weapon, 'B'));
+    if (a?.weapon?.row) Object.assign(inputs, defenseInputs(b, a.weapon, 'B', aTemplate || b.weapon?.pseudo === 'dodge'));
     else if (a) Object.assign(inputs, defenseInputs(b, null, 'B'));
   }
 
