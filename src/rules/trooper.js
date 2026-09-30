@@ -3,20 +3,43 @@
 import {SKILL} from '../army/ids.js';
 import {applyStatOverrides, applyUpgrades, pickedUpgrades} from '../army/loadouts.js';
 import {effectiveTraits, hasSkill, skillExtras} from '../army/traits.js';
-import {bsWeapons, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
+import {ammoTypes, bsWeapons, hasAmmo, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
 import {dodgeSuccessValue} from './modifiers.js';
 
+// What the trooper's BS Attack skill (profile, loadout or upgrade) does to
+// every weapon it makes a BS Attack with, templates and grenades included:
+//   AP                  AP Ammunition: the target's ARM or BTS is halved
+//   T2                  T2 Ammunition added: 2 wounds per failed save
+//   SR-1, SR-2          -1 / -2 to the target's Saving Rolls (the PS drops)
+//   Continuous Damage   the Continuous Damage Trait
+// (+1B / +1SD are roll bonuses, see rules/modifiers.js attackBonuses.)
+export const BS_ATTACK_WEAPON_EXTRAS = /^(AP|T2|SR-\d+|Continuous Damage)$/;
+
+function bsAttackWeaponMods(traits) {
+  const extras = skillExtras(traits, SKILL.BS_ATTACK);
+  const sr = extras.map((e) => /^SR-(\d+)$/.exec(e)).filter(Boolean).map((m) => Number(m[1]));
+  return {
+    ap: extras.includes('AP'),
+    t2: extras.includes('T2'),
+    cont: extras.includes('Continuous Damage'),
+    // No trooper lists two SR values; the larger one applies.
+    sr: sr.length > 0 ? Math.max(...sr) : 0,
+  };
+}
+
 // The weapons a trooper can make a BS Attack with (army/weapons.js bsWeapons),
-// with the trooper's BS Attack skill applied. BS Attack (AP), on the profile
-// or the loadout, gives every BS Attack AP Ammunition: the target's ARM or BTS
-// is halved, as with a loadout "AP" extra. `traits` are effectiveTraits().
+// with its BS Attack skill applied. `traits` are effectiveTraits().
 export function trooperWeapons(option, weapons, traits) {
   const list = bsWeapons(option, weapons);
-  if (!skillExtras(traits, SKILL.BS_ATTACK).includes('AP')) return list;
+  const bs = bsAttackWeaponMods(traits);
+  if (!bs.ap && !bs.t2 && !bs.cont && !bs.sr) return list;
   return list.map((w) => {
-    if (w.mods.forceAP) return w;
-    const mods = {...w.mods, forceAP: true};
-    return {...w, mods, label: weaponLabel(w.row, mods)};
+    let {row, mods} = w;
+    if (bs.ap) mods = {...mods, forceAP: true};
+    if (bs.cont) mods = {...mods, cont: true};
+    if (bs.sr) mods = {...mods, psMod: mods.psMod - bs.sr};
+    if (bs.t2 && !hasAmmo(row, 'T2')) row = {...row, ammo: [...ammoTypes(row), 'T2']};
+    return {...w, row, mods, label: weaponLabel(row, mods)};
   });
 }
 

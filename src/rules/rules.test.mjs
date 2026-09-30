@@ -1066,3 +1066,61 @@ test('Immunity (AP) ignores AP halving only, not E/M BTS/2', () => {
   const plain = side(profile({arm: 5, bts: 3}), combi, '1:');
   assert.equal(deriveInputs({active: side(profile(), option([{id: 16, name: 'E/Mitter'}]), '16:'), reactive: plain, rangeCm: 40}).inputs.armB, 2);
 });
+
+const bsAttack = (...extra) => ({id: 201, name: 'BS Attack', extra});
+const shoot = (shooterSkills, weapons, key, target = profile({arm: 3}), extra = {}) => deriveInputs({
+  active: side(profile({skills: shooterSkills}), option(weapons, extra), key),
+  reactive: side(target, combi, '1:'), rangeCm: 40,
+});
+
+test('BS Attack (T2) adds T2 to every BS Attack', () => {
+  const p = profile({skills: [bsAttack('T2')]});
+  const o = option([{id: 1, name: 'Combi Rifle'}, {id: 2, name: 'MULTI Rifle'}, {id: 10, name: 'T2 Rifle'}]);
+  assert.deepEqual(trooperWeapons(o, W, effectiveTraits(p, o)).map((w) => w.label), [
+    'Combi Rifle · B3 · PS7 · T2',
+    'MULTI Rifle (AP) · B3 · PS7 · AP+T2',
+    'MULTI Rifle (Shock) · B3 · PS7 · Shock+T2',
+    'T2 Rifle · B3 · PS6 · T2',             // already T2: unchanged
+  ]);
+  assert.equal(shoot([bsAttack('T2')], [{id: 1, name: 'Combi Rifle'}], '1:').inputs.ammoA, 'T2');
+  assert.equal(shoot([bsAttack('T2')], [{id: 2, name: 'MULTI Rifle'}], '2:AP Mode').inputs.ammoA, 'T2');
+  // Immunity (ARM) still treats it as N.
+  assert.equal(shoot([bsAttack('T2')], [{id: 1, name: 'Combi Rifle'}], '1:', immune('ARM')).inputs.ammoA, 'N');
+});
+
+test('BS Attack (SR-1) / (SR-2) lower the PS the target saves against', () => {
+  assert.equal(shoot([bsAttack('SR-1')], [{id: 1, name: 'Combi Rifle'}], '1:').inputs.damageA, 6);
+  assert.equal(shoot([bsAttack('SR-2')], [{id: 1, name: 'Combi Rifle'}], '1:').inputs.damageA, 5);
+  // On top of a loadout PS=6, and on BTS weapons too.
+  assert.equal(shoot([bsAttack('SR-1')], [{id: 1, name: 'Combi Rifle', extra: ['PS=6']}], '1:').inputs.damageA, 5);
+  assert.equal(shoot([bsAttack('SR-2')], [{id: 15, name: 'Breaker Rifle'}], '15:').inputs.damageA, 5);
+  // Immunity doesn't cancel a Saving Roll MOD.
+  assert.equal(shoot([bsAttack('SR-1')], [{id: 1, name: 'Combi Rifle'}], '1:', immune('ARM')).inputs.damageA, 6);
+  const p = profile({skills: [bsAttack('SR-1')]});
+  assert.equal(trooperWeapons(combi, W, effectiveTraits(p, combi))[0].label, 'Combi Rifle · B3 · PS6 · N');
+});
+
+test('BS Attack (Continuous Damage) gives every BS Attack the Trait', () => {
+  assert.equal(shoot([], [{id: 1, name: 'Combi Rifle'}], '1:').inputs.contA, false);
+  assert.equal(shoot([bsAttack('Continuous Damage')], [{id: 1, name: 'Combi Rifle'}], '1:').inputs.contA, true);
+  // Immunity (ARM) ignores it, as it does the weapon's own.
+  assert.equal(shoot([bsAttack('Continuous Damage')], [{id: 1, name: 'Combi Rifle'}], '1:', immune('ARM')).inputs.contA, false);
+});
+
+test('Immunity (Continuous Damage) ignores the Trait, not the hit', () => {
+  const r = shoot([bsAttack('Continuous Damage')], [{id: 1, name: 'Combi Rifle'}], '1:', immune('Continuous Damage'));
+  assert.equal(r.inputs.contA, false);
+  assert.equal(r.inputs.ammoA, 'N');
+  assert.ok(r.notes.includes('Active: target has Immunity (Continuous Damage); Continuous Damage ignored'), r.notes.join(' | '));
+  assert.equal(shoot([], [{id: 14, name: 'Vulkan Shotgun'}], '14:', immune('Continuous Damage')).inputs.contA, false);
+});
+
+test('BS Attack extras combine, and the summary lists them', () => {
+  const skills = [bsAttack('SR-1', 'Continuous Damage', '+1B')];
+  const r = shoot(skills, [{id: 1, name: 'Combi Rifle'}], '1:');
+  assert.equal(r.inputs.damageA, 6);
+  assert.equal(r.inputs.contA, true);
+  assert.equal(r.inputs.burstA, 4);
+  const s = side(profile({skills}), combi, '1:');
+  assert.deepEqual(matchupTraits(s, 'A'), ['BS Attack (SR-1)', 'BS Attack (Continuous Damage)', '+1B']);
+});
