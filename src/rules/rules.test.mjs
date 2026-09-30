@@ -591,9 +591,9 @@ test('No Cover units get nothing from "in cover"', () => {
 });
 
 test('unsupported traits are reported as warnings', () => {
-  const p = profile({skills: [{id: 191, name: 'Surprise Attack', extra: ['-3']}, {id: 156, name: 'Marksmanship'}]});
+  const p = profile({skills: [{id: 191, name: 'Surprise Attack', extra: ['-3']}, {id: 89, name: 'Sapper'}]});
   const r = deriveInputs({active: side(p, combi, '1:'), reactive: side(profile(), combi, '1:'), rangeCm: 40});
-  assert.ok(r.warnings.some((n) => n === 'Support for Surprise Attack, Marksmanship not implemented yet'), r.warnings.join(' | '));
+  assert.ok(r.warnings.some((n) => n === 'Support for Sapper, Surprise Attack not implemented yet'), r.warnings.join(' | '));
 });
 
 test('Shock takes effect on VITA 1 targets only, unless immune', () => {
@@ -1236,4 +1236,50 @@ test('Dodge (ARM +3): +3 ARM against the attack it Dodges', () => {
   assert.equal(duel(side(profile(), multi, '2:AP Mode'), side(coyote, combi, 'dodge')).inputs.armB, 3);
   // BTS saves are untouched.
   assert.equal(duel(side(profile(), option([{id: 15, name: 'Breaker Rifle'}]), '15:'), side(coyote, combi, 'dodge')).inputs.armB, 2);
+});
+
+const marksman = {id: 156, name: 'Marksmanship'};
+const limitedCover = {id: 268, name: 'Limited Cover'};
+const noCover = {id: 264, name: 'No Cover'};
+const nanoscreen = {id: 108, name: 'Nanoscreen'};
+const albedo = (mod) => ({id: 183, name: 'Albedo', extra: [mod]});
+const msv = (level) => ({id: 113 + level, name: `Multispectral Visor L${level}`});
+// Active Combi Rifle at 8-16" (BS 12 +3 = 15) against a reactive ARM 2 target.
+const at = (shooter, target, inCover = false) => {
+  const r = duel(side(shooter, combi, '1:'), side(target, combi, '1:', inCover));
+  return [r.inputs.successValueA, r.inputs.armB];
+};
+
+test('cover: -3 BS to the attacker, +3 to the saves', () => {
+  assert.deepEqual(at(profile(), profile(), false), [15, 2]);
+  assert.deepEqual(at(profile(), profile(), true), [12, 5]);
+});
+
+test('Limited Cover: +3 to the saves, but no -3 to the attacker', () => {
+  assert.deepEqual(at(profile(), profile({skills: [limitedCover]}), true), [15, 5]);
+  assert.deepEqual(at(profile(), profile({skills: [limitedCover]}), false), [15, 2]);
+});
+
+test('No Cover: neither; Nanoscreen still works', () => {
+  assert.deepEqual(at(profile(), profile({skills: [noCover]}), true), [15, 2]);
+  assert.deepEqual(at(profile(), profile({skills: [noCover], equip: [nanoscreen]}), true), [12, 5]);
+});
+
+test('Nanoscreen: like cover, and not on top of it', () => {
+  assert.deepEqual(at(profile(), profile({equip: [nanoscreen]})), [12, 5]);
+  assert.deepEqual(at(profile(), profile({equip: [nanoscreen]}), true), [12, 5]);
+});
+
+test('Marksmanship ignores the -3 from cover and Nanoscreen, not the +3 to saves', () => {
+  const m = profile({skills: [marksman]});
+  assert.deepEqual(at(m, profile(), true), [15, 5]);
+  assert.deepEqual(at(m, profile({equip: [nanoscreen]})), [15, 5]);
+  assert.deepEqual(at(m, profile({skills: [{id: 28, name: 'Mimetism', extra: ['-3']}]})), [12, 2]);   // not Mimetism
+  assert.ok(matchupTraits(side(m, combi, '1:'), 'A').includes('Marksmanship'));
+});
+
+test('Albedo (-X) hits MSV L1/L2/L3 and Marksmanship attackers; Marksmanship still cancels cover', () => {
+  for (const level of [1, 2, 3]) assert.deepEqual(at(profile({equip: [msv(level)]}), profile({equip: [albedo('-6')]})), [9, 2], `MSV${level}`);
+  assert.deepEqual(at(profile(), profile({equip: [albedo('-6')]})), [15, 2]);
+  assert.deepEqual(at(profile({skills: [marksman]}), profile({equip: [albedo('-3')]}), true), [12, 5]);   // Albedo, no cover
 });
