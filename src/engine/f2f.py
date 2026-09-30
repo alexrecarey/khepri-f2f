@@ -114,7 +114,10 @@ def face_to_face(
 
 
 def dtw_vs_dodge(dtw_burst, dodge_sv, dodge_burst):
-    """Direct Template Weapon against Dodge: every hit lands unless a Dodge succeeds. Returns a Die."""
+    """Direct Template Weapon against Dodge: every hit lands unless a Dodge succeeds. Returns a Die.
+
+    The Dodge is a Normal Roll: one passing die is enough, so Special Dice are simply more dice (pass burst + bonus).
+    """
     if dodge_burst == 0:
         return Die([(0, dtw_burst, 0, 0)])  # Nobody dodges: the template always hits
     hit_die = ((d20 > dodge_sv) * dtw_burst)   # returns hits. Successful dodges are 0 hits,
@@ -295,7 +298,7 @@ def calculate(p):
     B suffix, and dtwVsDodge / fixedFaceToFace for the kind of roll.
     """
     if p['dtwVsDodge']:
-        outcomes = dtw_vs_dodge(p['burstA'], p['successValueB'], p['burstB'])
+        outcomes = dtw_vs_dodge(p['burstA'], p['successValueB'], p['burstB'] + p['bonusBurstB'])
     elif p['fixedFaceToFace']:
         outcomes = fixed_face_to_face(p['successValueA'], p['burstA'], p['bonusBurstA'], p['successValueB'], p['burstB'])
     else:

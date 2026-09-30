@@ -64,17 +64,35 @@ export function fireteamBonuses(size = 0) {
   };
 }
 
+// The bracketed values of a trooper's Dodge skill(s); a trooper can list
+// several (Dodge (+3), Dodge (+1")):
+//   PH=14    replaces PH for the Dodge Roll
+//   +3, +6   a MOD to the user's Dodge Roll
+//   -3, -6   a MOD the opponents suffer in Face to Face Rolls while the user
+//            Dodges (wiki, Dodge)
+//   +1SD     Special Dice on the Dodge Roll
+//   ARM +3   +3 ARM while Dodging
+//   +1" ...  extra movement: nothing to roll
+export function dodgeExtras(traits) {
+  const out = {ph: null, mod: 0, opponentMod: 0, sd: 0, arm: 0};
+  for (const e of skillExtras(traits, SKILL.DODGE)) {
+    let m;
+    if ((m = /^PH=(\d+)$/.exec(e))) out.ph = Number(m[1]);
+    else if ((m = /^\+(\d+)SD$/.exec(e))) out.sd += Number(m[1]);
+    else if ((m = /^ARM \+(\d+)$/.exec(e))) out.arm += Number(m[1]);
+    else if ((m = /^\+(\d+)$/.exec(e))) out.mod += Number(m[1]);
+    else if ((m = /^-(\d+)$/.exec(e))) out.opponentMod = Math.min(out.opponentMod, -Number(m[1]));
+  }
+  return out;
+}
+
 // Dodge Success Value: PH (or the Dodge (PH=14) replacement) plus the MODs:
-// Dodge (+3) / (-3), and `mod` (Fireteam +1, the opponent's BS Attack (-3)),
-// capped at +/-12.
+// Dodge (+3), and `mod` (Fireteam +1, the opponent's BS Attack (-3)), capped
+// at +/-12.
 export function dodgeSuccessValue(profile, traits, mod = 0) {
-  let sv = profile?.ph ?? 0;
-  let mods = mod;
-  const extra = skillExtra(traits, SKILL.DODGE);
-  let m;
-  if (extra && (m = /^PH=(\d+)$/.exec(extra))) sv = Number(m[1]);
-  else if (extra && (m = /^([+-]\d+)$/.exec(extra))) mods += Number(m[1]);
-  return clamp(LIMITS.successValue, sv + capMods(mods));
+  const dodge = dodgeExtras(traits);
+  const sv = dodge.ph ?? profile?.ph ?? 0;
+  return clamp(LIMITS.successValue, sv + capMods(dodge.mod + mod));
 }
 
 // BS Attack (-X): while the trooper makes a BS Attack that is rolled, the
