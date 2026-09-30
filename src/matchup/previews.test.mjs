@@ -71,3 +71,19 @@ test('woundsFor sums wounds × chance for one player', () => {
   assert.ok(Math.abs(woundsFor(value, 'A') - 0.5) < 1e-9);
   assert.ok(Math.abs(woundsFor(value, 'B') - 0.05) < 1e-9);
 });
+
+test('weapon previews see the active trooper\'s Surprise Attack', () => {
+  // Lù Duān (Surprise Attack (-3)) against a Sierra: the Sierra's own weapon
+  // options are previewed with -3 when the switch is on.
+  const luDuan = {unitId: 160, factionId: 201, groupId: 1, profileId: 1, optionId: 1, weaponKey: null};
+  const firstKey = previewCandidates({army, side: 'A', selX: luDuan, selY: selB, rangeCm: 40})[0].weaponKey;
+  const a = {...luDuan, weaponKey: firstKey};
+  const off = previewCandidates({army, side: 'B', selX: selB, selY: a, rangeCm: 40});
+  const on = previewCandidates({army, side: 'B', selX: selB, selY: {...a, surpriseAttack: true}, rangeCm: 40});
+  assert.ok(off.length > 0);
+  off.forEach((c, i) => {
+    if (!c.params) return;
+    assert.equal(on[i].params.successValueB, c.params.successValueB - 3, c.weaponKey);
+    assert.notEqual(on[i].key, c.key);          // previews recalculate, not served from cache
+  });
+});
