@@ -41,8 +41,9 @@ export function immunityAgainst(targetTraits, row) {
 // Against an Immunity those States are ignored too, so nothing is left of the
 // attack. The exception is State: Stunned, which always applies (wiki example
 // 4, Flash Pulse).
-// An attack that cannot affect its target opposes nothing (wiki, Face to Face
-// Rolls): it gets burst 0 and the target makes a Normal Roll.
+// Such an attack is still a BS Attack against the target: rolled, opposed (a
+// success still cancels the target's Dodge or shot), its hits just cause no
+// Saving Rolls (ammo NONE).
 export const hasNoEffect = (targetTraits, row) =>
   Boolean(immunityAgainst(targetTraits, row))
   && !causesWounds(row)

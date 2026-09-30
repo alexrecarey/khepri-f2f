@@ -407,16 +407,18 @@ test('Immunity (BTS) does nothing against ARM saves; Plasma still rolls ARM and 
   assert.deepEqual(plasma.notes, []);
 });
 
-test('Immunity (BTS): E/M has no effect, so it is not rolled and the ARO is a Normal Roll', () => {
+test('Immunity (BTS): E/M has no effect, but it is still rolled and opposed', () => {
   const jinwei = immune('BTS', {bts: 6});
-  // E/M is treated as N, and Non-Lethal means no Wounds either.
+  // E/M is treated as N, and Non-Lethal means no Wounds either: its hits cause
+  // no Saving Rolls (NONE), but the roll still cancels the target's ARO.
   const em = shotAt(jinwei, 16, '16:', {extra: ['+1SD']});
   assert.equal(em.ok, true);
-  assert.equal(em.inputs.burstA, 0);
-  assert.equal(em.inputs.bonusBurstA, 0);
-  assert.equal(em.inputs.burstB, 1);               // the ARO, unopposed
+  assert.equal(em.inputs.burstA, 2);
+  assert.equal(em.inputs.bonusBurstA, 1);
+  assert.equal(em.inputs.ammoA, 'NONE');
+  assert.equal(em.inputs.burstB, 1);               // the ARO, opposed
   assert.equal(em.inputs.ammoB, 'N');
-  assert.deepEqual(em.warnings, ['Active: E/Mitter has no effect on a target with Immunity (BTS); not rolled']);
+  assert.deepEqual(em.warnings, ['Active: E/Mitter has no effect on a target with Immunity (BTS); its hits cause no damage']);
   assert.deepEqual(em.notes, []);
   const plain = shotAt(profile({bts: 6}), 16, '16:', {extra: ['+1SD']});
   assert.equal(plain.inputs.burstA, 2);
@@ -424,44 +426,40 @@ test('Immunity (BTS): E/M has no effect, so it is not rolled and the ARO is a No
   assert.equal(plain.inputs.ammoA, 'DA');
   assert.equal(plain.inputs.armB, 3);
   assert.deepEqual(plain.warnings, ['Active: E/Mitter is non-lethal; results shown as wounds']);
-  // In ARO too: the active shot becomes the Normal Roll.
+  // In ARO too.
   const emitter = side(profile(), option([{id: 16, name: 'E/Mitter'}]), '16:');
   const aro = deriveInputs({active: side(jinwei, combi, '1:'), reactive: emitter, rangeCm: 40});
-  assert.equal(aro.inputs.burstB, 0);
-  assert.equal(aro.inputs.bonusBurstB, 0);
+  assert.equal(aro.inputs.burstB, 1);
+  assert.equal(aro.inputs.ammoB, 'NONE');
   assert.equal(aro.inputs.burstA, 3);
-  assert.deepEqual(aro.warnings, ['Reactive: E/Mitter has no effect on a target with Immunity (BTS); not rolled']);
-  // Nothing rolled at all when neither attack can do anything.
+  assert.deepEqual(aro.warnings, ['Reactive: E/Mitter has no effect on a target with Immunity (BTS); its hits cause no damage']);
+  // Both rolled even when neither attack can do anything.
   const both = deriveInputs({active: side(jinwei, option([{id: 16, name: 'E/Mitter'}]), '16:'), reactive: side(jinwei, option([{id: 16, name: 'E/Mitter'}]), '16:'), rangeCm: 40});
   assert.equal(both.ok, true);
-  assert.equal(both.inputs.burstA, 0);
-  assert.equal(both.inputs.burstB, 0);
+  assert.deepEqual([both.inputs.burstA, both.inputs.burstB, both.inputs.ammoA, both.inputs.ammoB], [2, 1, 'NONE', 'NONE']);
   // Immunity (ARM) is no help, Immunity (Enhanced) is.
-  assert.equal(shotAt(immune('ARM'), 16, '16:').inputs.burstA, 2);
+  assert.equal(shotAt(immune('ARM'), 16, '16:').inputs.ammoA, 'DA');
   assert.deepEqual(shotAt(immune('Enhanced'), 16, '16:').warnings,
-    ['Active: E/Mitter has no effect on a target with Immunity (Enhanced); not rolled']);
+    ['Active: E/Mitter has no effect on a target with Immunity (Enhanced); its hits cause no damage']);
 });
 
-test('Immunity (BTS): a Sepsitor has no effect and forces no Dodge', () => {
+test('Immunity (BTS): a Sepsitor has no effect, but is still a template to Dodge', () => {
   const jinwei = immune('BTS', {bts: 6});
   const sepsitor = (p) => side(p, option([{id: 18, name: 'Sepsitor'}]), '18:');
-  // State: Sepsitorized is ignored, so the target may shoot back instead.
   const r = deriveInputs({active: sepsitor(profile()), reactive: side(jinwei, combi, '1:'), rangeCm: 20});
   assert.equal(r.ok, true);
-  assert.equal(r.inputs.burstA, 0);
-  assert.equal(r.inputs.dtwVsDodge, false);
-  assert.equal(r.inputs.ammoB, 'N');
-  assert.equal(r.inputs.burstB, 1);
-  assert.deepEqual(r.notes, []);
-  assert.deepEqual(r.warnings, ['Active: Sepsitor has no effect on a target with Immunity (BTS); not rolled']);
+  assert.equal(r.inputs.burstA, 1);
+  assert.equal(r.inputs.dtwVsDodge, true);
+  assert.equal(r.inputs.ammoA, 'NONE');
+  assert.equal(r.inputs.ammoB, 'DODGE');
+  assert.deepEqual(r.notes, ['Reactive: template weapon forces a Dodge']);
+  assert.deepEqual(r.warnings, ['Active: Sepsitor has no effect on a target with Immunity (BTS); its hits cause no damage']);
   const plain = deriveInputs({active: sepsitor(profile()), reactive: side(profile(), combi, '1:'), rangeCm: 20});
   assert.equal(plain.inputs.burstA, 1);
   assert.equal(plain.inputs.dtwVsDodge, true);
   assert.equal(plain.inputs.ammoB, 'DODGE');
-  // An active Dodge is fine against a reactive template that can do nothing.
-  const dodge = deriveInputs({active: side(jinwei, combi, 'dodge'), reactive: sepsitor(profile()), rangeCm: 20});
-  assert.equal(dodge.ok, true, dodge.errors.join('; '));
-  assert.equal(dodge.inputs.burstB, 0);
+  // An active Dodge against a reactive template isn't modelled, harmless or not.
+  assert.equal(deriveInputs({active: side(jinwei, combi, 'dodge'), reactive: sepsitor(profile()), rangeCm: 20}).ok, false);
   assert.equal(deriveInputs({active: side(profile(), combi, 'dodge'), reactive: sepsitor(profile()), rangeCm: 20}).ok, false);
 });
 
@@ -1148,9 +1146,11 @@ test('BS Attack (-3) only while its trooper makes a rolled BS Attack', () => {
   assert.equal(duel(side(profile({skills}), combi, 'dodge'), side(profile(), combi, '1:')).inputs.successValueB, 15);
   // Direct Template: no roll, so the Dodge is a Normal Roll: nothing.
   assert.equal(duel(side(profile({skills}), flamer, '3:'), side(profile(), combi, '1:')).inputs.successValueB, 12);
-  // An attack with no effect isn't rolled (E/Mitter vs Immunity (BTS)): nothing.
+  // An attack its target is immune to is still an opposed BS Attack, so -3
+  // applies (E/Mitter vs Immunity (BTS)): the target's ARO 15 -> 12, Dodge 12 -> 9.
   const emitter = option([{id: 16, name: 'E/Mitter'}]);
-  assert.equal(duel(side(profile({skills}), emitter, '16:'), side(immune('BTS'), combi, '1:')).inputs.successValueB, 15);
+  assert.equal(duel(side(profile({skills}), emitter, '16:'), side(immune('BTS'), combi, '1:')).inputs.successValueB, 12);
+  assert.equal(duel(side(profile({skills}), emitter, '16:'), side(immune('BTS'), combi, 'dodge')).inputs.successValueB, 9);
   // Out of range: declared, fails automatically, still -3 on the opponent.
   const far = duel(side(profile({skills}), combi, '1:'), side(profile(), combi, 'dodge'), 240);
   assert.equal(far.inputs.successValueA, 0);
