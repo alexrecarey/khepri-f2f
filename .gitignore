@@ -42,3 +42,10 @@ __pycache__/
 
 # Army API downloads (scripts/fetch-army.mjs)
 .cache/
+
+# direnv (holds API keys)
+.envrc
+
+# Claude Code local worktrees and personal settings
+.claude/worktrees/
+.claude/settings.local.json
