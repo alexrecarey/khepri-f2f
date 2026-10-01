@@ -178,8 +178,22 @@ test('mimetism and MSV', () => {
   assert.equal(sv(profile(), mim3), 12);
   assert.equal(sv(profile(), mim6), 9);
   assert.equal(sv(msv1, mim3), 15);
-  assert.equal(sv(msv1, mim6), 9);
+  assert.equal(sv(msv1, mim6), 12);                  // MSV1 cancels 3 of the 6
+  assert.equal(sv(msv2, mim3), 15);
   assert.equal(sv(msv2, mim6), 15);
+  const msv3 = profile({equip: [{id: 116, name: 'Multispectral Visor L3'}]});
+  assert.equal(sv(msv3, mim3), 15);
+  assert.equal(sv(msv3, mim6), 15);
+});
+
+test('MSV3 ignores Surprise Attack; MSV1 and MSV2 do not', () => {
+  const infiltrator = profile({skills: [surprise()]});
+  const target = (level) => side(profile({equip: [msv(level)]}), combi, 'dodge');
+  const r = duel(using(side(infiltrator, combi, '1:')), target(3));
+  assert.equal(r.inputs.successValueB, 12);                    // PH 12, no -3
+  assert.ok(r.notes.includes("Reactive: Multispectral Visor L3; the opponent's Surprise Attack (-3) has no effect"), r.notes.join(' | '));
+  assert.equal(duel(using(side(infiltrator, combi, '1:')), target(2)).inputs.successValueB, 9);
+  assert.equal(duel(using(side(infiltrator, combi, '1:')), target(1)).inputs.successValueB, 9);
 });
 
 test('AP halves ARM (rounding up) unless immune; cover added after', () => {
