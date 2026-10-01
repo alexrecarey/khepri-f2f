@@ -1,11 +1,12 @@
-// The dice engine's input: one flat object of calculator params, the same in
+// The calculator's input: one flat object of calculator params, the same in
 // Basic mode, Matchup mode, share links, saved results and the CSV export.
 // Keys end in A (active) or B (reactive), plus a flag for a fixed-value roll.
-// src/engine/f2f.py calculate() reads exactly these keys (checked by params.test.mjs).
+// src/engine/calculate.js turns them into the dice engine's own, smaller input.
 
-// Ammunition the engine knows: the keys of AMMO in f2f.py. DODGE stands for a
-// Dodge, which wins the Face to Face Roll but causes no Saving Rolls; NONE for
-// an attack the target is immune to, rolled and opposed but harmless.
+// Ammunition the calculator knows: the keys of AMMO in calculate.js. DODGE
+// stands for a Dodge, which wins the Face to Face Roll but causes no Saving
+// Rolls; NONE for an attack the target is immune to, rolled and opposed but
+// harmless.
 export const AMMO = ['N', 'DA', 'EXP', 'T2', 'PLASMA', 'DODGE', 'NONE'];
 
 // [min, max] of each numeric param, per side.
@@ -37,7 +38,7 @@ const side = (s, burst) => ({
   [`critImmune${s}`]: bool(),              // Immunity (Critical) as a target
   // Direct Template: burst hits land automatically, no roll. Against a Dodge
   // (or No ARO) only the Dodge is rolled; against an attack, each side's attack
-  // is its own unopposed roll (f2f.py calculate).
+  // is its own unopposed roll (calculate.js calculate).
   [`template${s}`]: bool(),
 });
 

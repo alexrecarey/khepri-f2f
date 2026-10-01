@@ -15,7 +15,7 @@ export default function useEngine(params) {
   const clientRef = useRef(null);
 
   useEffect(() => {
-    const worker = new Worker(new URL('./worker.js', import.meta.url));
+    const worker = new Worker(new URL('./worker.js', import.meta.url), {type: 'module'});
     const client = createF2fClient(worker);
     worker.onmessage = (msg) => {
       // Preview replies carry a requestId and are resolved by the client.

@@ -67,6 +67,10 @@ export default defineConfig({
 
   build: {
     sourcemap: true
+  },
+  // The engine worker is a module worker (src/engine/worker.js).
+  worker: {
+    format: 'es'
   }
 })
 

@@ -1,4 +1,6 @@
-// Runs the icepool dice engine (src/engine/f2f.py) in Pyodide, off the main thread.
+// Runs the icepool dice engine (src/engine/f2f.py) in Pyodide, off the main
+// thread. A module worker: calculate.js turns the calculator params into
+// engine input and the engine's output into result rows.
 //
 // Messages in:
 //   {command: 'init', source}                   source = text of f2f.py
@@ -10,34 +12,35 @@
 // requestId (optional) is echoed back so callers can match replies to requests.
 // Calculations sent while the engine is still loading wait for it; 'notready'
 // only answers requests sent before 'init'.
-importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.3/full/pyodide.js");
+import {calculate} from './calculate.js';
 
-const ICEPOOL = 'icepool==1.0.0';
+const PYODIDE = 'https://cdn.jsdelivr.net/pyodide/v0.26.3/full/';
+const ICEPOOL = 'icepool==2.2.2';
 
-let calculateFn;
+let engineFn;
 let starting = null;  // init() promise, once 'init' arrives
 
 async function init(source) {
   self.postMessage({command: 'status', value: 'loading', description: 'Initializing icepool worker'})
-  const pyodide = await self.loadPyodide({
-    indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.3/full/'
-  })
+  const {loadPyodide} = await import(/* @vite-ignore */ `${PYODIDE}pyodide.mjs`)
+  const pyodide = await loadPyodide({indexURL: PYODIDE})
   await pyodide.loadPackage(['micropip'])
   await pyodide.pyimport('micropip').install(ICEPOOL)
   const namespace = pyodide.globals.get('dict')()
   pyodide.runPython(source, {globals: namespace})
-  calculateFn = namespace.get('calculate')
+  engineFn = namespace.get('calculate')
   self.pyodide = pyodide
   self.postMessage({command: 'status', value: 'ready', description: 'Icepool worker ready'})
 }
 
-function calculate(params) {
-  const pyParams = self.pyodide.toPy(new Map(Object.entries(params)))
-  const pyResult = calculateFn(pyParams)
+// One engine run: engine input (calculate.js engineInput) -> engine output.
+function runEngine(input) {
+  const pyInput = self.pyodide.toPy(new Map(Object.entries(input)))
+  const pyResult = engineFn(pyInput)
   try {
     return pyResult.toJs({dict_converter: Object.fromEntries})
   } finally {
-    pyParams.destroy()
+    pyInput.destroy()
     pyResult.destroy()
   }
 }
@@ -46,14 +49,14 @@ self.onmessage = async (msg) => {
   if (msg.data.command === 'calculate') {
     const requestId = msg.data.requestId;
     if (starting) await starting.catch(() => {});
-    if (calculateFn === undefined) {
+    if (engineFn === undefined) {
       self.postMessage({command: 'status', value: 'notready', description: 'Pyodide not ready yet', requestId})
       return
     }
     const startTime = Date.now();
     let results;
     try {
-      results = calculate(msg.data.data)
+      results = calculate(msg.data.data, runEngine)
     } catch (e) {
       console.error('Face to Face calculation failed', msg.data.data, e)
       self.postMessage({command: 'error', requestId, value: String(e.message ?? e)})
