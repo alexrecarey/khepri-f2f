@@ -60,18 +60,19 @@ class FaceToFace(MultisetEvaluator):
     """
 
     def initial_state(self, order, outcomes, *sizes):
+        # Outcomes must be seen lowest first: a result only cancels the other side's successes already counted.
         if order != Order.Ascending:
             raise UnsupportedOrder()
         return 0, 0, 0, 0
 
     def next_state(self, state, order, outcome, a_count, b_count):
         a_crit, a_hit, b_crit, b_hit = state
-        if outcome == 0:
+        if outcome == 0:  # miss
             return state
-        if outcome < 20:
+        if outcome < 20:  # hit
             a_hit += a_count
             b_hit += b_count
-        else:
+        else:  # crit
             a_crit += a_count
             b_crit += b_count
             if a_count:
@@ -94,7 +95,7 @@ def dice(p, s):
 def template_roll(hits, p, dodger):
     """A Direct Template's automatic hits, as (crit, hit), cancelled by any success of the other side."""
     if p[f'burst{dodger}'] == 0:
-        return Die([(0, hits)])
+        return Die([(0, hits)])  # Nobody dodges: the template always hits
     # One success is enough: every die rolled counts, Special Dice included.
     dodge = Pool([infinity_die(p[f'successValue{dodger}'])], p[f'burst{dodger}'] + p[f'bonusBurst{dodger}'])
     return dodge.highest(1).sum().map(lambda best: (0, 0) if best else (0, hits))
@@ -109,7 +110,7 @@ def roll(p):
     if p['templateB']:
         return template_roll(p['burstB'], p, 'A').map(lambda o: (0, 0, *o))
     if p['fixedFaceToFace']:
-        # The fixed result stays a success: 19 at most, as 20 would be a Critical.
+        # Don't let the fixed die be over 19: at the moment 20 is a Critical. Fix later to allow 20.
         fixed = Die([min(p['successValueB'], 19)]).pool(p['burstB'])
         return FaceToFace().evaluate(dice(p, 'A'), fixed)
     return FaceToFace().evaluate(dice(p, 'A'), dice(p, 'B'))
@@ -120,14 +121,18 @@ def roll(p):
 def wounds(crits, hits, attack):
     """Die of wounds caused by `crits` + `hits` successes of this attack."""
     save = attack['saveValue']
+    # A crit is a regular hit plus one extra save: its regular part causes `saves` Saving Rolls like any hit. The
+    # extra one is kept apart in crit_saves, as neither Continuous Damage nor T2 apply their special effects to it.
     saves = (crits + hits) * attack['saves']
     crit_saves = crits if attack['critSave'] else 0
+    # Wounds for a failed save, 0 for a passed one. T2 makes a failed save cost 2.
     failed = (d20 > save) * attack['woundsPerFailure']
     if attack['cont']:
         failed = failed.explode([attack['woundsPerFailure']], depth=MAX_CONTINUOUS, end=0)
-    total = saves @ failed + crit_saves @ (d20 > save)
+    # Thank you HighDiceRoller for this beautiful line of code!
+    total = saves @ failed + crit_saves @ (d20 > save)  # Crits are always 1 damage
     if attack['secondarySave'] is not None:
-        total += saves @ (d20 > attack['secondarySave'])
+        total += saves @ (d20 > attack['secondarySave'])  # Plasma BTS hits are always 1 damage (so far)
     return total
 
 
