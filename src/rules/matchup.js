@@ -118,6 +118,11 @@ function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0) {
   const noEffect = hasNoEffect(y?.traits, row);
   let burst = (row.burst ?? 1) + bonus.burst;
   if (side === 'B' && !keepsAroBurst(x)) burst = 1;
+  // Neurocinetics: B 1 in the Active Turn, Burst MODs included (wiki).
+  if (side === 'A' && hasSkill(x.traits, SKILL.NEUROCINETICS)) {
+    burst = 1;
+    notes.push(`${label}: Neurocinetics; Burst reduced to 1 in the Active Turn`);
+  }
   const immunity = immunityAgainst(y?.traits, row);
   // Immunity (Continuous Damage): the Trait is ignored, the hit is not.
   const contImmune = hasImmunity(y?.traits, 'Continuous Damage', row);

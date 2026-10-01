@@ -255,6 +255,8 @@ test('reactive burst: total reaction keeps weapon burst, "none" is unopposed', (
   const rem = profile({skills: [{id: 61, name: 'Total Reaction'}]});
   assert.equal(deriveInputs({active: side(profile(), combi, '1:'), reactive: side(rem, hmg, '7:'), rangeCm: 40}).inputs.burstB, 4);
   assert.equal(deriveInputs({active: side(profile(), combi, '1:'), reactive: side(profile(), hmg, '7:'), rangeCm: 40}).inputs.burstB, 1);
+  const neuro = profile({skills: [{id: 109, name: 'Neurocinetics'}]});
+  assert.equal(deriveInputs({active: side(profile(), combi, '1:'), reactive: side(neuro, hmg, '7:'), rangeCm: 40}).inputs.burstB, 4);
   const none = deriveInputs({active: side(profile(), combi, '1:'), reactive: side(profile(), hmg, 'none'), rangeCm: 40});
   assert.equal(none.inputs.burstB, 0);
   assert.equal(none.ok, true);
@@ -1497,4 +1499,18 @@ test('MSV x Mimetism with real units', () => {
       assert.equal(mimetismMod(t.traits, s.traits), MSV_VS_MIMETISM[level][j], `${sName} vs ${tName}`);
     }
   }
+});
+
+test('Neurocinetics: Burst 1 in the Active Turn, Burst MODs and Fireteam SD aside', () => {
+  const neuro = profile({skills: [{id: 109, name: 'Neurocinetics'}]});
+  const hmg = option([{id: 7, name: 'Heavy Machine Gun', extra: ['+1B']}]);
+  const r = deriveInputs({active: side(neuro, hmg, '7:'), reactive: side(profile(), combi, '1:'), rangeCm: 40});
+  assert.equal(r.inputs.burstA, 1);
+  assert.ok(r.notes.includes('Active: Neurocinetics; Burst reduced to 1 in the Active Turn'));
+  // Special Dice don't change the Burst value, so they still apply.
+  const ft = deriveInputs({active: {...side(neuro, hmg, '7:'), ftSize: 2}, reactive: side(profile(), combi, '1:'), rangeCm: 40});
+  assert.equal(ft.inputs.burstA, 1);
+  assert.equal(ft.inputs.bonusBurstA, 1);
+  // Without the skill: the full Burst with its MOD.
+  assert.equal(deriveInputs({active: side(profile(), hmg, '7:'), reactive: side(profile(), combi, '1:'), rangeCm: 40}).inputs.burstA, 5);
 });
