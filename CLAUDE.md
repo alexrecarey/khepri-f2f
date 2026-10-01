@@ -6,7 +6,7 @@ are in README.md ("How it's put together").
 
 ## Commands
 
-- `yarn` — install (yarn 3.3.0, zero-install cache in `.yarn/cache`)
+- Node 24 LTS (`.nvmrc`, Volta pin); `yarn` installs (yarn 3.3.0, zero-install cache in `.yarn/cache`)
 - `yarn test` — JS tests (`node --test src/`) + engine tests (pytest via uv)
 - `yarn test:js` / `yarn test:engine` — one side only
 - `yarn build` — production build (CI runs this too)
