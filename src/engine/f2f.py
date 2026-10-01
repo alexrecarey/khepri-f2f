@@ -1,365 +1,177 @@
-"""Face to Face dice engine.
+"""Face to Face dice engine: d20 rolls in, wound probabilities out.
 
 Plain Python on top of icepool. The browser runs this exact file: src/engine/worker.js receives it as text and
-calls calculate() with the calculator params (src/engine/params.js). Tests import it directly:
+calls calculate() with an engine input built by src/engine/calculate.js. Tests import it directly:
 
-    uv run --python 3.10 --with icepool==1.0.0 --with pytest pytest src/engine/test_f2f.py
+    uv run --python 3.12 --with icepool==2.2.2 --with pytest pytest src/engine/test_f2f.py
 
-Everything the game rules decide (range, MODs, Immunity, AP halving, ...) happens before this point, in
-src/rules/. What is left here is dice: success values, bursts, and Saving Rolls per ammunition.
+Only the core dice rules live here. Everything the game rules decide happens before this point, in JavaScript:
+MODs, range, ARM and BTS, cover, AP halving, Immunities, what each ammunition does, Shock, and splitting a Direct
+Template against an attack into two rolls. What arrives is final numbers for each side's attack:
+
+    successValue{S}   the roll's final success value (0 = always fails, over 20 = more Criticals)
+    burst{S}          dice rolled (0 = no roll: the other side makes a Normal Roll)
+    bonusBurst{S}     Special Dice: rolled too, but only the best `burst` count
+    template{S}       hits automatically, `burst` hits, no roll. The other side, if it rolls, is a Dodge: any success
+                      cancels every hit.
+    saveValue{S}      a Saving Roll against this attack passes on d20 <= saveValue (PS plus ARM or BTS, MODs included)
+    saves{S}          Saving Rolls each hit causes (N 1, DA 2, EXP 3; 0 for a roll that causes none, e.g. a Dodge)
+    critSave{S}       a Critical causes one more Saving Roll, at saveValue, never with Continuous Damage or extra wounds
+    woundsPerFailure{S}   wounds each failed Saving Roll causes (2 for T2)
+    cont{S}           Continuous Damage: a failed Saving Roll is rolled again, up to MAX_CONTINUOUS more times
+    secondarySave{S}  None, or the save value of a second Saving Roll every one of the `saves` also needs (Plasma's BTS)
+
+for S = A (active) and B (reactive), plus fixedFaceToFace: the reactive side's dice always roll successValueB.
 """
-from dataclasses import dataclass
-from functools import reduce
+from functools import cache
+from fractions import Fraction
 
-from icepool import d20, lowest, Again, Die, Pool
-from icepool import MultisetEvaluator
+from icepool import d20, Die, Pool, MultisetEvaluator, Order, UnsupportedOrder
 
-
-# --- Ammunition: how many Saving Rolls each hit causes, and what a failed one costs -------------------------------
-
-@dataclass(frozen=True)
-class Ammo:
-    saves: int          # Saving Rolls per hit. A Critical adds one more, which never has T2 or Continuous Damage.
-    damage: int = 1     # Wounds per failed Saving Roll (T2 = 2).
-    bts_save: bool = False  # Every ARM Saving Roll also needs a BTS one (Plasma).
+# Continuous Damage: rolls again after a failed Saving Roll at most this many times.
+MAX_CONTINUOUS = 5
 
 
-AMMO = {
-    'N': Ammo(saves=1),
-    'DA': Ammo(saves=2),
-    'EXP': Ammo(saves=3),
-    'T2': Ammo(saves=1, damage=2),
-    'PLASMA': Ammo(saves=1, bts_save=True),
-    # A Dodge wins the Face to Face Roll but causes no Saving Rolls.
-    'DODGE': Ammo(saves=0),
-    # An attack whose hits do nothing to the target (e.g. E/M against Immunity
-    # (BTS)): still rolled and opposed, but causes no Saving Rolls.
-    'NONE': Ammo(saves=0),
-}
+# --- To hit ------------------------------------------------------------------------------------------------------
+
+def read_roll(roll, success_value):
+    """One d20 read against a success value: 0 = miss, 1-19 = success (higher beats lower), 20 = Critical.
+
+    Over 20, the excess is added to the roll: those that reach 20 or more become Criticals.
+    """
+    if success_value > 20:
+        roll += success_value - 20
+        success_value = 20
+    if roll == success_value or roll > 20:
+        return 20
+    return roll if roll < success_value else 0
 
 
-# --- Face to Face Roll -------------------------------------------------------------------------------------------
+def infinity_die(success_value):
+    """A d20 rolled against this success value, read as above."""
+    return d20.map(read_roll, success_value)
 
-class InfinityFace2FaceEvaluator(MultisetEvaluator):
-    """Outcome of a Face to Face Roll as (a_crit, a_hit, b_crit, b_hit) after cancellation."""
 
-    # Note that outcomes are seen in ascending order by default.
-    def next_state(self, state, outcome, a_count, b_count):
-        # Initial state is all zeros.
-        a_crit, a_success, b_crit, b_success = state or (0, 0, 0, 0)
+class FaceToFace(MultisetEvaluator):
+    """Both sides' dice -> (a_crit, a_hit, b_crit, b_hit) left after cancelling.
 
-        if outcome == 0:
-            # miss
-            pass
-        elif outcome < 20:
-            # hit
-            a_success += a_count
-            b_success += b_count
-            if a_count > 0:
-                b_success = 0
-            if b_count > 0:
-                a_success = 0
-        else:
-            # crit
+    Seen from the lowest result up: a result cancels every lower success of the other side, a tie cancels both, and
+    a Critical cancels all of the other side's successes and Criticals.
+    """
+
+    def initial_state(self, order, outcomes, *sizes):
+        # Outcomes must be seen lowest first: a result only cancels the other side's successes already counted.
+        if order != Order.Ascending:
+            raise UnsupportedOrder()
+        return 0, 0, 0, 0
+
+    def next_state(self, state, order, outcome, a_count, b_count):
+        a_crit, a_hit, b_crit, b_hit = state
+        if outcome == 0:  # miss
+            return state
+        if outcome < 20:  # hit
+            a_hit += a_count
+            b_hit += b_count
+        else:  # crit
             a_crit += a_count
             b_crit += b_count
-            if a_count > 0:
-                b_success = 0
+            if a_count:
                 b_crit = 0
-            if b_count > 0:
-                a_success = 0
+            if b_count:
                 a_crit = 0
-        return a_crit, a_success, b_crit, b_success
+        if a_count:
+            b_hit = 0
+        if b_count:
+            a_hit = 0
+        return a_crit, a_hit, b_crit, b_hit
 
 
-def infinity_die(roll, sv):
-    """Maps a raw d20 roll to an Infinity outcome.
-
-    The resulting die will use 0 for misses (values over success value) and 20 for crits (values equal to the success
-    value). The resulting die will have values like:
-
-    0 = miss
-    1-19 = hit
-    20 = crit
-    """
-    if sv > 20:
-        roll += sv - 20
-        sv = 20
-    if roll == sv or roll > 20:
-        return 20
-    elif roll < sv:
-        return roll
-    else:
-        return 0
+def dice(p, s):
+    """Side s's dice: burst plus Special Dice rolled, the best `burst` kept."""
+    burst = p[f'burst{s}']
+    return Pool([infinity_die(p[f'successValue{s}'])], burst + p[f'bonusBurst{s}']).highest(burst)
 
 
-def face_to_face(
-        a_success_value,
-        a_burst,
-        b_success_value,
-        b_burst,
-        a_bonus_burst=0,
-        b_bonus_burst=0
-):
-    a_die = d20.map(infinity_die, a_success_value)
-    b_die = d20.map(infinity_die, b_success_value)
-
-    return (
-        InfinityFace2FaceEvaluator()
-        .evaluate(
-            Pool([a_die], a_burst + a_bonus_burst).highest(keep=a_burst),
-            Pool([b_die], b_burst + b_bonus_burst).highest(keep=b_burst)
-        )
-    )
+def template_roll(hits, p, dodger):
+    """A Direct Template's automatic hits, as (crit, hit), cancelled by any success of the other side."""
+    if p[f'burst{dodger}'] == 0:
+        return Die([(0, hits)])  # Nobody dodges: the template always hits
+    # One success is enough: every die rolled counts, Special Dice included.
+    dodge = Pool([infinity_die(p[f'successValue{dodger}'])], p[f'burst{dodger}'] + p[f'bonusBurst{dodger}'])
+    return dodge.highest(1).sum().map(lambda best: (0, 0) if best else (0, hits))
 
 
-def dtw_vs_dodge(dtw_burst, dodge_sv, dodge_burst):
-    """Direct Template Weapon against Dodge: every hit lands unless a Dodge succeeds. Returns a Die.
-
-    The Dodge is a Normal Roll: one passing die is enough, so Special Dice are simply more dice (pass burst + bonus).
-    """
-    if dodge_burst == 0:
-        return Die([(0, dtw_burst, 0, 0)])  # Nobody dodges: the template always hits
-    hit_die = ((d20 > dodge_sv) * dtw_burst)   # returns hits. Successful dodges are 0 hits,
-    result_die = lowest([hit_die] * dodge_burst)
-    return result_die.map(lambda x: (0, x, 0, 0))  # Convert into (crit, hit, crit, hit) format
-
-
-def fixed_face_to_face(a_success_value, a_burst, a_bonus_burst, b_success_value, b_burst):
-    a_die = d20.map(infinity_die, a_success_value)
-    b_die_face = b_success_value if b_success_value <= 19 else 19  # don't let fixed die be over 19. Fix later to
-                                                                   # allow 20, but at the moment 20 is critical hit.
-    b_die = Die([b_die_face])  # Create a special die that always rolls the same number
-
-    return InfinityFace2FaceEvaluator().evaluate(
-        Pool([a_die], a_burst + a_bonus_burst).highest(keep=a_burst),
-        b_die.pool(b_burst))
-
-
-def face_to_face_result(outcomes):
-    result = {
-        'active': 0,
-        'fail': 0,
-        'reactive': 0,
-        'total_rolls': 0
-    }
-    for outcome, amount in outcomes.items():
-        result['total_rolls'] += amount
-        squash = outcome[0] + outcome[1] - outcome[2] - outcome[3]
-        # check if failure result
-        if squash == 0:
-            result['fail'] += amount
-        # Player A wins F2F
-        elif squash > 0:
-            result['active'] += amount
-        # Player B wins F2F
-        elif squash < 0:
-            result['reactive'] += amount
-    return result
+def roll(p):
+    """The roll: a Die of (a_crit, a_hit, b_crit, b_hit)."""
+    if p['templateA'] and p['templateB']:
+        raise ValueError('two Direct Templates are two separate rolls')
+    if p['templateA']:
+        return template_roll(p['burstA'], p, 'B').map(lambda o: (*o, 0, 0))
+    if p['templateB']:
+        return template_roll(p['burstB'], p, 'A').map(lambda o: (0, 0, *o))
+    if p['fixedFaceToFace']:
+        # Don't let the fixed die be over 19: at the moment 20 is a Critical. Fix later to allow 20.
+        fixed = Die([min(p['successValueB'], 19)]).pool(p['burstB'])
+        return FaceToFace().evaluate(dice(p, 'A'), fixed)
+    return FaceToFace().evaluate(dice(p, 'A'), dice(p, 'B'))
 
 
 # --- Saving Rolls ------------------------------------------------------------------------------------------------
 
-def wounds_die(crits, hits, ammo, armor_save, bts_save=0, cont=False, crit_immune=False, shock=False):
-    """Die of wounds caused by `crits` + `hits` successes with this ammunition.
-
-    armor_save / bts_save: highest d20 roll that saves (PS + ARM or BTS). A save fails on d20 > save.
-    cont: Continuous Damage, a failed save means rolling again (up to 5 times).
-    crit_immune: target ignores the extra Saving Roll of a Critical.
-    shock: target has VITA 1 and no immunity, so any failed save sends it straight to Dead, skipping Unconscious.
-    That is counted as one extra wound.
-    """
-    rule = AMMO[ammo]
-    # Each hit, Critical or not, causes rule.saves Saving Rolls. Each Critical adds one more, which never gets the
-    # ammunition's damage or Continuous Damage. Ammunition without Saving Rolls (Dodge) has no Critical ones either.
-    saves = (crits + hits) * rule.saves
-    crit_saves = 0 if crit_immune else min(crits, rule.saves * crits)
-    plasma_saves = saves if rule.bts_save else 0
-
-    if cont:
-        d_save = Die([(rule.damage + Again if x > armor_save else 0) for x in range(1, 21)], again_depth=5)
-    else:
-        d_save = (d20 > armor_save) * rule.damage
-    d_crit = d20 > armor_save  # Crits are always 1 damage
-    d_plasma = d20 > bts_save  # Plasma BTS hits are always 1 damage (so far)
-
+def wounds(crits, hits, attack):
+    """Die of wounds caused by `crits` + `hits` successes of this attack."""
+    save = attack['saveValue']
+    # A crit is a regular hit plus one extra save: its regular part causes `saves` Saving Rolls like any hit. The
+    # extra one is kept apart in crit_saves, as neither Continuous Damage nor T2 apply their special effects to it.
+    saves = (crits + hits) * attack['saves']
+    crit_saves = crits if attack['critSave'] else 0
+    # Wounds for a failed save, 0 for a passed one. T2 makes a failed save cost 2.
+    failed = (d20 > save) * attack['woundsPerFailure']
+    if attack['cont']:
+        failed = failed.explode([attack['woundsPerFailure']], depth=MAX_CONTINUOUS, end=0)
     # Thank you HighDiceRoller for this beautiful line of code!
-    r = saves @ d_save + crit_saves @ d_crit + plasma_saves @ d_plasma
-    if shock:
-        r = r.map(lambda w: w + 1 if w > 0 else w)  # Straight to Dead: one extra wound, once
-    return r
+    total = saves @ failed + crit_saves @ (d20 > save)  # Crits are always 1 damage
+    if attack['secondarySave'] is not None:
+        total += saves @ (d20 > attack['secondarySave'])  # Plasma BTS hits are always 1 damage (so far)
+    return total
 
 
-def face_to_face_expected_wounds(
-        outcomes,
-        a_opponent_save, a_arm, a_ammo, b_opponent_save, b_arm, b_ammo,
-        a_cont=False, a_bts=0, a_crit_immune=False,
-        b_cont=False, b_bts=0, b_crit_immune=False,
-        a_shock=False, b_shock=False
-):
-    """Calculates the wounds expected from a face to face encounter.
-
-    a_opponent_save is player A's weapon PS, the save the opponent adds their ARM (or BTS) to. a_arm / a_bts /
-    a_crit_immune describe player A as a target. a_cont / a_shock describe player A's attack.
-
-    Return format is {
-        'active': {1: 11111, 2: 222222, 3: 33333},
-        'reactive': {},
-        'fail': {0: 122},
-        'total_rolls': 0
-    }
-    """
-    wounds = {
-        'active': {},
-        'reactive': {},
-        'fail': {},
-        'total_rolls': 0
-    }
-    for (a_crit, a_hit, b_crit, b_hit), rolls in outcomes.items():
-        wounds['total_rolls'] += rolls
-        if a_crit + a_hit > 0:
-            winner = 'active'
-            r = wounds_die(a_crit, a_hit, a_ammo, a_opponent_save + b_arm, bts_save=a_opponent_save + b_bts,
-                           cont=a_cont, crit_immune=b_crit_immune, shock=a_shock)
-        elif b_crit + b_hit > 0:
-            winner = 'reactive'
-            r = wounds_die(b_crit, b_hit, b_ammo, b_opponent_save + a_arm, bts_save=b_opponent_save + a_bts,
-                           cont=b_cont, crit_immune=a_crit_immune, shock=b_shock)
-        else:
-            winner = 'fail'
-            r = wounds_die(0, 0, 'N', 0)
-        denominator = r.denominator()
-        for w, occurrences in r.items():
-            wounds[winner][w] = wounds[winner].get(w, 0) + (occurrences/denominator) * rolls
-    return wounds
+def attack(p, s):
+    keys = ['saveValue', 'saves', 'critSave', 'woundsPerFailure', 'cont', 'secondarySave']
+    return {k: p[f'{k}{s}'] for k in keys}
 
 
-# --- Output formatting -------------------------------------------------------------------------------------------
+def outcomes(p, rolled):
+    """Die of (winner, wounds) after the roll `rolled`: 'active' / 'reactive' won it and caused that many wounds,
+    or 'fail'."""
+    by_side = {'active': attack(p, 'A'), 'reactive': attack(p, 'B')}
 
-def format_face_to_face(face_to_face):
-    output = []
-    for index, player in enumerate(['active', 'reactive', 'fail']):
-        output.append({
-            'id': index,
-            'player': player,
-            'raw_chance': face_to_face[player],
-            'chance': face_to_face[player]/face_to_face['total_rolls'],
-        })
-    return output
+    @cache
+    def caused(winner, crits, hits):
+        return wounds(crits, hits, by_side[winner]).map(lambda w: (winner, w))
 
+    def result(a_crit, a_hit, b_crit, b_hit):
+        if a_crit + a_hit:
+            return caused('active', a_crit, a_hit)
+        if b_crit + b_hit:
+            return caused('reactive', b_crit, b_hit)
+        return 'fail', 0
 
-def consolidate_wounds_over_maximum(wounds, max_wounds_shown=25):
-    squashed = {'active': None, 'reactive': None, 'fail': wounds['fail']}
-    for player in ['active', 'reactive']:
-        over_max = {k: v for k, v in wounds[player].items() if k > max_wounds_shown}
-        if len(over_max) > 0:
-            additional_successes = reduce(lambda x, y: x+y, over_max.values(), 0)
-            new_dict = {k: v for k, v in wounds[player].items() if k <= max_wounds_shown}
-            new_dict[max_wounds_shown] = new_dict.get(max_wounds_shown, 0) + additional_successes
-            squashed[player] = new_dict
-        else:
-            squashed[player] = wounds[player]
-    return squashed
-
-
-def format_expected_wounds(wounds, max_wounds_shown=25):
-    """Format expected_wounds into a list of results
-
-    Output format is {'player': 'active/reactive/fail', 'wounds': 3, 'chance': 0.2432, 'raw_chance' 1341234.23,
-                      'cumulative_chance': 0.53234}
-    """
-    # Squash items that are > than max_wounds_shown
-    total_rolls = wounds['total_rolls']
-    squashed = consolidate_wounds_over_maximum(wounds, max_wounds_shown=max_wounds_shown)
-    expected_wounds = []
-    index = 0
-    for player in ['active', 'fail', 'reactive']:
-        keys = sorted(squashed[player].keys())
-        for key in keys:
-            expected_wounds.append({
-                'id': index,
-                'player': player,
-                'wounds': key,
-                'raw_chance': squashed[player][key],
-                'chance': squashed[player][key]/total_rolls,
-                'cumulative_chance': reduce(
-                    lambda x, y: x+y,
-                    [squashed[player][i] for i in squashed[player].keys() if i >= key], 0) / total_rolls,
-            })
-            index += 1
-    return expected_wounds
+    return rolled.map(result, star=True)
 
 
 # --- Entry point -------------------------------------------------------------------------------------------------
 
-def attacks(p, s):
-    """Does side s ('A' / 'B') attack? A Direct Template always does; a roll does unless it is a Dodge or not made."""
-    return p[f'template{s}'] or (p[f'burst{s}'] > 0 and p[f'ammo{s}'] != 'DODGE')
-
-
-def side_outcomes(p, s):
-    """Outcomes of side s's attack on its own: a Normal Roll, or a Direct Template's automatic hits."""
-    if s == 'A':
-        if p['templateA']:
-            return Die([(0, p['burstA'], 0, 0)])
-        return face_to_face(p['successValueA'], p['burstA'], 0, 0, a_bonus_burst=p['bonusBurstA'])
-    if p['templateB']:
-        return Die([(0, 0, 0, p['burstB'])])
-    return face_to_face(0, 0, p['successValueB'], p['burstB'], b_bonus_burst=p['bonusBurstB'])
-
-
-def outcomes_for(p):
-    """The roll of one Face to Face calculation (both sides in one result)."""
-    if p['templateA'] or p['templateB']:
-        # A Direct Template against a Dodge, or against nothing (No ARO): only the Dodge is rolled.
-        t, d = ('A', 'B') if p['templateA'] else ('B', 'A')
-        dodge_dice = p[f'burst{d}'] + p[f'bonusBurst{d}'] if p[f'burst{d}'] > 0 else 0
-        outcomes = dtw_vs_dodge(p[f'burst{t}'], p[f'successValue{d}'], dodge_dice)
-        # dtw_vs_dodge scores the template as the active side; move its hits over when it is the reactive one.
-        return outcomes if t == 'A' else outcomes.map(lambda o: (o[2], o[3], o[0], o[1]))
-    if p['fixedFaceToFace']:
-        return fixed_face_to_face(p['successValueA'], p['burstA'], p['bonusBurstA'], p['successValueB'], p['burstB'])
-    return face_to_face(
-        p['successValueA'], p['burstA'], p['successValueB'], p['burstB'],
-        a_bonus_burst=p['bonusBurstA'], b_bonus_burst=p['bonusBurstB'],
-    )
-
-
-def result_for(p, outcomes):
-    expected_wounds = face_to_face_expected_wounds(
-        outcomes,
-        p['damageA'], p['armA'], p['ammoA'], p['damageB'], p['armB'], p['ammoB'],
-        a_cont=p['contA'], a_bts=p['btsA'], a_crit_immune=p['critImmuneA'],
-        b_cont=p['contB'], b_bts=p['btsB'], b_crit_immune=p['critImmuneB'],
-        a_shock=p['shockA'], b_shock=p['shockB'],
-    )
-    return {
-        'face_to_face': format_face_to_face(face_to_face_result(outcomes)),
-        'expected_wounds': format_expected_wounds(expected_wounds),
-        'total_rolls': expected_wounds['total_rolls']
-    }
-
-
 def calculate(p):
-    """Runs one calculation. `p` holds the calculator params by name (see PARAMS in src/engine/params.js):
-    successValueA, burstA, bonusBurstA, damageA, armA, btsA, ammoA, contA, critImmuneA, shockA, templateA, the
-    same with a B suffix, and fixedFaceToFace.
+    """One calculation. `p` is the engine input (see the top of this file).
 
-    When one side uses a Direct Template and both attack, nothing is opposed: each attack is its own roll (a
-    Normal Roll, or the template's automatic hits) and succeeds or fails on its own. The result then holds
-    'unopposed': {'active': result, 'reactive': result}, one result per side, each without the other's rows.
-    Its top-level 'face_to_face' and 'expected_wounds' keep only each side's own rows (no 'fail'), chances
-    taken from that side's result.
+    Returns {'rolls': number of distinct rolls, 'outcomes': [{'player', 'wounds', 'chance'}, ...]}.
     """
-    if not ((p['templateA'] or p['templateB']) and attacks(p, 'A') and attacks(p, 'B')):
-        return result_for(p, outcomes_for(p))
-    active = result_for(p, side_outcomes(p, 'A'))
-    reactive = result_for(p, side_outcomes(p, 'B'))
-    own = lambda r, player: [x for x in r if x['player'] == player]
-    rows = own(active['expected_wounds'], 'active') + own(reactive['expected_wounds'], 'reactive')
+    rolled = roll(p)
+    result = outcomes(p, rolled)
+    denominator = result.denominator()
     return {
-        'unopposed': {'active': active, 'reactive': reactive},
-        'face_to_face': own(active['face_to_face'], 'active') + own(reactive['face_to_face'], 'reactive'),
-        'expected_wounds': [dict(r, id=i) for i, r in enumerate(rows)],
-        'total_rolls': active['total_rolls'] + reactive['total_rolls'],
+        'rolls': rolled.denominator(),
+        'outcomes': [{'player': player, 'wounds': w, 'chance': float(Fraction(q, denominator))}
+                     for (player, w), q in result.items()],
     }

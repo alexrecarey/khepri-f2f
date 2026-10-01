@@ -25,15 +25,18 @@ that is installed, a simple `yarn` command should get you running.
 src/army/      Army data (army.json) and how to read it: ids, traits, weapon rows, loadouts
 src/rules/     N5 rules: ranges, MODs, saves and Immunity, default weapon,
                and deriveInputs (a matchup -> calculator params)
-src/engine/    the dice: f2f.py (icepool), the Pyodide worker, and params.js,
-               the calculator params every mode feeds the engine
+src/engine/    the dice: params.js (the calculator params every mode builds),
+               calculate.js (calculator params -> engine input -> result rows),
+               f2f.py (icepool) and the Pyodide worker that runs it
 src/matchup/   Matchup mode UI
 src/inputs/, src/display/, src/components/   Basic mode inputs and the results
 ```
 
 Dependencies point one way: `matchup -> rules -> army`, and everything that
 builds calculator params uses `engine/params.js`. Game rules live in
-`src/rules/`; `f2f.py` only does dice and Saving Rolls.
+`src/rules/` and `src/engine/calculate.js`; `f2f.py` only rolls dice: it gets
+final success values, bursts, save values and Saving Rolls per hit (see the top
+of the file) and returns the chance of each (winner, wounds).
 
 `yarn test` runs the JS tests (`node --test`) and the engine tests (pytest via
 [uv](https://docs.astral.sh/uv/)). CI runs both on every PR.

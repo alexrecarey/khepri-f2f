@@ -3,21 +3,22 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {AMMO, DEFAULT_PARAMS, PARAM_KEYS, fullParams, paramsKey, parseParams} from './params.js';
+import {AMMO as AMMO_RULES, ENGINE_KEYS} from './calculate.js';
 
 const f2f = readFileSync(new URL('./f2f.py', import.meta.url), 'utf8');
 
-test('f2f.py reads exactly the calculator params', () => {
-  const entry = f2f.slice(f2f.indexOf('# --- Entry point'));
-  const read = new Set([...entry.matchAll(/p\['(\w+)'\]/g)].map((m) => m[1]));
+test('f2f.py reads exactly the engine input', () => {
+  const read = new Set([...f2f.matchAll(/p\['(\w+)'\]/g)].map((m) => m[1]));
   // p[f'burst{s}'] reads the key for both sides.
-  for (const m of entry.matchAll(/p\[f'(\w+)\{\w\}'\]/g)) ['A', 'B'].forEach((s) => read.add(m[1] + s));
-  assert.deepEqual([...read].sort(), [...PARAM_KEYS].sort());
+  for (const m of f2f.matchAll(/p\[f'(\w+)\{\w+\}'\]/g)) ['A', 'B'].forEach((s) => read.add(m[1] + s));
+  // attack() reads a list of keys for one side.
+  const keys = /keys = \[([^\]]*)\]/.exec(f2f)[1];
+  for (const m of keys.matchAll(/'(\w+)'/g)) ['A', 'B'].forEach((s) => read.add(m[1] + s));
+  assert.deepEqual([...read].sort(), [...ENGINE_KEYS].sort());
 });
 
-test('f2f.py knows exactly the calculator ammo', () => {
-  const table = /^AMMO = \{([\s\S]*?)^\}/m.exec(f2f)[1];
-  const keys = [...table.matchAll(/^\s+'(\w+)':/gm)].map((m) => m[1]);
-  assert.deepEqual(keys.sort(), [...AMMO].sort());
+test('calculate.js knows exactly the calculator ammo', () => {
+  assert.deepEqual(Object.keys(AMMO_RULES).sort(), [...AMMO].sort());
 });
 
 test('parseParams: defaults, clamping, case and junk', () => {

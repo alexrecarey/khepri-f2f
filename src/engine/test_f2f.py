@@ -1,11 +1,11 @@
-# Run with: uv run --python 3.10 --with icepool==1.0.0 --with pytest pytest src/engine/test_f2f.py
+# Run with: uv run --python 3.12 --with icepool==2.2.2 --with pytest pytest src/engine/test_f2f.py
 # f2f.py is the engine the browser runs (src/engine/worker.js loads it as text).
-import f2f
-from f2f import face_to_face_expected_wounds, face_to_face, dtw_vs_dodge, calculate
 import re
 from math import isclose
 
-from icepool import Die
+import pytest
+
+from f2f import calculate, roll, read_roll
 
 
 def ps(n4_dam):
@@ -15,6 +15,65 @@ def ps(n4_dam):
     d20 > PS + ARM, so PS = 20 - DAM gives identical odds, Criticals and Continuous Damage included.
     """
     return 20 - n4_dam
+
+
+# What the calculator's ammunition becomes in the engine input (src/engine/calculate.js AMMO), for building test input.
+AMMO = {
+    'N': {'saves': 1},
+    'DA': {'saves': 2},
+    'EXP': {'saves': 3},
+    'T2': {'saves': 1, 'woundsPerFailure': 2},
+    'PLASMA': {'saves': 1, 'secondary': True},
+    'DODGE': {'saves': 0},
+}
+
+
+def side(sv=13, burst=1, bonus=0, template=False, save=10, saves=1, crit=True, wounds_per_failure=1, cont=False,
+         secondary=None):
+    """One side's engine input."""
+    return {'successValue': sv, 'burst': burst, 'bonusBurst': bonus, 'template': template, 'saveValue': save,
+            'saves': saves, 'critSave': crit and saves > 0, 'woundsPerFailure': wounds_per_failure, 'cont': cont,
+            'secondarySave': secondary}
+
+
+def engine_input(a, b, fixed=False):
+    return {**{k + 'A': v for k, v in a.items()}, **{k + 'B': v for k, v in b.items()}, 'fixedFaceToFace': fixed}
+
+
+def n4_side(x, target, ps_of=ps):
+    """A side described the way the reference data is: N4 DAM, the target's ARM / BTS, ammunition."""
+    ammo = AMMO[x['ammo']]
+    pv = ps_of(x.get('dam', 0))
+    return side(sv=x['sv'], burst=x['burst'], bonus=x.get('bonus', 0), template=x.get('template', False),
+                save=pv + target.get('arm', 0), saves=ammo['saves'], crit=not target.get('crit_immune', False),
+                wounds_per_failure=ammo.get('woundsPerFailure', 1), cont=x.get('cont', False),
+                secondary=pv + target.get('bts', 0) if ammo.get('secondary') else None)
+
+
+def n4_input(a, b, ps_of=ps, fixed=False):
+    return engine_input(n4_side(a, b, ps_of), n4_side(b, a, ps_of), fixed)
+
+
+def in_rolls(result):
+    """Engine result -> {'active': {wounds: chance in rolls}, 'reactive': ..., 'fail': ..., 'total_rolls': n}."""
+    out = {'active': {}, 'reactive': {}, 'fail': {}, 'total_rolls': result['rolls']}
+    for o in result['outcomes']:
+        out[o['player']][o['wounds']] = o['chance'] * result['rolls']
+    return out
+
+
+def assert_rolls(result, expected):
+    got = in_rolls(result)
+    assert got['total_rolls'] == expected['total_rolls']
+    for player in ['active', 'reactive', 'fail']:
+        want = {w: n for w, n in expected[player].items() if n > 0}
+        assert got[player].keys() == want.keys(), player
+        for w in want:
+            assert isclose(got[player][w], want[w], rel_tol=1e-9, abs_tol=1e-12), (player, w)
+
+
+def chance(result, player):
+    return sum(o['chance'] for o in result['outcomes'] if o['player'] == player)
 
 
 def ghostlords_raw_to_dict(string):
@@ -79,17 +138,14 @@ Reactive Player
     }
 
 
-def khepri_result_to_percentage(khepri_dict, max_wounds_shown=100):
-    # Yeah, I could nest list comprehensions, but I'd like to be able to read this code
-    # As I've changed my return format, we now have to exclude 0 wounds from active and reactive successes
-    # we also have to add 0 wounds active and 0 wounds reactive to failure case
-    failure_rolls = khepri_dict['active'].get(0, 0) + khepri_dict['reactive'].get(0,0) + khepri_dict['fail'].get(0,0)
-    wounds = {
-        'active': {k: v/khepri_dict['total_rolls'] for k, v in khepri_dict['active'].items() if k > 0},
-        'reactive': {k: v/khepri_dict['total_rolls'] for k, v in khepri_dict['reactive'].items() if k > 0},
-        'fail': {0: failure_rolls/khepri_dict['total_rolls']}
-    }
-    return f2f.consolidate_wounds_over_maximum(wounds, max_wounds_shown=max_wounds_shown)
+def khepri_result_to_percentage(result, max_wounds_shown=100):
+    """Engine result -> {'active': {wounds: chance}, 'reactive': ..., 'fail': {0: chance}} as Ghostlords shows it:
+    a won roll that causes no wounds counts as a failure, and wounds over max_wounds_shown as max_wounds_shown."""
+    wounds = {'active': {}, 'reactive': {}, 'fail': {0: 0}}
+    for o in result['outcomes']:
+        player, w = (o['player'], min(o['wounds'], max_wounds_shown)) if o['wounds'] > 0 else ('fail', 0)
+        wounds[player][w] = wounds[player].get(w, 0) + o['chance']
+    return wounds
 
 
 def is_ghostlords_equal(gl_dict, kp_dict):
@@ -158,11 +214,9 @@ P2 Scores  1+ Successes:   8.987%"""
         player_b_dam_ = 14
         player_b_arm_ = 5
         player_b_ammo_ = 'N'
-        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
-        kp_result = face_to_face_expected_wounds(
-            outcomes,
-            ps(player_a_dam_), player_a_arm_, player_a_ammo_,
-            ps(player_b_dam_), player_b_arm_, player_b_ammo_)
+        kp_result = calculate(n4_input(
+            dict(sv=player_a_sv_, burst=player_a_burst_, dam=player_a_dam_, arm=player_a_arm_, ammo=player_a_ammo_),
+            dict(sv=player_b_sv_, burst=player_b_burst_, dam=player_b_dam_, arm=player_b_arm_, ammo=player_b_ammo_)))
         gl_dict = ghostlords_raw_to_dict(gl_result)
         kp_dict = khepri_result_to_percentage(kp_result)
         is_ghostlords_equal(gl_dict, kp_dict)
@@ -204,11 +258,9 @@ P2 Scores  1+ Successes:   4.654%"""
         player_b_dam_ = 12
         player_b_arm_ = 4
         player_b_ammo_ = 'N'
-        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
-        kp_result = face_to_face_expected_wounds(
-            outcomes,
-            ps(player_a_dam_), player_a_arm_, player_a_ammo_,
-            ps(player_b_dam_), player_b_arm_, player_b_ammo_)
+        kp_result = calculate(n4_input(
+            dict(sv=player_a_sv_, burst=player_a_burst_, dam=player_a_dam_, arm=player_a_arm_, ammo=player_a_ammo_),
+            dict(sv=player_b_sv_, burst=player_b_burst_, dam=player_b_dam_, arm=player_b_arm_, ammo=player_b_ammo_)))
         gl_dict = ghostlords_raw_to_dict(gl_result)
         kp_dict = khepri_result_to_percentage(kp_result)
         is_ghostlords_equal(gl_dict, kp_dict)
@@ -326,11 +378,9 @@ P2 Scores  1+ Successes:  14.245%"""
         player_b_dam_ = 12
         player_b_arm_ = 3
         player_b_ammo_ = 'N'
-        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
-        kp_result = face_to_face_expected_wounds(
-            outcomes,
-            ps(player_a_dam_), player_a_arm_, player_a_ammo_,
-            ps(player_b_dam_), player_b_arm_, player_b_ammo_)
+        kp_result = calculate(n4_input(
+            dict(sv=player_a_sv_, burst=player_a_burst_, dam=player_a_dam_, arm=player_a_arm_, ammo=player_a_ammo_),
+            dict(sv=player_b_sv_, burst=player_b_burst_, dam=player_b_dam_, arm=player_b_arm_, ammo=player_b_ammo_)))
         gl_dict = ghostlords_raw_to_dict(gl_result)
         kp_dict = khepri_result_to_percentage(kp_result)
         assert is_ghostlords_equal(gl_dict, kp_dict)
@@ -423,11 +473,9 @@ P2 Scores  1+ Successes:  20.088%"""
         player_b_dam_ = 15
         player_b_arm_ = 3
         player_b_ammo_ = 'N'
-        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
-        kp_result = face_to_face_expected_wounds(
-            outcomes,
-            ps(player_a_dam_), player_a_arm_, player_a_ammo_,
-            ps(player_b_dam_), player_b_arm_, player_b_ammo_)
+        kp_result = calculate(n4_input(
+            dict(sv=player_a_sv_, burst=player_a_burst_, dam=player_a_dam_, arm=player_a_arm_, ammo=player_a_ammo_),
+            dict(sv=player_b_sv_, burst=player_b_burst_, dam=player_b_dam_, arm=player_b_arm_, ammo=player_b_ammo_)))
         gl_dict = ghostlords_raw_to_dict(gl_result)
         kp_dict = khepri_result_to_percentage(kp_result)
         assert is_ghostlords_equal(gl_dict, kp_dict)
@@ -496,11 +544,9 @@ P2 Scores  1+ Successes:  22.705%"""
         player_b_dam_ = 16
         player_b_arm_ = 11
         player_b_ammo_ = 'EXP'
-        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
-        kp_result = face_to_face_expected_wounds(
-            outcomes,
-            ps(player_a_dam_), player_a_arm_, player_a_ammo_,
-            ps(player_b_dam_), player_b_arm_, player_b_ammo_)
+        kp_result = calculate(n4_input(
+            dict(sv=player_a_sv_, burst=player_a_burst_, dam=player_a_dam_, arm=player_a_arm_, ammo=player_a_ammo_),
+            dict(sv=player_b_sv_, burst=player_b_burst_, dam=player_b_dam_, arm=player_b_arm_, ammo=player_b_ammo_)))
         gl_dict = ghostlords_raw_to_dict(gl_result)
         kp_dict = khepri_result_to_percentage(kp_result)
         assert is_ghostlords_equal(gl_dict, kp_dict)
@@ -532,11 +578,9 @@ P2 Scores  1+ Successes:  22.705%"""
         player_b_ammo_ = 'EXP'
         player_a_cont_ = True
         player_b_cont_ = False
-        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
-        kp_result = face_to_face_expected_wounds(
-            outcomes,
-            ps(player_a_dam_), player_a_arm_, player_a_ammo_,
-            ps(player_b_dam_), player_b_arm_, player_b_ammo_, a_cont=player_a_cont_)
+        kp_result = calculate(n4_input(
+            dict(sv=player_a_sv_, burst=player_a_burst_, dam=player_a_dam_, arm=player_a_arm_, ammo=player_a_ammo_, cont=player_a_cont_),
+            dict(sv=player_b_sv_, burst=player_b_burst_, dam=player_b_dam_, arm=player_b_arm_, ammo=player_b_ammo_)))
         gl_dict = ghostlords_minimal_to_dict(active_str=active_str, reactive_str=reactive_str, fail_str=failure_str)
         kp_dict = khepri_result_to_percentage(kp_result, max_wounds_shown=3)
         assert is_ghostlords_equal(gl_dict, kp_dict)
@@ -563,228 +607,196 @@ P2 Scores  1+ Successes:  22.705%"""
         player_b_ammo_ = 'N'
         player_a_cont_ = False
         player_b_cont_ = False
-        outcomes = face_to_face(player_a_sv_, player_a_burst_, player_b_sv_, player_b_burst_)
-        kp_result = face_to_face_expected_wounds(
-            outcomes,
-            ps(player_a_dam_), player_a_arm_, player_a_ammo_,
-            ps(player_b_dam_), player_b_arm_, player_b_ammo_, a_cont=player_a_cont_)
+        kp_result = calculate(n4_input(
+            dict(sv=player_a_sv_, burst=player_a_burst_, dam=player_a_dam_, arm=player_a_arm_, ammo=player_a_ammo_, cont=player_a_cont_),
+            dict(sv=player_b_sv_, burst=player_b_burst_, dam=player_b_dam_, arm=player_b_arm_, ammo=player_b_ammo_)))
         gl_dict = ghostlords_minimal_to_dict(active_str=active_str, reactive_str=reactive_str, fail_str=failure_str)
         kp_dict = khepri_result_to_percentage(kp_result, max_wounds_shown=3)
         assert is_ghostlords_equal(gl_dict, kp_dict)
 
 
 class TestAgainstSelf:
+    """Numbers from the engine before icepool 2 (src/engine/f2f.py history), in rolls out of total_rolls."""
+
     def test_simple_decent_arm_special_ammo(self):
-        a_sv, a_burst, a_dam, a_arm, a_ammo = 13, 3, 14, 6, 'DA'
-        b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 1, 16, 6, 'EXP'
-        outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
-        result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo, a_cont=True)
-        assert result == {'active': {0: 22190.725799424, 1: 25253.871405465597, 2: 21241.052930211838,
-                                     3: 15887.243378589697, 4: 11066.76271660401, 5: 7314.86697692332,
-                                     6: 4796.023127937123, 7: 2887.195025879964, 8: 1673.2309999994693,
-                                     9: 937.2007140389826, 10: 507.6054807974403, 11: 266.2674690989054,
-                                     12: 135.9308052824171, 13: 66.75009802370272, 14: 31.870412939526794,
-                                     15: 14.771972525056883, 16: 6.649379652325107, 17: 2.908023587154541,
-                                     18: 1.2362697630172954, 19: 0.5087790039275358, 20: 0.20329098857578848,
-                                     21: 0.0788320082840267, 22: 0.02963602138060582, 23: 0.010787087528762312,
-                                     24: 0.0037958829632112716, 25: 0.001285435783532172, 26: 0.0004198373167651864,
-                                     27: 0.00013182503337114547, 28: 3.9660600026129256e-05, 29: 1.13806030200333e-05,
-                                     30: 3.0951470873026182e-06, 31: 7.883403569666869e-07, 32: 1.8874919209960912e-07,
-                                     33: 4.203973322575997e-08, 34: 8.486696909845032e-09, 35: 1.4790708532189742e-09,
-                                     36: 2.0035044038145404e-10, 37: 1.3254058223344986e-11, 38: 4.175327549494025e-13,
-                                     39: 5.7423976431694885e-15},
-                          'reactive': {0: 4028.6875, 1: 12514.75, 2: 13372.125, 3: 5314.75, 4: 428.6875},
-                          'fail': {0: 10058.0},
-                          'total_rolls': 160000}
+        result = calculate(n4_input(dict(sv=13, burst=3, dam=14, arm=6, ammo='DA', cont=True),
+                                    dict(sv=13, burst=1, dam=16, arm=6, ammo='EXP')))
+        assert_rolls(result, {
+            'active': {0: 22190.725799424, 1: 25253.871405465597, 2: 21241.052930211838,
+                       3: 15887.243378589697, 4: 11066.76271660401, 5: 7314.86697692332,
+                       6: 4796.023127937123, 7: 2887.195025879964, 8: 1673.2309999994693,
+                       9: 937.2007140389826, 10: 507.6054807974403, 11: 266.2674690989054,
+                       12: 135.9308052824171, 13: 66.75009802370272, 14: 31.870412939526794,
+                       15: 14.771972525056883, 16: 6.649379652325107, 17: 2.908023587154541,
+                       18: 1.2362697630172954, 19: 0.5087790039275358, 20: 0.20329098857578848,
+                       21: 0.0788320082840267, 22: 0.02963602138060582, 23: 0.010787087528762312,
+                       24: 0.0037958829632112716, 25: 0.001285435783532172, 26: 0.0004198373167651864,
+                       27: 0.00013182503337114547, 28: 3.9660600026129256e-05, 29: 1.13806030200333e-05,
+                       30: 3.0951470873026182e-06, 31: 7.883403569666869e-07, 32: 1.8874919209960912e-07,
+                       33: 4.203973322575997e-08, 34: 8.486696909845032e-09, 35: 1.4790708532189742e-09,
+                       36: 2.0035044038145404e-10, 37: 1.3254058223344986e-11, 38: 4.175327549494025e-13,
+                       39: 5.7423976431694885e-15},
+            'reactive': {0: 4028.6875, 1: 12514.75, 2: 13372.125, 3: 5314.75, 4: 428.6875},
+            'fail': {0: 10058.0},
+            'total_rolls': 160000})
 
     def test_crit_immune(self):
-        a_sv, a_burst, a_dam, a_arm, a_ammo = 25, 2, 15, 6, 'N'
-        b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 1, 13, 6, 'N'
-        outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
-        result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo, b_crit_immune=True)
-        assert result == {'active': {0: 2464.5499999999997, 1: 3654.8999999999996, 2: 1340.55}, 'fail': {0: 253.0}, 'reactive': {0: 141.96, 1: 121.03, 2: 24.009999999999998}, 'total_rolls': 8000}
+        result = calculate(n4_input(dict(sv=25, burst=2, dam=15, arm=6, ammo='N'),
+                                    dict(sv=13, burst=1, dam=13, arm=6, ammo='N', crit_immune=True)))
+        assert_rolls(result, {'active': {0: 2464.5499999999997, 1: 3654.8999999999996, 2: 1340.55}, 'fail': {0: 253.0},
+                              'reactive': {0: 141.96, 1: 121.03, 2: 24.009999999999998}, 'total_rolls': 8000})
 
     def test_dodge_vs_template(self):
-        a_sv, a_burst, a_dam, a_arm, a_ammo = 25, 2, 15, 6, 'N'
-        b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 1, 13, 6, 'N'
-        outcomes = dtw_vs_dodge(a_burst, b_sv, b_burst)
-        result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo)
-        assert result == {'active': {0: 2.1174999999999997, 1: 3.465, 2: 1.4175},
-                           'fail': {0: 13.0},
-                           'reactive': {}, 'total_rolls': 20}
+        result = calculate(n4_input(dict(sv=25, burst=2, dam=15, arm=6, ammo='N', template=True),
+                                    dict(sv=13, burst=1, dam=13, arm=6, ammo='DODGE')))
+        assert_rolls(result, {'active': {0: 2.1174999999999997, 1: 3.465, 2: 1.4175}, 'fail': {0: 13.0},
+                              'reactive': {}, 'total_rolls': 20})
 
     def test_plasma(self):
-        a_sv, a_burst, a_dam, a_arm, a_ammo = 13, 3, 14, 6, 'PLASMA'
-        b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 1, 13, 3, 'N'
-        outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
-        result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo)
-        assert result == {'active': {0: 6567.584857528641, 1: 27000.717685382388, 2: 35015.890689458254,
-                                     3: 23489.99869272637, 4: 14627.696396870906, 5: 5665.637580835031,
-                                     6: 1719.0338085648748, 7: 187.37418932925002, 8: 8.885704569328125,
-                                     9: 0.180394734953125},
-                          'reactive': {0: 21617.927499999998, 1: 13200.845000000001, 2: 840.2275},
-                          'fail': {0: 10058.0},
-                          'total_rolls': 160000}
+        result = calculate(n4_input(dict(sv=13, burst=3, dam=14, arm=6, ammo='PLASMA'),
+                                    dict(sv=13, burst=1, dam=13, arm=3, ammo='N')))
+        assert_rolls(result, {'active': {0: 6567.584857528641, 1: 27000.717685382388, 2: 35015.890689458254,
+                                         3: 23489.99869272637, 4: 14627.696396870906, 5: 5665.637580835031,
+                                         6: 1719.0338085648748, 7: 187.37418932925002, 8: 8.885704569328125,
+                                         9: 0.180394734953125},
+                              'reactive': {0: 21617.927499999998, 1: 13200.845000000001, 2: 840.2275},
+                              'fail': {0: 10058.0},
+                              'total_rolls': 160000})
 
     def test_reactive_0_burst(self):
-        a_sv, a_burst, a_dam, a_arm, a_ammo = 13, 3, 14, 6, 'N'
-        b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 0, 13, 3, 'N'
-        outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
-        result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo)
-        assert result == {'active': {0: 1658.566936265625, 1: 3380.54768803125, 2: 2047.324565859375, 3: 519.4431309375001, 4: 49.14228773437499, 5: 1.94771053125, 6: 0.027680640625}, 'reactive': {}, 'fail': {0: 343.0}, 'total_rolls': 8000}
+        result = calculate(n4_input(dict(sv=13, burst=3, dam=14, arm=6, ammo='N'),
+                                    dict(sv=13, burst=0, dam=13, arm=3, ammo='N')))
+        assert_rolls(result, {'active': {0: 1658.566936265625, 1: 3380.54768803125, 2: 2047.324565859375,
+                                         3: 519.4431309375001, 4: 49.14228773437499, 5: 1.94771053125,
+                                         6: 0.027680640625},
+                              'reactive': {}, 'fail': {0: 343.0}, 'total_rolls': 8000})
 
     def test_active_0_burst(self):
         """Active burst 0 is a reactive Normal Roll: the mirror of reactive burst 0."""
-        sv, burst, save, arm, ammo = 13, 3, 6, 3, 'N'
-        reactive_only = face_to_face_expected_wounds(
-            face_to_face(13, 0, sv, burst), 7, 2, 'N', save, arm, ammo)
-        active_only = face_to_face_expected_wounds(
-            face_to_face(sv, burst, 13, 0), save, arm, ammo, 7, 2, 'N')
+        same = lambda dam: dam
+        reactive_only = in_rolls(calculate(n4_input(dict(sv=13, burst=0, dam=7, arm=2, ammo='N'),
+                                                    dict(sv=13, burst=3, dam=6, arm=3, ammo='N'), ps_of=same)))
+        active_only = in_rolls(calculate(n4_input(dict(sv=13, burst=3, dam=6, arm=3, ammo='N'),
+                                                  dict(sv=13, burst=0, dam=7, arm=2, ammo='N'), ps_of=same)))
         assert reactive_only['active'] == {}
-        assert reactive_only['reactive'] == active_only['active']
-        assert reactive_only['fail'] == active_only['fail'] == {0: 343.0}
+        assert reactive_only['reactive'] == pytest.approx(active_only['active'])
+        assert reactive_only['fail'] == pytest.approx(active_only['fail']) == {0: 343.0}
         assert reactive_only['total_rolls'] == 8000
 
     def test_minimum_5_wounds(self):
-        a_sv, a_burst, a_dam, a_arm, a_ammo = 25, 3, 20, 6, 'DA'
-        b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 0, 13, 0, 'N'
-        outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
-        result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo)
-        assert result == {'active': {6: 2744.0, 7: 3528.0, 8: 1512.0, 9: 216.0}, 'fail': {}, 'reactive': {}, 'total_rolls': 8000}
+        result = calculate(n4_input(dict(sv=25, burst=3, dam=20, arm=6, ammo='DA'),
+                                    dict(sv=13, burst=0, dam=13, arm=0, ammo='N')))
+        assert_rolls(result, {'active': {6: 2744.0, 7: 3528.0, 8: 1512.0, 9: 216.0}, 'fail': {}, 'reactive': {},
+                              'total_rolls': 8000})
 
     def test_active_reactive_both_0_wounds(self):
-        a_sv, a_burst, a_dam, a_arm, a_ammo = 1, 1, 1, 13, 'N'
-        b_sv, b_burst, b_dam, b_arm, b_ammo = 1, 0, 1, 13, 'N'
-        outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
-        result = face_to_face_expected_wounds(outcomes, ps(a_dam), a_arm, a_ammo, ps(b_dam), b_arm, b_ammo)
-        assert result == {'active': {0: 1.0}, 'fail': {0: 19.0}, 'reactive': {}, 'total_rolls': 20}
-
-    def test_shock(self):
-        a_sv, a_burst, a_dam, a_arm, a_ammo = 13, 3, 13, 2, 'DA'
-        b_sv, b_burst, b_dam, b_arm, b_ammo = 13, 1, 13, 2, 'N'
-        outcomes = face_to_face(a_sv, a_burst, b_sv, b_burst)
-        plain = face_to_face_expected_wounds(outcomes, a_dam, a_arm, a_ammo, b_dam, b_arm, b_ammo)
-        for winner, loser, flag in [('active', 'reactive', 'a_shock'), ('reactive', 'active', 'b_shock')]:
-            shock = face_to_face_expected_wounds(
-                outcomes, a_dam, a_arm, a_ammo, b_dam, b_arm, b_ammo, **{flag: True})
-            # One extra wound, once, whenever a save is failed
-            expected = {(wounds + 1 if wounds > 0 else 0): rolls for wounds, rolls in plain[winner].items()}
-            assert shock[winner].keys() == expected.keys()
-            assert all(isclose(shock[winner][wounds], expected[wounds]) for wounds in expected)
-            assert shock[loser] == plain[loser]
-            assert shock['fail'] == plain['fail']
-            assert shock['total_rolls'] == plain['total_rolls']
+        result = calculate(n4_input(dict(sv=1, burst=1, dam=1, arm=13, ammo='N'),
+                                    dict(sv=1, burst=0, dam=1, arm=13, ammo='N')))
+        assert_rolls(result, {'active': {0: 1.0}, 'fail': {0: 19.0}, 'reactive': {}, 'total_rolls': 20})
 
 
-    def test_dodge_vs_template_no_dodgers(self):
-        """Reactive burst 0 against a template: nobody dodges, every hit lands."""
-        outcomes = dtw_vs_dodge(2, 13, 0)
-        assert dict(outcomes.items()) == {(0, 2, 0, 0): 1}
+class TestRoll:
+    def test_success_values(self):
+        assert [read_roll(r, 13) for r in (1, 12, 13, 14, 20)] == [1, 12, 20, 0, 0]
+        # Over 20 the excess is added to the roll: 23 makes 18, 19 and 20 Criticals.
+        assert [read_roll(r, 23) for r in (1, 14, 17, 18, 20)] == [4, 17, 20, 20, 20]
+        # 0 always fails, with no Critical.
+        assert {read_roll(r, 0) for r in range(1, 21)} == {0}
+
+    def test_ties_cancel(self):
+        """Both sides at SV 1: the only success is a Critical on a 1, and two Criticals cancel each other."""
+        result = calculate(engine_input(side(sv=1), side(sv=1)))
+        assert isclose(chance(result, 'active'), 19 / 400)
+        assert isclose(chance(result, 'reactive'), 19 / 400)
+
+    def test_special_dice_keep_the_best(self):
+        """B1 plus one Special Die at SV 10 against nobody: one of two dice passing is enough."""
+        result = calculate(engine_input(side(sv=10, burst=1, bonus=1), side(burst=0)))
+        assert isclose(chance(result, 'active'), 1 - (10 / 20) ** 2)
+        assert result['rolls'] == 400
+
+    def test_fixed_reactive_roll(self):
+        """The reactive side always rolls its success value (19 at most: 20 would be a Critical)."""
+        result = calculate(engine_input(side(sv=13, burst=1), side(sv=10, burst=1), fixed=True))
+        # Only 11, 12 and 13 (a Critical) beat a fixed 10; a 10 ties.
+        assert isclose(chance(result, 'active'), 3 / 20)
+        assert isclose(chance(result, 'fail'), 1 / 20)
+        assert result['rolls'] == 20
+        assert set(roll(engine_input(side(), side(sv=25), fixed=True)).marginals[3].outcomes()) <= {0, 1}
 
 
-PARAMS = {
-    'successValueA': 13, 'burstA': 3, 'bonusBurstA': 1, 'damageA': 14, 'armA': 6, 'btsA': 3, 'ammoA': 'DA',
-    'contA': False, 'critImmuneA': False, 'shockA': False,
-    'successValueB': 12, 'burstB': 1, 'bonusBurstB': 0, 'damageB': 13, 'armB': 3, 'btsB': 6, 'ammoB': 'PLASMA',
-    'contB': False, 'critImmuneB': True, 'shockB': False,
-    'templateA': False, 'templateB': False, 'fixedFaceToFace': False,
-}
-
-
-class TestCalculate:
-    def test_matches_the_building_blocks(self):
-        result = calculate(PARAMS)
-        outcomes = face_to_face(13, 3, 12, 1, a_bonus_burst=1)
-        wounds = face_to_face_expected_wounds(outcomes, 14, 6, 'DA', 13, 3, 'PLASMA',
-                                              a_bts=3, b_bts=6, b_crit_immune=True)
-        assert result['total_rolls'] == wounds['total_rolls']
-        assert result['expected_wounds'] == f2f.format_expected_wounds(wounds)
-        assert [r['player'] for r in result['face_to_face']] == ['active', 'reactive', 'fail']
-        assert isclose(sum(r['chance'] for r in result['face_to_face']), 1)
-
+class TestTemplates:
     def test_dodge_vs_template_special_dice(self):
         """A Special Die on the Dodge is one more chance to pass: 2 dice at SV 10 fail together 1/4 of the time."""
-        p = dict(PARAMS, templateA=True, burstA=2, successValueB=10, burstB=1, bonusBurstB=1, ammoB='DODGE')
-        one = dict(p, bonusBurstB=0)
-        fail = lambda r: next(x['chance'] for x in r['face_to_face'] if x['player'] == 'active')
-        assert isclose(fail(calculate(one)), 0.5)
-        assert isclose(fail(calculate(p)), 0.25)
+        tpl = side(burst=2, template=True)
+        one = calculate(engine_input(tpl, side(sv=10, burst=1, saves=0)))
+        two = calculate(engine_input(tpl, side(sv=10, burst=1, bonus=1, saves=0)))
+        assert isclose(chance(one, 'active'), 0.5)
+        assert isclose(chance(two, 'active'), 0.25)
 
-    def test_template_against_no_aro_rolls_no_dodge(self):
-        """No ARO (burst 0) against a template: leftover Special Dice don't make a Dodge."""
-        p = dict(PARAMS, templateA=True, burstA=1, burstB=0, bonusBurstB=2, ammoB='N')
-        result = calculate(p)
-        assert 'unopposed' not in result
-        assert [r['chance'] for r in result['face_to_face'] if r['player'] == 'active'] == [1.0]
+    def test_template_against_no_aro(self):
+        """Nobody dodges (burst 0): every hit lands, leftover Special Dice don't make a Dodge."""
+        result = calculate(engine_input(side(burst=2, template=True), side(burst=0, bonus=2)))
+        assert chance(result, 'active') == 1
+        assert result['rolls'] == 1
 
-    def test_active_dodge_against_reactive_template(self):
-        """The mirror of a Dodge against an active template: the template's hits are the reactive side's."""
-        active_tpl = calculate(dict(PARAMS, templateA=True, burstA=1, successValueB=10, burstB=1, bonusBurstB=0,
-                                    ammoB='DODGE', ammoA='N', critImmuneB=False))
-        reactive_tpl = calculate(dict(PARAMS, templateB=True, burstB=1, successValueA=10, burstA=1, bonusBurstA=0,
-                                      ammoA='DODGE', ammoB='N', damageB=14, armA=3, btsA=6, critImmuneA=False))
-        assert 'unopposed' not in reactive_tpl
-        chance = lambda r, who: sum(x['chance'] for x in r['face_to_face'] if x['player'] == who)
+    def test_reactive_template_mirrors_active(self):
+        """The template's hits are whichever side holds it."""
+        active_tpl = calculate(engine_input(side(burst=1, template=True, save=13), side(sv=10, saves=0)))
+        reactive_tpl = calculate(engine_input(side(sv=10, saves=0), side(burst=1, template=True, save=13)))
         assert isclose(chance(reactive_tpl, 'reactive'), 0.5)
         assert chance(reactive_tpl, 'active') == 0
         assert isclose(chance(active_tpl, 'active'), chance(reactive_tpl, 'reactive'))
 
-
-class TestUnopposed:
-    """A Direct Template against an attack: two separate rolls, each succeeding or failing on its own."""
-    P = dict(PARAMS, templateA=True, burstA=1, bonusBurstA=0, ammoA='N', contA=True, damageA=6,
-             successValueB=12, burstB=1, bonusBurstB=0, ammoB='N', damageB=7, critImmuneB=False)
-
-    def test_each_side_is_its_own_roll(self):
-        result = calculate(self.P)
-        active, reactive = result['unopposed']['active'], result['unopposed']['reactive']
-        chance = lambda r, who: sum(x['chance'] for x in r['face_to_face'] if x['player'] == who)
-        # The template always hits; the reactive shot is a Normal Roll at SV 12 (12 in 20, crits included).
-        assert chance(active, 'active') == 1
-        assert chance(active, 'reactive') == 0
-        assert isclose(chance(reactive, 'reactive'), 12 / 20)
-        assert isclose(chance(reactive, 'fail'), 8 / 20)
-        assert chance(reactive, 'active') == 0
-
-    def test_matches_the_building_blocks(self):
-        result = calculate(self.P)
-        reactive_alone = calculate(dict(self.P, templateA=False, burstA=0))
-        # The reactive side's roll is exactly the reactive trooper shooting unopposed.
-        assert result['unopposed']['reactive']['expected_wounds'] == reactive_alone['expected_wounds']
-        # The active side's is the template's one automatic hit.
-        wounds = face_to_face_expected_wounds(Die([(0, 1, 0, 0)]), 6, 6, 'N', 7, 3, 'N',
-                                              a_cont=True, a_bts=3, b_bts=6)
-        assert result['unopposed']['active']['expected_wounds'] == f2f.format_expected_wounds(wounds)
-
-    def test_top_level_rows_are_each_sides_own(self):
-        result = calculate(self.P)
-        rows = result['expected_wounds']
-        assert {r['player'] for r in rows} == {'active', 'reactive'}
-        assert [r['id'] for r in rows] == list(range(len(rows)))
-        for side in ['active', 'reactive']:
-            own = [r for r in result['unopposed'][side]['expected_wounds'] if r['player'] == side]
-            assert [r['chance'] for r in rows if r['player'] == side] == [r['chance'] for r in own]
-        assert [r['player'] for r in result['face_to_face']] == ['active', 'reactive']
-
-    def test_reactive_template_against_active_shot(self):
-        result = calculate(dict(self.P, templateA=False, successValueA=13, burstA=3, templateB=True))
-        active, reactive = result['unopposed']['active'], result['unopposed']['reactive']
-        assert isclose(sum(x['chance'] for x in active['face_to_face'] if x['player'] == 'active'), 1 - (7 / 20) ** 3)
-        assert [x['chance'] for x in reactive['face_to_face'] if x['player'] == 'reactive'] == [1]
-
-    def test_both_templates_hit(self):
-        result = calculate(dict(self.P, templateB=True))
-        for side in ['active', 'reactive']:
-            assert [x['chance'] for x in result['unopposed'][side]['face_to_face'] if x['player'] == side] == [1]
-
-    def test_a_dodge_is_not_an_attack(self):
-        assert 'unopposed' not in calculate(dict(self.P, ammoB='DODGE'))
-
     def test_templates_never_crit(self):
         """A Direct Template doesn't roll to hit, so it never scores a Critical (no extra Saving Roll)."""
-        p = dict(self.P, contA=False, damageA=6, critImmuneB=False)
-        active = calculate(p)['unopposed']['active']['expected_wounds']
-        assert {r['wounds'] for r in active} == {0, 1}   # one hit, one Saving Roll: never 2 wounds
-        assert all(outcome[0] == 0 and outcome[2] == 0 for outcome in dtw_vs_dodge(3, 10, 1).outcomes())
-        assert all(outcome[0] == 0 for outcome in f2f.side_outcomes(dict(p, templateB=True), 'B').outcomes())
+        assert all(o[0] == 0 and o[2] == 0 for o in roll(engine_input(side(burst=3, template=True),
+                                                                      side(sv=10))).outcomes())
+        result = calculate(engine_input(side(burst=1, template=True, save=6), side(burst=0)))
+        assert {o['wounds'] for o in result['outcomes']} == {0, 1}
 
+    def test_two_templates_are_two_rolls(self):
+        with pytest.raises(ValueError):
+            calculate(engine_input(side(template=True), side(template=True)))
+
+
+class TestSavingRolls:
+    def wounds(self, burst=1, sv=30, **attack):
+        """Wounds from `burst` successes (Criticals at SV 30 only if `sv` says so) against nobody."""
+        result = calculate(engine_input(side(sv=sv, burst=burst, **attack), side(burst=0)))
+        return {o['wounds']: o['chance'] for o in result['outcomes']}
+
+    def test_saves_per_hit(self):
+        # SV 19: a hit (1-18) or a Critical (19) 95% of the time; save value 10 fails half the time.
+        w = self.wounds(sv=19, saves=3, crit=False, save=10)
+        assert isclose(w[3], 0.95 / 8)
+
+    def test_critical_adds_a_save(self):
+        """SV 40: every die is a Critical. One hit = saves + 1 Saving Rolls, unless critSave is off."""
+        assert max(self.wounds(sv=40, saves=2, save=0)) == 3
+        assert max(self.wounds(sv=40, saves=2, save=0, crit=False)) == 2
+
+    def test_wounds_per_failure(self):
+        """T2: two wounds per failed Saving Roll; a Critical's extra one is always one wound."""
+        assert self.wounds(sv=19, crit=False, save=0, wounds_per_failure=2) == pytest.approx({0: 0.05, 2: 0.95})
+        assert set(self.wounds(sv=40, save=0, wounds_per_failure=2)) == {3}
+
+    def test_continuous_damage(self):
+        """Each failed Saving Roll is rolled again, at most MAX_CONTINUOUS more times."""
+        w = self.wounds(sv=19, crit=False, save=10, cont=True)
+        assert isclose(w[1], 0.95 / 4)
+        assert max(w) == 6
+        # A save that can't pass used to crash icepool: it chains to the cap.
+        assert self.wounds(sv=19, crit=False, save=0, cont=True) == pytest.approx({0: 0.05, 6: 0.95})
+
+    def test_secondary_save(self):
+        """Plasma: every Saving Roll also needs a second one, at its own save value."""
+        w = self.wounds(sv=19, crit=False, save=20, secondary=10)
+        assert isclose(w[1], 0.95 / 2)
+        w = self.wounds(sv=19, crit=False, save=10, secondary=20)
+        assert isclose(w[1], 0.95 / 2)
+
+    def test_no_saves(self):
+        """A Dodge (saves 0) wins the roll but causes nothing, Criticals included."""
+        result = calculate(engine_input(side(sv=40, saves=0), side(burst=0)))
+        assert result['outcomes'] == [{'player': 'active', 'wounds': 0, 'chance': 1.0}]
