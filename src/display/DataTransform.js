@@ -112,3 +112,26 @@ export const squashResults = (results, maxWoundsActive, maxWoundsReactive) => {
 
   return newResults;
 }
+
+// One side of an unopposed result (result.unopposed.active / .reactive): its
+// own roll, so its chances add up to 1 without the other side.
+//   wpo        expected wounds per order
+//   success    chance the roll succeeds (hits, whether or not it wounds)
+//   noWounds   chance it causes no wounds
+//   atLeast    [{wounds, chance}]: chance of `wounds` or more, from 1 up to
+//              maxWounds or the most wounds it can cause, whichever is less
+export const unopposedSummary = (sideResult, player, maxWounds = 3) => {
+  const rows = sideResult.expected_wounds;
+  const mine = filter(propEq(player, 'player'));
+  const mostWounds = Math.max(0, ...pluck('wounds', rows));
+  const atLeast = [];
+  for (let w = 1; w <= Math.min(maxWounds, mostWounds); w++) {
+    atLeast.push({wounds: w, chance: sumChance(filter(propSatisfies((x) => x >= w, 'wounds'), rows))});
+  }
+  return {
+    wpo: woundsPerOrder(mine(rows)),
+    success: sumChance(mine(sideResult.face_to_face)),
+    noWounds: sumChance(filter(hasNoWounds, rows)),
+    atLeast,
+  };
+};

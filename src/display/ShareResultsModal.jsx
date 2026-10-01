@@ -15,7 +15,8 @@ import {
   failurePlayerWithNoWounds,
   sumChance,
   woundsPerOrder,
-  twoDecimalPlaces
+  twoDecimalPlaces,
+  unopposedSummary,
 } from "./DataTransform.js";
 import {useState} from "react";
 
@@ -71,7 +72,7 @@ export default function ShareResultsModal(props) {
   const shareURL = `https://infinitythecalculator.com/?${encodeQueryData({...parameters, ...(props.results.share ?? {})})}`;
 
   // Full text
-  const fullResultText =
+  const faceToFaceFullText =
 `Active (${activeWPO} wounds / order):
   Wins F2F: ${activeWinsF2F}%\
 ${activeList.map((x) => `\n  Causes ${x.wounds}+ wounds: ${formatPercentage(x.cumulative_chance)}%`)}
@@ -83,8 +84,28 @@ Reactive (${reactiveWPO} wounds / order):
   Wins F2F: ${reactiveWinsF2F}%\
 ${reactiveList.map((x) => `\n  Causes ${x.wounds}+ wounds: ${formatPercentage(x.cumulative_chance)}%`)}`
 
+  // Unopposed (a Direct Template against an attack): each side on its own, no
+  // shared failure.
+  const unopposed = props.results.unopposed;
+  const sides = unopposed && [['Active', 'active', activeMaxWounds], ['Reactive', 'reactive', reactiveMaxWounds]]
+    .map(([name, player, max]) => ({name, ...unopposedSummary(unopposed[player], player, max)}));
+  const unopposedFullText = sides && sides.map((x) =>
+`${x.name} (${twoDecimalPlaces(x.wpo)} wounds / order):
+  Succeeds (unopposed roll): ${formatPercentage(x.success)}%
+  No wounds caused: ${formatPercentage(x.noWounds)}%\
+${x.atLeast.map((w) => `\n  Causes ${w.wounds}+ wounds: ${formatPercentage(w.chance)}%`).join('')}`).join('\n');
+  const unopposedDiscordText = sides && [
+    `# ${title}\n`,
+    ...sides.map((x) => [
+      `### ${x.name} (${twoDecimalPlaces(x.wpo)} wounds / order, unopposed roll)\n`,
+      `- ${formatPercentage(x.noWounds)}% chance of no wounds.\n`,
+      ...x.atLeast.map((w) => `- ${formatPercentage(w.chance)}% chance ${w.wounds} or more wounds.\n`),
+    ].join('')),
+    `[Edit this result](${shareURL})`,
+  ].join('');
+
   // Discord text
-  const discordText =  [
+  const faceToFaceDiscordText =  [
     `# ${title}\n`,
     `### Active (${activeWPO} wounds / order)\n`,
     activeList.map((row) => {
@@ -105,6 +126,9 @@ ${reactiveList.map((x) => `\n  Causes ${x.wounds}+ wounds: ${formatPercentage(x.
     `[Edit this result](${shareURL})`
   ].join('');
 
+
+  const discordText = unopposed ? unopposedDiscordText : faceToFaceDiscordText;
+  const fullResultText = unopposed ? unopposedFullText : faceToFaceFullText;
 
   async function copyTextToClipboard(text) {
     if ('clipboard' in navigator) {

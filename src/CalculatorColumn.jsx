@@ -39,16 +39,15 @@ function CalculatorColumn({side, params, setParam, matchup, matchupMode, overrid
   const {title, variant, other, otherName} = SIDES[side];
   const value = (key) => params[`${key}${side}`];
   const set = (key) => setParam(`${key}${side}`);
-  const {dtwVsDodge} = params;
+  const template = value('template');
   const burst = value('burst');
   const ammo = value('ammo');
   const otherAmmo = params[`ammo${other}`];
 
   const burstInput = <BurstInput burst={burst} update={set('burst')} variant={variant} title="Burst" tooltip={BURST_TOOLTIP}/>;
-  // The active side's roll is replaced by the template (DTW); the reactive
-  // side's Dodge still rolls.
-  const rollsDice = burst !== 0 && !(side === 'A' && dtwVsDodge);
-  const causesSaves = burst !== 0 && ammo !== 'DODGE' && !(side === 'B' && dtwVsDodge);
+  // A Direct Template hits automatically: no roll, so no Success Value.
+  const rollsDice = burst !== 0 && !template;
+  const causesSaves = burst !== 0 && ammo !== 'DODGE';
   // Matchup mode also offers Burst here: a trooper may split their shots
   // between targets.
   const scales = <>
@@ -94,12 +93,10 @@ function CalculatorColumn({side, params, setParam, matchup, matchupMode, overrid
           {!matchupMode && <>
             <AmmoInput ammo={ammo} cont={value('cont')} update={set('ammo')} updateCont={set('cont')}
                        shock={value('shock')} updateShock={set('shock')} variant={variant}
-                       dtw={side === 'B' ? dtwVsDodge : undefined} title="Ammunition" tooltip={AMMO_TOOLTIP}/>
-            {side === 'A'
-              ? <OtherInputs critImmune={value('critImmune')} update={set('critImmune')}
-                             dtwVsDodge={dtwVsDodge} updateDtw={setParam('dtwVsDodge')}/>
-              : <OtherInputs critImmune={value('critImmune')} update={set('critImmune')} variant={variant}
-                             fixedFaceToFace={params.fixedFaceToFace} updateFixedFaceToFace={setParam('fixedFaceToFace')}/>}
+                       title="Ammunition" tooltip={AMMO_TOOLTIP}/>
+            <OtherInputs critImmune={value('critImmune')} update={set('critImmune')} variant={variant}
+                         template={template} updateTemplate={set('template')}
+                         fixedFaceToFace={params.fixedFaceToFace} updateFixedFaceToFace={setParam('fixedFaceToFace')}/>
           </>}
         </Grid>
       </CardContent>

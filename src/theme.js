@@ -6,7 +6,8 @@ import {atomWithStorage} from 'jotai/utils';
 export const themeAtom = atomWithStorage('selectedTheme', 'dark');
 
 // Palettes: `active` (green) and `reactive` (pink) colour each side's inputs
-// and results; `failure` the rolls where nobody wins.
+// and results; `failure` the rolls where nobody wins; `rest` the part of an
+// unopposed roll's bar where that side causes nothing.
 const designTokens = (mode) => ({
   palette: {
     mode: mode,
@@ -44,6 +45,7 @@ const designTokens = (mode) => ({
       failure: {
         100: grey[100],
       },
+      rest: '#000000',
       appbar: grey[100],
     } : {
       primary: {
@@ -72,6 +74,7 @@ const designTokens = (mode) => ({
         200: '#212121',
         100: '#121212',
       },
+      rest: '#000000',
       appbar: '#121212',
     }
   }

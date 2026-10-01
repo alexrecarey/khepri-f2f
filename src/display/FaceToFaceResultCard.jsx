@@ -4,7 +4,7 @@ import FaceToFaceGraph from "./FaceToFaceGraph.jsx";
 import FaceToFaceRetries from "./FaceToFaceRetries.jsx";
 import {
   Box, Card, CardActions,
-  CardContent, CardMedia, Collapse, FormControl, IconButton, InputLabel, MenuItem, Select, Tooltip,
+  CardContent, CardMedia, Collapse, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, Tooltip,
   Typography
 } from "@mui/material";
 import { styled } from '@mui/material/styles';
@@ -17,6 +17,7 @@ import HeartBrokenIcon from '@mui/icons-material/HeartBroken';
 import RetryIcon from '@mui/icons-material/Cached';
 import {useState} from "react";
 import ShareResultsModal from "./ShareResultsModal.jsx";
+import UnopposedSection from "./UnopposedSection.jsx";
 import InlineEdit from "../components/InlineEdit.jsx";
 
 
@@ -40,6 +41,8 @@ function FaceToFaceResultCard(props) {
   // Props
   const expectedWounds = props.f2fResults.expected_wounds;
   const faceToFace = props.f2fResults.face_to_face;
+  // A Direct Template against an attack: two separate rolls, one section each.
+  const unopposed = props.f2fResults.unopposed;
   const p = props.f2fResults.parameters;
   const addToCompare = props.addToCompare;
   const variant = props.variant ?? 'result';
@@ -92,11 +95,12 @@ function FaceToFaceResultCard(props) {
   // Ammo whose hits cause no Saving Rolls, so the PS means nothing.
   const NO_SAVES = ['DODGE', 'NONE'];
   const ammoText = (a) => (a === 'N' ? '' : a === 'NONE' ? 'NO EFFECT' : a);
-  let activeSv = p.dtwVsDodge ? "DTW" : "SV" + p.successValueA;
+  let activeSv = p.templateA ? "DTW" : "SV" + p.successValueA;
+  let reactiveSv = p.templateB ? "DTW" : "SV" + p.successValueB;
   let activeParameters = `B${p.burstA}${p.bonusBurstA >0 ? "+" + p.bonusBurstA : ""} ${p.burstA !== 0 ? activeSv : ""}\
  ${!NO_SAVES.includes(p.ammoA) && p.burstA !== 0 ? "PS" + p.damageA : ""} ${ammoText(p.ammoA)} \
  ${p.contA ? "CONT" : ""} ${p.shockA ? "SHOCK" : ""} ARM${p.armA} ${p.critImmuneA ? "CRIT_IMMUNE" : ""}`
-  let reactiveParameters = `B${p.burstB}${p.bonusBurstB >0 ? "+" + p.bonusBurstB : ""} ${p.burstB !== 0 ? "SV" + p.successValueB : ""} ${!NO_SAVES.includes(p.ammoB) && p.burstB !== 0 ? "PS" + p.damageB : ""}\
+  let reactiveParameters = `B${p.burstB}${p.bonusBurstB >0 ? "+" + p.bonusBurstB : ""} ${p.burstB !== 0 ? reactiveSv : ""} ${!NO_SAVES.includes(p.ammoB) && p.burstB !== 0 ? "PS" + p.damageB : ""}\
  ${ammoText(p.ammoB)} ${p.contB ? "CONT" : ""} ${p.shockB ? "SHOCK" : ""} ARM${p.armB} ${p.critImmuneB ? "CRIT_IMMUNE" : ""}`
 
   return <Card>
@@ -105,6 +109,13 @@ function FaceToFaceResultCard(props) {
         <InlineEdit sx={{flexGrow: 1}} variant="h6" fontFamily="conthrax" value={title} update={updateTitle}/>
       </Box>
     </CardContent>
+    {unopposed && <Stack spacing={2}>
+      <UnopposedSection sideResult={unopposed.active} player="active" summary={activeParameters}
+                        maxWounds={activeMaxWounds} expandGraph={expandGraph} expandTable={expandTable}/>
+      <UnopposedSection sideResult={unopposed.reactive} player="reactive" summary={reactiveParameters}
+                        maxWounds={reactiveMaxWounds} expandGraph={expandGraph} expandTable={expandTable}/>
+    </Stack>}
+    {!unopposed && <>
     <CardMedia sx={{pl:2, pr:2}}>
       <Box sx={{display: "flex", flexDirection: "row", justifyContent: "space-between", flexWrap: "wrap" }}>
         <Typography sx={{whiteSpace: "nowrap"}} variant="overline">{activeParameters}</Typography>
@@ -130,6 +141,7 @@ function FaceToFaceResultCard(props) {
         />
       </CardContent>
     </Collapse>
+    </>}
     <Collapse in={expandRetry}>
       <CardContent>
         <FaceToFaceRetries

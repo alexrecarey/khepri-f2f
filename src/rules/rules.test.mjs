@@ -165,7 +165,8 @@ test('combi vs combi at 8-16", reactive in cover', () => {
   assert.equal(r.inputs.successValueB, 15);   // 12 + 3 range, attacker not in cover
   assert.equal(r.inputs.burstB, 1);           // ARO burst
   assert.equal(r.inputs.armA, 2);
-  assert.equal(r.inputs.dtwVsDodge, false);
+  assert.equal(r.inputs.templateA, false);
+  assert.equal(r.inputs.templateB, false);
   assert.equal(r.inputs.fixedFaceToFace, false);
 });
 
@@ -220,17 +221,40 @@ test('BTS weapons put the target BTS into the ARM input', () => {
   assert.equal(r.inputs.armB, 9);
 });
 
-test('template weapon forces dodge, sets DTW and continuous damage', () => {
+test('template weapon against a Dodge: the template and its continuous damage, the Dodge rolled', () => {
   const flamer = option([{id: 3, name: 'Heavy Flamethrower'}]);
   const target = profile({ph: 13, skills: [{id: 40, name: 'Dodge', extra: ['+3']}]});
-  const r = deriveInputs({active: side(profile(), flamer, '3:'), reactive: side(target, combi, '1:'), rangeCm: 20});
-  assert.equal(r.inputs.dtwVsDodge, true);
+  const r = deriveInputs({active: side(profile(), flamer, '3:'), reactive: side(target, combi, 'dodge'), rangeCm: 20});
+  assert.equal(r.inputs.templateA, true);
+  assert.equal(r.inputs.templateB, false);
   assert.equal(r.inputs.burstA, 1);
   assert.equal(r.inputs.contA, true);
   assert.equal(r.inputs.ammoB, 'DODGE');
   assert.equal(r.inputs.burstB, 1);
   assert.equal(r.inputs.successValueB, 16);
-  assert.ok(r.notes.some((n) => n.includes('Dodge')));
+  assert.deepEqual(r.notes, []);
+});
+
+test('template weapon against a shot back: two unopposed rolls, the shot a Normal Roll', () => {
+  const flamer = option([{id: 3, name: 'Heavy Flamethrower'}]);
+  const r = deriveInputs({active: side(profile(), flamer, '3:'), reactive: side(profile(), combi, '1:'), rangeCm: 20});
+  assert.equal(r.ok, true);
+  assert.equal(r.inputs.templateA, true);
+  assert.equal(r.inputs.templateB, false);
+  assert.equal(r.inputs.ammoB, 'N');
+  assert.equal(r.inputs.successValueB, 15);   // 12 + 3 range, no MODs from the template user
+  assert.equal(r.inputs.burstB, 1);
+  assert.equal(r.inputs.armB, 2);             // no cover: the template ignores it anyway
+  assert.deepEqual(r.notes, ['Direct Template: no Face to Face Roll; each attack is rolled on its own']);
+  // And the other way round: an ARO template against an active shot.
+  const aro = deriveInputs({active: side(profile(), combi, '1:'), reactive: side(profile(), flamer, '3:', true), rangeCm: 20});
+  assert.equal(aro.ok, true);
+  assert.equal(aro.inputs.templateA, false);
+  assert.equal(aro.inputs.templateB, true);
+  assert.equal(aro.inputs.successValueA, 12);  // 12 + 3 range - 3 cover, a Normal Roll
+  assert.equal(aro.inputs.burstB, 1);
+  assert.equal(aro.inputs.contB, true);
+  assert.equal(aro.inputs.ammoB, 'N');
 });
 
 test('active Dodge: PH roll, no damage, reactive still shoots', () => {
@@ -240,14 +264,18 @@ test('active Dodge: PH roll, no damage, reactive still shoots', () => {
   assert.equal(r.inputs.ammoA, 'DODGE');
   assert.equal(r.inputs.burstA, 1);
   assert.equal(r.inputs.successValueA, 16);
-  assert.equal(r.inputs.dtwVsDodge, false);
+  assert.equal(r.inputs.templateA, false);
   assert.equal(r.inputs.successValueB, 15);   // 12 + 3 range, dodger not in cover
   assert.equal(r.inputs.burstB, 1);
   assert.equal(r.inputs.armA, 2);
   assert.deepEqual(pseudoWeapons(dodger, effectiveTraits(dodger, combi), 'A').map((w) => w.key), ['dodge']);
   assert.deepEqual(pseudoWeapons(dodger, effectiveTraits(dodger, combi), 'B').map((w) => w.key), ['dodge', 'none']);
+  // Dodging an ARO template: the template's hits are the reactive side's.
   const vsTemplate = deriveInputs({active: side(dodger, combi, 'dodge'), reactive: side(profile(), option([{id: 3, name: 'Heavy Flamethrower'}]), '3:'), rangeCm: 20});
-  assert.equal(vsTemplate.ok, false);
+  assert.equal(vsTemplate.ok, true);
+  assert.equal(vsTemplate.inputs.templateB, true);
+  assert.equal(vsTemplate.inputs.ammoA, 'DODGE');
+  assert.equal(vsTemplate.inputs.successValueA, 16);
 });
 
 test('reactive burst: total reaction keeps weapon burst, "none" is unopposed', () => {
@@ -321,10 +349,10 @@ test('Immunity (ARM): ARM=0 and Continuous Damage are ignored', () => {
   // Continuous Damage from a loadout extra.
   assert.equal(shotAt(dog, 7, '7:', {extra: ['Continuous Damage']}).inputs.contA, false);
   assert.equal(shotAt(profile(), 7, '7:', {extra: ['Continuous Damage']}).inputs.contA, true);
-  // Templates still force the Dodge.
-  const flamer = deriveInputs({active: side(profile(), option([{id: 3, name: 'Heavy Flamethrower'}]), '3:'), reactive: side(dog, combi, '1:'), rangeCm: 20}).inputs;
+  // Templates too.
+  const flamer = deriveInputs({active: side(profile(), option([{id: 3, name: 'Heavy Flamethrower'}]), '3:'), reactive: side(dog, combi, 'dodge'), rangeCm: 20}).inputs;
   assert.equal(flamer.contA, false);
-  assert.equal(flamer.dtwVsDodge, true);
+  assert.equal(flamer.templateA, true);
   assert.equal(flamer.ammoB, 'DODGE');
 });
 
@@ -462,21 +490,24 @@ test('Immunity (BTS): E/M has no effect, but it is still rolled and opposed', ()
 test('Immunity (BTS): a Sepsitor has no effect, but is still a template to Dodge', () => {
   const jinwei = immune('BTS', {bts: 6});
   const sepsitor = (p) => side(p, option([{id: 18, name: 'Sepsitor'}]), '18:');
-  const r = deriveInputs({active: sepsitor(profile()), reactive: side(jinwei, combi, '1:'), rangeCm: 20});
+  const r = deriveInputs({active: sepsitor(profile()), reactive: side(jinwei, combi, 'dodge'), rangeCm: 20});
   assert.equal(r.ok, true);
   assert.equal(r.inputs.burstA, 1);
-  assert.equal(r.inputs.dtwVsDodge, true);
+  assert.equal(r.inputs.templateA, true);
   assert.equal(r.inputs.ammoA, 'NONE');
   assert.equal(r.inputs.ammoB, 'DODGE');
-  assert.deepEqual(r.notes, ['Reactive: template weapon forces a Dodge']);
+  assert.deepEqual(r.notes, []);
   assert.deepEqual(r.warnings, ['Active: Sepsitor has no effect on a target with Immunity (BTS); its hits cause no damage']);
   const plain = deriveInputs({active: sepsitor(profile()), reactive: side(profile(), combi, '1:'), rangeCm: 20});
   assert.equal(plain.inputs.burstA, 1);
-  assert.equal(plain.inputs.dtwVsDodge, true);
-  assert.equal(plain.inputs.ammoB, 'DODGE');
-  // An active Dodge against a reactive template isn't modelled, harmless or not.
-  assert.equal(deriveInputs({active: side(jinwei, combi, 'dodge'), reactive: sepsitor(profile()), rangeCm: 20}).ok, false);
-  assert.equal(deriveInputs({active: side(profile(), combi, 'dodge'), reactive: sepsitor(profile()), rangeCm: 20}).ok, false);
+  assert.equal(plain.inputs.templateA, true);
+  assert.equal(plain.inputs.ammoB, 'N');
+  // An active Dodge against a reactive template, harmless or not.
+  const dodging = deriveInputs({active: side(jinwei, combi, 'dodge'), reactive: sepsitor(profile()), rangeCm: 20});
+  assert.equal(dodging.ok, true);
+  assert.equal(dodging.inputs.templateB, true);
+  assert.equal(dodging.inputs.ammoB, 'NONE');
+  assert.equal(deriveInputs({active: side(profile(), combi, 'dodge'), reactive: sepsitor(profile()), rangeCm: 20}).inputs.ammoA, 'DODGE');
 });
 
 test('Immunity (BTS): Flash Pulse still stuns, as a Face to Face Roll', () => {
@@ -668,10 +699,10 @@ test('Shock is cleared when the side stops shooting', () => {
     const r = deriveInputs({active: side(profile(), combi, '1:'), reactive: side(profile(), pistol, key), rangeCm: 20});
     assert.equal(r.inputs.shockB, false, key);
   }
-  // Forced to Dodge by a template, with a Shock weapon still selected.
-  const forced = deriveInputs({active: side(profile(), armed, '3:'), reactive: side(profile(), pistol, '6:'), rangeCm: 20});
-  assert.equal(forced.inputs.ammoB, 'DODGE');
-  assert.equal(forced.inputs.shockB, false);
+  // Shooting back at a template keeps the weapon's Shock.
+  const back = deriveInputs({active: side(profile(), armed, '3:'), reactive: side(profile(), pistol, '6:'), rangeCm: 20});
+  assert.equal(back.inputs.templateA, true);
+  assert.equal(back.inputs.shockB, true);
 });
 
 test('Albedo penalises MSV and Marksmanship attackers only', () => {
@@ -881,7 +912,7 @@ test('template burst comes from loadout extras (Dog-Warrior B2 Chain Rifle)', ()
   const r = deriveInputs({active: x, reactive: side(profile(), combi, '1:'), rangeCm: 20}).inputs;
   assert.equal(r.burstA, 2);
   assert.equal(r.bonusBurstA, 0);
-  assert.equal(r.dtwVsDodge, true);
+  assert.equal(r.templateA, true);
   assert.deepEqual(matchupTraits(x), []);
 });
 
@@ -1160,8 +1191,9 @@ test('BS Attack (-3) only while its trooper makes a rolled BS Attack', () => {
   const skills = [minus3];
   // Dodging: nothing.
   assert.equal(duel(side(profile({skills}), combi, 'dodge'), side(profile(), combi, '1:')).inputs.successValueB, 15);
-  // Direct Template: no roll, so the Dodge is a Normal Roll: nothing.
-  assert.equal(duel(side(profile({skills}), flamer, '3:'), side(profile(), combi, '1:')).inputs.successValueB, 12);
+  // Direct Template: no roll, so the Dodge or shot back is a Normal Roll: nothing.
+  assert.equal(duel(side(profile({skills}), flamer, '3:'), side(profile(), combi, 'dodge')).inputs.successValueB, 12);
+  assert.equal(duel(side(profile({skills}), flamer, '3:'), side(profile(), combi, '1:')).inputs.successValueB, 15);
   // An attack its target is immune to is still an opposed BS Attack, so -3
   // applies (E/Mitter vs Immunity (BTS)): the target's ARO 15 -> 12, Dodge 12 -> 9.
   const emitter = option([{id: 16, name: 'E/Mitter'}]);
@@ -1234,7 +1266,7 @@ test('Dodge (-3): the attacker takes -3 while the user Dodges; not its own Dodge
 test('Dodge (+1SD): a Special Die on the Dodge Roll, template or not', () => {
   const kazak = profile({skills: dodgeSkill('+1SD')});
   assert.equal(duel(side(profile(), combi, '1:'), side(kazak, combi, 'dodge')).inputs.bonusBurstB, 1);
-  const vsTemplate = duel(side(profile(), flamer, '3:'), side(kazak, combi, '1:'));
+  const vsTemplate = duel(side(profile(), flamer, '3:'), side(kazak, combi, 'dodge'));
   assert.equal(vsTemplate.inputs.ammoB, 'DODGE');
   assert.equal(vsTemplate.inputs.bonusBurstB, 1);
   assert.equal(duel(side(kazak, combi, 'dodge'), side(profile(), combi, '1:')).inputs.bonusBurstA, 1);
@@ -1246,7 +1278,8 @@ test('Dodge (ARM +3): +3 ARM against the attack it Dodges', () => {
   const coyote = profile({arm: 2, skills: dodgeSkill('ARM +3')});
   assert.equal(duel(side(profile(), combi, '1:'), side(coyote, combi, 'dodge')).inputs.armB, 5);
   assert.equal(duel(side(profile(), combi, '1:'), side(coyote, combi, '1:')).inputs.armB, 2);       // shooting back
-  assert.equal(duel(side(profile(), flamer, '3:'), side(coyote, combi, '1:')).inputs.armB, 5);      // forced Dodge
+  assert.equal(duel(side(profile(), flamer, '3:'), side(coyote, combi, 'dodge')).inputs.armB, 5);    // Dodging a template
+  assert.equal(duel(side(profile(), flamer, '3:'), side(coyote, combi, '1:')).inputs.armB, 2);      // shooting the template user
   // AP halves the whole ARM: (2 + 3) / 2 = 3.
   const multi = option([{id: 2, name: 'MULTI Rifle'}]);
   assert.equal(duel(side(profile(), multi, '2:AP Mode'), side(coyote, combi, 'dodge')).inputs.armB, 3);
@@ -1325,7 +1358,8 @@ test('Surprise Attack: not from the reactive side, not with a template, not when
   // Reactive trooper with the skill and the toggle: nothing.
   assert.equal(duel(side(profile(), combi, '1:'), using(side(infiltrator, combi, '1:'))).inputs.successValueA, 15);
   // Direct Template: automatic hit, not a Face to Face Roll.
-  assert.equal(duel(using(side(infiltrator, flamer, '3:')), side(profile(), combi, '1:')).inputs.successValueB, 12);
+  assert.equal(duel(using(side(infiltrator, flamer, '3:')), side(profile(), combi, 'dodge')).inputs.successValueB, 12);
+  assert.equal(duel(using(side(infiltrator, flamer, '3:')), side(profile(), combi, '1:')).inputs.successValueB, 15);
   // Active Dodge: no attack to surprise with.
   assert.equal(duel(using(side(infiltrator, combi, 'dodge')), side(profile(), combi, '1:')).inputs.successValueB, 15);
   // Toggle left on for a trooper without the skill.

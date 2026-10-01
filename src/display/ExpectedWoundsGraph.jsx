@@ -33,6 +33,7 @@ function ExpectedWoundsGraphCell(props) {
   const player = props.player;
   const chance = props.chance;
   const wounds = props.wounds;
+  const rest = props.restColor;
 
   const width = (chance * 100).toFixed(1) + "%";
   // const percentage = (data['chance'] * 100).toFixed(0) + "%";
@@ -43,17 +44,18 @@ function ExpectedWoundsGraphCell(props) {
   } else if(player === 'reactive' && wounds > 0){
     color = reactiveColors[wounds];
   } else {
-    color = theme.palette['failure'][100];
+    color = rest ?? theme.palette['failure'][100];
   }
 
   return <TableCell sx={{bgcolor: color, width: width, padding:0, height: '30px', textAlign: 'center'}}>
-    {chance >= 0.1 &&
+    {chance >= 0.1 && !(rest && wounds === 0) &&
       <div>{wounds}</div>
     }
   </TableCell>;
 }
 
 // TODO: BUG in reactive max wounds graph!
+// `restColor`: colour of the no-wounds part, unlabelled (an unopposed roll).
 function ExpectedWoundsGraph(props) {
   const results = props.rows;
   if (!results) {
@@ -83,6 +85,7 @@ function ExpectedWoundsGraph(props) {
             wounds={0}
             chance={totalFail}
             player='fail'
+            restColor={props.restColor}
           />
         }
         {ascendByWounds(reactivePlayerWithWounds(squashedResults)).map((result) => (

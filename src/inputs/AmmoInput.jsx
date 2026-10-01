@@ -14,10 +14,9 @@ function AmmoInput(props){
   const title = props.title;
   const tooltip = props.tooltip;
   const variant = props.variant ?? 'active';
-  const dtw = props.dtw;
   const color = variant === 'active' ? 'primary' : 'secondary'
 
-  const selected = dtw ? "DODGE" : ammo;
+  const selected = ammo;
 
   const ToggleButton = styled(MuiToggleButton)({
     fontWeight: 'bold',

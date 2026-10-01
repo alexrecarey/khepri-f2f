@@ -5,6 +5,8 @@ from f2f import face_to_face_expected_wounds, face_to_face, dtw_vs_dodge, calcul
 import re
 from math import isclose
 
+from icepool import Die
+
 
 def ps(n4_dam):
     """N4 DAM -> N5 PS with the same wound chance.
@@ -685,7 +687,7 @@ PARAMS = {
     'contA': False, 'critImmuneA': False, 'shockA': False,
     'successValueB': 12, 'burstB': 1, 'bonusBurstB': 0, 'damageB': 13, 'armB': 3, 'btsB': 6, 'ammoB': 'PLASMA',
     'contB': False, 'critImmuneB': True, 'shockB': False,
-    'dtwVsDodge': False, 'fixedFaceToFace': False,
+    'templateA': False, 'templateB': False, 'fixedFaceToFace': False,
 }
 
 
@@ -702,8 +704,79 @@ class TestCalculate:
 
     def test_dodge_vs_template_special_dice(self):
         """A Special Die on the Dodge is one more chance to pass: 2 dice at SV 10 fail together 1/4 of the time."""
-        p = dict(PARAMS, dtwVsDodge=True, burstA=2, successValueB=10, burstB=1, bonusBurstB=1, ammoB='DODGE')
+        p = dict(PARAMS, templateA=True, burstA=2, successValueB=10, burstB=1, bonusBurstB=1, ammoB='DODGE')
         one = dict(p, bonusBurstB=0)
         fail = lambda r: next(x['chance'] for x in r['face_to_face'] if x['player'] == 'active')
         assert isclose(fail(calculate(one)), 0.5)
         assert isclose(fail(calculate(p)), 0.25)
+
+    def test_template_against_no_aro_rolls_no_dodge(self):
+        """No ARO (burst 0) against a template: leftover Special Dice don't make a Dodge."""
+        p = dict(PARAMS, templateA=True, burstA=1, burstB=0, bonusBurstB=2, ammoB='N')
+        result = calculate(p)
+        assert 'unopposed' not in result
+        assert [r['chance'] for r in result['face_to_face'] if r['player'] == 'active'] == [1.0]
+
+    def test_active_dodge_against_reactive_template(self):
+        """The mirror of a Dodge against an active template: the template's hits are the reactive side's."""
+        active_tpl = calculate(dict(PARAMS, templateA=True, burstA=1, successValueB=10, burstB=1, bonusBurstB=0,
+                                    ammoB='DODGE', ammoA='N', critImmuneB=False))
+        reactive_tpl = calculate(dict(PARAMS, templateB=True, burstB=1, successValueA=10, burstA=1, bonusBurstA=0,
+                                      ammoA='DODGE', ammoB='N', damageB=14, armA=3, btsA=6, critImmuneA=False))
+        assert 'unopposed' not in reactive_tpl
+        chance = lambda r, who: sum(x['chance'] for x in r['face_to_face'] if x['player'] == who)
+        assert isclose(chance(reactive_tpl, 'reactive'), 0.5)
+        assert chance(reactive_tpl, 'active') == 0
+        assert isclose(chance(active_tpl, 'active'), chance(reactive_tpl, 'reactive'))
+
+
+class TestUnopposed:
+    """A Direct Template against an attack: two separate rolls, each succeeding or failing on its own."""
+    P = dict(PARAMS, templateA=True, burstA=1, bonusBurstA=0, ammoA='N', contA=True, damageA=6,
+             successValueB=12, burstB=1, bonusBurstB=0, ammoB='N', damageB=7, critImmuneB=False)
+
+    def test_each_side_is_its_own_roll(self):
+        result = calculate(self.P)
+        active, reactive = result['unopposed']['active'], result['unopposed']['reactive']
+        chance = lambda r, who: sum(x['chance'] for x in r['face_to_face'] if x['player'] == who)
+        # The template always hits; the reactive shot is a Normal Roll at SV 12 (12 in 20, crits included).
+        assert chance(active, 'active') == 1
+        assert chance(active, 'reactive') == 0
+        assert isclose(chance(reactive, 'reactive'), 12 / 20)
+        assert isclose(chance(reactive, 'fail'), 8 / 20)
+        assert chance(reactive, 'active') == 0
+
+    def test_matches_the_building_blocks(self):
+        result = calculate(self.P)
+        reactive_alone = calculate(dict(self.P, templateA=False, burstA=0))
+        # The reactive side's roll is exactly the reactive trooper shooting unopposed.
+        assert result['unopposed']['reactive']['expected_wounds'] == reactive_alone['expected_wounds']
+        # The active side's is the template's one automatic hit.
+        wounds = face_to_face_expected_wounds(Die([(0, 1, 0, 0)]), 6, 6, 'N', 7, 3, 'N',
+                                              a_cont=True, a_bts=3, b_bts=6)
+        assert result['unopposed']['active']['expected_wounds'] == f2f.format_expected_wounds(wounds)
+
+    def test_top_level_rows_are_each_sides_own(self):
+        result = calculate(self.P)
+        rows = result['expected_wounds']
+        assert {r['player'] for r in rows} == {'active', 'reactive'}
+        assert [r['id'] for r in rows] == list(range(len(rows)))
+        for side in ['active', 'reactive']:
+            own = [r for r in result['unopposed'][side]['expected_wounds'] if r['player'] == side]
+            assert [r['chance'] for r in rows if r['player'] == side] == [r['chance'] for r in own]
+        assert [r['player'] for r in result['face_to_face']] == ['active', 'reactive']
+
+    def test_reactive_template_against_active_shot(self):
+        result = calculate(dict(self.P, templateA=False, successValueA=13, burstA=3, templateB=True))
+        active, reactive = result['unopposed']['active'], result['unopposed']['reactive']
+        assert isclose(sum(x['chance'] for x in active['face_to_face'] if x['player'] == 'active'), 1 - (7 / 20) ** 3)
+        assert [x['chance'] for x in reactive['face_to_face'] if x['player'] == 'reactive'] == [1]
+
+    def test_both_templates_hit(self):
+        result = calculate(dict(self.P, templateB=True))
+        for side in ['active', 'reactive']:
+            assert [x['chance'] for x in result['unopposed'][side]['face_to_face'] if x['player'] == side] == [1]
+
+    def test_a_dodge_is_not_an_attack(self):
+        assert 'unopposed' not in calculate(dict(self.P, ammoB='DODGE'))
+

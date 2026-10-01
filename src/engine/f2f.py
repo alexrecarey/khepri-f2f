@@ -292,20 +292,40 @@ def format_expected_wounds(wounds, max_wounds_shown=25):
 
 # --- Entry point -------------------------------------------------------------------------------------------------
 
-def calculate(p):
-    """Runs one calculation. `p` holds the calculator params by name (see PARAMS in src/engine/params.js):
-    successValueA, burstA, bonusBurstA, damageA, armA, btsA, ammoA, contA, critImmuneA, shockA, the same with a
-    B suffix, and dtwVsDodge / fixedFaceToFace for the kind of roll.
-    """
-    if p['dtwVsDodge']:
-        outcomes = dtw_vs_dodge(p['burstA'], p['successValueB'], p['burstB'] + p['bonusBurstB'])
-    elif p['fixedFaceToFace']:
-        outcomes = fixed_face_to_face(p['successValueA'], p['burstA'], p['bonusBurstA'], p['successValueB'], p['burstB'])
-    else:
-        outcomes = face_to_face(
-            p['successValueA'], p['burstA'], p['successValueB'], p['burstB'],
-            a_bonus_burst=p['bonusBurstA'], b_bonus_burst=p['bonusBurstB'],
-        )
+def attacks(p, s):
+    """Does side s ('A' / 'B') attack? A Direct Template always does; a roll does unless it is a Dodge or not made."""
+    return p[f'template{s}'] or (p[f'burst{s}'] > 0 and p[f'ammo{s}'] != 'DODGE')
+
+
+def side_outcomes(p, s):
+    """Outcomes of side s's attack on its own: a Normal Roll, or a Direct Template's automatic hits."""
+    if s == 'A':
+        if p['templateA']:
+            return Die([(0, p['burstA'], 0, 0)])
+        return face_to_face(p['successValueA'], p['burstA'], 0, 0, a_bonus_burst=p['bonusBurstA'])
+    if p['templateB']:
+        return Die([(0, 0, 0, p['burstB'])])
+    return face_to_face(0, 0, p['successValueB'], p['burstB'], b_bonus_burst=p['bonusBurstB'])
+
+
+def outcomes_for(p):
+    """The roll of one Face to Face calculation (both sides in one result)."""
+    if p['templateA'] or p['templateB']:
+        # A Direct Template against a Dodge, or against nothing (No ARO): only the Dodge is rolled.
+        t, d = ('A', 'B') if p['templateA'] else ('B', 'A')
+        dodge_dice = p[f'burst{d}'] + p[f'bonusBurst{d}'] if p[f'burst{d}'] > 0 else 0
+        outcomes = dtw_vs_dodge(p[f'burst{t}'], p[f'successValue{d}'], dodge_dice)
+        # dtw_vs_dodge scores the template as the active side; move its hits over when it is the reactive one.
+        return outcomes if t == 'A' else outcomes.map(lambda o: (o[2], o[3], o[0], o[1]))
+    if p['fixedFaceToFace']:
+        return fixed_face_to_face(p['successValueA'], p['burstA'], p['bonusBurstA'], p['successValueB'], p['burstB'])
+    return face_to_face(
+        p['successValueA'], p['burstA'], p['successValueB'], p['burstB'],
+        a_bonus_burst=p['bonusBurstA'], b_bonus_burst=p['bonusBurstB'],
+    )
+
+
+def result_for(p, outcomes):
     expected_wounds = face_to_face_expected_wounds(
         outcomes,
         p['damageA'], p['armA'], p['ammoA'], p['damageB'], p['armB'], p['ammoB'],
@@ -317,4 +337,29 @@ def calculate(p):
         'face_to_face': format_face_to_face(face_to_face_result(outcomes)),
         'expected_wounds': format_expected_wounds(expected_wounds),
         'total_rolls': expected_wounds['total_rolls']
+    }
+
+
+def calculate(p):
+    """Runs one calculation. `p` holds the calculator params by name (see PARAMS in src/engine/params.js):
+    successValueA, burstA, bonusBurstA, damageA, armA, btsA, ammoA, contA, critImmuneA, shockA, templateA, the
+    same with a B suffix, and fixedFaceToFace.
+
+    When one side uses a Direct Template and both attack, nothing is opposed: each attack is its own roll (a
+    Normal Roll, or the template's automatic hits) and succeeds or fails on its own. The result then holds
+    'unopposed': {'active': result, 'reactive': result}, one result per side, each without the other's rows.
+    Its top-level 'face_to_face' and 'expected_wounds' keep only each side's own rows (no 'fail'), chances
+    taken from that side's result.
+    """
+    if not ((p['templateA'] or p['templateB']) and attacks(p, 'A') and attacks(p, 'B')):
+        return result_for(p, outcomes_for(p))
+    active = result_for(p, side_outcomes(p, 'A'))
+    reactive = result_for(p, side_outcomes(p, 'B'))
+    own = lambda r, player: [x for x in r if x['player'] == player]
+    rows = own(active['expected_wounds'], 'active') + own(reactive['expected_wounds'], 'reactive')
+    return {
+        'unopposed': {'active': active, 'reactive': reactive},
+        'face_to_face': own(active['face_to_face'], 'active') + own(reactive['face_to_face'], 'reactive'),
+        'expected_wounds': [dict(r, id=i) for i, r in enumerate(rows)],
+        'total_rolls': active['total_rolls'] + reactive['total_rolls'],
     }
