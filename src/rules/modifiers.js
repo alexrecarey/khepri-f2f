@@ -52,13 +52,15 @@ export function albedoMod(targetTraits, attackerTraits) {
   return Number.isFinite(mod) && mod < 0 ? mod : -3;
 }
 
+// Mimetism (-3) / (-6) against the attacker's Multispectral Visor:
+// MSV1 cancels 3 of it (-3 -> 0, -6 -> -3); MSV2 and MSV3 cancel it all.
 export function mimetismMod(targetTraits, attackerTraits) {
   const extra = skillExtra(targetTraits, SKILL.MIMETISM);
   if (!hasSkill(targetTraits, SKILL.MIMETISM)) return 0;
   const mod = Number(extra);
   const value = Number.isFinite(mod) && mod < 0 ? mod : -3;
   if (hasEquip(attackerTraits, EQUIP.MSV2) || hasEquip(attackerTraits, EQUIP.MSV3)) return 0;
-  if (hasEquip(attackerTraits, EQUIP.MSV1) && value === -3) return 0;
+  if (hasEquip(attackerTraits, EQUIP.MSV1)) return Math.min(0, value + 3);
   return value;
 }
 

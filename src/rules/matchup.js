@@ -76,7 +76,8 @@ function rolls(x, y) {
 // - x attacks with BS Attack (-X): y takes -X attacking or Dodging, unless y
 //   has Warhorse (rules/modifiers.js bsAttackMod).
 // - x is the active trooper, attacks, and uses Surprise Attack (-X) (a player
-//   toggle): y takes -X attacking or Dodging, unless y has Combat Instinct.
+//   toggle): y takes -X attacking or Dodging, unless y has Combat Instinct or
+//   a Multispectral Visor L3.
 function opposingMod(x, y, xActive, yLabel, notes) {
   if (!rolls(x, y) || !rolls(y, x)) return 0;
   if (x.weapon.pseudo === 'dodge') return y.weapon.pseudo ? 0 : dodgeExtras(x.traits).opponentMod;
@@ -86,8 +87,10 @@ function opposingMod(x, y, xActive, yLabel, notes) {
     notes.push(`${yLabel}: Warhorse; the opponent's BS Attack (${bs}) has no effect`);
   } else total += bs;
   const surprise = xActive && x.surpriseAttack ? surpriseAttackMod(x.traits) : 0;
-  if (surprise && hasSkill(y.traits, SKILL.COMBAT_INSTINCT)) {
-    notes.push(`${yLabel}: Combat Instinct; the opponent's Surprise Attack (${surprise}) has no effect`);
+  const ignores = hasSkill(y.traits, SKILL.COMBAT_INSTINCT) ? 'Combat Instinct'
+    : hasEquip(y.traits, EQUIP.MSV3) ? 'Multispectral Visor L3' : null;
+  if (surprise && ignores) {
+    notes.push(`${yLabel}: ${ignores}; the opponent's Surprise Attack (${surprise}) has no effect`);
   } else total += surprise;
   return total;
 }
