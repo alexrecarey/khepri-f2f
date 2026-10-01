@@ -34,7 +34,9 @@ const side = (s, burst) => ({
   [`bts${s}`]: int('bts', 0),              // BTS as a target of Plasma
   [`ammo${s}`]: ammo(),
   [`cont${s}`]: bool(),                    // Continuous Damage
-  [`shock${s}`]: bool(),                   // Shock takes effect: target has VITA 1 and no immunity
+  // Shock takes effect: target has VITA 1 and no immunity. Matchup mode only
+  // (App.jsx turns it off in Basic mode).
+  [`shock${s}`]: bool(),
   [`critImmune${s}`]: bool(),              // Immunity (Critical) as a target
   // Direct Template: burst hits land automatically, no roll. Against a Dodge
   // (or No ARO) only the Dodge is rolled; against an attack, each side's attack

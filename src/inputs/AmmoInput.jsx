@@ -9,8 +9,6 @@ function AmmoInput(props){
   const update = props.update;
   const cont = props.cont;
   const setCont = props.updateCont;
-  const shock = props.shock;
-  const setShock = props.updateShock;
   const title = props.title;
   const tooltip = props.tooltip;
   const variant = props.variant ?? 'active';
@@ -52,17 +50,6 @@ function AmmoInput(props){
                     onChange={() => {
                       setCont(!cont);
                     }}>CONT</ToggleButton>
-      <Tooltip title="Shock against a target with VITA 1 and no Immunity (Shock): any failed save sends it straight
-                      to Dead, counted as one extra wound.">
-        <ToggleButton sx={{fontWeight:'bold', minWidth:'3em'}}
-                      color={color}
-                      value="SHOCK"
-                      size="small"
-                      selected={shock}
-                      onChange={() => {
-                        setShock(!shock);
-                      }}>SHOCK</ToggleButton>
-      </Tooltip>
     </Grid>
   </>
 }

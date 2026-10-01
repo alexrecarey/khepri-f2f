@@ -74,7 +74,13 @@ function App() {
     setSearchParams({mode: calcMode}, {replace: true});
   }, [paramsKey(params)]);
 
-  const engine = useEngine(params);
+  // Shock is Matchup-only (it depends on the target's VITA); Basic mode has no
+  // input for it, so a value left over from Matchup mode must not count.
+  const engineParams = useMemo(
+    () => (matchupMode ? params : {...params, shockA: false, shockB: false}),
+    [params, matchupMode],
+  );
+  const engine = useEngine(engineParams);
   const saved = useSavedResults();
 
   const [showOverrides, setShowOverrides] = useState(false)

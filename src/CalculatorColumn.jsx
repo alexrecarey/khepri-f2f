@@ -91,8 +91,7 @@ function CalculatorColumn({side, params, setParam, matchup, matchupMode, overrid
           </>}
           {matchupMode ? <OverridesSection open={overridesOpen} onToggle={onToggleOverrides}>{scales}</OverridesSection> : scales}
           {!matchupMode && <>
-            <AmmoInput ammo={ammo} cont={value('cont')} update={set('ammo')} updateCont={set('cont')}
-                       shock={value('shock')} updateShock={set('shock')} variant={variant}
+            <AmmoInput ammo={ammo} cont={value('cont')} update={set('ammo')} updateCont={set('cont')} variant={variant}
                        title="Ammunition" tooltip={AMMO_TOOLTIP}/>
             <OtherInputs critImmune={value('critImmune')} update={set('critImmune')} variant={variant}
                          template={template} updateTemplate={set('template')}
