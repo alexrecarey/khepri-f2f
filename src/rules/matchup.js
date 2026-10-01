@@ -207,17 +207,15 @@ export function deriveInputs({active, reactive, rangeCm}) {
     if (!a.weapon) {
       incomplete = true;
     } else if (a.weapon.pseudo === 'dodge') {
-      // The calculator only models templates against a dodging *reactive* trooper.
-      if (bTemplate) errors.push('Active Dodge against a reactive template weapon is not supported');
       Object.assign(inputs, dodgeInputs(a, 'A', onA));
-      inputs.dtwVsDodge = false;
+      inputs.templateA = false;
     } else if (a.weapon.pseudo) {
       incomplete = true; // e.g. "No ARO" carried over; the active side needs a real choice
     } else if (attackStat(a.profile, a.weapon.row) <= 0) {
       errors.push('Active: this profile cannot make BS attacks; pick Dodge');
     } else {
       Object.assign(inputs, attackInputs(a, b, rangeCm, 'A', errors, notes, onA));
-      inputs.dtwVsDodge = aTemplate;
+      inputs.templateA = aTemplate;
     }
     if (b?.weapon?.row) Object.assign(inputs, defenseInputs(a, b.weapon, 'A', a.weapon?.pseudo === 'dodge'));
     else if (b) Object.assign(inputs, defenseInputs(a, null, 'A'));
@@ -226,19 +224,23 @@ export function deriveInputs({active, reactive, rangeCm}) {
   if (b) {
     if (!b.weapon) {
       incomplete = true;
-    } else if (aTemplate || b.weapon.pseudo === 'dodge') {
-      if (aTemplate && !b.weapon.pseudo) notes.push('Reactive: template weapon forces a Dodge');
+    } else if (b.weapon.pseudo === 'dodge') {
       Object.assign(inputs, dodgeInputs(b, 'B', onB));
+      inputs.templateB = false;
     } else if (b.weapon.pseudo === 'none') {
       inputs.burstB = 0;
       inputs.bonusBurstB = 0;
       inputs.shockB = false;
+      inputs.templateB = false;
     } else if (attackStat(b.profile, b.weapon.row) <= 0) {
       errors.push('Reactive: this profile cannot make BS attacks; pick Dodge or No ARO');
     } else {
       Object.assign(inputs, attackInputs(b, a, rangeCm, 'B', errors, notes, onB));
+      inputs.templateB = bTemplate;
+      // A Direct Template on either side: nothing is opposed, each attack is its own roll.
+      if (aTemplate || bTemplate) notes.push('Direct Template: no Face to Face Roll; each attack is rolled on its own');
     }
-    if (a?.weapon?.row) Object.assign(inputs, defenseInputs(b, a.weapon, 'B', aTemplate || b.weapon?.pseudo === 'dodge'));
+    if (a?.weapon?.row) Object.assign(inputs, defenseInputs(b, a.weapon, 'B', b.weapon?.pseudo === 'dodge'));
     else if (a) Object.assign(inputs, defenseInputs(b, null, 'B'));
   }
 

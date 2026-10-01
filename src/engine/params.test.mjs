@@ -7,8 +7,10 @@ import {AMMO, DEFAULT_PARAMS, PARAM_KEYS, fullParams, paramsKey, parseParams} fr
 const f2f = readFileSync(new URL('./f2f.py', import.meta.url), 'utf8');
 
 test('f2f.py reads exactly the calculator params', () => {
-  const calculate = f2f.slice(f2f.indexOf('def calculate('));
-  const read = new Set([...calculate.matchAll(/p\['(\w+)'\]/g)].map((m) => m[1]));
+  const entry = f2f.slice(f2f.indexOf('# --- Entry point'));
+  const read = new Set([...entry.matchAll(/p\['(\w+)'\]/g)].map((m) => m[1]));
+  // p[f'burst{s}'] reads the key for both sides.
+  for (const m of entry.matchAll(/p\[f'(\w+)\{\w\}'\]/g)) ['A', 'B'].forEach((s) => read.add(m[1] + s));
   assert.deepEqual([...read].sort(), [...PARAM_KEYS].sort());
 });
 
@@ -52,4 +54,12 @@ test('paramsKey ignores key order; fullParams fills defaults', () => {
   assert.equal(paramsKey(a), paramsKey(b));
   assert.equal(a.burstB, 1);
   assert.equal(a.fixedFaceToFace, false);
+});
+
+test('old share links: dtwVsDodge is an active template against a reactive Dodge', () => {
+  const p = parseParams(new URLSearchParams({dtwVsDodge: 'true', ammoB: 'N'}));
+  assert.equal(p.templateA, true);
+  assert.equal(p.ammoB, 'DODGE');
+  assert.equal(parseParams(new URLSearchParams({dtwVsDodge: 'false'})).templateA, false);
+  assert.equal('dtwVsDodge' in p, false);
 });

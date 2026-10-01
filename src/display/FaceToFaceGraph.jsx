@@ -5,6 +5,7 @@ import {activePlayer, failurePlayer, reactivePlayer} from "./DataTransform.js";
 function FaceToFaceGraphCell(props) {
   const theme = useTheme();
   const data = props.row;
+  const rest = props.restColor;
   const width = (data['chance'] * 100).toFixed(1) + "%";
   // const percentage = (data['chance'] * 100).toFixed(0) + "%";
 
@@ -14,18 +15,21 @@ function FaceToFaceGraphCell(props) {
   } else if(data['player'] === 'reactive'){
     color = theme.palette['reactive'][400];
   } else {
-    color = theme.palette['failure'][100];
+    color = rest ?? theme.palette['failure'][100];
   }
 
   return <TableCell sx={{bgcolor: color, width: width, padding:0, height: '30px', textAlign: 'center'}}>
-    {data['chance'] >= 0.1 &&
+    {data['chance'] >= 0.1 && !(rest && data['player'] === 'fail') &&
       <div>{width}</div>
     }
   </TableCell>;
 }
 
+// `restColor`: colour of the 'fail' part, unlabelled (an unopposed roll's
+// misses); the usual failure colour and label without it.
 function FaceToFaceGraph(props) {
   const results = props.rows;
+  const restColor = props.restColor;
 
   if(!results){
     return <div/>
@@ -38,9 +42,9 @@ function FaceToFaceGraph(props) {
   return <Table sx={{width:"100%"}}>
     <TableBody>
       <TableRow key="1">
-        {activeResults.map((result) => (<FaceToFaceGraphCell key={result['id']} row={result}/>))}
-        {failureResults.map((result) => (<FaceToFaceGraphCell key={result['id']} row={result}/>))}
-        {reactiveResults.map((result) => (<FaceToFaceGraphCell key={result['id']} row={result}/>))}
+        {activeResults.map((result) => (<FaceToFaceGraphCell key={result['id']} row={result} restColor={restColor}/>))}
+        {failureResults.map((result) => (<FaceToFaceGraphCell key={result['id']} row={result} restColor={restColor}/>))}
+        {reactiveResults.map((result) => (<FaceToFaceGraphCell key={result['id']} row={result} restColor={restColor}/>))}
       </TableRow>
     </TableBody>
   </Table>

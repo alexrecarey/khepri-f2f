@@ -1,12 +1,12 @@
-import { Grid, InputLabel, Checkbox, FormControlLabel} from "@mui/material";
+import { Grid, InputLabel, Checkbox, FormControlLabel, Tooltip} from "@mui/material";
 
 function OtherInputs(props){
   const variant = props.variant ?? 'active';
   const color = variant === 'active' ? 'primary' : 'secondary'
   const critImmune = props.critImmune;
-  const dtwVsDodge = props.dtwVsDodge;
+  const template = props.template;
   const update = props.update;
-  const updateDtw = props.updateDtw;
+  const updateTemplate = props.updateTemplate;
   const fixedFaceToFace = props.fixedFaceToFace;
   const updateFixedFaceToFace = props.updateFixedFaceToFace;
 
@@ -14,8 +14,8 @@ function OtherInputs(props){
     update(event.target.checked);
   };
 
-  const handleDtwChange = (event) => {
-    updateDtw(event.target.checked);
+  const handleTemplateChange = (event) => {
+    updateTemplate(event.target.checked);
   };
 
   const handleFixedFaceToFaceChange = (event) => {
@@ -35,15 +35,17 @@ function OtherInputs(props){
           onChange={handleChange}
         />}/>
     </Grid>
-    {variant === 'active' ?
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
-      <FormControlLabel
-        label="Direct Template Weapon"
-        control={<Checkbox
-          color={color}
-          checked={dtwVsDodge}
-          onChange={handleDtwChange}
-        />}/></Grid>: <></>}
+      <Tooltip title="Hits automatically, no roll. Against a Dodge only the Dodge is rolled; against an attack,
+                      each side's attack is rolled on its own (no Face to Face Roll).">
+        <FormControlLabel
+          label="Direct Template Weapon"
+          control={<Checkbox
+            color={color}
+            checked={template}
+            onChange={handleTemplateChange}
+          />}/>
+      </Tooltip></Grid>
     {variant === 'reactive' ?
     <Grid item xs={12} sx={{display: 'flex', justifyContent: 'left'}}>
       <FormControlLabel

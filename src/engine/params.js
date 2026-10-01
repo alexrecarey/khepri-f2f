@@ -1,6 +1,6 @@
 // The dice engine's input: one flat object of calculator params, the same in
 // Basic mode, Matchup mode, share links, saved results and the CSV export.
-// Keys end in A (active) or B (reactive), plus two flags for the kind of roll.
+// Keys end in A (active) or B (reactive), plus a flag for a fixed-value roll.
 // src/engine/f2f.py calculate() reads exactly these keys (checked by params.test.mjs).
 
 // Ammunition the engine knows: the keys of AMMO in f2f.py. DODGE stands for a
@@ -35,12 +35,15 @@ const side = (s, burst) => ({
   [`cont${s}`]: bool(),                    // Continuous Damage
   [`shock${s}`]: bool(),                   // Shock takes effect: target has VITA 1 and no immunity
   [`critImmune${s}`]: bool(),              // Immunity (Critical) as a target
+  // Direct Template: burst hits land automatically, no roll. Against a Dodge
+  // (or No ARO) only the Dodge is rolled; against an attack, each side's attack
+  // is its own unopposed roll (f2f.py calculate).
+  [`template${s}`]: bool(),
 });
 
 export const PARAMS = {
   ...side('A', 3),
   ...side('B', 1),
-  dtwVsDodge: bool(),        // Direct Template Weapon (active) against a Dodge (reactive)
   fixedFaceToFace: bool(),   // Reactive rolls a fixed value (e.g. AC2)
 };
 
@@ -68,6 +71,9 @@ export function parseParams(searchParams) {
     const v = parseValue(PARAMS[k], raw);
     if (v !== undefined) out[k] = v;
   }
+  // Links from before templateA / templateB: dtwVsDodge was an active template
+  // against a reactive Dodge, whatever ammoB said.
+  if (searchParams.get('dtwVsDodge')?.toLowerCase() === 'true') Object.assign(out, {templateA: true, ammoB: 'DODGE'});
   return out;
 }
 
