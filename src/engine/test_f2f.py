@@ -780,3 +780,11 @@ class TestUnopposed:
     def test_a_dodge_is_not_an_attack(self):
         assert 'unopposed' not in calculate(dict(self.P, ammoB='DODGE'))
 
+    def test_templates_never_crit(self):
+        """A Direct Template doesn't roll to hit, so it never scores a Critical (no extra Saving Roll)."""
+        p = dict(self.P, contA=False, damageA=6, critImmuneB=False)
+        active = calculate(p)['unopposed']['active']['expected_wounds']
+        assert {r['wounds'] for r in active} == {0, 1}   # one hit, one Saving Roll: never 2 wounds
+        assert all(outcome[0] == 0 and outcome[2] == 0 for outcome in dtw_vs_dodge(3, 10, 1).outcomes())
+        assert all(outcome[0] == 0 for outcome in f2f.side_outcomes(dict(p, templateB=True), 'B').outcomes())
+
