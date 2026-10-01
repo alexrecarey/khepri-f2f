@@ -3,7 +3,7 @@
   command = "vite build"
 
 [build.environment]
-  NODE_VERSION = "18.12.1"
+  NODE_VERSION = "24.21.0"
   YARN_VERSION = "3.3.0"
 
 [[redirects]]

@@ -8,8 +8,16 @@ set -euo pipefail
 [ "${CLAUDE_CODE_REMOTE:-}" = "true" ] || exit 0
 cd "${CLAUDE_PROJECT_DIR:-$(dirname "$0")/..}"
 
-# Volta pins node 18 locally; the cloud image ships a newer node. Tests and
-# vite 4 run on node 22 (test:js lists files, since node 21+ rejects a dir).
+# Node comes from .nvmrc (Volta pins the same version locally). The cloud image
+# may ship another major; switch with nvm when it has one.
+want="$(cat .nvmrc)"
+if [ "$(node -v 2>/dev/null)" != "v$want" ] && [ -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh" ]; then
+  . "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
+  nvm install "$want" >/dev/null && nvm alias default "$want" >/dev/null
+  [ -n "${CLAUDE_ENV_FILE:-}" ] && echo "export PATH=\"$(dirname "$(nvm which "$want")"):\$PATH\"" >> "$CLAUDE_ENV_FILE"
+fi
+node -v | grep -q "^v${want%%.*}\." || echo "warning: node $(node -v) != $want" >&2
+
 # Yarn must match the lockfile's 3.3.0.
 command -v corepack >/dev/null || npm i -g corepack >/dev/null
 corepack enable
