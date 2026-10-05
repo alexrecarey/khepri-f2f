@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Peek B, at-least ladder</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:420px;box-sizing:border-box;background:#121212;display:flex;flex-direction:column;justify-content:flex-end">
+<div style="margin:0 16px 12px;height:40px;border-radius:14px;background:#1c1c1c;opacity:.4"></div>
+<div style="display:flex;flex-direction:column;gap:10px;margin:0 8px;padding:8px 16px 24px;border-radius:20px 20px 0 0;background:#1f1f1f">
+<span style="align-self:center;width:40px;height:5px;border-radius:3px;background:#444"></span>
+<div style="display:flex;height:22px;border-radius:6px;overflow:hidden">
+<span style="width:10.5%;background:#8fe0c2"></span><span style="width:19.9%;background:#5fc4a0"></span><span style="width:30.1%;background:#3a9a7a"></span><span style="width:22.9%;background:#2e2e2e"></span><span style="width:8.1%;background:#a8457a"></span><span style="width:6.3%;background:#d06fa0"></span><span style="width:2.2%;background:#e59bc0"></span>
+</div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px">
+<div style="display:flex;flex-direction:column;gap:3px">
+<div style="display:flex;align-items:baseline;gap:6px"><span style="font-family:'Chakra Petch',sans-serif;font-size:26px;font-weight:700;color:#5fc4a0">1.04</span><span style="font-size:12px;color:#9a978f">wounds / order</span></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a877f"><span>≥1</span><span>≥2</span><span>≥3</span></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));font-family:'IBM Plex Mono',monospace;font-size:14px"><span>61%</span><span>30%</span><span>11%</span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:3px">
+<div style="display:flex;align-items:baseline;gap:6px"><span style="font-family:'Chakra Petch',sans-serif;font-size:26px;font-weight:700;color:#e59bc0">0.28</span><span style="font-size:12px;color:#9a978f">back</span></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a877f"><span>≥1</span><span>≥2</span><span>≥3</span></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));font-family:'IBM Plex Mono',monospace;font-size:14px"><span>17%</span><span>9%</span><span>2%</span></div>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":420}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Unit picker</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:880px;height:980px;box-sizing:border-box;padding:40px;background:#121212">
+<div style="background:#1c1c1c;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:16px;height:100%;box-sizing:border-box">
+
+<label for="q" style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f">Pick the reactive trooper</label>
+<input id="q" value="fus ml" style="all:unset;padding:16px 18px;border:1px solid #5fc4a0;border-radius:10px;font-size:18px;background:#181818">
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+<span style="font-size:13px;color:#8a877f">In</span>
+<button style="all:unset;cursor:pointer;padding:8px 14px;border-radius:999px;background:#3a2330;border:1px solid #e59bc0;font-size:14px">PanOceania ×</button>
+<button style="all:unset;cursor:pointer;padding:8px 14px;border-radius:999px;border:1px dashed #3a3a3a;color:#9a978f;font-size:14px">All factions</button>
+<span style="flex-grow:1"></span>
+<span style="font-size:13px;color:#8a877f">"ml" matched a weapon</span>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:4px">
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:8px 4px">Profiles · 3</div>
+
+<button style="all:unset;cursor:pointer;display:flex;gap:16px;align-items:center;padding:14px 16px;border-radius:10px;background:#262626">
+<div style="flex-grow:1;display:flex;flex-direction:column;gap:4px">
+<span style="font-size:16px;font-weight:600">Fennec Fusiliers <span style="font-weight:400;color:#e59bc0">· Missile Launcher</span></span>
+<span style="font-size:13px;color:#9a978f">Pistol, CC Weapon</span>
+</div>
+<span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#9a978f">BS 12 · 15 pts</span>
+<span style="font-size:12px;color:#8a877f;border:1px solid #3a3a3a;border-radius:6px;padding:2px 6px">↵</span>
+</button>
+
+<button style="all:unset;cursor:pointer;display:flex;gap:16px;align-items:center;padding:14px 16px;border-radius:10px">
+<div style="flex-grow:1;display:flex;flex-direction:column;gap:4px">
+<span style="font-size:16px;font-weight:600">Fusiliers <span style="font-weight:400;color:#e59bc0">· Missile Launcher</span></span>
+<span style="font-size:13px;color:#9a978f">Pistol, Knife</span>
+</div>
+<span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#9a978f">BS 12 · 15 pts</span>
+</button>
+
+<button style="all:unset;cursor:pointer;display:flex;gap:16px;align-items:center;padding:14px 16px;border-radius:10px">
+<div style="flex-grow:1;display:flex;flex-direction:column;gap:4px">
+<span style="font-size:16px;font-weight:600">Fusiliers <span style="font-weight:400;color:#9a978f">· Lieutenant ·</span> <span style="font-weight:400;color:#e59bc0">Missile Launcher</span></span>
+<span style="font-size:13px;color:#9a978f">Pistol, Knife</span>
+</div>
+<span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#9a978f">BS 12 · 15 pts</span>
+</button>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:4px">
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:8px 4px">Units · open to see every profile</div>
+<button style="all:unset;cursor:pointer;display:flex;justify-content:space-between;padding:12px 16px;border-radius:10px;font-size:15px"><span>Fusiliers</span><span style="color:#8a877f">9 profiles ›</span></button>
+<button style="all:unset;cursor:pointer;display:flex;justify-content:space-between;padding:12px 16px;border-radius:10px;font-size:15px"><span>Fennec Fusiliers</span><span style="color:#8a877f">6 profiles ›</span></button>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:4px">
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:8px 4px">Recent</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button style="all:unset;cursor:pointer;padding:8px 14px;border-radius:8px;background:#232323;font-size:14px">Squalos · HMG</button>
+<button style="all:unset;cursor:pointer;padding:8px 14px;border-radius:8px;background:#232323;font-size:14px">Swiss Guard · Missile L.</button>
+<button style="all:unset;cursor:pointer;padding:8px 14px;border-radius:8px;background:#232323;font-size:14px">Nisses · HMG</button>
+</div>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":880,"height":980}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

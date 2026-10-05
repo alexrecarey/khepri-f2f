@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ledger C open</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#161616;display:flex;flex-direction:column">
+<div style="padding:10px 8px;display:flex;align-items:center;gap:4px;border-bottom:1px solid #2c2c2c">
+<a href="LedgerC.dc.html" aria-label="Back" style="width:44px;height:44px;display:grid;place-items:center;font-size:22px;color:#c9c6bf;text-decoration:none">‹</a>
+<span style="font-size:18px;font-weight:600">Why these dice</span>
+</div>
+<div style="display:flex;margin:12px 16px;background:#222;border-radius:10px;padding:3px">
+<span style="flex-grow:1;text-align:center;padding:10px;border-radius:8px;background:#e8e6e1;color:#121212;font-weight:600;font-size:15px">SV</span>
+<span style="flex-grow:1;text-align:center;padding:10px;color:#c9c6bf;font-size:15px">PS</span>
+<span style="flex-grow:1;text-align:center;padding:10px;color:#c9c6bf;font-size:15px">Burst</span>
+</div>
+
+<div style="padding:4px 16px;display:flex;flex-direction:column;gap:22px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:'Chakra Petch',sans-serif;color:#5fc4a0;letter-spacing:.1em;font-size:13px">SQUALO</span><span style="font-family:'Chakra Petch',sans-serif;font-size:30px;font-weight:700;color:#5fc4a0">14</span></div>
+<div style="position:relative;height:28px;border-radius:6px;background:#222">
+<span style="position:absolute;left:0;top:0;bottom:0;width:70%;border-radius:6px;background:#2f5b4c"></span>
+<span style="position:absolute;left:70%;top:0;bottom:0;width:15%;background:#5fc4a0"></span>
+<span style="position:absolute;left:70%;top:-4px;bottom:-4px;width:2px;background:#e59bc0"></span>
+</div>
+<div style="display:flex;flex-direction:column;gap:3px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:#c9c6bf">
+<span>BS 14 · <span style="color:#5fc4a0">+3 range</span> · <span style="color:#e59bc0">−3 cover</span> · <span style="color:#6b6861;text-decoration:line-through">−3 Mimetism</span></span>
+<span style="color:#8a877f;font-family:'IBM Plex Sans',sans-serif">Bar = 20 sides of the die; green part is what range added, pink line is where cover took it back.</span>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:'Chakra Petch',sans-serif;color:#e59bc0;letter-spacing:.1em;font-size:13px">FENNEC</span><span style="font-family:'Chakra Petch',sans-serif;font-size:30px;font-weight:700;color:#e59bc0">16</span></div>
+<div style="position:relative;height:28px;border-radius:6px;background:#222">
+<span style="position:absolute;left:0;top:0;bottom:0;width:60%;border-radius:6px 0 0 6px;background:#5c2f47"></span>
+<span style="position:absolute;left:60%;top:0;bottom:0;width:20%;background:#e59bc0"></span>
+</div>
+<span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#c9c6bf">BS 12 · <span style="color:#e59bc0">+1 fireteam · +3 range</span></span>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

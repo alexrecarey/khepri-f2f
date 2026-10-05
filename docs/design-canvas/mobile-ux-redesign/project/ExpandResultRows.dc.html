@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Expand D, results end with both ledgers</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;background:#1a1a1a;display:flex;flex-direction:column;padding:16px;box-sizing:border-box;gap:12px;overflow:hidden">
+<div style="font-size:12px;color:#6b6861;text-align:center;padding-bottom:6px">… Fennec wins the roll · 20.3% (end of the odds breakdown)</div>
+
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;border-top:1px solid #2c2c2c;padding-top:14px">How the dice were built</div>
+
+<sc-for list="{{sides}}" as="s" hint-placeholder-count="2">
+<div style="display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:12px;background:#222">
+<div style="display:flex;justify-content:space-between;font-family:'Chakra Petch',sans-serif;font-size:17px;font-weight:700;color:{{s.color}}"><span>{{s.name}}</span><span>{{s.dice}}</span></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;font-family:'IBM Plex Mono',monospace;font-size:12px">
+<sc-for list="{{s.cols}}" as="c" hint-placeholder-count="3">
+<div style="display:flex;flex-direction:column;gap:2px">
+<span style="font-family:'IBM Plex Sans',sans-serif;font-size:10px;letter-spacing:.12em;color:#8a877f">{{c.title}}</span>
+<sc-for list="{{c.lines}}" as="l" hint-placeholder-count="2"><span style="color:{{l.color}};text-decoration:{{l.deco}}">{{l.t}}</span></sc-for>
+<span style="border-top:1px solid #3a3a3a;padding-top:3px;font-weight:600">{{c.total}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+<span style="font-size:12px;color:#6b6861;text-align:center">No tap needed: just keep scrolling the results</span>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+var G = '#5fc4a0', P = '#e59bc0', W = '#e8e6e1';
+function l(t, c, x) { return { t: t, color: c || W, deco: x ? 'line-through' : 'none' }; }
+class Component extends DCLogic {
+  renderVals() {
+    return { sides: [
+      { name: 'Squalo', color: G, dice: 'B4 SV14 PS9', cols: [
+        { title: 'BURST', lines: [l('4 HMG')], total: 'B4' },
+        { title: 'SV', lines: [l('14 BS'), l('+3 range', G), l('−3 cover', P), l('−3 mimet.', '#6b6861', true)], total: 'SV14' },
+        { title: 'PS', lines: [l('5 HMG'), l('+1 ARM', P), l('+3 cover', P)], total: 'PS9' } ] },
+      { name: 'Fennec', color: P, dice: 'B2 SV13 PS12', cols: [
+        { title: 'BURST', lines: [l('1 ML'), l('+1 FT5', P)], total: 'B2' },
+        { title: 'SV', lines: [l('12 BS'), l('+1 FT5', P), l('+3 range', P), l('−3 surprise', G)], total: 'SV13' },
+        { title: 'PS', lines: [l('6 ML'), l('+6 ARM', G)], total: 'PS12 EXP' } ] }
+    ] };
+  }
+}
+</script>
+</body>
+</html>

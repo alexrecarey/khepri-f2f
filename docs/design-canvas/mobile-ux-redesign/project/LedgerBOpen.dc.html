@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ledger B open</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#0a0a0a;position:relative;overflow:hidden">
+<div style="padding:60px 16px;opacity:.25;display:flex;flex-direction:column;gap:10px"><div style="height:150px;border-radius:14px;background:#1c1c1c"></div><div style="height:36px"></div><div style="height:150px;border-radius:14px;background:#1c1c1c"></div></div>
+
+<div style="position:absolute;left:0;right:0;bottom:0;height:600px;background:#1a1a1a;border-radius:20px 20px 0 0;padding:10px 16px 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px">
+<span style="align-self:center;width:40px;height:5px;border-radius:3px;background:#444"></span>
+<div style="display:grid;grid-template-columns:1fr 92px 92px;font-size:12px;letter-spacing:.1em;color:#8a877f;padding:0 4px">
+<span>MODIFIER</span><span style="text-align:right;color:#5fc4a0">SQUALO</span><span style="text-align:right;color:#e59bc0">FENNEC</span>
+</div>
+
+<div style="display:flex;flex-direction:column;font-family:'IBM Plex Mono',monospace;font-size:14px">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+<div style="display:grid;grid-template-columns:1fr 92px 92px;padding:11px 4px;border-top:1px solid #262626;align-items:baseline">
+<span style="font-family:'IBM Plex Sans',sans-serif;font-size:15px">{{r.name}} <span style="font-size:12px;color:#8a877f">{{r.note}}</span></span>
+<span style="text-align:right;color:#5fc4a0">{{r.a}}</span>
+<span style="text-align:right;color:#e59bc0">{{r.r}}</span>
+</div>
+</sc-for>
+<div style="display:grid;grid-template-columns:1fr 92px 92px;padding:12px 4px;border-top:1px solid #444;font-weight:600;align-items:baseline">
+<span style="font-family:'IBM Plex Sans',sans-serif;font-size:15px">Rolls</span>
+<span style="text-align:right;color:#5fc4a0">B4 SV14<br>PS6</span>
+<span style="text-align:right;color:#e59bc0">B2 SV16<br>PS12</span>
+</div>
+</div>
+<span style="font-size:12px;color:#8a877f">One row per rule, so you see what a single toggle does to both sides.</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { rows: [
+      { name: 'Base', note: 'BS / PS', a: '14 / 5', r: '12 / 6' },
+      { name: 'Range 24–32"', note: '', a: 'SV +3', r: 'SV +3' },
+      { name: 'Cover', note: 'Fennec', a: 'SV −3', r: '—' },
+      { name: 'Mimetism', note: 'cancelled by MSV2', a: '(−3) ✕', r: '—' },
+      { name: 'Fireteam 5', note: '', a: '—', r: 'SV +1 · B +1' },
+      { name: 'Target ARM', note: '', a: 'PS +1', r: 'PS +6' }
+    ] };
+  }
+}
+</script>
+</body>
+</html>
