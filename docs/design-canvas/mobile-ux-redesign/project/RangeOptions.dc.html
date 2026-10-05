@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Range selector options</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#0d0d0d;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:1720px;height:760px;box-sizing:border-box;padding:32px;background:#0d0d0d;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:40px">
+
+<sc-for list="{{cols}}" as="c" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;flex-direction:column;gap:4px;min-height:84px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:20px;font-weight:700">{{c.name}}</span>
+<span style="font-size:13px;color:#8a877f;line-height:1.45">{{c.blurb}}</span>
+</div>
+
+<div style="width:390px;box-sizing:border-box;padding:16px;background:#121212;border-radius:20px;display:flex;flex-direction:column;gap:10px">
+<div style="padding:14px;border-radius:14px;background:#1c1c1c;display:flex;flex-direction:column;gap:2px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.1em;color:#5fc4a0">ACTIVE</span>
+<span style="font-size:17px;font-weight:600">Squalos Mk-II <span style="font-size:13px;font-weight:400;color:#8a877f">· HMG</span></span>
+</div>
+
+<div style="overflow:hidden;transition:max-height .28s ease, opacity .2s ease;max-height:{{c.slimH}};opacity:{{c.slimO}}">
+<div style="display:flex;align-items:center;gap:8px">
+<button onClick="{{c.toggle}}" aria-label="Change range" style="all:unset;cursor:pointer;display:flex;flex-grow:1;border:1px solid #2c2c2c;border-radius:10px;overflow:hidden">
+<sc-for list="{{c.bands}}" as="b" hint-placeholder-count="7">
+<sc-if value="{{b.on}}" hint-placeholder-val="{{false}}"><span style="flex-grow:1;text-align:center;padding:9px 0;font-size:12px;background:#e8e6e1;color:#121212;font-weight:600">{{b.to}}"</span></sc-if>
+<sc-if value="{{b.off}}" hint-placeholder-val="{{true}}"><span style="flex-grow:1;text-align:center;padding:9px 0;font-size:12px;color:#9a978f">{{b.to}}</span></sc-if>
+</sc-for>
+</button>
+<span style="width:40px;height:40px;display:grid;place-items:center;border-radius:999px;border:1px solid #333;color:#c9c6bf">⇅</span>
+</div>
+</div>
+
+<div style="overflow:hidden;transition:max-height .32s ease, opacity .25s ease .05s;max-height:{{c.openH}};opacity:{{c.openO}}">
+<div style="display:flex;flex-direction:column;gap:8px;background:#1c1c1c;border-radius:14px;padding:12px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:0 4px">
+<span style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f">Range</span>
+<button onClick="{{c.toggle}}" style="all:unset;cursor:pointer;font-size:15px;font-weight:600">{{rangeLabel}}" ⌃</button>
+</div>
+
+<sc-if value="{{c.isA}}" hint-placeholder-val="{{false}}">
+<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px">
+<sc-for list="{{c.bands}}" as="b" hint-placeholder-count="7">
+<sc-if value="{{b.on}}" hint-placeholder-val="{{false}}"><button onClick="{{b.pick}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:8px;background:#e8e6e1;color:#121212;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600"><span style="color:#1f7a5a">{{b.am}}</span><span style="color:#a3346c">{{b.rm}}</span><span style="font-size:10px;font-weight:400">{{b.to}}"</span></button></sc-if>
+<sc-if value="{{b.off}}" hint-placeholder-val="{{true}}"><button onClick="{{b.pick}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:8px;background:#262626;font-family:'IBM Plex Mono',monospace;font-size:13px"><span style="color:#5fc4a0">{{b.am}}</span><span style="color:#e59bc0">{{b.rm}}</span><span style="font-size:10px;color:#8a877f">{{b.to}}"</span></button></sc-if>
+</sc-for>
+</div>
+<span style="font-size:12px;color:#8a877f;padding:0 4px">Top: HMG · bottom: Missile L.</span>
+</sc-if>
+
+<sc-if value="{{c.isB}}" hint-placeholder-val="{{false}}">
+<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0">
+<sc-for list="{{c.bands}}" as="b" hint-placeholder-count="7">
+<button onClick="{{b.pick}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:0;background:{{b.bgB}}">
+<span style="height:5px;background:{{b.aCol}}"></span>
+<span style="text-align:center;padding:10px 0;font-size:13px;font-weight:{{b.fw}};color:{{b.fg}}">{{b.to}}</span>
+<span style="height:5px;background:{{b.rCol}}"></span>
+</button>
+</sc-for>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:#8a877f;padding:0 4px"><span>Top line: HMG · bottom: Missile L.</span><span>{{selMods}}</span></div>
+<div style="display:flex;gap:10px;font-size:11px;color:#8a877f;padding:0 4px"><span><span style="display:inline-block;width:10px;height:4px;background:#58b368;vertical-align:middle"></span> +3</span><span><span style="display:inline-block;width:10px;height:4px;background:#4a8fd6;vertical-align:middle"></span> 0</span><span><span style="display:inline-block;width:10px;height:4px;background:#e3c34a;vertical-align:middle"></span> −3</span><span><span style="display:inline-block;width:10px;height:4px;background:#d9534f;vertical-align:middle"></span> −6</span><span><span style="display:inline-block;width:10px;height:4px;background:#444;vertical-align:middle"></span> out</span></div>
+</sc-if>
+
+<sc-if value="{{c.isC}}" hint-placeholder-val="{{false}}">
+<div style="display:grid;grid-template-columns:58px repeat(7,minmax(0,1fr));gap:3px;font-family:'IBM Plex Mono',monospace;font-size:12px">
+<span></span>
+<sc-for list="{{c.bands}}" as="b" hint-placeholder-count="7"><button onClick="{{b.pick}}" style="all:unset;cursor:pointer;text-align:center;padding:4px 0;border-radius:6px;font-weight:{{b.fw}};background:{{b.headBg}};color:{{b.headFg}}">{{b.to}}</button></sc-for>
+<span style="font-family:'IBM Plex Sans',sans-serif;color:#5fc4a0;font-size:12px;align-self:center">HMG</span>
+<sc-for list="{{c.bands}}" as="b" hint-placeholder-count="7"><button onClick="{{b.pick}}" style="all:unset;cursor:pointer;text-align:center;padding:8px 0;border-radius:6px;background:{{b.colBg}};color:#5fc4a0">{{b.am}}</button></sc-for>
+<span style="font-family:'IBM Plex Sans',sans-serif;color:#e59bc0;font-size:12px;align-self:center">Missile L.</span>
+<sc-for list="{{c.bands}}" as="b" hint-placeholder-count="7"><button onClick="{{b.pick}}" style="all:unset;cursor:pointer;text-align:center;padding:8px 0;border-radius:6px;background:{{b.colBg}};color:#e59bc0">{{b.rm}}</button></sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{c.isD}}" hint-placeholder-val="{{false}}">
+<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px">
+<sc-for list="{{c.bands}}" as="b" hint-placeholder-count="7">
+<button onClick="{{b.pick}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;border-radius:8px;background:{{b.bg}};outline:{{b.ring}}">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:700;color:{{b.netCol}}">{{b.net}}</span>
+<span style="font-size:10px;color:{{b.fg2}}">{{b.to}}"</span>
+</button>
+</sc-for>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:#8a877f;padding:0 4px"><span>Net SV edge · <span style="color:#5fc4a0">green = Squalo</span> · <span style="color:#e59bc0">pink = Fennec</span></span></div>
+<div style="font-size:12px;color:#c9c6bf;padding:0 4px">{{selMods}}</div>
+</sc-if>
+
+</div>
+</div>
+
+<div style="padding:14px;border-radius:14px;background:#1c1c1c;display:flex;flex-direction:column;gap:2px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.1em;color:#e59bc0">REACTIVE</span>
+<span style="font-size:17px;font-weight:600">Fennec Fusiliers <span style="font-size:13px;font-weight:400;color:#8a877f">· Missile L.</span></span>
+</div>
+</div>
+<span style="font-size:12px;color:#6b6861;text-align:center">Press Play · tap the strip to open, pick a band to close</span>
+</div>
+</sc-for>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1720,"height":760}}'>
+var BANDS = ['8', '16', '24', '32', '40', '48', '96'];
+var HMG = [-3, 0, 3, 3, -3, -6, null];
+var ML = [-3, 0, 0, 3, 3, -3, -6];
+var IC = { '3': '#58b368', '0': '#4a8fd6', '-3': '#e3c34a', '-6': '#d9534f', 'null': '#444' };
+function fmt(n) { return n === null ? '—' : n > 0 ? '+' + n : n < 0 ? '−' + (-n) : '0'; }
+var META = [
+  { key: 'A', name: 'A · Two-row modifiers', blurb: 'What we have in the prototype: each band shows the active weapon’s mod above the reactive one, in side colours.' },
+  { key: 'B', name: 'B · Infinity band colours', blurb: 'Distance in the middle; a thin line above (active weapon) and below (reactive) in the community colours. 0 is blue.' },
+  { key: 'C', name: 'C · Labelled weapon table', blurb: 'A tiny table: distance header, one row per weapon, named. Most explicit; nothing to decode.' },
+  { key: 'D', name: 'D · Net edge', blurb: 'One number per band: who gets the better SV mod and by how much. Answers “where should I stand?” at a glance.' }
+];
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { range: 3, open: { A: true, B: true, C: true, D: true } }; }
+  renderVals() {
+    var self = this, st = this.state;
+    var r = st.range;
+    return {
+      rangeLabel: (r ? BANDS[r - 1] : '0') + '–' + BANDS[r],
+      selMods: 'HMG ' + fmt(HMG[r]) + ' · ML ' + fmt(ML[r]),
+      cols: META.map(function (m) {
+        var open = st.open[m.key];
+        return {
+          name: m.name, blurb: m.blurb, isA: m.key === 'A', isB: m.key === 'B', isC: m.key === 'C', isD: m.key === 'D',
+          slimH: open ? '0px' : '60px', slimO: open ? 0 : 1, openH: open ? '320px' : '0px', openO: open ? 1 : 0,
+          toggle: function () { var o = Object.assign({}, st.open); o[m.key] = !open; self.setState({ open: o }); },
+          bands: BANDS.map(function (to, i) {
+            var on = i === r, a = HMG[i], b = ML[i];
+            var net = a === null ? null : a - b;
+            return {
+              to: to, on: on, off: !on, am: fmt(a), rm: fmt(b),
+              pick: function () { var o = Object.assign({}, st.open); o[m.key] = false; self.setState({ range: i, open: o }); },
+              aCol: IC[String(a)], rCol: IC[String(b)],
+              bg: on ? '#e8e6e1' : '#262626', bgB: on ? '#e8e6e1' : '#222', fg: on ? '#121212' : '#c9c6bf', fw: on ? 700 : 400, fg2: on ? '#121212' : '#8a877f',
+              headBg: on ? '#e8e6e1' : 'transparent', headFg: on ? '#121212' : '#8a877f', colBg: on ? '#2f2f2f' : '#222',
+              net: net === null ? '—' : net === 0 ? '=' : fmt(Math.abs(net)),
+              netCol: net === null ? '#6b6861' : net > 0 ? (on ? '#1f7a5a' : '#5fc4a0') : net < 0 ? (on ? '#a3346c' : '#e59bc0') : (on ? '#121212' : '#9a978f'),
+              ring: on ? 'none' : 'none'
+            };
+          })
+        };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

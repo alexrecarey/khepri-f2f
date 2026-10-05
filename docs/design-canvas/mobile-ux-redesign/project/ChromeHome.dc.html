@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home with chrome</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#121212;display:flex;flex-direction:column;position:relative">
+
+<header style="display:flex;align-items:center;padding:6px 8px 0 16px;height:48px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:600;letter-spacing:.14em;color:#6b6861;flex-grow:1">INFINITY THE CALCULATOR</span>
+<button aria-label="Menu" style="all:unset;cursor:pointer;width:44px;height:44px;display:grid;place-items:center;color:#9a978f">
+<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="4" cy="10" r="1.8"></circle><circle cx="10" cy="10" r="1.8"></circle><circle cx="16" cy="10" r="1.8"></circle></svg>
+</button>
+</header>
+
+<div style="padding:4px 16px 16px;display:flex;flex-direction:column;gap:12px;flex-grow:1">
+<button style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:6px;padding:16px;border-radius:14px;background:#1c1c1c">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:13px;letter-spacing:.1em;color:#5fc4a0">ACTIVE</span>
+<span style="font-size:18px;font-weight:600">Squalos Mk-II</span>
+<span style="font-size:14px;color:#c9c6bf">Heavy Machine Gun · PanOceania</span>
+</button>
+<div style="display:flex;justify-content:center;align-items:center;gap:10px">
+<span style="flex-grow:1;height:1px;background:#2c2c2c"></span>
+<button style="all:unset;cursor:pointer;padding:10px 14px;border-radius:999px;border:1px solid #333;color:#c9c6bf;font-size:13px">24–32" ▾</button>
+<button aria-label="Swap sides" style="all:unset;cursor:pointer;width:44px;height:44px;display:grid;place-items:center;border-radius:999px;border:1px solid #333;color:#c9c6bf">⇅</button>
+<span style="flex-grow:1;height:1px;background:#2c2c2c"></span>
+</div>
+<button style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:6px;padding:16px;border-radius:14px;background:#1c1c1c">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:13px;letter-spacing:.1em;color:#e59bc0">REACTIVE</span>
+<span style="font-size:18px;font-weight:600">Fennec Fusiliers</span>
+<span style="font-size:14px;color:#c9c6bf">Missile Launcher · PanOceania</span>
+</button>
+<div style="flex-grow:1"></div>
+
+<div style="background:#1c1c1c;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;font-family:'Chakra Petch',sans-serif;font-size:22px;font-weight:700">
+<span style="color:#5fc4a0">B4 SV15 PS6</span><span style="color:#e59bc0">B2 SV13 PS12</span>
+</div>
+<div style="display:flex;height:10px;border-radius:5px;overflow:hidden">
+<span style="width:74%;background:#5fc4a0"></span><span style="width:6%;background:#333"></span><span style="width:20%;background:#e59bc0"></span>
+</div>
+<div style="display:flex;align-items:center;gap:4px">
+<span style="font-size:13px;color:#c9c6bf;flex-grow:1">73.8% · 20.3%</span>
+<button aria-label="Save this roll" style="all:unset;cursor:pointer;width:44px;height:40px;display:grid;place-items:center;color:#5fc4a0">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"></path></svg>
+</button>
+<button aria-label="Share link" style="all:unset;cursor:pointer;width:44px;height:40px;display:grid;place-items:center;color:#9a978f">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="12" r="2.5"></circle><circle cx="18" cy="6" r="2.5"></circle><circle cx="18" cy="18" r="2.5"></circle><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"></path></svg>
+</button>
+</div>
+</div>
+</div>
+
+<div role="status" style="position:absolute;left:16px;right:16px;bottom:150px;display:flex;align-items:center;gap:8px;padding:12px 8px 12px 16px;border-radius:12px;background:#e8e6e1;color:#121212;box-shadow:0 8px 24px rgba(0,0,0,.5)">
+<span style="flex-grow:1;font-size:15px;font-weight:500">Saved · 13 rolls</span>
+<a href="ChromeSaved.dc.html" style="padding:8px 12px;font-size:15px;font-weight:600;color:#1f6f55;text-decoration:none">View</a>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

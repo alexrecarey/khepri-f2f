@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Matchup ledger</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:1280px;height:1060px;box-sizing:border-box;padding:40px;background:#121212;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-content:start">
+
+<!-- SHARED RANGE -->
+<section style="grid-column:span 2;background:#1c1c1c;border-radius:14px;padding:18px 24px;display:flex;align-items:center;gap:20px">
+<span style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;width:90px">Distance</span>
+<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;flex-grow:1">
+<sc-for list="{{bands}}" as="b" hint-placeholder-count="7">
+<sc-if value="{{b.on}}" hint-placeholder-val="{{false}}">
+<button onClick="{{b.pick}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:10px;background:#2c2c2c;border:1px solid #e8e6e1">
+<span style="font-size:14px;font-weight:600">{{b.label}}</span>
+<span style="font-family:'IBM Plex Mono',monospace;font-size:13px"><span style="color:#5fc4a0">{{b.a}}</span> · <span style="color:#e59bc0">{{b.r}}</span></span>
+</button>
+</sc-if>
+<sc-if value="{{b.off}}" hint-placeholder-val="{{true}}">
+<button onClick="{{b.pick}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:10px;border:1px solid #2c2c2c">
+<span style="font-size:14px;color:#9a978f">{{b.label}}</span>
+<span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#6b6861">{{b.a}} · {{b.r}}</span>
+</button>
+</sc-if>
+</sc-for>
+</div>
+</section>
+
+<sc-for list="{{sides}}" as="s" hint-placeholder-count="2">
+<section style="background:#1c1c1c;border-radius:14px;padding:24px 28px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<h2 style="margin:0;font-family:'Chakra Petch',sans-serif;font-size:28px;color:{{s.color}}">{{s.role}}</h2>
+<span style="font-size:13px;color:#9a978f">{{s.verb}}</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:4px;padding:14px 16px;border:1px solid #333;border-radius:10px;background:#181818">
+<span style="font-size:17px;font-weight:600">{{s.unit}} <span style="font-weight:400;color:#9a978f">· {{s.faction}}</span></span>
+<span style="font-size:14px;color:#c9c6bf">{{s.weapon}}</span>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+<sc-for list="{{s.toggles}}" as="t" hint-placeholder-count="2">
+<sc-if value="{{t.on}}" hint-placeholder-val="{{false}}">
+<button onClick="{{t.tap}}" style="all:unset;cursor:pointer;padding:9px 14px;border-radius:999px;background:#2a2a2a;border:1px solid {{s.color}};font-size:14px">{{t.label}} ✓</button>
+</sc-if>
+<sc-if value="{{t.off}}" hint-placeholder-val="{{true}}">
+<button onClick="{{t.tap}}" style="all:unset;cursor:pointer;padding:9px 14px;border-radius:999px;border:1px dashed #3a3a3a;color:#9a978f;font-size:14px">+ {{t.label}}</button>
+</sc-if>
+</sc-for>
+<sc-if value="{{s.hasFt}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;align-items:center;gap:2px;padding:4px 4px 4px 14px;border-radius:999px;background:#2a2a2a;border:1px solid {{s.color}}">
+<span style="font-size:14px;margin-right:6px">Fireteam</span>
+<sc-for list="{{s.ftSizes}}" as="z" hint-placeholder-count="4">
+<sc-if value="{{z.on}}" hint-placeholder-val="{{false}}"><button onClick="{{z.tap}}" style="all:unset;cursor:pointer;width:32px;height:32px;display:grid;place-items:center;border-radius:999px;background:{{s.color}};color:#141414;font-weight:600;font-size:14px">{{z.n}}</button></sc-if>
+<sc-if value="{{z.off}}" hint-placeholder-val="{{true}}"><button onClick="{{z.tap}}" style="all:unset;cursor:pointer;width:32px;height:32px;display:grid;place-items:center;border-radius:999px;color:#9a978f;font-size:14px">{{z.n}}</button></sc-if>
+</sc-for>
+<button onClick="{{s.ftOff}}" aria-label="Remove fireteam" style="all:unset;cursor:pointer;width:32px;height:32px;display:grid;place-items:center;color:#9a978f">×</button>
+</div>
+</sc-if>
+</div>
+
+<sc-for list="{{s.blocks}}" as="k" hint-placeholder-count="3">
+<div style="display:flex;flex-direction:column;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:15px">
+<div style="color:#8a877f;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600">{{k.title}}</div>
+<sc-for list="{{k.lines}}" as="l" hint-placeholder-count="2">
+<sc-if value="{{l.live}}" hint-placeholder-val="{{true}}">
+<div style="display:flex;gap:14px;color:{{l.color}}"><span style="width:44px;text-align:right">{{l.v}}</span><span style="flex-grow:1">{{l.label}}</span><span style="color:#8a877f">{{l.src}}</span></div>
+</sc-if>
+<sc-if value="{{l.struck}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;gap:14px;color:#6b6861"><span style="width:44px;text-align:right;text-decoration:line-through">{{l.v}}</span><span style="flex-grow:1;text-decoration:line-through">{{l.label}}</span><span style="color:#8a877f">{{l.src}}</span></div>
+</sc-if>
+</sc-for>
+<div style="display:flex;gap:14px;border-top:1px solid #333;padding-top:5px;font-weight:600"><span style="width:44px;text-align:right">{{k.total}}</span><span>{{k.name}}</span><span style="color:#8a877f;font-weight:400">{{k.note}}</span></div>
+</div>
+</sc-for>
+</section>
+</sc-for>
+
+<!-- DICE LINE -->
+<div style="grid-column:span 2;background:#181818;border:1px solid #2c2c2c;border-radius:14px;padding:20px 28px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:center;gap:24px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:38px;font-weight:700;color:#5fc4a0">{{aDice}}</span>
+<span style="font-size:15px;color:#6b6861;font-family:'IBM Plex Mono',monospace">vs</span>
+<span style="font-family:'Chakra Petch',sans-serif;font-size:38px;font-weight:700;color:#e59bc0">{{rDice}}</span>
+<div style="flex-grow:1"></div>
+<div style="display:flex;flex-direction:column;gap:2px;align-items:flex-end;font-size:14px;color:#c9c6bf">
+<span><b style="color:#5fc4a0">{{aPct}}%</b> Squalo causes a wound</span>
+<span><b style="color:#e59bc0">{{rPct}}%</b> Fennec causes a wound</span>
+<span style="color:#8a877f">{{nPct}}% nobody</span>
+</div>
+</div>
+<div style="display:flex;height:10px;border-radius:5px;overflow:hidden">
+<span style="width:{{aPct}}%;background:#5fc4a0"></span><span style="width:{{nPct}}%;background:#333"></span><span style="width:{{rPct}}%;background:#e59bc0"></span>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1060}}'>
+var BANDS = ['0–8"', '8–16"', '16–24"', '24–32"', '32–40"', '40–48"', '48–96"'];
+var HMG = [-3, 0, 3, 3, -3, -3, null];
+var ML = [-3, 0, 0, 3, 3, -3, -3];
+var GREEN = '#5fc4a0', PINK = '#e59bc0', PLAIN = '#e8e6e1';
+function fmt(n) { return n > 0 ? '+' + n : n < 0 ? '−' + (-n) : '0'; }
+
+// one face-to-face (approximation for the mockup): returns [active wounds?, reactive wounds?]
+function d20() { return 1 + Math.floor(Math.random() * 20); }
+function rollSide(side) {
+  var out = [], shift = Math.max(0, side.sv - 20), sv = Math.min(side.sv, 20);
+  for (var i = 0; i < side.b; i++) {
+    var d = d20(), v = Math.min(d + shift, 20);
+    if (d <= sv) out.push({ v: v, crit: d === sv || (shift > 0 && d + shift >= 20) });
+  }
+  return out;
+}
+function survivors(mine, theirs) {
+  var theirCrit = theirs.some(function (x) { return x.crit; });
+  var theirMax = theirs.reduce(function (m, x) { return Math.max(m, x.v); }, 0);
+  return mine.filter(function (x) { return x.crit || (!theirCrit && x.v > theirMax); });
+}
+function wounds(hits, side) {
+  var n = 0;
+  hits.forEach(function (h) {
+    var saves = (side.exp ? 3 : 1) + (h.crit ? 1 : 0);
+    for (var j = 0; j < saves; j++) if (d20() > side.ps) n++;
+  });
+  return n;
+}
+function faceToFace(a, r) {
+  var A = rollSide(a), R = rollSide(r);
+  return [wounds(survivors(A, R), a) > 0, wounds(survivors(R, A), r) > 0];
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { band: 3, squaloCover: false, fennecCover: true, mimetism: true, msv2: true, surprise: false, ft: 5 };
+    this.cache = {};
+  }
+  toggle(k) { var s = {}; s[k] = !this.state[k]; this.setState(s); }
+  renderVals() {
+    var self = this, st = this.state;
+    var aRange = HMG[st.band], rRange = ML[st.band];
+    var outOfRange = aRange === null;
+
+    // Active: Squalo, HMG, shoots Fennec
+    var aSV = [{ v: '12', label: 'BS', src: 'profile', color: PLAIN }];
+    if (!outOfRange) aSV.push({ v: fmt(aRange), label: 'Range ' + BANDS[st.band], src: 'HMG', color: aRange < 0 ? PINK : GREEN });
+    if (st.fennecCover) aSV.push({ v: '−3', label: 'Cover', src: 'Fennec', color: PINK });
+    if (st.mimetism) aSV.push({ v: '−3', label: 'Mimetism', src: st.msv2 ? 'cancelled by MSV2' : 'Fennec', color: PINK, struck: st.msv2 });
+    var aSVt = 12 + (outOfRange ? 0 : aRange) + (st.fennecCover ? -3 : 0) + (st.mimetism && !st.msv2 ? -3 : 0);
+    var aPS = [{ v: '5', label: 'PS', src: 'HMG', color: PLAIN }, { v: '+1', label: 'ARM', src: 'Fennec', color: PINK }];
+    if (st.fennecCover) aPS.push({ v: '+3', label: 'Cover', src: 'Fennec', color: PINK });
+    var aPSt = 6 + (st.fennecCover ? 3 : 0);
+
+    // Reactive: Fennec, Missile Launcher, shoots Squalo
+    var ftB = st.ft >= 3 ? 1 : 0, ftSV = st.ft === 5 ? 1 : 0;
+    var rSV = [{ v: '12', label: 'BS', src: 'profile', color: PLAIN }];
+    if (ftSV) rSV.push({ v: '+1', label: 'Fireteam ' + st.ft, src: 'core bonus', color: PINK });
+    rSV.push({ v: fmt(rRange), label: 'Range ' + BANDS[st.band], src: 'Missile L.', color: rRange < 0 ? GREEN : PINK });
+    if (st.squaloCover) rSV.push({ v: '−3', label: 'Cover', src: 'Squalo', color: GREEN });
+    if (st.surprise) rSV.push({ v: '−3', label: 'Surprise attack', src: 'Squalo', color: GREEN });
+    var rSVt = 12 + ftSV + rRange + (st.squaloCover ? -3 : 0) + (st.surprise ? -3 : 0);
+    var rPS = [{ v: '6', label: 'PS', src: 'Missile L.', color: PLAIN }, { v: '+3', label: 'ARM', src: 'Squalo', color: GREEN }];
+    if (st.squaloCover) rPS.push({ v: '+3', label: 'Cover', src: 'Squalo', color: GREEN });
+    var rPSt = 9 + (st.squaloCover ? 3 : 0);
+    var rB = [{ v: '1', label: 'Missile L.', src: 'weapon', color: PLAIN }];
+    if (ftB) rB.push({ v: '+1', label: 'Fireteam ' + st.ft, src: 'core bonus', color: PINK });
+
+    var mark = function (ls) { return ls.map(function (l) { return Object.assign({}, l, { live: !l.struck, struck: !!l.struck }); }); };
+    var a = { b: outOfRange ? 0 : 4, sv: aSVt, ps: aPSt, exp: false };
+    var r = { b: 1 + ftB, sv: rSVt, ps: rPSt, exp: true };
+
+    var key = [a.b, a.sv, a.ps, r.b, r.sv, r.ps].join(',');
+    if (!this.cache[key]) {
+      var N = 20000, wa = 0, wr = 0;
+      for (var i = 0; i < N; i++) { var res = faceToFace(a, r); if (res[0]) wa++; if (res[1]) wr++; }
+      this.cache[key] = [Math.round(wa / N * 1000) / 10, Math.round(wr / N * 1000) / 10];
+    }
+    var pct = this.cache[key];
+
+    var toggle = function (label, k) { return { label: label, on: st[k], off: !st[k], tap: function () { self.toggle(k); } }; };
+    var ftSizes = [2, 3, 4, 5].map(function (n) { return { n: n, on: st.ft === n, off: st.ft !== n, tap: function () { self.setState({ ft: n }); } }; });
+
+    var activeToggles = [toggle('In cover', 'squaloCover'), toggle('MSV2', 'msv2'), toggle('Surprise attack', 'surprise')];
+    var reactiveToggles = [toggle('In cover', 'fennecCover'), toggle('Mimetism', 'mimetism')];
+    if (!st.ft) reactiveToggles.push({ label: 'Fireteam', on: false, off: true, tap: function () { self.setState({ ft: 3 }); } });
+
+    return {
+      bands: BANDS.map(function (l, i) {
+        return { label: l, a: HMG[i] === null ? '—' : fmt(HMG[i]), r: fmt(ML[i]), on: i === st.band, off: i !== st.band, pick: function () { self.setState({ band: i }); } };
+      }),
+      sides: [
+        { role: 'Active', verb: 'shoots', color: GREEN, unit: 'Squalos Mk-II', faction: 'PanOceania', weapon: 'Heavy Machine Gun', toggles: activeToggles, hasFt: false,
+          blocks: [
+            { title: 'SUCCESS VALUE', lines: mark(aSV), total: outOfRange ? '—' : aSVt, name: 'SV', note: outOfRange ? 'out of range' : '' },
+            { title: 'SAVE THE TARGET MAKES', lines: mark(aPS), total: aPSt, name: 'PS', note: '— Fennec saves on ' + aPSt + ' or less' },
+            { title: 'BURST', lines: mark([{ v: '4', label: 'HMG', src: 'weapon', color: PLAIN }]), total: a.b, name: 'B', note: '' }
+          ] },
+        { role: 'Reactive', verb: 'shoots back', color: PINK, unit: 'Fennec Fusiliers', faction: 'PanOceania', weapon: 'Missile Launcher', toggles: reactiveToggles,
+          hasFt: !!st.ft, ftSizes: ftSizes, ftOff: function () { self.setState({ ft: 0 }); },
+          blocks: [
+            { title: 'SUCCESS VALUE', lines: mark(rSV), total: rSVt, name: 'SV', note: '' },
+            { title: 'SAVE THE TARGET MAKES', lines: mark(rPS), total: rPSt, name: 'PS', note: '— Squalo saves on ' + rPSt + ' or less' },
+            { title: 'BURST', lines: mark(rB), total: r.b, name: 'B', note: '· Exp: 3 saves per hit' }
+          ] }
+      ],
+      aDice: outOfRange ? 'out of range' : 'B' + a.b + ' SV' + a.sv + ' PS' + a.ps,
+      rDice: 'B' + r.b + ' SV' + r.sv + ' PS' + r.ps + ' EXP',
+      aPct: pct[0], rPct: pct[1], nPct: Math.max(0, Math.round((100 - pct[0] - pct[1]) * 10) / 10)
+    };
+  }
+}
+</script>
+</body>
+</html>

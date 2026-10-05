@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ledger D open</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#161616;display:flex;flex-direction:column">
+<div style="padding:10px 8px;display:flex;align-items:center;gap:4px;border-bottom:1px solid #2c2c2c">
+<a href="LedgerD.dc.html" aria-label="Back" style="width:44px;height:44px;display:grid;place-items:center;font-size:22px;color:#c9c6bf;text-decoration:none">‹</a>
+<span style="font-size:18px;font-weight:600">How the roll is built</span>
+</div>
+<div style="padding:16px;display:flex;flex-direction:column;gap:0">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="6">
+<div style="display:flex;gap:14px">
+<div style="display:flex;flex-direction:column;align-items:center;width:14px">
+<span style="width:10px;height:10px;border-radius:5px;margin-top:5px;background:{{s.dot}}"></span>
+<span style="flex-grow:1;width:2px;background:#2c2c2c"></span>
+</div>
+<div style="display:flex;flex-direction:column;gap:3px;padding-bottom:18px;flex-grow:1">
+<span style="font-size:15px;font-weight:600">{{s.title}}</span>
+<span style="font-size:13px;color:#9a978f;line-height:1.45">{{s.text}}</span>
+<span style="font-family:'IBM Plex Mono',monospace;font-size:13px"><span style="color:#5fc4a0">{{s.a}}</span>   <span style="color:#e59bc0">{{s.r}}</span></span>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { steps: [
+      { dot: '#e8e6e1', title: 'Start from the profiles', text: 'Squalo BS 14 with an HMG, Fennec BS 12 with a Missile Launcher.', a: 'SV14 B4', r: 'SV12 B1' },
+      { dot: '#e8e6e1', title: '24–32" suits both weapons', text: 'Both are in their +3 band.', a: 'SV17', r: 'SV15' },
+      { dot: '#e59bc0', title: 'Fennec is in cover', text: 'The Squalo shoots at −3.', a: 'SV14', r: '' },
+      { dot: '#6b6861', title: 'Mimetism doesn’t count', text: 'The Squalo’s MSV2 ignores it.', a: 'SV14', r: '' },
+      { dot: '#e59bc0', title: 'Fireteam 5', text: 'The Fennec gets +1 SV and +1 burst.', a: '', r: 'SV16 B2' },
+      { dot: '#e8e6e1', title: 'Saves', text: 'Each side adds the target’s ARM to the weapon’s PS.', a: 'PS 5+1 = 6', r: 'PS 6+6 = 12' }
+    ] };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Results sheet, ledger page</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;background:#0a0a0a;display:flex;flex-direction:column;overflow:hidden">
+<div style="height:56px;padding:14px 16px;box-sizing:border-box;opacity:.35;font-size:14px"><b style="color:#5fc4a0">Squalos</b> HMG vs <b style="color:#e59bc0">Fennec</b> ML · 32"</div>
+
+<div style="flex-grow:1;background:#1a1a1a;border-radius:20px 20px 0 0;padding:10px 16px 20px;display:flex;flex-direction:column;gap:14px;overflow:hidden">
+<div style="display:flex;align-items:center">
+<span style="width:60px"></span>
+<span style="flex-grow:1;display:flex;justify-content:center"><span style="width:40px;height:5px;border-radius:3px;background:#444"></span></span>
+<span style="width:60px;display:flex;gap:6px;justify-content:flex-end;align-items:center"><span style="width:7px;height:7px;border-radius:4px;background:#444"></span><span style="width:7px;height:7px;border-radius:4px;background:#e8e6e1"></span></span>
+</div>
+
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f">Why these dice · tap a number</div>
+
+<div style="display:flex;gap:6px;font-family:'Chakra Petch',sans-serif;font-size:21px;font-weight:700;color:#5fc4a0">
+<button style="all:unset;cursor:pointer;padding:2px 4px;border-bottom:2px dotted #5fc4a0">B4</button>
+<button style="all:unset;cursor:pointer;padding:2px 6px;border-radius:6px;background:#5fc4a0;color:#121212">SV14</button>
+<button style="all:unset;cursor:pointer;padding:2px 4px;border-bottom:2px dotted #5fc4a0">PS6</button>
+</div>
+<div style="background:#232323;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:14px">
+<div style="display:flex;gap:12px"><span style="width:30px;text-align:right">14</span><span style="flex-grow:1">BS</span><span style="color:#8a877f">Squalo</span></div>
+<div style="display:flex;gap:12px;color:#5fc4a0"><span style="width:30px;text-align:right">+3</span><span style="flex-grow:1">Range 24–32"</span><span style="color:#8a877f">HMG</span></div>
+<div style="display:flex;gap:12px;color:#e59bc0"><span style="width:30px;text-align:right">−3</span><span style="flex-grow:1">Cover</span><span style="color:#8a877f">Fennec</span></div>
+<div style="display:flex;gap:12px;color:#6b6861;text-decoration:line-through"><span style="width:30px;text-align:right">−3</span><span style="flex-grow:1">Mimetism</span></div>
+<div style="display:flex;gap:12px;border-top:1px solid #3a3a3a;padding-top:4px;font-weight:600"><span style="width:30px;text-align:right">14</span><span>SV</span></div>
+</div>
+
+<div style="display:flex;gap:6px;font-family:'Chakra Petch',sans-serif;font-size:21px;font-weight:700;color:#e59bc0;padding-top:8px">
+<button style="all:unset;cursor:pointer;padding:2px 4px;border-bottom:2px dotted #e59bc0">B2</button>
+<button style="all:unset;cursor:pointer;padding:2px 4px;border-bottom:2px dotted #e59bc0">SV13</button>
+<button style="all:unset;cursor:pointer;padding:2px 6px;border-radius:6px;background:#e59bc0;color:#121212">PS12</button>
+<span style="font-size:15px;align-self:center;color:#8a877f">EXP</span>
+</div>
+<div style="background:#232323;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:14px">
+<div style="display:flex;gap:12px"><span style="width:30px;text-align:right">6</span><span style="flex-grow:1">PS</span><span style="color:#8a877f">Missile L.</span></div>
+<div style="display:flex;gap:12px;color:#5fc4a0"><span style="width:30px;text-align:right">+6</span><span style="flex-grow:1">ARM</span><span style="color:#8a877f">Squalo</span></div>
+<div style="display:flex;gap:12px;border-top:1px solid #3a3a3a;padding-top:4px;font-weight:600"><span style="width:30px;text-align:right">12</span><span>PS</span><span style="color:#8a877f;font-weight:400">— saves on 12 or less</span></div>
+</div>
+
+<div style="flex-grow:1"></div>
+<span style="text-align:center;font-size:12px;color:#6b6861">One number open per side · swipe right for odds</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

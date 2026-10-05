@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>About</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#161616;display:flex;flex-direction:column">
+<div style="padding:10px 8px;display:flex;align-items:center;gap:4px;border-bottom:1px solid #2c2c2c">
+<a href="ChromeMenu.dc.html" aria-label="Back" style="width:44px;height:44px;display:grid;place-items:center;font-size:22px;color:#c9c6bf;text-decoration:none">‹</a>
+<span style="font-size:18px;font-weight:600">About</span>
+</div>
+<div style="padding:28px 20px;display:flex;flex-direction:column;gap:18px;font-size:15px;line-height:1.55;color:#c9c6bf">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:26px;font-weight:700;letter-spacing:.12em;color:#e8e6e1">Infinity the Calculator</span>
+<p style="margin:0">Face-to-face odds for Infinity N5. Pick two troopers, set the situation, see every modifier and the dice that get rolled.</p>
+<p style="margin:0">Odds are exact: every possible roll is counted, not simulated.</p>
+<div style="display:flex;flex-direction:column;gap:2px;font-size:14px"><span>Army data: [SOURCE] · [DATA DATE]</span><span>Rules: N5 · [RULES VERSION]</span><span>App: v[VERSION]<br><br>Made with (heart emoji) for the Infinity community by Khepri and Bebop.</span></div>
+<a href="https://github.com/alexrecarey/khepri-f2f" style="font-size:15px">Source on GitHub</a>
+<span style="font-size:13px;color:#8a877f">[CREDITS / DISCLAIMER]</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile picker prototype</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#121212;overflow:hidden;position:relative">
+
+<sc-if value="{{isSetup}}" hint-placeholder-val="{{true}}">
+<div style="height:844px;box-sizing:border-box;padding:16px 16px 20px;display:flex;flex-direction:column;gap:12px;overflow-y:auto">
+<sc-for list="{{sides}}" as="s" hint-placeholder-count="2">
+<sc-if value="{{s.isReactive}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:8px;background:#1c1c1c;border-radius:14px;padding:12px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:0 4px">
+<span style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f">Range</span>
+<span style="font-size:15px;font-weight:600">{{rangeLabel}}"</span>
+</div>
+<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px">
+<sc-for list="{{bands}}" as="b" hint-placeholder-count="7">
+<sc-if value="{{b.on}}" hint-placeholder-val="{{false}}">
+<button onClick="{{b.pick}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:8px;background:#e8e6e1;color:#121212;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600"><span style="color:#1f7a5a">{{b.am}}</span><span style="color:#a3346c">{{b.rm}}</span><span style="font-size:10px;font-weight:400">{{b.to}}</span></button>
+</sc-if>
+<sc-if value="{{b.off}}" hint-placeholder-val="{{true}}">
+<button onClick="{{b.pick}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:8px;background:#262626;font-family:'IBM Plex Mono',monospace;font-size:13px"><span style="color:#5fc4a0">{{b.am}}</span><span style="color:#e59bc0">{{b.rm}}</span><span style="font-size:10px;color:#8a877f">{{b.to}}</span></button>
+</sc-if>
+</sc-for>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:0 4px">
+<span style="font-size:12px;color:#8a877f">Top row: active weapon · bottom: reactive</span>
+<button onClick="{{swap}}" aria-label="Swap sides" style="all:unset;cursor:pointer;width:44px;height:36px;display:grid;place-items:center;border-radius:999px;border:1px solid #333;color:#c9c6bf">⇅</button>
+</div>
+</div>
+</sc-if>
+<div style="display:flex;flex-direction:column;background:#1c1c1c;border-radius:14px">
+<button onClick="{{s.open}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:4px;padding:14px 16px 10px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:13px;letter-spacing:.1em;color:{{s.color}}">{{s.label}}</span>
+<span style="font-size:18px;font-weight:600">{{s.unit}} <span style="font-size:13px;font-weight:400;color:#8a877f">›</span></span>
+<span style="font-size:14px;color:#c9c6bf">{{s.faction}}</span>
+</button>
+<div style="display:flex;gap:6px;overflow-x:auto;padding:0 12px 10px">
+<sc-for list="{{s.weapons}}" as="w" hint-placeholder-count="3">
+<sc-if value="{{w.on}}" hint-placeholder-val="{{false}}"><button onClick="{{w.pick}}" style="all:unset;cursor:pointer;flex-shrink:0;padding:9px 12px;border-radius:10px;background:{{s.color}};color:#121212;font-size:14px;font-weight:600">{{w.name}}</button></sc-if>
+<sc-if value="{{w.off}}" hint-placeholder-val="{{true}}"><button onClick="{{w.pick}}" style="all:unset;cursor:pointer;flex-shrink:0;padding:9px 12px;border-radius:10px;background:#262626;color:#c9c6bf;font-size:14px">{{w.name}}</button></sc-if>
+</sc-for>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 12px">
+<sc-if value="{{s.cover}}" hint-placeholder-val="{{false}}">
+<button onClick="{{s.toggleCover}}" style="all:unset;cursor:pointer;padding:8px 12px;border-radius:999px;background:#2b2b2b;border:1px solid #e8e6e1;font-size:14px">In cover ✓</button>
+</sc-if>
+<sc-if value="{{s.noCover}}" hint-placeholder-val="{{true}}">
+<button onClick="{{s.toggleCover}}" style="all:unset;cursor:pointer;padding:8px 12px;border-radius:999px;border:1px solid #3a3a3a;color:#c9c6bf;font-size:14px">In cover</button>
+</sc-if>
+<sc-if value="{{s.ftOn}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;align-items:center;gap:2px;padding:2px 2px 2px 12px;border-radius:999px;background:#2b2b2b;border:1px solid #e8e6e1">
+<span style="font-size:14px;margin-right:4px">Fireteam</span>
+<sc-for list="{{s.ftOptions}}" as="o" hint-placeholder-count="4">
+<sc-if value="{{o.on}}" hint-placeholder-val="{{false}}"><button onClick="{{o.pick}}" style="all:unset;cursor:pointer;width:30px;height:30px;display:grid;place-items:center;border-radius:999px;background:#e8e6e1;color:#121212;font-size:14px;font-weight:600">{{o.n}}</button></sc-if>
+<sc-if value="{{o.off}}" hint-placeholder-val="{{true}}"><button onClick="{{o.pick}}" style="all:unset;cursor:pointer;width:30px;height:30px;display:grid;place-items:center;border-radius:999px;color:#9a978f;font-size:14px">{{o.n}}</button></sc-if>
+</sc-for>
+<button onClick="{{s.removeFt}}" aria-label="Remove fireteam" style="all:unset;cursor:pointer;width:30px;height:30px;display:grid;place-items:center;color:#9a978f">×</button>
+</div>
+</sc-if>
+<sc-if value="{{s.ftOff}}" hint-placeholder-val="{{true}}">
+<button onClick="{{s.addFt}}" style="all:unset;cursor:pointer;padding:8px 12px;border-radius:999px;border:1px dashed #3a3a3a;color:#9a978f;font-size:14px">+ Fireteam</button>
+</sc-if>
+<sc-if value="{{s.surpriseOn}}" hint-placeholder-val="{{false}}">
+<button onClick="{{s.toggleSurprise}}" style="all:unset;cursor:pointer;padding:8px 12px;border-radius:999px;background:#2b2b2b;border:1px solid #e8e6e1;font-size:14px">Surprise attack ×</button>
+</sc-if>
+<sc-if value="{{s.surpriseOff}}" hint-placeholder-val="{{false}}">
+<button onClick="{{s.toggleSurprise}}" style="all:unset;cursor:pointer;padding:8px 12px;border-radius:999px;border:1px dashed #3a3a3a;color:#9a978f;font-size:14px">+ Surprise attack</button>
+</sc-if>
+</div>
+</div>
+</sc-for>
+<div style="flex-grow:1"></div>
+<div style="background:#1c1c1c;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;font-family:'Chakra Petch',sans-serif;font-size:21px;font-weight:700">
+<span style="color:#5fc4a0">{{activeDice}}</span><span style="color:#e59bc0">{{reactiveDice}}</span>
+</div>
+<span style="font-size:12px;color:#6b6861">Dice update live · outcome % not simulated here</span>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isSearch}}" hint-placeholder-val="{{false}}">
+<div style="height:844px;display:flex;flex-direction:column;background:#161616">
+<div style="padding:14px 16px 8px;display:flex;align-items:center">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:13px;letter-spacing:.1em;flex-grow:1;color:{{sideColor}}">{{sideLabel}} TROOPER</span>
+<button onClick="{{close}}" style="all:unset;cursor:pointer;padding:10px;color:#9a978f;font-size:15px">Cancel</button>
+</div>
+<div style="flex-grow:1;overflow-y:auto;padding:0 8px;display:flex;flex-direction:column">
+<sc-if value="{{hasQuery}}" hint-placeholder-val="{{false}}">
+<sc-if value="{{showFallback}}" hint-placeholder-val="{{false}}">
+<div style="padding:18px 8px 8px;font-size:15px;color:#c9c6bf">No {{scopeName}} matches for “{{query}}”</div>
+<sc-for list="{{elsewhere}}" as="o" hint-placeholder-count="2">
+<button onClick="{{o.go}}" style="all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:14px 12px;border-radius:10px;border:1px solid #333;font-size:15px"><span>{{o.count}} in {{o.faction}}</span><span style="color:#e59bc0">Show ›</span></button>
+</sc-for>
+</sc-if>
+<sc-if value="{{hasHits}}" hint-placeholder-val="{{true}}">
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:6px 8px">Profiles · {{profileCount}}</div>
+<sc-for list="{{profiles}}" as="p" hint-placeholder-count="3">
+<button onClick="{{p.pick}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:10px">
+<span style="font-size:16px;font-weight:600">{{p.unit}} <span style="font-weight:400;color:#9a978f">{{p.tag}}</span></span>
+<span style="font-size:14px;color:#e59bc0">{{p.weapon}}</span>
+<span style="font-size:13px;color:#8a877f;font-family:'IBM Plex Mono',monospace">BS {{p.bs}} · {{p.pts}} pts · {{p.faction}}</span>
+</button>
+</sc-for>
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:10px 8px 6px">Units</div>
+<sc-for list="{{units}}" as="u" hint-placeholder-count="2">
+<button onClick="{{u.open}}" style="all:unset;cursor:pointer;display:flex;justify-content:space-between;padding:14px 12px;font-size:15px"><span>{{u.name}}</span><span style="color:#8a877f">{{u.count}} ›</span></button>
+</sc-for>
+</sc-if>
+</sc-if>
+<sc-if value="{{noQuery}}" hint-placeholder-val="{{true}}">
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:6px 8px">Recent</div>
+<sc-for list="{{recent}}" as="p" hint-placeholder-count="3">
+<button onClick="{{p.pick}}" style="all:unset;cursor:pointer;padding:14px 12px;font-size:16px">{{p.unit}} <span style="color:#e59bc0">· {{p.weapon}}</span></button>
+</sc-for>
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:14px 8px 6px">All units</div>
+<sc-for list="{{units}}" as="u" hint-placeholder-count="4">
+<button onClick="{{u.open}}" style="all:unset;cursor:pointer;display:flex;justify-content:space-between;padding:14px 12px;font-size:15px"><span>{{u.name}}</span><span style="color:#8a877f">{{u.count}} ›</span></button>
+</sc-for>
+</sc-if>
+</div>
+<div style="background:#1e1e1e;border-top:1px solid #2c2c2c;padding:10px 12px 28px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;gap:8px;overflow-x:auto">
+<sc-if value="{{scoped}}" hint-placeholder-val="{{true}}">
+<button onClick="{{openFactions}}" style="all:unset;cursor:pointer;flex-shrink:0;padding:8px 12px;border-radius:999px;font-size:14px;background:#3a2330;border:1px solid #e59bc0">{{factionLabel}}</button>
+</sc-if>
+<sc-if value="{{unscoped}}" hint-placeholder-val="{{false}}">
+<button onClick="{{openFactions}}" style="all:unset;cursor:pointer;flex-shrink:0;padding:8px 12px;border-radius:999px;font-size:14px;border:1px dashed #3a3a3a;color:#9a978f">{{factionLabel}}</button>
+</sc-if>
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="3">
+<button onClick="{{c.tap}}" style="all:unset;cursor:pointer;flex-shrink:0;padding:8px 12px;border-radius:999px;border:1px solid #333;font-size:14px;color:#c9c6bf">{{c.label}}</button>
+</sc-for>
+</div>
+<label for="fq" style="position:absolute;left:-9999px">Search troopers</label>
+<input id="fq" value="{{query}}" onChange="{{onQuery}}" placeholder="Unit or weapon, e.g. fus ml" style="all:unset;padding:14px 16px;border:1px solid #e59bc0;border-radius:12px;font-size:17px;background:#141414">
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isFactions}}" hint-placeholder-val="{{false}}">
+<div style="height:844px;display:flex;flex-direction:column;background:#161616">
+<div style="padding:10px 8px;display:flex;align-items:center;gap:4px;border-bottom:1px solid #2c2c2c">
+<button onClick="{{back}}" aria-label="Back to search" style="all:unset;cursor:pointer;width:44px;height:44px;display:grid;place-items:center;font-size:22px;color:#c9c6bf">‹</button>
+<span style="font-size:18px;font-weight:600;flex-grow:1">Faction</span>
+</div>
+<div style="flex-grow:1;overflow-y:auto;padding:4px 8px;display:flex;flex-direction:column">
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:12px 8px 6px">Recent</div>
+<sc-for list="{{recentFactions}}" as="f" hint-placeholder-count="2">
+<button onClick="{{f.pick}}" style="all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:14px 12px;border-radius:10px;font-size:16px"><span>{{f.name}}</span><span style="color:#e59bc0">{{f.mark}}</span></button>
+</sc-for>
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:12px 8px 6px">All</div>
+<button onClick="{{pickAll}}" style="all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:14px 12px;border-radius:10px;font-size:16px"><span>All factions</span><span style="color:#e59bc0">{{allMark}}</span></button>
+<sc-for list="{{factions}}" as="f" hint-placeholder-count="8">
+<button onClick="{{f.pick}}" style="all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:14px 12px;border-radius:10px;font-size:16px"><span>{{f.name}}</span><span style="color:#8a877f;font-size:13px">{{f.count}} <span style="color:#e59bc0">{{f.mark}}</span></span></button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isUnit}}" hint-placeholder-val="{{false}}">
+<div style="height:844px;display:flex;flex-direction:column;background:#161616">
+<div style="padding:10px 8px;display:flex;align-items:center;gap:4px;border-bottom:1px solid #2c2c2c">
+<button onClick="{{back}}" aria-label="Back to search" style="all:unset;cursor:pointer;width:44px;height:44px;display:grid;place-items:center;font-size:22px;color:#c9c6bf">‹</button>
+<div style="display:flex;flex-direction:column;flex-grow:1">
+<span style="font-size:18px;font-weight:600">{{unit.name}}</span>
+<span style="font-size:13px;color:#8a877f">{{unit.faction}} · {{unit.count}} profiles</span>
+</div>
+</div>
+<div style="padding:12px 16px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:#9a978f;border-bottom:1px solid #2c2c2c">{{unit.stats}}</div>
+<div style="flex-grow:1;overflow-y:auto;padding:4px 8px;display:flex;flex-direction:column">
+<sc-for list="{{unitGroups}}" as="g" hint-placeholder-count="2">
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:12px 8px 6px">{{g.name}}</div>
+<sc-for list="{{g.items}}" as="p" hint-placeholder-count="2">
+<button onClick="{{p.pick}}" style="all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:14px 12px;border-radius:10px"><span style="font-size:16px">{{p.weapon}} <span style="color:#9a978f">{{p.tag}}</span></span><span style="font-size:13px;color:#8a877f;font-family:'IBM Plex Mono',monospace">{{p.pts}}</span></button>
+</sc-for>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+var UNITS = {
+  'Fusiliers': { faction: 'PanOceania', stats: 'CC 13  BS 12  PH 10  WIP 12  ARM 1  W 1' },
+  'Fennec Fusiliers': { faction: 'PanOceania', stats: 'CC 13  BS 12  PH 10  WIP 12  ARM 1  W 1' },
+  'Swiss Guard': { faction: 'PanOceania', stats: 'CC 21  BS 14  PH 13  WIP 14  ARM 5  W 2' },
+  'Zhanshi': { faction: 'Yu Jing', stats: 'CC 14  BS 11  PH 10  WIP 12  ARM 1  W 1' },
+  'Ghulam': { faction: 'Haqqislam', stats: 'CC 13  BS 11  PH 11  WIP 13  ARM 1  W 1' },
+  'Alguaciles': { faction: 'Nomads', stats: 'CC 13  BS 11  PH 10  WIP 12  ARM 1  W 1' },
+  'Kempeitai': { faction: 'JSA', stats: 'CC 17  BS 12  PH 11  WIP 13  ARM 1  W 1' },
+  'Nisses': { faction: 'PanOceania', stats: 'CC 15  BS 13  PH 10  WIP 13  ARM 2  W 1' },
+  'Squalos Mk-II': { faction: 'PanOceania', stats: 'CC 16  BS 13  PH 14  WIP 13  ARM 6  W 3' }
+};
+var SIDEARMS = { 'Fusiliers': ['Pistol', 'Knife'], 'Fennec Fusiliers': ['Pistol', 'CC Weapon'], 'Squalos Mk-II': ['Grenade Launcher', 'MULTI Pistol', 'CC Weapon'], 'Swiss Guard': ['Heavy Pistol', 'AP CC Weapon'] };
+var P = [
+  ['Fusiliers','Missile Launcher','',12,15,'Long range','ML'],
+  ['Fusiliers','HMG','',12,20,'Long range','HMG'],
+  ['Fusiliers','Multi Sniper Rifle','',12,18,'Long range','MSR'],
+  ['Fusiliers','Combi Rifle','',12,10,'Rifles',''],
+  ['Fusiliers','Combi Rifle','· Lieutenant',12,10,'Rifles',''],
+  ['Fusiliers','Combi Rifle','· Forward Observer',12,11,'Rifles','FO'],
+  ['Fusiliers','Boarding Shotgun','',12,10,'Close','BS'],
+  ['Fennec Fusiliers','Missile Launcher','',12,15,'Long range','ML'],
+  ['Fennec Fusiliers','Spitfire','',12,18,'Long range',''],
+  ['Fennec Fusiliers','Combi Rifle','',12,11,'Rifles',''],
+  ['Swiss Guard','Missile Launcher','',14,62,'Long range','ML'],
+  ['Swiss Guard','HMG','',14,64,'Long range','HMG'],
+  ['Nisses','HMG','',13,28,'Long range','HMG'],
+  ['Nisses','Multi Sniper Rifle','',13,26,'Long range','MSR'],
+  ['Squalos Mk-II','HMG','',13,62,'Long range','HMG'],
+  ['Zhanshi','Missile Launcher','',11,14,'Long range','ML'],
+  ['Zhanshi','HMG','',11,19,'Long range','HMG'],
+  ['Zhanshi','Combi Rifle','',11,10,'Rifles',''],
+  ['Ghulam','Missile Launcher','',11,15,'Long range','ML'],
+  ['Ghulam','Rifle','',11,9,'Rifles',''],
+  ['Alguaciles','Missile Launcher','',11,14,'Long range','ML'],
+  ['Alguaciles','Combi Rifle','',11,10,'Rifles',''],
+  ['Kempeitai','Boarding Shotgun','',12,18,'Close','BS']
+].map(function (r, i) { return { id: i, arms: [r[1]].concat(SIDEARMS[r[0]] || ['Pistol', 'CC Weapon']), unit: r[0], weapon: r[1], tag: r[2], bs: r[3], pts: r[4], group: r[5], abbr: r[6], faction: UNITS[r[0]].faction }; });
+
+function matches(p, q) {
+  var hay = (p.unit + ' ' + p.weapon + ' ' + p.abbr + ' ' + p.tag).toLowerCase();
+  var words = hay.split(/[\s·-]+/);
+  return q.toLowerCase().split(/\s+/).filter(Boolean).every(function (t) {
+    return words.some(function (w) { return w.indexOf(t) === 0; });
+  });
+}
+var FACTIONS = ['PanOceania','Yu Jing','Ariadna','Haqqislam','Nomads','Combined Army','ALEPH','Tohaa','O-12','JSA'];
+function side(p) { return p; }
+var BANDS = ['8','16','24','32','40','48','96'];
+var W = {
+  'Missile Launcher': { b: 1, ps: 6, m: [-3, 0, 0, 3, 3, -3, -3] },
+  'HMG': { b: 4, ps: 5, m: [-3, 0, 3, 3, -3, -3, null] },
+  'Spitfire': { b: 4, ps: 4, m: [0, 3, 3, -3, -3, null, null] },
+  'Multi Sniper Rifle': { b: 2, ps: 4, m: [-3, 3, 3, 3, 3, -3, -3] },
+  'Combi Rifle': { b: 3, ps: 4, m: [3, 3, -3, -3, -6, null, null] },
+  'Rifle': { b: 3, ps: 4, m: [0, 3, 0, -3, -6, null, null] },
+  'Boarding Shotgun': { b: 2, ps: 4, m: [6, 0, -3, null, null, null, null] },
+  'Grenade Launcher': { b: 1, ps: 6, m: [-3, 0, 3, 3, -3, -3, null] },
+  'Pistol': { b: 2, ps: 4, m: [3, 0, -3, null, null, null, null] },
+  'Heavy Pistol': { b: 2, ps: 5, m: [3, 0, -3, null, null, null, null] },
+  'MULTI Pistol': { b: 3, ps: 4, m: [3, 0, -3, null, null, null, null] },
+  'CC Weapon': { b: 1, ps: 5, m: [null, null, null, null, null, null, null] },
+  'AP CC Weapon': { b: 1, ps: 5, m: [null, null, null, null, null, null, null] },
+  'Knife': { b: 1, ps: 3, m: [null, null, null, null, null, null, null] }
+};
+function arm(p) { return +(/ARM (\d+)/.exec(UNITS[p.unit].stats)[1]); }
+function fmt(n) { return n > 0 ? '+' + n : n === 0 ? '0' : n === null ? '—' : String(n); }
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { screen: 'setup', side: 'reactive', query: '', scope: null, unitName: null, recentFactions: ['Yu Jing', 'PanOceania'],
+      active: P[14], reactive: P[7], range: 3, cover: { active: false, reactive: true }, ft: { active: 0, reactive: 5 }, surprise: false, recent: [10, 12, 0] };
+  }
+  open(which) { this.setState({ screen: 'search', side: which, query: '', scope: this.state[which].faction }); }
+  setScope(f) {
+    var s = { screen: 'search', scope: f };
+    if (f) s.recentFactions = [f].concat(this.state.recentFactions.filter(function (x) { return x !== f; })).slice(0, 3);
+    this.setState(s);
+  }
+  pick(p) {
+    var s = { screen: 'setup' };
+    var prev = this.state[this.state.side];
+    s[this.state.side] = p;
+    s.recent = [p.id].concat(this.state.recent.filter(function (x) { return x !== p.id; })).slice(0, 3);
+    this.setState(s);
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    var dice = function (k, o) {
+      var w = W[st[k].weapon] || W['Combi Rifle'], m = w.m[st.range];
+      if (w.m.every(function (x) { return x === null; })) return 'CC only';
+      if (m === null) return 'Out of range';
+      var sv = st[k].bs + m - (st.cover[o] ? 3 : 0) + (st.ft[k] >= 3 ? 1 : 0) - (k === 'reactive' && st.surprise ? 3 : 0);
+      return 'B' + (w.b + (st.ft[k] === 5 ? 1 : 0)) + ' SV' + sv + ' PS' + (w.ps + arm(st[o]) + (st.cover[o] ? 3 : 0));
+    };
+    var other = st.side === 'active' ? st.reactive : st.active;
+    var pool = P.filter(function (p) { return !st.scope || p.faction === st.scope; });
+    var hits = st.query ? pool.filter(function (p) { return matches(p, st.query); }) : pool;
+    var elsewhere = [];
+    if (st.scope && st.query && !hits.length) {
+      FACTIONS.forEach(function (f) {
+        var n = P.filter(function (p) { return p.faction === f && matches(p, st.query); }).length;
+        if (n) elsewhere.push({ faction: f, count: n, go: function () { self.setScope(f); } });
+      });
+      if (elsewhere.length > 1) elsewhere.push({ faction: 'all factions', count: elsewhere.reduce(function (a, o) { return a + o.count; }, 0), go: function () { self.setScope(null); } });
+    }
+    var fac = function (f) { return { name: f, count: P.filter(function (p) { return p.faction === f; }).length || '', mark: st.scope === f ? '✓' : '', pick: function () { self.setScope(f); } }; };
+    var withPick = function (p) { return Object.assign({}, p, { pick: function () { self.pick(p); } }); };
+    var unitNames = [];
+    hits.forEach(function (p) { if (unitNames.indexOf(p.unit) < 0) unitNames.push(p.unit); });
+    var units = unitNames.map(function (n) {
+      return { name: n, count: P.filter(function (p) { return p.unit === n; }).length,
+        open: function () { self.setState({ screen: 'unit', unitName: n }); } };
+    });
+    var unit = null, unitGroups = [];
+    if (st.unitName) {
+      var ps = P.filter(function (p) { return p.unit === st.unitName; });
+      unit = Object.assign({ name: st.unitName, count: ps.length }, UNITS[st.unitName]);
+      ['Long range', 'Rifles', 'Close'].forEach(function (g) {
+        var items = ps.filter(function (p) { return p.group === g; }).map(withPick);
+        if (items.length) unitGroups.push({ name: g, items: items });
+      });
+    }
+    var chips = ['Missile L.', 'HMG', 'Spitfire', 'Sniper'].map(function (l) {
+      var t = { 'Missile L.': 'ml', 'HMG': 'hmg', 'Spitfire': 'spitfire', 'Sniper': 'msr' }[l];
+      return { label: l, tap: function () { self.setState({ query: t }); } };
+    });
+    return {
+      isSetup: st.screen === 'setup', isSearch: st.screen === 'search', isUnit: st.screen === 'unit',
+      active: st.active, reactive: st.reactive,
+      openActive: function () { self.open('active'); },
+      openReactive: function () { self.open('reactive'); },
+      swap: function () { self.setState({ active: st.reactive, reactive: st.active, cover: { active: st.cover.reactive, reactive: st.cover.active }, ft: { active: st.ft.reactive, reactive: st.ft.active }, surprise: false }); },
+      sides: ['active', 'reactive'].map(function (k) {
+        var p = st[k], set = function (key, v) { var o = Object.assign({}, st[key]); o[k] = v; var u = {}; u[key] = o; self.setState(u); };
+        return { isReactive: k === 'reactive', label: k.toUpperCase(), color: k === 'active' ? '#5fc4a0' : '#e59bc0',
+          weapons: p.arms.map(function (n) { return { name: n, on: n === p.weapon, off: n !== p.weapon, pick: function () { var u = {}; u[k] = Object.assign({}, p, { weapon: n }); self.setState(u); } }; }),
+          unit: p.unit, weapon: p.weapon, faction: p.faction, open: function () { self.open(k); },
+          cover: st.cover[k], noCover: !st.cover[k], toggleCover: function () { set('cover', !st.cover[k]); },
+          ftOn: st.ft[k] > 0, ftOff: !st.ft[k], addFt: function () { set('ft', 3); }, removeFt: function () { set('ft', 0); },
+          ftOptions: [2, 3, 4, 5].map(function (n) { return { n: n, on: st.ft[k] === n, off: st.ft[k] !== n, pick: function () { set('ft', n); } }; }),
+          surpriseOn: k === 'active' && st.surprise, surpriseOff: k === 'active' && !st.surprise,
+          toggleSurprise: function () { self.setState({ surprise: !st.surprise }); } };
+      }),
+      bands: BANDS.map(function (to, i) {
+        return { to: to + '"', am: fmt((W[st.active.weapon] || W['Combi Rifle']).m[i]), rm: fmt((W[st.reactive.weapon] || W['Combi Rifle']).m[i]),
+          on: st.range === i, off: st.range !== i, pick: function () { self.setState({ range: i }); } };
+      }),
+      rangeLabel: (st.range ? BANDS[st.range - 1] : '0') + '–' + BANDS[st.range],
+      activeDice: dice('active', 'reactive'), reactiveDice: dice('reactive', 'active'),
+      close: function () { self.setState({ screen: 'setup' }); },
+      back: function () { self.setState({ screen: 'search' }); },
+      sideLabel: st.side === 'active' ? 'ACTIVE' : 'REACTIVE',
+      sideColor: st.side === 'active' ? '#5fc4a0' : '#e59bc0',
+      query: st.query, hasQuery: !!st.query, noQuery: !st.query,
+      onQuery: function (e) { self.setState({ query: e.target.value }); },
+      profiles: hits.slice(0, 12).map(withPick), profileCount: hits.length, units: units,
+      recent: st.recent.map(function (i) { return withPick(P[i]); }),
+      factionLabel: st.scope ? st.scope + ' ▾' : 'All factions ▾',
+      scoped: !!st.scope, unscoped: !st.scope, scopeName: st.scope,
+      openFactions: function () { self.setState({ screen: 'factions' }); },
+      isFactions: st.screen === 'factions',
+      recentFactions: st.recentFactions.map(fac), factions: FACTIONS.map(fac),
+      allMark: st.scope ? '' : '✓', pickAll: function () { self.setScope(null); },
+      showFallback: elsewhere.length > 0, hasHits: hits.length > 0, elsewhere: elsewhere,
+      chips: chips, unit: unit || {}, unitGroups: unitGroups
+    };
+  }
+}
+</script>
+</body>
+</html>

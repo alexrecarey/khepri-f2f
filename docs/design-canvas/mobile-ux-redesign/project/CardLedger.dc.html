@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Card ledger</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#121212;display:flex;flex-direction:column;overflow:hidden">
+
+<header style="display:flex;align-items:center;padding:6px 8px 0 16px;height:48px;flex-shrink:0">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:13px;font-weight:600;letter-spacing:.14em;color:#6b6861;flex-grow:1">INFINITY THE CALCULATOR</span>
+<span style="width:44px;height:44px;display:grid;place-items:center;color:#9a978f">
+<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="4" cy="10" r="1.8"></circle><circle cx="10" cy="10" r="1.8"></circle><circle cx="16" cy="10" r="1.8"></circle></svg>
+</span>
+</header>
+
+<div style="padding:4px 16px 12px;display:flex;flex-direction:column;gap:10px;flex-grow:1;overflow-y:auto">
+<sc-for list="{{sides}}" as="s" hint-placeholder-count="2">
+<section style="padding:14px 14px 4px;border-radius:14px;background:#1c1c1c;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;flex-direction:column;gap:2px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.1em;color:{{s.color}}">{{s.role}}</span>
+<span style="font-size:18px;font-weight:600">{{s.unit}} <span style="font-size:13px;font-weight:400;color:#8a877f">PanOceania ›</span></span>
+</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<sc-for list="{{s.weapons}}" as="w" hint-placeholder-count="3">
+<sc-if value="{{w.on}}" hint-placeholder-val="{{false}}"><span style="padding:8px 12px;border-radius:8px;background:{{s.color}};color:#141414;font-size:14px;font-weight:600">{{w.name}}</span></sc-if>
+<sc-if value="{{w.off}}" hint-placeholder-val="{{true}}"><span style="padding:8px 12px;border-radius:8px;border:1px solid #333;font-size:14px;color:#c9c6bf">{{w.name}}</span></sc-if>
+</sc-for>
+</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<sc-for list="{{s.chips}}" as="c" hint-placeholder-count="2">
+<sc-if value="{{c.on}}" hint-placeholder-val="{{false}}"><span style="padding:7px 12px;border-radius:999px;background:#2a2a2a;border:1px solid {{s.color}};font-size:13px">{{c.name}} ✓</span></sc-if>
+<sc-if value="{{c.off}}" hint-placeholder-val="{{true}}"><span style="padding:7px 12px;border-radius:999px;border:1px dashed #3a3a3a;color:#9a978f;font-size:13px">+ {{c.name}}</span></sc-if>
+</sc-for>
+</div>
+
+<sc-if value="{{s.open}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:12px;padding:12px 2px 2px;border-top:1px solid #2c2c2c;font-family:'IBM Plex Mono',monospace;font-size:14px">
+<sc-for list="{{s.blocks}}" as="k" hint-placeholder-count="3">
+<div style="display:flex;flex-direction:column;gap:3px">
+<span style="font-family:'IBM Plex Sans',sans-serif;font-size:11px;letter-spacing:.12em;color:#8a877f">{{k.title}}</span>
+<sc-for list="{{k.lines}}" as="l" hint-placeholder-count="2">
+<sc-if value="{{l.live}}" hint-placeholder-val="{{true}}">
+<div style="display:flex;gap:12px;color:{{l.color}}"><span style="width:28px;text-align:right">{{l.v}}</span><span style="flex-grow:1">{{l.label}}</span><span style="color:#8a877f;font-size:12px">{{l.src}}</span></div>
+</sc-if>
+<sc-if value="{{l.struck}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;gap:12px;color:#6b6861"><span style="width:28px;text-align:right;text-decoration:line-through">{{l.v}}</span><span style="flex-grow:1;text-decoration:line-through">{{l.label}}</span><span style="font-size:12px">{{l.src}}</span></div>
+</sc-if>
+</sc-for>
+<div style="display:flex;gap:12px;border-top:1px solid #333;padding-top:3px;font-weight:600"><span style="width:28px;text-align:right">{{k.total}}</span><span>{{k.name}}</span><span style="color:#8a877f;font-weight:400;font-size:12px">{{k.note}}</span></div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<button onClick="{{s.toggle}}" style="all:unset;cursor:pointer;display:flex;justify-content:flex-end;align-items:center;gap:6px;padding:8px 0 10px;font-size:12px;color:#6b6861">
+<span>{{s.toggleLabel}}</span>
+</button>
+</section>
+
+<sc-if value="{{s.first}}" hint-placeholder-val="{{true}}">
+<div style="display:flex;align-items:center;gap:8px">
+<div style="display:flex;flex-grow:1;border:1px solid #2c2c2c;border-radius:10px;overflow:hidden;font-size:12px;color:#9a978f">
+<span style="flex-grow:1;text-align:center;padding:9px 0">8</span><span style="flex-grow:1;text-align:center;padding:9px 0">16</span><span style="flex-grow:1;text-align:center;padding:9px 0">24</span><span style="flex-grow:1;text-align:center;padding:9px 0;background:#e8e6e1;color:#121212;font-weight:600">32"</span><span style="flex-grow:1;text-align:center;padding:9px 0">40</span><span style="flex-grow:1;text-align:center;padding:9px 0">48</span><span style="flex-grow:1;text-align:center;padding:9px 0">96</span>
+</div>
+<span style="width:40px;height:40px;display:grid;place-items:center;border-radius:999px;border:1px solid #333;color:#c9c6bf">⇅</span>
+</div>
+</sc-if>
+</sc-for>
+</div>
+
+<div style="flex-shrink:0;display:flex;flex-direction:column;gap:8px;margin:0 8px;padding:8px 16px 22px;border-radius:20px 20px 0 0;background:#1f1f1f">
+<span style="align-self:center;width:40px;height:5px;border-radius:3px;background:#444"></span>
+<span style="display:flex;justify-content:space-between;font-family:'Chakra Petch',sans-serif;font-size:21px;font-weight:700"><span style="color:#5fc4a0">B4 SV14 PS9</span><span style="color:#e59bc0">B2 SV13 PS12 EXP</span></span>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+var G = '#5fc4a0', P = '#e59bc0', W = '#e8e6e1';
+function L(v, label, src, color, struck) { return { v: v, label: label, src: src, color: color, live: !struck, struck: !!struck }; }
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { active: true, reactive: false }; }
+  renderVals() {
+    var self = this, st = this.state;
+    var mk = function (key, s) {
+      return Object.assign(s, { open: st[key], toggleLabel: st[key] ? 'Hide mods ⌃' : 'View mods ⌄',
+        toggle: function () { var n = {}; n[key] = !st[key]; self.setState(n); } });
+    };
+    return { sides: [
+      mk('active', { role: 'ACTIVE', color: G, unit: 'Squalos Mk-II', first: true,
+        weapons: [{ name: 'HMG', on: true, off: false }, { name: 'Grenade L.', on: false, off: true }, { name: 'Pistol', on: false, off: true }],
+        chips: [{ name: 'Cover', on: false, off: true }, { name: 'Surprise attack', on: true, off: false }],
+        blocks: [
+          { title: 'BURST', lines: [L('4', 'HMG', 'weapon', W)], total: '4', name: 'B', note: '' },
+          { title: 'SUCCESS VALUE', lines: [L('14', 'BS', 'profile', W), L('+3', 'Range 24–32"', 'HMG', G), L('−3', 'Cover', 'Fennec', P), L('−3', 'Mimetism', 'MSV2 cancels', P, true)], total: '14', name: 'SV', note: '' },
+          { title: 'SAVE THE FENNEC MAKES', lines: [L('5', 'PS', 'HMG', W), L('+1', 'ARM', 'Fennec', P), L('+3', 'Cover', 'Fennec', P)], total: '9', name: 'PS', note: 'saves on 9 or less' }
+        ] }),
+      mk('reactive', { role: 'REACTIVE', color: P, unit: 'Fennec Fusiliers', first: false,
+        weapons: [{ name: 'Missile L.', on: true, off: false }, { name: 'Pistol', on: false, off: true }, { name: 'Dodge', on: false, off: true }],
+        chips: [{ name: 'Cover', on: true, off: false }, { name: 'Fireteam 5', on: true, off: false }],
+        blocks: [
+          { title: 'BURST', lines: [L('1', 'Missile L.', 'weapon', W), L('+1', 'Fireteam 5', 'core', P)], total: '2', name: 'B', note: '' },
+          { title: 'SUCCESS VALUE', lines: [L('12', 'BS', 'profile', W), L('+1', 'Fireteam 5', 'core', P), L('+3', 'Range 24–32"', 'Missile L.', P), L('−3', 'Surprise attack', 'Squalo', G)], total: '13', name: 'SV', note: '' },
+          { title: 'SAVE THE SQUALO MAKES', lines: [L('6', 'PS', 'Missile L.', W), L('+6', 'ARM', 'Squalo', G)], total: '12', name: 'PS', note: 'saves on 12 or less · EXP ×3' }
+        ] })
+    ] };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,511 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "CardLedger.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Ledger inside each card — press Play, tap \"View mods\"",
+      "w": 390,
+      "x": 0,
+      "y": 8350
+    },
+    "ChromeAbout.dc.html": {
+      "h": 844,
+      "title": "Chrome 5 — about",
+      "w": 390,
+      "x": 1880,
+      "y": 4400
+    },
+    "ChromeHome.dc.html": {
+      "h": 844,
+      "title": "Chrome 1 — the whole footprint: wordmark + one menu",
+      "w": 390,
+      "x": 0,
+      "y": 4400
+    },
+    "ChromeMenu.dc.html": {
+      "h": 844,
+      "title": "Chrome 2 — menu sheet",
+      "w": 390,
+      "x": 470,
+      "y": 4400
+    },
+    "ChromeSaved.dc.html": {
+      "h": 844,
+      "title": "Chrome 3 — saved rolls",
+      "w": 390,
+      "x": 940,
+      "y": 4400
+    },
+    "ChromeSettings.dc.html": {
+      "h": 844,
+      "title": "Chrome 4 — settings",
+      "w": 390,
+      "x": 1410,
+      "y": 4400
+    },
+    "ExpandFlip.dc.html": {
+      "h": 844,
+      "title": "Expand B — card flips to its mods, same height",
+      "w": 390,
+      "x": 470,
+      "y": 9450
+    },
+    "ExpandIcon.dc.html": {
+      "h": 844,
+      "title": "Expand A — stat summary in the header row, popover over the card",
+      "w": 390,
+      "x": 0,
+      "y": 9450
+    },
+    "ExpandResultNumber.dc.html": {
+      "h": 844,
+      "title": "Expand C — in results: tap a dice line, its build opens under it",
+      "w": 390,
+      "x": 940,
+      "y": 9450
+    },
+    "ExpandResultRows.dc.html": {
+      "h": 844,
+      "title": "Expand D — in results: both builds at the end of the scroll, no tap",
+      "w": 390,
+      "x": 1410,
+      "y": 9450
+    },
+    "FinalHome.dc.html": {
+      "h": 844,
+      "title": "Final 1 — weapons as buttons, range between, chips; result peeks",
+      "w": 390,
+      "x": 0,
+      "y": 5650
+    },
+    "FinalLedger.dc.html": {
+      "h": 844,
+      "title": "Final 3 — superseded: ledger now at the end of Final 2",
+      "w": 390,
+      "x": 940,
+      "y": 5650
+    },
+    "FinalPeek.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "final",
+      "title": "Matchup screen with the results peek — press Play, tap the range strip",
+      "w": 390,
+      "x": 470,
+      "y": 300
+    },
+    "FinalPeekRange.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "final",
+      "title": "Same screen, range selector open (Infinity band stripes)",
+      "w": 390,
+      "x": 470,
+      "y": 1260
+    },
+    "FinalPicker.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "final",
+      "title": "Mobile interaction — press Play: pick troopers, factions, profiles",
+      "w": 390,
+      "x": 0,
+      "y": 300
+    },
+    "FinalResults.dc.html": {
+      "h": 1440,
+      "page": "final",
+      "title": "Swipe-up results — odds, breakdown, how the dice were built",
+      "w": 390,
+      "x": 940,
+      "y": 300
+    },
+    "FinalSheet.dc.html": {
+      "h": 1440,
+      "title": "Final 2 — swipe up, then just scroll: dice, odds, breakdown, how the dice were built",
+      "w": 390,
+      "x": 470,
+      "y": 5650
+    },
+    "Fireteam.dc.html": {
+      "h": 560,
+      "title": "Conditional inputs — fireteam hidden until it matters",
+      "w": 1280,
+      "x": 0,
+      "y": 1180
+    },
+    "LedgerA.dc.html": {
+      "h": 844,
+      "title": "Ledger A — equation strip",
+      "w": 390,
+      "x": 0,
+      "y": 7250
+    },
+    "LedgerAOpen.dc.html": {
+      "h": 844,
+      "title": "Ledger A open — expands in place, both sides as sums",
+      "w": 390,
+      "x": 470,
+      "y": 7250
+    },
+    "LedgerB.dc.html": {
+      "h": 844,
+      "title": "Ledger B — net modifier chips",
+      "w": 390,
+      "x": 940,
+      "y": 7250
+    },
+    "LedgerBOpen.dc.html": {
+      "h": 844,
+      "title": "Ledger B open — sheet, one row per modifier, both sides",
+      "w": 390,
+      "x": 1410,
+      "y": 7250
+    },
+    "LedgerC.dc.html": {
+      "h": 844,
+      "title": "Ledger C — base → final stats",
+      "w": 390,
+      "x": 1880,
+      "y": 7250
+    },
+    "LedgerCOpen.dc.html": {
+      "h": 844,
+      "title": "Ledger C open — page per stat (SV · PS · B)",
+      "w": 390,
+      "x": 2350,
+      "y": 7250
+    },
+    "LedgerD.dc.html": {
+      "h": 844,
+      "title": "Ledger D — sentence of what changed",
+      "w": 390,
+      "x": 2820,
+      "y": 7250
+    },
+    "LedgerDOpen.dc.html": {
+      "h": 844,
+      "title": "Ledger D open — step-by-step build of each roll",
+      "w": 390,
+      "x": 3290,
+      "y": 7250
+    },
+    "Main.dc.html": {
+      "h": 1060,
+      "is_interactive": true,
+      "title": "Ledger — press Play: range, cover, skills, fireteam",
+      "w": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "MobileEmpty.dc.html": {
+      "h": 844,
+      "title": "Mobile 4 — sheet before typing",
+      "w": 390,
+      "x": 1410,
+      "y": 2003
+    },
+    "MobileFlow.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Final mobile interaction Prototype — press Play",
+      "w": 390,
+      "x": 1880,
+      "y": 2003
+    },
+    "MobileSearch.dc.html": {
+      "h": 844,
+      "title": "Mobile 2 — search sheet, input by the thumb",
+      "w": 390,
+      "x": 470,
+      "y": 2003
+    },
+    "MobileSetup.dc.html": {
+      "h": 844,
+      "title": "Mobile 1 — matchup, tap a side to change it",
+      "w": 390,
+      "x": 0,
+      "y": 2003
+    },
+    "MobileUnit.dc.html": {
+      "h": 844,
+      "title": "Mobile 3 — browsing one unit's profiles",
+      "w": 390,
+      "x": 940,
+      "y": 2003
+    },
+    "PeekA.dc.html": {
+      "h": 420,
+      "title": "Peek A — two big wounds/order numbers over the shaded bar",
+      "w": 390,
+      "x": 0,
+      "y": 10550
+    },
+    "PeekB.dc.html": {
+      "h": 420,
+      "title": "Peek B — wounds/order + ≥1 / ≥2 / ≥3 ladder per side",
+      "w": 390,
+      "x": 470,
+      "y": 10550
+    },
+    "PeekBars.dc.html": {
+      "h": 1000,
+      "title": "Peek A — bar at 16 / 10 / 6 / 4 px",
+      "w": 390,
+      "x": 1880,
+      "y": 10550
+    },
+    "PeekC.dc.html": {
+      "h": 420,
+      "title": "Peek C — what it means: who goes down, nothing happens",
+      "w": 390,
+      "x": 940,
+      "y": 10550
+    },
+    "PeekD.dc.html": {
+      "h": 420,
+      "title": "Peek D — what changed since your last tap, with undo",
+      "w": 390,
+      "x": 1410,
+      "y": 10550
+    },
+    "Picker.dc.html": {
+      "h": 980,
+      "title": "Unit picker — one search, many options",
+      "w": 880,
+      "x": 1360,
+      "y": 0
+    },
+    "RangeOptions.dc.html": {
+      "h": 760,
+      "is_interactive": true,
+      "title": "Range selector — slim until tapped, four expanded views (press Play)",
+      "w": 1720,
+      "x": 0,
+      "y": 11900
+    },
+    "ResultInline.dc.html": {
+      "h": 844,
+      "title": "Results C — expands in place, tap a number",
+      "w": 390,
+      "x": 940,
+      "y": 3190
+    },
+    "ResultPage.dc.html": {
+      "h": 844,
+      "title": "Results B — full page, Odds | Ledger tabs",
+      "w": 390,
+      "x": 470,
+      "y": 3190
+    },
+    "ResultSheet.dc.html": {
+      "h": 844,
+      "title": "Results A — bottom sheet, ledger below",
+      "w": 390,
+      "x": 0,
+      "y": 3190
+    },
+    "FinalMenu.dc.html": {
+      "x": 1410,
+      "y": 300,
+      "w": 390,
+      "h": 844,
+      "title": "Menu sheet (from ⋯)",
+      "page": "final"
+    },
+    "FinalSaved.dc.html": {
+      "x": 1880,
+      "y": 300,
+      "w": 390,
+      "h": 844,
+      "title": "Saved rolls — Matchup | Classic lists",
+      "page": "final"
+    },
+    "FinalSettings.dc.html": {
+      "x": 2350,
+      "y": 300,
+      "w": 390,
+      "h": 844,
+      "title": "Settings",
+      "page": "final"
+    },
+    "FinalAbout.dc.html": {
+      "x": 2820,
+      "y": 300,
+      "w": 390,
+      "h": 844,
+      "title": "About",
+      "page": "final"
+    },
+    "FinalClassic.dc.html": {
+      "x": 3290,
+      "y": 300,
+      "w": 390,
+      "h": 1560,
+      "title": "Classic calculator — same inputs, new design language",
+      "page": "final"
+    },
+    "FinalClassicResults.dc.html": {
+      "x": 3760,
+      "y": 300,
+      "w": 390,
+      "h": 844,
+      "title": "Classic results — swipe up: F2F bar, wounds bar, percentages",
+      "page": "final"
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-09-29T12:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "cardledger": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "Each card owns its ledger",
+      "w": 240,
+      "x": 0,
+      "y": 8100
+    },
+    "chrome": {
+      "kind": "title1",
+      "maxW": 2300,
+      "text": "App chrome — out of the way",
+      "w": 240,
+      "x": 0,
+      "y": 4150
+    },
+    "expand": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "Seeing the mods without a taller card",
+      "w": 240,
+      "x": 0,
+      "y": 9200
+    },
+    "final": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "Final direction",
+      "w": 240,
+      "x": 0,
+      "y": 5400
+    },
+    "finalpage": {
+      "kind": "title1",
+      "maxW": 4150,
+      "page": "final",
+      "text": "Infinity the Calculator — final",
+      "w": 240,
+      "x": 0,
+      "y": 0
+    },
+    "ledgercard": {
+      "kind": "title1",
+      "maxW": 3700,
+      "text": "Ledger belongs to the setup — four small cards and what they open",
+      "w": 240,
+      "x": 0,
+      "y": 7000
+    },
+    "mobile": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "Mobile-first unit picking",
+      "w": 240,
+      "x": 0,
+      "y": 1780
+    },
+    "peek": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "Results card before swipe-up",
+      "w": 240,
+      "x": 0,
+      "y": 10300
+    },
+    "range": {
+      "kind": "title1",
+      "maxW": 1720,
+      "text": "Range selector — slim, grows on tap",
+      "w": 240,
+      "x": 0,
+      "y": 11650
+    },
+    "results": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "Tapping the result",
+      "w": 240,
+      "x": 0,
+      "y": 2960
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Fireteam.dc.html",
+    "Picker.dc.html",
+    "MobileSetup.dc.html",
+    "MobileSearch.dc.html",
+    "MobileUnit.dc.html",
+    "MobileEmpty.dc.html",
+    "MobileFlow.dc.html",
+    "ResultSheet.dc.html",
+    "ResultPage.dc.html",
+    "ResultInline.dc.html",
+    "ChromeHome.dc.html",
+    "ChromeMenu.dc.html",
+    "ChromeSaved.dc.html",
+    "ChromeSettings.dc.html",
+    "ChromeAbout.dc.html",
+    "FinalHome.dc.html",
+    "FinalSheet.dc.html",
+    "FinalLedger.dc.html",
+    "LedgerA.dc.html",
+    "LedgerAOpen.dc.html",
+    "LedgerB.dc.html",
+    "LedgerBOpen.dc.html",
+    "LedgerC.dc.html",
+    "LedgerCOpen.dc.html",
+    "LedgerD.dc.html",
+    "LedgerDOpen.dc.html",
+    "CardLedger.dc.html",
+    "ExpandIcon.dc.html",
+    "ExpandFlip.dc.html",
+    "ExpandResultNumber.dc.html",
+    "ExpandResultRows.dc.html",
+    "PeekA.dc.html",
+    "PeekB.dc.html",
+    "PeekC.dc.html",
+    "PeekD.dc.html",
+    "PeekBars.dc.html",
+    "FinalPicker.dc.html",
+    "FinalPeek.dc.html",
+    "FinalResults.dc.html",
+    "RangeOptions.dc.html",
+    "FinalPeekRange.dc.html",
+    "FinalMenu.dc.html",
+    "FinalSaved.dc.html",
+    "FinalSettings.dc.html",
+    "FinalAbout.dc.html",
+    "FinalClassic.dc.html",
+    "FinalClassicResults.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "explore",
+      "name": "Exploration"
+    },
+    {
+      "id": "final",
+      "name": "Final"
+    }
+  ],
+  "title": "Infinity the Calculator"
+}

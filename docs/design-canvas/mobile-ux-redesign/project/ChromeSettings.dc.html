@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#161616;display:flex;flex-direction:column">
+<div style="padding:10px 8px;display:flex;align-items:center;gap:4px;border-bottom:1px solid #2c2c2c">
+<a href="ChromeMenu.dc.html" aria-label="Back" style="width:44px;height:44px;display:grid;place-items:center;font-size:22px;color:#c9c6bf;text-decoration:none">‹</a>
+<span style="font-size:18px;font-weight:600">Settings</span>
+</div>
+
+<div style="display:flex;flex-direction:column;padding:8px 8px">
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:14px 12px 6px">Starting factions</div>
+<button style="all:unset;cursor:pointer;display:flex;justify-content:space-between;padding:16px 12px;font-size:16px"><span>Active side</span><span style="color:#5fc4a0">Last used ›</span></button>
+<button style="all:unset;cursor:pointer;display:flex;justify-content:space-between;padding:16px 12px;font-size:16px"><span>Reactive side</span><span style="color:#e59bc0">Last used ›</span></button>
+
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:18px 12px 6px">Language</div>
+<button style="all:unset;cursor:pointer;display:flex;justify-content:space-between;padding:16px 12px;font-size:16px"><span>App language</span><span style="color:#9a978f">English ›</span></button>
+
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:18px 12px 6px">Your data</div>
+<button style="all:unset;cursor:pointer;padding:16px 12px;font-size:16px">Clear recent troopers</button>
+<button style="all:unset;cursor:pointer;padding:16px 12px;font-size:16px;color:#f08a7a">Delete all saved rolls</button>
+<span style="padding:6px 12px;font-size:13px;color:#8a877f;line-height:1.5">Saved rolls live only on this device.</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

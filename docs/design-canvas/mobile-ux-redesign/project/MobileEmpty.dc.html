@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile picker before typing</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#161616;display:flex;flex-direction:column">
+
+<div style="padding:14px 16px 8px;display:flex;align-items:center">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:13px;letter-spacing:.1em;color:#e59bc0;flex-grow:1">REACTIVE TROOPER</span>
+<button style="all:unset;cursor:pointer;padding:10px;color:#9a978f;font-size:15px">Cancel</button>
+</div>
+
+<div style="display:flex;flex-direction:column;flex-grow:1;padding:0 8px;gap:2px">
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:6px 8px">Recent</div>
+<button style="all:unset;cursor:pointer;padding:14px 12px;font-size:16px">Swiss Guard <span style="color:#e59bc0">· Missile L.</span></button>
+<button style="all:unset;cursor:pointer;padding:14px 12px;font-size:16px">Nisses <span style="color:#e59bc0">· HMG</span></button>
+<button style="all:unset;cursor:pointer;padding:14px 12px;font-size:16px">Fusiliers <span style="color:#e59bc0">· Combi Rifle</span></button>
+
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:14px 8px 6px">PanOceania · by role</div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 4px">
+<button style="all:unset;cursor:pointer;padding:16px 12px;border-radius:10px;background:#1f1f1f;font-size:15px">Line troops</button>
+<button style="all:unset;cursor:pointer;padding:16px 12px;border-radius:10px;background:#1f1f1f;font-size:15px">Heavy infantry</button>
+<button style="all:unset;cursor:pointer;padding:16px 12px;border-radius:10px;background:#1f1f1f;font-size:15px">TAGs &amp; REMs</button>
+<button style="all:unset;cursor:pointer;padding:16px 12px;border-radius:10px;background:#1f1f1f;font-size:15px">Specialists</button>
+<button style="all:unset;cursor:pointer;padding:16px 12px;border-radius:10px;background:#1f1f1f;font-size:15px">Snipers &amp; ML</button>
+<button style="all:unset;cursor:pointer;padding:16px 12px;border-radius:10px;background:#1f1f1f;font-size:15px">Warbands</button>
+</div>
+</div>
+
+<div style="background:#1e1e1e;border-top:1px solid #2c2c2c;padding:10px 12px 28px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;gap:8px">
+<button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:999px;background:#3a2330;border:1px solid #e59bc0;font-size:14px">PanOceania ×</button>
+</div>
+<label for="eq" style="position:absolute;left:-9999px">Search troopers</label>
+<input id="eq" placeholder="Unit or weapon, e.g. fus ml" style="all:unset;padding:14px 16px;border:1px solid #3a3a3a;border-radius:12px;font-size:17px;background:#141414;color:#8a877f">
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

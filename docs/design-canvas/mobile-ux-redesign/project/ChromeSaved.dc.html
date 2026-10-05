@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Saved rolls</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#161616;display:flex;flex-direction:column">
+<div style="padding:10px 8px;display:flex;align-items:center;gap:4px;border-bottom:1px solid #2c2c2c">
+<a href="ChromeHome.dc.html" aria-label="Back to matchup" style="width:44px;height:44px;display:grid;place-items:center;font-size:22px;color:#c9c6bf;text-decoration:none">‹</a>
+<span style="font-size:18px;font-weight:600;flex-grow:1">Saved rolls</span>
+<span style="font-size:13px;color:#8a877f;padding-right:12px">13</span>
+</div>
+
+<div style="display:flex;margin:12px 12px 0;background:#222;border-radius:10px;padding:3px">
+<button style="all:unset;cursor:pointer;flex-grow:1;text-align:center;padding:10px;border-radius:8px;background:#e8e6e1;color:#121212;font-weight:600;font-size:15px">Matchup · 13</button>
+<button style="all:unset;cursor:pointer;flex-grow:1;text-align:center;padding:10px;border-radius:8px;color:#c9c6bf;font-size:15px">Classic · 4</button>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;padding:12px">
+<sc-for list="{{rolls}}" as="r" hint-placeholder-count="5">
+<a href="ChromeHome.dc.html" style="display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:12px;background:#1f1f1f;text-decoration:none;color:#e8e6e1">
+<div style="display:flex;justify-content:space-between;font-size:15px;font-weight:600"><span style="color:#5fc4a0">{{r.a}}</span><span style="color:#e59bc0">{{r.r}}</span></div>
+<div style="display:flex;justify-content:space-between;font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:600"><span style="color:#5fc4a0">{{r.ad}}</span><span style="color:#e59bc0">{{r.rd}}</span></div>
+<div style="display:flex;justify-content:space-between;font-size:13px;color:#8a877f"><span>{{r.setup}}</span><span><b style="color:#5fc4a0">{{r.ap}}</b> · <b style="color:#e59bc0">{{r.rp}}</b></span></div>
+</a>
+</sc-for>
+<span style="text-align:center;font-size:13px;color:#6b6861;padding:8px">Tap to load the whole setup · swipe left to delete</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { rolls: [
+      { a: 'Squalos · HMG', r: 'Fennec · ML', ad: 'B4 SV15 PS6', rd: 'B2 SV13 PS12', setup: '24–32" · cover · FT5', ap: '74%', rp: '20%' },
+      { a: 'Swiss Guard · ML', r: 'Zhanshi · HMG', ad: 'B1 SV17 PS10', rd: 'B4 SV8 PS11', setup: '32–40" · Mimetism', ap: '61%', rp: '31%' },
+      { a: 'Nisses · MSR', r: 'Ghulam · ML', ad: 'B2 SV16 PS8', rd: 'B1 SV11 PS9', setup: '40–48"', ap: '58%', rp: '22%' },
+      { a: 'Fusiliers · Combi', r: 'Alguaciles · Combi', ad: 'B3 SV15 PS7', rd: 'B1 SV14 PS7', setup: '8–16"', ap: '66%', rp: '27%' },
+      { a: 'Squalos · HMG', r: 'Kempeitai · Shotgun', ad: 'B4 SV10 PS6', rd: 'B1 SV15 PS13', setup: '0–8" · surprise', ap: '44%', rp: '49%' }
+    ] };
+  }
+}
+</script>
+</body>
+</html>

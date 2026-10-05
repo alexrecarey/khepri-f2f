@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Menu sheet</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#121212;display:flex;flex-direction:column;position:relative;overflow:hidden">
+
+<div style="padding:18px 16px;display:flex;flex-direction:column;gap:12px;opacity:.35">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:600;letter-spacing:.14em;color:#6b6861">INFINITY THE CALCULATOR</span>
+<div style="height:96px;border-radius:14px;background:#1c1c1c"></div>
+<div style="height:44px"></div>
+<div style="height:96px;border-radius:14px;background:#1c1c1c"></div>
+</div>
+<div style="position:absolute;inset:0;background:rgba(0,0,0,.55)"></div>
+
+<nav aria-label="App menu" style="position:absolute;left:0;right:0;bottom:0;background:#1c1c1c;border-radius:20px 20px 0 0;padding:10px 8px 28px;display:flex;flex-direction:column">
+<span style="align-self:center;width:36px;height:4px;border-radius:2px;background:#3a3a3a;margin-bottom:10px"></span>
+
+<a href="FinalSaved.dc.html" style="display:flex;align-items:center;gap:14px;padding:16px 14px;border-radius:10px;color:#e8e6e1;text-decoration:none;font-size:16px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9a978f" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"></path></svg>
+<span style="flex-grow:1">Saved rolls</span><span style="color:#8a877f;font-size:14px">13</span>
+</a>
+
+<div style="height:1px;background:#2c2c2c;margin:6px 14px"></div>
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:10px 14px 4px">Calculator</div>
+<a href="FinalPeek.dc.html" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;font-size:16px;color:#e8e6e1;text-decoration:none">
+<span style="width:20px;text-align:center;color:#5fc4a0">●</span><span style="flex-grow:1">Matchup</span><span style="font-size:13px;color:#8a877f">opens next time</span>
+</a>
+<a href="FinalClassic.dc.html" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;font-size:16px;color:#c9c6bf;text-decoration:none">
+<span style="width:20px;text-align:center;color:#555">○</span><span style="flex-grow:1">Classic — type the numbers</span>
+</a>
+
+<div style="height:1px;background:#2c2c2c;margin:6px 14px"></div>
+<a href="FinalSettings.dc.html" style="display:flex;align-items:center;gap:14px;padding:16px 14px;border-radius:10px;color:#e8e6e1;text-decoration:none;font-size:16px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9a978f" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"></path></svg>
+<span>Settings</span>
+</a>
+<a href="FinalAbout.dc.html" style="display:flex;align-items:center;gap:14px;padding:16px 14px;border-radius:10px;color:#e8e6e1;text-decoration:none;font-size:16px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9a978f" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5v.5"></path></svg>
+<span>About</span>
+</a>
+<span style="padding:12px 14px 0;font-size:12px;color:#6b6861">Army data [DATA DATE] · v[VERSION]</span>
+</nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>
