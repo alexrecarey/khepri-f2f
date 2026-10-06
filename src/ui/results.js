@@ -9,11 +9,25 @@
 //   atLeast    {active: [p1, p2, p3], reactive: [...]}: chance of 1+, 2+, 3+
 //   saved      {active, reactive}: won the roll, but every hit was saved
 //   unopposed  true when each side rolled on its own (Direct Template vs attack)
+//   attacks    unopposed only: {active, reactive}, each attack on its own:
+//              {wpo, wounds: [p1, p2, p3+] exactly, wounded, saved, miss}
+//   joint      unopposed only: the two attacks are independent, so the order
+//              ends one of four ways: {both, onlyActive, onlyReactive, neither}
+//              (onlyActive = only the active side causes wounds)
 import {woundsPerOrder} from '../display/DataTransform.js';
 
 export const MAX_WOUNDS = 3;
 
 const sum = (rows) => rows.reduce((s, r) => s + r.chance, 0);
+
+// One side's attack when nothing opposes it (sideResult = result.unopposed.x).
+function attackOnItsOwn(sideResult, player) {
+  const rows = sideResult.expected_wounds.filter((r) => r.player === player);
+  const hit = sum((sideResult.face_to_face ?? []).filter((r) => r.player === player));
+  const wounds = [1, 2, 3].map((w) => sum(rows.filter((r) => (w === MAX_WOUNDS ? r.wounds >= w : r.wounds === w))));
+  const wounded = wounds.reduce((a, b) => a + b, 0);
+  return {wpo: woundsPerOrder(rows), wounds, wounded, saved: Math.max(0, hit - wounded), miss: Math.max(0, 1 - hit)};
+}
 
 export function summarize(result) {
   if (!result?.expected_wounds) return null;
@@ -47,6 +61,21 @@ export function summarize(result) {
       reactive: sum(of('reactive').filter((r) => r.wounds === 0)),
     },
     unopposed,
+    ...(unopposed ? unopposedParts(result) : {}),
+  };
+}
+
+function unopposedParts(result) {
+  const a = attackOnItsOwn(result.unopposed.active, 'active');
+  const r = attackOnItsOwn(result.unopposed.reactive, 'reactive');
+  return {
+    attacks: {active: a, reactive: r},
+    joint: {
+      both: a.wounded * r.wounded,
+      onlyActive: a.wounded * (1 - r.wounded),
+      onlyReactive: (1 - a.wounded) * r.wounded,
+      neither: (1 - a.wounded) * (1 - r.wounded),
+    },
   };
 }
 

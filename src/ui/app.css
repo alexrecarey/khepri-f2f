@@ -191,3 +191,18 @@ button { font: inherit; color: inherit; }
 .ledger-l.struck { color: var(--faint); text-decoration: line-through; }
 .ledger-l em { font-style: normal; text-decoration: none; display: inline-block; }
 .ledger-t { border-top: 1px solid var(--line-strong); padding-top: 3px; font-weight: 600; }
+
+/* ---------- not face to face ---------- */
+.seg-miss { background: #161616; box-shadow: inset 0 0 0 1px var(--none); }
+.explain { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text-2); }
+.tiles4 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.tile4 { padding: 12px; border-radius: 12px; background: #232323; display: flex; flex-direction: column; gap: 2px; }
+.tile4 .n { font-family: var(--font-display); font-size: 24px; font-weight: 700; }
+.tile4 .t { font-size: 13px; color: var(--text-2); }
+.c-both { background: linear-gradient(90deg, var(--active), var(--reactive)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.c-none { color: var(--muted); }
+.attack { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line); padding-top: 14px; }
+.pct-list { display: flex; flex-direction: column; gap: 3px; font-size: 14px; color: var(--text-2); }
+.pct-list > div { display: flex; justify-content: space-between; }
+.pct-list > div span:last-child { font-family: var(--font-mono); text-align: right; }
+.pct-list .muted { color: var(--muted); font-size: 13px; padding-top: 4px; }

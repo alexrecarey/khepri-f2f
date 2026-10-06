@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import Ledger from './Ledger.jsx';
 import {Sheet} from './Sheet.jsx';
 import {pct, summarize} from './results.js';
+import {UnopposedCardBody, UnopposedSheetBody} from './Unopposed.jsx';
 
 const SEG = {active: ['', 'seg-a1', 'seg-a2', 'seg-a3'], reactive: ['', 'seg-r1', 'seg-r2', 'seg-r3']};
 const segClass = (s) => (s.side === 'none' ? 'seg-none' : SEG[s.side][s.wounds]);
@@ -40,6 +41,8 @@ export default function ResultsCard({result, status, diceLine, classic, ledger})
     <>
       <button type="button" className="peek" onClick={() => s && setOpen(true)} aria-label="Show full results">
         <span className="handle" />
+        {s?.unopposed ? <UnopposedCardBody s={s} /> : (
+          <>
         <div className="wpo-row">
           <div className="wpo"><span className="big c-active">{wpo(s?.wpo.active)}</span><span className="small">wounds / order</span></div>
           <div className="wpo right"><span className="big c-reactive">{wpo(s?.wpo.reactive)}</span><span className="small">wounds / order</span></div>
@@ -49,9 +52,15 @@ export default function ResultsCard({result, status, diceLine, classic, ledger})
           {s ? <><span>{pct(s.atLeast.active[0])} at least one wound</span><span>{pct(s.atLeast.reactive[0])}</span></>
             : <span>{status}</span>}
         </div>
+          </>
+        )}
       </button>
       {open && s && (
         <Sheet onClose={() => setOpen(false)} label="Results">
+          {s.unopposed ? (
+            <UnopposedSheetBody s={s} names={ledger?.names ?? {A: 'Active', B: 'Reactive'}} diceLine={diceLine} />
+          ) : (
+            <>
           {diceLine && (
             <div className="dice-line"><span className="c-active">{diceLine.active}</span><span className="c-reactive">{diceLine.reactive}</span></div>
           )}
@@ -77,7 +86,9 @@ export default function ResultsCard({result, status, diceLine, classic, ledger})
             <div><b className="c-active">{wpo(s.wpo.active)}</b> <span className="small">wounds / order</span></div>
             <div><b className="c-reactive">{wpo(s.wpo.reactive)}</b> <span className="small">wounds / order</span></div>
           </div>
-          <Breakdown s={s} />
+              <Breakdown s={s} />
+            </>
+          )}
           {ledger && <Ledger {...ledger} />}
           {status && <span className="status">{status}</span>}
         </Sheet>
