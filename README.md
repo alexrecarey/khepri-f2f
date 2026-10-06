@@ -28,11 +28,15 @@ src/rules/     N5 rules: ranges, MODs, saves and Immunity, default weapon,
 src/engine/    the dice: params.js (the calculator params every mode builds),
                calculate.js (calculator params -> engine input -> result rows),
                f2f.py (icepool) and the Pyodide worker that runs it
-src/matchup/   Matchup mode UI
-src/inputs/, src/display/, src/components/   Basic mode inputs and the results
+src/matchup/   Matchup state (useMatchup), share-link params, weapon previews
+src/search/    trooper search: build-time index (index.json) and the typo-tolerant
+               matcher; `yarn search-eval` scores it (docs/plans/search.md)
+src/ui/        the app's screens: shell, Matchup, Classic, trooper picker,
+               results card and sheet (design: docs/design-canvas/mobile-ux-redesign)
+src/display/   result maths shared by the UI (DataTransform.js)
 ```
 
-Dependencies point one way: `matchup -> rules -> army`, and everything that
+Dependencies point one way: `ui -> matchup -> rules -> army`, and everything that
 builds calculator params uses `engine/params.js`. Game rules live in
 `src/rules/` and `src/engine/calculate.js`; `f2f.py` only rolls dice: it gets
 final success values, bursts, save values and Saving Rolls per hit (see the top
