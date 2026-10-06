@@ -80,3 +80,7 @@ function unopposedParts(result) {
 }
 
 export const pct = (p) => `${(100 * p).toFixed(1)}%`;
+
+// Worth a row or a bar segment: at least 0.05%, which shows as 0.1%. Float
+// remainders like 1e-17 ("misses" for a template that never misses) don't.
+export const shows = (p) => p >= 0.0005;

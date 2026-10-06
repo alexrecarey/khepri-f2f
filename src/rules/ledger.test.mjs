@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {buildLedger} from './ledger.js';
+import {ammoTag, buildLedger} from './ledger.js';
 import {deriveInputs} from './matchup.js';
 import {RANGE_BANDS} from './ranges.js';
 import {pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
@@ -87,4 +87,17 @@ test('dice line reads like the results: B, SV and the save value', () => {
   assert.ok(ledger.A.sv.lines.some((l) => l.label === 'cover' && l.by === 'B' && l.value === -3));
   assert.ok(ledger.A.save.lines.some((l) => l.label === 'cover' && l.by === 'B' && l.value === 3));
   assert.ok(ledger.B.burst.lines.some((l) => l.label === 'ARO: one die'));
+});
+
+test('ammo tag: N never shown, Plasma, Cont, Blast, in the order players write them', () => {
+  const rows = Object.values(army.weapons).flat();
+  const row = (name, mode = null) => rows.find((r) => r.name === name && (mode === null || r.mode === mode));
+  assert.equal(ammoTag(row('Combi Rifle'), {}), '');
+  assert.equal(ammoTag(row('Light Flamethrower'), {}), ' Cont');
+  assert.equal(ammoTag(row('AP Heavy Machine Gun'), {}), ' AP');
+  assert.equal(ammoTag(row('Missile Launcher', 'Hit Mode'), {}), ' AP EXP');
+  assert.equal(ammoTag(row('Missile Launcher', 'Blast Mode'), {}), ' EXP Blast');
+  assert.equal(ammoTag(row('Plasma Rifle', 'Hit Mode'), {}), ' Plasma');
+  assert.equal(ammoTag(row('Plasma Rifle', 'Blast Mode'), {}), ' Plasma Blast');
+  assert.equal(ammoTag(row('Combi Rifle'), {forceAP: true, cont: true}), ' AP Cont');
 });

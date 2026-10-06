@@ -17,7 +17,9 @@
 //   weapon PS + target ARM (or BTS), on d20 <= total.
 import {EQUIP, SKILL} from '../army/ids.js';
 import {equipExtra, hasEquip, hasSkill, skillExtra, skillExtras} from '../army/traits.js';
-import {attackAttribute, hasAmmo, isTemplate, weaponPS} from '../army/weapons.js';
+import {
+  ammoTypes, attackAttribute, bioweaponProp, hasAmmo, hasContinuousDamage, isImpactTemplate, isPlasma, isTemplate, weaponPS,
+} from '../army/weapons.js';
 import {
   albedoMod, attackBonuses, attackStat, benefitsFromCover, bsAttackMod, coverBsMod, dodgeExtras, fireteamBonuses,
   hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, surpriseAttackMod,
@@ -220,6 +222,24 @@ function ammoNote(inputs, s) {
   return notes.join(' · ') || null;
 }
 
+// The weapon's ammunition for the dice line, as players write it: N is never
+// shown; Plasma instead of its N+N; Bioweapon (DA+SHOCK) as "DA Shock"; then
+// Cont for Continuous Damage and Blast for an Impact Template (not ammo, but
+// it changes the roll). "AP EXP", "DA Cont", "EXP Blast", "" for plain N.
+export function ammoTag(row, mods) {
+  if (!row) return '';
+  const tags = [];
+  if (isPlasma(row)) tags.push('Plasma');
+  const bio = bioweaponProp(row)?.match(/\(([^)]+)\)/)?.[1];
+  if (bio) tags.push(...bio.split('+').map(pretty));
+  for (const a of ammoTypes(row, mods)) if (!tags.includes(pretty(a))) tags.push(pretty(a));
+  if (hasContinuousDamage(row, mods)) tags.push('Cont');
+  if (isImpactTemplate(row)) tags.push('Blast');
+  return tags.length ? ` ${tags.join(' ')}` : '';
+}
+const SHORT = {EXP: 'EXP', DA: 'DA', AP: 'AP', T2: 'T2', SHOCK: 'Shock', PLASMA: 'Plasma'};
+const pretty = (a) => SHORT[a.toUpperCase()] ?? a;
+
 function sideLedger(x, y, s, rangeCm, inputs) {
   if (!x?.weapon) return null;
   const w = x.weapon;
@@ -233,8 +253,7 @@ function sideLedger(x, y, s, rangeCm, inputs) {
   const sd = sdLines(x, s, inputs, false);
   const save = saveLines(x, y, s, inputs);
   const b = `B${burst.total}${sd.total ? `+${sd.total}` : ''}`;
-  const ammo = inputs[`ammo${s}`];
-  const tag = ammo && !['N', 'NONE'].includes(ammo) ? ` ${ammo}` : '';
+  const tag = ammoTag(w.row, w.mods);
   if (isTemplate(w.row)) {
     return {kind: 'template', dice: `${b} template PS${save.total}${tag}`, burst, sd, save, note: ammoNote(inputs, s)};
   }

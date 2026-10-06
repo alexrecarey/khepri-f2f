@@ -4,10 +4,10 @@
 // mislead, so each attack gets its own (card: two stacked bars; sheet: the
 // four ways the order can end, then each attack in detail).
 import PropTypes from 'prop-types';
-import {pct} from './results.js';
+import {pct, shows} from './results.js';
 
 const SHADES = {active: ['seg-a1', 'seg-a2', 'seg-a3'], reactive: ['seg-r1', 'seg-r2', 'seg-r3']};
-const top = (a) => [3, 2, 1].find((w) => a.wounds[w - 1] > 0) ?? 0;
+const top = (a) => [3, 2, 1].find((w) => shows(a.wounds[w - 1])) ?? 0;
 
 // One attack's bar: wounds (most first for the active side, mirrored for the
 // reactive), then saved, then missed. Nothing for outcomes that can't happen.
@@ -18,7 +18,7 @@ function AttackBar({a, side, height, labels = false}) {
     {key: 'saved', chance: a.saved, cls: 'seg-none', text: 'saved'},
     {key: 'miss', chance: a.miss, cls: 'seg-miss', text: 'miss'},
   ];
-  const segs = (side === 'active' ? [...wounds, ...rest] : [...rest.reverse(), ...[...wounds].reverse()]).filter((x) => x.chance > 0);
+  const segs = (side === 'active' ? [...wounds, ...rest] : [...rest.reverse(), ...[...wounds].reverse()]).filter((x) => shows(x.chance));
   return (
     <div className="bar" style={{height, borderRadius: height > 10 ? 7 : 3}}>
       {segs.map((x) => (
@@ -57,7 +57,7 @@ function AttackDetail({a, side, name, dice}) {
     ...[3, 2, 1].filter((w) => w <= t).map((w) => [w === t ? `${w}+ wound${w > 1 ? 's' : ''}` : `${w} wound${w > 1 ? 's' : ''}`, a.wounds[w - 1]]),
     ['hits, all saved', a.saved],
     ['misses', a.miss],
-  ].filter(([, p]) => p > 0);
+  ].filter(([, p]) => shows(p));
   return (
     <div className="attack">
       <div className={`ledger-top c-${side}`}><span>{name} attack</span><span>{dice}</span></div>
@@ -80,7 +80,7 @@ export function UnopposedSheetBody({s, names, diceLine}) {
     {k: 'a', p: joint.onlyActive, text: `only ${names.B} wounded`, cls: 'c-active'},
     {k: 'r', p: joint.onlyReactive, text: `only ${names.A} wounded`, cls: 'c-reactive'},
     {k: 'n', p: joint.neither, text: 'nobody wounded', cls: 'c-none'},
-  ].filter((x) => x.p > 0);
+  ].filter((x) => shows(x.p));
   return (
     <>
       <p className="explain">

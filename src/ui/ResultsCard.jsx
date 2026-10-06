@@ -5,7 +5,7 @@ import {useState} from 'react';
 import PropTypes from 'prop-types';
 import Ledger from './Ledger.jsx';
 import {Sheet} from './Sheet.jsx';
-import {pct, summarize} from './results.js';
+import {pct, shows, summarize} from './results.js';
 import {UnopposedCardBody, UnopposedSheetBody} from './Unopposed.jsx';
 
 const SEG = {active: ['', 'seg-a1', 'seg-a2', 'seg-a3'], reactive: ['', 'seg-r1', 'seg-r2', 'seg-r3']};
@@ -14,14 +14,14 @@ const wpo = (n) => (n == null ? '—' : n.toFixed(2));
 
 // The most wounds each side can cause in this roll (up to 3): that bucket is
 // labelled "N+" ("2+" when 3 or more never happens).
-const topWounds = (s, side) => Math.max(0, ...s.bar.filter((b) => b.side === side && b.chance > 0).map((b) => b.wounds));
+const topWounds = (s, side) => Math.max(0, ...s.bar.filter((b) => b.side === side && shows(b.chance)).map((b) => b.wounds));
 const woundsLabel = (w, top) => (w === top ? `${w}+` : `${w}`);
 
 function WoundBar({summary, height, labels = false}) {
   const top = topWounds(summary, 'active');
   return (
     <div className="bar" style={{height, borderRadius: height > 10 ? 8 : 3}}>
-      {summary.bar.filter((s) => s.chance > 0).map((s) => (
+      {summary.bar.filter((s) => shows(s.chance)).map((s) => (
         <span key={`${s.side}${s.wounds}`} className={segClass(s)} style={{width: `${100 * s.chance}%`, display: 'grid', placeItems: 'center',
           fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, color: s.side === 'none' ? 'var(--muted)' : 'var(--active-ink)'}}>
           {labels && s.side === 'active' && s.chance > 0.05 ? woundsLabel(s.wounds, top) : ''}
@@ -72,9 +72,9 @@ export default function ResultsCard({result, status, diceLine, classic, ledger})
               <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`}} />
             </div>
             <div className="split" style={{color: 'var(--text-2)'}}>
-              <span>{s.win.active > 0 ? `Active wins ${pct(s.win.active)}` : ''}</span>
-              <span>{s.win.none > 0 ? `${pct(s.win.none)} nobody` : ''}</span>
-              <span>{s.win.reactive > 0 ? `Reactive ${pct(s.win.reactive)}` : ''}</span>
+              <span>{shows(s.win.active) ? `Active wins ${pct(s.win.active)}` : ''}</span>
+              <span>{shows(s.win.none) ? `${pct(s.win.none)} nobody` : ''}</span>
+              <span>{shows(s.win.reactive) ? `Reactive ${pct(s.win.reactive)}` : ''}</span>
             </div>
           </div>
           <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
@@ -110,7 +110,7 @@ ResultsCard.propTypes = {
 // Each outcome with its bar, leaving out anything that never happens.
 function Breakdown({s}) {
   const scale = 250; // px for 100%
-  const row = (k, chance, cls) => (chance > 0 ? (
+  const row = (k, chance, cls) => (shows(chance) ? (
     <div className="row" key={`${cls}-${k}`}>
       <span className="k">{k}</span>
       <span className={`b ${cls}`} style={{width: Math.max(2, scale * chance)}} />
@@ -129,14 +129,14 @@ function Breakdown({s}) {
   const head = (text, cls, first) => <div className={`label ${cls}`} style={{padding: first ? '0 0 4px' : '14px 0 6px'}}>{text}</div>;
   return (
     <div className="breakdown">
-      {s.win.active > 0 && head(`Active wins the roll · ${pct(s.win.active)}`, 'c-active', true)}
-      {s.win.active > 0 && wounds('active', 'seg-a')}
+      {shows(s.win.active) && head(`Active wins the roll · ${pct(s.win.active)}`, 'c-active', true)}
+      {shows(s.win.active) && wounds('active', 'seg-a')}
       {row('all saved', s.saved.active, 'seg-none a')}
-      {s.win.none > 0 && head(`Nobody hits · ${pct(s.win.none)}`, '', s.win.active === 0)}
+      {shows(s.win.none) && head(`Nobody hits · ${pct(s.win.none)}`, '', s.win.active === 0)}
       {row('both fail', s.win.none, 'seg-none n')}
-      {s.win.reactive > 0 && head(`Reactive wins the roll · ${pct(s.win.reactive)}`, 'c-reactive', false)}
+      {shows(s.win.reactive) && head(`Reactive wins the roll · ${pct(s.win.reactive)}`, 'c-reactive', false)}
       {row('all saved', s.saved.reactive, 'seg-none r')}
-      {s.win.reactive > 0 && wounds('reactive', 'seg-r')}
+      {shows(s.win.reactive) && wounds('reactive', 'seg-r')}
     </div>
   );
 }
