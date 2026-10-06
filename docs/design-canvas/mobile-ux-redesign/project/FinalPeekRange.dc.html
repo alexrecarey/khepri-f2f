@@ -14,7 +14,7 @@ body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e
 a{color:#5fc4a0}a:hover{color:#8fe0c2}
 </style>
 </helmet>
-<div style="width:390px;height:844px;box-sizing:border-box;background:#121212;display:flex;flex-direction:column">
+<div style="width:390px;height:844px;box-sizing:border-box;background:#121212;display:flex;flex-direction:column;position:relative">
 
 <header style="display:flex;align-items:center;padding:6px 8px 0 16px;height:48px">
 <span style="font-family:'Chakra Petch',sans-serif;font-size:13px;font-weight:600;letter-spacing:.14em;color:#6b6861;flex-grow:1">INFINITY THE CALCULATOR</span>
@@ -42,34 +42,34 @@ a{color:#5fc4a0}a:hover{color:#8fe0c2}
 </div>
 </section>
 
-<div style="overflow:hidden;transition:max-height .28s ease, opacity .2s ease;max-height:{{slimH}};opacity:{{slimO}}">
-<div style="display:flex;align-items:center;gap:8px">
-<button onClick="{{toggle}}" aria-label="Change range" style="all:unset;cursor:pointer;display:flex;flex-grow:1;border:1px solid #2c2c2c;border-radius:10px;overflow:hidden">
-<sc-for list="{{bands}}" as="b" hint-placeholder-count="7">
-<sc-if value="{{b.on}}" hint-placeholder-val="{{false}}"><span style="flex-grow:1;text-align:center;padding:9px 0;font-size:12px;background:#e8e6e1;color:#121212;font-weight:600">{{b.to}}"</span></sc-if>
-<sc-if value="{{b.off}}" hint-placeholder-val="{{true}}"><span style="flex-grow:1;text-align:center;padding:9px 0;font-size:12px;color:#9a978f">{{b.to}}</span></sc-if>
-</sc-for>
-</button>
-<span style="width:40px;height:40px;display:grid;place-items:center;border-radius:999px;border:1px solid #333;color:#c9c6bf">⇅</span>
-</div>
-</div>
-<div style="overflow:hidden;transition:max-height .32s ease, opacity .25s ease .05s;max-height:{{openH}};opacity:{{openO}};margin-top:{{openMt}}">
-<div style="display:flex;flex-direction:column;gap:8px;background:#1c1c1c;border-radius:14px;padding:12px">
-<div style="display:flex;justify-content:space-between;align-items:baseline;padding:0 4px">
+<sc-if value="{{rangeIsOpen}}" hint-placeholder-val="{{false}}"><button onClick="{{close}}" aria-label="Close range" style="all:unset;position:absolute;inset:0;z-index:5;cursor:default"></button></sc-if>
+<div style="flex-shrink:0;border-radius:14px;transition:background .25s ease;background:{{rangeBg}};position:relative;z-index:6">
+<div style="overflow:hidden;transition:max-height .28s ease, opacity .2s ease;max-height:{{headH}};opacity:{{openO}}">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px 6px">
 <span style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f">Range</span>
-<button onClick="{{toggle}}" style="all:unset;cursor:pointer;font-size:15px;font-weight:600">{{rangeLabel}}" ⌃</button>
+<button onClick="{{close}}" style="all:unset;cursor:pointer;font-size:15px;font-weight:600">{{rangeLabel}}" ⌃</button>
 </div>
-<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0">
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));flex-grow:1;border:1px solid #2c2c2c;border-radius:10px;overflow:hidden">
 <sc-for list="{{bands}}" as="b" hint-placeholder-count="7">
-<button onClick="{{b.pick}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;background:{{b.bgB}}">
-<span style="height:5px;background:{{b.aCol}}"></span>
-<span style="text-align:center;padding:10px 0;font-size:13px;font-weight:{{b.fw}};color:{{b.fg}}">{{b.to}}</span>
-<span style="height:5px;background:{{b.rCol}}"></span>
+<button onClick="{{b.pick}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;background:{{b.bg}}">
+<span style="height:4px;transition:background .25s ease;background:{{b.aCol}}"></span>
+<span style="text-align:center;padding:5px 0;font-size:12px;font-weight:{{b.fw}};color:{{b.fg}}">{{b.label}}</span>
+<span style="height:4px;transition:background .25s ease;background:{{b.rCol}}"></span>
 </button>
 </sc-for>
 </div>
-<div style="display:flex;justify-content:space-between;font-size:12px;color:#8a877f;padding:0 4px"><span>Top: HMG · bottom: Missile L.</span><span>{{selMods}}</span></div>
-<div style="display:flex;gap:10px;font-size:11px;color:#8a877f;padding:0 4px;flex-wrap:wrap"><span><span style="display:inline-block;width:10px;height:4px;background:#58b368;vertical-align:middle"></span> +3</span><span><span style="display:inline-block;width:10px;height:4px;background:#4a8fd6;vertical-align:middle"></span> 0</span><span><span style="display:inline-block;width:10px;height:4px;background:#e3c34a;vertical-align:middle"></span> −3</span><span><span style="display:inline-block;width:10px;height:4px;background:#d9534f;vertical-align:middle"></span> −6</span><span><span style="display:inline-block;width:10px;height:4px;background:#444;vertical-align:middle"></span> out</span></div>
+<span style="width:40px;height:40px;flex-shrink:0;display:grid;place-items:center;border-radius:999px;border:1px solid #333;color:#c9c6bf">⇅</span>
+</div>
+<div style="overflow:hidden;transition:max-height .28s ease, opacity .2s ease;max-height:{{footH}};opacity:{{openO}}">
+<div style="display:flex;align-items:center;gap:10px;padding:8px 12px 10px;font-size:11px;color:#8a877f">
+<div style="display:flex;flex-direction:column;gap:2px;min-width:0;font-size:13px">
+<span style="color:#5fc4a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{nameA}} <b style="font-family:'IBM Plex Mono',monospace">{{modA}}</b></span>
+<span style="color:#e59bc0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{nameB}} <b style="font-family:'IBM Plex Mono',monospace">{{modB}}</b></span>
+</div>
+<div style="margin-left:auto;display:flex;gap:8px;flex-shrink:0"><span><span style="display:inline-block;width:10px;height:4px;background:#58b368;vertical-align:middle"></span> +3</span><span><span style="display:inline-block;width:10px;height:4px;background:#4a8fd6;vertical-align:middle"></span> 0</span><span><span style="display:inline-block;width:10px;height:4px;background:#e3c34a;vertical-align:middle"></span> −3</span><span><span style="display:inline-block;width:10px;height:4px;background:#d9534f;vertical-align:middle"></span> −6</span></div>
+</div>
 </div>
 </div>
 
@@ -109,22 +109,27 @@ a{color:#5fc4a0}a:hover{color:#8fe0c2}
 var BANDS = ['8', '16', '24', '32', '40', '48', '96'];
 var HMG = [-3, 0, 3, 3, -3, -6, null];
 var ML = [-3, 0, 0, 3, 3, -3, -6];
-var IC = { '3': '#58b368', '0': '#4a8fd6', '-3': '#e3c34a', '-6': '#d9534f', 'null': '#444', 'undefined': '#444' };
+// Infinity band colours; no stripe (the card shows through) out of range,
+// for a Direct Template or a Dodge.
+var IC = { '3': '#58b368', '0': '#4a8fd6', '-3': '#e3c34a', '-6': '#d9534f' };
+function col(m) { return m == null ? 'transparent' : IC[String(m)]; }
 function fmt(n) { return n === null ? '—' : n > 0 ? '+' + n : n < 0 ? '−' + (-n) : '0'; }
+// One row of bands, the same open or closed: tapping a band picks it and opens
+// the selector (header above, legend below, stripes coloured).
 class Component extends DCLogic {
   constructor(props) { super(props); this.state = { range: 3, open: true }; }
   renderVals() {
     var self = this, st = this.state, r = st.range;
     return {
-      slimH: st.open ? '0px' : '60px', slimO: st.open ? 0 : 1, openH: st.open ? '320px' : '0px', openO: st.open ? 1 : 0, openMt: st.open ? '0px' : '-10px',
-      toggle: function () { self.setState({ open: !st.open }); },
+      rangeBg: st.open ? '#1c1c1c' : 'transparent', headH: st.open ? '48px' : '0px', footH: st.open ? '64px' : '0px', openO: st.open ? 1 : 0,
+      close: function () { self.setState({ open: false }); },
       rangeLabel: (r ? BANDS[r - 1] : '0') + '–' + BANDS[r],
-      selMods: 'HMG ' + fmt(HMG[r]) + ' · ML ' + fmt(ML[r]),
+      rangeIsOpen: st.open, nameA: 'HMG', nameB: 'Missile L.', modA: fmt(HMG[r]), modB: fmt(ML[r]),
       bands: BANDS.map(function (to, i) {
         var on = i === r;
-        return { to: to, on: on, off: !on, aCol: IC[String(HMG[i])], rCol: IC[String(ML[i])],
-          bgB: on ? '#e8e6e1' : '#222', fg: on ? '#121212' : '#c9c6bf', fw: on ? 700 : 400,
-          pick: function () { self.setState({ range: i, open: false }); } };
+        return { label: on ? to + '"' : to, aCol: st.open ? col(HMG[i]) : 'transparent', rCol: st.open ? col(ML[i]) : 'transparent',
+          bg: on ? '#e8e6e1' : 'transparent', fg: on ? '#121212' : '#9a978f', fw: on ? 700 : 400,
+          pick: function () { self.setState({ range: i, open: true }); } };
       })
     };
   }

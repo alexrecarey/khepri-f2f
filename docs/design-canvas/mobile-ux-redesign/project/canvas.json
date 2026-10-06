@@ -73,6 +73,30 @@
       "x": 1410,
       "y": 9450
     },
+    "FinalAbout.dc.html": {
+      "h": 844,
+      "page": "final",
+      "title": "About",
+      "w": 390,
+      "x": 2820,
+      "y": 300
+    },
+    "FinalClassic.dc.html": {
+      "h": 1560,
+      "page": "final",
+      "title": "Classic calculator — same inputs, new design language",
+      "w": 390,
+      "x": 3290,
+      "y": 300
+    },
+    "FinalClassicResults.dc.html": {
+      "h": 844,
+      "page": "final",
+      "title": "Classic results — swipe up: F2F bar, wounds bar, percentages",
+      "w": 390,
+      "x": 3760,
+      "y": 300
+    },
     "FinalHome.dc.html": {
       "h": 844,
       "title": "Final 1 — weapons as buttons, range between, chips; result peeks",
@@ -86,6 +110,14 @@
       "w": 390,
       "x": 940,
       "y": 5650
+    },
+    "FinalMenu.dc.html": {
+      "h": 844,
+      "page": "final",
+      "title": "Menu sheet (from ⋯)",
+      "w": 390,
+      "x": 1410,
+      "y": 300
     },
     "FinalPeek.dc.html": {
       "h": 844,
@@ -122,12 +154,36 @@
       "x": 940,
       "y": 300
     },
+    "FinalSaved.dc.html": {
+      "h": 844,
+      "page": "final",
+      "title": "Saved rolls — Matchup | Classic lists",
+      "w": 390,
+      "x": 1880,
+      "y": 300
+    },
+    "FinalSettings.dc.html": {
+      "h": 844,
+      "page": "final",
+      "title": "Settings",
+      "w": 390,
+      "x": 2350,
+      "y": 300
+    },
     "FinalSheet.dc.html": {
       "h": 1440,
       "title": "Final 2 — swipe up, then just scroll: dice, odds, breakdown, how the dice were built",
       "w": 390,
       "x": 470,
       "y": 5650
+    },
+    "FinalUnopposed.dc.html": {
+      "h": 1360,
+      "page": "final",
+      "title": "Not face to face (Direct Template vs a shot) — card and swipe-up sheet",
+      "w": 390,
+      "x": 4230,
+      "y": 300
     },
     "Fireteam.dc.html": {
       "h": 560,
@@ -307,53 +363,33 @@
       "x": 0,
       "y": 3190
     },
-    "FinalMenu.dc.html": {
+    "UnoppGrid.dc.html": {
+      "h": 1240,
+      "title": "Not F2F C — the four ways the order can end (both / only one / nobody)",
+      "w": 390,
+      "x": 940,
+      "y": 13150
+    },
+    "UnoppHalves.dc.html": {
+      "h": 1240,
+      "title": "Not F2F B — face-to-face card, bar split in two halves",
+      "w": 390,
+      "x": 470,
+      "y": 13150
+    },
+    "UnoppLanes.dc.html": {
+      "h": 1240,
+      "title": "Not F2F A — two lanes: one row per attack, each adds to 100%",
+      "w": 390,
+      "x": 0,
+      "y": 13150
+    },
+    "UnoppTabs.dc.html": {
+      "h": 1240,
+      "title": "Not F2F D — two stacked bars; sheet shows one attack at a time",
+      "w": 390,
       "x": 1410,
-      "y": 300,
-      "w": 390,
-      "h": 844,
-      "title": "Menu sheet (from ⋯)",
-      "page": "final"
-    },
-    "FinalSaved.dc.html": {
-      "x": 1880,
-      "y": 300,
-      "w": 390,
-      "h": 844,
-      "title": "Saved rolls — Matchup | Classic lists",
-      "page": "final"
-    },
-    "FinalSettings.dc.html": {
-      "x": 2350,
-      "y": 300,
-      "w": 390,
-      "h": 844,
-      "title": "Settings",
-      "page": "final"
-    },
-    "FinalAbout.dc.html": {
-      "x": 2820,
-      "y": 300,
-      "w": 390,
-      "h": 844,
-      "title": "About",
-      "page": "final"
-    },
-    "FinalClassic.dc.html": {
-      "x": 3290,
-      "y": 300,
-      "w": 390,
-      "h": 1560,
-      "title": "Classic calculator — same inputs, new design language",
-      "page": "final"
-    },
-    "FinalClassicResults.dc.html": {
-      "x": 3760,
-      "y": 300,
-      "w": 390,
-      "h": 844,
-      "title": "Classic results — swipe up: F2F bar, wounds bar, percentages",
-      "page": "final"
+      "y": 13150
     }
   },
   "createdOnFiles": {
@@ -399,7 +435,7 @@
     },
     "finalpage": {
       "kind": "title1",
-      "maxW": 4150,
+      "maxW": 4620,
       "page": "final",
       "text": "Infinity the Calculator — final",
       "w": 240,
@@ -445,6 +481,14 @@
       "w": 240,
       "x": 0,
       "y": 2960
+    },
+    "unopposed": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "Not face to face: Direct Template vs shooting back",
+      "w": 240,
+      "x": 0,
+      "y": 12900
     }
   },
   "order": [
@@ -495,7 +539,12 @@
     "FinalSettings.dc.html",
     "FinalAbout.dc.html",
     "FinalClassic.dc.html",
-    "FinalClassicResults.dc.html"
+    "FinalClassicResults.dc.html",
+    "UnoppLanes.dc.html",
+    "UnoppHalves.dc.html",
+    "UnoppGrid.dc.html",
+    "UnoppTabs.dc.html",
+    "FinalUnopposed.dc.html"
   ],
   "pages": [
     {
