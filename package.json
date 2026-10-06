@@ -7,10 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "fetch-army": "node --no-warnings scripts/fetch-army.mjs",
+    "fetch-army": "node --no-warnings scripts/fetch-army.mjs && node scripts/build-search-index.mjs",
     "test": "yarn test:js && yarn test:engine",
     "test:js": "node --test $(find src -name '*.test.mjs')",
-    "test:engine": "uv run --python 3.12 --with icepool==2.2.2 --with pytest pytest -q src/engine"
+    "test:engine": "uv run --python 3.12 --with icepool==2.2.2 --with pytest pytest -q src/engine",
+    "build-search-index": "node scripts/build-search-index.mjs",
+    "search-eval": "node scripts/search-eval.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
