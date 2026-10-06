@@ -1,43 +1,52 @@
 import {useEffect, useMemo, useState} from 'react'
-import CssBaseline from '@mui/material/CssBaseline';
-import './App.css'
-import {
-  Alert,
-  Container,
-  Grid,
-  IconButton,
-  Link,
-  Stack,
-  ThemeProvider,
-  Tooltip,
-  Typography,
-} from "@mui/material";
 import {useAtom} from 'jotai'
 import {atomWithStorage} from 'jotai/utils'
-import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import {useSearchParams} from "react-router-dom";
 
-import CalculatorColumn from "./CalculatorColumn.jsx";
-import {CustomAppBar} from "./components/CustomAppBar.jsx";
-import ModeTabs, {MODES} from "./components/ModeTabs.jsx";
-import FaceToFaceResultCard from "./display/FaceToFaceResultCard.jsx";
-import {useSavedResults} from "./display/savedResults.js";
+import './ui/app.css'
 import {PARAM_KEYS, paramsKey, parseParams} from "./engine/params.js";
 import useEngine from "./engine/useEngine.js";
-import UnitLoader from "./matchup/UnitLoader.jsx";
-import {decodeMatchup, encodeMatchup} from "./matchup/matchupParams.js";
+import {decodeMatchup} from "./matchup/matchupParams.js";
 import useMatchup from "./matchup/useMatchup.js";
-import {makeTheme, themeAtom} from "./theme.js";
+import ClassicScreen from "./ui/ClassicScreen.jsx";
+import MatchupScreen from "./ui/MatchupScreen.jsx";
+import {MoreIcon} from "./ui/icons.jsx";
+import {MODES} from "./ui/modes.js";
+import {Sheet} from "./ui/Sheet.jsx";
 
-// 'basic' = the original inputs only; 'matchup' = unit picker on top of them.
+// 'basic' = the classic calculator (type the numbers); 'matchup' = pick two
+// troopers. The app opens in the last mode used, Matchup the first time.
 // Read on init: the first render must already know the saved mode, or it would
 // write the default into the URL and overwrite the preference.
-export const modeAtom = atomWithStorage('calculatorMode', MODES.basic, undefined, {unstable_getOnInit: true})
+export const modeAtom = atomWithStorage('calculatorMode', MODES.matchup, undefined, {unstable_getOnInit: true})
+
+function AppMenu({mode, onMode, onClose}) {
+  const item = (m, text) => (
+    <button type="button" className="menu-item" onClick={() => { onMode(m); onClose(); }} aria-pressed={mode === m}>
+      <span className="dot" style={{color: mode === m ? 'var(--active)' : '#555'}}>{mode === m ? '●' : '○'}</span>
+      <span style={{flexGrow: 1, color: mode === m ? 'var(--text)' : 'var(--text-2)'}}>{text}</span>
+      {mode === m && <span className="note">opens next time</span>}
+    </button>
+  );
+  return (
+    <Sheet onClose={onClose} label="Menu">
+      <span className="label" style={{padding: '0 14px'}}>Calculator</span>
+      <div style={{display: 'flex', flexDirection: 'column', margin: '-8px -8px 0'}}>
+        {item(MODES.matchup, 'Matchup')}
+        {item(MODES.basic, 'Classic — type the numbers')}
+      </div>
+      <div className="menu-sep" />
+      <p className="note" style={{margin: '0 14px', lineHeight: 1.5}}>
+        Face-to-face odds for Infinity N5. Made with ❤️ for the Infinity community by Khepri and Bebop.
+        {' '}<a href="https://github.com/alexrecarey/khepri-f2f" style={{color: 'var(--active)'}}>Source on GitHub</a>
+        {' · '}Powered by <a href="https://github.com/HighDiceRoller/icepool" style={{color: 'var(--active)'}}>icepool</a>
+        {' · '}<a href="https://n4.infinitythecalculator.com" style={{color: 'var(--active)'}}>N4 calculator</a>
+      </p>
+    </Sheet>
+  );
+}
 
 function App() {
-  const [selectedTheme] = useAtom(themeAtom)
-  const theme = useMemo(() => makeTheme(selectedTheme), [selectedTheme]);
   const [storedMode, setStoredMode] = useAtom(modeAtom)
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -54,7 +63,7 @@ function App() {
   useEffect(() => {
     if (urlMode && urlMode !== storedMode) setStoredMode(urlMode);
   }, [urlMode]);
-  // A tab switch is a new history entry, so Back returns to the other mode.
+  // A mode switch is a new history entry, so Back returns to the other mode.
   const setCalcMode = (mode) => {
     setStoredMode(mode);
     setSearchParams({mode});
@@ -74,16 +83,14 @@ function App() {
     setSearchParams({mode: calcMode}, {replace: true});
   }, [paramsKey(params)]);
 
-  // Shock is Matchup-only (it depends on the target's VITA); Basic mode has no
-  // input for it, so a value left over from Matchup mode must not count.
+  // Shock is Matchup-only (it depends on the target's VITA); the classic
+  // calculator has no input for it, so a value left over from Matchup must not count.
   const engineParams = useMemo(
     () => (matchupMode ? params : {...params, shockA: false, shockB: false}),
     [params, matchupMode],
   );
   const engine = useEngine(engineParams);
-  const saved = useSavedResults();
 
-  const [showOverrides, setShowOverrides] = useState(false)
   const matchup = useMatchup({
     enabled: matchupMode,
     calculate: engine.calculate,
@@ -91,82 +98,23 @@ function App() {
     initial: initialMatchup,
     // A link with calculator values (maybe overridden by hand) keeps them.
     keepCalcParams: PARAM_KEYS.some((k) => initialParams.has(k)),
+    // The new weapon buttons don't show per-weapon wounds yet; skip those engine runs.
+    withPreviews: false,
   });
-  // Extra share-link params: the mode always, the matchup picks in Matchup mode.
-  const shareParams = {
-    mode: calcMode,
-    ...(matchupMode ? encodeMatchup({
-      selA: matchup.A.sel, selB: matchup.B.sel, ftSize: matchup.ftSize, rangeCm: matchup.rangeCm,
-    }) : {}),
-  };
-  // Saved with the result so its share link stays correct.
-  const result = engine.result && {...engine.result, share: shareParams};
-  const renameResult = (title) => engine.setResult((r) => ({...r, title}));
 
-  const column = (side) => (
-    <Grid xs={12} sm={6} lg={4} xl={3} item>
-      <CalculatorColumn side={side} params={params} setParam={setParam} matchup={matchup} matchupMode={matchupMode}
-                        overridesOpen={showOverrides} onToggleOverrides={() => setShowOverrides((v) => !v)}/>
-    </Grid>
-  );
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline/>
-      <CustomAppBar/>
-      <Container maxWidth='xl'>
-        <ModeTabs mode={calcMode} onChange={setCalcMode}/>
-        <Grid container spacing={2}>
-          {matchupMode && <Grid item xs={12}>
-            <UnitLoader matchup={matchup}/>
-          </Grid>}
-          {column('A')}
-          {column('B')}
-          {/* Matchup mode: no result until both sides are fully chosen. */}
-          {(!matchupMode || matchup.complete) && <Grid xs={12} sm={12} lg={4} xl={6} item>
-            <FaceToFaceResultCard
-              f2fResults={result}
-              addToCompare={() => saved.add(result)}
-              changeName={renameResult}
-            />
-            <Typography variant="caption" color="text.secondary">{engine.status}</Typography>
-          </Grid>}
-          {saved.saved.length > 0 && <Grid item xs={12}>
-            <Stack justifyContent="center" direction="row">
-            <Typography variant="h5">Saved Results</Typography>
-              <IconButton onClick={saved.clear}><Tooltip title="Delete all results"><DeleteSweepIcon/></Tooltip></IconButton>
-              <IconButton onClick={saved.downloadCsv}><Tooltip title="Download CSV of results"><FileDownloadIcon/></Tooltip></IconButton>
-            </Stack>
-          </Grid>}
-          {saved.saved.map((r, index) => (
-            <Grid xs={12} sm={12} lg={4} xl={6} item key={r.id}>
-              <FaceToFaceResultCard
-                f2fResults={r}
-                changeName={saved.rename(r.id)}
-                remove={saved.remove}
-                index={index}
-                variant='list'
-              />
-            </Grid>
-          ))}
-          <Grid>
-            {matchupMode && <Alert severity="warning">
-              Matchup mode is a new feature that might still have bugs issues. Feedback is greatly appreciated!
-            </Alert>}
-            <Typography color="text.secondary" variant="body2" sx={{marginTop: 4, marginLeft: 2, marginRight: 2}}>
-              Made with ❤️ for the Infinity community by Khepri and Bebop.
-              Contact me with any bugs or suggestions on the <Link href="https://www.infinitygloballeague.com/">
-              IGL Discord</Link> or on the Corvus Belli forums.
-              Source code <Link href="https://github.com/alexrecarey/khepri-f2f"> available on github</Link>.
-              Powered by the amazing <Link href="https://github.com/HighDiceRoller/icepool">icepool library</Link>.
-            </Typography>
-            <Typography color="text.secondary" variant="body2" sx={{marginTop: 1, marginLeft: 2, marginRight: 2}}>
-              Looking for the <Link href="https://n4.infinitythecalculator.com">N4 Calculator</Link>?
-            </Typography>
-          </Grid>
-        </Grid>
-      </Container>
-    </ThemeProvider>
+    <div className="app">
+      <header className="app-header">
+        <span className="wordmark">INFINITY THE CALCULATOR{!matchupMode && <small> · CLASSIC</small>}</span>
+        <button type="button" className="icon-btn" aria-label="Menu" onClick={() => setMenuOpen(true)}><MoreIcon /></button>
+      </header>
+      {matchupMode
+        ? <MatchupScreen matchup={matchup} engine={engine} params={params} />
+        : <ClassicScreen params={params} setParam={setParam} engine={engine} />}
+      {menuOpen && <AppMenu mode={calcMode} onMode={setCalcMode} onClose={() => setMenuOpen(false)} />}
+    </div>
   )
 }
 

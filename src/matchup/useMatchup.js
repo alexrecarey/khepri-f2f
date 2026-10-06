@@ -28,7 +28,7 @@ const NO_FIRETEAM = {A: 1, B: 1};
 // `initial` (from a share link, see matchupParams.js) seeds the selections;
 // with `keepCalcParams` the link's own calculator values (which may include
 // overrides) are kept instead of the first automatic update.
-export default function useMatchup({enabled, calculate, onApply, initial = null, keepCalcParams = false}) {
+export default function useMatchup({enabled, calculate, onApply, initial = null, keepCalcParams = false, withPreviews = true}) {
   const [army, setArmy] = useState(null);
   const [loadError, setLoadError] = useState(null);
   const loading = useRef(false);
@@ -74,13 +74,14 @@ export default function useMatchup({enabled, calculate, onApply, initial = null,
   const complete = Boolean(resolvedA?.weapon && resolvedB?.weapon && derived?.ok);
 
   // Wounds/order for every weapon option, given the other side's current pick.
+  // Each one is an extra engine run, so only when a screen shows them.
   const candidatesA = useMemo(
-    () => (army && enabled ? previewCandidates({army, side: 'A', selX: selA, selY: selB, rangeCm}) : []),
-    [army, enabled, rangeCm, selA, selB],
+    () => (army && enabled && withPreviews ? previewCandidates({army, side: 'A', selX: selA, selY: selB, rangeCm}) : []),
+    [army, enabled, withPreviews, rangeCm, selA, selB],
   );
   const candidatesB = useMemo(
-    () => (army && enabled ? previewCandidates({army, side: 'B', selX: selB, selY: selA, rangeCm}) : []),
-    [army, enabled, rangeCm, selA, selB],
+    () => (army && enabled && withPreviews ? previewCandidates({army, side: 'B', selX: selB, selY: selA, rangeCm}) : []),
+    [army, enabled, withPreviews, rangeCm, selA, selB],
   );
   const previewsA = usePreviewWounds(candidatesA, calculate);
   const previewsB = usePreviewWounds(candidatesB, calculate);
