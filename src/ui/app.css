@@ -179,3 +179,15 @@ button { font: inherit; color: inherit; }
 .mini { display: flex; gap: 8px; }
 .mini > div { flex-grow: 1; background: #222; border-radius: 10px; padding: 10px 12px; }
 .mini b { font-size: 20px; font-weight: 600; }
+
+/* ---------- how the dice were built ---------- */
+.ledger { display: flex; flex-direction: column; gap: 10px; }
+.ledger-card { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; background: #222; }
+.ledger-top { display: flex; justify-content: space-between; gap: 8px; font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+.ledger-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; font-family: var(--font-mono); font-size: 12px; }
+.ledger-col { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ledger-h { font-family: var(--font-body); font-size: 10px; letter-spacing: .12em; color: var(--muted); }
+.ledger-l { color: var(--text); overflow-wrap: anywhere; }
+.ledger-l.struck { color: var(--faint); text-decoration: line-through; }
+.ledger-l em { font-style: normal; text-decoration: none; display: inline-block; }
+.ledger-t { border-top: 1px solid var(--line-strong); padding-top: 3px; font-weight: 600; }

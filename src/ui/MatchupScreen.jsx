@@ -8,6 +8,7 @@ import {hasSkill} from '../army/traits.js';
 import {defaultWeapon} from '../rules/defaultWeapon.js';
 import {FIRETEAM_MAX, FIRETEAM_MIN, fireteamBonuses, surpriseAttackMod} from '../rules/modifiers.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
+import {buildLedger} from '../rules/ledger.js';
 import {pseudoWeapons, resolveSelection, trooperWeapons} from '../rules/trooper.js';
 import {EMPTY_SELECTION} from '../matchup/useMatchup.js';
 import {rootFaction} from '../search/buildIndex.js';
@@ -217,15 +218,6 @@ function RangeSelector({matchup}) {
 
 RangeSelector.propTypes = {matchup: PropTypes.object.isRequired};
 
-// "B4 SV14 PS6" per side, from the calculator params the matchup produced.
-function diceLine(params, s) {
-  const b = params[`burst${s}`] + (params[`bonusBurst${s}`] ? `+${params[`bonusBurst${s}`]}` : '');
-  const ammo = params[`ammo${s}`];
-  if (ammo === 'DODGE') return `Dodge SV${params[`successValue${s}`]}`;
-  if (params[`burst${s}`] === 0) return 'No roll';
-  return `B${b} SV${params[`successValue${s}`]} PS${params[`damage${s}`]}${ammo !== 'N' && ammo !== 'NONE' ? ` ${ammo}` : ''}`;
-}
-
 export default function MatchupScreen({matchup, engine, params}) {
   const searcher = useSearcher(true);
   const {recents, remember} = useRecents();
@@ -259,6 +251,18 @@ export default function MatchupScreen({matchup, engine, params}) {
     return own ?? other ?? last ?? null;
   };
 
+  // "How the dice were built", from the same inputs the engine got.
+  const ledger = useMemo(() => {
+    if (!matchup.complete || !matchup.derived) return null;
+    const inputs = {...params, ...matchup.derived.inputs};
+    const name = (x) => x.unit.isc.split(',')[0].trim();
+    return {
+      ledger: buildLedger({active: matchup.A.resolved, reactive: matchup.B.resolved, rangeCm: matchup.rangeCm, inputs}),
+      names: {A: name(matchup.A.resolved), B: name(matchup.B.resolved)},
+      notes: [...matchup.derived.warnings, ...matchup.derived.notes],
+    };
+  }, [matchup.complete, matchup.derived, matchup.A.resolved, matchup.B.resolved, matchup.rangeCm, params]);
+
   return (
     <>
       <main className="screen">
@@ -273,7 +277,8 @@ export default function MatchupScreen({matchup, engine, params}) {
       <ResultsCard
         result={matchup.complete ? engine.result : null}
         status={matchup.complete ? engine.status : 'Choose both troopers to see the odds'}
-        diceLine={matchup.complete ? {active: diceLine(params, 'A'), reactive: diceLine(params, 'B')} : null}
+        diceLine={ledger ? {active: ledger.ledger.A?.dice, reactive: ledger.ledger.B?.dice} : null}
+        ledger={ledger}
       />
       {picking && (
         <TrooperPicker

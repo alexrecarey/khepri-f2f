@@ -1,0 +1,90 @@
+// Run with: yarn test:js
+// "How the dice were built" must add up: for a broad sample of real matchups,
+// every total in the ledger equals the calculator input deriveInputs produced,
+// with no unexplained "other rules" line.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {buildLedger} from './ledger.js';
+import {deriveInputs} from './matchup.js';
+import {RANGE_BANDS} from './ranges.js';
+import {pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
+
+const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
+
+// Seeded, so a failure always reproduces.
+let seed = 11;
+const rand = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+const pickOne = (list) => list[Math.floor(rand() * list.length)];
+
+// A random trooper: unit, faction, group, loadout and one of its weapons (or Dodge).
+function randomSide(side) {
+  for (;;) {
+    const unit = pickOne(army.units);
+    const factionId = Number(pickOne(Object.keys(unit.byFaction)));
+    const group = pickOne(unit.byFaction[factionId].groups);
+    const option = pickOne(group.options);
+    const sel = {unitId: unit.id, factionId, groupId: group.id, profileId: group.profiles[0].id, optionId: option.id,
+      inCover: rand() < 0.4, surpriseAttack: rand() < 0.5, ftSize: pickOne([1, 1, 2, 3, 4, 5])};
+    const r = resolveSelection(army, sel);
+    const weapons = trooperWeapons(r.option, army.weapons, r.traits);
+    const choices = [...weapons, ...pseudoWeapons(r.profile, r.traits, side)];
+    const w = rand() < 0.85 && weapons.length ? pickOne(weapons) : pickOne(choices);
+    return resolveSelection(army, {...sel, weaponKey: w.key});
+  }
+}
+
+function checkSection(where, sec, expected) {
+  if (!sec) return;
+  assert.equal(sec.total, expected, `${where} total`);
+  const unexplained = sec.lines.filter((l) => l.label === 'other rules');
+  assert.deepEqual(unexplained, [], `${where}: ${JSON.stringify(sec.lines)}`);
+  const sum = sec.lines.filter((l) => !l.struck && typeof l.value === 'number').reduce((a, l) => a + l.value, 0);
+  if (!sec.lines.some((l) => l.value === '—')) assert.equal(sum, sec.total, `${where} lines add up`);
+}
+
+test('ledger totals match deriveInputs and are fully explained', () => {
+  let checked = 0;
+  for (let i = 0; i < 1500; i++) {
+    const active = randomSide('A');
+    const reactive = randomSide('B');
+    const rangeCm = pickOne(RANGE_BANDS).to;
+    const derived = deriveInputs({active, reactive, rangeCm});
+    if (!derived.ok) continue;
+    const {inputs} = derived;
+    const ledger = buildLedger({active, reactive, rangeCm, inputs});
+    const where = (s) => `#${i} ${s} ${active.unit.isc} ${active.weapon.key} vs ${reactive.unit.isc} ${reactive.weapon.key} @${rangeCm}`;
+    for (const s of ['A', 'B']) {
+      const l = ledger[s];
+      if (!l || l.kind === 'none') continue;
+      if (l.sv) checkSection(`${where(s)} SV`, l.sv, inputs[`successValue${s}`]);
+      if (l.burst) checkSection(`${where(s)} B`, l.burst, inputs[`burst${s}`]);
+      if (l.sd) checkSection(`${where(s)} SD`, l.sd, inputs[`bonusBurst${s}`] ?? 0);
+      if (l.save) checkSection(`${where(s)} PS`, l.save, inputs[`damage${s}`] + inputs[`arm${s === 'A' ? 'B' : 'A'}`]);
+    }
+    checked++;
+  }
+  assert.ok(checked > 800, `only ${checked} valid matchups sampled`);
+});
+
+test('dice line reads like the results: B, SV and the save value', () => {
+  const find = (isc) => army.units.find((u) => u.isc.startsWith(isc));
+  const side = (isc, weaponName, extra = {}) => {
+    const unit = find(isc);
+    const factionId = Number(Object.keys(unit.byFaction)[0]);
+    const group = unit.byFaction[factionId].groups[0];
+    const option = group.options.find((o) => o.weapons.some((w) => w.name === weaponName));
+    const sel = {unitId: unit.id, factionId, groupId: group.id, profileId: group.profiles[0].id, optionId: option.id, ftSize: 1, ...extra};
+    const r = resolveSelection(army, sel);
+    const w = trooperWeapons(r.option, army.weapons, r.traits).find((x) => x.name === weaponName);
+    return resolveSelection(army, {...sel, weaponKey: w.key});
+  };
+  const active = side('Fusiliers', 'Combi Rifle');
+  const reactive = side('Fusiliers', 'Combi Rifle', {inCover: true});
+  const derived = deriveInputs({active, reactive, rangeCm: 40});
+  const ledger = buildLedger({active, reactive, rangeCm: 40, inputs: derived.inputs});
+  assert.match(ledger.A.dice, /^B3 SV\d+ PS\d+$/);
+  assert.ok(ledger.A.sv.lines.some((l) => l.label === 'cover' && l.by === 'B' && l.value === -3));
+  assert.ok(ledger.A.save.lines.some((l) => l.label === 'cover' && l.by === 'B' && l.value === 3));
+  assert.ok(ledger.B.burst.lines.some((l) => l.label === 'ARO: one die'));
+});
