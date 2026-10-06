@@ -1,13 +1,14 @@
 // The matchup calculator: two side cards with the range selector between
 // them, the results card pinned below. All state is useMatchup's; this file
 // only lays it out and turns taps into selections.
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
 import {defaultWeapon} from '../rules/defaultWeapon.js';
 import {FIRETEAM_MAX, FIRETEAM_MIN, fireteamBonuses, surpriseAttackMod} from '../rules/modifiers.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
+import {isTemplate} from '../army/weapons.js';
 import {buildLedger} from '../rules/ledger.js';
 import {pseudoWeapons, resolveSelection, trooperWeapons} from '../rules/trooper.js';
 import {EMPTY_SELECTION} from '../matchup/useMatchup.js';
@@ -140,75 +141,93 @@ function SideCard({side, matchup, onOpenPicker}) {
 
 SideCard.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, matchup: PropTypes.object.isRequired, onOpenPicker: PropTypes.func.isRequired};
 
-// Infinity's range-band colours for a Range MOD; null = out of range.
+// Infinity's range-band colours for a Range MOD. Nothing (the card shows
+// through) when there is no band to colour: no weapon yet, a Dodge, a Direct
+// Template (no range bands) or out of range.
 const bandColor = (mod) => {
-  if (mod === undefined) return 'transparent'; // no weapon picked
-  if (mod === null) return 'var(--band-out)';
+  if (mod == null) return 'transparent';
   if (mod > 0) return 'var(--band-plus)';
   if (mod === 0) return 'var(--band-zero)';
   return mod <= -6 ? 'var(--band-minus6)' : 'var(--band-minus3)';
 };
 const signed = (n) => (n == null ? '—' : `${n > 0 ? '+' : ''}${n}`);
 
-// The shared distance: a slim strip of inches; tapped, it opens into the
-// ruler with each weapon's Range MOD as a continuous stripe (active above,
-// reactive below). Lines of fire are reciprocal, so both sides share it.
+// A side's Range MOD at a band, or undefined when it has no range bands
+// (nothing picked, Dodge, No ARO, Direct Template).
+function bandMod(side, to) {
+  const row = side.resolved?.weapon?.row;
+  if (!row || isTemplate(row)) return undefined;
+  return rangeModFor(row, to, side.resolved.traits);
+}
+
+// "Missile Launcher (Hit)", "Dodge": what the footer's Range MOD belongs to.
+const weaponName = (side) => {
+  const w = side.resolved?.weapon;
+  if (!w) return '—';
+  if (w.pseudo) return w.pseudo === 'dodge' ? 'Dodge' : 'No ARO';
+  return weaponText(w);
+};
+
+// The shared distance. Closed: one slim row of bands. Tapping a band picks it
+// straight away and opens the selector, which adds a header above and a
+// legend below and lights up each weapon's Range MOD as a stripe (active above,
+// reactive below). The row of bands itself never moves or resizes, open or
+// closed. Lines of fire are reciprocal, so both sides share the distance.
 function RangeSelector({matchup}) {
   const [open, setOpen] = useState(false);
   const {rangeCm, setRangeCm} = matchup;
   const selected = Math.max(0, RANGE_BANDS.findIndex((b) => b.to === rangeCm));
-  const rowA = matchup.A.resolved?.weapon?.row;
-  const rowB = matchup.B.resolved?.weapon?.row;
-  const modA = (to) => (rowA ? rangeModFor(rowA, to, matchup.A.resolved.traits) : undefined);
-  const modB = (to) => (rowB ? rangeModFor(rowB, to, matchup.B.resolved.traits) : undefined);
   const band = RANGE_BANDS[selected];
   const from = selected ? RANGE_BANDS[selected - 1].inches : 0;
-  const swap = (
-    <button type="button" className="icon-btn swap" aria-label="Swap active and reactive" onClick={matchup.swapSides}>⇅</button>
-  );
+  const modA = (to) => bandMod(matchup.A, to);
+  const modB = (to) => bandMod(matchup.B, to);
+  const hasA = modA(band.to) !== undefined;
+  const hasB = modB(band.to) !== undefined;
+
+  // Open, a tap anywhere outside the selector closes it.
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return undefined;
+    const onDown = (e) => { if (!ref.current?.contains(e.target)) setOpen(false); };
+    document.addEventListener('pointerdown', onDown);
+    return () => document.removeEventListener('pointerdown', onDown);
+  }, [open]);
 
   return (
-    <div className="range">
-      <div className="collapse" style={{maxHeight: open ? 0 : 60, opacity: open ? 0 : 1}} aria-hidden={open}>
-        <div className="range-slim">
-          <button type="button" className="range-strip" aria-label={`Range ${band.label}, change`} onClick={() => setOpen(true)} tabIndex={open ? -1 : 0}>
-            {RANGE_BANDS.map((b, i) => (
-              <span key={b.to} className={i === selected ? 'on' : ''}>{i === selected ? `${b.inches}"` : b.inches}</span>
-            ))}
+    <div ref={ref} className={`range${open ? ' open' : ''}`}>
+      <div className="collapse" style={{maxHeight: open ? 48 : 0, opacity: open ? 1 : 0}} aria-hidden={!open}>
+        <div className="range-head">
+          <span className="label">Range</span>
+          <button type="button" className="range-close" onClick={() => setOpen(false)} tabIndex={open ? 0 : -1}>
+            {from}–{band.inches}" ⌃
           </button>
-          {swap}
         </div>
       </div>
-      <div className="collapse" style={{maxHeight: open ? 320 : 0, opacity: open ? 1 : 0}} aria-hidden={!open}>
-        <div className="range-open">
-          <div className="range-head">
-            <span className="label">Range</span>
-            <span style={{flexGrow: 1}} />
-            {swap}
-            <button type="button" className="icon-btn" style={{width: 'auto', height: 32, fontSize: 15, fontWeight: 600, color: 'var(--text)'}}
-              onClick={() => setOpen(false)} tabIndex={open ? 0 : -1}>{from}–{band.inches}" ⌃</button>
+      <div className="range-row">
+        <div className="bands" role="group" aria-label="Range">
+          {RANGE_BANDS.map((b, i) => (
+            <button type="button" key={b.to} className={`band${i === selected ? ' on' : ''}`} aria-pressed={i === selected}
+              aria-label={`${b.label}: active ${signed(modA(b.to))}, reactive ${signed(modB(b.to))}`}
+              onClick={() => { setRangeCm(b.to); setOpen(true); }}>
+              <span className="stripe" style={{background: open ? bandColor(modA(b.to)) : 'transparent'}} />
+              <span className="dist">{i === selected ? `${b.inches}"` : b.inches}</span>
+              <span className="stripe" style={{background: open ? bandColor(modB(b.to)) : 'transparent'}} />
+            </button>
+          ))}
+        </div>
+        <button type="button" className="icon-btn swap" aria-label="Swap active and reactive" onClick={matchup.swapSides}>⇅</button>
+      </div>
+      <div className="collapse" style={{maxHeight: open ? 64 : 0, opacity: open ? 1 : 0}} aria-hidden={!open}>
+        <div className="range-foot">
+          <div className="mods">
+            <span className="c-active">{weaponName(matchup.A)} <b>{hasA ? signed(modA(band.to)) : '—'}</b></span>
+            <span className="c-reactive">{weaponName(matchup.B)} <b>{hasB ? signed(modB(band.to)) : '—'}</b></span>
           </div>
-          <div className="bands">
-            {RANGE_BANDS.map((b, i) => (
-              <button type="button" key={b.to} className={`band${i === selected ? ' on' : ''}`} tabIndex={open ? 0 : -1}
-                aria-label={`${b.label}: active ${signed(modA(b.to))}, reactive ${signed(modB(b.to))}`}
-                onClick={() => { setRangeCm(b.to); setOpen(false); }}>
-                <span className="stripe" style={{background: bandColor(modA(b.to))}} />
-                <span className="dist">{b.inches}</span>
-                <span className="stripe" style={{background: bandColor(modB(b.to))}} />
-              </button>
-            ))}
-          </div>
-          <div className="split" style={{padding: '0 4px'}}>
-            <span>Top: active weapon · bottom: reactive</span>
-            <span>{rowA ? signed(modA(band.to)) : '—'} · {rowB ? signed(modB(band.to)) : '—'}</span>
-          </div>
-          <div className="legend">
+          <div className="key">
             <span><i style={{background: 'var(--band-plus)'}} />+3</span>
             <span><i style={{background: 'var(--band-zero)'}} />0</span>
             <span><i style={{background: 'var(--band-minus3)'}} />−3</span>
             <span><i style={{background: 'var(--band-minus6)'}} />−6</span>
-            <span><i style={{background: 'var(--band-out)'}} />out of range</span>
           </div>
         </div>
       </div>
