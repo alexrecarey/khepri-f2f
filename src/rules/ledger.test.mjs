@@ -101,3 +101,16 @@ test('ammo tag: N never shown, Plasma, Cont, Blast, in the order players write t
   assert.equal(ammoTag(row('Plasma Rifle', 'Blast Mode'), {}), ' Plasma Blast');
   assert.equal(ammoTag(row('Combi Rifle'), {forceAP: true, cont: true}), ' AP Cont');
 });
+
+test('BS Attack (SR-n) is its own line under the weapon PS, from the attacker', () => {
+  // Cutter (TAG, BS Attack (SR-1)) with its MULTI HMG in AP Mode, vs Fusiliers.
+  const pick = (sel) => resolveSelection(army, sel);
+  const cutter = pick({unitId: 12, factionId: 101, groupId: 1, optionId: 1});
+  const hmg = trooperWeapons(cutter.option, army.weapons, cutter.traits).find((w) => w.id === 4 && /^AP/.test(w.mode));
+  const active = pick({unitId: 12, factionId: 101, groupId: 1, optionId: 1, weaponKey: hmg.key});
+  const reactive = pick({unitId: 1, factionId: 101, groupId: 1, optionId: 1, weaponKey: '33:'});
+  const derived = deriveInputs({active, reactive, rangeCm: 80});
+  const save = buildLedger({active, reactive, rangeCm: 80, inputs: derived.inputs}).A.save;
+  assert.deepEqual(save.lines.slice(0, 2).map((l) => [l.value, l.label, l.by]), [[5, 'PS', null], [-1, 'BS Attack (SR-1)', 'A']]);
+  assert.equal(save.lines.some((l) => l.label === 'other rules'), false);
+});

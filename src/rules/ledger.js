@@ -175,7 +175,10 @@ function saveLines(x, y, s, inputs) {
   const t = other(s);
   const total = inputs[`damage${s}`] + inputs[`arm${t}`];
   const {row, mods} = x.weapon;
-  const lines = [line(weaponPS(row, mods), 'PS', null)];
+  // The weapon's own PS, then BS Attack (SR-1 / SR-2) as its own line: it is
+  // the attacker's skill, not the weapon's (MULTI HMG 5, then -1).
+  const lines = [line(weaponPS(row, {...mods, psMod: 0}), 'PS', null)];
+  if (mods?.psMod) lines.push(line(mods.psMod, `BS Attack (SR${mods.psMod})`, s));
   if (!y) return {lines: reconcile(lines, total), total};
   const save = row.save ?? {attr: 'ARM'};
   const immune = Boolean(immunityAgainst(y.traits, row));
