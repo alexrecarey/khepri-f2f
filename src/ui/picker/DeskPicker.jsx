@@ -146,6 +146,11 @@ export default function DeskPicker({searcher, army}) {
   };
   const pick = (hit, next = false) => hit && dispatch(pickTrooper(army, side, hit, {next, state: getState()}));
   const otherSide = other(side);
+  // With the other side still empty the default (Enter) moves on to it, so
+  // two Enters fill both; once it is set, the default goes back to the
+  // calculator and moving on is the secondary (Shift+Enter).
+  const otherSet = sides[otherSide]?.unitId != null;
+  const otherName = otherSide === 'A' ? 'active' : 'reactive';
 
   const onKey = (e) => {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
@@ -162,7 +167,7 @@ export default function DeskPicker({searcher, army}) {
       setCursor({pane: 'list'});
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      pick(hitFor());
+      pick(hitFor(), e.shiftKey ? otherSet : !otherSet);
     } else if (e.key === 'Tab') {
       e.preventDefault();
       dispatch(pickerSide(army, getState(), otherSide));
@@ -192,7 +197,10 @@ export default function DeskPicker({searcher, army}) {
           <span className="dp-sides" role="group" aria-label="Side">
             {['A', 'B'].map((s) => (
               <button type="button" key={s} className={`${s === side ? `on ${ROLE[s]}` : ''}`} aria-pressed={s === side}
-                onClick={() => s !== side && dispatch(pickerSide(army, getState(), s))}>{s === 'A' ? 'ACTIVE' : 'REACTIVE'}</button>
+                onClick={() => s !== side && dispatch(pickerSide(army, getState(), s))}>
+                {s === 'A' ? 'ACTIVE' : 'REACTIVE'}
+                {s !== side && sides[s]?.unitId != null && <span className={`dp-set c-${ROLE[s]}`}> · {army.units.find((u) => u.id === sides[s].unitId)?.isc.split(',')[0]} ✓</span>}
+              </button>
             ))}
           </span>
           <label className={`dp-search ${color}`}>
@@ -302,10 +310,17 @@ export default function DeskPicker({searcher, army}) {
                     {sideSel.inCover ? 'Cover ✓' : '+ Cover'}
                   </button>
                   <span style={{flexGrow: 1}} />
-                  <button type="button" className="btn" onClick={() => pick(hitFor())}>Use</button>
-                  <button type="button" className={`btn on ${color}`} onClick={() => pick(hitFor(), true)}>
-                    Use · then pick {otherSide === 'A' ? 'Active' : 'Reactive'} ⇥
-                  </button>
+                  {otherSet ? (
+                    <>
+                      <button type="button" className="btn" onClick={() => pick(hitFor(), true)}>Use and change {otherName} <kbd>⇧↵</kbd></button>
+                      <button type="button" className={`btn on ${color}`} onClick={() => pick(hitFor())}>Use <kbd>↵</kbd></button>
+                    </>
+                  ) : (
+                    <>
+                      <button type="button" className="btn" onClick={() => pick(hitFor())}>Use <kbd>⇧↵</kbd></button>
+                      <button type="button" className={`btn on ${color}`} onClick={() => pick(hitFor(), true)}>Use and choose {otherName} <kbd>↵</kbd></button>
+                    </>
+                  )}
                 </div>
               </>
             ) : !browsing ? (
