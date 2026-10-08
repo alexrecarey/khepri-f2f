@@ -58,7 +58,9 @@ export function buildIndex(army) {
       for (const group of entry.groups) {
         const profile = group.profiles[0];
         type ??= profile?.type ?? null;
+        const ltTwins = lieutenantTwins(group.options);
         for (const option of group.options) {
+          if (ltTwins.has(option.id)) continue;
           const key = [group.id, option.id, option.name, option.points, option.swc,
             option.weapons.map((w) => w.id).join('.')].join('|');
           let row = byKey.get(key);
@@ -76,6 +78,20 @@ export function buildIndex(army) {
       words: [...unitWords]});
   }
   return {version: 1, factions: vanillas, units, weapons, rows};
+}
+
+// Lieutenant changes nothing on the table, so a Lieutenant loadout with the
+// same weapons, equipment and other skills as a plain one (points and SWC may
+// differ) is left out: the picker would list the same trooper twice.
+const isLt = (skill) => /^Lieutenant/.test(skill.name);
+const kit = (o) => JSON.stringify([
+  o.weapons.map((w) => w.id).sort(),
+  (o.equip ?? []).map((e) => e.name).sort(),
+  (o.skills ?? []).filter((s) => !isLt(s)).map((s) => `${s.name}${(s.extra ?? []).join(',')}`).sort(),
+]);
+export function lieutenantTwins(options) {
+  const plain = new Set(options.filter((o) => !(o.skills ?? []).some(isLt)).map(kit));
+  return new Set(options.filter((o) => (o.skills ?? []).some(isLt) && plain.has(kit(o))).map((o) => o.id));
 }
 
 function weaponWords(name) {

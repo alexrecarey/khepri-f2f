@@ -10,7 +10,7 @@ import {dispatch, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
 import {extraLoadoutName} from '../names.js';
 import {Page} from '../Sheet.jsx';
-import {groupLoadouts, loadoutTag, statLine} from './loadouts.js';
+import {groupLoadouts, loadoutTag, orderLoadouts, statLine} from './loadouts.js';
 
 export const TYPE_NAMES = {
   LI: 'Light Infantry', MI: 'Medium Infantry', HI: 'Heavy Infantry', TAG: 'TAGs',
@@ -149,7 +149,7 @@ export default function TrooperPicker({side, searcher, army, onPick}) {
   if (top?.view === 'unit') {
     const rows = searcher.unitRows(top.unitId, scope);
     const stats = statLine(army, top.unitId, rows[0]?.armyFactionId);
-    const groups = army ? groupLoadouts(army, rows) : [{key: 'all', name: null, items: rows}];
+    const groups = army ? groupLoadouts(army, orderLoadouts(army, rows)) : [{key: 'all', name: null, items: rows}];
     return (
       <Page title={top.name} subtitle={`${factionName(scope)} · ${rows.length} profiles`} onBack={pop}>
         {stats && (

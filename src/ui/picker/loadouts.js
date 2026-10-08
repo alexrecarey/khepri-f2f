@@ -56,12 +56,13 @@ export function statLine(army, unitId, armyFactionId) {
 }
 
 // What tells a loadout apart from its siblings with the same weapons: the
-// skills it adds ("Lieutenant", "Forward Observer"), at most two.
+// skills it adds ("Forward Observer", "Hacker"), at most two. Lieutenant is
+// left out: it doesn't change a roll and only cluttered the list.
 export function loadoutTag(army, hit) {
   const unit = army?.units.find((u) => u.id === hit.unitId);
   const group = unit?.byFaction[hit.armyFactionId]?.groups.find((g) => g.id === hit.groupId);
   const option = group?.options.find((o) => o.id === hit.optionId);
-  const skills = (option?.skills ?? []).map((sk) => sk.name);
+  const skills = (option?.skills ?? []).filter((sk) => !/^Lieutenant/.test(sk.name)).map((sk) => sk.name);
   return skills.length ? skills.slice(0, 2).join(', ') : null;
 }
 
@@ -83,13 +84,37 @@ export function weaponChart(army, weaponId) {
   };
 }
 
-// The loadout's weapons as chart lines, its main gun first: the first that
-// isn't support kit and has a range or template.
+// A loadout's main gun: the lethal weapon that reaches farthest (the army
+// data lists a Swiss Guard ML's Light Shotgun first), leaving out Disposable
+// spares; else the first lethal one (templates, CC), else none.
+export function mainWeapon(army, weaponIds) {
+  const ids = (weaponIds ?? []).filter((id) => army?.weapons?.[id]);
+  const lethal = ids.filter((id) => !army.weapons[id].every(isSupport));
+  // A Disposable launcher (Flammenspeer) is a spare shot, not what the loadout is for.
+  const disposable = (id) => army.weapons[id].some((r) => (r.props ?? []).some((p) => p.startsWith('Disposable')));
+  const main = lethal.filter((id) => !disposable(id));
+  let best = null;
+  let reach = 0;
+  for (const id of main) {
+    const r = bestReach(army.weapons[id]);
+    if (r > reach) [best, reach] = [id, r];
+  }
+  return best ?? main[0] ?? lethal[0] ?? null;
+}
+
+// The loadout's weapons as chart lines, its main gun first.
 export function loadoutCharts(army, weaponIds) {
   const charts = (weaponIds ?? []).map((id) => weaponChart(army, id)).filter(Boolean);
-  const main = charts.findIndex((c) => !c.support && c.ps != null);
+  const main = charts.findIndex((c) => c.id === mainWeapon(army, weaponIds));
   if (main <= 0) return charts;
   return [charts[main], ...charts.slice(0, main), ...charts.slice(main + 1)];
+}
+
+// One unit's loadouts, SWC weapons first (an HMG, an ML, a 0.5 SWC hacker),
+// then by how far the main gun reaches, then cheapest.
+export function orderLoadouts(army, hits) {
+  const reach = (h) => bestReach(army?.weapons?.[mainWeapon(army, h.weaponIds)]);
+  return [...hits].sort((a, b) => (b.swc ?? 0) - (a.swc ?? 0) || reach(b) - reach(a) || a.points - b.points);
 }
 
 // Everything the desktop unit pane shows about a unit in one faction.

@@ -15,7 +15,7 @@ import {other} from '../../state/reduce.js';
 import {dispatch, getState, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
 import {extraLoadoutName} from '../names.js';
-import {loadoutCharts, loadoutTag, unitDetail} from './loadouts.js';
+import {loadoutCharts, loadoutTag, orderLoadouts, unitDetail} from './loadouts.js';
 import {TYPE_NAMES} from './TrooperPicker.jsx';
 
 const ROLE = {A: 'active', B: 'reactive'};
@@ -127,7 +127,7 @@ export default function DeskPicker({searcher, army}) {
   // The unit in the right pane and its loadouts in scope.
   const unitId = current?.kind === 'unit' ? current.u.unitId : current?.kind === 'recent' ? current.hit.unitId : null;
   const factionId = current?.kind === 'unit' ? current.factionId : current?.kind === 'recent' ? current.hit.factionId : null;
-  const loadouts = useMemo(() => (searcher && unitId != null ? searcher.unitRows(unitId, factionId) : []), [searcher, unitId, factionId]);
+  const loadouts = useMemo(() => (searcher && unitId != null ? orderLoadouts(army, searcher.unitRows(unitId, factionId)) : []), [searcher, army, unitId, factionId]);
   const detail = useMemo(() => (unitId != null ? unitDetail(army, unitId, loadouts[0]?.armyFactionId) : null), [army, unitId, loadouts]);
   const profile = detail?.profiles.find((p) => p.id === picker.profileId) ?? detail?.profiles[0] ?? null;
   const lat = Math.min(lcursor, Math.max(0, loadouts.length - 1));
