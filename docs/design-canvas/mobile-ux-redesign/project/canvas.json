@@ -45,6 +45,45 @@
       "x": 1410,
       "y": 4400
     },
+    "DeskClassicColumns.dc.html": {
+      "h": 900,
+      "title": "Desktop classic (1440) — active, reactive, results rail",
+      "w": 1440,
+      "x": 0,
+      "y": 4500,
+      "page": "final"
+    },
+    "DeskClassicFaceoff.dc.html": {
+      "h": 900,
+      "title": "Classic B — face-off: results in the middle",
+      "w": 1440,
+      "x": 1520,
+      "y": 16150
+    },
+    "DeskPicker.dc.html": {
+      "h": 900,
+      "title": "Desktop picker — typing: hits, profile, one line per loadout",
+      "w": 1440,
+      "x": 3040,
+      "y": 6150,
+      "page": "final"
+    },
+    "DeskWorkbench.dc.html": {
+      "h": 900,
+      "page": "final",
+      "title": "Desktop matchup (1440) — setup | results | mods, active then reactive",
+      "w": 1440,
+      "x": 0,
+      "y": 2600
+    },
+    "DeskWorkbenchWide.dc.html": {
+      "h": 1080,
+      "page": "final",
+      "title": "Desktop matchup (1920) — mods cards side by side",
+      "w": 1920,
+      "x": 1520,
+      "y": 2600
+    },
     "ExpandFlip.dc.html": {
       "h": 844,
       "title": "Expand B — card flips to its mods, same height",
@@ -147,7 +186,7 @@
       "y": 300
     },
     "FinalResults.dc.html": {
-      "h": 1440,
+      "h": 1680,
       "page": "final",
       "title": "Swipe-up results — odds, breakdown, how the dice were built",
       "w": 390,
@@ -363,6 +402,30 @@
       "x": 0,
       "y": 3190
     },
+    "TabletClassic.dc.html": {
+      "h": 1194,
+      "title": "Tablet portrait classic — sides next to each other, results below",
+      "w": 834,
+      "x": 1520,
+      "y": 4500,
+      "page": "final"
+    },
+    "TabletLandscape.dc.html": {
+      "h": 834,
+      "page": "final",
+      "title": "Tablet landscape — mods under the results",
+      "w": 1194,
+      "x": 3520,
+      "y": 2600
+    },
+    "TabletPortrait.dc.html": {
+      "h": 1440,
+      "page": "final",
+      "title": "Tablet portrait — sides next to each other, mods under the results",
+      "w": 834,
+      "x": 4794,
+      "y": 2600
+    },
     "UnoppGrid.dc.html": {
       "h": 1240,
       "title": "Not F2F C — the four ways the order can end (both / only one / nobody)",
@@ -390,6 +453,57 @@
       "w": 390,
       "x": 1410,
       "y": 13150
+    },
+    "DeskPickerCommand.dc.html": {
+      "h": 900,
+      "w": 1440,
+      "x": 4530,
+      "y": 15000,
+      "title": "v2 · Desktop picker B — ⌘K command bar: one line sets up the whole roll, candidates show their odds"
+    },
+    "DeskPickerExplorer.dc.html": {
+      "h": 900,
+      "w": 1440,
+      "x": 6050,
+      "y": 15000,
+      "title": "v2 · Desktop picker C — explorer: facets + sortable table, every row computed vs the current opponent"
+    },
+    "DeskPickerEmpty.dc.html": {
+      "h": 900,
+      "w": 1440,
+      "x": 0,
+      "y": 6150,
+      "title": "Desktop picker — before typing: recents, all factions",
+      "page": "final"
+    },
+    "DeskPickerFaction.dc.html": {
+      "h": 900,
+      "w": 1440,
+      "x": 1520,
+      "y": 6150,
+      "title": "Desktop picker — faction chosen: unit types",
+      "page": "final"
+    },
+    "DeskPickerRows.dc.html": {
+      "h": 900,
+      "w": 1440,
+      "x": 0,
+      "y": 17400,
+      "title": "Loadouts D — one line per loadout, main gun only; selected row opens to show sidearms; extras as muted text"
+    },
+    "DeskPickerMatrix.dc.html": {
+      "h": 900,
+      "w": 1440,
+      "x": 1520,
+      "y": 17400,
+      "title": "Loadouts E — each weapon once, loadouts as columns of dots; pick a column"
+    },
+    "DeskPickerGroups.dc.html": {
+      "h": 900,
+      "w": 1440,
+      "x": 3040,
+      "y": 17400,
+      "title": "Loadouts F — grouped by main gun; loadouts sharing a gun become small options inside one card"
     }
   },
   "createdOnFiles": {
@@ -417,6 +531,22 @@
       "x": 0,
       "y": 4150
     },
+    "deskclassic": {
+      "kind": "title1",
+      "maxW": 4560,
+      "text": "Desktop classic — three layouts",
+      "w": 240,
+      "x": 0,
+      "y": 15900
+    },
+    "deskmatchup": {
+      "kind": "title1",
+      "maxW": 8000,
+      "text": "Desktop search",
+      "w": 240,
+      "x": 0,
+      "y": 14650
+    },
     "expand": {
       "kind": "title1",
       "maxW": 1800,
@@ -432,6 +562,15 @@
       "w": 240,
       "x": 0,
       "y": 5400
+    },
+    "finaldesk": {
+      "kind": "title1",
+      "maxW": 6400,
+      "page": "final",
+      "text": "Desktop & tablet — matchup",
+      "w": 240,
+      "x": 0,
+      "y": 2350
     },
     "finalpage": {
       "kind": "title1",
@@ -489,9 +628,53 @@
       "w": 240,
       "x": 0,
       "y": 12900
+    },
+    "finaldeskclassic": {
+      "kind": "title1",
+      "maxW": 2400,
+      "page": "final",
+      "text": "Desktop & tablet — classic",
+      "w": 240,
+      "x": 0,
+      "y": 4250
+    },
+    "loadouts": {
+      "kind": "title1",
+      "maxW": 4600,
+      "text": "Picker — presenting loadouts without the height",
+      "w": 240,
+      "x": 0,
+      "y": 17150
+    },
+    "finaldeskpicker": {
+      "kind": "title1",
+      "maxW": 4600,
+      "page": "final",
+      "text": "Desktop picker",
+      "w": 240,
+      "x": 0,
+      "y": 5900
     }
   },
   "order": [
+    "FinalPicker.dc.html",
+    "FinalPeek.dc.html",
+    "FinalResults.dc.html",
+    "FinalPeekRange.dc.html",
+    "FinalMenu.dc.html",
+    "FinalSaved.dc.html",
+    "FinalSettings.dc.html",
+    "FinalAbout.dc.html",
+    "FinalClassic.dc.html",
+    "FinalClassicResults.dc.html",
+    "FinalUnopposed.dc.html",
+    "DeskWorkbench.dc.html",
+    "DeskWorkbenchWide.dc.html",
+    "TabletPortrait.dc.html",
+    "TabletLandscape.dc.html",
+    "DeskPickerEmpty.dc.html",
+    "DeskPickerFaction.dc.html",
+    "DeskPicker.dc.html",
     "Main.dc.html",
     "Fireteam.dc.html",
     "Picker.dc.html",
@@ -529,22 +712,19 @@
     "PeekC.dc.html",
     "PeekD.dc.html",
     "PeekBars.dc.html",
-    "FinalPicker.dc.html",
-    "FinalPeek.dc.html",
-    "FinalResults.dc.html",
     "RangeOptions.dc.html",
-    "FinalPeekRange.dc.html",
-    "FinalMenu.dc.html",
-    "FinalSaved.dc.html",
-    "FinalSettings.dc.html",
-    "FinalAbout.dc.html",
-    "FinalClassic.dc.html",
-    "FinalClassicResults.dc.html",
     "UnoppLanes.dc.html",
     "UnoppHalves.dc.html",
     "UnoppGrid.dc.html",
     "UnoppTabs.dc.html",
-    "FinalUnopposed.dc.html"
+    "DeskPickerCommand.dc.html",
+    "DeskPickerExplorer.dc.html",
+    "DeskClassicColumns.dc.html",
+    "DeskClassicFaceoff.dc.html",
+    "TabletClassic.dc.html",
+    "DeskPickerRows.dc.html",
+    "DeskPickerMatrix.dc.html",
+    "DeskPickerGroups.dc.html"
   ],
   "pages": [
     {
