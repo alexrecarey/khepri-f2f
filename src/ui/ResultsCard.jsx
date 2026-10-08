@@ -100,11 +100,70 @@ function EngineLoading({label}) {
 
 EngineLoading.propTypes = {label: PropTypes.string};
 
+// Before both troopers are picked: each side's number is its still, dimmed
+// die, or Ready in its own colour once that side is chosen. Nothing moves;
+// the empty slots above are what should catch the eye.
+const waitingFor = (picked) => (picked && !(picked.A && picked.B) ? picked : null);
+const waitMessage = (picked) => (!picked.A && !picked.B ? 'Choose both troopers to see the odds'
+  : !picked.A ? 'Choose the active trooper' : 'Choose the reactive trooper');
+
+function SideWait({side, ready, size = ''}) {
+  return ready
+    ? <span className={`big ${size} c-${side} ready`}>Ready</span>
+    : <span className={`wait-die ${size}`}><D20 fill={`var(--${side})`} /></span>;
+}
+
+SideWait.propTypes = {side: PropTypes.string.isRequired, ready: PropTypes.bool, size: PropTypes.string};
+
+function WaitRow({picked, size}) {
+  return (
+    <div className="wpo-row">
+      <div className="wpo"><SideWait side="active" ready={picked.A} size={size} /><span className="small">wounds / order</span></div>
+      <div className="wpo right"><SideWait side="reactive" ready={picked.B} size={size} /><span className="small">wounds / order</span></div>
+    </div>
+  );
+}
+
+WaitRow.propTypes = {picked: PropTypes.object.isRequired, size: PropTypes.string};
+
+// Desktop and tablet: the whole results panel in outline, so its shape is
+// there before the numbers are.
+function WaitPanel({picked}) {
+  const rows = (side, labels) => labels.map((l) => (
+    <div key={`${side}${l}`} className="skel-row"><span>{l}</span><span className="skel" /><span>—%</span></div>
+  ));
+  return (
+    <>
+      <WaitRow picked={picked} size="xl" />
+      <div className="skel" style={{height: 4}} />
+      <div className="skel" style={{height: 40}} />
+      <div className="skel-list">
+        <span className="label c-active">Active wins · —%</span>{rows('a', ['1+ wounds', '2+ wounds', '3+ wounds', 'all saved'])}
+        <span className="label">Nobody wins · —%</span>{rows('n', ['both fail'])}
+        <span className="label c-reactive">Reactive wins · —%</span>{rows('r', ['1+ wounds', '2+ wounds', 'all saved'])}
+      </div>
+      <span className="empty">{waitMessage(picked)}</span>
+    </>
+  );
+}
+
+WaitPanel.propTypes = {picked: PropTypes.object.isRequired};
+
 // The top of the phone sheet, which is all that shows while it rests low (the
 // results card): both sides' wounds per order over the shaded wound bar. Open,
 // the numbers and the bar are bigger and the face-to-face bar appears above
 // it; app.css grows them with --open as the sheet is dragged.
-function SheetTop({s, classic, pending, status}) {
+function SheetTop({s, classic, pending, status, picked}) {
+  const wait = waitingFor(picked);
+  if (wait) {
+    return (
+      <>
+        <WaitRow picked={wait} />
+        <div className="bar rs-wbar" style={{background: 'var(--none)'}} />
+        <div className="split"><span>{waitMessage(wait)}</span></div>
+      </>
+    );
+  }
   if (s?.unopposed) return <UnopposedCardBody s={s} />;
   if (!s && pending) return <EngineLoading label={status} />;
   return (
@@ -130,12 +189,12 @@ function SheetTop({s, classic, pending, status}) {
   );
 }
 
-SheetTop.propTypes = {s: PropTypes.object, classic: PropTypes.bool, pending: PropTypes.bool, status: PropTypes.string};
+SheetTop.propTypes = {s: PropTypes.object, classic: PropTypes.bool, pending: PropTypes.bool, status: PropTypes.string, picked: PropTypes.object};
 
 // Phone: one sheet that rests low with only its top showing (the results
 // card) and opens to the full results. Swipe it up or down (it follows the
 // finger) or tap the top to open, outside to close (useSheetGestures.js).
-export default function ResultsCard({result, status, diceLine, classic, ledger, save, pending}) {
+export default function ResultsCard({result, status, diceLine, classic, ledger, save, pending, picked}) {
   const s = summarize(result);
   const open = useAppState((st) => st.ui.overlay === 'results') && Boolean(s);
   const setOpen = (o) => dispatch(o ? {type: 'openOverlay', overlay: 'results'} : {type: 'back'});
@@ -157,7 +216,7 @@ export default function ResultsCard({result, status, diceLine, classic, ledger, 
         <div className="rs-head"><span /><span className="handle" /><span className="sheet-actions">{open && <SheetActions save={save} />}</span></div>
         <button type="button" className="rs-top" onClick={g.onTopClick} aria-expanded={open} tabIndex={open ? -1 : 0}
           aria-label={open ? undefined : 'Show full results'}>
-          <SheetTop s={s} classic={classic} pending={pending} status={status} />
+          <SheetTop s={s} classic={classic} pending={pending} status={status} picked={picked} />
         </button>
         {/* Below the top: only there for screen readers and keys while open. */}
         <div className="rs-rest" {...(open ? {} : {inert: '', 'aria-hidden': true})}>
@@ -199,12 +258,14 @@ ResultsBody.propTypes = {s: PropTypes.object.isRequired, classic: PropTypes.bool
 
 // Tablet and desktop: the results in their own column, always open. The mods
 // go in another column unless `withLedger`.
-export function ResultsPanel({result, status, diceLine, classic, ledger, save, pending, withLedger = false}) {
+export function ResultsPanel({result, status, diceLine, classic, ledger, save, pending, picked, withLedger = false}) {
   const s = summarize(result);
+  const wait = waitingFor(picked);
   return (
     <section className="results-panel" aria-label="Results">
       <div className="panel-head"><span className="label">Results</span><span className="sheet-actions"><SheetActions save={save} /></span></div>
-      {s ? <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} pending={pending} />
+      {wait ? <WaitPanel picked={wait} />
+        : s ? <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} pending={pending} />
         : pending ? <EngineLoading label={status} /> : <span className="empty">{status}</span>}
       {withLedger && s && ledger && <Ledger {...ledger} />}
       {s && status && <span className="status">{status}</span>}
@@ -214,7 +275,7 @@ export function ResultsPanel({result, status, diceLine, classic, ledger, save, p
 
 ResultsPanel.propTypes = {
   result: PropTypes.object, status: PropTypes.string, diceLine: PropTypes.object, classic: PropTypes.bool,
-  ledger: PropTypes.object, save: PropTypes.object, pending: PropTypes.bool, withLedger: PropTypes.bool,
+  ledger: PropTypes.object, save: PropTypes.object, pending: PropTypes.bool, picked: PropTypes.object, withLedger: PropTypes.bool,
 };
 
 ResultsCard.propTypes = {
@@ -229,6 +290,8 @@ ResultsCard.propTypes = {
   save: PropTypes.object,
   // A new result is on its way.
   pending: PropTypes.bool,
+  // {A, B}: which sides have a trooper; matchup only. Missing ones show the wait state.
+  picked: PropTypes.object,
 };
 
 // Classic results: the face-to-face bar with its numbers, the wound bar, then

@@ -497,3 +497,43 @@ b.hl { color: var(--text); background: #2e4a40; border-radius: 3px; padding: 0 1
 /* Resting, the space under the card's top shows nothing of what's below. */
 .rsheet:not(.open):not(.dragging):not(.settling) .rs-rest { visibility: hidden; transition: visibility 0s linear .32s; }
 .rs-rest > * { flex-shrink: 0; }
+
+/* Empty side (MatchupScreen EmptySlot): a tall slot that fills the space. Its
+   tint drifts and the recent chips light up in turn, the only motion on an
+   empty screen. */
+.card.slot { flex: 1 1 0; min-height: 220px; align-items: center; justify-content: center; gap: 12px; text-align: center;
+  border: 1.5px dashed color-mix(in srgb, var(--side) 40%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--side) 18%, transparent), transparent 50%, color-mix(in srgb, var(--side) 18%, transparent));
+  background-size: 100% 300%; animation: slot-drift 6s ease-in-out infinite; }
+.card.slot.active { --side: var(--active); }
+.card.slot.reactive { --side: var(--reactive); }
+@keyframes slot-drift { 0%, 100% { background-position: 0 0; } 50% { background-position: 0 100%; } }
+.slot-open { all: unset; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.slot-open:focus-visible { outline: 2px solid var(--side); outline-offset: 6px; border-radius: 8px; }
+.slot-die { width: 52px; height: 52px; display: block; }
+.slot-die svg { width: 100%; height: 100%; display: block; }
+.slot-title { font-size: 20px; font-weight: 600; }
+.slot-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.slot-chips .chip { animation: slot-lit 4.5s ease-in-out infinite; }
+.slot-chips .chip:nth-child(2) { animation-delay: .5s; }
+.slot-chips .chip:nth-child(3) { animation-delay: 1s; }
+@keyframes slot-lit { 0%, 30%, 100% { border-color: var(--line-strong); color: var(--text-2); } 12% { border-color: var(--side); color: var(--text); } }
+.slot-hint { font-size: 12px; color: var(--text-3); }
+.workbench .col.setup.has-slot { height: 100%; }
+.workbench.tablet .sides .card.slot { min-height: 300px; }
+
+/* Results before both troopers are picked (ResultsCard WaitRow / WaitPanel). Still. */
+.wait-die { width: 34px; height: 34px; display: block; opacity: .45; }
+.wait-die.xl { width: 48px; height: 48px; }
+.wait-die svg { width: 100%; height: 100%; display: block; }
+.big.ready { font-size: 30px; }
+.big.xl.ready { font-size: 48px; }
+.skel { display: block; border-radius: 4px; background: var(--surface-2); }
+.skel-list { display: flex; flex-direction: column; gap: 6px; }
+.skel-list .label { padding-top: 8px; }
+.skel-row { display: grid; grid-template-columns: 88px minmax(0, 1fr) 52px; gap: 8px; align-items: center; font-size: 14px; color: var(--text-3); }
+.skel-row .skel { height: 14px; }
+.skel-row > :last-child { text-align: right; font-family: var(--font-mono); }
+.mods-wait { border: 1px dashed var(--line); border-radius: var(--radius-card); padding: 20px; display: flex; flex-direction: column; gap: 14px; font-family: var(--font-display); font-size: 13px; letter-spacing: .06em; opacity: .6; }
+.mods-wait .small { font-family: var(--font-body, inherit); letter-spacing: 0; }
+.btn kbd { color: inherit; border-color: currentColor; opacity: .7; margin-left: 4px; }

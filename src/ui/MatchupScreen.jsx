@@ -2,7 +2,7 @@
 // them, the results card pinned below. Everything comes from the state
 // document (src/state) and its derived matchup view; this file only lays it
 // out and turns taps into actions.
-import {useMemo} from 'react';
+import {useEffect, useMemo} from 'react';
 import PropTypes from 'prop-types';
 import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
@@ -19,6 +19,7 @@ import DeskPicker from './picker/DeskPicker.jsx';
 import {useSearcher} from './picker/useTrooperSearch.js';
 import {extraLoadoutName, shortWeaponName} from './names.js';
 import ResultsCard, {ResultsPanel} from './ResultsCard.jsx';
+import {D20} from './icons.jsx';
 import Ledger from './Ledger.jsx';
 import useLayout from './useLayout.js';
 import {matchupRollSummary} from '../state/rolls.js';
@@ -103,6 +104,36 @@ function FireteamChip({side, size, color}) {
 }
 
 FireteamChip.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, size: PropTypes.number.isRequired, color: PropTypes.string.isRequired};
+
+// A side with no trooper yet: a tall slot that fills the space, with the die,
+// one call to action and the latest recent picks as one-tap chips. Its tint
+// drifts and the chips light up in turn (app.css), to draw the eye to what
+// is still missing.
+function EmptySlot({side, recents, onOpenPicker, onPick, hint}) {
+  const color = ROLE[side];
+  return (
+    <section className={`card slot ${color}`} data-side={side} aria-label={`${color} trooper`}>
+      <button type="button" className="slot-open" onClick={onOpenPicker}>
+        <span className="slot-die"><D20 fill={`var(--${color})`} /></span>
+        <span className={`role ${color}`}>{side === 'A' ? 'ACTIVE' : 'REACTIVE'}</span>
+        <span className="slot-title">Choose a trooper</span>
+      </button>
+      {recents.length > 0 && (
+        <div className="slot-chips" role="group" aria-label="Recent troopers">
+          {recents.map((h) => (
+            <button type="button" key={h.rowId} className="chip" onClick={() => onPick(h)}>{h.unit}</button>
+          ))}
+        </div>
+      )}
+      {hint && <span className="slot-hint">or press <kbd>{side === 'A' ? 'A' : 'R'}</kbd> to search</span>}
+    </section>
+  );
+}
+
+EmptySlot.propTypes = {
+  side: PropTypes.oneOf(['A', 'B']).isRequired, recents: PropTypes.array.isRequired,
+  onOpenPicker: PropTypes.func.isRequired, onPick: PropTypes.func.isRequired, hint: PropTypes.bool,
+};
 
 function SideCard({side, army, view, onOpenPicker}) {
   const color = ROLE[side];
@@ -294,8 +325,36 @@ export default function MatchupScreen({army, armyError, view, engine}) {
     ledger: view.ledger,
   };
   const openSide = (side) => () => dispatch(openPicker(army, getState(), side));
-  const cardA = <SideCard side="A" army={army} view={view} onOpenPicker={openSide('A')} />;
-  const cardB = <SideCard side="B" army={army} view={view} onOpenPicker={openSide('B')} />;
+  const picked = {A: view.A.resolved?.unit != null, B: view.B.resolved?.unit != null};
+  resultProps.picked = picked;
+  // Empty slots offer the last three picks; the same list as the picker's Recent.
+  const recentList = useAppState((st) => st.lists.recents);
+  const recentHits = useMemo(() => {
+    if (!searcher) return [];
+    const ids = recentList.map((r) => searcher.findRow(r)).filter((id) => id != null);
+    return searcher.browse({factionId: null, recentIds: ids}).recent.slice(0, 3);
+  }, [searcher, recentList]);
+  const wide = layout !== 'phone' && layout !== 'tablet';
+  // Desktop: A and R open the pickers, unless typing somewhere or a picker is up.
+  useEffect(() => {
+    if (!wide) return undefined;
+    const onKey = (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || picking) return;
+      if (e.target.closest?.('input, textarea, select, [contenteditable]')) return;
+      const side = {a: 'A', r: 'B'}[e.key.toLowerCase()];
+      if (!side) return;
+      e.preventDefault();
+      dispatch(openPicker(army, getState(), side));
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [wide, picking, army]);
+  const sideBox = (side) => (picked[side]
+    ? <SideCard side={side} army={army} view={view} onOpenPicker={openSide(side)} />
+    : <EmptySlot side={side} recents={recentHits} hint={wide} onOpenPicker={openSide(side)}
+      onPick={(hit) => dispatch(pickTrooper(army, side, hit, {state: getState()}))} />);
+  const cardA = sideBox('A');
+  const cardB = sideBox('B');
   const range = <RangeSelector view={view} />;
   const clear = view.hasSelection && (
     <button type="button" className="chip" style={{alignSelf: 'center', justifySelf: 'center'}} onClick={() => dispatch({type: 'clearSides'})}>Clear both troopers</button>
@@ -320,7 +379,7 @@ export default function MatchupScreen({army, armyError, view, engine}) {
     );
   }
   // Tablet and desktop: the same pieces in columns (useLayout.js).
-  const setup = <div className="col setup">{error}{cardA}{range}{cardB}{clear}</div>;
+  const setup = <div className={`col setup${picked.A && picked.B ? '' : ' has-slot'}`}>{error}{cardA}{range}{cardB}{clear}</div>;
   return (
     <>
       <main className={`workbench ${layout}`}>
@@ -342,7 +401,10 @@ export default function MatchupScreen({army, armyError, view, engine}) {
           <>
             {setup}
             <div className="col"><ResultsPanel {...resultProps} /></div>
-            <div className={`col${layout === 'wide' ? ' mods-grid' : ''}`}>{mods}</div>
+            <div className={`col${layout === 'wide' ? ' mods-grid' : ''}`}>{mods ?? (!view.complete && (
+              <div className="mods-wait"><span className="c-active">ACTIVE MODS</span><span className="c-reactive">REACTIVE MODS</span>
+                <span className="small">Every modifier, with where it came from, once both sides are set.</span></div>
+            ))}</div>
           </>
         )}
       </main>
