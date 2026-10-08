@@ -2,7 +2,7 @@
 // with the words it can be found by. Runs at build time
 // (scripts/build-search-index.mjs) so the app loads a small JSON file instead
 // of the whole army; tests call it directly on army.json.
-import {UNIT_ALIASES, WEAPON_ALIASES} from './aliases.js';
+import {KIND_ALIASES, UNIT_ALIASES, WEAPON_ALIASES} from './aliases.js';
 import {indexWords, initials, words} from './text.js';
 
 // Where a word came from. Lower is a stronger match: a hit on the unit's
@@ -108,6 +108,13 @@ function makeRow(id, unit, short, group, profile, option, unitWords, weapons) {
   // Loadout names are mostly the unit's name in capitals; keep only the words
   // they add ("BIPANDRA", "Hacker").
   const loadoutWords = indexWords(option.name).filter((w) => !unitWords.has(w));
+  // Kind nicknames ("tr bot") ride with the loadout words: the skill can come
+  // with the loadout, not the unit (Probots, Mulebots).
+  const skillIds = new Set([...(profile?.skills ?? []), ...(option.skills ?? [])].map((s) => s.id));
+  for (const k of KIND_ALIASES) {
+    if (profile?.type !== k.type || !skillIds.has(k.skill)) continue;
+    for (const w of k.words) if (!unitWords.has(w) && !loadoutWords.includes(w)) loadoutWords.push(w);
+  }
   return {
     id,
     unitId: unit.id,

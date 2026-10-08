@@ -46,3 +46,10 @@ export const WEAPON_ALIASES = {
 export const UNIT_ALIASES = {
   // 'Exact ISC from army.json': ['nickname'],
 };
+
+// Nicknames for a kind of trooper rather than one unit: a REM with Total
+// Reaction is a "TR bot", whatever its name. Matched on profile type and the
+// skill id (profile or loadout), so new TR remotes pick it up on their own.
+export const KIND_ALIASES = [
+  {type: 'REM', skill: 61, words: ['tr', 'bot', 'bots', 'trbot', 'trbots']}, // Total Reaction
+];

@@ -137,3 +137,14 @@ test('unit drill-in, units of a type, and finding a saved pick again', () => {
   const hit = rowsP[2];
   assert.equal(searcher.findRow(hit), hit.rowId);
 });
+
+test('"tr bot" finds REMs with Total Reaction, loadout or profile skill', () => {
+  for (const q of ['tr bot', 'trbot', 'tr bots']) {
+    const res = searcher.search({query: q});
+    const units = res.units.map((u) => u.short);
+    for (const u of ['Probots', 'Mulebots', 'Q-Drones', 'Zayin Rebots']) assert.ok(units.includes(u), `${q}: ${u}`);
+    assert.ok(!units.includes('Atalanta'), `${q}: Atalanta is not a REM`);
+    // Only the TR loadout of a mixed unit.
+    assert.ok(res.profiles.filter((p) => p.unit === 'Probots').every((p) => /PROBOT/.test(p.loadout)), q);
+  }
+});
