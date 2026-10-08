@@ -155,3 +155,11 @@ test('skill names find their troopers: total reaction, neurocinetics', () => {
   assert.ok(units('total reaction').includes('Probots'));
   for (const u of ['Teucer', 'Tunguska Triggermen', 'Black A.I.R.']) assert.ok(units('neurocinetics').includes(u), u);
 });
+
+test('"+SD" finds loadouts with a +SD weapon or BS Attack (+1SD)', () => {
+  const rows = (q) => searcher.search({query: q}).total;
+  assert.ok(rows('+SD') > 30);
+  assert.equal(rows('+SD'), rows('sd'));
+  const sdRow = index.rows.find((r) => r.loadoutWords.includes('sd'));
+  assert.ok(sdRow);
+});

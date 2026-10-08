@@ -18,8 +18,14 @@ export const TYPE_NAMES = {
 };
 const TYPE_ORDER = Object.keys(TYPE_NAMES);
 
-// One tap fills the box with a weapon players often look for.
-const QUICK = [['Missile L.', 'ml'], ['HMG', 'hmg'], ['Spitfire', 'spitfire'], ['Sniper', 'sniper']];
+// One tap fills the box with what players often look for on that side: big
+// burst for the active trooper, ARO picks for the reactive one. Each query
+// also finds the variants ("hmg": AP and MULTI HMG; "spitfire": AP / MULTI).
+const QUICK = {
+  A: [['HMG', 'hmg'], ['Spitfire', 'spitfire'], ['Red Fury', 'red fury']],
+  B: [['+SD', '+SD'], ['Neurocinetics', 'neurocinetics'], ['Total Reaction', 'total reaction'],
+    ['Missile Launcher', 'missile launcher'], ['HRL', 'hrl'], ['Sniper Rifle', 'sniper rifle']],
+};
 
 // The loadout's weapons, the one the query matched first: several loadouts
 // often share their main weapon and only differ further down the list.
@@ -171,7 +177,7 @@ export default function TrooperPicker({side, searcher, army, onPick}) {
         <button type="button" className={`chip on ${color}`} onClick={() => push({view: 'factions'})}>
           {factionName(scope)} ▾
         </button>
-        {QUICK.map(([label, q]) => (
+        {QUICK[side].map(([label, q]) => (
           // Tapping the lit chip again clears it.
           <button type="button" key={q} className={`chip${query.trim() === q ? ` on ${color}` : ''}`} aria-pressed={query.trim() === q}
             onClick={() => setQuery(query.trim() === q ? '' : q)}>{label}</button>

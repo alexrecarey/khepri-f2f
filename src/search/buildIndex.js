@@ -118,6 +118,10 @@ function makeRow(id, unit, short, group, profile, option, unitWords, weapons) {
   for (const [id, name] of Object.entries(SEARCHABLE_SKILLS)) {
     if (skillIds.has(Number(id))) indexWords(name).forEach(addWord);
   }
+  // "+SD": a weapon or the BS Attack skill with Special Dice (reactive picks).
+  const sd = (extra) => (extra ?? []).some((e) => /^\+\d+SD$/.test(e));
+  const skills = [...(profile?.skills ?? []), ...(option.skills ?? [])];
+  if (option.weapons.some((w) => sd(w.extra)) || skills.some((k) => k.id === 201 && sd(k.extra))) addWord('sd');
   return {
     id,
     unitId: unit.id,
