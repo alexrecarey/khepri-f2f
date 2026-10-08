@@ -45,6 +45,13 @@
       "x": 1410,
       "y": 4400
     },
+    "ClearedNumbers.dc.html": {
+      "h": 820,
+      "title": "Results card when nothing is picked — six options for the — numbers (B chosen)",
+      "w": 1240,
+      "x": 2400,
+      "y": 21860
+    },
     "DeskClassicColumns.dc.html": {
       "h": 900,
       "page": "final",
@@ -63,7 +70,7 @@
     "DeskPicker.dc.html": {
       "h": 900,
       "page": "final",
-      "title": "Desktop picker — typing: hits, profile, one line per loadout",
+      "title": "Desktop picker — typing, reactive still empty: Use and choose reactive is the default",
       "w": 1440,
       "x": 3040,
       "y": 6150
@@ -105,6 +112,13 @@
       "x": 3040,
       "y": 17400
     },
+    "DeskPickerGroupsCompact.dc.html": {
+      "h": 900,
+      "title": "Loadouts F compact — one line per main weapon, its loadouts inline as text",
+      "w": 1440,
+      "x": 4560,
+      "y": 17400
+    },
     "DeskPickerMatrix.dc.html": {
       "h": 900,
       "title": "Loadouts E — each weapon once, loadouts as columns of dots; pick a column",
@@ -134,6 +148,57 @@
       "w": 1920,
       "x": 1520,
       "y": 2600
+    },
+    "EmptyA.dc.html": {
+      "h": 844,
+      "page": "final",
+      "title": "Empty home, phone — tall slots with recent troopers as chips",
+      "w": 390,
+      "x": 0,
+      "y": 7550
+    },
+    "EmptyB.dc.html": {
+      "h": 844,
+      "title": "Empty B — recent matchups: one tap restores both sides and the range; new-matchup slots below",
+      "w": 390,
+      "x": 470,
+      "y": 21860
+    },
+    "EmptyC.dc.html": {
+      "h": 844,
+      "title": "Empty C — crest shortcuts: each slot shows your factions, first tap opens the picker scoped",
+      "w": 390,
+      "x": 940,
+      "y": 21860
+    },
+    "EmptyD.dc.html": {
+      "h": 844,
+      "title": "Empty D — guided face-off: the dice stare each other down, step 1 / step 2",
+      "w": 390,
+      "x": 1410,
+      "y": 21860
+    },
+    "EmptyDesk.dc.html": {
+      "h": 900,
+      "page": "final",
+      "title": "Empty home, desktop — tall slots in the setup column; results and mods wait, nothing moves",
+      "w": 1440,
+      "x": 470,
+      "y": 7550
+    },
+    "EmptyE.dc.html": {
+      "h": 844,
+      "title": "Empty E — example roll: a dimmed real matchup with odds, tap a side to make it yours",
+      "w": 390,
+      "x": 1880,
+      "y": 21860
+    },
+    "EngineLoading.dc.html": {
+      "h": 860,
+      "title": "Pyodide loading — six options (D chosen)",
+      "w": 1240,
+      "x": 0,
+      "y": 20500
     },
     "ExpandFlip.dc.html": {
       "h": 844,
@@ -186,6 +251,22 @@
       "w": 390,
       "x": 3760,
       "y": 300
+    },
+    "FinalCleared.dc.html": {
+      "h": 626,
+      "page": "final",
+      "title": "Results card before the odds — still dice; a picked side reads Ready",
+      "w": 428,
+      "x": 1990,
+      "y": 7550
+    },
+    "FinalEngineLoading.dc.html": {
+      "h": 400,
+      "page": "final",
+      "title": "Dice engine loading — the two dice clash until the first result",
+      "w": 420,
+      "x": 1410,
+      "y": 1260
     },
     "FinalHome.dc.html": {
       "h": 844,
@@ -431,6 +512,21 @@
       "x": 1360,
       "y": 0
     },
+    "PickerFactions2.dc.html": {
+      "h": 844,
+      "title": "Empty picker A — 2 columns, slim rows with crest + full name, recents follow",
+      "w": 390,
+      "x": 1760,
+      "y": 18800
+    },
+    "PickerFactions3.dc.html": {
+      "h": 844,
+      "page": "final",
+      "title": "Picker, empty search — 3-column faction grid, then recents",
+      "w": 390,
+      "x": 4700,
+      "y": 300
+    },
     "RangeOptions.dc.html": {
       "h": 760,
       "is_interactive": true,
@@ -512,42 +608,36 @@
       "x": 1410,
       "y": 13150
     },
-    "DeskPickerGroupsCompact.dc.html": {
+    "EmptyDeskActive.dc.html": {
+      "h": 900,
+      "w": 1440,
+      "x": 470,
+      "y": 8570,
+      "page": "final",
+      "title": "Desktop, one side picked — the results panel in skeleton form: Ready, still die, empty bars and rows, partial mods"
+    },
+    "SlotMotion.dc.html": {
+      "h": 960,
+      "w": 1600,
+      "x": 3720,
+      "y": 21860,
+      "title": "Subtle motion for the empty slot you still have to fill — seven options (B + F chosen)"
+    },
+    "FinalSlotMotion.dc.html": {
+      "h": 520,
+      "w": 820,
+      "x": 2498,
+      "y": 7550,
+      "page": "final",
+      "title": "Empty slot motion — drifting tint + recent chips light up"
+    },
+    "DeskPickerOtherSet.dc.html": {
       "h": 900,
       "w": 1440,
       "x": 4560,
-      "y": 17400,
-      "title": "Loadouts F compact — one line per main weapon, its loadouts inline as text"
-    },
-    "PickerFactions2.dc.html": {
-      "h": 844,
-      "w": 390,
-      "x": 1760,
-      "y": 18800,
-      "title": "Empty picker A — 2 columns, slim rows with crest + full name, recents follow"
-    },
-    "PickerFactions3.dc.html": {
-      "h": 844,
-      "w": 390,
-      "x": 4700,
-      "y": 300,
+      "y": 6150,
       "page": "final",
-      "title": "Picker, empty search — 3-column faction grid, then recents"
-    },
-    "EngineLoading.dc.html": {
-      "h": 860,
-      "w": 1240,
-      "x": 0,
-      "y": 20500,
-      "title": "Pyodide loading — six options (D chosen)"
-    },
-    "FinalEngineLoading.dc.html": {
-      "h": 400,
-      "w": 420,
-      "x": 1410,
-      "y": 1260,
-      "page": "final",
-      "title": "Dice engine loading — the two dice clash until the first result"
+      "title": "Desktop picker — reactive already set: Use is the default, change reactive is secondary"
     }
   },
   "createdOnFiles": {
@@ -591,6 +681,30 @@
       "x": 0,
       "y": 14650
     },
+    "emptyhome": {
+      "kind": "title1",
+      "maxW": 2400,
+      "text": "Empty home — before any trooper is picked",
+      "w": 240,
+      "x": 0,
+      "y": 21610
+    },
+    "emptypicker": {
+      "kind": "title1",
+      "maxW": 900,
+      "text": "Mobile picker, empty search: 2 vs 3 columns",
+      "w": 240,
+      "x": 1760,
+      "y": 18550
+    },
+    "engineload": {
+      "kind": "title1",
+      "maxW": 1240,
+      "text": "While the dice engine loads",
+      "w": 240,
+      "x": 0,
+      "y": 20250
+    },
     "expand": {
       "kind": "title1",
       "maxW": 1800,
@@ -633,6 +747,15 @@
       "w": 240,
       "x": 0,
       "y": 5900
+    },
+    "finalempty": {
+      "kind": "title1",
+      "maxW": 2400,
+      "page": "final",
+      "text": "Empty home — before any trooper is picked",
+      "w": 240,
+      "x": 0,
+      "y": 7300
     },
     "finalpage": {
       "kind": "title1",
@@ -706,45 +829,9 @@
       "w": 240,
       "x": 0,
       "y": 12900
-    },
-    "emptypicker": {
-      "kind": "title1",
-      "maxW": 900,
-      "text": "Mobile picker, empty search: 2 vs 3 columns",
-      "w": 240,
-      "x": 1760,
-      "y": 18550
-    },
-    "engineload": {
-      "kind": "title1",
-      "maxW": 1240,
-      "text": "While the dice engine loads",
-      "w": 240,
-      "x": 0,
-      "y": 20250
     }
   },
   "order": [
-    "FinalPicker.dc.html",
-    "FinalPeek.dc.html",
-    "FinalResults.dc.html",
-    "FinalPeekRange.dc.html",
-    "FinalMenu.dc.html",
-    "FinalSaved.dc.html",
-    "FinalSettings.dc.html",
-    "FinalAbout.dc.html",
-    "FinalClassic.dc.html",
-    "FinalClassicResults.dc.html",
-    "FinalUnopposed.dc.html",
-    "PickerFactions3.dc.html",
-    "FinalEngineLoading.dc.html",
-    "DeskWorkbench.dc.html",
-    "DeskWorkbenchWide.dc.html",
-    "TabletPortrait.dc.html",
-    "TabletLandscape.dc.html",
-    "DeskPickerEmpty.dc.html",
-    "DeskPickerFaction.dc.html",
-    "DeskPicker.dc.html",
     "Main.dc.html",
     "Fireteam.dc.html",
     "Picker.dc.html",
@@ -789,16 +876,48 @@
     "UnoppTabs.dc.html",
     "DeskPickerCommand.dc.html",
     "DeskPickerExplorer.dc.html",
-    "DeskClassicColumns.dc.html",
     "DeskClassicFaceoff.dc.html",
-    "TabletClassic.dc.html",
     "DeskPickerRows.dc.html",
     "DeskPickerMatrix.dc.html",
     "DeskPickerGroups.dc.html",
     "DeskPickerGroupsCompact.dc.html",
     "MotionPolish.dc.html",
     "PickerFactions2.dc.html",
-    "EngineLoading.dc.html"
+    "EngineLoading.dc.html",
+    "EmptyB.dc.html",
+    "EmptyC.dc.html",
+    "EmptyD.dc.html",
+    "EmptyE.dc.html",
+    "ClearedNumbers.dc.html",
+    "FinalPicker.dc.html",
+    "FinalPeek.dc.html",
+    "FinalResults.dc.html",
+    "FinalPeekRange.dc.html",
+    "FinalMenu.dc.html",
+    "FinalSaved.dc.html",
+    "FinalSettings.dc.html",
+    "FinalAbout.dc.html",
+    "FinalClassic.dc.html",
+    "FinalClassicResults.dc.html",
+    "FinalUnopposed.dc.html",
+    "PickerFactions3.dc.html",
+    "FinalEngineLoading.dc.html",
+    "DeskWorkbench.dc.html",
+    "DeskWorkbenchWide.dc.html",
+    "TabletPortrait.dc.html",
+    "TabletLandscape.dc.html",
+    "DeskPickerEmpty.dc.html",
+    "DeskPickerFaction.dc.html",
+    "DeskPicker.dc.html",
+    "DeskPickerOtherSet.dc.html",
+    "EmptyA.dc.html",
+    "EmptyDesk.dc.html",
+    "EmptyDeskActive.dc.html",
+    "FinalCleared.dc.html",
+    "FinalSlotMotion.dc.html",
+    "DeskClassicColumns.dc.html",
+    "TabletClassic.dc.html",
+    "SlotMotion.dc.html"
   ],
   "pages": [
     {
