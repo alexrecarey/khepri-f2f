@@ -1,7 +1,9 @@
 // The classic calculator: type the final numbers yourself. Same inputs and
 // the same hiding rules as before (src/CalculatorColumn.jsx), in the new design.
+// The numbers are the state document's classic slice.
 import PropTypes from 'prop-types';
 import {LIMITS} from '../engine/params.js';
+import {dispatch} from '../state/store.js';
 import {D20} from './icons.jsx';
 import ResultsCard from './ResultsCard.jsx';
 
@@ -118,7 +120,9 @@ function ClassicSide({side, params, setParam}) {
 
 ClassicSide.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, params: PropTypes.object.isRequired, setParam: PropTypes.func.isRequired};
 
-export default function ClassicScreen({params, setParam, engine}) {
+const setParam = (key) => (value) => dispatch({type: 'setClassic', key, value});
+
+export default function ClassicScreen({params, engine}) {
   return (
     <>
       <main className="screen">
@@ -130,4 +134,4 @@ export default function ClassicScreen({params, setParam, engine}) {
   );
 }
 
-ClassicScreen.propTypes = {params: PropTypes.object.isRequired, setParam: PropTypes.func.isRequired, engine: PropTypes.object.isRequired};
+ClassicScreen.propTypes = {params: PropTypes.object.isRequired, engine: PropTypes.object.isRequired};

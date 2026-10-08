@@ -2,11 +2,9 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
-import {
-  createBrowserRouter, Navigate,
-  RouterProvider,
-} from "react-router-dom";
 import * as Sentry from "@sentry/react";
+import {dispatch, store} from './state/store.js';
+import {startSync} from './state/sync.js';
 
 
 Sentry.init({
@@ -26,22 +24,16 @@ Sentry.init({
   enabled: false// import.meta.env.MODE !== 'development'
 });
 
-const sentryCreateBrowserRouter = Sentry.wrapCreateBrowserRouter(createBrowserRouter);
+// URL, history and localStorage follow the state document from here on.
+let storage = null;
+try { storage = window.localStorage; } catch { /* storage blocked: nothing persists */ }
+startSync(store, dispatch, {storage});
 
-const router = sentryCreateBrowserRouter([ 
-  {
-    path: "/",
-    element: <App/>,
-  },
-  {
-    path: "*",
-    element: <Navigate to="/" />,
-  }
-]);
-
+// Development: the store on window, to inspect or replace the whole document.
+if (import.meta.env.DEV) window.__app = {store, dispatch};
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <App/>
   </React.StrictMode>,
 )

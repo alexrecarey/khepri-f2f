@@ -91,7 +91,9 @@ button { font: inherit; color: inherit; }
    One row of band buttons, the same size and place open or closed; opening
    only adds the header above, the legend below and the stripes' colour. */
 .range { flex-shrink: 0; border-radius: var(--radius-card); transition: background .25s ease; }
-.range.open { background: var(--surface); }
+.range.open { background: var(--surface); position: relative; z-index: 16; }
+/* Open, the rest of the screen is a transparent button that closes it. */
+.range-scrim { all: unset; position: fixed; inset: 0; z-index: 15; cursor: default; }
 .range .collapse { overflow: hidden; transition: max-height .28s ease, opacity .2s ease; }
 .range-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px 6px; }
 .range-close { all: unset; box-sizing: border-box; cursor: pointer; font-size: 15px; font-weight: 600; padding: 4px 0 4px 12px; }

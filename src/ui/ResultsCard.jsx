@@ -1,8 +1,8 @@
 // The results card pinned to the bottom of both calculators, and the sheet it
 // opens. The card: wounds per order for each side over the shaded wound bar.
 // The sheet: the Face to Face bar, the labelled wound bar and the breakdown.
-import {useState} from 'react';
 import PropTypes from 'prop-types';
+import {dispatch, useAppState} from '../state/store.js';
 import Ledger from './Ledger.jsx';
 import {Sheet} from './Sheet.jsx';
 import {pct, shows, summarize} from './results.js';
@@ -35,7 +35,8 @@ function WoundBar({summary, height, labels = false}) {
 WoundBar.propTypes = {summary: PropTypes.object.isRequired, height: PropTypes.number.isRequired, labels: PropTypes.bool};
 
 export default function ResultsCard({result, status, diceLine, classic, ledger}) {
-  const [open, setOpen] = useState(false);
+  const open = useAppState((st) => st.ui.overlay === 'results');
+  const setOpen = (o) => dispatch(o ? {type: 'openOverlay', overlay: 'results'} : {type: 'back'});
   const s = summarize(result);
   return (
     <>

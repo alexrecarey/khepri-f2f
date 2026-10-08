@@ -2,8 +2,11 @@
 // by the thumb. Empty box: recent picks, unit-type tiles for the faction, and
 // every unit A-Z (browsing). Typing: matching recents, profiles, then units
 // (searching). Tapping a unit or a type tile drills into its own list.
-import {useEffect, useMemo, useRef, useState} from 'react';
+// Query, faction scope and the drill-in stack are the state document's
+// ui.picker, so Back (button, Escape or the browser's) pops one screen.
+import {useEffect, useMemo, useRef} from 'react';
 import PropTypes from 'prop-types';
+import {dispatch, useAppState} from '../../state/store.js';
 import {extraLoadoutName} from '../names.js';
 import {Page} from '../Sheet.jsx';
 
@@ -46,15 +49,19 @@ function UnitRow({u, onOpen}) {
 
 UnitRow.propTypes = {u: PropTypes.object.isRequired, onOpen: PropTypes.func.isRequired};
 
-export default function TrooperPicker({side, searcher, initialScope, recents, onPick, onClose}) {
+const back = () => dispatch({type: 'back'});
+const setQuery = (query) => dispatch({type: 'pickerQuery', query});
+const setScope = (scope) => dispatch({type: 'pickerScope', scope});
+const push = (view) => dispatch({type: 'pickerPush', view});
+
+export default function TrooperPicker({side, searcher, onPick}) {
   const color = side === 'A' ? 'active' : 'reactive';
-  const [query, setQuery] = useState('');
-  const [scope, setScope] = useState(initialScope ?? null);
+  const {query, scope, stack} = useAppState((s) => s.ui.picker);
+  const recents = useAppState((s) => s.lists.recents);
   // Drill-in stack: {view: 'factions'} | {view: 'type', type} | {view: 'unit', unitId, name}
-  const [stack, setStack] = useState([]);
   const top = stack.at(-1) ?? null;
-  const push = (v) => setStack((s) => [...s, v]);
-  const pop = () => setStack((s) => s.slice(0, -1));
+  const pop = back;
+  const onClose = back;
   const inputRef = useRef(null);
   useEffect(() => { if (!top) inputRef.current?.focus(); }, [top]);
 
@@ -83,7 +90,7 @@ export default function TrooperPicker({side, searcher, initialScope, recents, on
   const title = <span className={`role ${color}`}>{side === 'A' ? 'ACTIVE' : 'REACTIVE'} TROOPER</span>;
 
   if (top?.view === 'factions') {
-    const choose = (id) => { setScope(id); pop(); };
+    const choose = (id) => setScope(id);
     return (
       <Page title="Faction" onBack={pop}>
         <button type="button" className="line-btn" onClick={() => choose(null)}>
@@ -200,8 +207,5 @@ export default function TrooperPicker({side, searcher, initialScope, recents, on
 TrooperPicker.propTypes = {
   side: PropTypes.oneOf(['A', 'B']).isRequired,
   searcher: PropTypes.object,
-  initialScope: PropTypes.number,
-  recents: PropTypes.array.isRequired,
   onPick: PropTypes.func.isRequired,
-  onClose: PropTypes.func.isRequired,
 };

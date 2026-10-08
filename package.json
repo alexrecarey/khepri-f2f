@@ -15,25 +15,18 @@
     "search-eval": "node scripts/search-eval.mjs"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
-    "@fontsource/roboto": "^4.5.8",
     "@fortawesome/fontawesome-svg-core": "^6.2.1",
     "@fortawesome/free-regular-svg-icons": "^6.2.1",
     "@fortawesome/free-solid-svg-icons": "^6.2.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@mui/icons-material": "^5.11.0",
-    "@mui/material": "^5.14.14",
     "@sentry/react": "^8.36.0",
-    "@stdlib/stats-base-dists-binomial-pmf": "^0.0.7",
-    "comlink": "^4.4.1",
-    "jotai": "^2.4.3",
+    "@tanstack/react-store": "0.11.2",
+    "@tanstack/store": "0.11.2",
     "prop-types": "^15.8.1",
     "pyodide": "^0.22.1",
     "ramda": "^0.29.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.10.0"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@sentry/vite-plugin": "^2.22.6",
