@@ -33,9 +33,21 @@ const setSide = (state, side, sel) => ({...state, matchup: {...state.matchup, [s
 export function reduce(state, action) {
   const {ui, matchup} = state;
   switch (action.type) {
-    // Whole document, e.g. a fixture in development.
-    case 'replace':
-      return {...initialState(), ...action.state, ui: {...EMPTY_UI, ...action.state.ui}};
+    // Whole document, e.g. a fixture (src/ui/fixtures). Missing slices get
+    // their defaults; this device's prefs and lists stay unless given.
+    case 'replace': {
+      const base = initialState();
+      const next = action.state;
+      return {
+        ...base,
+        ...next,
+        matchup: {...base.matchup, ...next.matchup},
+        classic: {...base.classic, ...next.classic},
+        ui: {...EMPTY_UI, ...next.ui},
+        prefs: next.prefs ?? state.prefs,
+        lists: next.lists ?? state.lists,
+      };
+    }
 
     case 'setMode':
       if (!Object.values(MODES).includes(action.mode)) return state;

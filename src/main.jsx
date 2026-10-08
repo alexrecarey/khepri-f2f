@@ -5,6 +5,7 @@ import './index.css'
 import * as Sentry from "@sentry/react";
 import {dispatch, store} from './state/store.js';
 import {startSync} from './state/sync.js';
+import {loadFixture} from './ui/fixtures/index.js';
 
 
 Sentry.init({
@@ -23,6 +24,10 @@ Sentry.init({
   replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
   enabled: false// import.meta.env.MODE !== 'development'
 });
+
+// ?fixture=FinalPeek: the state a design-canvas board shows (src/ui/fixtures).
+const fixture = new URLSearchParams(window.location.search).get('fixture');
+if (fixture) loadFixture(fixture).then((state) => state && dispatch({type: 'replace', state}));
 
 // URL, history and localStorage follow the state document from here on.
 let storage = null;

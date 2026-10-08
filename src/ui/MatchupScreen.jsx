@@ -13,12 +13,31 @@ import {ROLE, vanillaOf} from '../state/matchupView.js';
 import {dispatch, getState, useAppState} from '../state/store.js';
 import TrooperPicker from './picker/TrooperPicker.jsx';
 import {useSearcher} from './picker/useTrooperSearch.js';
-import {extraLoadoutName} from './names.js';
+import {extraLoadoutName, shortWeaponName} from './names.js';
 import ResultsCard from './ResultsCard.jsx';
 
-// Weapon button text: the name and fire mode, "Missile Launcher (Blast)". The
+// Weapon button text: the short name and fire mode, "Missile L. (Blast)". The
 // full stat line (B, PS, ammo) belongs to the results, not to a button.
-const weaponText = (w) => `${w.name}${w.mode ? ` (${w.mode.replace(/ Mode$/i, '')})` : ''}`;
+const modeText = (w) => (w.mode ? ` (${w.mode.replace(/ Mode$/i, '')})` : '');
+const weaponText = (w) => `${shortWeaponName(w.name)}${modeText(w)}`;
+const weaponTitle = (w) => `${w.name}${modeText(w)}`;
+// "Anti-Material Mode" -> "AM"; the rest just lose " Mode".
+const shortMode = (mode) => (/^anti-mat/i.test(mode) ? 'AM' : mode.replace(/ Mode$/i, ''));
+
+// Weapon buttons in list order, a weapon's fire modes gathered into one group.
+function weaponGroups(list) {
+  const groups = [];
+  for (const w of list) {
+    const prev = groups.at(-1);
+    if (w.mode && !w.pseudo && prev?.id === w.id && prev.name === w.name) {
+      prev.modes ??= [prev.w];
+      prev.modes.push(w);
+    } else {
+      groups.push({key: w.key, id: w.id, name: w.name, w});
+    }
+  }
+  return groups;
+}
 
 const patch = (side, p) => dispatch({type: 'patchSide', side, patch: p});
 
@@ -69,12 +88,25 @@ function SideCard({side, army, view, onOpenPicker}) {
       </button>
       {option && (
         <div className="row-wrap" role="group" aria-label="Weapon">
-          {[...weapons, ...pseudo].map((w) => (
-            <button type="button" key={w.key} className={`btn${sel.weaponKey === w.key ? ` on ${color}` : ''}`}
-              aria-pressed={sel.weaponKey === w.key} onClick={() => patch(side, {weaponKey: w.key})}>
-              {w.pseudo ? w.label.replace(/ \(unopposed\)$/, '') : weaponText(w)}
+          {weaponGroups([...weapons, ...pseudo]).map((g) => (g.modes ? (
+            // One weapon, several fire modes: the name once, a button per mode.
+            <span key={g.key} className={`btn-group${g.modes.some((w) => w.key === sel.weaponKey) ? ` on ${color}` : ''}`}
+              role="group" aria-label={shortWeaponName(g.name)}>
+              <span className="g-name">{shortWeaponName(g.name)}</span>
+              {g.modes.map((w) => (
+                <button type="button" key={w.key} className={`g-mode${sel.weaponKey === w.key ? ' on' : ''}`}
+                  aria-pressed={sel.weaponKey === w.key} title={weaponTitle(w)} onClick={() => patch(side, {weaponKey: w.key})}>
+                  {shortMode(w.mode)}
+                </button>
+              ))}
+            </span>
+          ) : (
+            <button type="button" key={g.key} className={`btn${sel.weaponKey === g.w.key ? ` on ${color}` : ''}`}
+              aria-pressed={sel.weaponKey === g.w.key} title={g.w.pseudo ? undefined : weaponTitle(g.w)}
+              onClick={() => patch(side, {weaponKey: g.w.key})}>
+              {g.w.pseudo ? g.w.label.replace(/ \(unopposed\)$/, '') : weaponText(g.w)}
             </button>
-          ))}
+          )))}
         </div>
       )}
       {unit && (

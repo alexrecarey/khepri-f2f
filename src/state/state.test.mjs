@@ -199,3 +199,24 @@ test('sync: the URL follows the state, each overlay layer is a history entry', (
   assert.match(win.entries[0].url, /unitA=10/);
   stop();
 });
+
+test('replace fills missing slices and keeps this device\'s lists', () => {
+  const s0 = run(initialState(), {type: 'pickTrooper', side: 'A', sel: fennec, recent: {unitId: 10, groupId: 1, optionId: 2}});
+  const s = reduce(s0, {type: 'replace', state: {mode: 'basic', classic: {burstA: 5}, ui: {overlay: 'results'}}});
+  assert.equal(s.classic.burstA, 5);
+  assert.equal(s.classic.burstB, DEFAULT_PARAMS.burstB);
+  assert.equal(s.ui.overlay, 'results');
+  assert.equal(s.ui.rangeOpen, false);
+  assert.equal(s.lists.recents.length, 1);
+  assert.equal(s.matchup.rangeCm, 40);
+});
+
+test('every fixture is a valid partial state', async () => {
+  const {readdirSync, readFileSync: read} = await import('node:fs');
+  const dir = new URL('../ui/fixtures/', import.meta.url);
+  for (const f of readdirSync(dir).filter((n) => n.endsWith('.json'))) {
+    const s = reduce(initialState(), {type: 'replace', state: JSON.parse(read(new URL(f, dir), 'utf8'))});
+    assert.ok(['matchup', 'basic'].includes(s.mode), f);
+    assert.equal(stateFromUrl(urlFromState(s)).mode, s.mode, f);
+  }
+});

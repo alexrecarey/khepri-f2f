@@ -74,6 +74,17 @@ button { font: inherit; color: inherit; }
 .btn.on.active { background: var(--active); border-color: var(--active); color: var(--active-ink); font-weight: 600; }
 .btn.on.reactive { background: var(--reactive); border-color: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
 .btn:disabled { opacity: .4; cursor: default; }
+/* One weapon with fire modes: [MULTI Pistol | AM | AP | Shock]. */
+.btn-group { display: inline-flex; align-items: stretch; border: 1px solid #333; border-radius: 8px; font-size: 14px; color: var(--text-2); overflow: hidden; }
+.btn-group .g-name { padding: 8px 6px 8px 12px; }
+.btn-group .g-mode { all: unset; box-sizing: border-box; cursor: pointer; padding: 8px 9px; border-left: 1px solid #333; }
+.btn-group .g-mode:focus-visible { outline: 2px solid var(--text-2); outline-offset: -2px; }
+.btn-group.on.active { border-color: var(--active); }
+.btn-group.on.reactive { border-color: var(--reactive); }
+.btn-group.on.active .g-name { color: var(--active); font-weight: 600; }
+.btn-group.on.reactive .g-name { color: var(--reactive); font-weight: 600; }
+.btn-group.active .g-mode.on { background: var(--active); color: var(--active-ink); font-weight: 600; }
+.btn-group.reactive .g-mode.on { background: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
 
 .chip { all: unset; box-sizing: border-box; cursor: pointer; padding: 7px 12px; border-radius: 999px; border: 1px dashed var(--line-strong); color: var(--text-3); font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
 .chip.on { border-style: solid; color: var(--text); }
