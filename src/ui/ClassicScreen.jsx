@@ -6,7 +6,8 @@ import PropTypes from 'prop-types';
 import {LIMITS} from '../engine/params.js';
 import {dispatch} from '../state/store.js';
 import {D20} from './icons.jsx';
-import ResultsCard from './ResultsCard.jsx';
+import ResultsCard, {ResultsPanel} from './ResultsCard.jsx';
+import useLayout from './useLayout.js';
 import {classicRollSummary} from '../state/rolls.js';
 import {summarize} from './results.js';
 import useSaveRoll from './useSaveRoll.js';
@@ -140,14 +141,26 @@ export default function ClassicScreen({params, engine}) {
     return s ? classicRollSummary(params, s) : null;
   }, [engine.result, params]);
   const save = useSaveRoll(summary);
+  const layout = useLayout();
+  if (layout === 'phone') {
+    return (
+      <>
+        <main className="screen">
+          <ClassicSide side="A" params={params} setParam={setParam} />
+          <ClassicSide side="B" params={params} setParam={setParam} />
+        </main>
+        <ResultsCard result={engine.result} status={engine.status} classic save={save} />
+      </>
+    );
+  }
+  // Tablet: both sides next to each other, results below. Wider: active,
+  // reactive and a results rail.
   return (
-    <>
-      <main className="screen">
-        <ClassicSide side="A" params={params} setParam={setParam} />
-        <ClassicSide side="B" params={params} setParam={setParam} />
-      </main>
-      <ResultsCard result={engine.result} status={engine.status} classic save={save} />
-    </>
+    <main className={`workbench classic ${layout}`}>
+      <ClassicSide side="A" params={params} setParam={setParam} />
+      <ClassicSide side="B" params={params} setParam={setParam} />
+      <ResultsPanel result={engine.result} status={engine.status} classic save={save} />
+    </main>
   );
 }
 

@@ -15,7 +15,9 @@ import {dispatch, getState, useAppState} from '../state/store.js';
 import TrooperPicker from './picker/TrooperPicker.jsx';
 import {useSearcher} from './picker/useTrooperSearch.js';
 import {extraLoadoutName, shortWeaponName} from './names.js';
-import ResultsCard from './ResultsCard.jsx';
+import ResultsCard, {ResultsPanel} from './ResultsCard.jsx';
+import Ledger from './Ledger.jsx';
+import useLayout from './useLayout.js';
 import {matchupRollSummary} from '../state/rolls.js';
 import {summarize} from './results.js';
 import useSaveRoll from './useSaveRoll.js';
@@ -244,25 +246,64 @@ export default function MatchupScreen({army, armyError, view, engine}) {
   }, [result, view]);
   const save = useSaveRoll(summary);
 
+  const layout = useLayout();
+  const resultProps = {
+    result,
+    save,
+    status: view.complete ? engine.status : 'Choose both troopers to see the odds',
+    diceLine: view.ledger ? {active: view.ledger.ledger.A?.dice, reactive: view.ledger.ledger.B?.dice} : null,
+    ledger: view.ledger,
+  };
+  const openSide = (side) => () => dispatch(openPicker(army, getState(), side));
+  const cardA = <SideCard side="A" army={army} view={view} onOpenPicker={openSide('A')} />;
+  const cardB = <SideCard side="B" army={army} view={view} onOpenPicker={openSide('B')} />;
+  const range = <RangeSelector view={view} />;
+  const clear = view.hasSelection && (
+    <button type="button" className="chip" style={{alignSelf: 'center', justifySelf: 'center'}} onClick={() => dispatch({type: 'clearSides'})}>Clear both troopers</button>
+  );
+  const error = armyError && <div className="note">Could not load the army data: {String(armyError)}</div>;
+  const mods = view.ledger && result && <Ledger {...view.ledger} />;
+  const picker = picking && <TrooperPicker side={picking} searcher={searcher} army={army} onPick={(hit) => dispatch(pickTrooper(army, picking, hit))} />;
+
+  if (layout === 'phone') {
+    return (
+      <>
+        <main className="screen">
+          {error}{cardA}{range}{cardB}{clear}
+        </main>
+        <ResultsCard {...resultProps} />
+        {picker}
+      </>
+    );
+  }
+  // Tablet and desktop: the same pieces in columns (useLayout.js).
+  const setup = <div className="col setup">{error}{cardA}{range}{cardB}{clear}</div>;
   return (
     <>
-      <main className="screen">
-        {armyError && <div className="note">Could not load the army data: {String(armyError)}</div>}
-        <SideCard side="A" army={army} view={view} onOpenPicker={() => dispatch(openPicker(army, getState(), 'A'))} />
-        <RangeSelector view={view} />
-        <SideCard side="B" army={army} view={view} onOpenPicker={() => dispatch(openPicker(army, getState(), 'B'))} />
-        {view.hasSelection && (
-          <button type="button" className="chip" style={{alignSelf: 'center'}} onClick={() => dispatch({type: 'clearSides'})}>Clear both troopers</button>
+      <main className={`workbench ${layout}`}>
+        {layout === 'tablet' ? (
+          <>
+            {error}
+            <div className="sides">{cardA}{cardB}</div>
+            {range}
+            {clear}
+            <ResultsPanel {...resultProps} />
+            {mods && <div className="mods-grid">{mods}</div>}
+          </>
+        ) : layout === 'landscape' ? (
+          <>
+            {setup}
+            <div className="col"><ResultsPanel {...resultProps} />{mods && <div className="mods-grid">{mods}</div>}</div>
+          </>
+        ) : (
+          <>
+            {setup}
+            <div className="col"><ResultsPanel {...resultProps} /></div>
+            <div className={`col${layout === 'wide' ? ' mods-grid' : ''}`}>{mods}</div>
+          </>
         )}
       </main>
-      <ResultsCard
-        result={result}
-        save={save}
-        status={view.complete ? engine.status : 'Choose both troopers to see the odds'}
-        diceLine={view.ledger ? {active: view.ledger.ledger.A?.dice, reactive: view.ledger.ledger.B?.dice} : null}
-        ledger={view.ledger}
-      />
-      {picking && <TrooperPicker side={picking} searcher={searcher} army={army} onPick={(hit) => dispatch(pickTrooper(army, picking, hit))} />}
+      {picker}
     </>
   );
 }

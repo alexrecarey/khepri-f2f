@@ -1,6 +1,8 @@
-// The results card pinned to the bottom of both calculators, and the sheet it
-// opens. The card: wounds per order for each side over the shaded wound bar.
-// The sheet: the Face to Face bar, the labelled wound bar and the breakdown.
+// Results, three ways over the same body:
+//   ResultsCard   phone: the card pinned to the bottom, opening a sheet
+//   ResultsPanel  tablet and desktop: the same content inline, in its column
+// The card: wounds per order for each side over the shaded wound bar. The
+// body: the Face to Face bar, the labelled wound bar and the breakdown.
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, ShareIcon} from './icons.jsx';
@@ -76,26 +78,7 @@ export default function ResultsCard({result, status, diceLine, classic, ledger, 
       </button>
       {open && s && (
         <Sheet onClose={() => setOpen(false)} label="Results" actions={<SheetActions save={save} />}>
-          {s.unopposed ? (
-            <UnopposedSheetBody s={s} names={ledger?.names ?? {A: 'Active', B: 'Reactive'}} diceLine={diceLine} />
-          ) : classic ? (
-            <ClassicBody s={s} />
-          ) : (
-            <>
-          <div className="wpo-row">
-            <div className="wpo"><span className="big xl c-active">{wpo(s.wpo.active)}</span><span className="small">wounds / order</span></div>
-            <div className="wpo right"><span className="big xl c-reactive">{wpo(s.wpo.reactive)}</span><span className="small">wounds / order</span></div>
-          </div>
-          <div className="bar" style={{height: 4, borderRadius: 2}} role="img"
-            aria-label={`Face to face: active wins ${pct(s.win.active)}, nobody ${pct(s.win.none)}, reactive wins ${pct(s.win.reactive)}`}>
-            <span className="seg-a2" style={{width: `${100 * s.win.active}%`}} />
-            <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
-            <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`}} />
-          </div>
-          <WoundBar summary={s} height={40} labels />
-              <Breakdown s={s} />
-            </>
-          )}
+          <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} />
           {ledger && !s.unopposed && <div className="mods-sep" />}
           {ledger && <Ledger {...ledger} />}
           {status && <span className="status">{status}</span>}
@@ -104,6 +87,49 @@ export default function ResultsCard({result, status, diceLine, classic, ledger, 
     </>
   );
 }
+
+// What the results say, wherever they are shown.
+function ResultsBody({s, classic, ledger, diceLine}) {
+  if (s.unopposed) return <UnopposedSheetBody s={s} names={ledger?.names ?? {A: 'Active', B: 'Reactive'}} diceLine={diceLine} />;
+  if (classic) return <ClassicBody s={s} />;
+  return (
+    <>
+      <div className="wpo-row">
+        <div className="wpo"><span className="big xl c-active">{wpo(s.wpo.active)}</span><span className="small">wounds / order</span></div>
+        <div className="wpo right"><span className="big xl c-reactive">{wpo(s.wpo.reactive)}</span><span className="small">wounds / order</span></div>
+      </div>
+      <div className="bar" style={{height: 4, borderRadius: 2}} role="img"
+        aria-label={`Face to face: active wins ${pct(s.win.active)}, nobody ${pct(s.win.none)}, reactive wins ${pct(s.win.reactive)}`}>
+        <span className="seg-a2" style={{width: `${100 * s.win.active}%`}} />
+        <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
+        <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`}} />
+      </div>
+      <WoundBar summary={s} height={40} labels />
+      <Breakdown s={s} />
+    </>
+  );
+}
+
+ResultsBody.propTypes = {s: PropTypes.object.isRequired, classic: PropTypes.bool, ledger: PropTypes.object, diceLine: PropTypes.object};
+
+// Tablet and desktop: the results in their own column, always open. The mods
+// go in another column unless `withLedger`.
+export function ResultsPanel({result, status, diceLine, classic, ledger, save, withLedger = false}) {
+  const s = summarize(result);
+  return (
+    <section className="results-panel" aria-label="Results">
+      <div className="panel-head"><span className="label">Results</span><span className="sheet-actions"><SheetActions save={save} /></span></div>
+      {s ? <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} /> : <span className="empty">{status}</span>}
+      {withLedger && s && ledger && <Ledger {...ledger} />}
+      {s && status && <span className="status">{status}</span>}
+    </section>
+  );
+}
+
+ResultsPanel.propTypes = {
+  result: PropTypes.object, status: PropTypes.string, diceLine: PropTypes.object, classic: PropTypes.bool,
+  ledger: PropTypes.object, save: PropTypes.object, withLedger: PropTypes.bool,
+};
 
 ResultsCard.propTypes = {
   result: PropTypes.object,
@@ -162,11 +188,11 @@ ClassicBody.propTypes = {s: PropTypes.object.isRequired};
 // (cumulative, so the rows overlap) and every hit saved. Anything that never
 // happens is left out.
 function Breakdown({s}) {
-  const scale = 250; // px for 100%
+  // Bars share one track, so 100% fills it.
   const row = (k, chance, cls) => (shows(chance) ? (
     <div className="row" key={`${cls}-${k}`}>
       <span className="k">{k}</span>
-      <span className={`b ${cls}`} style={{width: Math.max(2, scale * chance)}} />
+      <span className="track"><span className={`b ${cls}`} style={{width: `max(2px, ${100 * chance}%)`}} /></span>
       <span className="p">{pct(chance)}</span>
     </div>
   ) : null);
