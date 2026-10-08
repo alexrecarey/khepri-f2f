@@ -160,8 +160,15 @@ export function reduce(state, action) {
         ui: {...ui, overlay: 'picker', rangeOpen: false, edit: null,
           picker: {side: action.side, query: '', scope: action.scope ?? null, stack: []}},
       };
+    // A new query starts again at the top of the list.
     case 'pickerQuery':
-      return ui.picker ? {...state, ui: {...ui, picker: {...ui.picker, query: action.query}}} : state;
+      return ui.picker ? {...state, ui: {...ui, picker: {...ui.picker, query: action.query, cursor: 0, pane: 'list', lcursor: 0, profileId: null}}} : state;
+    // Desktop picker: the highlighted list row and loadout, which pane has the
+    // arrow keys, the profile tab.
+    case 'pickerCursor':
+      return ui.picker ? {...state, ui: {...ui, picker: {...ui.picker, ...action.cursor}}} : state;
+    case 'pickerSide':
+      return ui.picker ? {...state, ui: {...ui, picker: {...ui.picker, side: action.side, scope: action.scope ?? ui.picker.scope}}} : state;
     // Choosing a faction from the faction list also leaves that list.
     case 'pickerScope': {
       if (!ui.picker) return state;
@@ -169,19 +176,23 @@ export function reduce(state, action) {
       const stack = top?.view === 'factions' ? ui.picker.stack.slice(0, -1) : ui.picker.stack;
       return {
         ...state,
-        ui: {...ui, picker: {...ui.picker, scope: action.scope, stack}},
+        ui: {...ui, picker: {...ui.picker, scope: action.scope, stack, cursor: null, pane: 'list', lcursor: 0}},
         lists: {...state.lists, recentFactions: pushFaction(state.lists.recentFactions, action.scope)},
       };
     }
     case 'pickerPush':
-      return ui.picker ? {...state, ui: {...ui, picker: {...ui.picker, stack: [...ui.picker.stack, action.view]}}} : state;
-    // The picked trooper goes into its side (cover kept), joins the recents,
-    // and the picker closes.
+      return ui.picker ? {...state, ui: {...ui, picker: {...ui.picker, stack: [...ui.picker.stack, action.view], cursor: 0, pane: 'list', lcursor: 0}}} : state;
+    // The picked trooper goes into its side (cover and fireteam kept), joins
+    // the recents, and the picker closes; with `next` it moves on to the other
+    // side instead (desktop "Use, then pick Reactive").
     case 'pickTrooper': {
-      const keep = {inCover: matchup[action.side].inCover};
+      const {inCover, ftSize} = matchup[action.side];
+      const picker = action.next && ui.picker
+        ? {...ui.picker, side: other(action.side), query: '', stack: [], cursor: 0, pane: 'list', lcursor: 0, profileId: null}
+        : null;
       return {
-        ...setSide(state, action.side, {...EMPTY_SIDE, ...action.sel, ...keep}),
-        ui: {...ui, overlay: null, picker: null},
+        ...setSide(state, action.side, {...EMPTY_SIDE, ...action.sel, inCover, ftSize}),
+        ui: picker ? {...ui, picker} : {...ui, overlay: null, picker: null},
         lists: action.recent ? {...state.lists, recents: pushRecent(state.lists.recents, action.recent)} : state.lists,
       };
     }

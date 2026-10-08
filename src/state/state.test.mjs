@@ -265,3 +265,19 @@ test('classic: the Opponent PS stepper keeps PS + ARM and PS + BTS right', async
   assert.equal(n.damageA + n.btsB, 5);
   assert.equal(n.damageA + n.armB, 9);
 });
+
+test('desktop picker: cursor resets on a new query; pick then the other side', () => {
+  let s = run(initialState(), {type: 'openPicker', side: 'A', scope: 101},
+    {type: 'pickerCursor', cursor: {cursor: 3, pane: 'loadouts', lcursor: 2}});
+  assert.equal(s.ui.picker.lcursor, 2);
+  s = run(s, {type: 'pickerQuery', query: 'x'});
+  assert.equal(s.ui.picker.cursor, 0);
+  assert.equal(s.ui.picker.pane, 'list');
+  s = run(s, {type: 'pickTrooper', side: 'A', sel: fennec, recent: {unitId: 10}, next: true});
+  assert.equal(s.matchup.A.unitId, 10);
+  assert.equal(s.ui.overlay, 'picker');
+  assert.equal(s.ui.picker.side, 'B');
+  assert.equal(s.ui.picker.query, '');
+  s = run(s, {type: 'pickerSide', side: 'A'});
+  assert.equal(s.ui.picker.side, 'A');
+});

@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {groupLoadouts, loadoutTag, reachGroup, statLine} from './loadouts.js';
+import {groupLoadouts, loadoutCharts, loadoutTag, reachGroup, statLine, unitDetail, weaponChart} from './loadouts.js';
 
 const army = JSON.parse(readFileSync(new URL('../../army/army.json', import.meta.url), 'utf8'));
 const idOf = (name) => Number(Object.keys(army.weapons).find((id) => army.weapons[id][0].name === name));
@@ -34,4 +34,16 @@ test('a loadout is tagged with the skills it adds', () => {
   assert.equal(loadoutTag(army, hit(11)), 'Lieutenant');
   assert.equal(loadoutTag(army, hit(9)), 'Forward Observer, Sensor');
   assert.equal(loadoutTag(army, hit(1)), null);
+});
+
+test('weapon charts: bands per range column, main gun first', () => {
+  const ml = weaponChart(army, idOf('Missile Launcher'));
+  assert.equal(ml.bands.length, 7);
+  assert.equal(ml.bands[3], 3);                        // 24-32" is +3
+  assert.equal(weaponChart(army, idOf('Chain Rifle')).bands.every((b) => b === null), true);
+  const charts = loadoutCharts(army, [idOf('Flash Pulse'), idOf('Combi Rifle'), idOf('Pistol')]);
+  assert.equal(charts[0].name, 'Combi Rifle');
+  const d = unitDetail(army, 1803, 101);
+  assert.equal(d.profiles[0].stats[0][0], 'MOV');
+  assert.equal(d.profiles[0].stats[0][1], '4-4');
 });

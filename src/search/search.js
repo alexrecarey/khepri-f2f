@@ -177,7 +177,7 @@ export function createSearch(index) {
     for (const m of scoped) {
       if (seen.has(m.row.unitId)) continue;
       seen.add(m.row.unitId);
-      units.push(unitHit(m.row.unitId, factionId));
+      units.push({...unitHit(m.row.unitId, factionId), tier: m.tier});
     }
 
     let elsewhere = [];

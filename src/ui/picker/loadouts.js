@@ -64,3 +64,47 @@ export function loadoutTag(army, hit) {
   const skills = (option?.skills ?? []).map((sk) => sk.name);
   return skills.length ? skills.slice(0, 2).join(', ') : null;
 }
+
+// A weapon's chart line for the desktop picker: its first fire mode, the
+// Range MOD per band (null out of range; none at all for a Direct Template)
+// and B / PS / ammo.
+export function weaponChart(army, weaponId) {
+  const row = army?.weapons?.[weaponId]?.[0];
+  if (!row) return null;
+  const template = !row.ranges;
+  return {
+    id: weaponId,
+    name: row.name,
+    support: isSupport(row),
+    bands: RANGE_BANDS.map((b) => (template ? null : row.ranges.find((r) => b.to <= r.to)?.mod ?? null)),
+    burst: row.burst ?? null,
+    ps: row.dmg ?? null,
+    ammo: (row.ammo ?? []).join('+') || (template ? 'template' : ''),
+  };
+}
+
+// The loadout's weapons as chart lines, its main gun first: the first that
+// isn't support kit and has a range or template.
+export function loadoutCharts(army, weaponIds) {
+  const charts = (weaponIds ?? []).map((id) => weaponChart(army, id)).filter(Boolean);
+  const main = charts.findIndex((c) => !c.support && c.ps != null);
+  if (main <= 0) return charts;
+  return [charts[main], ...charts.slice(0, main), ...charts.slice(main + 1)];
+}
+
+// Everything the desktop unit pane shows about a unit in one faction.
+export function unitDetail(army, unitId, armyFactionId) {
+  const unit = army?.units.find((u) => u.id === unitId);
+  if (!unit) return null;
+  const faction = unit.byFaction[armyFactionId] ?? Object.values(unit.byFaction)[0];
+  const group = faction?.groups[0];
+  const profiles = (group?.profiles ?? []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    type: p.type,
+    stats: [['MOV', (p.move ?? []).map((m) => Math.round(m / 2.5)).join('-')], ['CC', p.cc], ['BS', p.bs], ['PH', p.ph],
+      ['WIP', p.wip], ['ARM', p.arm], ['BTS', p.bts], [p.str ? 'STR' : 'W', p.w], ['S', p.s]],
+    skills: (p.skills ?? []).map((sk) => (sk.extra?.length ? `${sk.name} (${sk.extra.join(', ')})` : sk.name)),
+  }));
+  return {unit, profiles};
+}

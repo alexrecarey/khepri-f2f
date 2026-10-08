@@ -13,6 +13,7 @@ import {openPicker, pickTrooper} from '../state/actions.js';
 import {ROLE, vanillaOf} from '../state/matchupView.js';
 import {dispatch, getState, useAppState} from '../state/store.js';
 import TrooperPicker from './picker/TrooperPicker.jsx';
+import DeskPicker from './picker/DeskPicker.jsx';
 import {useSearcher} from './picker/useTrooperSearch.js';
 import {extraLoadoutName, shortWeaponName} from './names.js';
 import ResultsCard, {ResultsPanel} from './ResultsCard.jsx';
@@ -263,7 +264,11 @@ export default function MatchupScreen({army, armyError, view, engine}) {
   );
   const error = armyError && <div className="note">Could not load the army data: {String(armyError)}</div>;
   const mods = view.ledger && result && <Ledger {...view.ledger} />;
-  const picker = picking && <TrooperPicker side={picking} searcher={searcher} army={army} onPick={(hit) => dispatch(pickTrooper(army, picking, hit))} />;
+  // Phone and tablet: the full-screen picker; wider: the two-pane overlay.
+  const deskPicker = layout === 'landscape' || layout === 'desktop' || layout === 'wide';
+  const picker = picking && (deskPicker
+    ? <DeskPicker searcher={searcher} army={army} />
+    : <TrooperPicker side={picking} searcher={searcher} army={army} onPick={(hit) => dispatch(pickTrooper(army, picking, hit))} />);
 
   if (layout === 'phone') {
     return (
