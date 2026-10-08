@@ -1,7 +1,7 @@
 ---
 title: Implementing the final redesign — one state document, every screen derived from it
 date: 2026-10-07
-status: proposal — waiting on the state-store decision (section 3)
+status: proposal — state holder decided: @tanstack/store (2026-10-07)
 ---
 
 # Implementing the final redesign
@@ -181,11 +181,15 @@ state holder.
 collections give CRUD, persistence and cross-tab sync in a few lines. If we want it in the stack,
 that is the scoped use — and it only makes sense if saved rolls later sync to an account.
 
-**Recommendation**: one `AppState` document in a tiny store with selector subscriptions:
-- either ~50 lines of our own (`getState / dispatch / subscribe` + `useSyncExternalStore` with a
-  selector) — no dependency, trivially testable;
-- or `@tanstack/store` (0.11, also pre-1.0 but tiny and stable in shape; it's what TanStack Form and
-  Router use internally) if you'd like to stay in the TanStack family.
+**Decision (2026-10-07): `@tanstack/store`** (Alex meant TanStack Store, not DB) holds the one
+`AppState` document. It is ~5 KB gzipped with `@tanstack/react-store`, built on alien-signals, has
+`useSelector(store, selector, compare)` with `shallow`, and runs inside TanStack Form and Router, so
+it is heavily exercised. It is still 0.x and 0.10/0.11 reshaped the API (`Derived` gone, `useStore`
+deprecated for `useSelector`), so: pin the exact version, and touch it in two files only —
+`src/state/store.js` (`createStore(initial)`, `dispatch = (a) => store.setState((s) => reduce(s, a))`)
+and a `useAppState(selector)` hook. Components, reducer and selectors never import it, so an upgrade
+or a swap to a 50-line own store stays local. We use `setState` + our own `reduce`, not the store's
+actions map, so the reducer stays a plain function under `node --test`.
 
 Either way persistence sits behind a `storage.js` adapter, so moving `lists` to a TanStack DB
 collection later is a local change. Drop `jotai` (one atom left) and the MUI/emotion deps in the same
@@ -232,8 +236,7 @@ pass.
 
 ## 6. Decisions for Alex
 
-1. State holder: own store or `@tanstack/store` for the document; TanStack DB only for saved/recents,
-   or not at all (section 3).
+1. ~~State holder~~ — decided: `@tanstack/store`, wrapped (section 3).
 2. Phase order: mobile first as above, or desktop picker earlier?
 3. Keep evolving the PR #42 components (they already hold most of the Final mobile layout) — the plan
    assumes yes, rewriting their state plumbing rather than their markup.
