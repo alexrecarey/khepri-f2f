@@ -148,3 +148,10 @@ test('"tr bot" finds REMs with Total Reaction, loadout or profile skill', () => 
     assert.ok(res.profiles.filter((p) => p.unit === 'Probots').every((p) => /PROBOT/.test(p.loadout)), q);
   }
 });
+
+test('skill names find their troopers: total reaction, neurocinetics', () => {
+  const units = (q) => searcher.search({query: q}).units.map((u) => u.short);
+  assert.ok(units('total reaction').includes('Atalanta'));
+  assert.ok(units('total reaction').includes('Probots'));
+  for (const u of ['Teucer', 'Tunguska Triggermen', 'Black A.I.R.']) assert.ok(units('neurocinetics').includes(u), u);
+});
