@@ -13,6 +13,7 @@ import {words} from '../../search/text.js';
 import {pickTrooper} from '../../state/actions.js';
 import {other} from '../../state/reduce.js';
 import {dispatch, useAppState} from '../../state/store.js';
+import FactionLogo from '../factionLogo.jsx';
 import {extraLoadoutName} from '../names.js';
 import {loadoutCharts, loadoutTag, unitDetail} from './loadouts.js';
 import {TYPE_NAMES} from './TrooperPicker.jsx';
@@ -314,7 +315,8 @@ export default function DeskPicker({searcher, army}) {
                 <span className="dp-head" style={{padding: 0}}>Browse by faction</span>
                 <div className="dp-tiles">
                   {(searcher?.factions ?? []).map((f) => (
-                    <button type="button" key={f.id} className="tile" onClick={() => dispatch({type: 'pickerScope', scope: f.id})}>
+                    <button type="button" key={f.id} className="tile faction" onClick={() => dispatch({type: 'pickerScope', scope: f.id})}>
+                      <FactionLogo id={f.id} size={40} />
                       <span>{f.name}</span><span className="r">{searcher.unitCount(f.id)}</span>
                     </button>
                   ))}
@@ -324,7 +326,7 @@ export default function DeskPicker({searcher, army}) {
             ) : (
               <>
                 <div className="dp-unit">
-                  <span className="dp-name">{factionName(scope)} <span className="note">· all sectorials included</span></span>
+                  <span className="dp-name dp-faction"><FactionLogo id={scope} size={36} />{factionName(scope)} <span className="note">· all sectorials included</span></span>
                   <button type="button" className="text-btn" onClick={() => dispatch({type: 'pickerScope', scope: null})}>← All factions</button>
                 </div>
                 <span className="dp-head" style={{padding: 0}}>Unit type</span>

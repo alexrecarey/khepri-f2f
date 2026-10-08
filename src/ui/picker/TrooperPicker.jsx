@@ -7,6 +7,7 @@
 import {useEffect, useMemo, useRef} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../../state/store.js';
+import FactionLogo from '../factionLogo.jsx';
 import {extraLoadoutName} from '../names.js';
 import {Page} from '../Sheet.jsx';
 import {groupLoadouts, loadoutTag, statLine} from './loadouts.js';
@@ -113,7 +114,7 @@ export default function TrooperPicker({side, searcher, army, onPick}) {
     const factions = searcher?.factions ?? [];
     const row = (f, key) => (
       <button type="button" key={key} className="line-btn" onClick={() => choose(f.id)}>
-        <span>{f.name}</span>
+        <span className="with-logo"><FactionLogo id={f.id} size={24} />{f.name}</span>
         <span className="r">{key.startsWith('all') ? searcher.unitCount(f.id) : ''} <span className={`c-${color}`}>{scope === f.id ? '✓' : ''}</span></span>
       </button>
     );

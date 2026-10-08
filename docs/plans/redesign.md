@@ -258,8 +258,6 @@ Not built, and why:
 - Fireteam chip still shows for every unit (no can-fireteam data).
 - Search doesn't index skills; the desktop list labels matches only as "close
   match" / "sounds like", not "fus → fug".
-- Faction logos in the desktop browse grid: left out rather than hotlinking
-  Corvus Belli's assets.
 - Motion: numbers tick in rather than rolling digit by digit; the results sheet
   doesn't follow a drag.
 - Language: English only, the setting is a placeholder until translations land.

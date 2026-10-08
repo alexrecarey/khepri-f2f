@@ -421,3 +421,9 @@ b.hl { color: var(--text); background: #2e4a40; border-radius: 3px; padding: 0 1
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Faction crests (ui/factionLogo.jsx). */
+.faction-logo { flex-shrink: 0; display: block; }
+.with-logo, .dp-faction { display: inline-flex; align-items: center; gap: 10px; }
+.tile.faction { justify-content: flex-start; gap: 10px; }
+.tile.faction .r { margin-left: auto; }
