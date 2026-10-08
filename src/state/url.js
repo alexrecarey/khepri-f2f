@@ -1,11 +1,35 @@
 // The shareable slices of the state document <-> the URL query string. The
 // address bar always shows the current setup, so copying it is a share link.
 //   Matchup:  ?mode=matchup&unitA=..&weaponA=..&range=..  (matchup/matchupParams.js)
-//   Classic:  ?mode=basic&burstA=4&successValueA=14..      (engine/params.js; defaults left out)
+//   Classic:  ?mode=basic&burstA=4&successValueA=14&psA=12..  (engine/params.js; defaults left out)
+// Classic links carry the save each side forces as one number, the way the
+// Classic screen shows it: psA = A's weapon PS + B's ARM, psBtsA = PS + B's
+// BTS (Plasma only). Older links with damageA / armB / btsB still load.
 import {DEFAULT_PARAMS, PARAM_KEYS, parseParams} from '../engine/params.js';
 import {decodeMatchup, encodeMatchup} from '../matchup/matchupParams.js';
 import {MODES} from '../ui/modes.js';
+import {classicSave, other} from './reduce.js';
 import {DEFAULT_RANGE_CM, EMPTY_SIDE} from './schema.js';
+
+// Engine params the ps keys replace in new links.
+const SPLIT_KEYS = new Set(['A', 'B'].flatMap((s) => [`damage${s}`, `arm${s}`, `bts${s}`]));
+const psKey = (s) => `ps${s}`;
+const psBtsKey = (s) => `psBts${s}`;
+const armSave = (c, s) => c[`damage${s}`] + c[`arm${other(s)}`];
+const btsSave = (c, s) => c[`damage${s}`] + c[`bts${other(s)}`];
+
+// The ps keys of a link applied over its params (setClassicSave's rules).
+function applySaves(classic, params) {
+  let c = classic;
+  for (const [key, which] of [[psKey, 'arm'], [psBtsKey, 'bts']]) {
+    for (const s of ['A', 'B']) {
+      const raw = params.get(key(s));
+      const n = raw === null || raw.trim() === '' ? NaN : Number(raw);
+      if (Number.isFinite(n)) c = classicSave(c, s, which, Math.round(n));
+    }
+  }
+  return c;
+}
 
 // What a URL says about the document: {mode?, matchup?, classic?}; only the
 // keys the URL actually sets.
@@ -23,8 +47,9 @@ export function stateFromUrl(search) {
       rangeCm: m.rangeCm ?? DEFAULT_RANGE_CM,
     };
   }
-  const hasCalc = PARAM_KEYS.some((k) => params.has(k)) || params.has('dtwVsDodge');
-  if (hasCalc) out.classic = parseParams(params);
+  const hasCalc = PARAM_KEYS.some((k) => params.has(k)) || params.has('dtwVsDodge')
+    || ['A', 'B'].some((s) => params.has(psKey(s)) || params.has(psBtsKey(s)));
+  if (hasCalc) out.classic = applySaves(parseParams(params), params);
   // A link from the classic calculator before modes were in the URL.
   if (!out.mode && hasCalc && !m) out.mode = MODES.basic;
   return out;
@@ -38,8 +63,14 @@ export function urlFromState(state) {
     const enc = encodeMatchup({selA: A, selB: B, ftSize: {A: A.ftSize, B: B.ftSize}, rangeCm});
     for (const [k, v] of Object.entries(enc)) q.set(k, v);
   } else {
+    const c = state.classic;
     for (const k of PARAM_KEYS) {
-      if (state.classic[k] !== DEFAULT_PARAMS[k]) q.set(k, String(state.classic[k]));
+      if (!SPLIT_KEYS.has(k) && c[k] !== DEFAULT_PARAMS[k]) q.set(k, String(c[k]));
+    }
+    for (const s of ['A', 'B']) {
+      if (armSave(c, s) !== armSave(DEFAULT_PARAMS, s)) q.set(psKey(s), String(armSave(c, s)));
+      // Only Plasma makes the target save with BTS.
+      if (c[`ammo${s}`] === 'PLASMA' && btsSave(c, s) !== btsSave(DEFAULT_PARAMS, s)) q.set(psBtsKey(s), String(btsSave(c, s)));
     }
   }
   return `?${q}`;

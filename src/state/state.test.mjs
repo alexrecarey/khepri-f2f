@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createStore} from '@tanstack/store';
 import {DEFAULT_PARAMS} from '../engine/params.js';
-import {reduce, uiDepth} from './reduce.js';
+import {classicSave, reduce, uiDepth} from './reduce.js';
 import {EMPTY_SIDE, MAX_RECENTS, initialState} from './schema.js';
 import {STORAGE_KEY, loadPersisted, savePersisted} from './storage.js';
 import {bootState} from './store.js';
@@ -114,6 +114,33 @@ test('classic state round-trips through the URL, defaults left out', () => {
   const url = urlFromState(s);
   assert.equal(url, '?mode=basic&burstA=5&ammoB=EXP');
   assert.deepEqual(stateFromUrl(url).classic, s.classic);
+});
+
+test('classic links carry the save as one number, never PS and ARM apart', () => {
+  let c = {...DEFAULT_PARAMS, ammoA: 'PLASMA'};
+  c = classicSave(c, 'A', 'arm', 14);
+  c = classicSave(c, 'A', 'bts', 11);
+  c = classicSave(c, 'B', 'arm', 9);
+  const s = run(initialState(), {type: 'setMode', mode: 'basic'}, {type: 'replace', state: {mode: 'basic', classic: c}});
+  const url = urlFromState(s);
+  assert.doesNotMatch(url, /damage|arm[AB]|bts[AB]/);
+  assert.match(url, /psA=14/);
+  assert.match(url, /psBtsA=11/);
+  assert.match(url, /psB=9/);
+  const back = stateFromUrl(url).classic;
+  assert.equal(back.damageA + back.armB, 14);
+  assert.equal(back.damageA + back.btsB, 11);
+  assert.equal(back.damageB + back.armA, 9);
+});
+
+test('old classic links with weapon PS, ARM and BTS apart still load', () => {
+  const c = stateFromUrl('?mode=basic&damageA=8&armB=4&btsB=2&ammoA=PLASMA&damageB=6&armA=3').classic;
+  assert.equal(c.damageA + c.armB, 12);
+  assert.equal(c.damageA + c.btsB, 10);
+  assert.equal(c.damageB + c.armA, 9);
+  // ...and come back out in the new form.
+  const url = urlFromState({...initialState(), mode: 'basic', classic: c});
+  assert.equal(url, '?mode=basic&ammoA=PLASMA&psA=12&psBtsA=10&psB=9');
 });
 
 test('an old classic link without a mode opens the classic calculator', () => {
