@@ -533,6 +533,21 @@
       "y": 300,
       "page": "final",
       "title": "Picker, empty search — 3-column faction grid, then recents"
+    },
+    "EngineLoading.dc.html": {
+      "h": 860,
+      "w": 1240,
+      "x": 0,
+      "y": 20500,
+      "title": "Pyodide loading — six options (D chosen)"
+    },
+    "FinalEngineLoading.dc.html": {
+      "h": 400,
+      "w": 420,
+      "x": 1410,
+      "y": 1260,
+      "page": "final",
+      "title": "Dice engine loading — the two dice clash until the first result"
     }
   },
   "createdOnFiles": {
@@ -699,6 +714,14 @@
       "w": 240,
       "x": 1760,
       "y": 18550
+    },
+    "engineload": {
+      "kind": "title1",
+      "maxW": 1240,
+      "text": "While the dice engine loads",
+      "w": 240,
+      "x": 0,
+      "y": 20250
     }
   },
   "order": [
@@ -714,6 +737,7 @@
     "FinalClassicResults.dc.html",
     "FinalUnopposed.dc.html",
     "PickerFactions3.dc.html",
+    "FinalEngineLoading.dc.html",
     "DeskWorkbench.dc.html",
     "DeskWorkbenchWide.dc.html",
     "TabletPortrait.dc.html",
@@ -773,7 +797,8 @@
     "DeskPickerGroups.dc.html",
     "DeskPickerGroupsCompact.dc.html",
     "MotionPolish.dc.html",
-    "PickerFactions2.dc.html"
+    "PickerFactions2.dc.html",
+    "EngineLoading.dc.html"
   ],
   "pages": [
     {
