@@ -30,7 +30,10 @@ function DiceInput({value, max, min, onChange, color, label, zeroOption}) {
         {dice.map((n) => (
           <button type="button" key={n} className="die" aria-label={`${label} ${n}`} aria-pressed={n <= value}
             onClick={() => onChange(n === value ? Math.max(min, n - 1) : n)}>
-            <D20 fill={n <= value ? fill : '#e8e6e1'} opacity={n <= value ? 1 : 0.25} />
+            {/* Keyed on lit/unlit, so a die tumbles in when it lights up. */}
+            <span key={n <= value ? 'lit' : 'off'} className={n <= value ? 'tumble' : 'fade-in'} style={{display: 'grid'}}>
+              <D20 fill={n <= value ? fill : '#e8e6e1'} opacity={n <= value ? 1 : 0.25} />
+            </span>
           </button>
         ))}
         {zeroOption && (
@@ -58,7 +61,7 @@ function Stepper({name, value, limit, onChange, color}) {
       <span className="name">{name}</span>
       <button type="button" className="s" aria-label={`${name} minus 3`} onClick={() => step(-3)}>−3</button>
       <button type="button" className="s" aria-label={`${name} minus 1`} onClick={() => step(-1)}>−1</button>
-      <span className={`v c-${color}`} aria-live="polite">{value}</span>
+      <span key={value} className={`v c-${color} bump`} aria-live="polite">{value}</span>
       <button type="button" className="s" aria-label={`${name} plus 1`} onClick={() => step(1)}>+1</button>
       <button type="button" className="s" aria-label={`${name} plus 3`} onClick={() => step(3)}>+3</button>
     </div>
@@ -149,7 +152,7 @@ export default function ClassicScreen({params, engine}) {
           <ClassicSide side="A" params={params} setParam={setParam} />
           <ClassicSide side="B" params={params} setParam={setParam} />
         </main>
-        <ResultsCard result={engine.result} status={engine.status} classic save={save} />
+        <ResultsCard result={engine.result} status={engine.status} pending={engine.pending} classic save={save} />
       </>
     );
   }
@@ -159,7 +162,7 @@ export default function ClassicScreen({params, engine}) {
     <main className={`workbench classic ${layout}`}>
       <ClassicSide side="A" params={params} setParam={setParam} />
       <ClassicSide side="B" params={params} setParam={setParam} />
-      <ResultsPanel result={engine.result} status={engine.status} classic save={save} />
+      <ResultsPanel result={engine.result} status={engine.status} pending={engine.pending} classic save={save} />
     </main>
   );
 }

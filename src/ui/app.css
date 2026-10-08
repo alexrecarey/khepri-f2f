@@ -122,7 +122,9 @@ button { font: inherit; color: inherit; }
 .label { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .bands { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); flex-grow: 1; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
 .band { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; }
-.band.on { background: var(--text); }
+.bands { position: relative; }
+.band { position: relative; z-index: 1; }
+.band-pill { position: absolute; top: 0; bottom: 0; background: var(--text); transition: left .32s cubic-bezier(.3,1.4,.5,1); }
 .band .stripe { height: 4px; transition: background .25s ease; }
 .band .dist { text-align: center; padding: 5px 0; font-size: 12px; color: var(--text-3); }
 .band.on .dist { color: var(--bg); font-weight: 700; }
@@ -156,6 +158,8 @@ button { font: inherit; color: inherit; }
 .page-title { font-size: 18px; font-weight: 600; }
 .page-body { flex-grow: 1; overflow-y: auto; padding: 4px 8px 16px; display: flex; flex-direction: column; }
 @keyframes rise { from { transform: translate(-50%, 30%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+/* The results sheet comes up with a little spring (MotionPolish 4). */
+.sheet { animation: rise .38s cubic-bezier(.3,1.25,.5,1); }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
 .menu-item { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 10px; font-size: 16px; }
@@ -227,7 +231,8 @@ button { font: inherit; color: inherit; }
 .mods-row .l { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mods-row .s { color: var(--muted); text-align: right; white-space: nowrap; font-size: 13px; }
 .mods-row.struck { color: var(--faint); }
-.mods-row.struck .v, .mods-row.struck .l { text-decoration: line-through; }
+.mods-row.struck .v, .mods-row.struck .l { background: linear-gradient(currentColor, currentColor) no-repeat 0 55% / 100% 1.5px; animation: strike .4s .15s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes strike { from { background-size: 0 1.5px; } to { background-size: 100% 1.5px; } }
 .mods-total { grid-template-columns: 44px minmax(0, 1fr); border-top: 1px solid #333; margin-top: 6px; padding-top: 8px; font-weight: 600; }
 .ledger-top { display: flex; justify-content: space-between; gap: 8px; font-family: var(--font-display); font-size: 16px; font-weight: 700; }
 
@@ -382,3 +387,37 @@ b.hl { color: var(--text); background: #2e4a40; border-radius: 3px; padding: 0 1
 .dp-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .tile.type { flex-direction: column; align-items: stretch; gap: 4px; }
 .tile.type .tt { display: flex; justify-content: space-between; }
+
+/* ---------- motion (design canvas: Motion & polish). 150-350 ms, ease-out
+   for state changes, a spring for things that move into place; all of it off
+   under reduced motion. ---------- */
+.bar span, .breakdown .b { transition: width .35s cubic-bezier(.2,.8,.2,1); }
+.wpo-n { position: relative; display: inline-block; }
+.tick { display: inline-block; animation: tick .3s cubic-bezier(.2,.8,.2,1); }
+@keyframes tick { from { opacity: .3; transform: translateY(30%); } to { opacity: 1; transform: none; } }
+.computing { animation: shimmer 1.4s linear infinite; }
+@keyframes shimmer { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+.delta { position: absolute; top: -14px; right: 0; font-family: var(--font-mono); font-size: 12px; white-space: nowrap; animation: delta 1.6s ease-out both; pointer-events: none; }
+.wpo.right .delta { right: auto; left: 0; }
+@keyframes delta { 0% { opacity: 0; transform: translateY(6px); } 20%, 70% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-8px); } }
+.btn, .chip, .stepper .s, .seg, .band, .die, .g-mode, .mode-switch button { transition: transform .1s ease; }
+.btn:active, .chip:active, .stepper .s:active, .seg:active, .die:active, .g-mode:active, .mode-switch button:active { transform: scale(.94); }
+.bump { animation: bump .3s cubic-bezier(.3,1.5,.5,1); }
+@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
+.tumble { animation: tumble .45s cubic-bezier(.3,1.5,.5,1); }
+@keyframes tumble { from { transform: rotate(-160deg) scale(.8); opacity: .3; } to { transform: none; opacity: 1; } }
+.fade-in { animation: fade .2s ease; }
+.chip-group { animation: grow .2s cubic-bezier(.2,.8,.2,1); transform-origin: left center; }
+@keyframes grow { from { transform: scale(.85); opacity: .4; } to { transform: none; opacity: 1; } }
+.page-body .hit, .page-body .line-btn, .dp-row, .dp-loadout { animation: rise-in .25s cubic-bezier(.2,.8,.2,1) both; }
+.page-body > :nth-child(2), .dp-list > :nth-child(2) { animation-delay: .06s; }
+.page-body > :nth-child(3), .dp-list > :nth-child(3) { animation-delay: .12s; }
+.page-body > :nth-child(4), .dp-list > :nth-child(4) { animation-delay: .18s; }
+.page-body > :nth-child(n+5), .dp-list > :nth-child(n+5) { animation-delay: .22s; }
+@keyframes rise-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+/* Menu pages open as a circle from the ⋯ button. */
+.page.from-menu { animation: reveal .35s cubic-bezier(.2,.8,.2,1); }
+@keyframes reveal { from { clip-path: circle(0% at calc(100% - 30px) 30px); } to { clip-path: circle(150% at calc(100% - 30px) 30px); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

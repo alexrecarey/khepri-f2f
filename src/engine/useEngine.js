@@ -11,6 +11,8 @@ import {paramsKey} from './params.js';
 export default function useEngine(params) {
   const [result, setResult] = useState(null);
   const [status, setStatus] = useState('Loading icepool engine');
+  // A calculation is on its way: the old numbers stay up, shimmering.
+  const [pending, setPending] = useState(true);
   const workerRef = useRef(null);
   const clientRef = useRef(null);
 
@@ -23,10 +25,13 @@ export default function useEngine(params) {
       const {command, value} = msg.data;
       if (command === 'result') {
         setResult(clone(value));
+        setPending(false);
         setStatus(`Done! Took ${msg.data.elapsed}ms to calculate all ${msg.data.totalRolls.toLocaleString()} possible rolls.`);
       } else if (command === 'status' && value === 'error') {
+        setPending(false);
         setStatus(`Could not start the dice engine: ${msg.data.description}`);
       } else if (command === 'error') {
+        setPending(false);
         setStatus(`Calculation failed: ${value}`);
       }
     };
@@ -46,6 +51,7 @@ export default function useEngine(params) {
 
   const key = paramsKey(params);
   useEffect(() => {
+    setPending(true);
     workerRef.current?.postMessage({command: 'calculate', data: params});
   }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -54,5 +60,5 @@ export default function useEngine(params) {
     return clientRef.current.calculate(p, {quiet: true});
   }, []);
 
-  return {result, setResult, status, calculate};
+  return {result, setResult, status, pending, calculate};
 }

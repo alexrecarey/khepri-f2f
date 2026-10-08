@@ -113,7 +113,7 @@ export function SavedPage() {
       onClick={() => dispatch({type: 'setSavedTab', tab: m})}>{name} · {count(m)}</button>
   );
   return (
-    <Page title="Saved rolls" onBack={back} action={<span className="note" style={{paddingRight: 12, fontSize: 13}}>{saved.length}</span>}>
+    <Page title="Saved rolls" className="from-menu" onBack={back} action={<span className="note" style={{paddingRight: 12, fontSize: 13}}>{saved.length}</span>}>
       <div className="segs" role="group" aria-label="Which calculator">
         {tabBtn(MODES.matchup, 'Matchup')}
         {tabBtn(MODES.basic, 'Classic')}
@@ -145,7 +145,7 @@ export function SettingsPage({factions}) {
     if (window.confirm(text)) { dispatch(action); dispatch({type: 'toast', text: done}); }
   };
   return (
-    <Page title="Settings" onBack={back}>
+    <Page title="Settings" className="from-menu" onBack={back}>
       <div className="list-head">Starting factions</div>
       {select('A', 'Active side')}
       {select('B', 'Reactive side')}
@@ -172,7 +172,7 @@ SettingsPage.propTypes = {factions: PropTypes.array.isRequired};
 
 export function AboutPage() {
   return (
-    <Page title="About" onBack={back}>
+    <Page title="About" className="from-menu" onBack={back}>
       <div className="about">
         <span className="about-title">Infinity the Calculator</span>
         <p>Face-to-face odds for Infinity N5. Pick two troopers, set the situation, see every modifier and the dice that get rolled.</p>

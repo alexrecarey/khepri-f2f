@@ -3,6 +3,7 @@
 //   ResultsPanel  tablet and desktop: the same content inline, in its column
 // The card: wounds per order for each side over the shaded wound bar. The
 // body: the Face to Face bar, the labelled wound bar and the breakdown.
+import {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, ShareIcon} from './icons.jsx';
@@ -54,7 +55,30 @@ function SheetActions({save}) {
 
 SheetActions.propTypes = {save: PropTypes.object};
 
-export default function ResultsCard({result, status, diceLine, classic, ledger, save}) {
+// The wounds/order number: ticks in when it changes, shimmers while the next
+// result is being worked out, and floats the change (+0.33) for a moment.
+function Wpo({value, side, size = '', pending}) {
+  const prev = useRef(value);
+  const [delta, setDelta] = useState(null);
+  useEffect(() => {
+    const before = prev.current;
+    prev.current = value;
+    if (value == null || before == null || Math.abs(value - before) < 0.005) return undefined;
+    setDelta(value - before);
+    const t = setTimeout(() => setDelta(null), 1600);
+    return () => clearTimeout(t);
+  }, [value]);
+  return (
+    <span className="wpo-n">
+      <span key={wpo(value)} className={`big ${size} c-${side} tick${pending ? ' computing' : ''}`}>{wpo(value)}</span>
+      {delta != null && <span className={`delta c-${side}`} aria-hidden="true">{delta > 0 ? '+' : '−'}{Math.abs(delta).toFixed(2)}</span>}
+    </span>
+  );
+}
+
+Wpo.propTypes = {value: PropTypes.number, side: PropTypes.string.isRequired, size: PropTypes.string, pending: PropTypes.bool};
+
+export default function ResultsCard({result, status, diceLine, classic, ledger, save, pending}) {
   const open = useAppState((st) => st.ui.overlay === 'results');
   const setOpen = (o) => dispatch(o ? {type: 'openOverlay', overlay: 'results'} : {type: 'back'});
   const s = summarize(result);
@@ -65,8 +89,8 @@ export default function ResultsCard({result, status, diceLine, classic, ledger, 
         {s?.unopposed ? <UnopposedCardBody s={s} /> : (
           <>
         <div className="wpo-row">
-          <div className="wpo"><span className="big c-active">{wpo(s?.wpo.active)}</span><span className="small">wounds / order</span></div>
-          <div className="wpo right"><span className="big c-reactive">{wpo(s?.wpo.reactive)}</span><span className="small">wounds / order</span></div>
+          <div className="wpo"><Wpo value={s?.wpo.active} side="active" pending={pending} /><span className="small">wounds / order</span></div>
+          <div className="wpo right"><Wpo value={s?.wpo.reactive} side="reactive" pending={pending} /><span className="small">wounds / order</span></div>
         </div>
         {s ? <WoundBar summary={s} height={6} /> : <div className="bar" style={{height: 6, background: 'var(--none)', borderRadius: 3}} />}
         <div className="split">
@@ -78,7 +102,7 @@ export default function ResultsCard({result, status, diceLine, classic, ledger, 
       </button>
       {open && s && (
         <Sheet onClose={() => setOpen(false)} label="Results" actions={<SheetActions save={save} />}>
-          <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} />
+          <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} pending={pending} />
           {ledger && !s.unopposed && <div className="mods-sep" />}
           {ledger && <Ledger {...ledger} />}
           {status && <span className="status">{status}</span>}
@@ -89,14 +113,14 @@ export default function ResultsCard({result, status, diceLine, classic, ledger, 
 }
 
 // What the results say, wherever they are shown.
-function ResultsBody({s, classic, ledger, diceLine}) {
+function ResultsBody({s, classic, ledger, diceLine, pending}) {
   if (s.unopposed) return <UnopposedSheetBody s={s} names={ledger?.names ?? {A: 'Active', B: 'Reactive'}} diceLine={diceLine} />;
   if (classic) return <ClassicBody s={s} />;
   return (
     <>
       <div className="wpo-row">
-        <div className="wpo"><span className="big xl c-active">{wpo(s.wpo.active)}</span><span className="small">wounds / order</span></div>
-        <div className="wpo right"><span className="big xl c-reactive">{wpo(s.wpo.reactive)}</span><span className="small">wounds / order</span></div>
+        <div className="wpo"><Wpo value={s.wpo.active} side="active" size="xl" pending={pending} /><span className="small">wounds / order</span></div>
+        <div className="wpo right"><Wpo value={s.wpo.reactive} side="reactive" size="xl" pending={pending} /><span className="small">wounds / order</span></div>
       </div>
       <div className="bar" style={{height: 4, borderRadius: 2}} role="img"
         aria-label={`Face to face: active wins ${pct(s.win.active)}, nobody ${pct(s.win.none)}, reactive wins ${pct(s.win.reactive)}`}>
@@ -110,16 +134,16 @@ function ResultsBody({s, classic, ledger, diceLine}) {
   );
 }
 
-ResultsBody.propTypes = {s: PropTypes.object.isRequired, classic: PropTypes.bool, ledger: PropTypes.object, diceLine: PropTypes.object};
+ResultsBody.propTypes = {s: PropTypes.object.isRequired, classic: PropTypes.bool, ledger: PropTypes.object, diceLine: PropTypes.object, pending: PropTypes.bool};
 
 // Tablet and desktop: the results in their own column, always open. The mods
 // go in another column unless `withLedger`.
-export function ResultsPanel({result, status, diceLine, classic, ledger, save, withLedger = false}) {
+export function ResultsPanel({result, status, diceLine, classic, ledger, save, pending, withLedger = false}) {
   const s = summarize(result);
   return (
     <section className="results-panel" aria-label="Results">
       <div className="panel-head"><span className="label">Results</span><span className="sheet-actions"><SheetActions save={save} /></span></div>
-      {s ? <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} /> : <span className="empty">{status}</span>}
+      {s ? <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} pending={pending} /> : <span className="empty">{status}</span>}
       {withLedger && s && ledger && <Ledger {...ledger} />}
       {s && status && <span className="status">{status}</span>}
     </section>
@@ -128,7 +152,7 @@ export function ResultsPanel({result, status, diceLine, classic, ledger, save, w
 
 ResultsPanel.propTypes = {
   result: PropTypes.object, status: PropTypes.string, diceLine: PropTypes.object, classic: PropTypes.bool,
-  ledger: PropTypes.object, save: PropTypes.object, withLedger: PropTypes.bool,
+  ledger: PropTypes.object, save: PropTypes.object, pending: PropTypes.bool, withLedger: PropTypes.bool,
 };
 
 ResultsCard.propTypes = {
@@ -141,6 +165,8 @@ ResultsCard.propTypes = {
   ledger: PropTypes.object,
   // {saved, toggle}: the Save button; null hides it.
   save: PropTypes.object,
+  // A new result is on its way.
+  pending: PropTypes.bool,
 };
 
 // Classic results: the face-to-face bar with its numbers, the wound bar, then

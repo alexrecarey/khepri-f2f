@@ -30,10 +30,10 @@ Sheet.propTypes = {onClose: PropTypes.func.isRequired, label: PropTypes.string.i
 
 // `closeLabel` ("Cancel"): the page is the first of its stack, so it closes
 // with a text button on the right instead of a back arrow.
-export function Page({title, subtitle, onBack, children, footer, action, closeLabel, label}) {
+export function Page({title, subtitle, onBack, children, footer, action, closeLabel, label, className = ''}) {
   useEscape(onBack);
   return (
-    <div className="page" role="dialog" aria-modal="true" aria-label={label ?? (typeof title === 'string' ? title : undefined)}>
+    <div className={`page ${className}`} role="dialog" aria-modal="true" aria-label={label ?? (typeof title === 'string' ? title : undefined)}>
       <div className="page-head" style={closeLabel ? {paddingLeft: 16} : undefined}>
         {!closeLabel && <button type="button" className="icon-btn" aria-label="Back" onClick={onBack}><BackIcon /></button>}
         <div style={{display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0}}>
@@ -58,4 +58,5 @@ Page.propTypes = {
   action: PropTypes.node,
   closeLabel: PropTypes.string,
   label: PropTypes.string,
+  className: PropTypes.string,
 };

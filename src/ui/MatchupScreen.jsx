@@ -48,6 +48,31 @@ function weaponGroups(list) {
 
 const patch = (side, p) => dispatch({type: 'patchSide', side, patch: p});
 
+const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+// Swap: each trooper's card content moves to the other card, so slide each
+// card in from where its trooper was (FLIP), along a slight arc.
+function flipSwap(run) {
+  const card = (s) => document.querySelector(`.card[data-side="${s}"]`);
+  const A = card('A');
+  const B = card('B');
+  if (!A || !B || reducedMotion() || !A.animate) { run(); return; }
+  const from = {A: B.getBoundingClientRect(), B: A.getBoundingClientRect()};
+  run();
+  requestAnimationFrame(() => {
+    for (const [el, f] of [[A, from.A], [B, from.B]]) {
+      const to = el.getBoundingClientRect();
+      const dx = f.left - to.left;
+      const dy = f.top - to.top;
+      el.animate([
+        {transform: `translate(${dx}px, ${dy}px)`},
+        {transform: `translate(${dx / 2 + (dx ? 0 : 16)}px, ${dy / 2}px) scale(.96)`},
+        {transform: 'none'},
+      ], {duration: 340, easing: 'cubic-bezier(.5,0,.3,1)'});
+    }
+  });
+}
+
 function FireteamChip({side, size, color}) {
   const editing = useAppState((st) => st.ui.edit?.side === side && st.ui.edit.chip === 'fireteam');
   const setEditing = (on) => dispatch({type: 'setEdit', edit: on ? {side, chip: 'fireteam'} : null});
@@ -86,7 +111,7 @@ function SideCard({side, army, view, onOpenPicker}) {
   const loadout = unit ? extraLoadoutName(option?.name, unit.isc) : null;
 
   return (
-    <section className="card" aria-label={`${color} trooper`}>
+    <section className="card" data-side={side} aria-label={`${color} trooper`}>
       <button type="button" className="unit-btn" onClick={onOpenPicker}>
         <span className={`role ${color}`}>{side === 'A' ? 'ACTIVE' : 'REACTIVE'}</span>
         {unit
@@ -204,6 +229,8 @@ function RangeSelector({view}) {
       </div>
       <div className="range-row">
         <div className="bands" role="group" aria-label="Range">
+          {/* The selected band's highlight glides to the tapped band. */}
+          <span className="band-pill" aria-hidden="true" style={{left: `calc(${selected} * 100% / ${RANGE_BANDS.length})`, width: `calc(100% / ${RANGE_BANDS.length})`}} />
           {RANGE_BANDS.map((b, i) => (
             <button type="button" key={b.to} className={`band${i === selected ? ' on' : ''}`} aria-pressed={i === selected}
               aria-label={`${b.label}: active ${signed(modA(b.to))}, reactive ${signed(modB(b.to))}`}
@@ -214,7 +241,7 @@ function RangeSelector({view}) {
             </button>
           ))}
         </div>
-        <button type="button" className="icon-btn swap" aria-label="Swap active and reactive" onClick={() => dispatch({type: 'swapSides'})}>⇅</button>
+        <button type="button" className="icon-btn swap" aria-label="Swap active and reactive" onClick={() => flipSwap(() => dispatch({type: 'swapSides'}))}>⇅</button>
       </div>
       <div className="collapse" style={{maxHeight: open ? 64 : 0, opacity: open ? 1 : 0}} aria-hidden={!open}>
         <div className="range-foot">
@@ -251,6 +278,7 @@ export default function MatchupScreen({army, armyError, view, engine}) {
   const resultProps = {
     result,
     save,
+    pending: engine.pending,
     status: view.complete ? engine.status : 'Choose both troopers to see the odds',
     diceLine: view.ledger ? {active: view.ledger.ledger.A?.dice, reactive: view.ledger.ledger.B?.dice} : null,
     ledger: view.ledger,
