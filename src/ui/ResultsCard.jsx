@@ -7,7 +7,7 @@
 import {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
-import {BookmarkIcon, ShareIcon} from './icons.jsx';
+import {BookmarkIcon, D20, ShareIcon} from './icons.jsx';
 import {shareLink} from './share.js';
 import useSheetGestures from './useSheetGestures.js';
 import Ledger from './Ledger.jsx';
@@ -83,12 +83,30 @@ function Wpo({value, side, size = '', pending}) {
 
 Wpo.propTypes = {value: PropTypes.number, side: PropTypes.string.isRequired, size: PropTypes.string, pending: PropTypes.bool};
 
+// Until the first result shows up (the dice engine loading on a first visit,
+// a few seconds) the two dice roll at each other, bump and bounce back: the
+// face to face roll, before the maths. After that, recalculations shimmer.
+function EngineLoading({label}) {
+  return (
+    <div className="engine-loading" role="status" aria-label={label}>
+      <div className="clash">
+        <span className="die-a"><D20 fill="var(--active)" /></span>
+        <span className="die-b"><D20 fill="var(--reactive)" /></span>
+      </div>
+      <span className="small">Icepool engine getting ready to roll…</span>
+    </div>
+  );
+}
+
+EngineLoading.propTypes = {label: PropTypes.string};
+
 // The top of the phone sheet, which is all that shows while it rests low (the
 // results card): both sides' wounds per order over the shaded wound bar. Open,
 // the numbers and the bar are bigger and the face-to-face bar appears above
 // it; app.css grows them with --open as the sheet is dragged.
 function SheetTop({s, classic, pending, status}) {
   if (s?.unopposed) return <UnopposedCardBody s={s} />;
+  if (!s && pending) return <EngineLoading label={status} />;
   return (
     <>
       <div className="wpo-row">
@@ -186,7 +204,8 @@ export function ResultsPanel({result, status, diceLine, classic, ledger, save, p
   return (
     <section className="results-panel" aria-label="Results">
       <div className="panel-head"><span className="label">Results</span><span className="sheet-actions"><SheetActions save={save} /></span></div>
-      {s ? <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} pending={pending} /> : <span className="empty">{status}</span>}
+      {s ? <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} pending={pending} />
+        : pending ? <EngineLoading label={status} /> : <span className="empty">{status}</span>}
       {withLedger && s && ledger && <Ledger {...ledger} />}
       {s && status && <span className="status">{status}</span>}
     </section>
