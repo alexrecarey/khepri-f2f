@@ -19,7 +19,7 @@ function Section({title, lines, total, abbr, base, names}) {
       <span className="mods-h">{title}</span>
       <div className="mods-rows">
         {lines.map((l, i) => {
-          const source = l.struck ? l.struck : l.by ? firstWord(names[l.by]) : i === 0 ? base : 'rule';
+          const source = l.struck ? l.struck : l.source ?? (l.by ? firstWord(names[l.by]) : i === 0 ? base : 'rule');
           return (
             <div key={i} className={l.struck ? 'mods-row struck' : 'mods-row'} style={{color: l.struck ? undefined : COLOR[l.by]}}>
               <span className="v">{signed(l.value, i === 0)}</span>
@@ -59,6 +59,8 @@ export function SideMods({side, l, names, weapon}) {
         <Section title="BURST" lines={[...l.burst.lines, ...sd]} abbr="B" base="weapon" names={names}
           total={`${l.burst.total}${l.sd?.total ? `+${l.sd.total}` : ''}`} />
       )}
+      {/* Ammo names don't fit the value column: the total goes in the label's. */}
+      {l.ammo && <Section title="AMMO" lines={l.ammo.lines} total="" abbr={l.ammo.total} base={weaponName} names={names} />}
       {l.save && l.note && <span className="note">{l.note}</span>}
       {l.sv?.note && <span className="note">{l.sv.note}</span>}
     </section>

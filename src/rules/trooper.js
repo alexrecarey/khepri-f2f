@@ -15,7 +15,7 @@ import {dodgeSuccessValue} from './modifiers.js';
 // (+1B / +1SD are roll bonuses, see rules/modifiers.js attackBonuses.)
 export const BS_ATTACK_WEAPON_EXTRAS = /^(AP|T2|SR-\d+|Continuous Damage)$/;
 
-function bsAttackWeaponMods(traits) {
+export function bsAttackWeaponMods(traits) {
   const extras = skillExtras(traits, SKILL.BS_ATTACK);
   const sr = extras.map((e) => /^SR-(\d+)$/.exec(e)).filter(Boolean).map((m) => Number(m[1]));
   return {

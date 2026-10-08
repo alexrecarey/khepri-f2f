@@ -114,3 +114,29 @@ test('BS Attack (SR-n) is its own line under the weapon PS, from the attacker', 
   assert.deepEqual(save.lines.slice(0, 2).map((l) => [l.value, l.label, l.by]), [[5, 'PS', null], [-1, 'BS Attack (SR-1)', 'A']]);
   assert.equal(save.lines.some((l) => l.label === 'other rules'), false);
 });
+
+test('AMMO: the weapon\'s own ammo, then each addition with its source', () => {
+  const side = (unitId, factionId, groupId, optionId) => {
+    const sel = {unitId, factionId, groupId, optionId};
+    const r = resolveSelection(army, sel);
+    const w = trooperWeapons(r.option, army.weapons, r.traits)[0];
+    return resolveSelection(army, {...sel, weaponKey: w.key});
+  };
+  const target = resolveSelection(army, {unitId: 1, factionId: 101, groupId: 1, optionId: 1, weaponKey: '33:'});
+  const ammo = (x) => {
+    const derived = deriveInputs({active: x, reactive: target, rangeCm: 40});
+    const a = buildLedger({active: x, reactive: target, rangeCm: 40, inputs: derived.inputs}).A.ammo;
+    return {lines: a.lines.map((l) => [l.value, l.label, l.by ?? l.source ?? null]), total: a.total};
+  };
+  // Bashi Bazouks: BS Attack (AP) adds AP, from the trooper.
+  const bashi = ammo(side(325, 401, 1, 2));
+  assert.deepEqual(bashi.lines.slice(1), [['+', 'AP', 'A']]);
+  assert.deepEqual(bashi.lines[0], ['', 'T2', null]);                 // the weapon's own
+  assert.equal(bashi.total, 'T2+AP');
+  // Agamemnon: BS Attack (Continuous Damage).
+  assert.deepEqual(ammo(side(1594, 702, 1, 1)).lines.slice(1).at(-1), ['+', 'CONT', 'A']);
+  // Corax-1: the loadout's Viral.
+  assert.deepEqual(ammo(side(1934, 603, 1, 4)).lines.slice(1), [['+', 'Viral (DA+Shock)', 'loadout']]);
+  // A plain Combi Rifle: N, nothing added.
+  assert.deepEqual(ammo(target), {lines: [['', 'N', null]], total: 'N'});
+});

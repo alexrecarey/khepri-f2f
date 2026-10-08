@@ -26,10 +26,13 @@ import {
 } from './modifiers.js';
 import {RANGE_BANDS, rangeModFor} from './ranges.js';
 import {immunityAgainst, hasImmunity} from './saves.js';
+import {bsAttackWeaponMods} from './trooper.js';
 
 const AMMO_SAVES = {N: 1, DA: 2, EXP: 3, T2: 1, PLASMA: 1};
 const other = (s) => (s === 'A' ? 'B' : 'A');
 const line = (value, label, by, struck) => ({value, label, by, ...(struck ? {struck} : {})});
+// A line whose source isn't a side ("loadout"): shown as is in the source column.
+const fromSource = (l, source) => ({...l, source});
 const live = (lines) => lines.filter((l) => !l.struck && typeof l.value === 'number');
 const sum = (lines) => live(lines).reduce((t, l) => t + l.value, 0);
 
@@ -240,8 +243,54 @@ export function ammoTag(row, mods) {
   if (isImpactTemplate(row)) tags.push('Blast');
   return tags.length ? ` ${tags.join(' ')}` : '';
 }
-const SHORT = {EXP: 'EXP', DA: 'DA', AP: 'AP', T2: 'T2', SHOCK: 'Shock', PLASMA: 'Plasma'};
+const SHORT = {EXP: 'EXP', DA: 'DA', AP: 'AP', T2: 'T2', SHOCK: 'Shock', STUN: 'Stun', PLASMA: 'Plasma'};
 const pretty = (a) => SHORT[a.toUpperCase()] ?? a;
+
+// The ammunition x fires with: the weapon's own first (N, EXP, AP+EXP,
+// Plasma...), then what the trooper adds, one line each with its source
+// (BS Attack (AP / T2 / Continuous Damage), the loadout's AP / T2 / Shock /
+// Viral). A target's immunity strikes the line it cancels. Lines are text
+// ('+' and a name), the total the ammo as players say it: "AP+CONT".
+function ammoLines(x, y, s, inputs) {
+  const t = other(s);
+  const {row, mods} = x.weapon;
+  const bs = bsAttackWeaponMods(x.traits);
+  const added = [];
+  // The chart's ammo, before the loadout and skills.
+  let own = ammoTypes(row).map((a) => a.toUpperCase());
+  if (mods.ammo && mods.ammo !== 'Viral') {
+    own = own.filter((a) => a !== mods.ammo.toUpperCase());
+    added.push(fromSource(line('+', pretty(mods.ammo), null), 'loadout'));
+  }
+  if (bs.t2 && own.includes('T2')) {
+    own = own.filter((a) => a !== 'T2');
+    added.push(line('+', 'T2', s));
+  }
+  if (mods.forceAP && !own.includes('AP')) {
+    added.push(bs.ap ? line('+', 'AP', s) : fromSource(line('+', 'AP', null), 'loadout'));
+  }
+  const bio = mods.ammo === 'Viral' ? null : bioweaponProp(row)?.match(/\(([^)]+)\)/)?.[1];
+  const base = [
+    ...(isPlasma(row) ? ['Plasma'] : []),
+    ...(bio ? bio.split('+').map(pretty) : []),
+    ...own.map(pretty),
+    ...((row.props ?? []).includes('Continuous Damage') ? ['CONT'] : []),
+  ];
+  if (mods.ammo === 'Viral') added.push(fromSource(line('+', 'Viral (DA+Shock)', null), 'loadout'));
+  if (mods.cont && !(row.props ?? []).includes('Continuous Damage')) {
+    added.push(bs.cont ? line('+', 'CONT', s) : fromSource(line('+', 'CONT', null), 'loadout'));
+  }
+  // Immunity (Continuous Damage): the Trait goes, the hit stays.
+  const contImmune = y && hasContinuousDamage(row, mods) && hasImmunity(y.traits, 'Continuous Damage', row);
+  const lines = [line('', base.join('+') || 'N', null), ...added].map((l) => (
+    contImmune && /CONT/.test(l.label) ? {...l, struck: 'Immunity (Continuous Damage)'} : l));
+  if (inputs[`ammo${s}`] === 'NONE') lines.push(line('', 'no effect: target immune', t));
+  // N only counts when it's all there is: N with AP added is just "AP".
+  const kept = lines.filter((l) => !l.struck && l.by !== t).map((l) => l.label);
+  const named = kept.filter((k) => k !== 'N');
+  const total = inputs[`ammo${s}`] === 'NONE' ? 'no effect' : (named.length ? named : kept).join('+');
+  return {lines, total};
+}
 
 function sideLedger(x, y, s, rangeCm, inputs) {
   if (!x?.weapon) return null;
@@ -258,10 +307,10 @@ function sideLedger(x, y, s, rangeCm, inputs) {
   const b = `B${burst.total}${sd.total ? `+${sd.total}` : ''}`;
   const tag = ammoTag(w.row, w.mods);
   if (isTemplate(w.row)) {
-    return {kind: 'template', dice: `${b} template PS${save.total}${tag}`, burst, sd, save, note: ammoNote(inputs, s)};
+    return {kind: 'template', dice: `${b} template PS${save.total}${tag}`, burst, sd, save, ammo: ammoLines(x, y, s, inputs), note: ammoNote(inputs, s)};
   }
   const sv = attackSv(x, y, s, rangeCm, inputs[`successValue${s}`]);
-  return {kind: 'attack', dice: `${b} SV${sv.total} PS${save.total}${tag}`, burst, sd, sv, save, note: ammoNote(inputs, s)};
+  return {kind: 'attack', dice: `${b} SV${sv.total} PS${save.total}${tag}`, burst, sd, sv, save, ammo: ammoLines(x, y, s, inputs), note: ammoNote(inputs, s)};
 }
 
 export function buildLedger({active, reactive, rangeCm, inputs}) {
