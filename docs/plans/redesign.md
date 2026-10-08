@@ -1,7 +1,7 @@
 ---
 title: Implementing the final redesign — one state document, every screen derived from it
 date: 2026-10-07
-status: proposal — state holder decided: @tanstack/store (2026-10-07)
+status: phases 1-9 built on calculator-redesign (2026-10-08); open gaps in section 7
 ---
 
 # Implementing the final redesign
@@ -240,3 +240,26 @@ pass.
 2. Phase order: mobile first as above, or desktop picker earlier?
 3. Keep evolving the PR #42 components (they already hold most of the Final mobile layout) — the plan
    assumes yes, rewriting their state plumbing rather than their markup.
+
+## 7. Status (2026-10-08)
+
+All nine phases are on `calculator-redesign` (PR #42), one commit each:
+a245e0b state document, c2a1d07 mobile matchup + fixtures, f31d4bf results
+sheet, c750538 mobile picker, 4b09122 chrome, 1f7dd49 classic, b9f566b tablet
+and desktop, af6e42c desktop picker, a6fb32f motion.
+
+Fixtures: `?fixture=<Board>` opens the build in the state of a Final board
+(src/ui/fixtures: FinalPeek, FinalPeekRange, FinalResults, FinalUnopposed,
+FinalPicker, FinalMenu, FinalClassic, FinalClassicResults).
+
+Not built, and why:
+- `⋯ More` situations (Low / Poor Visibility Zone, Saturation Zone, Prone,
+  Engaged): no rules in `deriveInputs` yet; they need rulings first.
+- Fireteam chip still shows for every unit (no can-fireteam data).
+- Search doesn't index skills; the desktop list labels matches only as "close
+  match" / "sounds like", not "fus → fug".
+- Faction logos in the desktop browse grid: left out rather than hotlinking
+  Corvus Belli's assets.
+- Motion: numbers tick in rather than rolling digit by digit; the results sheet
+  doesn't follow a drag.
+- Language: English only, the setting is a placeholder until translations land.
