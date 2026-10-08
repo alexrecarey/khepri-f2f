@@ -19,6 +19,9 @@ export function bootState({search = '', storage = null} = {}) {
     ...persisted,
     ...fromUrl,
     lists: {...base.lists, ...persisted.lists},
+    // A link with troopers brings its own sides: the remembered factions were
+    // for other troopers.
+    scopes: fromUrl.matchup ? {} : persisted.scopes,
   };
 }
 

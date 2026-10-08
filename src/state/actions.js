@@ -25,21 +25,29 @@ export function selectionFromHit(army, hit, side) {
   return {...sel, weaponKey: weapon?.key ?? 'dodge'};
 }
 
-export function pickTrooper(army, side, hit) {
+// Which faction a side's picker shows: the one last chosen for that side,
+// else the faction of its trooper, else its starting faction (Settings), else
+// All. Never the other side's: each side keeps its own.
+export function scopeFor(army, state, side) {
+  if (state.scopes && side in state.scopes) return state.scopes[side];
+  return vanillaOf(army, state.matchup[side].factionId) ?? state.prefs.startFaction?.[side] ?? null;
+}
+
+// The picked trooper's faction becomes its side's scope. `next`: the picker
+// stays open on the other side, with that side's scope.
+export function pickTrooper(army, side, hit, {next = false, state = null} = {}) {
+  const otherSide = side === 'A' ? 'B' : 'A';
   return {
     type: 'pickTrooper',
     side,
     sel: selectionFromHit(army, hit, side),
     recent: {unitId: hit.unitId, groupId: hit.groupId, optionId: hit.optionId, armyFactionId: hit.armyFactionId},
+    scope: hit.factionId ?? null,
+    ...(next ? {next: true, nextScope: state ? scopeFor(army, state, otherSide) : null} : {}),
   };
 }
 
-// The picker opens scoped to that side's current faction, else the starting
-// faction set for the side (Settings), else the other side's, else the
-// faction of the last trooper picked.
-export function openPicker(army, state, side) {
-  const fac = (s) => vanillaOf(army, state.matchup[s].factionId);
-  const start = state.prefs.startFaction?.[side] ?? null;
-  const last = vanillaOf(army, state.lists.recents[0]?.armyFactionId);
-  return {type: 'openPicker', side, scope: fac(side) ?? start ?? fac(side === 'A' ? 'B' : 'A') ?? last ?? null};
-}
+export const openPicker = (army, state, side) => ({type: 'openPicker', side, scope: scopeFor(army, state, side)});
+
+// Desktop picker: switch sides, each with its own scope.
+export const pickerSide = (army, state, side) => ({type: 'pickerSide', side, scope: scopeFor(army, state, side)});

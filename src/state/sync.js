@@ -41,7 +41,8 @@ export function startSync(store, dispatch, {win = window, storage = null} = {}) 
   let last = store.get();
   const {unsubscribe} = store.subscribe((state) => {
     if (state === last) return;
-    const persistedChanged = state.mode !== last.mode || state.prefs !== last.prefs || state.lists !== last.lists;
+    const persistedChanged = state.mode !== last.mode || state.prefs !== last.prefs || state.lists !== last.lists
+      || state.scopes !== last.scopes;
     last = state;
     apply(state);
     if (storage && persistedChanged) {

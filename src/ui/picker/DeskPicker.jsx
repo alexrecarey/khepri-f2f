@@ -10,9 +10,9 @@ import {useEffect, useMemo, useRef} from 'react';
 import PropTypes from 'prop-types';
 import {TIER} from '../../search/search.js';
 import {words} from '../../search/text.js';
-import {pickTrooper} from '../../state/actions.js';
+import {pickTrooper, pickerSide} from '../../state/actions.js';
 import {other} from '../../state/reduce.js';
-import {dispatch, useAppState} from '../../state/store.js';
+import {dispatch, getState, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
 import {extraLoadoutName} from '../names.js';
 import {loadoutCharts, loadoutTag, unitDetail} from './loadouts.js';
@@ -144,7 +144,7 @@ export default function DeskPicker({searcher, army}) {
     }
     return null;
   };
-  const pick = (hit, next = false) => hit && dispatch({...pickTrooper(army, side, hit), next});
+  const pick = (hit, next = false) => hit && dispatch(pickTrooper(army, side, hit, {next, state: getState()}));
   const otherSide = other(side);
 
   const onKey = (e) => {
@@ -165,7 +165,7 @@ export default function DeskPicker({searcher, army}) {
       pick(hitFor());
     } else if (e.key === 'Tab') {
       e.preventDefault();
-      dispatch({type: 'pickerSide', side: otherSide});
+      dispatch(pickerSide(army, getState(), otherSide));
     } else if (e.key === 'Escape') {
       e.preventDefault();
       back();
@@ -192,7 +192,7 @@ export default function DeskPicker({searcher, army}) {
           <span className="dp-sides" role="group" aria-label="Side">
             {['A', 'B'].map((s) => (
               <button type="button" key={s} className={`${s === side ? `on ${ROLE[s]}` : ''}`} aria-pressed={s === side}
-                onClick={() => dispatch({type: 'pickerSide', side: s})}>{s === 'A' ? 'ACTIVE' : 'REACTIVE'}</button>
+                onClick={() => s !== side && dispatch(pickerSide(army, getState(), s))}>{s === 'A' ? 'ACTIVE' : 'REACTIVE'}</button>
             ))}
           </span>
           <label className={`dp-search ${color}`}>

@@ -1,4 +1,4 @@
-// The persisted slices of the state document (mode, prefs, lists) in
+// The persisted slices of the state document (mode, prefs, lists, scopes) in
 // localStorage, under one versioned key. Reads the keys older builds used
 // (calculatorMode, recentTroopers) once, when the new key isn't there yet.
 // `storage` is anything with getItem/setItem (localStorage; a Map-like in tests).
@@ -31,7 +31,13 @@ export function loadPersisted(storage) {
     saved = {v: STATE_VERSION, mode, lists: {recents}};
   }
   const lists = isObject(saved.lists) ? saved.lists : {};
+  const scopes = {};
+  for (const side of ['A', 'B']) {
+    const v = isObject(saved.scopes) ? saved.scopes[side] : undefined;
+    if (v === null || Number.isInteger(v)) scopes[side] = v;
+  }
   return {
+    scopes,
     ...(Object.values(MODES).includes(saved.mode) ? {mode: saved.mode} : {}),
     prefs: isObject(saved.prefs) ? saved.prefs : {},
     lists: {
@@ -42,7 +48,7 @@ export function loadPersisted(storage) {
   };
 }
 
-export const persistedSlice = (state) => ({v: STATE_VERSION, mode: state.mode, prefs: state.prefs, lists: state.lists});
+export const persistedSlice = (state) => ({v: STATE_VERSION, mode: state.mode, prefs: state.prefs, lists: state.lists, scopes: state.scopes});
 
 export function savePersisted(storage, state) {
   try {

@@ -58,6 +58,10 @@ export function initialState() {
     // startFaction: {A, B}, the faction the picker opens on for an empty side
     // (null = the last one used)
     prefs: {},
+    // The faction each side's picker is scoped to, remembered per side: {A, B},
+    // a vanilla faction id or null for All factions; a missing side has no
+    // choice yet (actions.js scopeFor). Cleared with the troopers.
+    scopes: {},
     // recents: troopers picked, newest first, as stable army ids
     //   {unitId, groupId, optionId, armyFactionId}
     // recentFactions: vanilla faction ids scoped to in the picker, newest first

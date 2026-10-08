@@ -50,6 +50,13 @@ export function classicSave(c, s, which, total) {
   return {...c, [`damage${s}`]: want, [`arm${t}`]: clamp(LIMITS.arm, c[`arm${t}`] + dmg - want), [`bts${t}`]: 0};
 }
 
+function swapScopes(scopes) {
+  const out = {};
+  if ('A' in scopes) out.B = scopes.A;
+  if ('B' in scopes) out.A = scopes.B;
+  return out;
+}
+
 const setSide = (state, side, sel) => ({...state, matchup: {...state.matchup, [side]: sel}});
 
 export function reduce(state, action) {
@@ -68,6 +75,7 @@ export function reduce(state, action) {
         ui: {...EMPTY_UI, ...next.ui},
         prefs: next.prefs ?? state.prefs,
         lists: next.lists ?? state.lists,
+        scopes: next.scopes ?? {},
       };
     }
 
@@ -99,10 +107,13 @@ export function reduce(state, action) {
           A: {...matchup.B, weaponKey: matchup.B.weaponKey === 'none' ? null : matchup.B.weaponKey},
           B: {...matchup.A, surpriseAttack: false},
         },
+        // Each side's faction follows its trooper.
+        scopes: swapScopes(state.scopes ?? {}),
         ui: {...ui, edit: null},
       };
+    // Clearing the troopers also forgets each side's faction.
     case 'clearSides':
-      return {...state, matchup: {...matchup, A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}}, ui: {...ui, edit: null}};
+      return {...state, matchup: {...matchup, A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}}, scopes: {}, ui: {...ui, edit: null}};
     case 'setEdit':
       return {...state, ui: {...ui, edit: action.edit}};
 
@@ -137,7 +148,7 @@ export function reduce(state, action) {
     case 'loadRoll': {
       const roll = state.lists.saved.find((r) => r.id === action.id);
       if (!roll) return state;
-      const slice = roll.mode === MODES.matchup ? {matchup: roll.setup} : {classic: {...state.classic, ...roll.setup}};
+      const slice = roll.mode === MODES.matchup ? {matchup: roll.setup, scopes: {}} : {classic: {...state.classic, ...roll.setup}};
       return {...state, mode: roll.mode, ...slice, ui: {...EMPTY_UI}};
     }
     case 'setSavedTab':
@@ -168,7 +179,8 @@ export function reduce(state, action) {
     case 'pickerCursor':
       return ui.picker ? {...state, ui: {...ui, picker: {...ui.picker, ...action.cursor}}} : state;
     case 'pickerSide':
-      return ui.picker ? {...state, ui: {...ui, picker: {...ui.picker, side: action.side, scope: action.scope ?? ui.picker.scope}}} : state;
+      return ui.picker ? {...state, ui: {...ui, picker: {...ui.picker, side: action.side, scope: action.scope ?? null,
+        cursor: null, pane: 'list', lcursor: 0, profileId: null, stack: []}}} : state;
     // Choosing a faction from the faction list also leaves that list.
     case 'pickerScope': {
       if (!ui.picker) return state;
@@ -177,6 +189,7 @@ export function reduce(state, action) {
       return {
         ...state,
         ui: {...ui, picker: {...ui.picker, scope: action.scope, stack, cursor: null, pane: 'list', lcursor: 0}},
+        scopes: {...state.scopes, [ui.picker.side]: action.scope},
         lists: {...state.lists, recentFactions: pushFaction(state.lists.recentFactions, action.scope)},
       };
     }
@@ -188,10 +201,11 @@ export function reduce(state, action) {
     case 'pickTrooper': {
       const {inCover, ftSize} = matchup[action.side];
       const picker = action.next && ui.picker
-        ? {...ui.picker, side: other(action.side), query: '', stack: [], cursor: 0, pane: 'list', lcursor: 0, profileId: null}
+        ? {...ui.picker, side: other(action.side), scope: action.nextScope ?? null, query: '', stack: [], cursor: null, pane: 'list', lcursor: 0, profileId: null}
         : null;
       return {
         ...setSide(state, action.side, {...EMPTY_SIDE, ...action.sel, inCover, ftSize}),
+        scopes: action.scope === undefined ? state.scopes : {...state.scopes, [action.side]: action.scope},
         ui: picker ? {...ui, picker} : {...ui, overlay: null, picker: null},
         lists: action.recent ? {...state.lists, recents: pushRecent(state.lists.recents, action.recent)} : state.lists,
       };

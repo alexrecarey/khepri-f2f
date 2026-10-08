@@ -170,7 +170,7 @@ test('storage: reads the keys older builds wrote, survives junk', () => {
   assert.equal(out.mode, 'basic');
   assert.deepEqual(out.lists.recents, [{unitId: 5}]);
   const junk = memStorage({[STORAGE_KEY]: '{not json', calculatorMode: 'nope'});
-  assert.deepEqual(loadPersisted(junk), {prefs: {}, lists: {recents: [], recentFactions: [], saved: []}});
+  assert.deepEqual(loadPersisted(junk), {scopes: {}, prefs: {}, lists: {recents: [], recentFactions: [], saved: []}});
   assert.deepEqual(loadPersisted(null).lists.recents, []);
 });
 
@@ -307,4 +307,48 @@ test('desktop picker: cursor resets on a new query; pick then the other side', (
   assert.equal(s.ui.picker.query, '');
   s = run(s, {type: 'pickerSide', side: 'A'});
   assert.equal(s.ui.picker.side, 'A');
+});
+
+test('each side keeps its own picker faction; clearing the troopers forgets both', async () => {
+  const {openPicker, pickTrooper, pickerSide, scopeFor} = await import('./actions.js');
+  const hit = (factionId) => ({unitId: 10, armyFactionId: factionId, factionId, groupId: 1, optionId: 2});
+  let s = initialState();
+  // Nothing chosen yet: All factions, never the other side's.
+  assert.equal(scopeFor(null, s, 'A'), null);
+  s = run(s, openPicker(null, s, 'A'), {type: 'pickerScope', scope: 101});
+  assert.deepEqual(s.scopes, {A: 101});
+  s = run(s, {type: 'back'}, openPicker(null, s, 'B'));
+  assert.equal(s.ui.picker.scope, null);                  // reactive doesn't inherit PanOceania
+  s = run(s, {type: 'pickerScope', scope: 201}, pickTrooper(null, 'B', hit(201)));
+  assert.deepEqual(s.scopes, {A: 101, B: 201});
+  assert.equal(run(s, openPicker(null, s, 'A')).ui.picker.scope, 101);
+  // All factions is a choice too.
+  s = run(s, openPicker(null, s, 'A'), {type: 'pickerScope', scope: null});
+  assert.equal(scopeFor(null, s, 'A'), null);
+  // Desktop: switching sides brings that side's faction.
+  s = run(s, pickerSide(null, s, 'B'));
+  assert.equal(s.ui.picker.scope, 201);
+  s = run(s, {type: 'back'}, {type: 'swapSides'});
+  assert.deepEqual(s.scopes, {A: 201, B: null});
+  s = run(s, {type: 'clearSides'});
+  assert.deepEqual(s.scopes, {});
+  assert.equal(run(s, openPicker(null, s, 'A')).ui.picker.scope, null);
+});
+
+test('picking then the other side opens it on that side\'s faction', async () => {
+  const {openPicker, pickTrooper} = await import('./actions.js');
+  let s = {...initialState(), scopes: {B: 801}};
+  s = run(s, openPicker(null, s, 'A'));
+  s = run(s, pickTrooper(null, 'A', {unitId: 10, armyFactionId: 101, factionId: 101, groupId: 1, optionId: 2}, {next: true, state: s}));
+  assert.equal(s.ui.picker.side, 'B');
+  assert.equal(s.ui.picker.scope, 801);
+  assert.equal(s.scopes.A, 101);
+});
+
+test('scopes persist, but a share link with troopers starts fresh', () => {
+  const storage = memStorage();
+  savePersisted(storage, {...initialState(), scopes: {A: 101, B: null}});
+  assert.deepEqual(loadPersisted(storage).scopes, {A: 101, B: null});
+  assert.deepEqual(bootState({storage}).scopes, {A: 101, B: null});
+  assert.deepEqual(bootState({storage, search: '?mode=matchup&unitA=10'}).scopes, {});
 });
