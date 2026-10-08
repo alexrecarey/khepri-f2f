@@ -1,7 +1,7 @@
 // Full-screen trooper picker for one side. The search box sits at the bottom,
-// by the thumb. Empty box: recent picks, unit-type tiles for the faction, and
-// every unit A-Z (browsing). Typing: matching recents, profiles, then units
-// (searching). Tapping a unit or a type tile drills into its own list.
+// by the thumb. Empty box, no faction: faction tiles, then recent picks. With
+// a faction: recent picks, unit-type tiles and its units A-Z (browsing).
+// Typing: matching recents, profiles, then units (searching). Tapping a unit or a type tile drills into its own list.
 // Query, faction scope and the drill-in stack are the state document's
 // ui.picker, so Back (button, Escape or the browser's) pops one screen.
 import {useEffect, useMemo, useRef} from 'react';
@@ -224,11 +224,27 @@ export default function TrooperPicker({side, searcher, army, onPick}) {
           {results.units.slice(0, 20).map((u) => <UnitRow key={u.unitId} u={u} onOpen={openUnit} />)}
         </>
       )}
-      {results?.mode === 'browse' && (
+      {results?.mode === 'browse' && scope == null && (
+        // First screen for everyone: no faction yet, so pick one; an A-Z of
+        // every army is no help. Recent picks come after.
+        <>
+          <div className="list-head">Pick a faction</div>
+          <div className="tiles">
+            {searcher.factions.map((f) => (
+              <button type="button" key={f.id} className="tile faction" onClick={() => setScope(f.id)}>
+                <FactionLogo id={f.id} size={28} /><span>{f.name}</span>
+              </button>
+            ))}
+          </div>
+          {results.recent.length > 0 && <div className="list-head">Recent</div>}
+          {results.recent.map((h) => <ProfileRow army={army} color={color} key={`r${h.rowId}`} hit={h} onPick={pick} />)}
+        </>
+      )}
+      {results?.mode === 'browse' && scope != null && (
         <>
           {results.recent.length > 0 && <div className="list-head">Recent</div>}
           {results.recent.map((h) => <ProfileRow army={army} color={color} key={`r${h.rowId}`} hit={h} onPick={pick} />)}
-          {scope != null && results.types.length > 0 && (
+          {results.types.length > 0 && (
             <>
               <div className="list-head">Browse {factionName(scope)} by type</div>
               <div className="tiles">
