@@ -51,6 +51,7 @@ export function matchupView(army, matchup) {
   const ledger = complete ? {
     ledger: buildLedger({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, inputs: params}),
     names: {A: shortName(A.resolved.unit), B: shortName(B.resolved.unit)},
+    weapons: {A: A.resolved.weapon?.name, B: B.resolved.weapon?.name},
     notes: [...derived.warnings, ...derived.notes],
   } : null;
   return {ready: true, A, B, derived, params, ledger, hasSelection, complete};

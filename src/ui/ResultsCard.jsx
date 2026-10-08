@@ -60,14 +60,11 @@ export default function ResultsCard({result, status, diceLine, classic, ledger})
         <Sheet onClose={() => setOpen(false)} label="Results">
           {s.unopposed ? (
             <UnopposedSheetBody s={s} names={ledger?.names ?? {A: 'Active', B: 'Reactive'}} diceLine={diceLine} />
-          ) : (
+          ) : classic ? (
             <>
-          {diceLine && (
-            <div className="dice-line"><span className="c-active">{diceLine.active}</span><span className="c-reactive">{diceLine.reactive}</span></div>
-          )}
           <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
-            {classic && <span className="label">Face to face</span>}
-            <div className="bar" style={{height: classic ? 28 : 4, borderRadius: classic ? 7 : 2}}>
+            <span className="label">Face to face</span>
+            <div className="bar" style={{height: 28, borderRadius: 7}}>
               <span className="seg-a2" style={{width: `${100 * s.win.active}%`}} />
               <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
               <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`}} />
@@ -79,9 +76,8 @@ export default function ResultsCard({result, status, diceLine, classic, ledger})
             </div>
           </div>
           <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
-            {classic && <span className="label">Wounds</span>}
-            <WoundBar summary={s} height={classic ? 28 : 40} labels />
-            {!s.unopposed && <span className="note">Grey = nobody is wounded ({pct(s.bar[3].chance)}): missed, tied, or every hit saved</span>}
+            <span className="label">Wounds</span>
+            <WoundBar summary={s} height={28} labels />
           </div>
           <div className="mini">
             <div><b className="c-active">{wpo(s.wpo.active)}</b> <span className="small">wounds / order</span></div>
@@ -89,7 +85,23 @@ export default function ResultsCard({result, status, diceLine, classic, ledger})
           </div>
               <Breakdown s={s} />
             </>
+          ) : (
+            <>
+          <div className="wpo-row">
+            <div className="wpo"><span className="big xl c-active">{wpo(s.wpo.active)}</span><span className="small">wounds / order</span></div>
+            <div className="wpo right"><span className="big xl c-reactive">{wpo(s.wpo.reactive)}</span><span className="small">wounds / order</span></div>
+          </div>
+          <div className="bar" style={{height: 4, borderRadius: 2}} role="img"
+            aria-label={`Face to face: active wins ${pct(s.win.active)}, nobody ${pct(s.win.none)}, reactive wins ${pct(s.win.reactive)}`}>
+            <span className="seg-a2" style={{width: `${100 * s.win.active}%`}} />
+            <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
+            <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`}} />
+          </div>
+          <WoundBar summary={s} height={40} labels />
+              <Breakdown s={s} />
+            </>
           )}
+          {ledger && !s.unopposed && <div className="mods-sep" />}
           {ledger && <Ledger {...ledger} />}
           {status && <span className="status">{status}</span>}
         </Sheet>
@@ -108,7 +120,9 @@ ResultsCard.propTypes = {
   ledger: PropTypes.object,
 };
 
-// Each outcome with its bar, leaving out anything that never happens.
+// Who wins the roll, and what each winner does: at least 1 / 2 / 3 wounds
+// (cumulative, so the rows overlap) and every hit saved. Anything that never
+// happens is left out.
 function Breakdown({s}) {
   const scale = 250; // px for 100%
   const row = (k, chance, cls) => (shows(chance) ? (
@@ -118,26 +132,20 @@ function Breakdown({s}) {
       <span className="p">{pct(chance)}</span>
     </div>
   ) : null);
-  const seg = (side, w) => s.bar.find((b) => b.side === side && b.wounds === w).chance;
-  const wounds = (side, cls) => {
-    const top = topWounds(s, side);
-    const ws = side === 'active' ? [3, 2, 1] : [1, 2, 3];
-    return ws.filter((w) => w <= top).map((w) => {
-      const label = w === top ? `${w}+ wound${w > 1 ? 's' : ''}` : `${w} wound${w > 1 ? 's' : ''}`;
-      return row(label, seg(side, w), `${cls}${w}`);
-    });
-  };
+  const ladder = (side, cls) => [
+    ...s.atLeast[side].map((p, i) => row(`${i + 1}+ wounds`, p, `${cls}${i + 1}`)),
+    row('all saved', s.saved[side], 'seg-none'),
+  ];
   const head = (text, cls, first) => <div className={`label ${cls}`} style={{padding: first ? '0 0 4px' : '14px 0 6px'}}>{text}</div>;
   return (
     <div className="breakdown">
       {shows(s.win.active) && head(`Active wins the roll · ${pct(s.win.active)}`, 'c-active', true)}
-      {shows(s.win.active) && wounds('active', 'seg-a')}
-      {row('all saved', s.saved.active, 'seg-none a')}
-      {shows(s.win.none) && head(`Nobody hits · ${pct(s.win.none)}`, '', s.win.active === 0)}
+      {shows(s.win.active) && ladder('active', 'seg-a')}
+      {shows(s.win.none) && head(`Nobody wins · ${pct(s.win.none)}`, '', !shows(s.win.active))}
       {row('both fail', s.win.none, 'seg-none n')}
       {shows(s.win.reactive) && head(`Reactive wins the roll · ${pct(s.win.reactive)}`, 'c-reactive', false)}
-      {row('all saved', s.saved.reactive, 'seg-none r')}
-      {shows(s.win.reactive) && wounds('reactive', 'seg-r')}
+      {shows(s.win.reactive) && ladder('reactive', 'seg-r')}
+      <span className="note" style={{paddingTop: 8}}>1+ / 2+ / 3+ = at least that many wounds, so they overlap</span>
     </div>
   );
 }
