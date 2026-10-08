@@ -138,7 +138,11 @@ button { font: inherit; color: inherit; }
 .wpo { display: flex; flex-direction: column; }
 .wpo.right { align-items: flex-end; }
 .big { font-family: var(--font-display); font-size: 34px; font-weight: 700; line-height: 1; }
-.big.xl { font-size: 48px; }
+.big.xl { font-size: calc(34px + 14px * var(--open, 1)); transition: font-size .3s cubic-bezier(.3,1.25,.5,1); }
+/* While dragged the numbers follow the finger with no lag (useSheetGestures.js). */
+.sheet.dragging .big.xl { transition: none; }
+.sheet .sheet-actions { opacity: var(--open, 1); }
+.peek.under { visibility: hidden; }
 .small { font-size: 12px; color: var(--text-3); }
 .bar { display: flex; overflow: hidden; }
 .bar span { display: block; height: 100%; }
@@ -439,3 +443,5 @@ b.hl { color: var(--text); background: #2e4a40; border-radius: 3px; padding: 0 1
 .with-logo, .dp-faction { display: inline-flex; align-items: center; gap: 10px; }
 .tile.faction { justify-content: flex-start; gap: 10px; }
 .tile.faction .r { margin-left: auto; }
+.tiles.three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.tile.crest { flex-direction: column; justify-content: center; gap: 6px; padding: 10px 4px; font-size: 12px; text-align: center; }

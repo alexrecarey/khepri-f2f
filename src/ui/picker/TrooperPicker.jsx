@@ -73,6 +73,9 @@ const setQuery = (query) => dispatch({type: 'pickerQuery', query});
 const setScope = (scope) => dispatch({type: 'pickerScope', scope});
 const push = (view) => dispatch({type: 'pickerPush', view});
 
+// Three across leaves room for recents above the fold; these two don't fit.
+const SHORT_NAMES = {'Combined Army': 'Combined', 'Non-Aligned Armies': 'NA Armies'};
+
 export default function TrooperPicker({side, searcher, army, onPick}) {
   const color = side === 'A' ? 'active' : 'reactive';
   const {query, scope, stack} = useAppState((s) => s.ui.picker);
@@ -229,10 +232,10 @@ export default function TrooperPicker({side, searcher, army, onPick}) {
         // every army is no help. Recent picks come after.
         <>
           <div className="list-head">Pick a faction</div>
-          <div className="tiles">
+          <div className="tiles three">
             {searcher.factions.map((f) => (
-              <button type="button" key={f.id} className="tile faction" onClick={() => setScope(f.id)}>
-                <FactionLogo id={f.id} size={28} /><span>{f.name}</span>
+              <button type="button" key={f.id} className="tile crest" onClick={() => setScope(f.id)}>
+                <FactionLogo id={f.id} size={30} /><span>{SHORT_NAMES[f.name] ?? f.name}</span>
               </button>
             ))}
           </div>
