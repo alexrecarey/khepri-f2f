@@ -47,11 +47,11 @@
     },
     "DeskClassicColumns.dc.html": {
       "h": 900,
+      "page": "final",
       "title": "Desktop classic (1440) — active, reactive, results rail",
       "w": 1440,
       "x": 0,
-      "y": 4500,
-      "page": "final"
+      "y": 4500
     },
     "DeskClassicFaceoff.dc.html": {
       "h": 900,
@@ -62,11 +62,62 @@
     },
     "DeskPicker.dc.html": {
       "h": 900,
+      "page": "final",
       "title": "Desktop picker — typing: hits, profile, one line per loadout",
       "w": 1440,
       "x": 3040,
-      "y": 6150,
-      "page": "final"
+      "y": 6150
+    },
+    "DeskPickerCommand.dc.html": {
+      "h": 900,
+      "title": "v2 · Desktop picker B — ⌘K command bar: one line sets up the whole roll, candidates show their odds",
+      "w": 1440,
+      "x": 4530,
+      "y": 15000
+    },
+    "DeskPickerEmpty.dc.html": {
+      "h": 900,
+      "page": "final",
+      "title": "Desktop picker — before typing: recents, all factions",
+      "w": 1440,
+      "x": 0,
+      "y": 6150
+    },
+    "DeskPickerExplorer.dc.html": {
+      "h": 900,
+      "title": "v2 · Desktop picker C — explorer: facets + sortable table, every row computed vs the current opponent",
+      "w": 1440,
+      "x": 6050,
+      "y": 15000
+    },
+    "DeskPickerFaction.dc.html": {
+      "h": 900,
+      "page": "final",
+      "title": "Desktop picker — faction chosen: unit types",
+      "w": 1440,
+      "x": 1520,
+      "y": 6150
+    },
+    "DeskPickerGroups.dc.html": {
+      "h": 900,
+      "title": "Loadouts F — grouped by main gun; loadouts sharing a gun become small options inside one card",
+      "w": 1440,
+      "x": 3040,
+      "y": 17400
+    },
+    "DeskPickerMatrix.dc.html": {
+      "h": 900,
+      "title": "Loadouts E — each weapon once, loadouts as columns of dots; pick a column",
+      "w": 1440,
+      "x": 1520,
+      "y": 17400
+    },
+    "DeskPickerRows.dc.html": {
+      "h": 900,
+      "title": "Loadouts D — one line per loadout, main gun only; selected row opens to show sidearms; extras as muted text",
+      "w": 1440,
+      "x": 0,
+      "y": 17400
     },
     "DeskWorkbench.dc.html": {
       "h": 900,
@@ -331,6 +382,13 @@
       "x": 940,
       "y": 2003
     },
+    "MotionPolish.dc.html": {
+      "h": 1180,
+      "title": "Twelve looping micro-interactions — numbers, bars, range, sheet, chips, search, ledger, computing, swap, press, dice, pa",
+      "w": 1600,
+      "x": 0,
+      "y": 18800
+    },
     "PeekA.dc.html": {
       "h": 420,
       "title": "Peek A — two big wounds/order numbers over the shaded bar",
@@ -404,11 +462,11 @@
     },
     "TabletClassic.dc.html": {
       "h": 1194,
+      "page": "final",
       "title": "Tablet portrait classic — sides next to each other, results below",
       "w": 834,
       "x": 1520,
-      "y": 4500,
-      "page": "final"
+      "y": 4500
     },
     "TabletLandscape.dc.html": {
       "h": 834,
@@ -454,56 +512,27 @@
       "x": 1410,
       "y": 13150
     },
-    "DeskPickerCommand.dc.html": {
+    "DeskPickerGroupsCompact.dc.html": {
       "h": 900,
       "w": 1440,
-      "x": 4530,
-      "y": 15000,
-      "title": "v2 · Desktop picker B — ⌘K command bar: one line sets up the whole roll, candidates show their odds"
-    },
-    "DeskPickerExplorer.dc.html": {
-      "h": 900,
-      "w": 1440,
-      "x": 6050,
-      "y": 15000,
-      "title": "v2 · Desktop picker C — explorer: facets + sortable table, every row computed vs the current opponent"
-    },
-    "DeskPickerEmpty.dc.html": {
-      "h": 900,
-      "w": 1440,
-      "x": 0,
-      "y": 6150,
-      "title": "Desktop picker — before typing: recents, all factions",
-      "page": "final"
-    },
-    "DeskPickerFaction.dc.html": {
-      "h": 900,
-      "w": 1440,
-      "x": 1520,
-      "y": 6150,
-      "title": "Desktop picker — faction chosen: unit types",
-      "page": "final"
-    },
-    "DeskPickerRows.dc.html": {
-      "h": 900,
-      "w": 1440,
-      "x": 0,
+      "x": 4560,
       "y": 17400,
-      "title": "Loadouts D — one line per loadout, main gun only; selected row opens to show sidearms; extras as muted text"
+      "title": "Loadouts F compact — one line per main weapon, its loadouts inline as text"
     },
-    "DeskPickerMatrix.dc.html": {
-      "h": 900,
-      "w": 1440,
-      "x": 1520,
-      "y": 17400,
-      "title": "Loadouts E — each weapon once, loadouts as columns of dots; pick a column"
+    "PickerFactions2.dc.html": {
+      "h": 844,
+      "w": 390,
+      "x": 1760,
+      "y": 18800,
+      "title": "Empty picker A — 2 columns, slim rows with crest + full name, recents follow"
     },
-    "DeskPickerGroups.dc.html": {
-      "h": 900,
-      "w": 1440,
-      "x": 3040,
-      "y": 17400,
-      "title": "Loadouts F — grouped by main gun; loadouts sharing a gun become small options inside one card"
+    "PickerFactions3.dc.html": {
+      "h": 844,
+      "w": 390,
+      "x": 4700,
+      "y": 300,
+      "page": "final",
+      "title": "Picker, empty search — 3-column faction grid, then recents"
     }
   },
   "createdOnFiles": {
@@ -572,6 +601,24 @@
       "x": 0,
       "y": 2350
     },
+    "finaldeskclassic": {
+      "kind": "title1",
+      "maxW": 2400,
+      "page": "final",
+      "text": "Desktop & tablet — classic",
+      "w": 240,
+      "x": 0,
+      "y": 4250
+    },
+    "finaldeskpicker": {
+      "kind": "title1",
+      "maxW": 4600,
+      "page": "final",
+      "text": "Desktop picker",
+      "w": 240,
+      "x": 0,
+      "y": 5900
+    },
     "finalpage": {
       "kind": "title1",
       "maxW": 4620,
@@ -589,6 +636,14 @@
       "x": 0,
       "y": 7000
     },
+    "loadouts": {
+      "kind": "title1",
+      "maxW": 6100,
+      "text": "Picker — presenting loadouts without the height",
+      "w": 240,
+      "x": 0,
+      "y": 17150
+    },
     "mobile": {
       "kind": "title1",
       "maxW": 1800,
@@ -596,6 +651,14 @@
       "w": 240,
       "x": 0,
       "y": 1780
+    },
+    "motion": {
+      "kind": "title1",
+      "maxW": 1600,
+      "text": "Motion & polish",
+      "w": 240,
+      "x": 0,
+      "y": 18550
     },
     "peek": {
       "kind": "title1",
@@ -629,31 +692,13 @@
       "x": 0,
       "y": 12900
     },
-    "finaldeskclassic": {
+    "emptypicker": {
       "kind": "title1",
-      "maxW": 2400,
-      "page": "final",
-      "text": "Desktop & tablet — classic",
+      "maxW": 900,
+      "text": "Mobile picker, empty search: 2 vs 3 columns",
       "w": 240,
-      "x": 0,
-      "y": 4250
-    },
-    "loadouts": {
-      "kind": "title1",
-      "maxW": 4600,
-      "text": "Picker — presenting loadouts without the height",
-      "w": 240,
-      "x": 0,
-      "y": 17150
-    },
-    "finaldeskpicker": {
-      "kind": "title1",
-      "maxW": 4600,
-      "page": "final",
-      "text": "Desktop picker",
-      "w": 240,
-      "x": 0,
-      "y": 5900
+      "x": 1760,
+      "y": 18550
     }
   },
   "order": [
@@ -668,6 +713,7 @@
     "FinalClassic.dc.html",
     "FinalClassicResults.dc.html",
     "FinalUnopposed.dc.html",
+    "PickerFactions3.dc.html",
     "DeskWorkbench.dc.html",
     "DeskWorkbenchWide.dc.html",
     "TabletPortrait.dc.html",
@@ -724,7 +770,10 @@
     "TabletClassic.dc.html",
     "DeskPickerRows.dc.html",
     "DeskPickerMatrix.dc.html",
-    "DeskPickerGroups.dc.html"
+    "DeskPickerGroups.dc.html",
+    "DeskPickerGroupsCompact.dc.html",
+    "MotionPolish.dc.html",
+    "PickerFactions2.dc.html"
   ],
   "pages": [
     {
