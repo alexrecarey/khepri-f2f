@@ -251,7 +251,7 @@ export default function MatchupScreen({army, armyError, view, engine}) {
         diceLine={view.ledger ? {active: view.ledger.ledger.A?.dice, reactive: view.ledger.ledger.B?.dice} : null}
         ledger={view.ledger}
       />
-      {picking && <TrooperPicker side={picking} searcher={searcher} onPick={(hit) => dispatch(pickTrooper(army, picking, hit))} />}
+      {picking && <TrooperPicker side={picking} searcher={searcher} army={army} onPick={(hit) => dispatch(pickTrooper(army, picking, hit))} />}
     </>
   );
 }

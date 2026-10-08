@@ -9,12 +9,16 @@ import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../../state/store.js';
 import {extraLoadoutName} from '../names.js';
 import {Page} from '../Sheet.jsx';
+import {groupLoadouts, loadoutTag, statLine} from './loadouts.js';
 
 export const TYPE_NAMES = {
   LI: 'Light Infantry', MI: 'Medium Infantry', HI: 'Heavy Infantry', TAG: 'TAGs',
   REM: 'REMs', SK: 'Skirmishers', WB: 'Warbands', VH: 'Vehicles',
 };
 const TYPE_ORDER = Object.keys(TYPE_NAMES);
+
+// One tap fills the box with a weapon players often look for.
+const QUICK = [['Missile L.', 'ml'], ['HMG', 'hmg'], ['Spitfire', 'spitfire'], ['Sniper', 'sniper']];
 
 // The loadout's weapons, the one the query matched first: several loadouts
 // often share their main weapon and only differ further down the list.
@@ -23,8 +27,8 @@ function weaponList(hit) {
   return [hit.weapon, ...rest].filter(Boolean).join(', ');
 }
 
-function ProfileRow({hit, onPick, first, color}) {
-  const extra = extraLoadoutName(hit.loadout, hit.unit);
+function ProfileRow({hit, onPick, first, color, army}) {
+  const extra = extraLoadoutName(hit.loadout, hit.unit) ?? loadoutTag(army, hit);
   return (
     <button type="button" className={`hit${first ? ' first' : ''}`} onClick={() => onPick(hit)}>
       <span className="t">{hit.unit}{extra && <span className="tag"> · {extra}</span>}</span>
@@ -36,8 +40,22 @@ function ProfileRow({hit, onPick, first, color}) {
 
 ProfileRow.propTypes = {
   hit: PropTypes.object.isRequired, onPick: PropTypes.func.isRequired, first: PropTypes.bool,
-  color: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired, army: PropTypes.object,
 };
+
+// A loadout on its unit's page: the unit name is the page title, so just the
+// weapons (and any loadout name), with the points on the right.
+function LoadoutRow({hit, onPick, color, army}) {
+  const extra = extraLoadoutName(hit.loadout, hit.unit) ?? loadoutTag(army, hit);
+  return (
+    <button type="button" className="line-btn loadout" onClick={() => onPick(hit)}>
+      <span><span className={`c-${color}`}>{weaponList(hit)}</span>{extra && <span className="tag"> · {extra}</span>}</span>
+      <span className="r">{hit.points}</span>
+    </button>
+  );
+}
+
+LoadoutRow.propTypes = {hit: PropTypes.object.isRequired, onPick: PropTypes.func.isRequired, color: PropTypes.string.isRequired, army: PropTypes.object};
 
 function UnitRow({u, onOpen}) {
   return (
@@ -54,10 +72,11 @@ const setQuery = (query) => dispatch({type: 'pickerQuery', query});
 const setScope = (scope) => dispatch({type: 'pickerScope', scope});
 const push = (view) => dispatch({type: 'pickerPush', view});
 
-export default function TrooperPicker({side, searcher, onPick}) {
+export default function TrooperPicker({side, searcher, army, onPick}) {
   const color = side === 'A' ? 'active' : 'reactive';
   const {query, scope, stack} = useAppState((s) => s.ui.picker);
   const recents = useAppState((s) => s.lists.recents);
+  const recentFactions = useAppState((s) => s.lists.recentFactions);
   // Drill-in stack: {view: 'factions'} | {view: 'type', type} | {view: 'unit', unitId, name}
   const top = stack.at(-1) ?? null;
   const pop = back;
@@ -91,16 +110,23 @@ export default function TrooperPicker({side, searcher, onPick}) {
 
   if (top?.view === 'factions') {
     const choose = (id) => setScope(id);
+    const factions = searcher?.factions ?? [];
+    const row = (f, key) => (
+      <button type="button" key={key} className="line-btn" onClick={() => choose(f.id)}>
+        <span>{f.name}</span>
+        <span className="r">{key.startsWith('all') ? searcher.unitCount(f.id) : ''} <span className={`c-${color}`}>{scope === f.id ? '✓' : ''}</span></span>
+      </button>
+    );
+    const recent = recentFactions.map((id) => factions.find((f) => f.id === id)).filter(Boolean);
     return (
       <Page title="Faction" onBack={pop}>
+        {recent.length > 0 && <div className="list-head">Recent</div>}
+        {recent.map((f) => row(f, `recent-${f.id}`))}
+        <div className="list-head">All</div>
         <button type="button" className="line-btn" onClick={() => choose(null)}>
-          <span>All factions</span><span className="r">{scope == null ? '✓' : ''}</span>
+          <span>All factions</span><span className={`r c-${color}`}>{scope == null ? '✓' : ''}</span>
         </button>
-        {(searcher?.factions ?? []).map((f) => (
-          <button type="button" key={f.id} className="line-btn" onClick={() => choose(f.id)}>
-            <span>{f.name}</span><span className={`r c-${color}`}>{scope === f.id ? '✓' : ''}</span>
-          </button>
-        ))}
+        {factions.map((f) => row(f, `all-${f.id}`))}
       </Page>
     );
   }
@@ -116,9 +142,19 @@ export default function TrooperPicker({side, searcher, onPick}) {
 
   if (top?.view === 'unit') {
     const rows = searcher.unitRows(top.unitId, scope);
+    const stats = statLine(army, top.unitId, rows[0]?.armyFactionId);
+    const groups = army ? groupLoadouts(army, rows) : [{key: 'all', name: null, items: rows}];
     return (
       <Page title={top.name} subtitle={`${factionName(scope)} · ${rows.length} profiles`} onBack={pop}>
-        {rows.map((h) => <ProfileRow color={color} key={h.rowId} hit={h} onPick={pick} />)}
+        {stats && (
+          <div className="stat-line">{stats.map(([k, v]) => <span key={k}><b>{k}</b> {v}</span>)}</div>
+        )}
+        {groups.map((g) => (
+          <div key={g.key}>
+            {g.name && <div className="list-head">{g.name}</div>}
+            {g.items.map((h) => <LoadoutRow army={army} color={color} key={h.rowId} hit={h} onPick={pick} />)}
+          </div>
+        ))}
       </Page>
     );
   }
@@ -129,6 +165,9 @@ export default function TrooperPicker({side, searcher, onPick}) {
         <button type="button" className={`chip on ${color}`} onClick={() => push({view: 'factions'})}>
           {factionName(scope)} ▾
         </button>
+        {QUICK.map(([label, q]) => (
+          <button type="button" key={q} className={`chip${query.trim() === q ? ` on ${color}` : ''}`} onClick={() => setQuery(q)}>{label}</button>
+        ))}
       </div>
       <label htmlFor={`trooper-search-${side}`} className="label" style={{position: 'absolute', left: -9999}}>Search troopers</label>
       <input
@@ -149,7 +188,7 @@ export default function TrooperPicker({side, searcher, onPick}) {
   );
 
   return (
-    <Page title={title} onBack={onClose} footer={searchBar}>
+    <Page title={title} label={`${side === 'A' ? 'Active' : 'Reactive'} trooper`} onBack={onClose} footer={searchBar} closeLabel="Cancel">
       {!results && <div className="empty">Loading units…</div>}
       {results?.mode === 'search' && (
         <>
@@ -171,10 +210,10 @@ export default function TrooperPicker({side, searcher, onPick}) {
           )}
           {results.total === 0 && results.elsewhere.length === 0 && <div className="empty">Nothing matches “{query}”</div>}
           {results.recent.length > 0 && <div className="list-head">Recent</div>}
-          {results.recent.map((h, i) => <ProfileRow color={color} key={`r${h.rowId}`} hit={h} onPick={pick} first={i === 0} />)}
+          {results.recent.map((h, i) => <ProfileRow army={army} color={color} key={`r${h.rowId}`} hit={h} onPick={pick} first={i === 0} />)}
           {results.profiles.length > 0 && <div className="list-head">Profiles · {results.total}</div>}
           {results.profiles.map((h, i) => (
-            <ProfileRow color={color} key={h.rowId} hit={h} onPick={pick} first={!results.recent.length && i === 0} />
+            <ProfileRow army={army} color={color} key={h.rowId} hit={h} onPick={pick} first={!results.recent.length && i === 0} />
           ))}
           {results.units.length > 0 && <div className="list-head">Units</div>}
           {results.units.slice(0, 20).map((u) => <UnitRow key={u.unitId} u={u} onOpen={openUnit} />)}
@@ -183,7 +222,7 @@ export default function TrooperPicker({side, searcher, onPick}) {
       {results?.mode === 'browse' && (
         <>
           {results.recent.length > 0 && <div className="list-head">Recent</div>}
-          {results.recent.map((h) => <ProfileRow color={color} key={`r${h.rowId}`} hit={h} onPick={pick} />)}
+          {results.recent.map((h) => <ProfileRow army={army} color={color} key={`r${h.rowId}`} hit={h} onPick={pick} />)}
           {scope != null && results.types.length > 0 && (
             <>
               <div className="list-head">Browse {factionName(scope)} by type</div>
@@ -207,5 +246,6 @@ export default function TrooperPicker({side, searcher, onPick}) {
 TrooperPicker.propTypes = {
   side: PropTypes.oneOf(['A', 'B']).isRequired,
   searcher: PropTypes.object,
+  army: PropTypes.object,
   onPick: PropTypes.func.isRequired,
 };

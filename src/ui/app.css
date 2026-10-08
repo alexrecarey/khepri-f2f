@@ -177,7 +177,15 @@ button { font: inherit; color: inherit; }
 .search-input { all: unset; box-sizing: border-box; padding: 14px 16px; border-radius: 12px; font-size: max(16px, 1rem); background: #141414; border: 1px solid var(--line-strong); }
 .search-input.active { border-color: var(--active); }
 .search-input.reactive { border-color: var(--reactive); }
-.scope { display: flex; gap: 8px; overflow-x: auto; }
+.scope { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.scope > * { flex-shrink: 0; }
+.text-btn { all: unset; box-sizing: border-box; cursor: pointer; min-height: var(--tap); padding: 0 12px; display: grid; place-items: center; font-size: 15px; color: var(--text-2); border-radius: 8px; }
+.text-btn:focus-visible { outline: 2px solid var(--text-2); }
+.stat-line { display: flex; flex-wrap: wrap; gap: 4px 14px; font-family: var(--font-mono); font-size: 13px; color: var(--text); padding: 12px 12px 4px; }
+.stat-line b { font-weight: 400; color: var(--muted); }
+.line-btn.loadout { gap: 12px; font-size: 14px; }
+.line-btn.loadout .tag { color: var(--text-3); }
+.line-btn.loadout .r { font-family: var(--font-mono); }
 .stats { padding: 12px 16px; font-family: var(--font-mono); font-size: 13px; color: var(--text-3); border-bottom: 1px solid var(--line); }
 .empty { padding: 18px 8px; color: var(--text-2); font-size: 15px; }
 

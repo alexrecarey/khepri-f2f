@@ -133,6 +133,7 @@ export function createSearch(index) {
       weapon: weapon?.name ?? null,
       weaponId: m.weapon >= 0 ? weapon?.id ?? null : null,
       weapons: row.weapons.map((id) => index.weapons[id].name),
+      weaponIds: row.weapons,
       type: row.type,
       bs: row.bs,
       points: row.points,
@@ -233,5 +234,10 @@ export function createSearch(index) {
       && Object.values(r.factions).includes(armyFactionId))?.id ?? null;
   }
 
-  return {search, browse, unitRows, unitsOfType, findRow, factions: index.factions};
+  // Units per vanilla faction, for the faction list.
+  const unitCounts = new Map();
+  for (const u of index.units) for (const f of u.factions) unitCounts.set(f, (unitCounts.get(f) ?? 0) + 1);
+  const unitCount = (factionId) => unitCounts.get(factionId) ?? 0;
+
+  return {search, browse, unitRows, unitsOfType, findRow, unitCount, factions: index.factions};
 }
