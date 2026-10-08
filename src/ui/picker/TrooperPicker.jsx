@@ -83,7 +83,9 @@ export default function TrooperPicker({side, searcher, army, onPick}) {
   const pop = back;
   const onClose = back;
   const inputRef = useRef(null);
-  useEffect(() => { if (!top) inputRef.current?.focus(); }, [top]);
+  // preventScroll: focusing must not scroll the page to the input (the page
+  // already fits above the keyboard, useVisualViewport.js).
+  useEffect(() => { if (!top) inputRef.current?.focus({preventScroll: true}); }, [top]);
 
   const recentIds = useMemo(
     () => (searcher ? recents.map((r) => searcher.findRow(r)).filter((id) => id != null) : []),
@@ -167,7 +169,9 @@ export default function TrooperPicker({side, searcher, army, onPick}) {
           {factionName(scope)} ▾
         </button>
         {QUICK.map(([label, q]) => (
-          <button type="button" key={q} className={`chip${query.trim() === q ? ` on ${color}` : ''}`} onClick={() => setQuery(q)}>{label}</button>
+          // Tapping the lit chip again clears it.
+          <button type="button" key={q} className={`chip${query.trim() === q ? ` on ${color}` : ''}`} aria-pressed={query.trim() === q}
+            onClick={() => setQuery(query.trim() === q ? '' : q)}>{label}</button>
         ))}
       </div>
       <label htmlFor={`trooper-search-${side}`} className="label" style={{position: 'absolute', left: -9999}}>Search troopers</label>

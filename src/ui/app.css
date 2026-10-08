@@ -153,10 +153,22 @@ button { font: inherit; color: inherit; }
 .sheet { position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: min(480px, 100%); max-height: 92dvh; overflow-y: auto; background: #1a1a1a; border-radius: var(--radius-sheet) var(--radius-sheet) 0 0; padding: 10px 16px calc(24px + env(safe-area-inset-bottom)); z-index: 21; display: flex; flex-direction: column; gap: 14px; animation: rise .25s ease; }
 /* A long sheet scrolls; its rows never squash (bars have overflow: hidden, so no min height). */
 .sheet > * { flex-shrink: 0; }
-.page { position: fixed; inset: 0; margin: 0 auto; max-width: 480px; background: #161616; z-index: 30; display: flex; flex-direction: column; animation: fade .15s ease; }
+.page { position: fixed; left: 0; right: 0; top: var(--vv-top, 0px); height: var(--vv-height, 100dvh); margin: 0 auto; max-width: 480px; background: #161616; z-index: 30; display: flex; flex-direction: column; animation: fade .15s ease; }
 .page-head { padding: 10px 8px; display: flex; align-items: center; gap: 4px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
 .page-title { font-size: 18px; font-weight: 600; }
-.page-body { flex-grow: 1; overflow-y: auto; padding: 4px 8px 16px; display: flex; flex-direction: column; }
+/* While a page is open the document behind it can't scroll (useVisualViewport.js).
+   If the keyboard's resize lags, the gap under the page shows page colour,
+   not the screen behind. */
+.page::after { content: ''; position: absolute; top: 100%; left: 0; right: 0; height: 100vh; background: #161616; pointer-events: none; }
+/* Phones and tablets: a full-screen page is not position: fixed. WebKit
+   stops treating a scroll box inside a fixed layer as scrollable while the
+   keyboard resizes the screen (the picker list didn't scroll; iOS panned the
+   whole picker instead). So the screen underneath is hidden and the page is
+   laid out in the normal flow, sized to the visible area. */
+html.page-open .app:is(.phone, .tablet) > :not(.page) { display: none; }
+html.page-open .app:is(.phone, .tablet) > .page { position: relative; top: 0; flex-shrink: 0; width: 100%; }
+html.page-open, html.page-open body { overflow: hidden; overscroll-behavior: none; }
+.page-body { flex-grow: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; padding: 4px 8px 16px; display: flex; flex-direction: column; }
 @keyframes rise { from { transform: translate(-50%, 30%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
 /* The results sheet comes up with a little spring (MotionPolish 4). */
 .sheet { animation: rise .38s cubic-bezier(.3,1.25,.5,1); }

@@ -3,6 +3,7 @@
 import {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {BackIcon} from './icons.jsx';
+import useVisualViewport from './useVisualViewport.js';
 
 function useEscape(onClose) {
   useEffect(() => {
@@ -32,6 +33,7 @@ Sheet.propTypes = {onClose: PropTypes.func.isRequired, label: PropTypes.string.i
 // with a text button on the right instead of a back arrow.
 export function Page({title, subtitle, onBack, children, footer, action, closeLabel, label, className = ''}) {
   useEscape(onBack);
+  useVisualViewport();
   return (
     <div className={`page ${className}`} role="dialog" aria-modal="true" aria-label={label ?? (typeof title === 'string' ? title : undefined)}>
       <div className="page-head" style={closeLabel ? {paddingLeft: 16} : undefined}>
