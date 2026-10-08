@@ -3,6 +3,7 @@
 // action's payload (a picked trooper's weapon, the picker's starting faction)
 // is worked out before dispatching, in actions.js.
 import {MODES} from '../ui/modes.js';
+import {setupKey} from './rolls.js';
 import {EMPTY_SIDE, EMPTY_UI, MAX_RECENT_FACTIONS, MAX_RECENTS, initialState} from './schema.js';
 
 export const other = (side) => (side === 'A' ? 'B' : 'A');
@@ -99,6 +100,35 @@ export function reduce(state, action) {
       while (uiDepth(next) > action.depth) next = back(next);
       return next === ui ? state : {...state, ui: next};
     }
+
+    // --- saved rolls, settings
+    // Saving the same setup twice keeps one copy, the newest on top.
+    case 'saveRoll': {
+      const key = setupKey(action.roll.mode, action.roll.setup);
+      const rest = state.lists.saved.filter((r) => setupKey(r.mode, r.setup) !== key);
+      return {...state, lists: {...state.lists, saved: [action.roll, ...rest]}};
+    }
+    case 'deleteRoll':
+      return {...state, lists: {...state.lists, saved: state.lists.saved.filter((r) => r.id !== action.id)},
+        ui: {...ui, swiped: null}};
+    case 'loadRoll': {
+      const roll = state.lists.saved.find((r) => r.id === action.id);
+      if (!roll) return state;
+      const slice = roll.mode === MODES.matchup ? {matchup: roll.setup} : {classic: {...state.classic, ...roll.setup}};
+      return {...state, mode: roll.mode, ...slice, ui: {...EMPTY_UI}};
+    }
+    case 'setSavedTab':
+      return {...state, ui: {...ui, savedTab: action.tab, swiped: null}};
+    case 'setSwiped':
+      return {...state, ui: {...ui, swiped: action.id}};
+    case 'clearRecents':
+      return {...state, lists: {...state.lists, recents: [], recentFactions: []}};
+    case 'clearSaved':
+      return {...state, lists: {...state.lists, saved: []}};
+    case 'setPref':
+      return {...state, prefs: {...state.prefs, [action.key]: action.value}};
+    case 'toast':
+      return {...state, ui: {...ui, toast: action.text ? {text: action.text} : null}};
 
     // --- trooper picker
     case 'openPicker':

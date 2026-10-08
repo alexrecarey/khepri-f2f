@@ -38,12 +38,15 @@ export const DEFAULT_RANGE_CM = 40;
 export const MAX_RECENTS = 8;
 export const MAX_RECENT_FACTIONS = 3;
 
-// overlay: null | 'menu' | 'results' | 'picker'
+// overlay: null | 'menu' | 'results' | 'picker' | 'saved' | 'settings' | 'about'
 // picker:  {side: 'A'|'B', query, scope: factionId|null, stack: [view]} while
 //          overlay is 'picker'; a view is {view: 'factions'} | {view: 'type', type}
 //          | {view: 'unit', unitId, name}
 // edit:    {side, chip: 'fireteam'} while a chip shows its inline editor
-export const EMPTY_UI = {overlay: null, picker: null, rangeOpen: false, edit: null};
+// savedTab: which list Saved rolls shows, 'matchup' | 'basic'
+// swiped:  id of the saved roll swiped open to show its Delete button
+// toast:   {text} for a moment after Save, Share or Delete
+export const EMPTY_UI = {overlay: null, picker: null, rangeOpen: false, edit: null, savedTab: null, swiped: null, toast: null};
 
 export function initialState() {
   return {
@@ -52,6 +55,8 @@ export function initialState() {
     matchup: {A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}, rangeCm: DEFAULT_RANGE_CM},
     classic: {...DEFAULT_PARAMS},
     ui: {...EMPTY_UI},
+    // startFaction: {A, B}, the faction the picker opens on for an empty side
+    // (null = the last one used)
     prefs: {},
     // recents: troopers picked, newest first, as stable army ids
     //   {unitId, groupId, optionId, armyFactionId}

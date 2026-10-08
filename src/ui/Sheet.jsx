@@ -12,20 +12,21 @@ function useEscape(onClose) {
   }, [onClose]);
 }
 
-export function Sheet({onClose, label, children}) {
+// `actions`: small buttons on the handle's row (Save, Share).
+export function Sheet({onClose, label, children, actions}) {
   useEscape(onClose);
   return (
     <>
       <div className="scrim" onClick={onClose} />
       <div className="sheet" role="dialog" aria-modal="true" aria-label={label}>
-        <span className="handle" />
+        <div className="sheet-head"><span /><span className="handle" /><span className="sheet-actions">{actions}</span></div>
         {children}
       </div>
     </>
   );
 }
 
-Sheet.propTypes = {onClose: PropTypes.func.isRequired, label: PropTypes.string.isRequired, children: PropTypes.node};
+Sheet.propTypes = {onClose: PropTypes.func.isRequired, label: PropTypes.string.isRequired, children: PropTypes.node, actions: PropTypes.node};
 
 // `closeLabel` ("Cancel"): the page is the first of its stack, so it closes
 // with a text button on the right instead of a back arrow.

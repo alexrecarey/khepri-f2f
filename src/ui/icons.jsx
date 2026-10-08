@@ -23,3 +23,20 @@ export const MoreIcon = () => (
 );
 
 export const BackIcon = () => <span aria-hidden="true" style={{fontSize: 24, lineHeight: 1}}>‹</span>;
+
+const stroke = {fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinejoin: 'round', strokeLinecap: 'round'};
+export const BookmarkIcon = ({filled = false}) => (
+  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" {...stroke} fill={filled ? 'currentColor' : 'none'}><path d="M6 3h12v18l-6-4-6 4z" /></svg>
+);
+BookmarkIcon.propTypes = {filled: PropTypes.bool};
+export const GearIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" {...stroke}>
+    <circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" />
+  </svg>
+);
+export const InfoIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" {...stroke}><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7.5v.5" /></svg>
+);
+export const ShareIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" {...stroke}><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7" /></svg>
+);

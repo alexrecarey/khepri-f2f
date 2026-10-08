@@ -220,3 +220,28 @@ test('every fixture is a valid partial state', async () => {
     assert.equal(stateFromUrl(urlFromState(s)).mode, s.mode, f);
   }
 });
+
+test('saved rolls: save once per setup, load the whole setup, delete', async () => {
+  const {makeRoll} = await import('./rolls.js');
+  let s = run(initialState(), {type: 'setSide', side: 'A', sel: fennec}, {type: 'setRange', rangeCm: 80});
+  const roll = makeRoll({mode: 'matchup', setup: s.matchup, summary: {a: 'x'}, now: 1});
+  s = run(s, {type: 'saveRoll', roll}, {type: 'saveRoll', roll: {...roll, id: 'again'}});
+  assert.equal(s.lists.saved.length, 1);
+  assert.equal(s.lists.saved[0].id, 'again');
+  s = run(s, {type: 'clearSides'}, {type: 'setMode', mode: 'basic'}, {type: 'openOverlay', overlay: 'saved'},
+    {type: 'loadRoll', id: 'again'});
+  assert.equal(s.mode, 'matchup');
+  assert.equal(s.matchup.A.unitId, 10);
+  assert.equal(s.matchup.rangeCm, 80);
+  assert.equal(s.ui.overlay, null);
+  s = run(s, {type: 'deleteRoll', id: 'again'});
+  assert.deepEqual(s.lists.saved, []);
+});
+
+test('settings: start faction pref, clearing data', () => {
+  let s = run(initialState(), {type: 'setPref', key: 'startFaction', value: {A: 101, B: null}});
+  assert.equal(s.prefs.startFaction.A, 101);
+  s = run(s, {type: 'pickTrooper', side: 'A', sel: fennec, recent: {unitId: 1}}, {type: 'clearRecents'});
+  assert.deepEqual(s.lists.recents, []);
+  assert.equal(uiDepth(run(s, {type: 'openOverlay', overlay: 'settings'}).ui), 1);
+});

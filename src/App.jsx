@@ -8,37 +8,10 @@ import {dispatch, useAppState} from "./state/store.js";
 import useMatchupView from "./state/useMatchupView.js";
 import ClassicScreen from "./ui/ClassicScreen.jsx";
 import MatchupScreen from "./ui/MatchupScreen.jsx";
+import {AboutPage, Menu, SavedPage, SettingsPage, Toast} from "./ui/Chrome.jsx";
 import {MoreIcon} from "./ui/icons.jsx";
 import {MODES} from "./ui/modes.js";
-import {Sheet} from "./ui/Sheet.jsx";
-
-const back = () => dispatch({type: 'back'});
-
-function AppMenu({mode}) {
-  const item = (m, text) => (
-    <button type="button" className="menu-item" onClick={() => dispatch({type: 'setMode', mode: m})} aria-pressed={mode === m}>
-      <span className="dot" style={{color: mode === m ? 'var(--active)' : '#555'}}>{mode === m ? '●' : '○'}</span>
-      <span style={{flexGrow: 1, color: mode === m ? 'var(--text)' : 'var(--text-2)'}}>{text}</span>
-      {mode === m && <span className="note">opens next time</span>}
-    </button>
-  );
-  return (
-    <Sheet onClose={back} label="Menu">
-      <span className="label" style={{padding: '0 14px'}}>Calculator</span>
-      <div style={{display: 'flex', flexDirection: 'column', margin: '-8px -8px 0'}}>
-        {item(MODES.matchup, 'Matchup')}
-        {item(MODES.basic, 'Classic — type the numbers')}
-      </div>
-      <div className="menu-sep" />
-      <p className="note" style={{margin: '0 14px', lineHeight: 1.5}}>
-        Face-to-face odds for Infinity N5. Made with ❤️ for the Infinity community by Khepri and Bebop.
-        {' '}<a href="https://github.com/alexrecarey/khepri-f2f" style={{color: 'var(--active)'}}>Source on GitHub</a>
-        {' · '}Powered by <a href="https://github.com/HighDiceRoller/icepool" style={{color: 'var(--active)'}}>icepool</a>
-        {' · '}<a href="https://n4.infinitythecalculator.com" style={{color: 'var(--active)'}}>N4 calculator</a>
-      </p>
-    </Sheet>
-  );
-}
+import {useSearcher} from "./ui/picker/useTrooperSearch.js";
 
 // The whole app is a function of the state document (src/state): the mode
 // picks the screen, the screens read their slices, and the engine runs on the
@@ -59,6 +32,8 @@ function App() {
     [matchupMode, view.params, classic],
   );
   const engine = useEngine(engineParams);
+  // Settings lists the factions; the search index has them without the army data.
+  const searcher = useSearcher(overlay === 'settings');
 
   return (
     <div className="app">
@@ -69,7 +44,11 @@ function App() {
       {matchupMode
         ? <MatchupScreen army={army} armyError={armyError} view={view} engine={engine} />
         : <ClassicScreen params={classic} engine={engine} />}
-      {overlay === 'menu' && <AppMenu mode={mode} />}
+      {overlay === 'menu' && <Menu />}
+      {overlay === 'saved' && <SavedPage />}
+      {overlay === 'settings' && <SettingsPage factions={searcher?.factions ?? []} />}
+      {overlay === 'about' && <AboutPage />}
+      <Toast />
     </div>
   )
 }

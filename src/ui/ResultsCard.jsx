@@ -3,6 +3,8 @@
 // The sheet: the Face to Face bar, the labelled wound bar and the breakdown.
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
+import {BookmarkIcon, ShareIcon} from './icons.jsx';
+import {shareLink} from './share.js';
 import Ledger from './Ledger.jsx';
 import {Sheet} from './Sheet.jsx';
 import {pct, shows, summarize} from './results.js';
@@ -34,7 +36,23 @@ function WoundBar({summary, height, labels = false}) {
 
 WoundBar.propTypes = {summary: PropTypes.object.isRequired, height: PropTypes.number.isRequired, labels: PropTypes.bool};
 
-export default function ResultsCard({result, status, diceLine, classic, ledger}) {
+// Save and Share on the sheet's handle row. `save` = {saved, toggle} or null
+// while there is nothing to save.
+function SheetActions({save}) {
+  return (
+    <>
+      {save && (
+        <button type="button" className="icon-btn sm" aria-pressed={save.saved} aria-label={save.saved ? 'Saved; remove from saved rolls' : 'Save this roll'}
+          onClick={save.toggle} style={{color: save.saved ? 'var(--active)' : undefined}}><BookmarkIcon filled={save.saved} /></button>
+      )}
+      <button type="button" className="icon-btn sm" aria-label="Share a link to this roll" onClick={shareLink}><ShareIcon /></button>
+    </>
+  );
+}
+
+SheetActions.propTypes = {save: PropTypes.object};
+
+export default function ResultsCard({result, status, diceLine, classic, ledger, save}) {
   const open = useAppState((st) => st.ui.overlay === 'results');
   const setOpen = (o) => dispatch(o ? {type: 'openOverlay', overlay: 'results'} : {type: 'back'});
   const s = summarize(result);
@@ -57,7 +75,7 @@ export default function ResultsCard({result, status, diceLine, classic, ledger})
         )}
       </button>
       {open && s && (
-        <Sheet onClose={() => setOpen(false)} label="Results">
+        <Sheet onClose={() => setOpen(false)} label="Results" actions={<SheetActions save={save} />}>
           {s.unopposed ? (
             <UnopposedSheetBody s={s} names={ledger?.names ?? {A: 'Active', B: 'Reactive'}} diceLine={diceLine} />
           ) : classic ? (
@@ -118,6 +136,8 @@ ResultsCard.propTypes = {
   classic: PropTypes.bool,
   // {ledger: buildLedger(...), names: {A, B}, notes: [...]}; matchup only.
   ledger: PropTypes.object,
+  // {saved, toggle}: the Save button; null hides it.
+  save: PropTypes.object,
 };
 
 // Who wins the roll, and what each winner does: at least 1 / 2 / 3 wounds

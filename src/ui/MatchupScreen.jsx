@@ -2,6 +2,7 @@
 // them, the results card pinned below. Everything comes from the state
 // document (src/state) and its derived matchup view; this file only lays it
 // out and turns taps into actions.
+import {useMemo} from 'react';
 import PropTypes from 'prop-types';
 import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
@@ -15,6 +16,9 @@ import TrooperPicker from './picker/TrooperPicker.jsx';
 import {useSearcher} from './picker/useTrooperSearch.js';
 import {extraLoadoutName, shortWeaponName} from './names.js';
 import ResultsCard from './ResultsCard.jsx';
+import {matchupRollSummary} from '../state/rolls.js';
+import {summarize} from './results.js';
+import useSaveRoll from './useSaveRoll.js';
 
 // Weapon button text: the short name and fire mode, "Missile L. (Blast)". The
 // full stat line (B, PS, ammo) belongs to the results, not to a button.
@@ -233,6 +237,12 @@ RangeSelector.propTypes = {view: PropTypes.object.isRequired};
 export default function MatchupScreen({army, armyError, view, engine}) {
   const picking = useAppState((st) => (st.ui.overlay === 'picker' ? st.ui.picker.side : null));
   const searcher = useSearcher(true);
+  const result = view.complete ? engine.result : null;
+  const summary = useMemo(() => {
+    const s = summarize(result);
+    return s && view.complete ? matchupRollSummary(view, s) : null;
+  }, [result, view]);
+  const save = useSaveRoll(summary);
 
   return (
     <>
@@ -246,7 +256,8 @@ export default function MatchupScreen({army, armyError, view, engine}) {
         )}
       </main>
       <ResultsCard
-        result={view.complete ? engine.result : null}
+        result={result}
+        save={save}
         status={view.complete ? engine.status : 'Choose both troopers to see the odds'}
         diceLine={view.ledger ? {active: view.ledger.ledger.A?.dice, reactive: view.ledger.ledger.B?.dice} : null}
         ledger={view.ledger}

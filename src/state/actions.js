@@ -34,10 +34,12 @@ export function pickTrooper(army, side, hit) {
   };
 }
 
-// The picker opens scoped to that side's current faction, else the other
-// side's, else the faction of the last trooper picked.
+// The picker opens scoped to that side's current faction, else the starting
+// faction set for the side (Settings), else the other side's, else the
+// faction of the last trooper picked.
 export function openPicker(army, state, side) {
   const fac = (s) => vanillaOf(army, state.matchup[s].factionId);
+  const start = state.prefs.startFaction?.[side] ?? null;
   const last = vanillaOf(army, state.lists.recents[0]?.armyFactionId);
-  return {type: 'openPicker', side, scope: fac(side) ?? fac(side === 'A' ? 'B' : 'A') ?? last ?? null};
+  return {type: 'openPicker', side, scope: fac(side) ?? start ?? fac(side === 'A' ? 'B' : 'A') ?? last ?? null};
 }

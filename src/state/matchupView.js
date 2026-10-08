@@ -37,7 +37,7 @@ const shortName = (unit) => unit.isc.split(',')[0].trim();
 
 export function matchupView(army, matchup) {
   if (!army) {
-    return {ready: false, A: {sel: matchup.A, resolved: null, weapons: [], pseudo: []},
+    return {ready: false, rangeCm: matchup.rangeCm, A: {sel: matchup.A, resolved: null, weapons: [], pseudo: []},
       B: {sel: matchup.B, resolved: null, weapons: [], pseudo: []}, derived: null, params: null, ledger: null,
       hasSelection: Boolean(matchup.A.unitId || matchup.B.unitId), complete: false};
   }
@@ -54,5 +54,5 @@ export function matchupView(army, matchup) {
     weapons: {A: A.resolved.weapon?.name, B: B.resolved.weapon?.name},
     notes: [...derived.warnings, ...derived.notes],
   } : null;
-  return {ready: true, A, B, derived, params, ledger, hasSelection, complete};
+  return {ready: true, A, B, rangeCm: matchup.rangeCm, derived, params, ledger, hasSelection, complete};
 }

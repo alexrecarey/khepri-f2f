@@ -1,11 +1,15 @@
 // The classic calculator: type the final numbers yourself. Same inputs and
 // the same hiding rules as before (src/CalculatorColumn.jsx), in the new design.
 // The numbers are the state document's classic slice.
+import {useMemo} from 'react';
 import PropTypes from 'prop-types';
 import {LIMITS} from '../engine/params.js';
 import {dispatch} from '../state/store.js';
 import {D20} from './icons.jsx';
 import ResultsCard from './ResultsCard.jsx';
+import {classicRollSummary} from '../state/rolls.js';
+import {summarize} from './results.js';
+import useSaveRoll from './useSaveRoll.js';
 
 const ROLE = {A: 'active', B: 'reactive'};
 const AMMO = [['N', 'N'], ['DA', 'DA'], ['EXP', 'EXP'], ['T2', 'T2'], ['PLASMA', 'PLASMA'], ['DODGE', 'Dodge']];
@@ -123,13 +127,18 @@ ClassicSide.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, params: P
 const setParam = (key) => (value) => dispatch({type: 'setClassic', key, value});
 
 export default function ClassicScreen({params, engine}) {
+  const summary = useMemo(() => {
+    const s = summarize(engine.result);
+    return s ? classicRollSummary(params, s) : null;
+  }, [engine.result, params]);
+  const save = useSaveRoll(summary);
   return (
     <>
       <main className="screen">
         <ClassicSide side="A" params={params} setParam={setParam} />
         <ClassicSide side="B" params={params} setParam={setParam} />
       </main>
-      <ResultsCard result={engine.result} status={engine.status} classic />
+      <ResultsCard result={engine.result} status={engine.status} classic save={save} />
     </>
   );
 }
