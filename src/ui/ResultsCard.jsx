@@ -1,15 +1,16 @@
-// Results, three ways over the same body:
-//   ResultsCard   phone: the card pinned to the bottom, opening a sheet
-//   ResultsPanel  tablet and desktop: the same content inline, in its column
-// The card: wounds per order for each side over the shaded wound bar. The
-// body: the Face to Face bar, the labelled wound bar and the breakdown.
+// Results, two ways over the same pieces:
+//   ResultsCard   phone: one sheet resting low with its top showing (the card)
+//                 that swipes or taps open to the full results
+//   ResultsPanel  tablet and desktop: the results inline, in their column
+// The top: wounds per order for each side over the shaded wound bar. Below:
+// the Face to Face bar, the labelled wound bar and the breakdown.
 import {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, ShareIcon} from './icons.jsx';
 import {shareLink} from './share.js';
+import useSheetGestures from './useSheetGestures.js';
 import Ledger from './Ledger.jsx';
-import {Sheet} from './Sheet.jsx';
 import {pct, shows, summarize} from './results.js';
 import {UnopposedCardBody, UnopposedSheetBody} from './Unopposed.jsx';
 
@@ -22,22 +23,26 @@ const wpo = (n) => (n == null ? '—' : n.toFixed(2));
 const topWounds = (s, side) => Math.max(0, ...s.bar.filter((b) => b.side === side && shows(b.chance)).map((b) => b.wounds));
 const woundsLabel = (w, top) => (w === top ? `${w}+` : `${w}`);
 
-function WoundBar({summary, height, labels = false}) {
+// `grow`: the phone sheet's bar, sized by CSS from --open (6 px resting, 40
+// open), its labels fading in with it; else a fixed `height`.
+function WoundBar({summary, height, labels = false, grow = false}) {
   const top = topWounds(summary, 'active');
   return (
-    <div className="bar" style={{height, borderRadius: height > 10 ? 8 : 3}}>
+    <div className={`bar${grow ? ' rs-wbar' : ''}`} style={grow ? undefined : {height, borderRadius: height > 10 ? 8 : 3}}>
       {summary.bar.filter((s) => shows(s.chance)).map((s) => (
         <span key={`${s.side}${s.wounds}`} className={segClass(s)} style={{width: `${100 * s.chance}%`, display: 'grid', placeItems: 'center',
           fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, color: s.side === 'none' ? 'var(--muted)' : 'var(--active-ink)'}}>
-          {labels && s.side === 'active' && s.chance > 0.05 ? woundsLabel(s.wounds, top) : ''}
-          {labels && s.side === 'none' && s.chance > 0.05 ? '0' : ''}
+          <span className="lbl">
+            {labels && s.side === 'active' && s.chance > 0.05 ? woundsLabel(s.wounds, top) : ''}
+            {labels && s.side === 'none' && s.chance > 0.05 ? '0' : ''}
+          </span>
         </span>
       ))}
     </div>
   );
 }
 
-WoundBar.propTypes = {summary: PropTypes.object.isRequired, height: PropTypes.number.isRequired, labels: PropTypes.bool};
+WoundBar.propTypes = {summary: PropTypes.object.isRequired, height: PropTypes.number, labels: PropTypes.bool, grow: PropTypes.bool};
 
 // Save and Share on the sheet's handle row. `save` = {saved, toggle} or null
 // while there is nothing to save.
@@ -78,36 +83,74 @@ function Wpo({value, side, size = '', pending}) {
 
 Wpo.propTypes = {value: PropTypes.number, side: PropTypes.string.isRequired, size: PropTypes.string, pending: PropTypes.bool};
 
-export default function ResultsCard({result, status, diceLine, classic, ledger, save, pending}) {
-  const open = useAppState((st) => st.ui.overlay === 'results');
-  const setOpen = (o) => dispatch(o ? {type: 'openOverlay', overlay: 'results'} : {type: 'back'});
-  const s = summarize(result);
+// The top of the phone sheet, which is all that shows while it rests low (the
+// results card): both sides' wounds per order over the shaded wound bar. Open,
+// the numbers and the bar are bigger and the face-to-face bar appears above
+// it; app.css grows them with --open as the sheet is dragged.
+function SheetTop({s, classic, pending, status}) {
+  if (s?.unopposed) return <UnopposedCardBody s={s} />;
   return (
     <>
-      <button type="button" className="peek" onClick={() => s && setOpen(true)} aria-label="Show full results">
-        <span className="handle" />
-        {s?.unopposed ? <UnopposedCardBody s={s} /> : (
-          <>
-        <div className="wpo-row">
-          <div className="wpo"><Wpo value={s?.wpo.active} side="active" pending={pending} /><span className="small">wounds / order</span></div>
-          <div className="wpo right"><Wpo value={s?.wpo.reactive} side="reactive" pending={pending} /><span className="small">wounds / order</span></div>
+      <div className="wpo-row">
+        <div className="wpo"><Wpo value={s?.wpo.active} side="active" pending={pending} /><span className="small">wounds / order</span></div>
+        <div className="wpo right"><Wpo value={s?.wpo.reactive} side="reactive" pending={pending} /><span className="small">wounds / order</span></div>
+      </div>
+      {s && !classic && (
+        <div className="bar rs-f2f" role="img"
+          aria-label={`Face to face: active wins ${pct(s.win.active)}, nobody ${pct(s.win.none)}, reactive wins ${pct(s.win.reactive)}`}>
+          <span className="seg-a2" style={{width: `${100 * s.win.active}%`}} />
+          <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
+          <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`}} />
         </div>
-        {s ? <WoundBar summary={s} height={6} /> : <div className="bar" style={{height: 6, background: 'var(--none)', borderRadius: 3}} />}
-        <div className="split">
-          {s ? <><span>{pct(s.atLeast.active[0])} at least one wound</span><span>{pct(s.atLeast.reactive[0])}</span></>
-            : <span>{status}</span>}
-        </div>
-          </>
-        )}
-      </button>
-      {open && s && (
-        <Sheet onClose={() => setOpen(false)} label="Results" actions={<SheetActions save={save} />}>
-          <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} pending={pending} />
-          {ledger && !s.unopposed && <div className="mods-sep" />}
-          {ledger && <Ledger {...ledger} />}
-          {status && <span className="status">{status}</span>}
-        </Sheet>
       )}
+      {s ? <WoundBar summary={s} grow labels /> : <div className="bar rs-wbar" style={{background: 'var(--none)'}} />}
+      <div className="split">
+        {s ? <><span>{pct(s.atLeast.active[0])} at least one wound</span><span>{pct(s.atLeast.reactive[0])}</span></>
+          : <span>{status}</span>}
+      </div>
+    </>
+  );
+}
+
+SheetTop.propTypes = {s: PropTypes.object, classic: PropTypes.bool, pending: PropTypes.bool, status: PropTypes.string};
+
+// Phone: one sheet that rests low with only its top showing (the results
+// card) and opens to the full results. Swipe it up or down (it follows the
+// finger) or tap the top to open, outside to close (useSheetGestures.js).
+export default function ResultsCard({result, status, diceLine, classic, ledger, save, pending}) {
+  const s = summarize(result);
+  const open = useAppState((st) => st.ui.overlay === 'results') && Boolean(s);
+  const setOpen = (o) => dispatch(o ? {type: 'openOverlay', overlay: 'results'} : {type: 'back'});
+  const g = useSheetGestures({open, canOpen: Boolean(s), onOpen: () => setOpen(true), onClose: () => setOpen(false),
+    measureKey: [s?.wpo.active, s?.wpo.reactive, s?.unopposed, classic, status].join('|')});
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Resting low, the sheet's scroll goes back to the top.
+  useEffect(() => { if (!open && g.sheetRef.current) g.sheetRef.current.scrollTop = 0; }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <>
+      <div className={`rscrim${open ? ' open' : ''}`} ref={g.scrimRef} onClick={() => setOpen(false)} />
+      <section className={`rsheet${open ? ' open' : ''}${classic ? ' classic' : ''}`} ref={g.sheetRef} aria-label="Results"
+        {...(open ? {role: 'dialog', 'aria-modal': true} : {})}>
+        <div className="rs-head"><span /><span className="handle" /><span className="sheet-actions">{open && <SheetActions save={save} />}</span></div>
+        <button type="button" className="rs-top" onClick={g.onTopClick} aria-expanded={open} tabIndex={open ? -1 : 0}
+          aria-label={open ? undefined : 'Show full results'}>
+          <SheetTop s={s} classic={classic} pending={pending} status={status} />
+        </button>
+        {/* Below the top: only there for screen readers and keys while open. */}
+        <div className="rs-rest" {...(open ? {} : {inert: '', 'aria-hidden': true})}>
+          {s && (s.unopposed
+            ? <UnopposedSheetBody s={s} names={ledger?.names ?? {A: 'Active', B: 'Reactive'}} diceLine={diceLine} />
+            : classic ? <ClassicBody s={s} woundBar={false} /> : <Breakdown s={s} />)}
+          {s && ledger && !s.unopposed && <div className="mods-sep" />}
+          {s && ledger && <Ledger {...ledger} />}
+          {s && status && <span className="status">{status}</span>}
+        </div>
+      </section>
     </>
   );
 }
@@ -171,7 +214,8 @@ ResultsCard.propTypes = {
 
 // Classic results: the face-to-face bar with its numbers, the wound bar, then
 // each side's wounds per order and its at-least ladder, nobody wounded between.
-function ClassicBody({s}) {
+// woundBar false: the phone sheet already shows the wound bar at its top.
+function ClassicBody({s, woundBar = true}) {
   const ladder = (side, cls, name) => (
     <div className="ladder">
       <div className={`ladder-h c-${side}`}><b>{wpo(s.wpo[side])}</b><span>{name} wounds / order</span></div>
@@ -192,10 +236,12 @@ function ClassicBody({s}) {
         </div>
         <div className="split"><span>Active wins</span><span>{pct(s.win.none)} nobody</span><span>Reactive wins</span></div>
       </div>
-      <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
-        <span className="label">Wounds</span>
-        <WoundBar summary={s} height={28} labels />
-      </div>
+      {woundBar && (
+        <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
+          <span className="label">Wounds</span>
+          <WoundBar summary={s} height={28} labels />
+        </div>
+      )}
       {ladder('active', 'seg-a', 'Active')}
       <div className="ladder">
         <div className="label">Nobody wounded</div>
@@ -208,7 +254,7 @@ function ClassicBody({s}) {
   );
 }
 
-ClassicBody.propTypes = {s: PropTypes.object.isRequired};
+ClassicBody.propTypes = {s: PropTypes.object.isRequired, woundBar: PropTypes.bool};
 
 // Who wins the roll, and what each winner does: at least 1 / 2 / 3 wounds
 // (cumulative, so the rows overlap) and every hit saved. Anything that never

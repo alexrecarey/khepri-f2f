@@ -13,13 +13,14 @@ function useEscape(onClose) {
   }, [onClose]);
 }
 
-// `actions`: small buttons on the handle's row (Save, Share).
-export function Sheet({onClose, label, children, actions}) {
+// `actions`: small buttons on the handle's row (Save, Share). `sheetRef` /
+// `scrimRef`: for swipe gestures (useSheetGestures.js).
+export function Sheet({onClose, label, children, actions, sheetRef, scrimRef}) {
   useEscape(onClose);
   return (
     <>
-      <div className="scrim" onClick={onClose} />
-      <div className="sheet" role="dialog" aria-modal="true" aria-label={label}>
+      <div className="scrim" ref={scrimRef} onClick={onClose} />
+      <div className="sheet" ref={sheetRef} role="dialog" aria-modal="true" aria-label={label}>
         <div className="sheet-head"><span /><span className="handle" /><span className="sheet-actions">{actions}</span></div>
         {children}
       </div>
@@ -27,7 +28,10 @@ export function Sheet({onClose, label, children, actions}) {
   );
 }
 
-Sheet.propTypes = {onClose: PropTypes.func.isRequired, label: PropTypes.string.isRequired, children: PropTypes.node, actions: PropTypes.node};
+Sheet.propTypes = {
+  onClose: PropTypes.func.isRequired, label: PropTypes.string.isRequired, children: PropTypes.node, actions: PropTypes.node,
+  sheetRef: PropTypes.object, scrimRef: PropTypes.object,
+};
 
 // `closeLabel` ("Cancel"): the page is the first of its stack, so it closes
 // with a text button on the right instead of a back arrow.
