@@ -101,15 +101,17 @@ function dice(n, max, color) {
   for (var i = 1; i <= max; i++) out.push({ n: i, fill: i <= n ? color : '#e8e6e1', op: i <= n ? 1 : 0.25 });
   return out;
 }
-function side(title, color, tint, burst, special, sv, ps, arm, ammo, canZero, crit) {
+function side(title, color, tint, burst, special, sv, ps, ammo, canZero, crit) {
   return {
     title: title, color: color, tint: tint, canZero: canZero,
     burst: dice(burst, 6, color), special: dice(special, 3, color),
     steppers: [
-      { label: 'Success Value', hint: 'after all mods · over 20 crits from 1', v: sv },
-      { label: 'Weapon PS', hint: 'include damage mods', v: ps },
-      { label: 'ARM / BTS', hint: 'final save value, cover included', v: arm }
-    ],
+      { label: 'Success Value', hint: 'after all mods · over 20 crits from 1', v: sv }
+    ].concat(Array.isArray(ps)
+      // Plasma: the opponent saves twice, once with ARM and once with BTS
+      ? [{ label: 'Opponent PS ARM', hint: 'your PS + their ARM, cover included', v: ps[0] },
+         { label: 'Opponent PS BTS', hint: 'your PS + their BTS', v: ps[1] }]
+      : [{ label: 'Opponent PS', hint: 'your PS + their ARM, cover included', v: ps }]),
     ammo: AMMO.map(function (a) { return { name: a, on: a === ammo, off: a !== ammo }; }),
     toggles: [
       { name: 'Immunity (Critical)', on: crit, off: !crit },
@@ -121,8 +123,8 @@ function side(title, color, tint, burst, special, sv, ps, arm, ammo, canZero, cr
 class Component extends DCLogic {
   renderVals() {
     return { sides: [
-      side('ACTIVE', '#5fc4a0', '#1f3a31', 4, 0, 14, 5, 6, 'N', false, false),
-      side('REACTIVE', '#e59bc0', '#3a2330', 2, 0, 13, 6, 4, 'EXP', true, false)
+      side('ACTIVE', '#5fc4a0', '#1f3a31', 4, 0, 14, 9, 'N', false, false),
+      side('REACTIVE', '#e59bc0', '#3a2330', 2, 0, 13, 12, 'EXP', true, false)
     ] };
   }
 }
