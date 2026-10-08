@@ -1,6 +1,7 @@
 // The weapon picked once a loadout is chosen.
 import {bioweaponProp, isImpactTemplate, isPlasma} from '../army/weapons.js';
 import {RANGE_BANDS} from './ranges.js';
+import {orderModes} from './weaponModes.js';
 
 // Ammo precedence for the default weapon, best first. Plasma rows list N ammo
 // with an ARM and BTS save, and Viral weapons N ammo with Bioweapon (DA+SHOCK).
@@ -35,12 +36,23 @@ const DEFAULT_WEAPON_KEYS = {
   reactive: (w) => [w.mods.sd > 0 ? 0 : 1, -bestRangeBand(w), impactTemplate(w) ? 0 : 1, ammoRank(w)],
 };
 
-// Weapon picked once a loadout is chosen, from bsWeapons(); null if none.
-export function defaultWeapon(weapons, role) {
+// The list sorted best first for the role by the keys above.
+export function sortWeapons(weapons, role) {
   const key = DEFAULT_WEAPON_KEYS[role];
   const compare = (a, b) => {
     const kb = key(b);
     return key(a).reduce((d, x, i) => d || x - kb[i], 0);
   };
-  return [...weapons].sort(compare)[0] ?? null;
+  return [...weapons].sort(compare);
+}
+
+// Weapon picked once a loadout is chosen, from bsWeapons(); null if none.
+// The keys choose the weapon; a weapon with fire modes then starts on its
+// first mode for the role (weaponModes.js), the same one tapping its name
+// picks, e.g. Boarding Pistol on its Direct Template.
+export function defaultWeapon(weapons, role) {
+  const best = sortWeapons(weapons, role)[0] ?? null;
+  if (!best?.mode) return best;
+  const modes = weapons.filter((w) => w.id === best.id && w.mode);
+  return orderModes(modes, role, sortWeapons)[0] ?? best;
 }

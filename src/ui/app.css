@@ -77,17 +77,19 @@ button { font: inherit; color: inherit; }
 /* Classic's ammo: filled tiles, no outline. */
 .btn.solid { border-color: transparent; background: var(--surface-3); }
 .chip.solid { border-style: solid; color: var(--text-2); }
-/* One weapon with fire modes: [MULTI Pistol | AM | AP | Shock]. */
+/* One weapon with fire modes: [MULTI Pistol | AP | Shock | DA]. Chosen: the
+   name and the chosen mode filled, the other modes outlined. */
 .btn-group { display: inline-flex; align-items: stretch; border: 1px solid #333; border-radius: 8px; font-size: 14px; color: var(--text-2); overflow: hidden; }
-.btn-group .g-name { padding: 8px 6px 8px 12px; }
-.btn-group .g-mode { all: unset; box-sizing: border-box; cursor: pointer; padding: 8px 9px; border-left: 1px solid #333; }
-.btn-group .g-mode:focus-visible { outline: 2px solid var(--text-2); outline-offset: -2px; }
+.btn-group .g-name, .btn-group .g-mode { all: unset; box-sizing: border-box; cursor: pointer; }
+.btn-group .g-name { padding: 8px 8px 8px 12px; }
+.btn-group .g-mode { padding: 8px 9px; border-left: 1px solid #333; }
+.btn-group .g-name:focus-visible, .btn-group .g-mode:focus-visible { outline: 2px solid var(--text-2); outline-offset: -2px; }
 .btn-group.on.active { border-color: var(--active); }
 .btn-group.on.reactive { border-color: var(--reactive); }
-.btn-group.on.active .g-name { color: var(--active); font-weight: 600; }
-.btn-group.on.reactive .g-name { color: var(--reactive); font-weight: 600; }
-.btn-group.active .g-mode.on { background: var(--active); color: var(--active-ink); font-weight: 600; }
-.btn-group.reactive .g-mode.on { background: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
+.btn-group.on.active .g-name, .btn-group.active .g-mode.on { background: var(--active); color: var(--active-ink); font-weight: 600; }
+.btn-group.on.reactive .g-name, .btn-group.reactive .g-mode.on { background: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
+.btn-group.on.active .g-mode { border-left-color: var(--active); }
+.btn-group.on.reactive .g-mode { border-left-color: var(--reactive); }
 
 .chip { all: unset; box-sizing: border-box; cursor: pointer; padding: 7px 12px; border-radius: 999px; border: 1px dashed var(--line-strong); color: var(--text-3); font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
 .chip.on { border-style: solid; color: var(--text); }

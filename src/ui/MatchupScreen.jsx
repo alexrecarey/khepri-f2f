@@ -9,6 +9,8 @@ import {hasSkill} from '../army/traits.js';
 import {FIRETEAM_MAX, FIRETEAM_MIN, surpriseAttackMod} from '../rules/modifiers.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {isTemplate} from '../army/weapons.js';
+import {sortWeapons} from '../rules/defaultWeapon.js';
+import {modeLabels, orderModes} from '../rules/weaponModes.js';
 import {openPicker, pickTrooper} from '../state/actions.js';
 import {ROLE, vanillaOf} from '../state/matchupView.js';
 import {dispatch, getState, useAppState} from '../state/store.js';
@@ -28,11 +30,9 @@ import useSaveRoll from './useSaveRoll.js';
 const modeText = (w) => (w.mode ? ` (${w.mode.replace(/ Mode$/i, '')})` : '');
 const weaponText = (w) => `${shortWeaponName(w.name)}${modeText(w)}`;
 const weaponTitle = (w) => `${w.name}${modeText(w)}`;
-// "Anti-Material Mode" -> "AM"; the rest just lose " Mode".
-const shortMode = (mode) => (/^anti-mat/i.test(mode) ? 'AM' : mode.replace(/ Mode$/i, ''));
-
-// Weapon buttons in list order, a weapon's fire modes gathered into one group.
-function weaponGroups(list) {
+// Weapon buttons in list order, a weapon's fire modes gathered into one group
+// and put in their order for the side's role (rules/weaponModes.js).
+function weaponGroups(list, role) {
   const groups = [];
   for (const w of list) {
     const prev = groups.at(-1);
@@ -42,6 +42,11 @@ function weaponGroups(list) {
     } else {
       groups.push({key: w.key, id: w.id, name: w.name, w});
     }
+  }
+  for (const g of groups) {
+    if (!g.modes) continue;
+    g.modes = orderModes(g.modes, role, sortWeapons);
+    g.labels = modeLabels(g.modes);
   }
   return groups;
 }
@@ -120,15 +125,20 @@ function SideCard({side, army, view, onOpenPicker}) {
       </button>
       {option && (
         <div className="row-wrap" role="group" aria-label="Weapon">
-          {weaponGroups([...weapons, ...pseudo]).map((g) => (g.modes ? (
-            // One weapon, several fire modes: the name once, a button per mode.
-            <span key={g.key} className={`btn-group${g.modes.some((w) => w.key === sel.weaponKey) ? ` on ${color}` : ''}`}
+          {weaponGroups([...weapons, ...pseudo], color).map((g) => (g.modes ? (
+            // One weapon, several fire modes, best first for this side: the
+            // name picks the first; name and chosen mode are filled, the
+            // other modes outlined.
+            <span key={g.key} className={`btn-group ${color}${g.modes.some((w) => w.key === sel.weaponKey) ? ' on' : ''}`}
               role="group" aria-label={shortWeaponName(g.name)}>
-              <span className="g-name">{shortWeaponName(g.name)}</span>
+              <button type="button" className="g-name" title={`${g.name}: ${g.labels.get(g.modes[0].key)}`}
+                aria-pressed={g.modes.some((w) => w.key === sel.weaponKey)} onClick={() => patch(side, {weaponKey: g.modes[0].key})}>
+                {shortWeaponName(g.name)}
+              </button>
               {g.modes.map((w) => (
                 <button type="button" key={w.key} className={`g-mode${sel.weaponKey === w.key ? ' on' : ''}`}
                   aria-pressed={sel.weaponKey === w.key} title={weaponTitle(w)} onClick={() => patch(side, {weaponKey: w.key})}>
-                  {shortMode(w.mode)}
+                  {g.labels.get(w.key)}
                 </button>
               ))}
             </span>
