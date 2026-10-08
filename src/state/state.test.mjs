@@ -245,3 +245,23 @@ test('settings: start faction pref, clearing data', () => {
   assert.deepEqual(s.lists.recents, []);
   assert.equal(uiDepth(run(s, {type: 'openOverlay', overlay: 'settings'}).ui), 1);
 });
+
+test('classic: the Opponent PS stepper keeps PS + ARM and PS + BTS right', async () => {
+  const {classicSave} = await import('./reduce.js');
+  const c = {...DEFAULT_PARAMS, damageA: 7, armB: 2, btsB: 3};
+  let n = classicSave(c, 'A', 'arm', 12);
+  assert.equal(n.damageA + n.armB, 12);
+  assert.equal(n.armB, 2);                         // the PS moved, not the ARM
+  n = classicSave(c, 'A', 'arm', 40);
+  assert.equal(n.damageA, 30);
+  assert.equal(n.armB, 10);
+  n = classicSave(c, 'A', 'arm', 1);                // below the ARM: the ARM drops too
+  assert.equal(n.damageA, 0);
+  assert.equal(n.armB, 1);
+  assert.equal(classicSave(c, 'A', 'arm', -5).armB, 0);
+  n = classicSave(c, 'A', 'bts', 12);
+  assert.equal(n.damageA + n.btsB, 12);
+  n = classicSave(c, 'A', 'bts', 5);               // below the PS: PS drops, ARM total holds
+  assert.equal(n.damageA + n.btsB, 5);
+  assert.equal(n.damageA + n.armB, 9);
+});

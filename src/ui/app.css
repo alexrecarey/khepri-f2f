@@ -74,6 +74,9 @@ button { font: inherit; color: inherit; }
 .btn.on.active { background: var(--active); border-color: var(--active); color: var(--active-ink); font-weight: 600; }
 .btn.on.reactive { background: var(--reactive); border-color: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
 .btn:disabled { opacity: .4; cursor: default; }
+/* Classic's ammo: filled tiles, no outline. */
+.btn.solid { border-color: transparent; background: var(--surface-3); }
+.chip.solid { border-style: solid; color: var(--text-2); }
 /* One weapon with fire modes: [MULTI Pistol | AM | AP | Shock]. */
 .btn-group { display: inline-flex; align-items: stretch; border: 1px solid #333; border-radius: 8px; font-size: 14px; color: var(--text-2); overflow: hidden; }
 .btn-group .g-name { padding: 8px 6px 8px 12px; }
@@ -272,3 +275,17 @@ button { font: inherit; color: inherit; }
 .small-print { font-size: 13px; color: var(--muted); }
 
 .toast { position: fixed; left: 50%; bottom: calc(150px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 40; padding: 10px 16px; border-radius: 999px; background: var(--text); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,.5); animation: fade .15s ease; }
+
+/* ---------- classic results ---------- */
+.bar.labelled span { display: grid; place-items: center; font-family: var(--font-mono); font-size: 12px; font-weight: 600; }
+.ladder { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.ladder-h { display: flex; align-items: baseline; gap: 8px; padding-bottom: 2px; }
+.ladder-h b { font-family: var(--font-display); font-size: 22px; font-weight: 700; }
+.ladder-h span { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.ladder-r { display: flex; align-items: center; gap: 10px; }
+.ladder-r i { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.ladder-r i.edged { border: 1px solid #555; }
+.ladder-r span:first-of-type { flex-grow: 1; color: var(--text-2); }
+.ladder-r .p { font-family: var(--font-mono); }
+.ladder-r.sub { padding-left: 22px; color: var(--muted); font-size: 13px; }
+.ladder-r.sub span:first-of-type { color: var(--muted); }

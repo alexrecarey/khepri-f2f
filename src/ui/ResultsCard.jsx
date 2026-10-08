@@ -79,30 +79,7 @@ export default function ResultsCard({result, status, diceLine, classic, ledger, 
           {s.unopposed ? (
             <UnopposedSheetBody s={s} names={ledger?.names ?? {A: 'Active', B: 'Reactive'}} diceLine={diceLine} />
           ) : classic ? (
-            <>
-          <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
-            <span className="label">Face to face</span>
-            <div className="bar" style={{height: 28, borderRadius: 7}}>
-              <span className="seg-a2" style={{width: `${100 * s.win.active}%`}} />
-              <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
-              <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`}} />
-            </div>
-            <div className="split" style={{color: 'var(--text-2)'}}>
-              <span>{shows(s.win.active) ? `Active wins ${pct(s.win.active)}` : ''}</span>
-              <span>{shows(s.win.none) ? `${pct(s.win.none)} nobody` : ''}</span>
-              <span>{shows(s.win.reactive) ? `Reactive ${pct(s.win.reactive)}` : ''}</span>
-            </div>
-          </div>
-          <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
-            <span className="label">Wounds</span>
-            <WoundBar summary={s} height={28} labels />
-          </div>
-          <div className="mini">
-            <div><b className="c-active">{wpo(s.wpo.active)}</b> <span className="small">wounds / order</span></div>
-            <div><b className="c-reactive">{wpo(s.wpo.reactive)}</b> <span className="small">wounds / order</span></div>
-          </div>
-              <Breakdown s={s} />
-            </>
+            <ClassicBody s={s} />
           ) : (
             <>
           <div className="wpo-row">
@@ -139,6 +116,47 @@ ResultsCard.propTypes = {
   // {saved, toggle}: the Save button; null hides it.
   save: PropTypes.object,
 };
+
+// Classic results: the face-to-face bar with its numbers, the wound bar, then
+// each side's wounds per order and its at-least ladder, nobody wounded between.
+function ClassicBody({s}) {
+  const ladder = (side, cls, name) => (
+    <div className="ladder">
+      <div className={`ladder-h c-${side}`}><b>{wpo(s.wpo[side])}</b><span>{name} wounds / order</span></div>
+      {s.atLeast[side].map((p, i) => (shows(p) ? (
+        <div key={i} className="ladder-r"><i className={`${cls}${i + 1}`} /><span>{i + 1} or more wounds</span><span className="p">{pct(p)}</span></div>
+      ) : null))}
+    </div>
+  );
+  const big = (p) => p > 0.12;
+  return (
+    <>
+      <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
+        <span className="label">Face to face</span>
+        <div className="bar labelled" style={{height: 28, borderRadius: 7}}>
+          <span className="seg-a2" style={{width: `${100 * s.win.active}%`, color: 'var(--active-ink)'}}>{big(s.win.active) ? pct(s.win.active) : ''}</span>
+          <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
+          <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`, color: 'var(--reactive-ink)'}}>{big(s.win.reactive) ? pct(s.win.reactive) : ''}</span>
+        </div>
+        <div className="split"><span>Active wins</span><span>{pct(s.win.none)} nobody</span><span>Reactive wins</span></div>
+      </div>
+      <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
+        <span className="label">Wounds</span>
+        <WoundBar summary={s} height={28} labels />
+      </div>
+      {ladder('active', 'seg-a', 'Active')}
+      <div className="ladder">
+        <div className="label">Nobody wounded</div>
+        <div className="ladder-r"><i className="seg-none edged" /><span>Neither side causes a wound</span><span className="p">{pct(s.bar[3].chance)}</span></div>
+        {shows(s.saved.active) && <div className="ladder-r sub"><span>Active wins, every hit saved</span><span className="p">{pct(s.saved.active)}</span></div>}
+        {shows(s.saved.reactive) && <div className="ladder-r sub"><span>Reactive wins, every hit saved</span><span className="p">{pct(s.saved.reactive)}</span></div>}
+      </div>
+      {ladder('reactive', 'seg-r', 'Reactive')}
+    </>
+  );
+}
+
+ClassicBody.propTypes = {s: PropTypes.object.isRequired};
 
 // Who wins the roll, and what each winner does: at least 1 / 2 / 3 wounds
 // (cumulative, so the rows overlap) and every hit saved. Anything that never

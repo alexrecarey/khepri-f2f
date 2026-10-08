@@ -13,6 +13,8 @@ import useSaveRoll from './useSaveRoll.js';
 
 const ROLE = {A: 'active', B: 'reactive'};
 const AMMO = [['N', 'N'], ['DA', 'DA'], ['EXP', 'EXP'], ['T2', 'T2'], ['PLASMA', 'PLASMA'], ['DODGE', 'Dodge']];
+// The highest Opponent PS the steppers reach: weapon PS + ARM (or BTS) limits.
+const SAVE_LIMIT = {arm: [0, LIMITS.damage[1] + LIMITS.arm[1]], bts: [0, LIMITS.damage[1] + LIMITS.bts[1]]};
 const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
 
 // Dice icons: tap the third die for burst 3; tap the lit last die to drop one.
@@ -78,9 +80,8 @@ function ClassicSide({side, params, setParam}) {
   // A Direct Template hits automatically: no roll, so no Success Value.
   const rollsDice = burst !== 0 && !template;
   const causesSaves = burst !== 0 && ammo !== 'DODGE';
-  const otherAmmo = params[`ammo${other}`];
   const toggle = (k, name) => (
-    <button type="button" className={`chip${v(k) ? ` on ${color}` : ''}`} aria-pressed={v(k)} onClick={() => set(k)(!v(k))}>
+    <button type="button" className={`chip solid${v(k) ? ` on ${color}` : ''}`} aria-pressed={v(k)} onClick={() => set(k)(!v(k))}>
       {v(k) ? `${name} ✓` : name}
     </button>
   );
@@ -93,18 +94,25 @@ function ClassicSide({side, params, setParam}) {
       <DiceInput label="Special dice" value={v('bonusBurst')} min={0} max={3} color={color} onChange={set('bonusBurst')} />
       <div className="steppers">
         {rollsDice && <Stepper name="Success Value" value={v('successValue')} limit={LIMITS.successValue} color={color} onChange={set('successValue')} />}
-        {causesSaves && <Stepper name="Weapon PS" value={v('damage')} limit={LIMITS.damage} color={color} onChange={set('damage')} />}
-        <Stepper name={otherAmmo === 'PLASMA' ? 'ARM' : 'ARM / BTS'} value={v('arm')} limit={LIMITS.arm} color={color} onChange={set('arm')} />
-        {otherAmmo === 'PLASMA' && <Stepper name="BTS" value={v('bts')} limit={LIMITS.bts} color={color} onChange={set('bts')} />}
+        {/* The save the opponent makes against this side: weapon PS + their ARM
+            (cover included); Plasma also makes them save with BTS. */}
+        {causesSaves && (
+          <Stepper name={ammo === 'PLASMA' ? 'Opponent PS ARM' : 'Opponent PS'} value={v('damage') + params[`arm${other}`]}
+            limit={SAVE_LIMIT.arm} color={color} onChange={(total) => dispatch({type: 'setClassicSave', side, which: 'arm', total})} />
+        )}
+        {causesSaves && ammo === 'PLASMA' && (
+          <Stepper name="Opponent PS BTS" value={v('damage') + params[`bts${other}`]} limit={SAVE_LIMIT.bts} color={color}
+            onChange={(total) => dispatch({type: 'setClassicSave', side, which: 'bts', total})} />
+        )}
       </div>
       <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
         <span className="label">Ammunition</span>
         <div className="row-wrap">
           {AMMO.map(([key, name]) => (
-            <button type="button" key={key} className={`btn${ammo === key ? ` on ${color}` : ''}`} aria-pressed={ammo === key}
+            <button type="button" key={key} className={`btn solid${ammo === key ? ` on ${color}` : ''}`} aria-pressed={ammo === key}
               onClick={() => set('ammo')(key)}>{name}</button>
           ))}
-          <button type="button" className={`btn${v('cont') ? ` on ${color}` : ''}`} aria-pressed={v('cont')}
+          <button type="button" className={`btn solid${v('cont') ? ` on ${color}` : ''}`} aria-pressed={v('cont')}
             onClick={() => set('cont')(!v('cont'))} title="Continuous Damage">CONT</button>
         </div>
       </div>
@@ -112,7 +120,7 @@ function ClassicSide({side, params, setParam}) {
         {toggle('critImmune', 'Immunity (Critical)')}
         {toggle('template', 'Direct Template')}
         {side === 'B' && (
-          <button type="button" className={`chip${params.fixedFaceToFace ? ` on ${color}` : ''}`} aria-pressed={params.fixedFaceToFace}
+          <button type="button" className={`chip solid${params.fixedFaceToFace ? ` on ${color}` : ''}`} aria-pressed={params.fixedFaceToFace}
             onClick={() => setParam('fixedFaceToFace')(!params.fixedFaceToFace)}>
             {params.fixedFaceToFace ? 'Fixed value die (AC2) ✓' : 'Fixed value die (AC2)'}
           </button>
