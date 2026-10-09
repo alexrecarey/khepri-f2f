@@ -370,7 +370,7 @@ test('Immunity (ARM) does nothing against BTS saves; Plasma still rolls ARM and 
   const viral = shotAt(dog, 4, '4:');
   assert.equal(viral.inputs.ammoA, 'DA');
   assert.equal(viral.inputs.armB, 6);
-  assert.deepEqual(viral.notes, ['Active: Shock against VITA 1; a failed save is Dead, counted as one extra wound']);
+  assert.deepEqual(viral.notes, ['Active: Shock against VITA 1; a failed save is Dead (no Unconscious, NWI or Dogged)']);
   // Wiki example 3.
   const plasma = shotAt(dog, 5, '5:Hit Mode');
   assert.equal(plasma.inputs.ammoA, 'PLASMA');
@@ -532,7 +532,7 @@ test('Vulnerability (Viral): no Immunity against Viral weapons', () => {
   assert.equal(viral.inputs.ammoA, 'DA');
   assert.equal(viral.inputs.critImmuneB, false);
   assert.deepEqual(viral.notes, [
-    'Active: Shock against VITA 1; a failed save is Dead, counted as one extra wound',
+    'Active: Shock against VITA 1; a failed save is Dead (no Unconscious, NWI or Dogged)',
     'Active: target has Vulnerability (Viral); Immunity (BTS) does not apply',
   ]);
   const breaker = shotAt(chaksa, 15, '15:');
