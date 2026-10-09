@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Wound shade steps</title><script src="./support.js"></script></head>
+<body><x-dc><helmet><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+.h{font-family:'Chakra Petch',sans-serif;font-weight:700}
+.colh{display:flex;flex-direction:column;gap:4px}.colh b{font-family:'Chakra Petch',sans-serif;font-size:16px}.colh span{font-size:12px;color:#9a978f;line-height:1.45}
+.cell{display:flex;flex-direction:column;gap:6px}
+.pills{display:flex;gap:3px;height:40px}
+.pill{flex:1 1 0;min-width:0;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;line-height:1.2}
+.pill i{font-style:normal;font-weight:400;opacity:.75}
+.tl{font-size:14px;font-weight:600}.ts{font-size:12px;color:#8a877f}
+.bar{display:flex;height:34px;border-radius:8px;overflow:hidden;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600}
+.bar span{display:grid;place-items:center;overflow:hidden;white-space:nowrap}
+.sw{width:44px;height:34px;border-radius:6px;display:grid;place-items:center;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600}
+</style></helmet>
+<div style="width:1800px;height:1240px;background:#121212;padding:32px;box-sizing:border-box;display:flex;flex-direction:column;gap:22px">
+<div style="display:flex;flex-direction:column;gap:6px"><span class="h" style="font-size:24px">Wound shades: start deeper, use the light end only when a trooper needs it</span><span style="font-size:13px;color:#9a978f;max-width:1300px;line-height:1.5">Same two ramps as today, cut into six intensities (1 lightest, 6 deepest). Dead always takes 6. Today the first state always gets 1, so "1 wound", the state you see most, is the palest. Each pill shows the state and the intensity it gets.</span></div>
+<div style="display:flex;gap:40px;align-items:center">
+<div style="display:flex;gap:6px;align-items:center"><span class="ts" style="width:70px">Active</span><sc-for list="{{pal.active}}" as="p" hint-placeholder-count="6"><span class="sw" style="background:{{p.bg}};color:{{p.fg}}">{{p.k}}</span></sc-for></div>
+<div style="display:flex;gap:6px;align-items:center"><span class="ts" style="width:70px">Reactive</span><sc-for list="{{pal.reactive}}" as="p" hint-placeholder-count="6"><span class="sw" style="background:{{p.bg}};color:{{p.fg}}">{{p.k}}</span></sc-for></div></div>
+<div style="display:grid;grid-template-columns:200px repeat(4,minmax(0,1fr));gap:18px 22px;align-items:start">
+<span></span>
+<sc-for list="{{options}}" as="o" hint-placeholder-count="4"><div class="colh"><b style="color:{{o.color}}">{{o.name}}</b><span>{{o.rule}}</span></div></sc-for>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+<div style="display:flex;flex-direction:column;gap:2px;padding-top:4px"><span class="tl">{{r.name}}</span><span class="ts">{{r.note}}</span></div>
+<sc-for list="{{r.cells}}" as="c" hint-placeholder-count="4"><div class="cell"><div class="pills"><sc-for list="{{c.a}}" as="s" hint-placeholder-count="3"><span class="pill" style="background:{{s.bg}};color:{{s.fg}}">{{s.label}}<i>{{s.k}}</i></span></sc-for></div><div class="pills" style="height:22px"><sc-for list="{{c.r}}" as="s" hint-placeholder-count="3"><span class="pill" style="background:{{s.bg}};color:{{s.fg}}"><i>{{s.k}}</i></span></sc-for></div></div></sc-for>
+</sc-for>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;border-top:1px solid #242424;padding-top:20px">
+<div style="display:flex;align-items:baseline;gap:14px"><span class="h" style="font-size:18px">A real roll</span><span style="font-size:13px;color:#9a978f"><b style="color:#5fc4a0">Fennec</b> ML vs <b style="color:#e59bc0">Squalos</b> HMG at 32″. Squalos is 3 STR with Remote Presence (five states); Fennec is 1 VITA (two). Same figures as the wound-states phone board.</span></div>
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:200px minmax(0,1fr);gap:22px;align-items:center"><span style="font-family:'Chakra Petch',sans-serif;font-size:15px;color:{{b.color}}">{{b.name}}</span><div class="bar"><sc-for list="{{b.segs}}" as="s" hint-placeholder-count="8"><span style="width:{{s.w}};background:{{s.bg}};color:{{s.fg}}">{{s.label}}</span></sc-for></div></div></sc-for>
+</div>
+</div></x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1800,"height":1240}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var RAMP = {active: ['#cdeee2', '#1f6b52'], reactive: ['#f6d9e8', '#8e3b67']};
+    function hex(c) { return [1, 3, 5].map(function (i) { return parseInt(c.slice(i, i + 2), 16); }); }
+    function mix(side, t) {
+      var f = hex(RAMP[side][0]), to = hex(RAMP[side][1]);
+      return f.map(function (v, k) { return Math.round(v + (to[k] - v) * t); });
+    }
+    function sw(side, k) {
+      var c = mix(side, (k - 1) / 5);
+      var lum = (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255;
+      return {k: k, bg: 'rgb(' + c.join(',') + ')', fg: lum > 0.55 ? '#132019' : '#f4f2ee'};
+    }
+    // Today interpolates continuously; shown as its exact colour, labelled with the nearest step.
+    function todayColor(side, i, n) {
+      var t = n <= 1 ? 1 : i / (n - 1);
+      var c = mix(side, t), lum = (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255;
+      return {k: '≈' + Math.round(1 + 5 * t), bg: 'rgb(' + c.join(',') + ')', fg: lum > 0.55 ? '#132019' : '#f4f2ee'};
+    }
+    function spread(start) {
+      return function (i, n) { return n <= 1 ? 6 : Math.round(start(n) + (6 - start(n)) * i / (n - 1)); };
+    }
+    var OPTIONS = [
+      {name: 'Today', color: '#9a978f', rule: 'First state lightest, Dead deepest, the rest spread between. Two states: 1 and 6.', pick: null},
+      {name: 'A · Start at 3', color: '#e8e6e1', rule: 'Up to four states spread over 3–6. Five states reach down to 2, six to 1. My reading of what you asked.', pick: spread(function (n) { return n >= 6 ? 1 : n === 5 ? 2 : 3; })},
+      {name: 'B · Start at 2', color: '#e8e6e1', rule: 'Same idea, one step lighter: up to five states spread over 2–6; only six states use 1.', pick: spread(function (n) { return n >= 6 ? 1 : 2; })},
+      {name: 'C · Count back from Dead', color: '#e8e6e1', rule: 'Dead 6, each milder state one step lighter: 5, 4, 3… The light end only appears with five or six states. Less contrast between neighbours.', pick: function (i, n) { return Math.max(1, 6 - (n - 1 - i)); }},
+    ];
+    var TARGETS = [
+      {name: 'Shock vs 1 VITA', note: 'Dead only', s: ['DEAD']},
+      {name: '1 VITA', note: 'Fennec, Zhanshi', s: ['UNC', 'DEAD']},
+      {name: '2 VITA', note: 'e.g. Swiss Guard', s: ['1W', 'UNC', 'DEAD']},
+      {name: '2 VITA · NWI', note: 'NWI renames Unconscious', s: ['1W', 'NWI', 'DEAD']},
+      {name: '3 STR · Remote Presence', note: 'Squalos', s: ['1W', '2W', 'UNC', 'UNC2', 'DEAD']},
+      {name: '4 STR · Remote Presence', note: 'the most states a target gets', s: ['1W', '2W', '3W', 'UNC', 'UNC2', 'DEAD']},
+    ];
+    function states(o, side, labels) {
+      var n = labels.length;
+      return labels.map(function (label, i) {
+        var s = o.pick ? sw(side, o.pick(i, n)) : todayColor(side, i, n);
+        return {label: label, k: s.k, bg: s.bg, fg: s.fg};
+      });
+    }
+    var rows = TARGETS.map(function (t) {
+      return {name: t.name, note: t.note, cells: OPTIONS.map(function (o) { return {a: states(o, 'active', t.s), r: states(o, 'reactive', t.s)}; })};
+    });
+    // Fennec ML vs Squalos HMG: exactly-n chances, active side deepest outside.
+    var ACT = [['1W', 17.2], ['2W', 16.4], ['UNC', 12.3], ['UNC2', 7.2], ['DEAD', 5.1]];
+    var REA = [['UNC', 13.4], ['DEAD', 6.4]];
+    var bars = OPTIONS.map(function (o) {
+      var a = states(o, 'active', ACT.map(function (x) { return x[0]; }));
+      var r = states(o, 'reactive', REA.map(function (x) { return x[0]; }));
+      var segs = [];
+      for (var i = ACT.length - 1; i >= 0; i--) segs.push({w: ACT[i][1] + '%', bg: a[i].bg, fg: a[i].fg, label: ACT[i][1] > 6 ? ACT[i][0] : ''});
+      segs.push({w: '22%', bg: '#2e2e2e', fg: '#8a877f', label: ''});
+      REA.forEach(function (x, i) { segs.push({w: x[1] + '%', bg: r[i].bg, fg: r[i].fg, label: x[1] > 6 ? x[0] : ''}); });
+      return {name: o.name, color: o.color, segs: segs};
+    });
+    var pal = {active: [1, 2, 3, 4, 5, 6].map(function (k) { return sw('active', k); }), reactive: [1, 2, 3, 4, 5, 6].map(function (k) { return sw('reactive', k); })};
+    return {pal: pal, options: OPTIONS, rows: rows, bars: bars};
+  }
+}
+</script></body></html>

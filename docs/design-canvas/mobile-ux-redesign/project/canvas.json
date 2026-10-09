@@ -702,6 +702,13 @@
    "page": "anim",
    "is_interactive": true,
    "title": "Empty slot drift — five takes on the moving tint (D plasma chosen)"
+  },
+  "WoundShadeSteps.dc.html": {
+   "x": 0,
+   "y": 25700,
+   "w": 1800,
+   "h": 1240,
+   "title": "Wound shades — start deeper, light end only for many-wound targets (A / B / C vs today)"
   }
  },
  "createdOnFiles": {
@@ -1016,7 +1023,8 @@
   "WoundsPeek.dc.html",
   "WoundIcons.dc.html",
   "WoundAtLeast.dc.html",
-  "SlotDrift.dc.html"
+  "SlotDrift.dc.html",
+  "WoundShadeSteps.dc.html"
  ],
  "pages": [
   {
