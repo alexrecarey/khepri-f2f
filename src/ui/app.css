@@ -498,29 +498,28 @@ b.hl { color: var(--text); background: #2e4a40; border-radius: 3px; padding: 0 1
 .rsheet:not(.open):not(.dragging):not(.settling) .rs-rest { visibility: hidden; transition: visibility 0s linear .32s; }
 .rs-rest > * { flex-shrink: 0; }
 
-/* Empty side (MatchupScreen EmptySlot): a tall slot that fills the space. Its
-   tint drifts and the recent chips light up in turn, the only motion on an
-   empty screen. */
-.card.slot { flex: 1 1 0; min-height: 220px; align-items: center; justify-content: center; gap: 12px; text-align: center;
-  border: 1.5px dashed color-mix(in srgb, var(--side) 40%, transparent);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--side) 18%, transparent), transparent 50%, color-mix(in srgb, var(--side) 18%, transparent));
-  background-size: 100% 300%; animation: slot-drift 6s ease-in-out infinite; }
+/* Empty side (MatchupScreen EmptySlot): a tall slot that fills the space on a
+   phone. The plasma canvas (Plasma.jsx) behind it is the only motion on an
+   empty screen; the chips hold still. The whole card opens the search: the
+   button's ::before covers it, and the chips sit above that. */
+.card.slot { position: relative; isolation: isolate; overflow: hidden; flex: 1 1 0; min-height: 220px; align-items: center; justify-content: center; gap: 12px; text-align: center;
+  border: 1.5px dashed color-mix(in srgb, var(--side) 40%, transparent); transition: border-color .2s; }
+.card.slot:hover { border-color: color-mix(in srgb, var(--side) 75%, transparent); }
 .card.slot.active { --side: var(--active); }
 .card.slot.reactive { --side: var(--reactive); }
-@keyframes slot-drift { 0%, 100% { background-position: 0 0; } 50% { background-position: 0 100%; } }
+/* z-index -1 inside the isolated card: above its background, under the text. */
+.slot-plasma { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; pointer-events: none; }
 .slot-open { all: unset; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.slot-open:focus-visible { outline: 2px solid var(--side); outline-offset: 6px; border-radius: 8px; }
+.slot-open::before { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.slot-open:focus-visible::before { outline: 2px solid var(--side); outline-offset: -5px; border-radius: calc(var(--radius-card) - 2px); }
 .slot-die { width: 52px; height: 52px; display: block; }
 .slot-die svg { width: 100%; height: 100%; display: block; }
 .slot-title { font-size: 20px; font-weight: 600; }
-.slot-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
-.slot-chips .chip { animation: slot-lit 4.5s ease-in-out infinite; }
-.slot-chips .chip:nth-child(2) { animation-delay: .5s; }
-.slot-chips .chip:nth-child(3) { animation-delay: 1s; }
-@keyframes slot-lit { 0%, 30%, 100% { border-color: var(--line-strong); color: var(--text-2); } 12% { border-color: var(--side); color: var(--text); } }
+.slot-chips { position: relative; z-index: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
 .slot-hint { font-size: 12px; color: var(--text-3); }
-.workbench .col.setup.has-slot { height: 100%; }
-.workbench.tablet .sides .card.slot { min-height: 300px; }
+/* Wider than a phone the slot keeps roughly the shape it has there (9:8)
+   instead of stretching down the whole column. */
+.workbench .card.slot { flex: none; min-height: 0; aspect-ratio: 9 / 8; }
 
 /* Results before both troopers are picked (ResultsCard WaitRow / WaitPanel). Still. */
 .wait-die { width: 34px; height: 34px; display: block; opacity: .45; }

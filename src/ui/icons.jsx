@@ -16,6 +16,19 @@ export function D20({fill, opacity = 1, crossed = false}) {
 
 D20.propTypes = {fill: PropTypes.string.isRequired, opacity: PropTypes.number, crossed: PropTypes.bool};
 
+// The site mark (public/favicon.svg): a hexagon with a triangle cut into it.
+// The empty slot shows it in the side colour.
+export function SiteMark({fill}) {
+  return (
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <path fill={fill} opacity=".9" d="M50 4 90 27v46L50 96 10 73V27Z" />
+      <path fill="var(--surface)" opacity=".55" d="M50 22 72 62H28Z" />
+    </svg>
+  );
+}
+
+SiteMark.propTypes = {fill: PropTypes.string.isRequired};
+
 export const MoreIcon = () => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
     <circle cx="4" cy="10" r="1.8" /><circle cx="10" cy="10" r="1.8" /><circle cx="16" cy="10" r="1.8" />

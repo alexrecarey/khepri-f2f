@@ -19,7 +19,8 @@ import DeskPicker from './picker/DeskPicker.jsx';
 import {useSearcher} from './picker/useTrooperSearch.js';
 import {extraLoadoutName, shortWeaponName} from './names.js';
 import ResultsCard, {ResultsPanel} from './ResultsCard.jsx';
-import {D20} from './icons.jsx';
+import {SiteMark} from './icons.jsx';
+import Plasma from './Plasma.jsx';
 import Ledger from './Ledger.jsx';
 import useLayout from './useLayout.js';
 import {matchupRollSummary} from '../state/rolls.js';
@@ -105,16 +106,17 @@ function FireteamChip({side, size, color}) {
 
 FireteamChip.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, size: PropTypes.number.isRequired, color: PropTypes.string.isRequired};
 
-// A side with no trooper yet: a tall slot that fills the space, with the die,
-// one call to action and the latest recent picks as one-tap chips. Its tint
-// drifts and the chips light up in turn (app.css), to draw the eye to what
-// is still missing.
+// A side with no trooper yet: a tall slot with the site mark, one call to
+// action and the latest recent picks as one-tap chips. A slow plasma tint
+// behind it draws the eye to what is still missing. Tapping anywhere on the
+// card opens the search (the button covers the card, app.css).
 function EmptySlot({side, recents, onOpenPicker, onPick, hint}) {
   const color = ROLE[side];
   return (
     <section className={`card slot ${color}`} data-side={side} aria-label={`${color} trooper`}>
+      <Plasma cssVar={`--${color}`} seed={side === 'A' ? 0 : 40} />
       <button type="button" className="slot-open" onClick={onOpenPicker}>
-        <span className="slot-die"><D20 fill={`var(--${color})`} /></span>
+        <span className="slot-die"><SiteMark fill={`var(--${color})`} /></span>
         <span className={`role ${color}`}>{side === 'A' ? 'ACTIVE' : 'REACTIVE'}</span>
         <span className="slot-title">Choose a trooper</span>
       </button>
@@ -380,7 +382,7 @@ export default function MatchupScreen({army, armyError, view, engine}) {
     );
   }
   // Tablet and desktop: the same pieces in columns (useLayout.js).
-  const setup = <div className={`col setup${picked.A && picked.B ? '' : ' has-slot'}`}>{error}{cardA}{range}{cardB}{clear}</div>;
+  const setup = <div className="col setup">{error}{cardA}{range}{cardB}{clear}</div>;
   return (
     <>
       <main className={`workbench ${layout}`}>
