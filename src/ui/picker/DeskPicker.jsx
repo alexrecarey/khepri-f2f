@@ -12,6 +12,7 @@ import {TIER} from '../../search/search.js';
 import {words} from '../../search/text.js';
 import {pickTrooper, pickerSide} from '../../state/actions.js';
 import {other} from '../../state/reduce.js';
+import {recentsFor} from '../../state/schema.js';
 import {dispatch, getState, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
 import {extraLoadoutName} from '../names.js';
@@ -89,8 +90,8 @@ export default function DeskPicker({searcher, army}) {
 
   const factionName = (id) => searcher?.factions.find((f) => f.id === id)?.name ?? 'All factions';
   const recentIds = useMemo(
-    () => (searcher ? recents.map((r) => searcher.findRow(r)).filter((id) => id != null) : []),
-    [searcher, recents],
+    () => (searcher ? recentsFor(recents, side).map((r) => searcher.findRow(r)).filter((id) => id != null) : []),
+    [searcher, recents, side],
   );
 
   // Every match in every faction, for the chip counts and "in other factions".

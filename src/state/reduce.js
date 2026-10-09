@@ -27,7 +27,19 @@ function back(ui) {
 
 const sameTrooper = (a, b) => a.unitId === b.unitId && a.groupId === b.groupId && a.optionId === b.optionId;
 
-const pushRecent = (list, pick) => [pick, ...list.filter((p) => !sameTrooper(p, pick))].slice(0, MAX_RECENTS);
+// A pick moves to the front of its side's recents; the other side's entry for
+// the same trooper stays. Each side keeps MAX_RECENTS; an untagged (older)
+// entry counts against both.
+const pushRecent = (list, pick) => {
+  const kept = {A: 0, B: 0};
+  return [pick, ...list.filter((p) => !(sameTrooper(p, pick) && (p.side == null || p.side === pick.side)))]
+    .filter((p) => {
+      const sides = p.side == null ? ['A', 'B'] : [p.side];
+      if (sides.every((s) => kept[s] >= MAX_RECENTS)) return false;
+      sides.forEach((s) => { kept[s] += 1; });
+      return true;
+    });
+};
 const pushFaction = (list, id) => (id == null ? list : [id, ...list.filter((f) => f !== id)].slice(0, MAX_RECENT_FACTIONS));
 
 const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
@@ -207,7 +219,7 @@ export function reduce(state, action) {
         ...setSide(state, action.side, {...EMPTY_SIDE, ...action.sel, inCover, ftSize}),
         scopes: action.scope === undefined ? state.scopes : {...state.scopes, [action.side]: action.scope},
         ui: picker ? {...ui, picker} : {...ui, overlay: null, picker: null},
-        lists: action.recent ? {...state.lists, recents: pushRecent(state.lists.recents, action.recent)} : state.lists,
+        lists: action.recent ? {...state.lists, recents: pushRecent(state.lists.recents, {...action.recent, side: action.side})} : state.lists,
       };
     }
 

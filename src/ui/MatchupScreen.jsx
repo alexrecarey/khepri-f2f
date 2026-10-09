@@ -13,6 +13,7 @@ import {sortWeapons} from '../rules/defaultWeapon.js';
 import {modeLabels, orderModes} from '../rules/weaponModes.js';
 import {openPicker, pickTrooper} from '../state/actions.js';
 import {ROLE, vanillaOf} from '../state/matchupView.js';
+import {recentsFor} from '../state/schema.js';
 import {dispatch, getState, useAppState} from '../state/store.js';
 import TrooperPicker from './picker/TrooperPicker.jsx';
 import DeskPicker from './picker/DeskPicker.jsx';
@@ -330,12 +331,16 @@ export default function MatchupScreen({army, armyError, view, engine}) {
   const openSide = (side) => () => dispatch(openPicker(army, getState(), side));
   const picked = {A: view.A.resolved?.unit != null, B: view.B.resolved?.unit != null};
   resultProps.picked = picked;
-  // Empty slots offer the last three picks; the same list as the picker's Recent.
+  // Empty slots offer the side's last three picks; the same list as that
+  // side's picker shows under Recent.
   const recentList = useAppState((st) => st.lists.recents);
   const recentHits = useMemo(() => {
-    if (!searcher) return [];
-    const ids = recentList.map((r) => searcher.findRow(r)).filter((id) => id != null);
-    return searcher.browse({factionId: null, recentIds: ids}).recent.slice(0, 3);
+    const hits = (side) => {
+      if (!searcher) return [];
+      const ids = recentsFor(recentList, side).map((r) => searcher.findRow(r)).filter((id) => id != null);
+      return searcher.browse({factionId: null, recentIds: ids}).recent.slice(0, 3);
+    };
+    return {A: hits('A'), B: hits('B')};
   }, [searcher, recentList]);
   const wide = layout !== 'phone' && layout !== 'tablet';
   // Desktop: A and R open the pickers, unless typing somewhere or a picker is up.
@@ -354,7 +359,7 @@ export default function MatchupScreen({army, armyError, view, engine}) {
   }, [wide, picking, army]);
   const sideBox = (side) => (picked[side]
     ? <SideCard side={side} army={army} view={view} onOpenPicker={openSide(side)} />
-    : <EmptySlot side={side} recents={recentHits} hint={wide} onOpenPicker={openSide(side)}
+    : <EmptySlot side={side} recents={recentHits[side]} hint={wide} onOpenPicker={openSide(side)}
       onPick={(hit) => dispatch(pickTrooper(army, side, hit, {state: getState()}))} />);
   const cardA = sideBox('A');
   const cardB = sideBox('B');

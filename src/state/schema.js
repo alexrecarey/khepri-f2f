@@ -35,7 +35,10 @@ export const EMPTY_SIDE = {
 // (rules/ranges.js RANGE_BANDS): 40 = 8-16".
 export const DEFAULT_RANGE_CM = 40;
 
-export const MAX_RECENTS = 8;
+export const MAX_RECENTS = 8; // per side
+
+// The recents for one side, newest first. Untagged (older) entries belong to both.
+export const recentsFor = (recents, side) => recents.filter((r) => r.side == null || r.side === side);
 export const MAX_RECENT_FACTIONS = 3;
 
 // overlay: null | 'menu' | 'results' | 'picker' | 'saved' | 'settings' | 'about'
@@ -62,8 +65,10 @@ export function initialState() {
     // a vanilla faction id or null for All factions; a missing side has no
     // choice yet (actions.js scopeFor). Cleared with the troopers.
     scopes: {},
-    // recents: troopers picked, newest first, as stable army ids
-    //   {unitId, groupId, optionId, armyFactionId}
+    // recents: troopers picked, newest first, as stable army ids plus the
+    //   side they were picked for: {unitId, groupId, optionId, armyFactionId, side}.
+    //   Active and Reactive each keep their own MAX_RECENTS; entries saved
+    //   before the tag existed have no side and count for both (recentsFor).
     // recentFactions: vanilla faction ids scoped to in the picker, newest first
     lists: {recents: [], recentFactions: [], saved: []},
   };

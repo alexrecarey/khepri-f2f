@@ -41,7 +41,7 @@ export function loadPersisted(storage) {
     ...(Object.values(MODES).includes(saved.mode) ? {mode: saved.mode} : {}),
     prefs: isObject(saved.prefs) ? saved.prefs : {},
     lists: {
-      recents: arrayOr(lists.recents).filter(isObject).slice(0, MAX_RECENTS),
+      recents: arrayOr(lists.recents).filter(isObject).slice(0, MAX_RECENTS * 2),
       recentFactions: arrayOr(lists.recentFactions).filter(Number.isInteger),
       saved: arrayOr(lists.saved).filter(isObject),
     },

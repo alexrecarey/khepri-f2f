@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {createStore} from '@tanstack/store';
 import {DEFAULT_PARAMS} from '../engine/params.js';
 import {classicSave, reduce, uiDepth} from './reduce.js';
-import {EMPTY_SIDE, MAX_RECENTS, initialState} from './schema.js';
+import {EMPTY_SIDE, MAX_RECENTS, initialState, recentsFor} from './schema.js';
 import {STORAGE_KEY, loadPersisted, savePersisted} from './storage.js';
 import {bootState} from './store.js';
 import {startSync} from './sync.js';
@@ -77,18 +77,34 @@ test('pickTrooper fills the side, keeps its cover, records a recent and closes',
   assert.equal(s.matchup.B.unitId, 10);
   assert.equal(s.matchup.B.inCover, true);
   assert.equal(s.ui.overlay, null);
-  assert.deepEqual(s.lists.recents, [recent]);
-  // Same trooper again moves to the front instead of duplicating.
+  assert.deepEqual(s.lists.recents, [{...recent, side: 'B'}]);
+  // Picked for the other side it gets its own entry; again on the same side
+  // it moves to the front instead of duplicating.
   s = run(s, {type: 'pickTrooper', side: 'A', sel: zhanshi, recent: {...recent, unitId: 20}},
     {type: 'pickTrooper', side: 'A', sel: fennec, recent});
-  assert.deepEqual(s.lists.recents.map((r) => r.unitId), [10, 20]);
+  assert.deepEqual(s.lists.recents.map((r) => `${r.unitId}${r.side}`), ['10A', '20A', '10B']);
+  s = run(s, {type: 'pickTrooper', side: 'A', sel: zhanshi, recent: {...recent, unitId: 20}});
+  assert.deepEqual(recentsFor(s.lists.recents, 'A').map((r) => r.unitId), [20, 10]);
+  assert.deepEqual(recentsFor(s.lists.recents, 'B').map((r) => r.unitId), [10]);
 });
 
-test('recents are capped', () => {
-  let s = initialState();
+test('recents are capped per side', () => {
+  let s = run(initialState(), {type: 'pickTrooper', side: 'B', sel: fennec, recent: {unitId: 99, groupId: 1, optionId: 1}});
   for (let i = 0; i < MAX_RECENTS + 3; i++) s = run(s, {type: 'pickTrooper', side: 'A', sel: fennec, recent: {unitId: i, groupId: 1, optionId: 1}});
-  assert.equal(s.lists.recents.length, MAX_RECENTS);
+  assert.equal(recentsFor(s.lists.recents, 'A').length, MAX_RECENTS);
   assert.equal(s.lists.recents[0].unitId, MAX_RECENTS + 2);
+  // A busy Active side doesn't push Reactive's picks out.
+  assert.deepEqual(recentsFor(s.lists.recents, 'B').map((r) => r.unitId), [99]);
+});
+
+test('untagged recents from before the side tag belong to both sides', () => {
+  const old = {unitId: 7, groupId: 1, optionId: 1};
+  let s = {...initialState(), lists: {recents: [old], recentFactions: [], saved: []}};
+  assert.deepEqual(recentsFor(s.lists.recents, 'A'), [old]);
+  assert.deepEqual(recentsFor(s.lists.recents, 'B'), [old]);
+  // Picking it again tags it for that side; the other side no longer sees it.
+  s = run(s, {type: 'pickTrooper', side: 'A', sel: fennec, recent: old});
+  assert.deepEqual(s.lists.recents, [{...old, side: 'A'}]);
 });
 
 test('setMode closes every overlay and ignores unknown modes', () => {

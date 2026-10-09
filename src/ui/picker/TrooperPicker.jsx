@@ -6,6 +6,7 @@
 // ui.picker, so Back (button, Escape or the browser's) pops one screen.
 import {useEffect, useMemo, useRef} from 'react';
 import PropTypes from 'prop-types';
+import {recentsFor} from '../../state/schema.js';
 import {dispatch, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
 import {extraLoadoutName} from '../names.js';
@@ -97,8 +98,8 @@ export default function TrooperPicker({side, searcher, army, onPick}) {
   useEffect(() => { if (!top) inputRef.current?.focus({preventScroll: true}); }, [top]);
 
   const recentIds = useMemo(
-    () => (searcher ? recents.map((r) => searcher.findRow(r)).filter((id) => id != null) : []),
-    [searcher, recents],
+    () => (searcher ? recentsFor(recents, side).map((r) => searcher.findRow(r)).filter((id) => id != null) : []),
+    [searcher, recents, side],
   );
   const results = useMemo(() => {
     if (!searcher) return null;
