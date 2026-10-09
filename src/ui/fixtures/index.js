@@ -5,7 +5,10 @@ const FIXTURES = import.meta.glob('./*.json', {import: 'default'});
 
 export const fixtureNames = Object.keys(FIXTURES).map((p) => p.slice(2, -5));
 
+// `name` comes from the URL: only an own key of the glob map may be called.
 export async function loadFixture(name) {
-  const load = FIXTURES[`./${name}.json`];
-  return load ? load() : null;
+  const key = `./${name}.json`;
+  if (!Object.hasOwn(FIXTURES, key)) return null;
+  const load = FIXTURES[key];
+  return typeof load === 'function' ? load() : null;
 }

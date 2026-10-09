@@ -67,7 +67,8 @@ export default defineConfig({
         runtimeCaching: [
           {
             urlPattern: ({ url }) => {
-              return url.host.startsWith("pypi.org") || url.host.startsWith("files.pythonhosted.org") ||
+              // Exact hosts: a prefix match would also cache pypi.org.example.com.
+              return url.hostname === "pypi.org" || url.hostname === "files.pythonhosted.org" ||
                 url.pathname.startsWith("/assets") || url.pathname.startsWith("/pyodide");
             },
             handler: "StaleWhileRevalidate",
