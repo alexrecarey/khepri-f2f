@@ -35,12 +35,21 @@ function attackOnItsOwn(sideResult, player) {
   return {wpo: woundsPerOrder(rows), wounds, wounded, saved: Math.max(0, hit - wounded), miss: Math.max(0, 1 - hit)};
 }
 
-// One ramp per side, mildest to deepest; Dead always takes the deepest.
+// One ramp per side, mildest to deepest, cut into six steps (1 lightest).
+// Dead always takes step 6. The other states spread down to step 3 at most,
+// so the state seen most often (1 wound, or Unconscious on 1 VITA) is not
+// the palest; only targets with five or six states reach down to 2 and 1.
 const RAMP = {active: ['#cdeee2', '#1f6b52'], reactive: ['#f6d9e8', '#8e3b67']};
+const STEPS = 6;
 const hex = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+export function shadeStep(i, n) {
+  if (n <= 1) return STEPS;
+  const start = n >= 6 ? 1 : n === 5 ? 2 : 3;
+  return Math.round(start + (STEPS - start) * i / (n - 1));
+}
 function shade(side, i, n) {
   const [from, to] = RAMP[side].map(hex);
-  const t = n <= 1 ? 1 : i / (n - 1);
+  const t = (shadeStep(i, n) - 1) / (STEPS - 1);
   return `#${from.map((f, k) => Math.round(f + (to[k] - f) * t).toString(16).padStart(2, '0')).join('')}`;
 }
 
