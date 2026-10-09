@@ -32,12 +32,36 @@ test('a Duo counts only when it can be pure', () => {
   assert.equal(ft.patsy.all, 2); // counts as an Orc, who is in the team
 });
 
-test('FTO entries apply to FTO loadouts only', () => {
-  const chart = {spec: SECTORIAL, teams: [{type: ['DUO', 'HARIS'], units: [entry('YĀN HUǑ FTO', 'yan-huo', 2)]}]};
-  assert.deepEqual(fireteamLimits([chart])['yan-huo'], {all: 0, fto: 3});
+test("a member that is not the team's unit fills a slot but adds no purity", () => {
+  const chart = {spec: SECTORIAL, teams: [{type: ['HARIS', 'CORE'], units: [
+    entry('FUSILIER', 'fusiliers', 5), entry('BOLT', 'bolts', 1), entry('NISSE', 'nisses', 1, '(Fusilier)'),
+  ]}]};
+  const ft = fireteamLimits([chart]);
+  assert.equal(ft.fusiliers.all, 5);
+  assert.equal(ft.bolts.all, 4); // 4 Fusiliers + the Bolt
+  assert.equal(ft.nisses.all, 5); // counts as a Fusilier
 });
 
-test('wildcards join the largest team type the army fields', () => {
-  const chart = {spec: VANILLA, teams: [{type: [], units: [entry('QUINN', 'quinn')]}]};
-  assert.equal(fireteamLimits([chart]).quinn.all, 3);
+test('FTO entries apply to FTO loadouts only', () => {
+  const chart = {spec: SECTORIAL, teams: [{type: ['DUO', 'HARIS'], units: [entry('YĀN HUǑ FTO', 'yan-huo', 1), entry('ZÚYǑNG', 'zuyong', 3)]}]};
+  assert.deepEqual(fireteamLimits([chart])['yan-huo'], {all: 0, fto: 2});
+});
+
+test("wildcards join the army's other teams as an extra member", () => {
+  const chart = {spec: VANILLA, teams: [
+    {type: ['HARIS'], units: [entry('BOLT', 'bolts', 3)]},
+    {type: [], units: [entry('QUINN', 'quinn'), entry('MACHINIST', 'machinists', 1, '(Bolt)')]},
+  ]};
+  const ft = fireteamLimits([chart]);
+  assert.equal(ft.quinn.all, 2); // 2 Bolts + Quinn
+  assert.equal(ft.machinists.all, 3); // counts as a Bolt
+});
+
+test('a counts-as label shared by several entries makes them one unit', () => {
+  const chart = {spec: SECTORIAL, teams: [{type: ['HARIS'], units: [
+    entry('MAKHE', 'makhai', 3, '(Steel Phalanx)'), entry('HOPLITE', 'hoplites', 2, '(Steel Phalanx)'), entry('DACTYL', 'dactyls', 1),
+  ]}]};
+  const ft = fireteamLimits([chart]);
+  assert.equal(ft.hoplites.all, 3); // with Makhai, both Steel Phalanx
+  assert.equal(ft.dactyls.all, 3); // fills the third slot of a pure pair
 });

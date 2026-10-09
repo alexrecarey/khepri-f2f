@@ -1,21 +1,23 @@
-// The largest fireteam each unit can join, from the Army fireteam charts of
-// every army (vanilla and sectorial). A simplified subset of the rules: the
-// calculator only needs "can this trooper be in a fireteam, and how big", so
-// each unit gets the most generous team it appears in anywhere.
+// The fireteam size each unit's bonuses can reach, from the Army fireteam
+// charts of every army (vanilla and sectorial). A unit gets the most generous
+// team it appears in anywhere; the calculator doesn't check army lists.
 //
-//   Core 5 (or the army's own Core cap, e.g. "a maximum of 4 members"),
-//   Haris 3, Duo 2. A team type counts only if the army may field it
+//   Team sizes: Core 5 (or the army's own cap, e.g. "a maximum of 4
+//   members"), Haris 3, Duo 2. A type counts only if the army may field it
 //   (spec: vanilla armies have no Core).
-//   A Duo counts only if it can be pure: the unit may appear twice
-//   (max >= 2) or counts as another unit of the same team ("(Orc, Helot)").
-//   Otherwise the Duo gives no bonus, so it is ignored.
-//   Wildcards (a team with no type) can join any team type the army fields.
+//   Bonuses go by purity: the largest group of one unit in the team, members
+//   that count as that unit included ("(Orc, Helot)"). A unit that is not
+//   (and doesn't count as) the team's unit fills a slot without adding to it:
+//   4 Fusiliers + 1 Bolt is a Core of purity 4. Below 2 there is no bonus.
+//   Wildcards (a team with no type) join the army's other teams as an extra
+//   member, counting only as what their comment names; "No Wildcards" teams
+//   are skipped.
 //   FTO entries ("BLADE FTO", comment "FTO ...") apply only to the unit's
 //   FTO loadouts, kept apart as `fto`.
 //
-// Result: {slug: {all, fto}}, each the max size, 0 when the unit appears only
-// in Duos it can't make pure (no fireteam option). A unit missing from the
-// map never joins a fireteam.
+// Result: {slug: {all, fto}}, the purity each can reach, 0 when no team gets
+// it to 2 (no fireteam option). A unit missing from the map never joins a
+// fireteam.
 
 const SIZE = {DUO: 2, HARIS: 3, CORE: 5};
 
@@ -36,19 +38,33 @@ function teamSize(type, chart) {
   return type === 'CORE' ? coreCap(chart) : SIZE[type];
 }
 
-// Sizes one entry of one team can reach.
-function entrySize(entry, team, chart, fielded) {
+// Whether `m` stands in for `group`: its own unit (a slug), or a name from a
+// counts-as comment. That name is either another entry ("(Orc, Helot)") or a
+// label several entries share ("(Steel Phalanx)", "(Undertow)").
+function standsFor(m, group) {
+  if (group === m.slug) return true;
+  if (!group.startsWith('as:')) return false;
+  const n = group.slice(3);
+  const own = baseName(m.name);
+  return countsAs(m.comment).includes(n) || (own && (own.startsWith(n) || n.startsWith(own)));
+}
+
+// The purity `x` can reach in one team. `x` is one of the team's entries, or
+// a wildcard joining it from outside (extra).
+function teamPurity(x, team, chart, fielded, extra = false) {
+  const sizes = team.type.filter((t) => fielded.has(t)).map((t) => teamSize(t, chart));
+  if (!sizes.length) return 0;
+  const size = Math.max(...sizes);
+  const members = (extra ? [...team.units, x] : team.units).filter((m) => m.slug);
+  const groups = new Set(members.flatMap((m) => [m.slug, ...countsAs(m.comment).map((n) => `as:${n}`)]));
   let best = 0;
-  for (const type of team.type) {
-    if (!fielded.has(type)) continue;
-    if (type === 'DUO') {
-      const others = team.units.filter((u) => u !== entry).map((u) => baseName(u.name));
-      const pure = entry.max >= 2 || countsAs(entry.comment).some((n) => others.some((o) => o.startsWith(n) || n.startsWith(o)));
-      if (!pure) continue;
-    }
-    best = Math.max(best, teamSize(type, chart));
+  for (const group of groups) {
+    // Everyone who can stand in for the group, x included only if it does.
+    const count = members.filter((m) => standsFor(m, group)).reduce((n, m) => n + m.max, 0);
+    const purity = standsFor(x, group) ? Math.min(size, count) : Math.min(size - 1, count);
+    best = Math.max(best, purity);
   }
-  return best;
+  return best >= 2 ? best : 0;
 }
 
 export function fireteamLimits(charts) {
@@ -61,11 +77,13 @@ export function fireteamLimits(charts) {
   for (const chart of charts) {
     if (!chart?.teams) continue;
     const fielded = new Set(Object.entries(chart.spec ?? {}).filter(([, n]) => n > 0).map(([t]) => t));
-    const wildcardSize = Math.max(0, ...[...fielded].filter((t) => t !== 'DUO').map((t) => teamSize(t, chart)));
+    const typed = chart.teams.filter((t) => t.type.length);
     for (const team of chart.teams) {
       for (const entry of team.units) {
         if (!entry.slug) continue;
-        const size = team.type.length ? entrySize(entry, team, chart, fielded) : wildcardSize;
+        const size = team.type.length
+          ? teamPurity(entry, team, chart, fielded)
+          : Math.max(0, ...typed.filter((t) => !/no wildcards/i.test(t.obs ?? '')).map((t) => teamPurity(entry, t, chart, fielded, true)));
         note(entry.slug, isFto(entry), size);
       }
     }
