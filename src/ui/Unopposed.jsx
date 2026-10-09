@@ -4,27 +4,27 @@
 // mislead, so each attack gets its own (card: two stacked bars; sheet: the
 // four ways the order can end, then each attack in detail).
 import PropTypes from 'prop-types';
-import {pct, shows} from './results.js';
+import {pct, shade, shadeInk, shows} from './results.js';
 
-const SHADES = {active: ['seg-a1', 'seg-a2', 'seg-a3'], reactive: ['seg-r1', 'seg-r2', 'seg-r3']};
 const top = (a) => [3, 2, 1].find((w) => shows(a.wounds[w - 1])) ?? 0;
 
 // One attack's bar: wounds (most first for the active side, mirrored for the
 // reactive), then saved, then missed. Nothing for outcomes that can't happen.
+// 1, 2 and 3+ wounds take the face-to-face shades for three states (steps 3,
+// 5, 6), so the deepest is the most wounds here too.
 function AttackBar({a, side, height, labels = false}) {
-  const wounds = [3, 2, 1].map((w) => ({key: `w${w}`, chance: a.wounds[w - 1], cls: SHADES[side][w - 1],
+  const wounds = [3, 2, 1].map((w) => ({key: `w${w}`, chance: a.wounds[w - 1], bg: shade(side, w - 1, 3), ink: shadeInk(side, w - 1, 3),
     text: w === top(a) ? `${w}+` : `${w}`}));
   const rest = [
-    {key: 'saved', chance: a.saved, cls: 'seg-none', text: 'saved'},
-    {key: 'miss', chance: a.miss, cls: 'seg-miss', text: 'miss'},
+    {key: 'saved', chance: a.saved, cls: 'seg-none', ink: 'var(--muted)', text: 'saved'},
+    {key: 'miss', chance: a.miss, cls: 'seg-miss', ink: 'var(--muted)', text: 'miss'},
   ];
   const segs = (side === 'active' ? [...wounds, ...rest] : [...rest.reverse(), ...[...wounds].reverse()]).filter((x) => shows(x.chance));
   return (
     <div className="bar" style={{height, borderRadius: height > 10 ? 7 : 3}}>
       {segs.map((x) => (
         <span key={x.key} className={x.cls} style={{width: `${100 * x.chance}%`, display: 'grid', placeItems: 'center',
-          fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600,
-          color: x.cls.startsWith('seg-a') ? 'var(--active-ink)' : x.cls.startsWith('seg-r') ? 'var(--reactive-ink)' : 'var(--muted)'}}>
+          fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, background: x.bg, color: x.ink}}>
           {labels && x.chance > 0.07 ? x.text : ''}
         </span>
       ))}
