@@ -126,6 +126,14 @@
       "x": 1520,
       "y": 17400
     },
+    "DeskPickerOtherSet.dc.html": {
+      "h": 900,
+      "page": "final",
+      "title": "Desktop picker — reactive already set: Use is the default, change reactive is secondary",
+      "w": 1440,
+      "x": 4560,
+      "y": 6150
+    },
     "DeskPickerRows.dc.html": {
       "h": 900,
       "title": "Loadouts D — one line per loadout, main gun only; selected row opens to show sidearms; extras as muted text",
@@ -185,6 +193,14 @@
       "w": 1440,
       "x": 470,
       "y": 7550
+    },
+    "EmptyDeskActive.dc.html": {
+      "h": 900,
+      "page": "final",
+      "title": "Desktop, one side picked — the results panel in skeleton form: Ready, still die, empty bars and rows, partial mods",
+      "w": 1440,
+      "x": 470,
+      "y": 8570
     },
     "EmptyE.dc.html": {
       "h": 844,
@@ -347,6 +363,14 @@
       "w": 390,
       "x": 470,
       "y": 5650
+    },
+    "FinalSlotMotion.dc.html": {
+      "h": 520,
+      "page": "final",
+      "title": "Empty slot motion — drifting tint + recent chips light up",
+      "w": 820,
+      "x": 2498,
+      "y": 7550
     },
     "FinalUnopposed.dc.html": {
       "h": 1360,
@@ -556,6 +580,13 @@
       "x": 0,
       "y": 3190
     },
+    "SlotMotion.dc.html": {
+      "h": 960,
+      "title": "Subtle motion for the empty slot you still have to fill — seven options (B + F chosen)",
+      "w": 1600,
+      "x": 3720,
+      "y": 21860
+    },
     "TabletClassic.dc.html": {
       "h": 1194,
       "page": "final",
@@ -608,36 +639,57 @@
       "x": 1410,
       "y": 13150
     },
-    "EmptyDeskActive.dc.html": {
-      "h": 900,
-      "w": 1440,
-      "x": 470,
-      "y": 8570,
-      "page": "final",
-      "title": "Desktop, one side picked — the results panel in skeleton form: Ready, still die, empty bars and rows, partial mods"
+    "WoundAtLeast.dc.html": {
+      "h": 1069,
+      "title": "Clean bar with state glyphs underneath; six ways to say \"at least\" in the rows",
+      "w": 1800,
+      "x": 1780,
+      "y": 24340
     },
-    "SlotMotion.dc.html": {
+    "WoundIcons.dc.html": {
+      "h": 1240,
+      "title": "State glyphs (Unconscious, ×2, NWI, Dogged, Dead) and five ways to mark the graph without words",
+      "w": 1800,
+      "x": 0,
+      "y": 24340
+    },
+    "WoundStates.dc.html": {
       "h": 960,
-      "w": 1600,
-      "x": 3720,
-      "y": 21860,
-      "title": "Subtle motion for the empty slot you still have to fill — seven options (B + F chosen)"
+      "title": "Every target's states, both ramps, incl. Shock vs 1 VITA",
+      "w": 1700,
+      "x": 1290,
+      "y": 9970,
+      "page": "final"
     },
-    "FinalSlotMotion.dc.html": {
-      "h": 520,
-      "w": 820,
-      "x": 2498,
-      "y": 7550,
-      "page": "final",
-      "title": "Empty slot motion — drifting tint + recent chips light up"
+    "WoundsExtreme.dc.html": {
+      "h": 400,
+      "title": "Extreme — 4 VITA with NWI vs 2 VITA Dogged",
+      "w": 390,
+      "x": 2250,
+      "y": 23320
     },
-    "DeskPickerOtherSet.dc.html": {
-      "h": 900,
-      "w": 1440,
-      "x": 4560,
-      "y": 6150,
-      "page": "final",
-      "title": "Desktop picker — reactive already set: Use is the default, change reactive is secondary"
+    "WoundsPeek.dc.html": {
+      "h": 340,
+      "title": "Closed results card — keep wounds/order, lead with Dead, or both",
+      "w": 1240,
+      "x": 2720,
+      "y": 23320
+    },
+    "WoundsPhone.dc.html": {
+      "h": 500,
+      "title": "Phone results — Fennec (1 VITA) vs Squalos (3 STR + RP): five states one side, two the other",
+      "w": 390,
+      "x": 1780,
+      "y": 23320
+    },
+    "WoundProto.dc.html": {
+      "h": 620,
+      "w": 1210,
+      "x": 0,
+      "y": 9970,
+      "is_interactive": true,
+      "title": "Results with wound states (E): hover/tap interactions; normal and Shock vs 1 VITA",
+      "page": "final"
     }
   },
   "createdOnFiles": {
@@ -829,9 +881,56 @@
       "w": 240,
       "x": 0,
       "y": 12900
+    },
+    "wounds": {
+      "kind": "title1",
+      "maxW": 3400,
+      "text": "Wound states — VITA / STR, Remote Presence, NWI, Dogged",
+      "w": 240,
+      "x": 0,
+      "y": 23070
+    },
+    "finalwounds": {
+      "kind": "title1",
+      "maxW": 3000,
+      "page": "final",
+      "text": "Wound states in the results",
+      "w": 240,
+      "x": 0,
+      "y": 9720
     }
   },
   "order": [
+    "FinalPicker.dc.html",
+    "FinalPeek.dc.html",
+    "FinalResults.dc.html",
+    "FinalPeekRange.dc.html",
+    "FinalMenu.dc.html",
+    "FinalSaved.dc.html",
+    "FinalSettings.dc.html",
+    "FinalAbout.dc.html",
+    "FinalClassic.dc.html",
+    "FinalClassicResults.dc.html",
+    "FinalUnopposed.dc.html",
+    "PickerFactions3.dc.html",
+    "FinalEngineLoading.dc.html",
+    "DeskWorkbench.dc.html",
+    "DeskWorkbenchWide.dc.html",
+    "TabletPortrait.dc.html",
+    "TabletLandscape.dc.html",
+    "DeskPickerEmpty.dc.html",
+    "DeskPickerFaction.dc.html",
+    "DeskPicker.dc.html",
+    "DeskPickerOtherSet.dc.html",
+    "WoundProto.dc.html",
+    "WoundStates.dc.html",
+    "EmptyA.dc.html",
+    "EmptyDesk.dc.html",
+    "EmptyDeskActive.dc.html",
+    "FinalCleared.dc.html",
+    "FinalSlotMotion.dc.html",
+    "DeskClassicColumns.dc.html",
+    "TabletClassic.dc.html",
     "Main.dc.html",
     "Fireteam.dc.html",
     "Picker.dc.html",
@@ -889,35 +988,12 @@
     "EmptyD.dc.html",
     "EmptyE.dc.html",
     "ClearedNumbers.dc.html",
-    "FinalPicker.dc.html",
-    "FinalPeek.dc.html",
-    "FinalResults.dc.html",
-    "FinalPeekRange.dc.html",
-    "FinalMenu.dc.html",
-    "FinalSaved.dc.html",
-    "FinalSettings.dc.html",
-    "FinalAbout.dc.html",
-    "FinalClassic.dc.html",
-    "FinalClassicResults.dc.html",
-    "FinalUnopposed.dc.html",
-    "PickerFactions3.dc.html",
-    "FinalEngineLoading.dc.html",
-    "DeskWorkbench.dc.html",
-    "DeskWorkbenchWide.dc.html",
-    "TabletPortrait.dc.html",
-    "TabletLandscape.dc.html",
-    "DeskPickerEmpty.dc.html",
-    "DeskPickerFaction.dc.html",
-    "DeskPicker.dc.html",
-    "DeskPickerOtherSet.dc.html",
-    "EmptyA.dc.html",
-    "EmptyDesk.dc.html",
-    "EmptyDeskActive.dc.html",
-    "FinalCleared.dc.html",
-    "FinalSlotMotion.dc.html",
-    "DeskClassicColumns.dc.html",
-    "TabletClassic.dc.html",
-    "SlotMotion.dc.html"
+    "SlotMotion.dc.html",
+    "WoundsPhone.dc.html",
+    "WoundsExtreme.dc.html",
+    "WoundsPeek.dc.html",
+    "WoundIcons.dc.html",
+    "WoundAtLeast.dc.html"
   ],
   "pages": [
     {
