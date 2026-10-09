@@ -537,3 +537,30 @@ b.hl { color: var(--text); background: #2e4a40; border-radius: 3px; padding: 0 1
 .mods-wait { border: 1px dashed var(--line); border-radius: var(--radius-card); padding: 20px; display: flex; flex-direction: column; gap: 14px; font-family: var(--font-display); font-size: 13px; letter-spacing: .06em; opacity: .6; }
 .mods-wait .small { font-family: var(--font-body, inherit); letter-spacing: 0; }
 .btn kbd { color: inherit; border-color: currentColor; opacity: .7; margin-left: 4px; }
+
+/* Results by wound state (WoundStates.jsx): clean bar, glyphs under it, rows
+   with EXACTLY / AT LEAST on the side's heading line. */
+.sbar { display: flex; overflow: hidden; border-radius: 3px; }
+.sbar .sseg { display: block; height: 100%; transition: opacity .15s, width .35s cubic-bezier(.2,.8,.2,1); cursor: default; }
+.sbar .sseg:hover { box-shadow: inset 0 0 0 2px var(--text); }
+.sseg.dim, .sglyphs .dim, .srow.dim, .shead.dim { opacity: .25; }
+.sglyphs { position: relative; height: 16px; margin-top: -6px; }
+.sglyphs > span { position: absolute; top: 0; transform: translateX(-50%); transition: opacity .15s; }
+.slist { display: flex; flex-direction: column; gap: 2px; }
+.shead, .srow { display: grid; grid-template-columns: 16px 128px minmax(0, 1fr) 46px 52px; gap: 8px; align-items: center; }
+.shead { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 16px 128px minmax(0, 1fr) 46px 52px; gap: 8px; align-items: baseline;
+  padding: 12px 0 4px; cursor: pointer; transition: opacity .15s; }
+.shead.static { cursor: default; }
+.shead .t { grid-column: 1 / 4; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+.shead .lab { font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); text-align: right; }
+.shead[aria-pressed="true"] .t::after { content: ' ·'; }
+.srow { font-size: 14px; padding: 3px 4px; margin: 0 -4px; border-radius: 6px; cursor: pointer; transition: opacity .15s, background .15s; outline: none; }
+.srow.on, .srow:focus-visible { background: var(--surface-2); }
+.srow .k { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.srow .k.dead { font-weight: 700; }
+.srow .track { display: block; height: 14px; }
+.srow .track .b { display: block; height: 100%; border-radius: 4px; transition: width .35s cubic-bezier(.2,.8,.2,1); }
+.srow .ex { font-family: var(--font-mono); font-size: 12px; color: var(--text-3); text-align: right; }
+.srow .p { font-family: var(--font-mono); text-align: right; }
+.srow .more { grid-column: 2 / -1; font-size: 12px; color: var(--text-2); padding: 2px 0 4px; }
+.stag { font-size: 10px; letter-spacing: .06em; padding: 1px 6px; border-radius: 999px; border: 1px solid currentColor; color: var(--band-minus3, #e3c34a); margin-left: 6px; font-weight: 600; vertical-align: 1px; }

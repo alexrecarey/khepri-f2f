@@ -2,6 +2,7 @@
 // derived from its matchup slice and the army data: each side's trooper and
 // weapon list, the calculator inputs, and "How the dice were built".
 // Pure; useMatchupView.js memoises it for React.
+import {woundStates} from '../rules/woundStates.js';
 import {fullParams} from '../engine/params.js';
 import {defaultWeapon} from '../rules/defaultWeapon.js';
 import {buildLedger} from '../rules/ledger.js';
@@ -39,7 +40,7 @@ export function matchupView(army, matchup) {
   if (!army) {
     return {ready: false, rangeCm: matchup.rangeCm, A: {sel: matchup.A, resolved: null, weapons: [], pseudo: []},
       B: {sel: matchup.B, resolved: null, weapons: [], pseudo: []}, derived: null, params: null, ledger: null,
-      hasSelection: Boolean(matchup.A.unitId || matchup.B.unitId), complete: false};
+      hasSelection: Boolean(matchup.A.unitId || matchup.B.unitId), complete: false, targets: null};
   }
   const A = sideView(army, matchup.A, 'A');
   const B = sideView(army, matchup.B, 'B');
@@ -54,5 +55,10 @@ export function matchupView(army, matchup) {
     weapons: {A: A.resolved.weapon?.name, B: B.resolved.weapon?.name},
     notes: [...derived.warnings, ...derived.notes],
   } : null;
-  return {ready: true, A, B, rangeCm: matchup.rangeCm, derived, params, ledger, hasSelection, complete};
+  // The states each side's hits push its target through. The active side's
+  // results are what it does to the reactive trooper, so they follow B's
+  // states (and the other way round).
+  const statesOf = (target, shock) => (target?.profile ? woundStates(target.profile, target.traits, {shock}) : null);
+  const targets = complete ? {active: statesOf(B.resolved, params.shockA), reactive: statesOf(A.resolved, params.shockB)} : null;
+  return {ready: true, A, B, rangeCm: matchup.rangeCm, derived, params, ledger, hasSelection, complete, targets};
 }
