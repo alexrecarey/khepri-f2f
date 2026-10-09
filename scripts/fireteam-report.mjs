@@ -6,13 +6,14 @@
 import {readFile, readdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fireteamLimits} from '../src/army/fireteams.js';
+import {fixName} from '../src/army/normalize.js';
 
 const dir = process.argv[2] ?? '.cache/army';
 const files = (await readdir(dir)).filter((f) => /^units_en_\d+\.json$/.test(f));
 const armies = await Promise.all(files.map(async (f) => JSON.parse(await readFile(path.join(dir, f), 'utf8'))));
 
 const names = {};
-for (const army of armies) for (const u of army.units ?? []) names[u.slug] ??= u.isc.trim();
+for (const army of armies) for (const u of army.units ?? []) names[u.slug] ??= fixName(u.isc.replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim());
 
 const limits = fireteamLimits(armies.map((a) => a.fireteamChart));
 const lines = [];
