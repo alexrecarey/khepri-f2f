@@ -63,5 +63,5 @@ test('a counts-as label shared by several entries makes them one unit', () => {
   ]}]};
   const ft = fireteamLimits([chart]);
   assert.equal(ft.hoplites.all, 3); // with Makhai, both Steel Phalanx
-  assert.equal(ft.dactyls.all, 3); // fills the third slot of a pure pair
+  assert.equal(ft.dactyls.all, 2); // takes one of the three slots: 2 Steel Phalanx + Dactyl
 });
