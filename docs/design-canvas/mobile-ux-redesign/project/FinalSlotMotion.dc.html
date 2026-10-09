@@ -1,30 +1,58 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Empty slot motion</title><script src="./support.js"></script></head>
+<html lang="en"><head><meta charset="utf-8"><title>Empty slot</title><script src="./support.js"></script></head>
 <body><x-dc><helmet><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
-.slot{position:relative;height:300px;border-radius:18px;border:1.5px dashed #e59bc066;background:linear-gradient(180deg,#3a233055,transparent);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;overflow:hidden;isolation:isolate}
-.lab{font-family:'Chakra Petch';font-size:12px;letter-spacing:.12em;color:#e59bc0}.ttl{font-size:21px;font-weight:600}
-.chips{display:flex;gap:6px}.chip{padding:7px 11px;border-radius:999px;font-size:13px;border:1px solid #333;color:#c9c6bf}
-.t{font-size:15px;font-weight:600}.d{font-size:12px;color:#8a877f;line-height:1.5}
-/* A — light travels round the border */
-.a{border:none}.a::before{content:'';position:absolute;inset:0;border-radius:18px;padding:1.5px;background:conic-gradient(from var(--ang),#e59bc022 0deg,#e59bc0 40deg,#e59bc022 80deg,#e59bc022 360deg);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 4s linear infinite;z-index:-1}
-@property --ang{syntax:'<angle>';initial-value:0deg;inherits:false}@keyframes spin{to{--ang:360deg}}
-/* B — tint drifts slowly */
-.b{background:linear-gradient(180deg,#3a233088,#1a1214 50%,#3a233088);background-size:100% 300%;animation:drift 6s ease-in-out infinite}@keyframes drift{0%,100%{background-position:0 0}50%{background-position:0 100%}}
-/* C — a sheen crosses now and then */
-.c::after{content:'';position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,#ffffff14,transparent);animation:sheen 4.5s ease-in-out infinite}@keyframes sheen{0%,55%{left:-60%}85%,100%{left:120%}}
-/* D — border breathes */
-.dd{animation:breathe 3s ease-in-out infinite}@keyframes breathe{0%,100%{border-color:#e59bc040}50%{border-color:#e59bc0cc}}
-/* E — the die nudges */
-.wob{animation:wob 3.6s ease-in-out infinite;transform-origin:50% 60%}@keyframes wob{0%,70%,100%{transform:rotate(0)}76%{transform:rotate(-12deg)}84%{transform:rotate(9deg)}92%{transform:rotate(-3deg)}}
-/* F — recent chips light up in turn */
-.lit{animation:lit 4.5s ease-in-out infinite}.lit:nth-child(2){animation-delay:.5s}.lit:nth-child(3){animation-delay:1s}@keyframes lit{0%,30%,100%{border-color:#333;color:#c9c6bf}12%{border-color:var(--side);color:#fff}}
-/* G — soft glow under the die */
-.glow{position:absolute;width:160px;height:160px;border-radius:50%;background:radial-gradient(#e59bc033,transparent 70%);top:40px;animation:glow 3.2s ease-in-out infinite;z-index:-1}@keyframes glow{0%,100%{opacity:.3;transform:scale(.85)}50%{opacity:1;transform:scale(1.1)}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important}}
-.lit.a{} .chips .lit{--hl:currentColor}</style></helmet>
-<div style="width:820px;height:520px;background:#121212;padding:28px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px">
-<span style="font-family:'Chakra Petch';font-size:20px;font-weight:700">Empty slot motion — drifting tint + recents light up</span>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><div style="--side:#5fc4a0"><div class="slot b" style="border-color:#5fc4a066;background-image:linear-gradient(180deg,#1f3a3188,#121212 50%,#1f3a3188)"><svg class="" width="52" height="52" viewBox="0 0 512 512"><path fill="#5fc4a0" d="M64.7 125.8l53.2 31.9c7.8 4.7 17.8 2 22.2-5.9L217.6 12.1c3-5.4-.9-12.1-7.1-12.1c-1.6 0-3.2 .5-4.6 1.4L63.9 98.8c-9.6 6.6-9.2 20.9 .8 26.9zM32 171.7V295.3c0 8 10.4 11 14.7 4.4l60-92c5-7.6 2.6-17.8-5.2-22.5L56.2 158C45.6 151.6 32 159.3 32 171.7zM326.4 12.1l77.6 139.6c4.4 7.9 14.5 10.6 22.2 5.9l53.2-31.9c10-6 10.4-20.3 .8-26.9L338.1 1.4c-1.4-.9-3-1.4-4.6-1.4c-6.2 0-10.1 6.7-7.1 12.1zM512 171.7c0-12.4-13.6-20.1-24.2-13.7l-45.3 27.2c-7.8 4.7-10.1 14.9-5.2 22.5l60 92c4.3 6.7 14.7 3.6 14.7-4.4V171.7zm-49.3 246L302.1 436.6c-8.1 .9-14.1 7.8-14.1 15.9v52.8c0 3.7 3 6.8 6.8 6.8c.8 0 1.6-.1 2.4-.4l172.7-64c6.1-2.2 10.1-8 10.1-14.5c0-9.3-8.1-16.5-17.3-15.4zM249.2 512c3.7 0 6.8-3 6.8-6.8V452.6c0-8.1-6.1-14.9-14.1-15.9l-160.6-19c-9.2-1.1-17.3 6.1-17.3 15.4c0 6.5 4 12.3 10.1 14.5l172.7 64c.8 .3 1.6 .4 2.4 .4zM57.7 382.9l170.9 20.2c7.8 .9 13.4-7.5 9.5-14.3l-85.7-150c-5.9-10.4-20.7-10.8-27.3-.8L46.2 358.2c-6.5 9.9-.3 23.3 11.5 24.7zm439.6-24.8L418.9 238.1c-6.5-10-21.4-9.6-27.3 .8L306.2 388.5c-3.9 6.8 1.6 15.2 9.5 14.3l170.1-20c11.8-1.4 18-14.7 11.5-24.6zm-216.9 11l78.4-137.2c6.1-10.7-1.6-23.9-13.9-23.9H199.1c-12.3 0-20 13.3-13.9 23.9l78.4 137.2c3.7 6.4 13 6.4 16.7 0zM190.4 176H353.6c12.2 0 19.9-13.1 14-23.8l-80-144c-2.8-5.1-8.2-8.2-14-8.2h-3.2c-5.8 0-11.2 3.2-14 8.2l-80 144c-5.9 10.7 1.8 23.8 14 23.8z"/></svg><span class="lab" style="color:#5fc4a0">ACTIVE</span><span class="ttl">Choose a trooper</span><div class="chips"><span class="chip lit">Fennec · ML</span><span class="chip lit">Swiss Guard</span><span class="chip lit">Bolt</span></div></div></div><div style="--side:#e59bc0"><div class="slot b" style="border-color:#e59bc066;background-image:linear-gradient(180deg,#3a233088,#121212 50%,#3a233088)"><svg class="" width="52" height="52" viewBox="0 0 512 512"><path fill="#e59bc0" d="M64.7 125.8l53.2 31.9c7.8 4.7 17.8 2 22.2-5.9L217.6 12.1c3-5.4-.9-12.1-7.1-12.1c-1.6 0-3.2 .5-4.6 1.4L63.9 98.8c-9.6 6.6-9.2 20.9 .8 26.9zM32 171.7V295.3c0 8 10.4 11 14.7 4.4l60-92c5-7.6 2.6-17.8-5.2-22.5L56.2 158C45.6 151.6 32 159.3 32 171.7zM326.4 12.1l77.6 139.6c4.4 7.9 14.5 10.6 22.2 5.9l53.2-31.9c10-6 10.4-20.3 .8-26.9L338.1 1.4c-1.4-.9-3-1.4-4.6-1.4c-6.2 0-10.1 6.7-7.1 12.1zM512 171.7c0-12.4-13.6-20.1-24.2-13.7l-45.3 27.2c-7.8 4.7-10.1 14.9-5.2 22.5l60 92c4.3 6.7 14.7 3.6 14.7-4.4V171.7zm-49.3 246L302.1 436.6c-8.1 .9-14.1 7.8-14.1 15.9v52.8c0 3.7 3 6.8 6.8 6.8c.8 0 1.6-.1 2.4-.4l172.7-64c6.1-2.2 10.1-8 10.1-14.5c0-9.3-8.1-16.5-17.3-15.4zM249.2 512c3.7 0 6.8-3 6.8-6.8V452.6c0-8.1-6.1-14.9-14.1-15.9l-160.6-19c-9.2-1.1-17.3 6.1-17.3 15.4c0 6.5 4 12.3 10.1 14.5l172.7 64c.8 .3 1.6 .4 2.4 .4zM57.7 382.9l170.9 20.2c7.8 .9 13.4-7.5 9.5-14.3l-85.7-150c-5.9-10.4-20.7-10.8-27.3-.8L46.2 358.2c-6.5 9.9-.3 23.3 11.5 24.7zm439.6-24.8L418.9 238.1c-6.5-10-21.4-9.6-27.3 .8L306.2 388.5c-3.9 6.8 1.6 15.2 9.5 14.3l170.1-20c11.8-1.4 18-14.7 11.5-24.6zm-216.9 11l78.4-137.2c6.1-10.7-1.6-23.9-13.9-23.9H199.1c-12.3 0-20 13.3-13.9 23.9l78.4 137.2c3.7 6.4 13 6.4 16.7 0zM190.4 176H353.6c12.2 0 19.9-13.1 14-23.8l-80-144c-2.8-5.1-8.2-8.2-14-8.2h-3.2c-5.8 0-11.2 3.2-14 8.2l-80 144c-5.9 10.7 1.8 23.8 14 23.8z"/></svg><span class="lab" style="color:#e59bc0">REACTIVE</span><span class="ttl">Choose a trooper</span><div class="chips"><span class="chip lit">Zhanshi</span><span class="chip lit">Hac Tao · HMG</span><span class="chip lit">Fiday</span></div></div></div></div>
-<span style="font-size:12px;color:#8a877f;line-height:1.5">The tint slides slowly up and down the slot (6 s); the recent chips glow one after another in the side colour (4.5 s cycle). Only slots still waiting for a trooper move; the results panel stays still. Off under reduced motion.</span></div></x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":820,"height":520}}'>class Component extends DCLogic { renderVals() { return {}; } }</script></body></html>
+.slot{position:relative;isolation:isolate;overflow:hidden;aspect-ratio:9/8;border-radius:18px;background:#1c1c1c;border:1.5px dashed color-mix(in srgb,var(--side) 40%,transparent);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;transition:border-color .2s}
+.slot:hover{border-color:color-mix(in srgb,var(--side) 75%,transparent)}
+.plasma{position:absolute;inset:0;z-index:0;width:100%;height:100%}
+.open{all:unset;cursor:pointer;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:10px}
+.open::before{content:'';position:absolute;inset:-400px}
+.open:focus-visible{outline:2px solid var(--side);outline-offset:6px;border-radius:8px}
+.lab{font-family:'Chakra Petch';font-size:12px;letter-spacing:.12em;color:var(--side)}.ttl{font-size:20px;font-weight:600}
+.chips{position:relative;z-index:2;display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.chip{all:unset;cursor:pointer;padding:7px 11px;border-radius:999px;font-size:13px;border:1px solid #3a3a3a;color:#c9c6bf}
+.chip:hover{border-color:var(--side);color:#e8e6e1}.chip:focus-visible{outline:2px solid var(--side);outline-offset:2px}
+.d{font-size:12px;color:#9a978f;line-height:1.55}
+</style></helmet>
+<div style="width:820px;height:600px;background:#121212;padding:28px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px">
+<span style="font-family:'Chakra Petch';font-size:20px;font-weight:700">Empty slot — plasma tint, the whole card opens the search</span>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px">
+<div class="slot" style="--side:#5fc4a0"><canvas class="plasma" width="32" height="24" ref="{{ setA }}"></canvas><button type="button" class="open" aria-label="Choose the active trooper"><svg width="52" height="52" viewBox="0 0 100 100" aria-hidden="true"><path fill="#5fc4a0" opacity=".9" d="M50 4 90 27v46L50 96 10 73V27Z"></path><path fill="#1c1c1c" opacity=".55" d="M50 22 72 62H28Z"></path></svg><span class="lab">ACTIVE</span><span class="ttl">Choose a trooper</span></button><div class="chips"><button type="button" class="chip">Fennec · ML</button><button type="button" class="chip">Swiss Guard</button><button type="button" class="chip">Bolt</button></div></div>
+<div class="slot" style="--side:#e59bc0"><canvas class="plasma" width="32" height="24" ref="{{ setB }}"></canvas><button type="button" class="open" aria-label="Choose the reactive trooper"><svg width="52" height="52" viewBox="0 0 100 100" aria-hidden="true"><path fill="#e59bc0" opacity=".9" d="M50 4 90 27v46L50 96 10 73V27Z"></path><path fill="#1c1c1c" opacity=".55" d="M50 22 72 62H28Z"></path></svg><span class="lab">REACTIVE</span><span class="ttl">Choose a trooper</span></button><div class="chips"><button type="button" class="chip">Zhanshi</button><button type="button" class="chip">Hac Tao · HMG</button><button type="button" class="chip">Fiday</button></div></div>
+</div>
+<span class="d">Plasma: summed sine waves on a 32×24 canvas the browser stretches over the card, 30 fps, paused off screen and under reduced motion. Tapping anywhere on the card opens the search; the recent chips pick that trooper straight away and stay still (no light-up). The hexagon with the triangle replaces the d20 here and is the new site icon. On tablet and desktop the slot keeps this shape (about 9:8) instead of stretching down the column; on a phone it still fills the space between header and results.</span></div></x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":820,"height":600}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this.t = 0; this.last = 0;
+    var self = this;
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function frame(now) {
+      if (!reduce) self.raf = requestAnimationFrame(frame);
+      if (now - self.last < 33 && !reduce) return;
+      self.t += reduce ? 3 : Math.min(0.1, (now - self.last) / 1000); self.last = now;
+      if (self.a) self.draw(self.a, [95, 196, 160], self.t);
+      if (self.b) self.draw(self.b, [229, 155, 192], self.t + 40);
+    }
+    this.raf = requestAnimationFrame(frame);
+  }
+  componentWillUnmount() { cancelAnimationFrame(this.raf); }
+  draw(cv, rgb, t) {
+    var ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+    var img = cv._img || (cv._img = ctx.createImageData(W, H));
+    var d = img.data, alt = [122, 168, 255];
+    for (var y = 0, i = 0; y < H; y++) for (var x = 0; x < W; x++, i += 4) {
+      var v = Math.sin(x * .21 + t * .5) + Math.sin(y * .33 - t * .37) + Math.sin((x + y) * .17 + t * .23)
+        + Math.sin(Math.hypot(x - W / 2 - 6 * Math.sin(t * .2), y - H / 2) * .3 - t * .45);
+      var a = Math.max(0, v / 4 + .5), k = a * a * (3 - 2 * a), m = (.5 + .5 * Math.sin(x * .12 - t * .3)) * .35;
+      d[i] = rgb[0] + (alt[0] - rgb[0]) * m; d[i + 1] = rgb[1] + (alt[1] - rgb[1]) * m; d[i + 2] = rgb[2] + (alt[2] - rgb[2]) * m; d[i + 3] = k * 80;
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  renderVals() {
+    var self = this;
+    if (!this._refs) this._refs = { setA: function (el) { self.a = el; }, setB: function (el) { self.b = el; } };
+    return this._refs;
+  }
+}
+</script></body></html>
