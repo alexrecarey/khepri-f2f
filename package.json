@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:named": "portless",
     "build": "vite build",
     "check-build": "node scripts/check-build.mjs",
     "check-search-index": "node scripts/build-search-index.mjs && git diff --exit-code src/search/index.json",
@@ -27,6 +28,7 @@
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^3.0.0",
+    "portless": "0.15.7",
     "vite": "^4.0.0",
     "vite-plugin-pwa": "^0.14.4",
     "vite-plugin-svgr": "^2.4.0"
@@ -34,5 +36,6 @@
   "volta": {
     "node": "24.21.0",
     "yarn": "3.3.0"
-  }
+  },
+  "portless": "khepri-f2f"
 }
