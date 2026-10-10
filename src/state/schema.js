@@ -13,6 +13,7 @@ export const STATE_VERSION = 1;
 
 // The two sides: A is the active trooper, B the reactive one.
 export const ROLE = {A: 'active', B: 'reactive'};
+export const SIDE_NAME = {A: 'Active', B: 'Reactive'};
 export const other = (side) => (side === 'A' ? 'B' : 'A');
 
 // One side of a matchup: ids into the army data plus the situation chips.

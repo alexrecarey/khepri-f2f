@@ -1,18 +1,17 @@
 // The classic calculator: type the final numbers yourself. Same inputs and
 // the same hiding rules as before (src/CalculatorColumn.jsx), in the new design.
 // The numbers are the state document's classic slice.
-import {useMemo} from 'react';
+import {useCallback} from 'react';
 import PropTypes from 'prop-types';
 import {LIMITS} from '../engine/params.js';
 import {CLASSIC_AMMO, SAVE_LIMIT, armSave, btsSave, classicSide} from '../state/classicView.js';
-import {ROLE} from '../state/schema.js';
+import {ROLE, SIDE_NAME} from '../state/schema.js';
 import {dispatch} from '../state/store.js';
 import {D20} from './icons.jsx';
 import ResultsCard, {ResultsPanel} from './ResultsCard.jsx';
 import useLayout from './useLayout.js';
 import {classicRollSummary} from '../state/rolls.js';
-import {summarize} from './results.js';
-import useSaveRoll from './useSaveRoll.js';
+import useRollResults from './useRollResults.js';
 
 const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
 
@@ -86,7 +85,7 @@ function ClassicSide({side, params, setParam}) {
 
   return (
     <section className="card" aria-label={`${color} side`} style={{gap: 14}}>
-      <span className={`role ${color}`}>{side === 'A' ? 'ACTIVE' : 'REACTIVE'}</span>
+      <span className={`role ${color}`}>{SIDE_NAME[side].toUpperCase()}</span>
       <DiceInput label="Burst" value={burst} min={side === 'B' ? 0 : 1} max={6} color={color} onChange={set('burst')}
         zeroOption={side === 'B'} />
       <DiceInput label="Special dice" value={v('bonusBurst')} min={0} max={3} color={color} onChange={set('bonusBurst')} />
@@ -133,9 +132,8 @@ ClassicSide.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, params: P
 const setParam = (key) => (value) => dispatch({type: 'setClassic', key, value});
 
 export default function ClassicScreen({params, engine}) {
-  const s = useMemo(() => summarize(engine.result), [engine.result]);
-  const summary = useMemo(() => (s ? classicRollSummary(params, s) : null), [s, params]);
-  const save = useSaveRoll(summary, engine.pending);
+  const summaryOf = useCallback((s) => classicRollSummary(params, s), [params]);
+  const {s, save} = useRollResults({result: engine.result, summaryOf, pending: engine.pending});
   const layout = useLayout();
   if (layout === 'phone') {
     return (

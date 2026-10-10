@@ -6,28 +6,15 @@
 // ui.picker, so Back (button, Escape or the browser's) pops one screen.
 import {useEffect, useMemo, useRef} from 'react';
 import PropTypes from 'prop-types';
-import {recentsFor} from '../../state/schema.js';
+import {ROLE, SIDE_NAME} from '../../state/schema.js';
 import {dispatch, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
 import {extraLoadoutName} from '../../army/names.js';
 import LoadFailed from '../LoadFailed.jsx';
 import {Page} from '../Sheet.jsx';
+import {QUICK, TYPE_NAMES, TYPE_ORDER} from './constants.js';
 import {groupLoadouts, loadoutTag, orderLoadouts, statLine} from './loadouts.js';
-
-export const TYPE_NAMES = {
-  LI: 'Light Infantry', MI: 'Medium Infantry', HI: 'Heavy Infantry', TAG: 'TAGs',
-  REM: 'REMs', SK: 'Skirmishers', WB: 'Warbands', VH: 'Vehicles',
-};
-const TYPE_ORDER = Object.keys(TYPE_NAMES);
-
-// One tap fills the box with what players often look for on that side: big
-// burst for the active trooper, ARO picks for the reactive one. Each query
-// also finds the variants ("hmg": AP and MULTI HMG; "spitfire": AP / MULTI).
-const QUICK = {
-  A: [['HMG', 'hmg'], ['Spitfire', 'spitfire'], ['Red Fury', 'red fury']],
-  B: [['+SD', '+SD'], ['Neurocinetics', 'neurocinetics'], ['Total Reaction', 'total reaction'],
-    ['Missile Launcher', 'missile launcher'], ['HRL', 'hrl'], ['Sniper Rifle', 'sniper rifle']],
-};
+import {factionNameOf, useRecentIds} from './useRecentIds.js';
 
 // The loadout's weapons, the one the query matched first: several loadouts
 // often share their main weapon and only differ further down the list.
@@ -85,9 +72,8 @@ const push = (view) => dispatch({type: 'pickerPush', view});
 const SHORT_NAMES = {'Combined Army': 'Combined', 'Non-Aligned Armies': 'NA Armies'};
 
 export default function TrooperPicker({side, searcher, army, onPick, loadError}) {
-  const color = side === 'A' ? 'active' : 'reactive';
+  const color = ROLE[side];
   const {query, scope, stack} = useAppState((s) => s.ui.picker);
-  const recents = useAppState((s) => s.lists.recents);
   const recentFactions = useAppState((s) => s.lists.recentFactions);
   // Drill-in stack: {view: 'factions'} | {view: 'type', type} | {view: 'unit', unitId, name}
   const top = stack.at(-1) ?? null;
@@ -98,10 +84,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
   // already fits above the keyboard, useVisualViewport.js).
   useEffect(() => { if (!top) inputRef.current?.focus({preventScroll: true}); }, [top]);
 
-  const recentIds = useMemo(
-    () => (searcher ? recentsFor(recents, side).map((r) => searcher.findRow(r)).filter((id) => id != null) : []),
-    [searcher, recents, side],
-  );
+  const recentIds = useRecentIds(searcher, side);
   const results = useMemo(() => {
     if (!searcher) return null;
     return query.trim()
@@ -109,7 +92,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
       : {mode: 'browse', ...searcher.browse({factionId: scope, recentIds})};
   }, [searcher, query, scope, recentIds]);
 
-  const factionName = (id) => searcher?.factions.find((f) => f.id === id)?.name ?? 'All factions';
+  const factionName = (id) => factionNameOf(searcher, id);
   const pick = (hit) => onPick(hit);
   const openUnit = (u) => push({view: 'unit', unitId: u.unitId, name: u.short});
 
@@ -120,7 +103,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
     if (firstHit && !firstHit.loose) pick(firstHit);
   };
 
-  const title = <span className={`role ${color}`}>{side === 'A' ? 'ACTIVE' : 'REACTIVE'} TROOPER</span>;
+  const title = <span className={`role ${color}`}>{SIDE_NAME[side].toUpperCase()} TROOPER</span>;
 
   if (top?.view === 'factions') {
     const choose = (id) => setScope(id);
@@ -204,7 +187,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
   );
 
   return (
-    <Page title={title} label={`${side === 'A' ? 'Active' : 'Reactive'} trooper`} onBack={onClose} footer={searchBar} closeLabel="Cancel">
+    <Page title={title} label={`${SIDE_NAME[side]} trooper`} onBack={onClose} footer={searchBar} closeLabel="Cancel">
       {!results && (loadError
         ? <LoadFailed what="the trooper list" onRetry={loadError} className="empty" />
         : <div className="empty">Loading units…</div>)}

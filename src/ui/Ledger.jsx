@@ -5,6 +5,7 @@
 // cancelled lines are struck through and say what cancelled them.
 import PropTypes from 'prop-types';
 import {shortWeaponName} from '../army/names.js';
+import {SIDE_NAME} from '../state/schema.js';
 
 const COLOR = {A: 'var(--active)', B: 'var(--reactive)'};
 // The source column is narrow: "Fennec" for Fennec Fusiliers.
@@ -45,7 +46,7 @@ export function SideMods({side, l, names, weapon}) {
   const sd = l.sd?.lines.length ? l.sd.lines.map((x) => ({...x, label: `${x.label} (SD)`})) : [];
   return (
     <section className="mods-card" aria-label={`${color} mods`}>
-      <div className={`mods-top c-${color}`}><span>{side === 'A' ? 'ACTIVE' : 'REACTIVE'} MODS</span><span>{l.dice}</span></div>
+      <div className={`mods-top c-${color}`}><span>{SIDE_NAME[side].toUpperCase()} MODS</span><span>{l.dice}</span></div>
       {l.kind === 'none' && <span className="note">No ARO: does not roll.</span>}
       {l.sv && (
         <Section title={l.kind === 'dodge' ? 'DODGE' : 'SUCCESS VALUE'} lines={l.sv.lines} total={l.sv.total}
