@@ -1,0 +1,16 @@
+[
+  {"query": "zhnashi", "expect": "zhanshi", "note": "swapped letters"},
+  {"query": "gulam", "expect": "ghulam infantry", "note": "transliteration, missing h"},
+  {"query": "asawirah", "expect": "asawira regiment", "note": "transliteration, extra h"},
+  {"query": "nokken", "expect": "nokken", "note": "ø typed as o"},
+  {"query": "hactao", "expect": "hac tao special unit", "note": "dropped space"},
+  {"query": "hac tao", "expect": "hac tao special unit"},
+  {"query": "psicops", "expect": "psi cops", "note": "dropped hyphen"},
+  {"query": "racer bots", "expect": "racer bots", "note": "CamelCase name typed as two words"},
+  {"query": "hellblazrs", "expect": "hellblazers"},
+  {"query": "shenji", "expect": "shenji ying", "note": "tone marks"},
+  {"query": "indigo", "expect": "indigo spec ops", "note": "accented capital Í"},
+  {"query": "fusilers", "expect": "fusiliers"},
+  {"query": "hexas", "expect": "hexas", "note": "short name before the comma"},
+  {"query": "kum", "expect": "kum motorized troops", "note": "three letters, prefix only"}
+]

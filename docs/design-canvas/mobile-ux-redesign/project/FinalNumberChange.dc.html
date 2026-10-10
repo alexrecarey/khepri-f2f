@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Number change</title><script src="./support.js"></script></head>
+<body><x-dc><helmet><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#0f0f0f;color:#e8e6e1}
+.card{width:358px;background:#1f1f1f;border-radius:20px 20px 0 0;padding:8px 16px 18px;display:flex;flex-direction:column;gap:12px}
+.handle{align-self:center;width:40px;height:5px;border-radius:3px;background:#444}
+.row{display:flex;justify-content:space-between;align-items:flex-end}
+.col{position:relative;display:flex;flex-direction:column;gap:4px;align-items:flex-start}.col.r{align-items:flex-end}
+.lab{font-size:12px;color:#9a978f}
+.d{font-size:12px;color:#8a877f;line-height:1.5;width:358px}
+.num{font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:34px;line-height:1;display:inline-grid;clip-path:inset(0 -.5em)}
+.r .num{justify-items:end}
+.num>span{grid-area:1/1;animation-duration:4s;animation-iteration-count:infinite;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+.ghost{visibility:hidden}
+/* 300 ms of a 4 s loop = 7.5%. Active rises then drops back, reactive the reverse: the leaving value goes the way the number moves, the new one follows from the other side. */
+@keyframes upOld{0%,40%{transform:none;opacity:1}47.5%,90%{transform:translateY(-.7em);opacity:0}97.5%,100%{transform:none;opacity:1}}
+@keyframes upNew{0%,40%{transform:translateY(.7em);opacity:0}47.5%,90%{transform:none;opacity:1}97.5%,100%{transform:translateY(.7em);opacity:0}}
+@keyframes dnOld{0%,40%{transform:none;opacity:1}47.5%,90%{transform:translateY(.7em);opacity:0}97.5%,100%{transform:none;opacity:1}}
+@keyframes dnNew{0%,40%{transform:translateY(-.7em);opacity:0}47.5%,90%{transform:none;opacity:1}97.5%,100%{transform:translateY(-.7em);opacity:0}}
+.delta{position:absolute;top:-16px;font-family:'IBM Plex Mono',monospace;font-size:12px;opacity:0;animation:delta 4s infinite ease-out}
+.col .delta{right:0}.col.r .delta{right:auto;left:0}
+@keyframes delta{0%,40%{opacity:0;transform:translateY(6px)}45%,70%{opacity:1;transform:none}80%,100%{opacity:0;transform:translateY(-8px)}}
+.bar{height:6px;border-radius:3px;background:#2a2a2a;display:flex;overflow:hidden}
+.ba{background:#5fc4a0;animation:bw 4s infinite cubic-bezier(.2,.8,.2,1)}.bb{margin-left:auto;background:#e59bc0;animation:bv 4s infinite cubic-bezier(.2,.8,.2,1)}
+@keyframes bw{0%,40%{width:44%}50%,90%{width:62%}100%{width:44%}}
+@keyframes bv{0%,40%{width:28%}50%,90%{width:14%}100%{width:28%}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style></helmet>
+<div style="width:420px;height:400px;background:#0f0f0f;padding:28px;box-sizing:border-box;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'Chakra Petch';font-size:20px;font-weight:700">Wounds / order changes</span><span style="font-size:12px;color:#8a877f;line-height:1.5">The number slides as one piece: up when it rises, down when it drops. 300 ms, ease-out; the change floats above for a moment.</span></div>
+<div style="display:flex;flex-direction:column;gap:10px"><div style="background:#121212;border-radius:14px;padding:26px 0 20px;display:flex;justify-content:center"><div class="card"><span class="handle"></span><div class="row"><div class="col"><span class="delta" style="color:#5fc4a0">+0.23</span><span class="num" style="color:#5fc4a0"><span style="animation-name:upOld">0.81</span><span style="animation-name:upNew">1.04</span><span class="ghost">1.04</span></span><span class="lab">wounds / order</span></div><div class="col r"><span class="delta" style="color:#e59bc0">−0.27</span><span class="num" style="color:#e59bc0"><span style="animation-name:dnOld">0.46</span><span style="animation-name:dnNew">0.19</span><span class="ghost">0.46</span></span><span class="lab">wounds / order</span></div></div><div class="bar"><span class="ba"></span><span class="bb"></span></div></div></div><span class="d">Active rises 0.81 → 1.04, reactive drops 0.46 → 0.19, then back. Under reduced motion the new value just replaces the old.</span></div></div></x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":420,"height":400}}'>class Component extends DCLogic { renderVals() { return {}; } }</script></body></html>

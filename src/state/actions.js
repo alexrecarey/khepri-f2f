@@ -1,0 +1,62 @@
+// Actions whose payload needs the army data. The reducer stays pure; these
+// work out the payload first and return a plain action to dispatch.
+import {SKILL} from '../army/ids.js';
+import {hasSkill} from '../army/traits.js';
+import {resolveSelection, trooperWeapons} from '../rules/trooper.js';
+import {vanillaOf} from './matchupView.js';
+import {EMPTY_SIDE, other} from './schema.js';
+
+// A search hit -> a side's selection. The weapon the query matched ("fus ml")
+// is preselected; otherwise weaponKey stays null and matchupView derives the
+// default for the side's role, so it follows the trooper when sides swap.
+export function selectionFromHit(army, hit) {
+  const sel = {
+    ...EMPTY_SIDE,
+    unitId: hit.unitId,
+    factionId: hit.armyFactionId,
+    groupId: hit.groupId,
+    profileId: hit.profileId,
+    optionId: hit.optionId,
+  };
+  const resolved = army ? resolveSelection(army, sel) : null;
+  if (!resolved?.option) return sel;
+  const weapons = trooperWeapons(resolved.option, army.weapons, resolved.traits);
+  const matched = hit.weaponId != null ? weapons.find((w) => w.id === hit.weaponId) : null;
+  return matched ? {...sel, weaponKey: matched.key} : sel;
+}
+
+// Which faction a side's picker shows: the one last chosen for that side,
+// else the faction of its trooper, else its starting faction (Settings), else
+// All. Never the other side's: each side keeps its own.
+export function scopeFor(army, state, side) {
+  if (state.scopes && side in state.scopes) return state.scopes[side];
+  return vanillaOf(army, state.matchup[side].factionId) ?? state.prefs.startFaction?.[side] ?? null;
+}
+
+// The picked trooper's faction becomes its side's scope. `next`: the picker
+// stays open on the other side, with that side's scope.
+// ftMax: the new trooper's largest fireteam, so a kept fireteam size shrinks
+// to fit (or goes) when the new trooper can't match it.
+// A new trooper starts in cover when cover can help it (not No Cover), or in
+// its Foxhole when it has Sapper (the Foxhole is its cover).
+export function pickTrooper(army, side, hit, {next = false, state = null} = {}) {
+  const otherSide = other(side);
+  const base = selectionFromHit(army, hit);
+  const r = resolveSelection(army, base);
+  const sapper = Boolean(r?.canSapper);
+  const sel = {...base, sapper, inCover: !sapper && Boolean(r?.traits) && !hasSkill(r.traits, SKILL.NO_COVER)};
+  return {
+    type: 'pickTrooper',
+    side,
+    sel,
+    ftMax: r?.ftMax ?? 1,
+    recent: {unitId: hit.unitId, groupId: hit.groupId, optionId: hit.optionId, armyFactionId: hit.armyFactionId},
+    scope: hit.factionId ?? null,
+    ...(next ? {next: true, nextScope: state ? scopeFor(army, state, otherSide) : null} : {}),
+  };
+}
+
+export const openPicker = (army, state, side) => ({type: 'openPicker', side, scope: scopeFor(army, state, side)});
+
+// Desktop picker: switch sides, each with its own scope.
+export const pickerSide = (army, state, side) => ({type: 'pickerSide', side, scope: scopeFor(army, state, side)});

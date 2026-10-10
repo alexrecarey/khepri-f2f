@@ -1,0 +1,17 @@
+/* Infinity the Calculator — styles, one file per area (src/ui/styles).
+   The order is the cascade order: later files win ties, so keep it. */
+@import './styles/tokens.css';
+@import './styles/base.css';
+@import './styles/matchup.css';
+@import './styles/sheets.css';
+@import './styles/picker.css';
+@import './styles/classic.css';
+@import './styles/results.css';
+@import './styles/chrome.css';
+@import './styles/classic-results.css';
+@import './styles/workbench.css';
+@import './styles/desk-picker.css';
+@import './styles/motion.css';
+@import './styles/phone-sheet.css';
+@import './styles/slots.css';
+@import './styles/wound-states.css';

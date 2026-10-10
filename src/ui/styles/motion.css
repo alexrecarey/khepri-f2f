@@ -1,0 +1,63 @@
+/* ---------- motion (design canvas: Motion & polish). 150-350 ms, ease-out
+   for state changes, a spring for things that move into place; all of it off
+   under reduced motion. ---------- */
+.bar span, .breakdown .b { transition: width .35s cubic-bezier(.2,.8,.2,1); }
+.wpo-n { position: relative; display: inline-block; }
+/* SlideNumber: old and new value share one grid cell; the new one comes in
+   from below on a rise, from above on a drop, the old one leaves the other
+   way. Clipped top and bottom only, so nothing is cut at the sides. */
+.slide-n { display: inline-grid; clip-path: inset(0 -.5em); }
+.slide-n > span { grid-area: 1 / 1; }
+.wpo.right .slide-n { justify-items: end; }
+.slide-n.up .slide-out { animation: slide-out-up .3s cubic-bezier(.2,.8,.2,1) both; }
+.slide-n.up .slide-in { animation: slide-in-up .3s cubic-bezier(.2,.8,.2,1) both; }
+.slide-n.down .slide-out { animation: slide-out-down .3s cubic-bezier(.2,.8,.2,1) both; }
+.slide-n.down .slide-in { animation: slide-in-down .3s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes slide-out-up { to { transform: translateY(-.7em); opacity: 0; } }
+@keyframes slide-in-up { from { transform: translateY(.7em); opacity: 0; } }
+@keyframes slide-out-down { to { transform: translateY(.7em); opacity: 0; } }
+@keyframes slide-in-down { from { transform: translateY(-.7em); opacity: 0; } }
+/* Engine loading (ResultsCard EngineLoading): the two dice meet in the middle. */
+.engine-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 104px; }
+.clash { position: relative; width: 100%; height: 40px; }
+.clash > span { position: absolute; top: 3px; width: 34px; height: 34px; }
+.clash > span svg { width: 100%; height: 100%; display: block; }
+.clash .die-a { left: 0; animation: clash-a 1.6s infinite cubic-bezier(.5,0,.3,1); }
+.clash .die-b { right: 0; animation: clash-b 1.6s infinite cubic-bezier(.5,0,.3,1); }
+@keyframes clash-a { 0%, 100% { left: 0; transform: rotate(0); } 45%, 55% { left: calc(50% - 36px); transform: rotate(270deg); } }
+@keyframes clash-b { 0%, 100% { right: 0; transform: rotate(0); } 45%, 55% { right: calc(50% - 36px); transform: rotate(-270deg); } }
+.computing { animation: shimmer 1.4s linear infinite; }
+@keyframes shimmer { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+.delta { position: absolute; top: -14px; right: 0; font-family: var(--font-mono); font-size: 12px; white-space: nowrap; animation: delta 1.6s ease-out both; pointer-events: none; }
+.wpo.right .delta { right: auto; left: 0; }
+@keyframes delta { 0% { opacity: 0; transform: translateY(6px); } 20%, 70% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-8px); } }
+.btn, .chip, .stepper .s, .seg, .band, .die, .g-mode, .mode-switch button { transition: transform .1s ease; }
+.btn:active, .chip:active, .stepper .s:active, .seg:active, .die:active, .g-mode:active, .mode-switch button:active { transform: scale(.94); }
+.bump { animation: bump .3s cubic-bezier(.3,1.5,.5,1); }
+@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
+.tumble { animation: tumble .45s cubic-bezier(.3,1.5,.5,1); }
+@keyframes tumble { from { transform: rotate(-160deg) scale(.8); opacity: .3; } to { transform: none; opacity: 1; } }
+.fade-in { animation: fade .2s ease; }
+.chip-group { animation: grow .2s cubic-bezier(.2,.8,.2,1); transform-origin: left center; }
+@keyframes grow { from { transform: scale(.85); opacity: .4; } to { transform: none; opacity: 1; } }
+.page-body .hit, .page-body .line-btn, .dp-row, .dp-loadout { animation: rise-in .25s cubic-bezier(.2,.8,.2,1) both; }
+.page-body > :nth-child(2), .dp-list > :nth-child(2) { animation-delay: .06s; }
+.page-body > :nth-child(3), .dp-list > :nth-child(3) { animation-delay: .12s; }
+.page-body > :nth-child(4), .dp-list > :nth-child(4) { animation-delay: .18s; }
+.page-body > :nth-child(n+5), .dp-list > :nth-child(n+5) { animation-delay: .22s; }
+@keyframes rise-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+/* Menu pages open as a circle from the ⋯ button. */
+.page.from-menu { animation: reveal .35s cubic-bezier(.2,.8,.2,1); }
+@keyframes reveal { from { clip-path: circle(0% at calc(100% - 30px) 30px); } to { clip-path: circle(150% at calc(100% - 30px) 30px); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .slide-out { display: none; }
+}
+
+/* Faction crests (ui/factionLogo.jsx). */
+.faction-logo { flex-shrink: 0; display: block; }
+.with-logo, .dp-faction { display: inline-flex; align-items: center; gap: 10px; }
+.tile.faction { justify-content: flex-start; gap: 10px; }
+.tile.faction .r { margin-left: auto; }
+.tiles.three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.tile.crest { flex-direction: column; justify-content: center; gap: 6px; padding: 10px 4px; font-size: 12px; text-align: center; }

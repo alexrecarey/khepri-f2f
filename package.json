@@ -5,39 +5,30 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:named": "portless",
     "build": "vite build",
+    "check-build": "node scripts/check-build.mjs",
+    "check-search-index": "node scripts/build-search-index.mjs && git diff --exit-code src/search/index.json",
     "preview": "vite preview",
-    "fetch-army": "node --no-warnings scripts/fetch-army.mjs",
+    "fetch-army": "node --no-warnings scripts/fetch-army.mjs && node scripts/build-search-index.mjs",
     "test": "yarn test:js && yarn test:engine",
     "test:js": "node --test $(find src -name '*.test.mjs')",
-    "test:engine": "uv run --python 3.12 --with icepool==2.2.2 --with pytest pytest -q src/engine"
+    "test:engine": "uv run --python 3.12 --with icepool==2.2.2 --with pytest pytest -q src/engine",
+    "build-search-index": "node scripts/build-search-index.mjs",
+    "search-eval": "node scripts/search-eval.mjs"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
-    "@fontsource/roboto": "^4.5.8",
-    "@fortawesome/fontawesome-svg-core": "^6.2.1",
-    "@fortawesome/free-regular-svg-icons": "^6.2.1",
-    "@fortawesome/free-solid-svg-icons": "^6.2.1",
-    "@fortawesome/react-fontawesome": "^0.2.0",
-    "@mui/icons-material": "^5.11.0",
-    "@mui/material": "^5.14.14",
-    "@sentry/react": "^8.36.0",
-    "@stdlib/stats-base-dists-binomial-pmf": "^0.0.7",
-    "comlink": "^4.4.1",
-    "jotai": "^2.4.3",
+    "@tanstack/react-store": "0.11.2",
+    "@tanstack/store": "0.11.2",
     "prop-types": "^15.8.1",
-    "pyodide": "^0.22.1",
-    "ramda": "^0.29.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.10.0"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@sentry/vite-plugin": "^2.22.6",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^3.0.0",
+    "portless": "0.15.7",
     "vite": "^4.0.0",
     "vite-plugin-pwa": "^0.14.4",
     "vite-plugin-svgr": "^2.4.0"
@@ -45,5 +36,6 @@
   "volta": {
     "node": "24.21.0",
     "yarn": "3.3.0"
-  }
+  },
+  "portless": "khepri-f2f"
 }

@@ -20,6 +20,9 @@ const SKILLS = {
   SPEC_OPS: [281, 'Infinity Spec-Ops'],
   WARHORSE: [267, 'Warhorse'],
   COMBAT_INSTINCT: [262, 'Combat Instinct'],
+  DOGGED: [85, 'Dogged'],
+  NWI: [86, 'No Wound Incapacitation'],
+  REMOTE_PRESENCE: [235, 'Remote Presence'],
 };
 
 const EQUIPS = {

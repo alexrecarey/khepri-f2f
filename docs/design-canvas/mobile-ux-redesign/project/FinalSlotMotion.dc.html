@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Empty slot</title><script src="./support.js"></script></head>
+<body><x-dc><helmet><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+.slot{position:relative;isolation:isolate;overflow:hidden;aspect-ratio:9/8;border-radius:18px;background:#1c1c1c;border:1.5px dashed color-mix(in srgb,var(--side) 40%,transparent);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;transition:border-color .2s}
+.slot:hover{border-color:color-mix(in srgb,var(--side) 75%,transparent)}
+.plasma{position:absolute;inset:0;z-index:0;width:100%;height:100%}
+.open{all:unset;cursor:pointer;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:10px}
+.open::before{content:'';position:absolute;inset:-400px}
+.open:focus-visible{outline:2px solid var(--side);outline-offset:6px;border-radius:8px}
+.lab{font-family:'Chakra Petch';font-size:12px;letter-spacing:.12em;color:var(--side)}.ttl{font-size:20px;font-weight:600}
+.chips{position:relative;z-index:2;display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.chip{all:unset;cursor:pointer;padding:7px 11px;border-radius:999px;font-size:13px;border:1px solid #3a3a3a;color:#c9c6bf}
+.chip:hover{border-color:var(--side);color:#e8e6e1}.chip:focus-visible{outline:2px solid var(--side);outline-offset:2px}
+.d{font-size:12px;color:#9a978f;line-height:1.55}
+</style></helmet>
+<div style="width:820px;height:600px;background:#121212;padding:28px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px">
+<span style="font-family:'Chakra Petch';font-size:20px;font-weight:700">Empty slot — plasma tint, the whole card opens the search</span>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px">
+<div class="slot" style="--side:#5fc4a0"><canvas class="plasma" width="32" height="24" ref="{{ setA }}"></canvas><button type="button" class="open" aria-label="Choose the active trooper"><svg width="52" height="52" viewBox="0 0 100 100" aria-hidden="true"><path fill="#5fc4a0" opacity=".9" d="M50 4 90 27v46L50 96 10 73V27Z"></path><path fill="#1c1c1c" opacity=".55" d="M50 22 72 62H28Z"></path></svg><span class="lab">ACTIVE</span><span class="ttl">Choose a trooper</span></button><div class="chips"><button type="button" class="chip">Fennec · ML</button><button type="button" class="chip">Swiss Guard</button><button type="button" class="chip">Bolt</button></div></div>
+<div class="slot" style="--side:#e59bc0"><canvas class="plasma" width="32" height="24" ref="{{ setB }}"></canvas><button type="button" class="open" aria-label="Choose the reactive trooper"><svg width="52" height="52" viewBox="0 0 100 100" aria-hidden="true"><path fill="#e59bc0" opacity=".9" d="M50 4 90 27v46L50 96 10 73V27Z"></path><path fill="#1c1c1c" opacity=".55" d="M50 22 72 62H28Z"></path></svg><span class="lab">REACTIVE</span><span class="ttl">Choose a trooper</span></button><div class="chips"><button type="button" class="chip">Zhanshi</button><button type="button" class="chip">Hac Tao · HMG</button><button type="button" class="chip">Fiday</button></div></div>
+</div>
+<span class="d">Plasma: summed sine waves on a 32×24 canvas the browser stretches over the card, 30 fps, paused off screen and under reduced motion. Tapping anywhere on the card opens the search; the recent chips pick that trooper straight away and stay still (no light-up). The hexagon with the triangle replaces the d20 here and is the new site icon. On tablet and desktop the slot keeps this shape (about 9:8) instead of stretching down the column; on a phone it still fills the space between header and results.</span></div></x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":820,"height":600}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this.t = 0; this.last = 0;
+    var self = this;
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function frame(now) {
+      if (!reduce) self.raf = requestAnimationFrame(frame);
+      if (now - self.last < 33 && !reduce) return;
+      self.t += reduce ? 3 : Math.min(0.1, (now - self.last) / 1000); self.last = now;
+      if (self.a) self.draw(self.a, [95, 196, 160], self.t);
+      if (self.b) self.draw(self.b, [229, 155, 192], self.t + 40);
+    }
+    this.raf = requestAnimationFrame(frame);
+  }
+  componentWillUnmount() { cancelAnimationFrame(this.raf); }
+  draw(cv, rgb, t) {
+    var ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+    var img = cv._img || (cv._img = ctx.createImageData(W, H));
+    var d = img.data, alt = [122, 168, 255];
+    for (var y = 0, i = 0; y < H; y++) for (var x = 0; x < W; x++, i += 4) {
+      var v = Math.sin(x * .21 + t * .5) + Math.sin(y * .33 - t * .37) + Math.sin((x + y) * .17 + t * .23)
+        + Math.sin(Math.hypot(x - W / 2 - 6 * Math.sin(t * .2), y - H / 2) * .3 - t * .45);
+      var a = Math.max(0, v / 4 + .5), k = a * a * (3 - 2 * a), m = (.5 + .5 * Math.sin(x * .12 - t * .3)) * .35;
+      d[i] = rgb[0] + (alt[0] - rgb[0]) * m; d[i + 1] = rgb[1] + (alt[1] - rgb[1]) * m; d[i + 2] = rgb[2] + (alt[2] - rgb[2]) * m; d[i + 3] = k * 80;
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  renderVals() {
+    var self = this;
+    if (!this._refs) this._refs = { setA: function (el) { self.a = el; }, setB: function (el) { self.b = el; } };
+    return this._refs;
+  }
+}
+</script></body></html>

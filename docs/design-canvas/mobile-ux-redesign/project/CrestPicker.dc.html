@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crest picker rows</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#121212;display:flex;flex-direction:column;position:relative;overflow:hidden">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="ink-a" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" result="ink" values="0 0 0 0 0.373 0 0 0 0 0.769 0 0 0 0 0.627 -0.4252 -1.4304 -0.1444 0 2"></feColorMatrix><feComposite in="ink" in2="SourceGraphic" operator="in"></feComposite></filter><filter id="ink-b" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" result="ink" values="0 0 0 0 0.898 0 0 0 0 0.608 0 0 0 0 0.753 -0.4252 -1.4304 -0.1444 0 2"></feColorMatrix><feComposite in="ink" in2="SourceGraphic" operator="in"></feComposite></filter><filter id="ink-n" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" result="ink" values="0 0 0 0 0.91 0 0 0 0 0.902 0 0 0 0 0.882 -0.4252 -1.4304 -0.1444 0 2"></feColorMatrix><feComposite in="ink" in2="SourceGraphic" operator="in"></feComposite></filter></svg>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:16px 16px 6px"><span style="font-size:13px;letter-spacing:.1em;color:#5fc4a0">ACTIVE TROOPER</span><span style="color:#c9c6bf">Cancel</span></div>
+<div style="font-size:11px;letter-spacing:.12em;color:#8a877f;padding:10px 16px 6px">6 LOADOUTS WITH HMG</div>
+<div style="flex-grow:1;overflow:hidden;padding:0 8px;display:flex;flex-direction:column;gap:2px">
+<button onClick="{{r0.pick}}" style="all:unset;cursor:pointer;position:relative;overflow:hidden;isolation:isolate;padding:11px 10px;border-radius:10px;background:{{r0.bg}};display:flex;flex-direction:column;gap:2px;transition:background .18s ease">
+<img src="crests/squalos-mk-ii.svg" alt="" aria-hidden="true" style="position:absolute;z-index:0;right:-14px;top:50%;width:104px;height:104px;margin-top:-52px;pointer-events:none;opacity:{{r0.op}};filter:{{r0.filter}};transition:opacity .18s ease, filter .18s ease;-webkit-mask-image:linear-gradient(270deg,#000 20%,transparent 88%);mask-image:linear-gradient(270deg,#000 20%,transparent 88%)">
+<span style="position:relative;font-size:15px;font-weight:600">Squalos Mk-II<span style="font-weight:400;color:#8a877f"> · PanOceania</span></span>
+<span style="position:relative;font-size:13px;color:#5fc4a0">Heavy Machine Gun, Grenade Launcher, MULTI Pistol</span>
+<span style="position:relative;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a877f">BS 15 · 1.5 SWC · 62 pts</span>
+</button>
+<button onClick="{{r1.pick}}" style="all:unset;cursor:pointer;position:relative;overflow:hidden;isolation:isolate;padding:11px 10px;border-radius:10px;background:{{r1.bg}};display:flex;flex-direction:column;gap:2px;transition:background .18s ease">
+<img src="crests/fusiliers.svg" alt="" aria-hidden="true" style="position:absolute;z-index:0;right:-14px;top:50%;width:104px;height:104px;margin-top:-52px;pointer-events:none;opacity:{{r1.op}};filter:{{r1.filter}};transition:opacity .18s ease, filter .18s ease;-webkit-mask-image:linear-gradient(270deg,#000 20%,transparent 88%);mask-image:linear-gradient(270deg,#000 20%,transparent 88%)">
+<span style="position:relative;font-size:15px;font-weight:600">Fusiliers<span style="font-weight:400;color:#8a877f"> · PanOceania</span></span>
+<span style="position:relative;font-size:13px;color:#5fc4a0">Heavy Machine Gun, Pistol, CC Weapon</span>
+<span style="position:relative;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a877f">BS 12 · 1 SWC · 18 pts</span>
+</button>
+<button onClick="{{r2.pick}}" style="all:unset;cursor:pointer;position:relative;overflow:hidden;isolation:isolate;padding:11px 10px;border-radius:10px;background:{{r2.bg}};display:flex;flex-direction:column;gap:2px;transition:background .18s ease">
+<img src="crests/zhanshi.svg" alt="" aria-hidden="true" style="position:absolute;z-index:0;right:-14px;top:50%;width:104px;height:104px;margin-top:-52px;pointer-events:none;opacity:{{r2.op}};filter:{{r2.filter}};transition:opacity .18s ease, filter .18s ease;-webkit-mask-image:linear-gradient(270deg,#000 20%,transparent 88%);mask-image:linear-gradient(270deg,#000 20%,transparent 88%)">
+<span style="position:relative;font-size:15px;font-weight:600">Zhanshi<span style="font-weight:400;color:#8a877f"> · Yu Jing</span></span>
+<span style="position:relative;font-size:13px;color:#5fc4a0">Heavy Machine Gun, Pistol, CC Weapon</span>
+<span style="position:relative;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a877f">BS 11 · 1 SWC · 18 pts</span>
+</button>
+<button onClick="{{r3.pick}}" style="all:unset;cursor:pointer;position:relative;overflow:hidden;isolation:isolate;padding:11px 10px;border-radius:10px;background:{{r3.bg}};display:flex;flex-direction:column;gap:2px;transition:background .18s ease">
+<img src="crests/intruders.svg" alt="" aria-hidden="true" style="position:absolute;z-index:0;right:-14px;top:50%;width:104px;height:104px;margin-top:-52px;pointer-events:none;opacity:{{r3.op}};filter:{{r3.filter}};transition:opacity .18s ease, filter .18s ease;-webkit-mask-image:linear-gradient(270deg,#000 20%,transparent 88%);mask-image:linear-gradient(270deg,#000 20%,transparent 88%)">
+<span style="position:relative;font-size:15px;font-weight:600">Intruders<span style="font-weight:400;color:#8a877f"> · Nomads</span></span>
+<span style="position:relative;font-size:13px;color:#5fc4a0">Heavy Machine Gun, Heavy Pistol, CC Weapon</span>
+<span style="position:relative;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a877f">BS 13 · 1.5 SWC · 38 pts</span>
+</button>
+<button onClick="{{r4.pick}}" style="all:unset;cursor:pointer;position:relative;overflow:hidden;isolation:isolate;padding:11px 10px;border-radius:10px;background:{{r4.bg}};display:flex;flex-direction:column;gap:2px;transition:background .18s ease">
+<img src="crests/ghulam-infantry.svg" alt="" aria-hidden="true" style="position:absolute;z-index:0;right:-14px;top:50%;width:104px;height:104px;margin-top:-52px;pointer-events:none;opacity:{{r4.op}};filter:{{r4.filter}};transition:opacity .18s ease, filter .18s ease;-webkit-mask-image:linear-gradient(270deg,#000 20%,transparent 88%);mask-image:linear-gradient(270deg,#000 20%,transparent 88%)">
+<span style="position:relative;font-size:15px;font-weight:600">Ghulam Infantry<span style="font-weight:400;color:#8a877f"> · Haqqislam</span></span>
+<span style="position:relative;font-size:13px;color:#5fc4a0">Heavy Machine Gun, Pistol, CC Weapon</span>
+<span style="position:relative;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a877f">BS 11 · 1 SWC · 20 pts</span>
+</button>
+<button onClick="{{r5.pick}}" style="all:unset;cursor:pointer;position:relative;overflow:hidden;isolation:isolate;padding:11px 10px;border-radius:10px;background:{{r5.bg}};display:flex;flex-direction:column;gap:2px;transition:background .18s ease">
+<img src="crests/morat-vanguard-infantry.svg" alt="" aria-hidden="true" style="position:absolute;z-index:0;right:-14px;top:50%;width:104px;height:104px;margin-top:-52px;pointer-events:none;opacity:{{r5.op}};filter:{{r5.filter}};transition:opacity .18s ease, filter .18s ease;-webkit-mask-image:linear-gradient(270deg,#000 20%,transparent 88%);mask-image:linear-gradient(270deg,#000 20%,transparent 88%)">
+<span style="position:relative;font-size:15px;font-weight:600">Morat Vanguard Infantry<span style="font-weight:400;color:#8a877f"> · Combined Army</span></span>
+<span style="position:relative;font-size:13px;color:#5fc4a0">Heavy Machine Gun, Heavy Pistol, CC Weapon</span>
+<span style="position:relative;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a877f">BS 11 · 1 SWC · 23 pts</span>
+</button>
+</div>
+<div style="background:#1e1e1e;border-top:1px solid #2c2c2c;padding:10px 12px 22px;display:flex;flex-direction:column;gap:10px;flex-shrink:0">
+<div style="display:flex;gap:8px;font-size:13px"><span style="padding:7px 12px;border-radius:999px;background:#1f3a31;border:1px solid #5fc4a0">All factions ▾</span></div>
+<input aria-label="Unit or weapon" value="hmg" style="all:unset;padding:14px 16px;border-radius:12px;background:#141414;border:1px solid #5fc4a0;font-size:16px;color:#e8e6e1">
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 844}}'>
+var ROWS = ["squalos-mk-ii", "fusiliers", "zhanshi", "intruders", "ghulam-infantry", "morat-vanguard-infantry"];
+// Rows are unrolled in the markup: the canvas only resolves literal relative image paths, not {{holes}}.
+// The infinitystats row treatment as-is: every result carries its crest, faint and in one neutral ink so
+// the list stays calm; the highlighted row (keyboard focus / the one Enter would pick) gets its colours.
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sel: 0 }; }
+  renderVals() {
+    var self = this, sel = this.state.sel;
+    var out = {};
+    ROWS.forEach(function (r, i) {
+      var on = i === sel;
+      out['r' + i] = {
+        bg: on ? '#1c1c1c' : 'transparent', op: on ? 0.45 : 0.14, filter: on ? 'none' : 'url(#ink-n)',
+        pick: function () { self.setState({ sel: i }); } };
+    });
+    return out;
+  }
+}
+</script>
+</body>
+</html>

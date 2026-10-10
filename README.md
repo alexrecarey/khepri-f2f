@@ -24,15 +24,23 @@ that is installed, a simple `yarn` command should get you running.
 ```
 src/army/      Army data (army.json) and how to read it: ids, traits, weapon rows, loadouts
 src/rules/     N5 rules: ranges, MODs, saves and Immunity, default weapon,
-               and deriveInputs (a matchup -> calculator params)
+               deriveInputs (a matchup -> calculator params) and the ledger
+               that explains them ("How the dice were built")
 src/engine/    the dice: params.js (the calculator params every mode builds),
                calculate.js (calculator params -> engine input -> result rows),
                f2f.py (icepool) and the Pyodide worker that runs it
-src/matchup/   Matchup mode UI
-src/inputs/, src/display/, src/components/   Basic mode inputs and the results
+src/state/     the state document: schema, pure reducer, store, URL / history /
+               storage sync, and matchupView (what the Matchup screen shows)
+src/matchup/   share-link params for a matchup (matchupParams.js)
+src/search/    trooper search: build-time index (index.json) and the typo-tolerant
+               matcher; `yarn search-eval` scores it (docs/plans/search.md)
+src/data/      loads the army data chunk; src/lib/ small shared helpers
+src/ui/        the app's screens: shell, Matchup, Classic, trooper picker,
+               results card and sheet (design: docs/design-canvas/mobile-ux-redesign);
+               styles in src/ui/styles, design tokens in tokens.css
 ```
 
-Dependencies point one way: `matchup -> rules -> army`, and everything that
+Dependencies point one way: `ui -> state -> rules -> army`, and everything that
 builds calculator params uses `engine/params.js`. Game rules live in
 `src/rules/` and `src/engine/calculate.js`; `f2f.py` only rolls dice: it gets
 final success values, bursts, save values and Saving Rolls per hit (see the top

@@ -1,38 +1,29 @@
 // Matchup -> calculator params: applies the N5 rules to two resolved troopers
 // (rules/trooper.js resolveSelection) and returns the engine input with the
 // notes and warnings to show next to it.
-import {EQUIP, SKILL} from '../army/ids.js';
+import {SKILL} from '../army/ids.js';
 import {hasEquip, hasSkill} from '../army/traits.js';
-import {causesWounds, hasAmmo, hasContinuousDamage, isNonLethal, isTemplate, weaponPS} from '../army/weapons.js';
+import {causesWounds, hasContinuousDamage, isNonLethal, isTemplate, weaponPS} from '../army/weapons.js';
 import {
-  LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, bsAttackMod, capMods, clamp, coverBsMod, dodgeExtras,
-  dodgeSuccessValue, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, surpriseAttackMod,
+  COVER_SAVE_MOD, LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, capMods, clamp, coverBsMod, dodgeExtras,
+  dodgeSuccessValue, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, opposingMods,
 } from './modifiers.js';
 import {rangeModFor} from './ranges.js';
 import {
-  calcAmmo, hasImmunity, hasNoEffect, immunityAgainst, immunityFor, immunityNote, shockApplies, vulnerabilityTo,
+  calcAmmo, hasImmunity, hasNoEffect, immunityAgainst, immunityFor, immunityNote, saveHalving, shockApplies, vulnerabilityTo,
 } from './saves.js';
 import {isSpecOps} from './trooper.js';
 
-// Skills, equipment and Immunities the rules below take into account, for the
-// matchup summary (matchup/labels.js).
-export const MODELED_SKILLS = [
-  SKILL.MIMETISM, SKILL.NO_COVER, SKILL.LIMITED_COVER, SKILL.MARKSMANSHIP, SKILL.TOTAL_REACTION, SKILL.NEUROCINETICS,
-  SKILL.VULNERABILITY,
-];
-export const MODELED_EQUIP = [EQUIP.NANOSCREEN, EQUIP.MSV1, EQUIP.MSV2, EQUIP.MSV3, EQUIP.X_VISOR, EQUIP.ALBEDO];
+// The Immunities the rules here read, and Immunities to States the calculator
+// doesn't model (E/M's IMM-B and Isolated, Possession): recognized, and
+// correctly change nothing here, since a hit is scored the same and only the
+// State afterwards differs (Warhorse's immunity to Isolated is the same case).
+// scripts/army-validate.mjs fails on any other Immunity in the army data.
 export const MODELED_IMMUNITIES = ['AP', 'ARM', 'BTS', 'Continuous Damage', 'Critical', 'Enhanced', 'Shock'];
-// Immunities to States the calculator doesn't model (E/M's IMM-B and Isolated,
-// Possession). Recognized, and correctly change nothing here: a hit is scored
-// the same, only the State afterwards differs. Warhorse's immunity to Isolated
-// is the same case.
 export const STATE_IMMUNITIES = ['IMM-B', 'Isolated', 'POS'];
 
 // Traits that matter to the roll but aren't modelled yet: a warning.
-const IGNORED = [
-  ['skill', SKILL.SAPPER, 'Sapper'],
-  ['skill', SKILL.SIXTH_SENSE, 'Sixth Sense'],
-];
+const IGNORED = [];
 
 // Names of traits on this side that the converter does not model yet.
 function unsupportedTraits(side) {
@@ -40,7 +31,6 @@ function unsupportedTraits(side) {
   const found = IGNORED
     .filter(([kind, id]) => (kind === 'skill' ? hasSkill(side.traits, id) : hasEquip(side.traits, id)))
     .map(([, , name]) => name);
-  if (fireteamBonuses(side.ftSize).sixthSense) found.push('Sixth Sense');
   return found;
 }
 
@@ -60,38 +50,14 @@ function approximationWarnings(label, side, target) {
 
 const signed = (n) => `${n > 0 ? '+' : ''}${n}`;
 
-// Does this side roll? A Dodge, or a BS Attack that isn't a Direct Template
-// (even one its target is immune to: the rolls are still opposed).
-function rolls(x, y) {
-  const w = x?.weapon;
-  if (!w) return false;
-  if (w.pseudo) return w.pseudo === 'dodge';
-  return !isTemplate(w.row) && attackStat(x.profile, w.row) > 0;
-}
-
-// The MODs x puts on y's Face to Face Roll. Negative MODs from x's skills
-// apply to the opponent, and only in opposed rolls: both roll against each
-// other (a Direct Template hits automatically, so nothing is opposed).
-// - x Dodges with Dodge (-X) and y attacks: y takes -X (wiki, Dodge).
-// - x attacks with BS Attack (-X): y takes -X attacking or Dodging, unless y
-//   has Warhorse (rules/modifiers.js bsAttackMod).
-// - x is the active trooper, attacks, and uses Surprise Attack (-X) (a player
-//   toggle): y takes -X attacking or Dodging, unless y has Combat Instinct or
-//   a Multispectral Visor L3.
+// The MODs x puts on y's Face to Face Roll (modifiers.js opposingMods), with
+// a note for each one y ignores.
 function opposingMod(x, y, xActive, yLabel, notes) {
-  if (!rolls(x, y) || !rolls(y, x)) return 0;
-  if (x.weapon.pseudo === 'dodge') return y.weapon.pseudo ? 0 : dodgeExtras(x.traits).opponentMod;
   let total = 0;
-  const bs = bsAttackMod(x.traits);
-  if (bs && hasSkill(y.traits, SKILL.WARHORSE)) {
-    notes.push(`${yLabel}: Warhorse; the opponent's BS Attack (${bs}) has no effect`);
-  } else total += bs;
-  const surprise = xActive && x.surpriseAttack ? surpriseAttackMod(x.traits) : 0;
-  const ignores = hasSkill(y.traits, SKILL.COMBAT_INSTINCT) ? 'Combat Instinct'
-    : hasEquip(y.traits, EQUIP.MSV3) ? 'Multispectral Visor L3' : null;
-  if (surprise && ignores) {
-    notes.push(`${yLabel}: ${ignores}; the opponent's Surprise Attack (${surprise}) has no effect`);
-  } else total += surprise;
+  for (const m of opposingMods(x, y, xActive)) {
+    if (m.ignoredBy) notes.push(`${yLabel}: ${m.ignoredBy}; the opponent's ${m.label} has no effect`);
+    else total += m.value;
+  }
   return total;
 }
 
@@ -107,13 +73,13 @@ function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0) {
   const albedo = y ? albedoMod(y.traits, x.traits) : 0;
   const cover = y ? coverBsMod(y, x.traits) : 0;
   const bonus = attackBonuses(x);
-  // Fireteam +1 BS changes the Attribute; everything else is a MOD, capped.
-  const modSum = rangeMod + mim + albedo + cover + mods.sv + opposing;
+  // Every MOD counts toward the cap, Fireteam +1 BS included (Alex, 2026-10-10).
+  const modSum = bonus.bs + rangeMod + mim + albedo + cover + mods.sv + opposing;
   const modTotal = capMods(modSum);
   if (!outOfRange && modTotal !== modSum) notes.push(`${label}: MODs add up to ${signed(modSum)}, capped at ${signed(modTotal)}`);
   const sv = outOfRange
     ? 0
-    : clamp(LIMITS.successValue, attackStat(x.profile, row) + bonus.bs + modTotal);
+    : clamp(LIMITS.successValue, attackStat(x.profile, row) + modTotal);
 
   const noEffect = hasNoEffect(y?.traits, row);
   let burst = (row.burst ?? 1) + bonus.burst;
@@ -135,7 +101,7 @@ function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0) {
     [`cont${side}`]: !immunity && !contImmune && hasContinuousDamage(row, mods),
     [`shock${side}`]: shockApplies(row, y),
   };
-  if (out[`shock${side}`]) notes.push(`${label}: Shock against VITA 1; a failed save is Dead, counted as one extra wound`);
+  if (out[`shock${side}`]) notes.push(`${label}: Shock against VITA 1; a failed save is Dead (no Unconscious, NWI or Dogged)`);
   // State-only weapons get a warning instead (no effect), or play as always (Stunned).
   if (!immunity && contImmune && hasContinuousDamage(row, mods)) {
     notes.push(`${label}: target has Immunity (Continuous Damage); Continuous Damage ignored`);
@@ -170,19 +136,13 @@ function defenseInputs(y, incoming, side, dodging = false) {
   const arm = (p.arm ?? 0) + (dodging ? dodgeExtras(y.traits).arm : 0);
   let base = save.attr === 'BTS' ? p.bts : save.armZero && !immune ? 0 : arm;
   base = Math.max(0, base ?? 0);
-  // Halved by AP Ammunition (the weapon's own, a loadout "AP", BS Attack (AP)),
-  // or printed halved for another reason (E/M: BTS/2). Immunity (AP) only
-  // ignores the first.
-  const row = incoming?.row;
-  const apHalving = Boolean(incoming?.mods?.forceAP) || (Boolean(save.halved) && hasAmmo(row, 'AP'));
-  const otherHalving = Boolean(save.halved) && !hasAmmo(row, 'AP');
-  const halve = !immune && (otherHalving || (apHalving && !hasImmunity(y.traits, 'AP', row)));
-  if (halve) base = Math.ceil(base / 2);
+  // AP or printed halving (saves.js saveHalving).
+  if (saveHalving(incoming?.row, incoming?.mods, y.traits).halves) base = Math.ceil(base / 2);
   // Cover's +3 is a Saving Roll MOD, not ARM: add it after AP halving. The
   // calculator saves on d20 <= PS + ARM, so this input is where the MOD goes.
   const templateIncoming = ignoresCoverOnSaves(incoming?.row);
-  const coverSave = benefitsFromCover(y) && !templateIncoming ? 3 : 0;
-  const nanoSave = hasNanoscreen(y) ? 3 : 0;
+  const coverSave = benefitsFromCover(y) && !templateIncoming ? COVER_SAVE_MOD : 0;
+  const nanoSave = hasNanoscreen(y) ? COVER_SAVE_MOD : 0;
   const cover = Math.max(coverSave, nanoSave);
   return {
     [`arm${side}`]: clamp(LIMITS.arm, base + cover),

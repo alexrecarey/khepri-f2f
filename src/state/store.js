@@ -1,0 +1,35 @@
+// The one place that knows the state lives in TanStack Store. Components read
+// with useAppState(selector) and write with dispatch(action); the reducer,
+// selectors and screens never import @tanstack/* (docs/plans/redesign.md, 3).
+import {createStore} from '@tanstack/store';
+import {useSelector} from '@tanstack/react-store';
+import {reduce} from './reduce.js';
+import {initialState} from './schema.js';
+import {browserStorage, loadPersisted} from './storage.js';
+import {stateFromUrl} from './url.js';
+
+// First state: defaults, then what this device saved, then the URL (a share
+// link wins over the remembered mode).
+export function bootState({search = '', storage = null} = {}) {
+  const base = initialState();
+  const persisted = loadPersisted(storage);
+  const fromUrl = stateFromUrl(search);
+  return {
+    ...base,
+    ...persisted,
+    ...fromUrl,
+    lists: {...base.lists, ...persisted.lists},
+    // A link with troopers brings its own sides: the remembered factions were
+    // for other troopers.
+    scopes: fromUrl.matchup ? {} : persisted.scopes,
+  };
+}
+
+const browser = typeof window !== 'undefined';
+export const store = createStore(browser ? bootState({search: window.location.search, storage: browserStorage()}) : initialState());
+
+export const getState = () => store.get();
+export const dispatch = (action) => store.setState((s) => reduce(s, action));
+
+// Selectors return a slice or a primitive (AGENTS.md): no compare needed.
+export const useAppState = (selector) => useSelector(store, selector);

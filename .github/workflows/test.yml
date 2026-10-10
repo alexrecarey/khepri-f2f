@@ -5,6 +5,10 @@ on:
     branches: [main]
   pull_request:
 
+# Tests only read the repository.
+permissions:
+  contents: read
+
 jobs:
   js:
     runs-on: ubuntu-latest
@@ -16,7 +20,11 @@ jobs:
       - run: corepack enable && corepack prepare yarn@3.3.0 --activate
       - run: yarn install --immutable
       - run: yarn test:js
+      # index.json is generated from army.json; a stale one passes the tests
+      # (they rebuild it in memory) but ships the old search.
+      - run: yarn check-search-index
       - run: yarn build
+      - run: yarn check-build
 
   engine:
     runs-on: ubuntu-latest
