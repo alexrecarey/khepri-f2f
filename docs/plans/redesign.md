@@ -279,5 +279,9 @@ Not flagged in the app:
   nothing (they only affect States afterwards).
 - The desktop list labels loose matches only as "close match" / "sounds
   like", not "fus → fug".
-- Out of scope by design: close combat, Comms (hacking) attacks, deployable /
-  perimeter weapons. The calculator rolls BS Attacks and Dodge only.
+- Deployable / perimeter weapons.
+
+Big areas still to build (Alex, 2026-10-10): the calculator rolls BS Attacks
+and Dodge only.
+- Close combat (CC Attacks).
+- Hacking (Comms Attacks).
