@@ -254,8 +254,8 @@ FinalPicker, FinalMenu, FinalClassic, FinalClassicResults).
 
 Since then (2026-10-08 to 10-10): the results sheet is one element
 (`.rsheet`) that follows the finger while dragged and settles open or closed
-on release (useSheetGestures.js); the wounds/order numbers roll digit by
-digit (RollingNumber.jsx); search covers skills (docs/plans/search.md);
+on release (useSheetGestures.js); the wounds/order numbers slide to a new
+value as one piece, up on a rise and down on a drop (SlideNumber.jsx); search covers skills (docs/plans/search.md);
 fireteams, Sapper and Sixth Sense follow GAME_RULES.md.
 
 Not built, and why (the list to answer "what is missing?" from; keep it

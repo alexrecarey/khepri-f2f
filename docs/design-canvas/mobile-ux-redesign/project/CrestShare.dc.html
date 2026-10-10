@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crest share card</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:1200px;height:630px;box-sizing:border-box;position:relative;overflow:hidden;isolation:isolate;background:#121212;display:flex;flex-direction:column;padding:56px 72px">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="ink-a" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" result="ink" values="0 0 0 0 0.373 0 0 0 0 0.769 0 0 0 0 0.627 -0.4252 -1.4304 -0.1444 0 2"></feColorMatrix><feComposite in="ink" in2="SourceGraphic" operator="in"></feComposite></filter><filter id="ink-b" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" result="ink" values="0 0 0 0 0.898 0 0 0 0 0.608 0 0 0 0 0.753 -0.4252 -1.4304 -0.1444 0 2"></feColorMatrix><feComposite in="ink" in2="SourceGraphic" operator="in"></feComposite></filter><filter id="ink-n" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" result="ink" values="0 0 0 0 0.91 0 0 0 0 0.902 0 0 0 0 0.882 -0.4252 -1.4304 -0.1444 0 2"></feColorMatrix><feComposite in="ink" in2="SourceGraphic" operator="in"></feComposite></filter></svg>
+<img src="crests/squalos-mk-ii.svg" alt="" aria-hidden="true" style="position:absolute;z-index:0;left:-150px;top:50%;width:560px;height:560px;margin-top:-280px;opacity:{{op}};filter:{{fa}};-webkit-mask-image:linear-gradient(90deg,#000 20%,transparent 88%);mask-image:linear-gradient(90deg,#000 20%,transparent 88%)">
+<img src="crests/zhanshi.svg" alt="" aria-hidden="true" style="position:absolute;z-index:0;right:-150px;top:50%;width:560px;height:560px;margin-top:-280px;opacity:{{op}};filter:{{fb}};-webkit-mask-image:linear-gradient(270deg,#000 20%,transparent 88%);mask-image:linear-gradient(270deg,#000 20%,transparent 88%)">
+<div style="position:relative;display:flex;justify-content:space-between;align-items:center">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:22px;font-weight:600;letter-spacing:.14em;color:#6b6861">INFINITY THE CALCULATOR</span>
+<span style="font-size:22px;color:#9a978f">Range 16–24″</span>
+</div>
+<div style="position:relative;flex-grow:1;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:40px">
+<div style="display:flex;flex-direction:column;gap:6px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:20px;letter-spacing:.1em;color:#5fc4a0">ACTIVE</span>
+<span style="font-size:40px;font-weight:600;line-height:1.1">Squalos Mk-II</span>
+<span style="font-size:24px;color:#9a978f">HMG · Surprise attack</span>
+<span style="font-family:'Chakra Petch',sans-serif;font-size:96px;font-weight:700;color:#5fc4a0;line-height:1;margin-top:18px">0.81</span>
+<span style="font-size:20px;color:#9a978f">wounds / order</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;text-align:right">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:20px;letter-spacing:.1em;color:#e59bc0">REACTIVE</span>
+<span style="font-size:40px;font-weight:600;line-height:1.1">Zhanshi</span>
+<span style="font-size:24px;color:#9a978f">Missile L. · Cover · Fireteam 5</span>
+<span style="font-family:'Chakra Petch',sans-serif;font-size:96px;font-weight:700;color:#e59bc0;line-height:1;margin-top:18px">0.46</span>
+<span style="font-size:20px;color:#9a978f">wounds / order</span>
+</div>
+</div>
+<div style="position:relative;display:flex;height:14px;border-radius:7px;overflow:hidden"><span style="width:23.6%;background:#1f6b52"></span><span style="width:24.0%;background:#87baa8"></span><span style="width:23.7%;background:#2e2e2e"></span><span style="width:14.7%;background:#e1b9ce"></span><span style="width:10.7%;background:#cc9ab4"></span><span style="width:3.0%;background:#b87a9b"></span><span style="width:0.2%;background:#a35b81"></span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1200, "height": 630}, "ink": {"editor": "boolean", "default": false}}'>
+// The image a shared link unfurls into (Discord, WhatsApp). Crests in their own colours by default:
+// this is the one place they are the picture, not a texture. Tweak "ink" to compare the side-colour version.
+class Component extends DCLogic {
+  renderVals() {
+    var ink = this.props.ink ?? false;
+    return { op: ink ? 0.3 : 0.42, fa: ink ? 'url(#ink-a)' : 'none', fb: ink ? 'url(#ink-b)' : 'none' };
+  }
+}
+</script>
+</body>
+</html>
