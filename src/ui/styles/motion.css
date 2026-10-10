@@ -5,8 +5,11 @@
 .wpo-n { position: relative; display: inline-block; }
 /* RollingNumber (.odo): each digit a 0-9 column behind a one-digit window. */
 .odo { display: inline-flex; line-height: 1; font-variant-numeric: tabular-nums; }
-.odo-d { display: inline-block; height: 1em; line-height: 1; overflow: hidden; }
-.odo-col { display: flex; flex-direction: column; transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+.odo-d { position: relative; display: inline-block; height: 1em; line-height: 1; clip-path: inset(0 -.5em); }
+/* Window as wide as the digit it shows; clipped top and bottom only, so a wide
+   digit rolling through a narrow window isn't cut at the sides. */
+.odo-w { visibility: hidden; }
+.odo-col { position: absolute; top: 0; left: 50%; display: flex; flex-direction: column; align-items: center; translate: -50% 0; transition: transform .45s cubic-bezier(.2,.8,.2,1); }
 .odo-col > span { height: 1em; line-height: 1; }
 /* Engine loading (ResultsCard EngineLoading): the two dice meet in the middle. */
 .engine-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 104px; }

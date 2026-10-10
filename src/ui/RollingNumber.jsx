@@ -3,6 +3,9 @@
 // apart (MotionPolish board, "Odometer numbers"). Anything that isn't a digit
 // ("." or "—") just shows. Digits are keyed from the right, so 0.81 -> 1.04
 // moves the same columns. Under reduced motion the columns jump (app.css).
+// The display font has proportional digits, so each window is sized by an
+// invisible copy of its current digit and the column is centred over it;
+// otherwise every window is as wide as a 0 and a 1 sits off to the left.
 import PropTypes from 'prop-types';
 
 const DIGITS = '0123456789';
@@ -16,6 +19,7 @@ export default function RollingNumber({text, className = ''}) {
         if (!DIGITS.includes(c)) return <span key={`c${key}`} aria-hidden="true">{c}</span>;
         return (
           <span key={`d${key}`} className="odo-d" aria-hidden="true">
+            <span className="odo-w">{c}</span>
             <span className="odo-col" style={{transform: `translateY(${-Number(c)}em)`, transitionDelay: `${i * 60}ms`}}>
               {[...DIGITS].map((d) => <span key={d}>{d}</span>)}
             </span>
