@@ -1217,14 +1217,15 @@ test('Warhorse ignores BS Attack (-3), however it is gained', () => {
   assert.deepEqual(matchupTraits(fromLoadout, 'A'), ['BS Attack (-3)']);
 });
 
-test('MODs to a roll are capped at +/-12; Fireteam +1 BS is not a MOD', () => {
+test('MODs to a roll are capped at +/-12; Fireteam +1 BS is a MOD and counts', () => {
   // HMG at 0-8" (-3), Mimetism (-6), cover (-3), BS Attack (-3) from the target: -15 -> -12.
   const mim6 = profile({skills: [minus3, {id: 28, name: 'Mimetism', extra: ['-6']}]});
   const r = duel(side(profile({bs: 14}), option([{id: 7, name: 'HMG'}]), '7:'), side(mim6, combi, '1:', true), 20);
   assert.equal(r.inputs.successValueA, 2);
   assert.ok(r.notes.includes('Active: MODs add up to -15, capped at -12'), r.notes.join(' | '));
+  // Fireteam +1 BS: -14, still capped at -12 (Alex, 2026-10-10).
   const ft4 = {...side(profile({bs: 14}), option([{id: 7, name: 'HMG'}]), '7:'), ftSize: 4};
-  assert.equal(duel(ft4, side(mim6, combi, '1:', true), 20).inputs.successValueA, 3);
+  assert.equal(duel(ft4, side(mim6, combi, '1:', true), 20).inputs.successValueA, 2);
   // Dodge: MODs cap at -12 and +12, Dodge (+6) included.
   assert.equal(dodgeSuccessValue(profile({ph: 13}), {skills: []}, -15), 1);
   assert.equal(dodgeSuccessValue(profile({ph: 13}), {skills: [{id: 40, name: 'Dodge', extra: ['+6']}]}, 9), 25);

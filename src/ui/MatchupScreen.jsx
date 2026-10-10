@@ -18,6 +18,7 @@ import {dispatch, getState, useAppState} from '../state/store.js';
 import TrooperPicker from './picker/TrooperPicker.jsx';
 import DeskPicker from './picker/DeskPicker.jsx';
 import {useSearcher} from './picker/useTrooperSearch.js';
+import LoadFailed from './LoadFailed.jsx';
 import {extraLoadoutName, shortWeaponName} from './names.js';
 import ResultsCard, {ResultsPanel} from './ResultsCard.jsx';
 import {SiteMark} from './icons.jsx';
@@ -317,15 +318,15 @@ function RangeSelector({view}) {
 
 RangeSelector.propTypes = {view: PropTypes.object.isRequired};
 
-export default function MatchupScreen({army, armyError, view, engine}) {
+export default function MatchupScreen({army, armyError, retryArmy, view, engine}) {
   const picking = useAppState((st) => (st.ui.overlay === 'picker' ? st.ui.picker.side : null));
-  const searcher = useSearcher(true);
+  const {searcher, error: searchError, retry: retrySearch} = useSearcher(true);
   const result = view.complete ? engine.result : null;
   const summary = useMemo(() => {
     const s = summarize(result);
     return s && view.complete ? matchupRollSummary(view, s) : null;
   }, [result, view]);
-  const save = useSaveRoll(summary);
+  const save = useSaveRoll(summary, engine.pending);
 
   const layout = useLayout();
   const resultProps = {
@@ -376,13 +377,19 @@ export default function MatchupScreen({army, armyError, view, engine}) {
   const clear = view.hasSelection && (
     <button type="button" className="chip" style={{alignSelf: 'center', justifySelf: 'center'}} onClick={() => dispatch({type: 'clearSides'})}>Clear both troopers</button>
   );
-  const error = armyError && <div className="note">Could not load the army data: {String(armyError)}</div>;
+  const error = (armyError || searchError) && (
+    <>
+      {armyError && <LoadFailed what="the army data" onRetry={retryArmy} />}
+      {searchError && <LoadFailed what="the trooper list" onRetry={retrySearch} />}
+    </>
+  );
   const mods = view.ledger && result && <Ledger {...view.ledger} />;
   // Phone and tablet: the full-screen picker; wider: the two-pane overlay.
   const deskPicker = layout === 'landscape' || layout === 'desktop' || layout === 'wide';
   const picker = picking && (deskPicker
-    ? <DeskPicker searcher={searcher} army={army} />
-    : <TrooperPicker side={picking} searcher={searcher} army={army} onPick={(hit) => dispatch(pickTrooper(army, picking, hit))} />);
+    ? <DeskPicker searcher={searcher} army={army} loadError={searchError ? retrySearch : null} />
+    : <TrooperPicker side={picking} searcher={searcher} army={army} loadError={searchError ? retrySearch : null}
+      onPick={(hit) => dispatch(pickTrooper(army, picking, hit))} />);
 
   if (layout === 'phone') {
     return (
@@ -433,6 +440,7 @@ export default function MatchupScreen({army, armyError, view, engine}) {
 MatchupScreen.propTypes = {
   army: PropTypes.object,
   armyError: PropTypes.any,
+  retryArmy: PropTypes.func,
   view: PropTypes.object.isRequired,
   engine: PropTypes.object.isRequired,
 };

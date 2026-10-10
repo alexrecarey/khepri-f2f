@@ -102,6 +102,7 @@ button { font: inherit; color: inherit; }
 .chip-group.active .n.on { background: var(--active); color: var(--active-ink); font-weight: 600; }
 .chip-group.reactive .n.on { background: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
 .note { font-size: 12px; color: var(--muted); }
+.link-btn { all: unset; cursor: pointer; color: var(--text-2); text-decoration: underline; }
 
 /* ---------- range selector ----------
    One row of band buttons, the same size and place open or closed; opening

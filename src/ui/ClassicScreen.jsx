@@ -143,7 +143,7 @@ export default function ClassicScreen({params, engine}) {
     const s = summarize(engine.result);
     return s ? classicRollSummary(params, s) : null;
   }, [engine.result, params]);
-  const save = useSaveRoll(summary);
+  const save = useSaveRoll(summary, engine.pending);
   const layout = useLayout();
   if (layout === 'phone') {
     return (

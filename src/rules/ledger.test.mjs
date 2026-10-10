@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {ammoTag, buildLedger} from './ledger.js';
 import {deriveInputs} from './matchup.js';
-import {RANGE_BANDS} from './ranges.js';
+import {RANGE_BANDS, rangeModFor} from './ranges.js';
 import {pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
 
 const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
@@ -139,4 +139,39 @@ test('AMMO: the weapon\'s own ammo, then each addition with its source', () => {
   assert.deepEqual(ammo(side(1934, 603, 1, 4)).lines.slice(1), [['+', 'Viral (DA+Shock)', 'loadout']]);
   // A plain Combi Rifle: N, nothing added.
   assert.deepEqual(ammo(target), {lines: [['', 'N', null]], total: 'N'});
+});
+
+// Deterministic cases for rule interactions the random sample can miss.
+const pickSide = (sel) => resolveSelection(army, {profileId: 1, ftSize: 1, ...sel});
+const ledgerFor = (active, reactive, rangeCm) => {
+  const derived = deriveInputs({active, reactive, rangeCm});
+  assert.ok(derived.ok);
+  return {inputs: derived.inputs, ledger: buildLedger({active, reactive, rangeCm, inputs: derived.inputs})};
+};
+
+test('ARM = 0 wins over the Dodge\'s ARM +3 (struck, not added)', () => {
+  // Artalis Unit's ARM = 0 weapon vs a Dodging Coyote (Dodge (ARM +3)).
+  const active = pickSide({unitId: 1771, factionId: 701, groupId: 1, optionId: 2, weaponKey: '95:'});
+  const reactive = pickSide({unitId: 1896, factionId: 501, groupId: 1, optionId: 1, weaponKey: 'dodge'});
+  const {inputs, ledger} = ledgerFor(active, reactive, 20);
+  assert.equal(inputs.armB, 0);
+  const save = ledger.A.save;
+  assert.equal(save.total, inputs.damageA);
+  const dodge = save.lines.find((l) => l.label.startsWith('Dodge (ARM'));
+  assert.equal(dodge.struck, 'ARM = 0');
+  assert.equal(save.lines.some((l) => l.label === 'other rules'), false);
+});
+
+test('Fireteam +1 BS is a MOD: it counts toward the ±12 cap', () => {
+  // Acontecimento Regulars in a Fireteam of 4, Combi Rifle at its -6 band, vs
+  // an Arjuna (Mimetism -6) in cover: -6 -6 -3 +1 = -14, capped at -12.
+  const active = pickSide({unitId: 21, factionId: 102, groupId: 1, optionId: 1, weaponKey: '33:', ftSize: 4});
+  const reactive = pickSide({unitId: 1178, factionId: 701, groupId: 2, optionId: 1, weaponKey: '23:', inCover: true});
+  const rangeCm = RANGE_BANDS.map((b) => b.to).find((cm) => rangeModFor(active.weapon.row, cm, active.traits) === -6);
+  const {inputs, ledger} = ledgerFor(active, reactive, rangeCm);
+  assert.equal(inputs.successValueA, active.profile.bs - 12);
+  const sv = ledger.A.sv;
+  assert.ok(sv.lines.some((l) => l.label === 'Fireteam 4' && l.value === 1));
+  assert.ok(sv.lines.some((l) => l.label === 'MODs cap at ±12'));
+  assert.equal(sv.lines.some((l) => l.label === 'other rules'), false);
 });

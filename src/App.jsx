@@ -1,7 +1,6 @@
 import {useMemo} from 'react'
 
 import './ui/app.css'
-import {DEFAULT_PARAMS} from "./engine/params.js";
 import useEngine from "./engine/useEngine.js";
 import {useArmy} from "./data/army.js";
 import {dispatch, useAppState} from "./state/store.js";
@@ -24,18 +23,19 @@ function App() {
   const matchupMode = mode === MODES.matchup;
   const layout = useLayout();
 
-  const {army, error: armyError} = useArmy(matchupMode);
+  const {army, error: armyError, retry: retryArmy} = useArmy(matchupMode);
   const view = useMatchupView(army);
 
   // Shock is Matchup-only (it depends on the target's VITA); the classic
-  // calculator has no input for it, so it never counts there.
+  // calculator has no input for it, so it never counts there. An incomplete
+  // matchup has no params and calculates nothing.
   const engineParams = useMemo(
-    () => (matchupMode ? view.params ?? DEFAULT_PARAMS : {...classic, shockA: false, shockB: false}),
+    () => (matchupMode ? view.params ?? null : {...classic, shockA: false, shockB: false}),
     [matchupMode, view.params, classic],
   );
   const engine = useEngine(engineParams);
   // Settings lists the factions; the search index has them without the army data.
-  const searcher = useSearcher(overlay === 'settings');
+  const {searcher} = useSearcher(overlay === 'settings');
 
   return (
     <div className={`app ${layout}`}>
@@ -52,7 +52,7 @@ function App() {
         <button type="button" className="icon-btn" aria-label="Menu" onClick={() => dispatch({type: 'openOverlay', overlay: 'menu'})}><MoreIcon /></button>
       </header>
       {matchupMode
-        ? <MatchupScreen army={army} armyError={armyError} view={view} engine={engine} />
+        ? <MatchupScreen army={army} armyError={armyError} retryArmy={retryArmy} view={view} engine={engine} />
         : <ClassicScreen params={classic} engine={engine} />}
       {overlay === 'menu' && <Menu />}
       {overlay === 'saved' && <SavedPage />}

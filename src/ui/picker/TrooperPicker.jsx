@@ -10,6 +10,7 @@ import {recentsFor} from '../../state/schema.js';
 import {dispatch, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
 import {extraLoadoutName} from '../names.js';
+import LoadFailed from '../LoadFailed.jsx';
 import {Page} from '../Sheet.jsx';
 import {groupLoadouts, loadoutTag, orderLoadouts, statLine} from './loadouts.js';
 
@@ -83,7 +84,7 @@ const push = (view) => dispatch({type: 'pickerPush', view});
 // Three across leaves room for recents above the fold; these two don't fit.
 const SHORT_NAMES = {'Combined Army': 'Combined', 'Non-Aligned Armies': 'NA Armies'};
 
-export default function TrooperPicker({side, searcher, army, onPick}) {
+export default function TrooperPicker({side, searcher, army, onPick, loadError}) {
   const color = side === 'A' ? 'active' : 'reactive';
   const {query, scope, stack} = useAppState((s) => s.ui.picker);
   const recents = useAppState((s) => s.lists.recents);
@@ -204,7 +205,9 @@ export default function TrooperPicker({side, searcher, army, onPick}) {
 
   return (
     <Page title={title} label={`${side === 'A' ? 'Active' : 'Reactive'} trooper`} onBack={onClose} footer={searchBar} closeLabel="Cancel">
-      {!results && <div className="empty">Loading units…</div>}
+      {!results && (loadError
+        ? <LoadFailed what="the trooper list" onRetry={loadError} className="empty" />
+        : <div className="empty">Loading units…</div>)}
       {results?.mode === 'search' && (
         <>
           {results.elsewhere.length > 0 && (
@@ -275,6 +278,7 @@ export default function TrooperPicker({side, searcher, army, onPick}) {
 }
 
 TrooperPicker.propTypes = {
+  loadError: PropTypes.func,   // the search index failed: retry it
   side: PropTypes.oneOf(['A', 'B']).isRequired,
   searcher: PropTypes.object,
   army: PropTypes.object,

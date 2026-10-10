@@ -6,7 +6,7 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 
 ## Rolls
 - d20 against a Success Value (SV). Roll ≤ SV succeeds; roll = SV is a critical. SV above 20 crits from 1 up.
-- MODs total at most ±12. Attribute changes (Fireteam +1 BS, Dodge PH=14) are not MODs.
+- MODs total at most ±12. Fireteam +1 BS is a MOD and counts; Dodge PH=14 replaces the Attribute and doesn't.
 - SV below 1 is an automatic failure (clamp to 0, never 1). Out of range = 0.
 - Face to Face: a success cancels the opponent's successes with a lower roll; a critical cancels all their non-critical successes.
 - Direct Template: no roll, so nothing is opposed; each side's attack resolves on its own.
@@ -33,6 +33,7 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - Mimetism −3 / −6: MSV1 cancels 3, MSV2 and MSV3 cancel all.
 - Albedo −3 / −6: only against attackers with MSV or Marksmanship, BS Attacks needing LoF.
 - Dodge: PH (or PH=14), plus its bracketed MODs (+3 to itself, −3 to the opponent, +1SD, ARM +3 while Dodging).
+  - A weapon's ARM = 0 wins over the Dodge's ARM +3.
 - BS Attack (−X): the opponent takes −X whatever it does, while the attack is rolled. Warhorse ignores it.
 - Surprise Attack (−X): the opponent takes −X on its Face to Face Roll in ARO. A player's choice (chip), active side only.
   - Combat Instinct ignores it (N5; in N4 this was part of Sixth Sense).

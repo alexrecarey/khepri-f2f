@@ -9,6 +9,7 @@ import {STORAGE_KEY, loadPersisted, savePersisted} from './storage.js';
 import {bootState} from './store.js';
 import {startSync} from './sync.js';
 import {stateFromUrl, urlFromState} from './url.js';
+import {MODES} from '../ui/modes.js';
 
 const run = (state, ...actions) => actions.reduce(reduce, state);
 const memStorage = (init = {}) => {
@@ -367,4 +368,10 @@ test('scopes persist, but a share link with troopers starts fresh', () => {
   assert.deepEqual(loadPersisted(storage).scopes, {A: 101, B: null});
   assert.deepEqual(bootState({storage}).scopes, {A: 101, B: null});
   assert.deepEqual(bootState({storage, search: '?mode=matchup&unitA=10'}).scopes, {});
+});
+
+test('a link with troopers and no mode opens Matchup, whatever mode was remembered', () => {
+  assert.equal(stateFromUrl('?unitA=1&factionA=101&groupA=1&optionA=1').mode, MODES.matchup);
+  assert.equal(stateFromUrl('?burstA=4').mode, MODES.basic);
+  assert.equal(stateFromUrl('').mode, undefined);
 });

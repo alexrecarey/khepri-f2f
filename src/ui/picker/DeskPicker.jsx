@@ -15,6 +15,7 @@ import {other} from '../../state/reduce.js';
 import {recentsFor} from '../../state/schema.js';
 import {dispatch, getState, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
+import LoadFailed from '../LoadFailed.jsx';
 import {extraLoadoutName} from '../names.js';
 import {loadoutCharts, loadoutTag, orderLoadouts, unitDetail} from './loadouts.js';
 import {TYPE_NAMES} from './TrooperPicker.jsx';
@@ -74,7 +75,7 @@ function ChartLine({c, sub}) {
 
 ChartLine.propTypes = {c: PropTypes.object.isRequired, sub: PropTypes.bool};
 
-export default function DeskPicker({searcher, army}) {
+export default function DeskPicker({searcher, army, loadError}) {
   const picker = useAppState((s) => s.ui.picker);
   const recents = useAppState((s) => s.lists.recents);
   const sides = useAppState((s) => s.matchup);
@@ -132,6 +133,9 @@ export default function DeskPicker({searcher, army}) {
   const detail = useMemo(() => (unitId != null ? unitDetail(army, unitId, loadouts[0]?.armyFactionId) : null), [army, unitId, loadouts]);
   const profile = detail?.profiles.find((p) => p.id === picker.profileId) ?? detail?.profiles[0] ?? null;
   const lat = Math.min(lcursor, Math.max(0, loadouts.length - 1));
+  // On a unit row while typing: the loadout the query matched ("fus ml").
+  const best = current?.kind === 'unit' ? current.u.best ?? null : null;
+  const bestAt = best ? Math.max(0, loadouts.findIndex((l) => l.rowId === best.rowId)) : 0;
 
   // The hit Enter picks: the highlighted loadout in the loadouts pane; on a
   // unit row, the loadout the query matched ("fus ml"), else its first.
@@ -139,10 +143,7 @@ export default function DeskPicker({searcher, army}) {
   const hitFor = () => {
     if (pane === 'loadouts' && loadouts[lat]) return withProfile(loadouts[lat]);
     if (current?.kind === 'recent') return current.hit;
-    if (current?.kind === 'unit') {
-      const matched = scoped?.profiles.find((h) => h.unitId === unitId) ?? all?.profiles.find((h) => h.unitId === unitId);
-      return withProfile(matched ?? loadouts[0]);
-    }
+    if (current?.kind === 'unit') return withProfile(best ?? loadouts[0]);
     return null;
   };
   const pick = (hit, next = false) => hit && dispatch(pickTrooper(army, side, hit, {next, state: getState()}));
@@ -162,7 +163,7 @@ export default function DeskPicker({searcher, army}) {
       else setCursor({cursor: Math.max(0, Math.min(rows.length - 1, at + d)), lcursor: 0, profileId: null});
     } else if (e.key === 'ArrowRight' && unitId != null && (pane === 'list') && e.currentTarget.selectionStart === query.length) {
       e.preventDefault();
-      setCursor({pane: 'loadouts'});
+      setCursor({pane: 'loadouts', lcursor: bestAt});
     } else if (e.key === 'ArrowLeft' && pane === 'loadouts') {
       e.preventDefault();
       setCursor({pane: 'list'});
@@ -199,7 +200,7 @@ export default function DeskPicker({searcher, army}) {
               <button type="button" key={s} className={`${s === side ? `on ${ROLE[s]}` : ''}`} aria-pressed={s === side}
                 onClick={() => s !== side && dispatch(pickerSide(army, getState(), s))}>
                 {s === 'A' ? 'ACTIVE' : 'REACTIVE'}
-                {s !== side && sides[s]?.unitId != null && <span className={`dp-set c-${ROLE[s]}`}> · {army.units.find((u) => u.id === sides[s].unitId)?.isc.split(',')[0]} ✓</span>}
+                {s !== side && sides[s]?.unitId != null && <span className={`dp-set c-${ROLE[s]}`}> · {army?.units.find((u) => u.id === sides[s].unitId)?.isc.split(',')[0]} ✓</span>}
               </button>
             ))}
           </span>
@@ -224,7 +225,9 @@ export default function DeskPicker({searcher, army}) {
         </div>
         <div className="dp-body">
           <div className="dp-list" id="dp-list" role="listbox" aria-label="Troopers">
-            {!searcher && <span className="empty">Loading units…</span>}
+            {!searcher && (loadError
+              ? <LoadFailed what="the trooper list" onRetry={loadError} className="empty" />
+              : <span className="empty">Loading units…</span>)}
             {searcher && typing && rows.length === 0 && <span className="empty">Nothing matches “{query}”</span>}
             {(() => {
               let i = -1;
@@ -354,4 +357,4 @@ export default function DeskPicker({searcher, army}) {
   );
 }
 
-DeskPicker.propTypes = {searcher: PropTypes.object, army: PropTypes.object};
+DeskPicker.propTypes = {searcher: PropTypes.object, army: PropTypes.object, loadError: PropTypes.func};

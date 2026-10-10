@@ -36,6 +36,9 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, measur
   live.current = {open, canOpen, onOpen, onClose};
   // When a drag ended: a click right after it is the drag's own, not a tap.
   const dragEnded = useRef(0);
+  // The settle timers: cleared on unmount (a layout change can remove the
+  // sheet mid-spring), and no new drag starts until they have run.
+  const timers = useRef([]);
 
   // How far down the sheet rests when closed: its height minus the part that
   // shows (the top, measured at --open 0). Kept in --rest-y for the CSS.
@@ -73,13 +76,14 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, measur
     setDragging(false);
     for (const el of [sheetRef.current, scrimRef.current]) el?.classList.add('settling');
     place(toOpen ? 0 : restY.current);
-    setTimeout(() => {
+    timers.current.push(setTimeout(() => {
       // The state first, so the open / resting class is on before the inline
       // position goes (which would otherwise spring it the wrong way briefly).
       const {open: isOpen, onOpen: o, onClose: c} = live.current;
       if (toOpen && !isOpen) o();
       if (!toOpen && isOpen) c();
-      setTimeout(() => {
+      timers.current.push(setTimeout(() => {
+        timers.current = [];
         for (const el of [sheetRef.current, scrimRef.current]) {
           if (!el) continue;
           el.classList.remove('settling');
@@ -87,9 +91,10 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, measur
           el.style.opacity = '';
           el.style.removeProperty('--open');
         }
-      }, 50);
-    }, SETTLE_MS);
+      }, 50));
+    }, SETTLE_MS));
   };
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   // Touch events, non-passive, so a drag can stop the page from scrolling.
   // Open, a drag down only moves the sheet while its content is at the top;
@@ -100,7 +105,7 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, measur
     let d = null;
     const start = (y, t) => {
       const {open: isOpen, canOpen: can} = live.current;
-      if (!isOpen && !can) return;
+      if ((!isOpen && !can) || timers.current.length) return;
       d = {y0: y, from: isOpen ? 0 : restY.current, open: isOpen, armed: !isOpen || s.scrollTop <= 0, moved: false, track: tracker()};
       d.track.add(y, t);
     };
@@ -128,7 +133,13 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, measur
       const v = g.track.velocity();
       settle(v < -FLICK || (v <= FLICK && g.y < restY.current / 2));
     };
-    const ts = (e) => { if (e.touches.length === 1) start(e.touches[0].clientY, e.timeStamp); else d = null; };
+    // A second finger ends the drag where it is (settling to the nearer
+    // position); dropping it instead left the sheet stuck mid-way.
+    const ts = (e) => {
+      if (e.touches.length === 1) start(e.touches[0].clientY, e.timeStamp);
+      else if (d?.moved) end();
+      else d = null;
+    };
     const tm = (e) => { if (d) move(e.touches[0].clientY, e.timeStamp, e); };
     const pd = (e) => {
       if (e.pointerType !== 'mouse' || !e.target.closest('.rs-top, .rs-head')) return;
@@ -144,6 +155,8 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, measur
     s.addEventListener('pointerdown', pd);
     s.addEventListener('pointermove', pm);
     s.addEventListener('pointerup', pu);
+    s.addEventListener('pointercancel', pu);
+    s.addEventListener('lostpointercapture', pu);
     return () => {
       s.removeEventListener('touchstart', ts);
       s.removeEventListener('touchmove', tm);
@@ -152,6 +165,8 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, measur
       s.removeEventListener('pointerdown', pd);
       s.removeEventListener('pointermove', pm);
       s.removeEventListener('pointerup', pu);
+      s.removeEventListener('pointercancel', pu);
+      s.removeEventListener('lostpointercapture', pu);
     };
   }, []);
 
@@ -159,9 +174,18 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, measur
   // Not on every render: measuring turns transitions off for a moment, which
   // made a tap's open / close jump instead of animating.
   useLayoutEffect(measure, [measure, measureKey]);
+  // Resize fires often (iOS while the URL bar collapses): once per frame.
   useEffect(() => {
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
+    let frame = 0;
+    const onResize = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(measure);
+    };
+    window.addEventListener('resize', onResize);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('resize', onResize);
+    };
   }, [measure]);
 
   // The top is the card: a tap on it opens, unless it ended a drag.

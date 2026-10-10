@@ -109,13 +109,13 @@ function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0) {
   const albedo = y ? albedoMod(y.traits, x.traits) : 0;
   const cover = y ? coverBsMod(y, x.traits) : 0;
   const bonus = attackBonuses(x);
-  // Fireteam +1 BS changes the Attribute; everything else is a MOD, capped.
-  const modSum = rangeMod + mim + albedo + cover + mods.sv + opposing;
+  // Every MOD counts toward the cap, Fireteam +1 BS included (Alex, 2026-10-10).
+  const modSum = bonus.bs + rangeMod + mim + albedo + cover + mods.sv + opposing;
   const modTotal = capMods(modSum);
   if (!outOfRange && modTotal !== modSum) notes.push(`${label}: MODs add up to ${signed(modSum)}, capped at ${signed(modTotal)}`);
   const sv = outOfRange
     ? 0
-    : clamp(LIMITS.successValue, attackStat(x.profile, row) + bonus.bs + modTotal);
+    : clamp(LIMITS.successValue, attackStat(x.profile, row) + modTotal);
 
   const noEffect = hasNoEffect(y?.traits, row);
   let burst = (row.burst ?? 1) + bonus.burst;

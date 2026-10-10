@@ -21,7 +21,7 @@ import {
   ammoTypes, attackAttribute, bioweaponProp, hasAmmo, hasContinuousDamage, isImpactTemplate, isPlasma, isTemplate, weaponPS,
 } from '../army/weapons.js';
 import {
-  albedoMod, attackBonuses, attackStat, benefitsFromCover, bsAttackMod, coverBsMod, dodgeExtras, fireteamBonuses,
+  MOD_CAP, albedoMod, attackBonuses, attackStat, benefitsFromCover, bsAttackMod, capMods, coverBsMod, dodgeExtras, fireteamBonuses,
   hasNanoscreen, hasSixthSense, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, surpriseAttackMod,
 } from './modifiers.js';
 import {RANGE_BANDS, rangeModFor} from './ranges.js';
@@ -118,11 +118,10 @@ function attackSv(x, y, s, rangeCm, total) {
     }
     lines.push(...opposingLines(y, x, t, t === 'A'));
   }
-  // MODs cap at ±12 (Fireteam BS and the Attribute aren't MODs).
-  const modLines = live(lines).slice(1).filter((l) => !l.label.startsWith('Fireteam'));
-  const modSum = modLines.reduce((a, l) => a + l.value, 0);
-  const capped = Math.max(-12, Math.min(12, modSum));
-  if (capped !== modSum) lines.push(line(capped - modSum, 'MODs cap at ±12', null));
+  // Every line after the Attribute is a MOD, Fireteam +1 BS included.
+  const modSum = sum(live(lines).slice(1));
+  const capped = capMods(modSum);
+  if (capped !== modSum) lines.push(line(capped - modSum, `MODs cap at ±${MOD_CAP[1]}`, null));
   floor(lines);
   return {lines: reconcile(lines, total), total};
 }
@@ -197,10 +196,14 @@ function saveLines(x, y, s, inputs) {
   } else {
     lines.push(line(base, attr, t));
   }
+  // ARM = 0 wins over the Dodge's extra ARM (Alex, 2026-10-10).
   if (attr === 'ARM' && dodging && dodgeExtras(y.traits).arm) {
     const extra = dodgeExtras(y.traits).arm;
-    lines.push(line(extra, `Dodge (ARM +${extra})`, t));
-    base += extra;
+    if (save.armZero && !immune) lines.push(line(extra, `Dodge (ARM +${extra})`, t, 'ARM = 0'));
+    else {
+      lines.push(line(extra, `Dodge (ARM +${extra})`, t));
+      base += extra;
+    }
   }
   const apHalving = Boolean(mods?.forceAP) || (Boolean(save.halved) && hasAmmo(row, 'AP'));
   const otherHalving = Boolean(save.halved) && !hasAmmo(row, 'AP');

@@ -5,12 +5,14 @@ import {currentSetup, makeRoll, setupKey} from '../state/rolls.js';
 import {dispatch, getState, useAppState} from '../state/store.js';
 
 // summary: rolls.js matchupRollSummary / classicRollSummary, null = nothing to save yet.
-export default function useSaveRoll(summary) {
+// pending: a calculation is on its way, so the numbers on screen belong to the
+// previous setup; nothing can be saved until it lands.
+export default function useSaveRoll(summary, pending = false) {
   const mode = useAppState((s) => s.mode);
   const setup = useAppState(currentSetup);
   const saved = useAppState((s) => s.lists.saved);
   return useMemo(() => {
-    if (!summary) return null;
+    if (!summary || pending) return null;
     const key = setupKey(mode, setup);
     const existing = saved.find((r) => setupKey(r.mode, r.setup) === key);
     return {
@@ -25,5 +27,5 @@ export default function useSaveRoll(summary) {
         }
       },
     };
-  }, [summary, mode, setup, saved]);
+  }, [summary, pending, mode, setup, saved]);
 }

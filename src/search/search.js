@@ -178,10 +178,12 @@ export function createSearch(index) {
 
     const units = [];
     const seen = new Set();
+    // `scoped` is best first, so a unit's first match is its best loadout:
+    // the one Enter on the unit row picks (the profiles list is capped).
     for (const m of scoped) {
       if (seen.has(m.row.unitId)) continue;
       seen.add(m.row.unitId);
-      units.push({...unitHit(m.row.unitId, factionId), tier: m.tier});
+      units.push({...unitHit(m.row.unitId, factionId), tier: m.tier, best: profileHit(m, factionId)});
     }
 
     let elsewhere = [];

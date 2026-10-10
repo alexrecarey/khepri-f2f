@@ -4,15 +4,17 @@
 //
 // Messages in:
 //   {command: 'init', source}                   source = text of f2f.py
-//   {command: 'calculate', data, requestId?, quiet?}   data = calculator params (src/engine/params.js)
+//   {command: 'calculate', data, requestId}     data = calculator params (src/engine/params.js)
 // Messages out:
-//   {command: 'status', value: 'loading' | 'ready' | 'notready' | 'error', description}
+//   {command: 'status', value: 'loading' | 'ready' | 'error', description}
 //   {command: 'result', value, requestId, elapsed, totalRolls}
 //   {command: 'error', value, requestId}       the calculation raised
-// requestId (optional) is echoed back so callers can match replies to requests.
-// Calculations sent while the engine is still loading wait for it; 'notready'
-// only answers requests sent before 'init'.
+// requestId is echoed back so the app can drop replies to older requests.
+// Only the newest calculation runs: one that arrives while another is running
+// (or while the engine loads) replaces any still waiting, so tapping a stepper
+// five times runs the first and the last, not all five.
 import {calculate} from './calculate.js';
+import {latestOnly} from './latestOnly.js';
 
 const PYODIDE = 'https://cdn.jsdelivr.net/pyodide/v0.26.3/full/';
 const ICEPOOL = 'icepool==2.2.2';
@@ -45,31 +47,32 @@ function runEngine(input) {
   }
 }
 
+function run({data, requestId}) {
+  if (engineFn === undefined) {
+    self.postMessage({command: 'error', requestId, value: 'dice engine not loaded'})
+    return
+  }
+  const startTime = Date.now();
+  let results;
+  try {
+    results = calculate(data, runEngine)
+  } catch (e) {
+    console.error('Face to Face calculation failed', data, e)
+    self.postMessage({command: 'error', requestId, value: String(e.message ?? e)})
+    return
+  }
+  results['parameters'] = data;
+  results['id'] = Date.now();
+  const elapsed = Date.now() - startTime;
+  self.postMessage({command: 'result', requestId, value: results, elapsed, totalRolls: results['total_rolls']})
+}
+
+// Only the newest calculation waits; see latestOnly.js.
+const enqueue = latestOnly(run, {before: () => starting?.catch(() => {})});
+
 self.onmessage = async (msg) => {
   if (msg.data.command === 'calculate') {
-    const requestId = msg.data.requestId;
-    if (starting) await starting.catch(() => {});
-    if (engineFn === undefined) {
-      self.postMessage({command: 'status', value: 'notready', description: 'Pyodide not ready yet', requestId})
-      return
-    }
-    const startTime = Date.now();
-    let results;
-    try {
-      results = calculate(msg.data.data, runEngine)
-    } catch (e) {
-      console.error('Face to Face calculation failed', msg.data.data, e)
-      self.postMessage({command: 'error', requestId, value: String(e.message ?? e)})
-      return
-    }
-    results['parameters'] = msg.data.data;
-    results['id'] = Date.now();
-    const elapsed = Date.now() - startTime;
-    if (!msg.data.quiet) {
-      console.log('Returning results from Face 2 Face calculations:')
-      console.log(results)
-    }
-    self.postMessage({command: 'result', requestId, value: results, elapsed, totalRolls: results['total_rolls']})
+    enqueue(msg.data);
   } else if (msg.data.command === 'init') {
     try {
       starting = init(msg.data.source)

@@ -50,8 +50,10 @@ export function stateFromUrl(search) {
   const hasCalc = PARAM_KEYS.some((k) => params.has(k)) || params.has('dtwVsDodge')
     || ['A', 'B'].some((s) => params.has(psKey(s)) || params.has(psBtsKey(s)));
   if (hasCalc) out.classic = applySaves(parseParams(params), params);
-  // A link from the classic calculator before modes were in the URL.
-  if (!out.mode && hasCalc && !m) out.mode = MODES.basic;
+  // A link without a mode opens what it carries: troopers -> Matchup, else
+  // calculator values -> Classic (links from before modes were in the URL).
+  if (!out.mode && m) out.mode = MODES.matchup;
+  else if (!out.mode && hasCalc) out.mode = MODES.basic;
   return out;
 }
 

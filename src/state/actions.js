@@ -2,15 +2,14 @@
 // work out the payload first and return a plain action to dispatch.
 import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
-import {defaultWeapon} from '../rules/defaultWeapon.js';
 import {resolveSelection, trooperWeapons} from '../rules/trooper.js';
-import {ROLE, vanillaOf} from './matchupView.js';
+import {vanillaOf} from './matchupView.js';
 import {EMPTY_SIDE} from './schema.js';
 
 // A search hit -> a side's selection. The weapon the query matched ("fus ml")
-// is preselected, else the default weapon for the side. Before the army data
-// has loaded the weapon stays open (null = default, matchupView.js).
-export function selectionFromHit(army, hit, side) {
+// is preselected; otherwise weaponKey stays null and matchupView derives the
+// default for the side's role, so it follows the trooper when sides swap.
+export function selectionFromHit(army, hit) {
   const sel = {
     ...EMPTY_SIDE,
     unitId: hit.unitId,
@@ -23,8 +22,7 @@ export function selectionFromHit(army, hit, side) {
   if (!resolved?.option) return sel;
   const weapons = trooperWeapons(resolved.option, army.weapons, resolved.traits);
   const matched = hit.weaponId != null ? weapons.find((w) => w.id === hit.weaponId) : null;
-  const weapon = matched ?? defaultWeapon(weapons, ROLE[side]);
-  return {...sel, weaponKey: weapon?.key ?? 'dodge'};
+  return matched ? {...sel, weaponKey: matched.key} : sel;
 }
 
 // Which faction a side's picker shows: the one last chosen for that side,
@@ -43,7 +41,7 @@ export function scopeFor(army, state, side) {
 // its Foxhole when it has Sapper (the Foxhole is its cover).
 export function pickTrooper(army, side, hit, {next = false, state = null} = {}) {
   const otherSide = side === 'A' ? 'B' : 'A';
-  const base = selectionFromHit(army, hit, side);
+  const base = selectionFromHit(army, hit);
   const r = resolveSelection(army, base);
   const sapper = Boolean(r?.canSapper);
   const sel = {...base, sapper, inCover: !sapper && Boolean(r?.traits) && !hasSkill(r.traits, SKILL.NO_COVER)};

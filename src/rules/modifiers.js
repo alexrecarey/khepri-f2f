@@ -12,7 +12,8 @@ export {LIMITS};
 export const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
 
 // "The sum total of the Modifiers applied to a Roll can never exceed +12 or
-// -12." Attribute changes (Fireteam +1 BS, Dodge (PH=14)) are not MODs.
+// -12." Fireteam +1 BS is a MOD and counts; Dodge (PH=14) replaces the
+// Attribute and doesn't.
 export const MOD_CAP = [-12, 12];
 export const capMods = (sum) => clamp(MOD_CAP, sum);
 

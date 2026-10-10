@@ -163,3 +163,14 @@ test('"+SD" finds loadouts with a +SD weapon or BS Attack (+1SD)', () => {
   const sdRow = index.rows.find((r) => r.loadoutWords.includes('sd'));
   assert.ok(sdRow);
 });
+
+test("each unit carries its best match: the loadout Enter picks, past the profiles cap", () => {
+  // "spitfire" matches more units than the profiles list holds; each unit's
+  // pick must be a Spitfire loadout (Marauders' first loadout is an HRL).
+  const {units} = searcher.search({query: 'spitfire'});
+  assert.ok(units.length > 30, `${units.length} units`);
+  for (const u of units) {
+    assert.equal(u.best.unitId, u.unitId);
+    assert.ok(u.best.weapons.some((w) => /spitfire/i.test(w)), `${u.short} -> ${u.best.weapons}`);
+  }
+});
