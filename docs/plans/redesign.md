@@ -18,7 +18,7 @@ phase below ends in something Alex can try on `deploy-preview-42--khepri.netlify
   **weapon buttons** (the selected one filled; reactive also gets Dodge / No ARO), **chips**:
   Cover toggle, Fireteam (tap → inline 2/3/4/5 picker with ×), Surprise attack (active only, only for
   units with the skill), and `⋯ More` which opens a list of rare situations (Low / Poor Visibility
-  Zone, Saturation Zone, Prone, Engaged) that become removable chips.
+  Zone, Saturation Zone, Engaged) that become removable chips.
 - **Range strip** between the cards: 7 bands (8 16 24 32 40 48 96). Tapping a band picks it *and*
   opens the selector: header ("Range 24–32" ⌃"), Infinity-colour stripe above each band for the
   active weapon and below for the reactive one (+3 green, 0 blue, −3 yellow, −6 red, none = out of
@@ -106,7 +106,7 @@ AppState = {
 }
 
 Side = { unitId, factionId, groupId, profileId, optionId, weaponKey,
-         cover, fireteam: 0|2..5, surpriseAttack, extras: ['lvz','pvz','sat','prone','engaged'],
+         cover, fireteam: 0|2..5, surpriseAttack, extras: ['lvz','pvz','sat','engaged'],
          upgrade, ball }                         // today's EMPTY_SELECTION + fireteam + extras
 SavedRoll = { id, mode, savedAt, setup: matchup|classic, summary: {dice, setup, pct} }
 ```
@@ -222,7 +222,7 @@ pass.
 
 ## 5. Gaps the design assumes (rules / data work, not UI)
 
-- `⋯ More` situations — Low / Poor Visibility Zone, Saturation Zone, Prone, Engaged — none are
+- `⋯ More` situations — Low / Poor Visibility Zone, Saturation Zone, Engaged — none are
   modelled in `deriveInputs` yet. Ship the chip list only for the ones that are.
 - "Missile Launcher (Hit)" / "(Blast)" as separate weapon buttons (DeskWorkbench) — check whether
   `bsWeapons` splits multi-mode weapons today.
@@ -258,9 +258,26 @@ on release (useSheetGestures.js); the wounds/order numbers roll digit by
 digit (RollingNumber.jsx); search covers skills (docs/plans/search.md);
 fireteams, Sapper and Sixth Sense follow GAME_RULES.md.
 
-Not built, and why:
-- `⋯ More` situations (Low / Poor Visibility Zone, Saturation Zone, Prone,
-  Engaged): no rules in `deriveInputs` yet; they need rulings first.
+Not built, and why (the list to answer "what is missing?" from; keep it
+current):
+
+Flagged in the app:
+- Spec-Ops upgrades and SpecBall: warning "Spec-Ops upgrades and SpecBall not
+  supported yet"; the upgrades aren't applied.
+- Team-Ops upgrade weapons that can't make a BS Attack (mines...): "Not
+  rolled: ..." on the card.
+- Language: English only, the setting is a placeholder until translations land
+  ("More languages are on the way").
+
+Not flagged in the app:
+- `⋯ More` situations (Low / Poor Visibility Zone, Saturation Zone, Engaged):
+  no rules in `deriveInputs` yet; they need rulings first. Prone changes
+  nothing to the roll (Alex, 2026-10-10), so it isn't on the list.
+- Biometric Visor ignoring Surprise Attack from Impersonation / Holoecho
+  attackers.
+- IMM-B, Isolated and Possession immunities: recognised, and correctly change
+  nothing (they only affect States afterwards).
 - The desktop list labels loose matches only as "close match" / "sounds
   like", not "fus → fug".
-- Language: English only, the setting is a placeholder until translations land.
+- Out of scope by design: close combat, Comms (hacking) attacks, deployable /
+  perimeter weapons. The calculator rolls BS Attacks and Dodge only.

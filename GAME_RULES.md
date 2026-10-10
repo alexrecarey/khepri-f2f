@@ -60,6 +60,7 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - Shock: a 1 VITA target goes straight to Dead (no Unconscious, NWI or Dogged). STR, VITA 2+ and Shock-immune troopers are immune.
 
 ## Not modelled yet
-- ⋯ More situations: Low / Poor Visibility Zone, Saturation Zone, Prone, Engaged (need rulings).
+- ⋯ More situations: Low / Poor Visibility Zone, Saturation Zone, Engaged (need rulings). Prone changes nothing to the roll.
+- Biometric Visor (ignores Surprise Attack from Impersonation / Holoecho attackers).
 - IMM-B, Isolated and Possession immunities change nothing here (States only).
 - Spec-Ops upgrades and SpecBall.
