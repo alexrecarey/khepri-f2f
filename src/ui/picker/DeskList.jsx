@@ -1,5 +1,6 @@
 // The desk picker's left pane: recents, a unit type's units, or the matches
 // (this faction first, then other factions), with headings between.
+import {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {TIER} from '../../search/search.js';
 import {words} from '../../search/text.js';
@@ -33,6 +34,10 @@ function shortStats(detail) {
 // m: useDeskPicker(); loadError: retry for a search index that failed.
 export default function DeskList({m, loadError}) {
   const {searcher, army, typing, query, items, rows, current, at, factionName, pick} = m;
+  // The arrow keys move the highlight; keep it in view.
+  useEffect(() => {
+    if (current) document.getElementById(`dp-row-${at}`)?.scrollIntoView({block: 'nearest'});
+  }, [current != null, at]); // eslint-disable-line react-hooks/exhaustive-deps
   let i = -1;
   return (
     <div className="dp-list" id="dp-list" role="listbox" aria-label="Troopers">
@@ -60,7 +65,7 @@ export default function DeskList({m, loadError}) {
         const reason = REASON[x.u.tier];
         return (
           <div key={`u${x.u.unitId}${x.away ? 'x' : ''}`} id={`dp-row-${idx}`} role="option" aria-selected={on}
-            className={`dp-row${on ? ' on' : ''}`} onClick={select} onDoubleClick={() => { select(); }}>
+            className={`dp-row${on ? ' on' : ''}`} onClick={select} onDoubleClick={() => (x.u.best ? pick(x.u.best) : select())}>
             <span className="t"><Highlight text={x.u.short} query={query} />{x.away ? ` · ${factionName(x.factionId)}` : ''}</span>
             <span className="s">{shortStats(d)}</span>
             <span className="sub">{TYPE_NAMES[x.u.type] ?? x.u.type ?? ''}{reason && <span className="reason"> · {reason}</span>}</span>

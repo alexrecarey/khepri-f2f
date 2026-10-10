@@ -5,7 +5,7 @@
 import {FIRETEAM_MAX, fireteamSize} from '../rules/modifiers.js';
 import {MODES} from './modes.js';
 import {classicSave} from './classicView.js';
-import {setupKey} from './rolls.js';
+import {normalizeSetup, setupKey} from './rolls.js';
 import {EMPTY_SIDE, EMPTY_UI, MAX_RECENT_FACTIONS, MAX_RECENTS, initialState, other} from './schema.js';
 
 // How many Back presses the open overlays take to close: the overlay itself,
@@ -139,7 +139,8 @@ export function reduce(state, action) {
     case 'loadRoll': {
       const roll = state.lists.saved.find((r) => r.id === action.id);
       if (!roll) return state;
-      const slice = roll.mode === MODES.matchup ? {matchup: roll.setup, scopes: {}} : {classic: {...state.classic, ...roll.setup}};
+      const setup = normalizeSetup(roll.mode, roll.setup);
+      const slice = roll.mode === MODES.matchup ? {matchup: setup, scopes: {}} : {classic: setup};
       return {...state, mode: roll.mode, ...slice, ui: {...EMPTY_UI}};
     }
     case 'setSavedTab':

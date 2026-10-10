@@ -1,4 +1,5 @@
 // The shared distance between the two side cards, and the swap button.
+import {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {RANGE_BANDS} from '../rules/ranges.js';
 import {dispatch, useAppState} from '../state/store.js';
@@ -49,6 +50,13 @@ export default function RangeSelector({view}) {
   const open = useAppState((st) => st.ui.rangeOpen);
   const rangeCm = useAppState((st) => st.matchup.rangeCm);
   const setOpen = (o) => dispatch({type: 'setRangeOpen', open: o});
+  // Open, Escape closes it like a tap outside.
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') dispatch({type: 'setRangeOpen', open: false}); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
   const selected = Math.max(0, RANGE_BANDS.findIndex((b) => b.to === rangeCm));
   const band = RANGE_BANDS[selected];
   const from = selected ? RANGE_BANDS[selected - 1].inches : 0;

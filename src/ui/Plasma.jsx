@@ -48,18 +48,30 @@ export default function Plasma({cssVar, seed = 0}) {
     let visible = true;
     let last = 0;
     let raf = 0;
-    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; });
-    io.observe(cv);
     const frame = (now) => {
       raf = requestAnimationFrame(frame);
-      if (!visible || document.hidden || now - last < 33) return;
-      // Capped so a long pause (tab hidden) doesn't jump the pattern.
+      if (now - last < 33) return;
+      // Capped so a long pause (off screen, tab hidden) doesn't jump the pattern.
       t += Math.min(0.1, (now - last) / 1000);
       last = now;
       draw(ctx, img, rgb, t);
     };
-    raf = requestAnimationFrame(frame);
-    return () => { cancelAnimationFrame(raf); io.disconnect(); };
+    // Frames only while it can be seen: no callback every frame off screen or
+    // in a hidden tab.
+    const sync = () => {
+      const run = visible && !document.hidden;
+      if (run && !raf) raf = requestAnimationFrame(frame);
+      if (!run && raf) { cancelAnimationFrame(raf); raf = 0; }
+    };
+    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; sync(); });
+    io.observe(cv);
+    document.addEventListener('visibilitychange', sync);
+    sync();
+    return () => {
+      cancelAnimationFrame(raf);
+      io.disconnect();
+      document.removeEventListener('visibilitychange', sync);
+    };
   }, [cssVar, seed]);
   return <canvas ref={ref} className="slot-plasma" width={W} height={H} aria-hidden="true" />;
 }

@@ -1,8 +1,9 @@
 // Overlays: a bottom sheet over a dimmed screen, and a full-screen page.
 // Both close on Escape; the sheet also on a tap outside it.
-import {useEffect} from 'react';
+import {useEffect, useRef} from 'react';
 import PropTypes from 'prop-types';
 import {BackIcon} from './icons.jsx';
+import useDialogFocus from './useDialogFocus.js';
 import useVisualViewport from './useVisualViewport.js';
 
 function useEscape(onClose) {
@@ -17,10 +18,13 @@ function useEscape(onClose) {
 // `scrimRef`: for swipe gestures (useSheetGestures.js).
 export function Sheet({onClose, label, children, actions, sheetRef, scrimRef}) {
   useEscape(onClose);
+  const own = useRef(null);
+  const ref = sheetRef ?? own;
+  useDialogFocus(ref);
   return (
     <>
       <div className="scrim" ref={scrimRef} onClick={onClose} />
-      <div className="sheet" ref={sheetRef} role="dialog" aria-modal="true" aria-label={label}>
+      <div className="sheet" ref={ref} role="dialog" aria-modal="true" aria-label={label}>
         <div className="sheet-head"><span /><span className="handle" /><span className="sheet-actions">{actions}</span></div>
         {children}
       </div>
@@ -38,8 +42,10 @@ Sheet.propTypes = {
 export function Page({title, subtitle, onBack, children, footer, action, closeLabel, label, className = ''}) {
   useEscape(onBack);
   useVisualViewport();
+  const ref = useRef(null);
+  useDialogFocus(ref);
   return (
-    <div className={`page ${className}`} role="dialog" aria-modal="true" aria-label={label ?? (typeof title === 'string' ? title : undefined)}>
+    <div ref={ref} className={`page ${className}`} role="dialog" aria-modal="true" aria-label={label ?? (typeof title === 'string' ? title : undefined)}>
       <div className="page-head" style={closeLabel ? {paddingLeft: 16} : undefined}>
         {!closeLabel && <button type="button" className="icon-btn" aria-label="Back" onClick={onBack}><BackIcon /></button>}
         <div style={{display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0}}>

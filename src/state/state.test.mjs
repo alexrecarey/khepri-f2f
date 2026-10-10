@@ -202,8 +202,10 @@ test('boot: the URL beats the remembered mode', () => {
 
 // A fake window: history entries with {state, url}, popstate on go().
 function fakeWindow(url = '/?x=1') {
-  const listeners = [];
+  const listeners = {};
+  const on = (type) => (listeners[type] ??= []);
   const win = {
+    fire: (type, e = {}) => on(type).forEach((f) => f(e)),
     entries: [{state: null, url}], index: 0,
     get location() {
       const u = new URL(win.entries[win.index].url, 'https://x.test');
@@ -212,10 +214,10 @@ function fakeWindow(url = '/?x=1') {
     history: {
       pushState: (state, _, u) => { win.entries.splice(win.index + 1, Infinity, {state, url: u}); win.index++; },
       replaceState: (state, _, u) => { win.entries[win.index] = {state, url: u}; },
-      go: (n) => { win.index += n; listeners.forEach((f) => f({state: win.entries[win.index].state})); },
+      go: (n) => { win.index += n; win.fire('popstate', {state: win.entries[win.index].state}); },
     },
-    addEventListener: (_, f) => listeners.push(f),
-    removeEventListener: () => {},
+    addEventListener: (type, f) => on(type).push(f),
+    removeEventListener: (type, f) => { listeners[type] = on(type).filter((g) => g !== f); },
   };
   return win;
 }
@@ -381,4 +383,33 @@ test('classic: which inputs a side shows', async () => {
   assert.equal(classicSide({...c, templateA: true}, 'A').rollsDice, false);        // a template doesn't roll
   assert.equal(classicSide({...c, ammoB: 'DODGE'}, 'B').causesSaves, false);      // a Dodge causes no saves
   assert.deepEqual(classicSide({...c, burstB: 0}, 'B'), {rollsDice: false, causesSaves: false, plasma: false});
+});
+
+test('sync: a save waiting on its 200 ms is written when the page is hidden or closed', () => {
+  const store = createStore(initialState());
+  const dispatch = (a) => store.setState((s) => reduce(s, a));
+  const win = fakeWindow('/');
+  const storage = memStorage({});
+  const stop = startSync(store, dispatch, {win, storage});
+  dispatch({type: 'setPref', key: 'startFaction', value: {A: 101}});
+  assert.equal(loadPersisted(storage).prefs.startFaction, undefined);   // still waiting
+  win.fire('pagehide');
+  assert.deepEqual(loadPersisted(storage).prefs.startFaction, {A: 101});
+  stop();
+});
+
+test('saved rolls from older builds: missing fields default, key order does not matter', async () => {
+  const {setupKey} = await import('./rolls.js');
+  const {sapper, upgrade, ...olderA} = {...EMPTY_SIDE, ...fennec};   // saved before sapper / upgrade existed
+  const reordered = Object.fromEntries(Object.entries(olderA).reverse());
+  const old = {id: 'r1', mode: 'matchup', savedAt: 1, summary: {a: 'x'}, setup: {B: {...EMPTY_SIDE}, rangeCm: 40, A: reordered}};
+  const now = {A: {...EMPTY_SIDE, ...fennec}, B: {...EMPTY_SIDE}, rangeCm: 40};
+  assert.equal(setupKey('matchup', old.setup), setupKey('matchup', now));
+  let s = {...initialState(), lists: {...initialState().lists, saved: [old]}};
+  s = reduce(s, {type: 'loadRoll', id: 'r1'});
+  assert.equal(s.matchup.A.sapper, false);
+  assert.equal(s.matchup.A.unitId, fennec.unitId);
+  // Junk in storage is dropped.
+  const storage = memStorage({[STORAGE_KEY]: JSON.stringify({v: 1, lists: {saved: [{id: 'x'}, old]}})});
+  assert.deepEqual(loadPersisted(storage).lists.saved.map((r) => r.id), ['r1']);
 });

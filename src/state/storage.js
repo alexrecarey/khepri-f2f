@@ -51,7 +51,8 @@ export function loadPersisted(storage) {
     lists: {
       recents: arrayOr(lists.recents).filter(isObject).slice(0, MAX_RECENTS * 2),
       recentFactions: arrayOr(lists.recentFactions).filter(Number.isInteger),
-      saved: arrayOr(lists.saved).filter(isObject),
+      // A saved roll needs its setup to load and its summary to list.
+      saved: arrayOr(lists.saved).filter((r) => isObject(r) && isObject(r.setup) && isObject(r.summary)),
     },
   };
 }

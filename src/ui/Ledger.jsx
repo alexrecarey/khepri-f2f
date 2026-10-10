@@ -15,6 +15,14 @@ const signed = (v, first) => (typeof v !== 'number' || first || v === 0 ? `${v}`
 // lines: the section's lines; base: the source of the starting line ("profile",
 // the weapon) when no side caused it.
 function Section({title, lines, total, abbr, base, names}) {
+  // Keyed by what the line is, so a line struck or added on a change keeps
+  // its own row (and its strike animation) instead of its neighbour's.
+  const seen = new Map();
+  const keyOf = (l) => {
+    const k = `${l.label}|${l.by ?? ''}`;
+    seen.set(k, (seen.get(k) ?? 0) + 1);
+    return `${k}|${seen.get(k)}`;
+  };
   return (
     <div className="mods-sec">
       <span className="mods-h">{title}</span>
@@ -22,7 +30,7 @@ function Section({title, lines, total, abbr, base, names}) {
         {lines.map((l, i) => {
           const source = l.struck ? l.struck : l.source ?? (l.by ? firstWord(names[l.by]) : i === 0 ? base : 'rule');
           return (
-            <div key={i} className={l.struck ? 'mods-row struck' : 'mods-row'} style={{color: l.struck ? undefined : COLOR[l.by]}}>
+            <div key={keyOf(l)} className={l.struck ? 'mods-row struck' : 'mods-row'} style={{color: l.struck ? undefined : COLOR[l.by]}}>
               <span className="v">{signed(l.value, i === 0)}</span>
               <span className="l" title={l.label}>{l.label}</span>
               <span className="s">{source}</span>

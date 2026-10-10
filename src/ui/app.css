@@ -279,6 +279,7 @@ html.page-open, html.page-open body { overflow: hidden; overscroll-behavior: non
 .roll-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #3a1f1f; }
 .roll-delete { all: unset; box-sizing: border-box; cursor: pointer; position: absolute; top: 0; right: 0; bottom: 0; width: 88px; display: grid; place-items: center; color: #fff; font-weight: 600; background: #b4423a; }
 .roll { all: unset; box-sizing: border-box; cursor: pointer; position: relative; width: 100%; display: flex; flex-direction: column; gap: 6px; padding: 14px; background: var(--surface-2); touch-action: pan-y; transition: transform .2s ease; user-select: none; }
+.roll.dragging { transition: none; }
 .roll:focus-visible { outline: 2px solid var(--text-2); outline-offset: -2px; }
 .roll-row { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; }
 .roll-row.dice { font-family: var(--font-display); font-weight: 600; }

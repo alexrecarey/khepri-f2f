@@ -10,6 +10,7 @@ import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, D20, ShareIcon} from './icons.jsx';
 import RollingNumber from './RollingNumber.jsx';
 import {shareLink} from './share.js';
+import useDialogFocus from './useDialogFocus.js';
 import useSheetGestures from './useSheetGestures.js';
 import Ledger from './Ledger.jsx';
 import {pct} from './results.js';
@@ -184,6 +185,8 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Closing gives the focus back to the card (the top), not to what opened it.
+  useDialogFocus(g.sheetRef, open, () => g.sheetRef.current?.querySelector('.rs-top'));
   // Resting low, the sheet's scroll goes back to the top.
   useEffect(() => { if (!open && g.sheetRef.current) g.sheetRef.current.scrollTop = 0; }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
@@ -192,10 +195,17 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
       <section className={`rsheet${open ? ' open' : ''}${classic ? ' classic' : ''}`} ref={g.sheetRef} aria-label="Results"
         {...(open ? {role: 'dialog', 'aria-modal': true} : {})}>
         <div className="rs-head"><span /><span className="handle" /><span className="sheet-actions">{open && <SheetActions save={save} />}</span></div>
-        <button type="button" className="rs-top" onClick={g.onTopClick} aria-expanded={open} tabIndex={open ? -1 : 0}
-          aria-label={open ? undefined : 'Show full results'}>
+        {/* Closed, the top is the card: a button that opens the sheet, its
+            numbers still read out. Open, it holds the state bar's own
+            controls, so it is no longer a button (no nested controls). The
+            element stays the same either way: the gestures measure it. */}
+        <div className="rs-top" onClick={g.onTopClick} {...(open ? {} : {
+          role: 'button', tabIndex: 0, 'aria-expanded': false,
+          onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); g.onTopClick(); } },
+        })}>
           <SheetTop s={s} classic={classic} pending={pending} status={status} picked={picked} ui={open ? ui : null} />
-        </button>
+          {!open && <span className="vh">Show full results</span>}
+        </div>
         {/* Below the top: only there for screen readers and keys while open. */}
         <div className="rs-rest" {...(open ? {} : {inert: '', 'aria-hidden': true})}>
           {s && (s.unopposed

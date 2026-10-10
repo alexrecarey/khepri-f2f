@@ -1,5 +1,6 @@
 // The desk picker's right pane: the highlighted unit with its stats and every
 // loadout as a chart line, or, before typing, factions and unit types to browse.
+import {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {extraLoadoutName, shortIsc} from '../../army/names.js';
 import {dispatch} from '../../state/store.js';
@@ -34,6 +35,9 @@ ChartLine.propTypes = {c: PropTypes.object.isRequired, sub: PropTypes.bool};
 // The unit: name, profile tabs, stats, skills, loadouts and the Use buttons.
 function UnitPane({m}) {
   const {army, detail, profile, factionName, factionId, loadouts, pane, lat, color, pick, withProfile, hitFor, otherSet, otherName} = m;
+  useEffect(() => {
+    if (pane === 'loadouts') document.getElementById(`dp-lo-${lat}`)?.scrollIntoView({block: 'nearest'});
+  }, [pane, lat]);
   return (
     <>
       <div className="dp-unit">
@@ -62,7 +66,7 @@ function UnitPane({m}) {
           const on = pane === 'loadouts' ? i === lat : false;
           const main = charts[0];
           return (
-            <div key={h.rowId} role="option" aria-selected={on} className={`dp-loadout${on ? ` on ${color}` : ''}`}
+            <div key={h.rowId} id={`dp-lo-${i}`} role="option" aria-selected={on} className={`dp-loadout${on ? ` on ${color}` : ''}`}
               onClick={() => setCursor({pane: 'loadouts', lcursor: i})} onDoubleClick={() => pick(withProfile(h))}>
               {main ? <ChartLine c={{...main, name: `${main.name}${tag ? ` · ${tag}` : ''}`}} /> : <span>{h.weapons.join(', ')}</span>}
               {on && charts.slice(1).map((c) => <ChartLine key={c.id} c={c} sub />)}

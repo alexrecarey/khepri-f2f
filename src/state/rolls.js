@@ -7,13 +7,28 @@
 //   ap / rp   chance each side wins (or, not face to face, causes a wound)
 import {RANGE_BANDS} from '../rules/ranges.js';
 import {shortIsc, shortWeaponName} from '../army/names.js';
+import {DEFAULT_PARAMS} from '../engine/params.js';
 import {MODES} from './modes.js';
+import {DEFAULT_RANGE_CM, EMPTY_SIDE} from './schema.js';
 
 const pct0 = (p) => `${Math.round(100 * p)}%`;
 const shortUnit = (unit) => shortIsc(unit.isc);
 
+// A saved setup with today's fields: a roll saved before a field existed gets
+// its default, so it loads complete and matches the same setup saved now.
+export function normalizeSetup(mode, setup) {
+  if (mode === MODES.matchup) {
+    return {A: {...EMPTY_SIDE, ...setup?.A}, B: {...EMPTY_SIDE, ...setup?.B}, rangeCm: setup?.rangeCm ?? DEFAULT_RANGE_CM};
+  }
+  return {...DEFAULT_PARAMS, ...setup};
+}
+
+// JSON with object keys sorted, so key order never makes two setups differ.
+const canonical = (x) => (Array.isArray(x) ? x.map(canonical)
+  : x && typeof x === 'object' ? Object.fromEntries(Object.keys(x).sort().map((k) => [k, canonical(x[k])])) : x);
+
 // The roll's identity: two rolls with the same setup are the same roll.
-export const setupKey = (mode, setup) => JSON.stringify([mode, setup]);
+export const setupKey = (mode, setup) => JSON.stringify(canonical([mode, normalizeSetup(mode, setup)]));
 
 export function currentSetup(state) {
   return state.mode === MODES.matchup ? state.matchup : state.classic;

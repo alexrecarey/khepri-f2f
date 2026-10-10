@@ -111,6 +111,8 @@ function StateRow({st, side, ui, cur}) {
   const more = st.outOfFight && (cur.open === id || segHover || rowHover);
   return (
     <div className={`srow${dimRow(cur, side, st.index) ? ' dim' : ''}${rowHover || segHover ? ' on' : ''}`} tabIndex={0}
+      role="button" aria-expanded={st.outOfFight ? more : undefined}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ui.setOpen(cur.open === id ? null : id); } }}
       onMouseEnter={() => ui.setHover({kind: 'row', side, index: st.index})} onMouseLeave={() => ui.setHover(null)}
       onFocus={() => ui.setHover({kind: 'row', side, index: st.index})} onBlur={() => ui.setHover(null)}
       onClick={() => ui.setOpen(cur.open === id ? null : id)}>

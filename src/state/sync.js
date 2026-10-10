@@ -2,7 +2,9 @@
 //   URL      replaced with the shareable slices on every change (url.js)
 //   history  one entry per open layer (reduce.js uiDepth), so Back closes the
 //            picker, a sheet or the menu instead of leaving the app
-//   storage  the persisted slices, written shortly after a change (storage.js)
+//   storage  the persisted slices, written shortly after a change (storage.js),
+//            and at once when the page is hidden or closed, so a Save just
+//            before closing the app isn't lost
 import {uiDepth} from './reduce.js';
 import {savePersisted} from './storage.js';
 import {urlFromState} from './url.js';
@@ -47,15 +49,30 @@ export function startSync(store, dispatch, {win = window, storage = null} = {}) 
     apply(state);
     if (storage && persistedChanged) {
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => savePersisted(storage, store.get()), 200);
+      saveTimer = setTimeout(() => {
+        saveTimer = null;
+        savePersisted(storage, store.get());
+      }, 200);
     }
   });
   apply(store.get());
   if (storage) savePersisted(storage, store.get());
 
+  const flush = () => {
+    if (saveTimer == null) return;
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    savePersisted(storage, store.get());
+  };
+  const onHidden = () => { if (win.document?.visibilityState === 'hidden') flush(); };
+  win.addEventListener('pagehide', flush);
+  win.document?.addEventListener('visibilitychange', onHidden);
+
   return () => {
     unsubscribe();
     win.removeEventListener('popstate', onPop);
+    win.removeEventListener('pagehide', flush);
+    win.document?.removeEventListener('visibilitychange', onHidden);
     clearTimeout(saveTimer);
   };
 }

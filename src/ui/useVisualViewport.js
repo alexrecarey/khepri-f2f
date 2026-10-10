@@ -17,23 +17,34 @@
 //     off, the screen behind showed under the search box, and the list never
 //     scrolled). So a drag is cancelled unless it scrolls something that can
 //     still scroll that way: the list up and down, the chip row sideways.
-import {useEffect, useLayoutEffect} from 'react';
+import {useLayoutEffect} from 'react';
 import {DEV_TOOLS} from '../devTools.js';
 
 let touchStart = null;
 
-const scrolls = (el, axis) => {
-  const style = getComputedStyle(el);
+const overflows = (style, axis) => {
   const o = axis === 'y' ? style.overflowY : style.overflowX;
-  if (o !== 'auto' && o !== 'scroll') return false;
-  return axis === 'y' ? el.scrollHeight > el.clientHeight + 1 : el.scrollWidth > el.clientWidth + 1;
+  return o === 'auto' || o === 'scroll';
 };
 
-// Can `el` or one of its ancestors scroll by this drag (d > 0: finger moves
-// down / right, so the content scrolls back toward its start)?
-function canScroll(el, axis, d) {
+// The touched element and its ancestors that are set to scroll, per axis.
+// Worked out once when the finger goes down, not on every move.
+function scrollersOf(el) {
+  const out = {x: [], y: []};
   for (; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
-    if (!scrolls(el, axis)) continue;
+    const style = getComputedStyle(el);
+    if (overflows(style, 'x')) out.x.push(el);
+    if (overflows(style, 'y')) out.y.push(el);
+  }
+  return out;
+}
+
+// Can one of the touched element's scrollers scroll by this drag (d > 0:
+// finger moves down / right, so the content scrolls back toward its start)?
+function canScroll(scrollers, axis, d) {
+  for (const el of scrollers[axis]) {
+    const fits = axis === 'y' ? el.scrollHeight <= el.clientHeight + 1 : el.scrollWidth <= el.clientWidth + 1;
+    if (fits) continue;
     const pos = axis === 'y' ? el.scrollTop : el.scrollLeft;
     const max = axis === 'y' ? el.scrollHeight - el.clientHeight : el.scrollWidth - el.clientWidth;
     if (d > 0 ? pos > 0 : pos < max - 1) return true;
@@ -43,7 +54,7 @@ function canScroll(el, axis, d) {
 
 function onTouchStart(e) {
   const t = e.touches[0];
-  touchStart = e.touches.length === 1 ? {x: t.clientX, y: t.clientY} : null;
+  touchStart = e.touches.length === 1 ? {x: t.clientX, y: t.clientY, scrollers: scrollersOf(e.target)} : null;
 }
 
 function onTouchMove(e) {
@@ -52,7 +63,7 @@ function onTouchMove(e) {
   const dx = t.clientX - touchStart.x;
   const dy = t.clientY - touchStart.y;
   const axis = Math.abs(dy) >= Math.abs(dx) ? 'y' : 'x';
-  const ok = canScroll(e.target, axis, axis === 'y' ? dy : dx);
+  const ok = canScroll(touchStart.scrollers, axis, axis === 'y' ? dy : dx);
   if (window.__touchDebug) {
     const pb = document.querySelector('.page-body');
     const vv = window.visualViewport;
@@ -116,6 +127,12 @@ function lockDocument() {
   document.documentElement.classList.add('page-open');
   document.addEventListener('touchstart', onTouchStart, {passive: true});
   document.addEventListener('touchmove', onTouchMove, {passive: false});
+  // Added once for all open pages (users counts them), so closing one page
+  // doesn't take them away from another still open.
+  const vv = window.visualViewport;
+  vv?.addEventListener('resize', onResize);
+  vv?.addEventListener('scroll', update);
+  window.addEventListener('resize', onResize);
 }
 
 function unlockDocument() {
@@ -124,6 +141,10 @@ function unlockDocument() {
   document.documentElement.classList.remove('page-open');
   document.removeEventListener('touchstart', onTouchStart);
   document.removeEventListener('touchmove', onTouchMove);
+  const vv = window.visualViewport;
+  vv?.removeEventListener('resize', onResize);
+  vv?.removeEventListener('scroll', update);
+  window.removeEventListener('resize', onResize);
   window.scrollTo(0, savedScroll);
 }
 
@@ -138,18 +159,6 @@ export default function useVisualViewport() {
     return () => {
       users -= 1;
       if (users === 0) unlockDocument();
-    };
-  }, []);
-
-  useEffect(() => {
-    const vv = window.visualViewport;
-    vv?.addEventListener('resize', onResize);
-    vv?.addEventListener('scroll', update);
-    window.addEventListener('resize', onResize);
-    return () => {
-      vv?.removeEventListener('resize', onResize);
-      vv?.removeEventListener('scroll', update);
-      window.removeEventListener('resize', onResize);
     };
   }, []);
 }

@@ -17,20 +17,25 @@ import DeskDetail from './DeskDetail.jsx';
 import DeskList from './DeskList.jsx';
 import deskKeyHandler from './deskKeys.js';
 import useDeskPicker from './useDeskPicker.js';
+import useDialogFocus from '../useDialogFocus.js';
 
 const back = () => dispatch({type: 'back'});
 
 export default function DeskPicker({searcher, army, loadError}) {
   const m = useDeskPicker({searcher, army});
-  const {side, color, query, scope, sides, all, chips, current, at} = m;
+  const {side, color, query, scope, sides, all, chips, current, at, pane, lat, loadouts} = m;
+  // The highlighted option, in whichever pane has the arrow keys.
+  const active = pane === 'loadouts' && loadouts[lat] ? `dp-lo-${lat}` : current ? `dp-row-${at}` : undefined;
   const inputRef = useRef(null);
+  const dialogRef = useRef(null);
   useEffect(() => { inputRef.current?.focus(); }, [side]);
+  useDialogFocus(dialogRef);
   const onKey = deskKeyHandler(m);
 
   return (
     <>
       <div className="desk-scrim" onClick={back} />
-      <div className="desk-picker" role="dialog" aria-modal="true" aria-label={`${color} trooper`}>
+      <div ref={dialogRef} className="desk-picker" role="dialog" aria-modal="true" aria-label={`${color} trooper`}>
         <div className="dp-top">
           <span className="dp-sides" role="group" aria-label="Side">
             {['A', 'B'].map((s) => (
@@ -46,7 +51,8 @@ export default function DeskPicker({searcher, army, loadError}) {
             <span className="vh">Search troopers</span>
             <input ref={inputRef} value={query} placeholder="Search troopers and weapons…" autoComplete="off" spellCheck={false}
               onChange={(e) => dispatch({type: 'pickerQuery', query: e.target.value})} onKeyDown={onKey}
-              aria-activedescendant={current ? `dp-row-${at}` : undefined} aria-controls="dp-list" />
+              role="combobox" aria-expanded="true" aria-autocomplete="list" aria-haspopup="listbox"
+              aria-activedescendant={active} aria-controls="dp-list" />
           </label>
           <span className="dp-keys"><kbd>Tab</kbd> side <kbd>esc</kbd></span>
         </div>
