@@ -208,16 +208,17 @@ export function reduce(state, action) {
     }
     case 'pickerPush':
       return ui.picker ? {...state, ui: {...ui, picker: {...ui.picker, stack: [...ui.picker.stack, action.view], cursor: 0, pane: 'list', lcursor: 0}}} : state;
-    // The picked trooper goes into its side (cover and fireteam kept), joins
+    // The picked trooper goes into its side (fireteam size kept), joins
     // the recents, and the picker closes; with `next` it moves on to the other
     // side instead (desktop "Use, then pick Reactive").
     case 'pickTrooper': {
+      // Cover and Foxhole come with the new trooper (actions.js); fireteam size is kept.
       const {inCover, ftSize} = matchup[action.side];
       const picker = action.next && ui.picker
         ? {...ui.picker, side: other(action.side), scope: action.nextScope ?? null, query: '', stack: [], cursor: null, pane: 'list', lcursor: 0, profileId: null}
         : null;
       return {
-        ...setSide(state, action.side, {...EMPTY_SIDE, ...action.sel, inCover, ftSize: fireteamSize(ftSize, action.ftMax ?? FIRETEAM_MAX)}),
+        ...setSide(state, action.side, {...EMPTY_SIDE, ...action.sel, inCover: action.sel?.inCover ?? inCover, ftSize: fireteamSize(ftSize, action.ftMax ?? FIRETEAM_MAX)}),
         scopes: action.scope === undefined ? state.scopes : {...state.scopes, [action.side]: action.scope},
         ui: picker ? {...ui, picker} : {...ui, overlay: null, picker: null},
         lists: action.recent ? {...state.lists, recents: pushRecent(state.lists.recents, {...action.recent, side: action.side})} : state.lists,

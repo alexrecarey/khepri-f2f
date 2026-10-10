@@ -73,7 +73,13 @@ export function resolveSelection(army, sel) {
     .flatMap((u) => u.attrs.filter((x) => x.type === 'weapon'))
     .filter((w) => !(army.weapons[w.id] ?? []).some(isBsAttackWeapon))
     .map((w) => w.name);
-  const traits = profile ? effectiveTraits(profile, option) : null;
+  const baseTraits = profile ? effectiveTraits(profile, option) : null;
+  // Sapper: the trooper may sit in a Foxhole (player's chip), which gives it
+  // Partial Cover and Mimetism (-3) (wiki, Foxhole State). Cover doesn't
+  // stack: the Foxhole is its cover.
+  const canSapper = hasSkill(baseTraits, SKILL.SAPPER);
+  const sapper = canSapper && Boolean(sel.sapper);
+  const traits = sapper ? foxholeTraits(baseTraits) : baseTraits;
   let weapon = null;
   if (option && profile && sel.weaponKey) {
     weapon = trooperWeapons(option, army.weapons, traits).find((w) => w.key === sel.weaponKey)
@@ -84,7 +90,9 @@ export function resolveSelection(army, sel) {
   return {
     unit, factionId, groups, group, profile, option, traits, weapon,
     upgrades, unsupportedUpgradeWeapons,
-    inCover: Boolean(sel.inCover),
+    inCover: Boolean(sel.inCover) || sapper,
+    canSapper,
+    sapper,
     // The player chose to use Surprise Attack (active side only).
     surpriseAttack: Boolean(sel.surpriseAttack),
     // Fireteam: the largest this trooper can join, and the size in use
@@ -92,6 +100,13 @@ export function resolveSelection(army, sel) {
     ftMax,
     ftSize: fireteamSize(sel.ftSize, ftMax),
   };
+}
+
+// In a Foxhole, Mimetism (-3) joins the trooper's skills unless it already has
+// Mimetism (no stacking: a -6 stays -6). Marked so the ledger can say why.
+function foxholeTraits(traits) {
+  if (hasSkill(traits, SKILL.MIMETISM)) return traits;
+  return {...traits, skills: [...traits.skills, {id: SKILL.MIMETISM, name: 'Mimetism', extra: ['-3'], foxhole: true}]};
 }
 
 // Spec-Ops trooper? Only the Initial profile lists the skill, so check the group.

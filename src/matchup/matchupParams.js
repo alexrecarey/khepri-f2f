@@ -4,7 +4,7 @@ import {RANGE_BANDS} from '../rules/ranges.js';
 
 const EMPTY = {
   unitId: null, factionId: null, groupId: null, profileId: null, optionId: null,
-  weaponKey: null, inCover: false, surpriseAttack: false, upgrade: null, ball: null,
+  weaponKey: null, inCover: false, sapper: false, surpriseAttack: false, upgrade: null, ball: null,
 };
 
 // param name -> selection field, and how to read it back
@@ -28,6 +28,7 @@ export function encodeMatchup({selA, selB, ftSize, rangeCm}) {
       if (sel[field] !== null && sel[field] !== undefined) out[`${param}${side}`] = String(sel[field]);
     }
     if (sel.inCover) out[`cover${side}`] = '1';
+    if (sel.sapper) out[`sapper${side}`] = '1';
     if (sel.surpriseAttack) out[`surprise${side}`] = '1';
     if (ftSize?.[side] > 1) out[`ft${side}`] = String(ftSize[side]);
   }
@@ -50,6 +51,7 @@ export function decodeMatchup(params) {
       sel[field] = v;
     }
     sel.inCover = get(`cover${s}`) === '1';
+    sel.sapper = get(`sapper${s}`) === '1';
     sel.surpriseAttack = get(`surprise${s}`) === '1';
     return sel;
   };

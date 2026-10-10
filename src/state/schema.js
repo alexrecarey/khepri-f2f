@@ -22,6 +22,8 @@ export const EMPTY_SIDE = {
   optionId: null,
   weaponKey: null,
   inCover: false,
+  // In a Foxhole (units with Sapper): cover and Mimetism (-3); replaces inCover.
+  sapper: false,
   // Use Surprise Attack (active side, units with the skill).
   surpriseAttack: false,
   // Team-Ops: index into unit.upgrades.chart / .ball, or null.

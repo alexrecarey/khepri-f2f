@@ -99,8 +99,9 @@ function attackSv(x, y, s, rangeCm, total) {
       const raw = Number(skillExtra(y.traits, SKILL.MIMETISM));
       const full = Number.isFinite(raw) && raw < 0 ? raw : -3;
       const applied = mimetismMod(y.traits, x.traits);
-      if (applied) lines.push(line(applied, `Mimetism (${full})${applied !== full ? `, ${msvName(x.traits)}` : ''}`, t));
-      else lines.push(line(full, `Mimetism (${full})`, t, msvName(x.traits) ?? 'cancelled'));
+      const name = `Mimetism (${full})${y.traits.skills.find((k) => k.id === SKILL.MIMETISM)?.foxhole ? ', Foxhole' : ''}`;
+      if (applied) lines.push(line(applied, `${name}${applied !== full ? `, ${msvName(x.traits)}` : ''}`, t));
+      else lines.push(line(full, name, t, msvName(x.traits) ?? 'cancelled'));
     }
     const albedo = albedoMod(y.traits, x.traits);
     if (albedo) lines.push(line(albedo, 'Albedo', t));
@@ -109,7 +110,7 @@ function attackSv(x, y, s, rangeCm, total) {
       lines.push(line(Number.isFinite(raw) && raw < 0 ? raw : -3, 'Albedo', t, 'only vs MSV or Marksmanship'));
     }
     const cover = coverBsMod(y, x.traits);
-    const coverName = benefitsFromCover(y) ? 'cover' : 'Nanoscreen';
+    const coverName = benefitsFromCover(y) ? (y.sapper ? 'Foxhole cover' : 'cover') : 'Nanoscreen';
     if (cover) lines.push(line(cover, coverName, t));
     else if (benefitsFromCover(y) || hasNanoscreen(y)) {
       const why = hasSkill(x.traits, SKILL.MARKSMANSHIP) ? 'Marksmanship' : 'Limited Cover';
@@ -210,7 +211,7 @@ function saveLines(x, y, s, inputs) {
     else lines.push(line(halved - base, `${attr} halved (AP)`, s, 'Immunity (AP)'));
   }
   if (benefitsFromCover(y) || hasNanoscreen(y)) {
-    const name = benefitsFromCover(y) ? 'cover' : 'Nanoscreen';
+    const name = benefitsFromCover(y) ? (y.sapper ? 'Foxhole cover' : 'cover') : 'Nanoscreen';
     if (ignoresCoverOnSaves(row) && !hasNanoscreen(y)) lines.push(line(3, name, t, 'template'));
     else lines.push(line(3, name, t));
   }

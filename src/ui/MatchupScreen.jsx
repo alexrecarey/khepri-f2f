@@ -189,10 +189,17 @@ function SideCard({side, army, view, onOpenPicker}) {
       )}
       {unit && (
         <div className="row-wrap">
+          {/* Cover or, for Sapper, the Foxhole (its own cover): one or the other. */}
           {!noCover && (
-            <button type="button" className={`chip${sel.inCover ? ` on ${color}` : ''}`} aria-pressed={sel.inCover}
-              onClick={() => patch(side, {inCover: !sel.inCover})}>
-              {sel.inCover ? 'Cover ✓' : '+ Cover'}
+            <button type="button" className={`chip${sel.inCover && !resolved.sapper ? ` on ${color}` : ''}`} aria-pressed={sel.inCover && !resolved.sapper}
+              onClick={() => patch(side, {inCover: !(sel.inCover && !resolved.sapper), sapper: false})}>
+              {sel.inCover && !resolved.sapper ? 'Cover ✓' : '+ Cover'}
+            </button>
+          )}
+          {resolved.canSapper && (
+            <button type="button" className={`chip${resolved.sapper ? ` on ${color}` : ''}`} aria-pressed={resolved.sapper}
+              onClick={() => patch(side, {sapper: !resolved.sapper, inCover: false})}>
+              {resolved.sapper ? 'Sapper ✓' : '+ Sapper'}
             </button>
           )}
           <FireteamChip side={side} size={resolved.ftSize} max={resolved.ftMax} color={color} />

@@ -70,12 +70,12 @@ test('picker: open, drill in, back one screen at a time', () => {
   assert.equal(s.ui.picker, null);
 });
 
-test('pickTrooper fills the side, keeps its cover, records a recent and closes', () => {
+test("pickTrooper fills the side, takes the new trooper's cover, records a recent and closes", () => {
   let s = run(initialState(), {type: 'patchSide', side: 'B', patch: {inCover: true}}, {type: 'openPicker', side: 'B'});
   const recent = {unitId: 10, groupId: 1, optionId: 2, armyFactionId: 101};
   s = run(s, {type: 'pickTrooper', side: 'B', sel: fennec, recent});
   assert.equal(s.matchup.B.unitId, 10);
-  assert.equal(s.matchup.B.inCover, true);
+  assert.equal(s.matchup.B.inCover, false); // actions.js decides cover for the new trooper
   assert.equal(s.ui.overlay, null);
   assert.deepEqual(s.lists.recents, [{...recent, side: 'B'}]);
   // Picked for the other side it gets its own entry; again on the same side

@@ -1,5 +1,7 @@
 // Actions whose payload needs the army data. The reducer stays pure; these
 // work out the payload first and return a plain action to dispatch.
+import {SKILL} from '../army/ids.js';
+import {hasSkill} from '../army/traits.js';
 import {defaultWeapon} from '../rules/defaultWeapon.js';
 import {resolveSelection, trooperWeapons} from '../rules/trooper.js';
 import {ROLE, vanillaOf} from './matchupView.js';
@@ -37,14 +39,19 @@ export function scopeFor(army, state, side) {
 // stays open on the other side, with that side's scope.
 // ftMax: the new trooper's largest fireteam, so a kept fireteam size shrinks
 // to fit (or goes) when the new trooper can't match it.
+// A new trooper starts in cover when cover can help it (not No Cover), or in
+// its Foxhole when it has Sapper (the Foxhole is its cover).
 export function pickTrooper(army, side, hit, {next = false, state = null} = {}) {
   const otherSide = side === 'A' ? 'B' : 'A';
-  const sel = selectionFromHit(army, hit, side);
+  const base = selectionFromHit(army, hit, side);
+  const r = resolveSelection(army, base);
+  const sapper = Boolean(r?.canSapper);
+  const sel = {...base, sapper, inCover: !sapper && Boolean(r?.traits) && !hasSkill(r.traits, SKILL.NO_COVER)};
   return {
     type: 'pickTrooper',
     side,
     sel,
-    ftMax: resolveSelection(army, sel)?.ftMax ?? 1,
+    ftMax: r?.ftMax ?? 1,
     recent: {unitId: hit.unitId, groupId: hit.groupId, optionId: hit.optionId, armyFactionId: hit.armyFactionId},
     scope: hit.factionId ?? null,
     ...(next ? {next: true, nextScope: state ? scopeFor(army, state, otherSide) : null} : {}),
