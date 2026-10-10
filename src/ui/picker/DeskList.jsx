@@ -33,7 +33,7 @@ function shortStats(detail) {
 
 // m: useDeskPicker(); loadError: retry for a search index that failed.
 export default function DeskList({m, loadError}) {
-  const {searcher, army, typing, query, items, rows, current, at, factionName, pick} = m;
+  const {searcher, army, typing, query, items, rows, current, at, factionName, pick, matched} = m;
   // The arrow keys move the highlight; keep it in view.
   useEffect(() => {
     if (current) document.getElementById(`dp-row-${at}`)?.scrollIntoView({block: 'nearest'});
@@ -72,6 +72,9 @@ export default function DeskList({m, loadError}) {
           </div>
         );
       })}
+      {typing && matched > rows.length && (
+        <span className="dp-hint">Showing {rows.length} of {matched} · keep typing to narrow it down</span>
+      )}
       {rows.length > 0 && <span className="dp-hint"><kbd>↑↓</kbd> move <kbd>→</kbd> into loadouts <kbd>↵</kbd> pick</span>}
     </div>
   );

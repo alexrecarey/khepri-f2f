@@ -1,5 +1,7 @@
 // The desk picker's keyboard, all from the search box: ↑↓ move, → into the
-// loadouts, ← back, ↵ pick (⇧↵ the other choice), Tab the other side, Esc close.
+// loadouts, ← back, ↵ pick (⇧↵ the other choice), Tab the other side while
+// the box is empty (once typing, Tab moves on to the chips and buttons as
+// usual), Esc close.
 import {pickerSide} from '../../state/actions.js';
 import {dispatch, getState} from '../../state/store.js';
 import {setCursor} from './useDeskPicker.js';
@@ -25,7 +27,7 @@ export default function deskKeyHandler(m) {
     } else if (e.key === 'Enter') {
       e.preventDefault();
       m.pick(m.hitFor(), e.shiftKey ? otherSet : !otherSet);
-    } else if (e.key === 'Tab') {
+    } else if (e.key === 'Tab' && !e.shiftKey && query === '') {
       e.preventDefault();
       dispatch(pickerSide(army, getState(), otherSide));
     } else if (e.key === 'Escape') {

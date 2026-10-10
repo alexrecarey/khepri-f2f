@@ -4,7 +4,8 @@
 // (this faction first, then other factions). Right: the highlighted unit with
 // its stats and every loadout as a chart line, or, before typing, factions and
 // unit types to browse. The keyboard drives it all from the search box:
-// ↑↓ move, → into the loadouts, ← back, ↵ pick, Tab the other side, Esc close.
+// ↑↓ move, → into the loadouts, ← back, ↵ pick, Tab the other side (empty
+// box only), Esc close.
 // Query, scope, highlight and side are the state document's ui.picker.
 import {useEffect, useRef} from 'react';
 import PropTypes from 'prop-types';
@@ -54,7 +55,7 @@ export default function DeskPicker({searcher, army, loadError}) {
               role="combobox" aria-expanded="true" aria-autocomplete="list" aria-haspopup="listbox"
               aria-activedescendant={active} aria-controls={active?.startsWith('dp-lo-') ? 'dp-loadouts' : 'dp-list'} />
           </label>
-          <span className="dp-keys"><kbd>Tab</kbd> side <kbd>esc</kbd></span>
+          <span className="dp-keys">{query === '' && <><kbd>Tab</kbd> side </>}<kbd>esc</kbd></span>
         </div>
         <div className="dp-chips" role="group" aria-label="Faction">
           <button type="button" className={`chip${scope == null ? ' on-plain' : ''}`} onClick={() => dispatch({type: 'pickerScope', scope: null})}>
