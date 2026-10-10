@@ -1,6 +1,6 @@
 /* ---------- desktop picker (picker/DeskPicker.jsx) ---------- */
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-kbd { padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line-strong); font-family: var(--font-mono); font-size: var(--fs-small); color: var(--text-3); }
+kbd { padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line-strong); font-family: var(--font-mono); font-size: var(--fs-small); color: var(--text-2); }
 .desk-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 29; animation: fade .15s ease; }
 .desk-picker { position: fixed; z-index: 30; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(1080px, calc(100vw - 48px)); height: min(720px, calc(100dvh - 48px));
   border-radius: 18px; background: var(--sheet); border: 1px solid var(--line); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.6); animation: fade .15s ease; }
@@ -49,6 +49,8 @@ b.hl { color: var(--text); background: #2e4a40; border-radius: 3px; padding: 0 1
 .dp-loadout.on.active { background: var(--active-tint); box-shadow: inset 3px 0 var(--active); }
 .dp-loadout.on.reactive { background: var(--reactive-tint); box-shadow: inset 3px 0 var(--reactive); }
 .dp-loadout .pts { font-size: var(--fs-small); color: var(--faint); font-family: var(--font-mono); }
+/* On a side's tint the greys drop under 4.5:1; the picked loadout's secondary text goes a step up. */
+.dp-loadout.on .pts, .dp-loadout.on .chart-line .a { color: var(--text-2); }
 .chart-line { display: grid; grid-template-columns: minmax(0, 1fr) 112px 34px 44px 80px; gap: 10px; align-items: center; font-size: 14px; }
 .chart-line.sub { font-size: var(--fs-small); color: var(--text-3); }
 .chart-line.sub .n { padding-left: 14px; }
