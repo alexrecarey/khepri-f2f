@@ -7,7 +7,7 @@ import {prefixDistance, soundKey, typoBudget, words} from './text.js';
 // Match tiers, strongest first. A row's rank comes from its weakest typed word.
 export const TIER = {EXACT: 0, PREFIX: 1, TYPO1: 2, SOUND: 3, TYPO2: 4};
 const TIER_COST = [0, 1, 3, 4, 6];
-const FIELD_COST = {[FIELD.SHORT]: 0, [FIELD.NAME]: 1, [FIELD.LOADOUT]: 1, [FIELD.WEAPON]: 2, [FIELD.ALIAS]: 2};
+const FIELD_COST = {[FIELD.SHORT]: 0, [FIELD.NAME]: 1, [FIELD.LOADOUT]: 1, [FIELD.WEAPON]: 2, [FIELD.ALIAS]: 2, [FIELD.SKILL]: 3};
 const MAX_PROFILES = 30;
 
 export function createSearch(index) {
@@ -41,6 +41,7 @@ export function createSearch(index) {
       row.weapons.forEach((wid, i) => {
         for (const [w, field] of index.weapons[wid].words) post(w, row.id, field, i);
       });
+      for (const sid of row.skills ?? []) for (const w of index.skills[sid].words) post(w, row.id, FIELD.SKILL, -1);
     }
   }
   for (const v of vocab.values()) delete v.best;
@@ -70,6 +71,9 @@ export function createSearch(index) {
         if (tier === undefined) continue;
       }
       for (const [rowId, field, weapon] of postings) {
+        // Skills are many and shared: no typo or sounds-like matches there,
+        // or a misspelt unit name would pull in every trooper with a skill.
+        if (field === FIELD.SKILL && tier > TIER.PREFIX) continue;
         // A prefix of the unit's name (10) beats an exact weapon word (12):
         // "mine" means Minescorp before it means every unit carrying mines.
         const cost = TIER_COST[tier] * 10 + FIELD_COST[field] * 6;

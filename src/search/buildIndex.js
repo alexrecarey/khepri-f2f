@@ -7,7 +7,7 @@ import {indexWords, initials, words} from './text.js';
 
 // Where a word came from. Lower is a stronger match: a hit on the unit's
 // short name beats one on its weapon.
-export const FIELD = {SHORT: 0, NAME: 1, LOADOUT: 2, WEAPON: 3, ALIAS: 4};
+export const FIELD = {SHORT: 0, NAME: 1, LOADOUT: 2, WEAPON: 3, ALIAS: 4, SKILL: 5};
 
 // The vanilla army a faction belongs to: follow `parent` up to a faction that
 // is its own parent, or whose parent isn't a faction. The mercenary companies
@@ -38,6 +38,9 @@ export function buildIndex(army) {
   const units = [];
   // Weapon id -> {name, words}: stored once, rows refer to weapons by id.
   const weapons = {};
+  // Skills the same way: [{name, words}], rows refer to them by position.
+  const skills = [];
+  const skillIds = new Map();
   for (const unit of army.units) {
     const short = shortName(unit.isc);
     const unitWords = new Map(); // word -> field
@@ -65,7 +68,10 @@ export function buildIndex(army) {
             option.weapons.map((w) => w.id).join('.')].join('|');
           let row = byKey.get(key);
           if (!row) {
-            row = makeRow(rows.length, unit, short, group, profile, option, unitWords, weapons);
+            row = makeRow(rows.length, unit, short, group, profile, option, unitWords, weapons, (name) => {
+              if (!skillIds.has(name)) skillIds.set(name, skills.push({name, words: indexWords(name)}) - 1);
+              return skillIds.get(name);
+            });
             byKey.set(key, row);
             rows.push(row);
           }
@@ -77,7 +83,7 @@ export function buildIndex(army) {
     units.push({id: unit.id, name: unit.isc, short, type, factions: factionIds,
       words: [...unitWords]});
   }
-  return {version: 1, factions: vanillas, units, weapons, rows};
+  return {version: 1, factions: vanillas, units, weapons, skills, rows};
 }
 
 // Lieutenant changes nothing on the table, so a Lieutenant loadout with the
@@ -103,7 +109,7 @@ function weaponWords(name) {
   return [...out];
 }
 
-function makeRow(id, unit, short, group, profile, option, unitWords, weapons) {
+function makeRow(id, unit, short, group, profile, option, unitWords, weapons, skillId) {
   for (const w of option.weapons) weapons[w.id] ??= {name: w.name, words: weaponWords(w.name)};
   // Loadout names are mostly the unit's name in capitals; keep only the words
   // they add ("BIPANDRA", "Hacker").
@@ -122,6 +128,9 @@ function makeRow(id, unit, short, group, profile, option, unitWords, weapons) {
   const sd = (extra) => (extra ?? []).some((e) => /^\+\d+SD$/.test(e));
   const skills = [...(profile?.skills ?? []), ...(option.skills ?? [])];
   if (option.weapons.some((w) => sd(w.extra)) || skills.some((k) => k.id === 201 && sd(k.extra))) addWord('sd');
+  // Every skill of the profile and loadout ("mimetism", "sixth sense"):
+  // a weak field, found exactly or by prefix only (search.js).
+  const skillList = [...new Set(skillNamesOf(profile, option))].map(skillId);
   return {
     id,
     unitId: unit.id,
@@ -137,8 +146,11 @@ function makeRow(id, unit, short, group, profile, option, unitWords, weapons) {
     points: option.points,
     swc: option.swc,
     loadoutWords,
+    skills: skillList,
   };
 }
+
+const skillNamesOf = (profile, option) => [...(profile?.skills ?? []), ...(option.skills ?? [])].map((s) => s.name);
 
 // For tests and the eval harness: the folded short name of a unit.
 export const foldedShort = (isc) => words(shortName(isc)).join(' ');

@@ -68,13 +68,20 @@ its words; it ranks by its weakest typed word.
    bsg, spit…) and unit nicknames no rule can derive. Multi-word weapon
    initials are generated automatically.
 
+6. **Skills** (2026-10-10): every skill of the profile and loadout
+   (`mimetism`, `sixth sense`, `sapper`), stored once in `index.skills` and
+   referenced by position from each row. The weakest field, and matched only
+   exactly or by prefix: skills are shared by hundreds of troopers, so a typo
+   there would bury a misspelt unit name. Total Reaction and Neurocinetics
+   keep their stronger loadout-word ranking.
+
 Every result carries its tier, so the UI can be more careful with loose
 matches (`loose: true`), e.g. not auto-selecting them.
 
 ## 3. Ranking
 
 Cost per typed word = tier × 10 + field × 6, where the field is short name (0),
-full name or loadout (1), weapon or alias (2). So a prefix of the unit name (10)
+full name or loadout (1), weapon or alias (2), skill (3). So a prefix of the unit name (10)
 beats an exact weapon word (12): `mine` means Minescorp before every unit that
 carries mines. A typo in the unit name (30) loses to an exact weapon word. A
 query that spells the short name exactly gets an extra bonus. Ties break on
