@@ -59,7 +59,7 @@ function UnitPane({m}) {
       </div>
       {profile.skills.length > 0 && <div className="dp-skills">{profile.skills.join(' · ')}</div>}
       <span className="dp-head" style={{padding: 0}}>Loadouts</span>
-      <div className="dp-loadouts" role="listbox" aria-label="Loadouts">
+      <div className="dp-loadouts" id="dp-loadouts" role="listbox" aria-label="Loadouts">
         {loadouts.map((h, i) => {
           const charts = loadoutCharts(army, h.weaponIds);
           const tag = extraLoadoutName(h.loadout, h.unit) ?? loadoutTag(army, h);

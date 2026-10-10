@@ -21,14 +21,14 @@ import {StateBar, StateList, useStatesUi} from './WoundStates.jsx';
 
 const wpo = (n) => (n == null ? '—' : n.toFixed(2));
 
-// Save and Share on the sheet's handle row. `save` = {saved, toggle} or null
-// while there is nothing to save.
+// Save and Share on the sheet's handle row. `save` = {saved, pending, toggle}
+// or null while there is nothing to save; pending, Save is disabled.
 function SheetActions({save}) {
   return (
     <>
       {save && (
         <button type="button" className="icon-btn sm" aria-pressed={save.saved} aria-label={save.saved ? 'Saved; remove from saved rolls' : 'Save this roll'}
-          onClick={save.toggle} style={{color: save.saved ? 'var(--active)' : undefined}}><BookmarkIcon filled={save.saved} /></button>
+          disabled={save.pending} onClick={save.toggle} style={{color: save.saved ? 'var(--active)' : undefined}}><BookmarkIcon filled={save.saved} /></button>
       )}
       <button type="button" className="icon-btn sm" aria-label="Share a link to this roll" onClick={shareLink}><ShareIcon /></button>
     </>

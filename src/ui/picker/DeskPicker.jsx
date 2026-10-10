@@ -52,7 +52,7 @@ export default function DeskPicker({searcher, army, loadError}) {
             <input ref={inputRef} value={query} placeholder="Search troopers and weapons…" autoComplete="off" spellCheck={false}
               onChange={(e) => dispatch({type: 'pickerQuery', query: e.target.value})} onKeyDown={onKey}
               role="combobox" aria-expanded="true" aria-autocomplete="list" aria-haspopup="listbox"
-              aria-activedescendant={active} aria-controls="dp-list" />
+              aria-activedescendant={active} aria-controls={active?.startsWith('dp-lo-') ? 'dp-loadouts' : 'dp-list'} />
           </label>
           <span className="dp-keys"><kbd>Tab</kbd> side <kbd>esc</kbd></span>
         </div>
