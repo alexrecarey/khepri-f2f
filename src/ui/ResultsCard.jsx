@@ -8,6 +8,7 @@ import {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, D20, ShareIcon} from './icons.jsx';
+import RollingNumber from './RollingNumber.jsx';
 import {shareLink} from './share.js';
 import useSheetGestures from './useSheetGestures.js';
 import Ledger from './Ledger.jsx';
@@ -61,8 +62,9 @@ function SheetActions({save}) {
 
 SheetActions.propTypes = {save: PropTypes.object};
 
-// The wounds/order number: ticks in when it changes, shimmers while the next
-// result is being worked out, and floats the change (+0.33) for a moment.
+// The wounds/order number: rolls digit by digit to a new value
+// (RollingNumber), shimmers while the next result is being worked out, and
+// floats the change (+0.33) for a moment.
 function Wpo({value, side, size = '', pending}) {
   const prev = useRef(value);
   const [delta, setDelta] = useState(null);
@@ -76,7 +78,7 @@ function Wpo({value, side, size = '', pending}) {
   }, [value]);
   return (
     <span className="wpo-n">
-      <span key={wpo(value)} className={`big ${size} c-${side} tick${pending ? ' computing' : ''}`}>{wpo(value)}</span>
+      <RollingNumber text={wpo(value)} className={`big ${size} c-${side}${pending ? ' computing' : ''}`} />
       {delta != null && <span className={`delta c-${side}`} aria-hidden="true">{delta > 0 ? '+' : '−'}{Math.abs(delta).toFixed(2)}</span>}
     </span>
   );

@@ -405,8 +405,11 @@ b.hl { color: var(--text); background: #2e4a40; border-radius: 3px; padding: 0 1
    under reduced motion. ---------- */
 .bar span, .breakdown .b { transition: width .35s cubic-bezier(.2,.8,.2,1); }
 .wpo-n { position: relative; display: inline-block; }
-.tick { display: inline-block; animation: tick .3s cubic-bezier(.2,.8,.2,1); }
-@keyframes tick { from { opacity: .3; transform: translateY(30%); } to { opacity: 1; transform: none; } }
+/* RollingNumber (.odo): each digit a 0-9 column behind a one-digit window. */
+.odo { display: inline-flex; line-height: 1; font-variant-numeric: tabular-nums; }
+.odo-d { display: inline-block; height: 1em; line-height: 1; overflow: hidden; }
+.odo-col { display: flex; flex-direction: column; transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+.odo-col > span { height: 1em; line-height: 1; }
 /* Engine loading (ResultsCard EngineLoading): the two dice meet in the middle. */
 .engine-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 104px; }
 .clash { position: relative; width: 100%; height: 40px; }

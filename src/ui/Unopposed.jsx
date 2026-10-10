@@ -4,6 +4,7 @@
 // mislead, so each attack gets its own (card: two stacked bars; sheet: the
 // four ways the order can end, then each attack in detail).
 import PropTypes from 'prop-types';
+import RollingNumber from './RollingNumber.jsx';
 import {pct, shade, shadeInk, shows} from './results.js';
 
 const top = (a) => [3, 2, 1].find((w) => shows(a.wounds[w - 1])) ?? 0;
@@ -39,8 +40,8 @@ export function UnopposedCardBody({s}) {
   return (
     <>
       <div className="wpo-row">
-        <div className="wpo"><span className="big c-active">{s.attacks.active.wpo.toFixed(2)}</span><span className="small">wounds / order</span></div>
-        <div className="wpo right"><span className="big c-reactive">{s.attacks.reactive.wpo.toFixed(2)}</span><span className="small">wounds / order</span></div>
+        <div className="wpo"><RollingNumber text={s.attacks.active.wpo.toFixed(2)} className="big c-active" /><span className="small">wounds / order</span></div>
+        <div className="wpo right"><RollingNumber text={s.attacks.reactive.wpo.toFixed(2)} className="big c-reactive" /><span className="small">wounds / order</span></div>
       </div>
       <AttackBar a={s.attacks.active} side="active" height={6} />
       <AttackBar a={s.attacks.reactive} side="reactive" height={6} />
