@@ -18,7 +18,6 @@ import useLayout from "./ui/useLayout.js";
 // calculator params that the current mode derives.
 function App() {
   const mode = useAppState((s) => s.mode);
-  const overlay = useAppState((s) => s.ui.overlay);
   const classic = useAppState((s) => s.classic);
   const matchupMode = mode === MODES.matchup;
   const layout = useLayout();
@@ -34,8 +33,6 @@ function App() {
     [matchupMode, view.params, classic],
   );
   const engine = useEngine(engineParams);
-  // Settings lists the factions; the search index has them without the army data.
-  const {searcher} = useSearcher(overlay === 'settings');
 
   return (
     <div className={`app ${layout}`}>
@@ -54,13 +51,23 @@ function App() {
       {matchupMode
         ? <MatchupScreen army={army} armyError={armyError} retryArmy={retryArmy} view={view} engine={engine} />
         : <ClassicScreen params={classic} engine={engine} />}
-      {overlay === 'menu' && <Menu />}
-      {overlay === 'saved' && <SavedPage />}
-      {overlay === 'settings' && <SettingsPage factions={searcher?.factions ?? []} />}
-      {overlay === 'about' && <AboutPage />}
+      <Overlays />
       <Toast />
     </div>
   )
+}
+
+// The menu and its pages. Their own component, so opening or closing one
+// re-renders only this, not the screen behind.
+function Overlays() {
+  const overlay = useAppState((s) => s.ui.overlay);
+  // Settings lists the factions; the search index has them without the army data.
+  const {searcher} = useSearcher(overlay === 'settings');
+  if (overlay === 'menu') return <Menu />;
+  if (overlay === 'saved') return <SavedPage />;
+  if (overlay === 'settings') return <SettingsPage factions={searcher?.factions ?? []} />;
+  if (overlay === 'about') return <AboutPage />;
+  return null;
 }
 
 export default App

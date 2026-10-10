@@ -221,7 +221,7 @@ export function createSearch(index) {
 
   // Every loadout of one unit in scope, cheapest first: the unit drill-in page.
   function unitRows(unitId, factionId = null) {
-    return rows.filter((r) => r.unitId === unitId && inScope(r, factionId))
+    return (rowsByUnit.get(unitId) ?? []).filter((r) => inScope(r, factionId))
       .sort((a, b) => a.points - b.points || a.id - b.id)
       .map((r) => asHit(r, factionId));
   }

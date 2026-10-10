@@ -279,21 +279,19 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
   const picking = useAppState((st) => (st.ui.overlay === 'picker' ? st.ui.picker.side : null));
   const {searcher, error: searchError, retry: retrySearch} = useSearcher(true);
   const result = view.complete ? engine.result : null;
-  const summary = useMemo(() => {
-    const s = summarize(result);
-    return s && view.complete ? matchupRollSummary(view, s) : null;
-  }, [result, view]);
+  // Summarized once here; the card, the panel and Save all read it.
+  const s = useMemo(() => summarize(result, view.targets), [result, view.targets]);
+  const summary = useMemo(() => (s && view.complete ? matchupRollSummary(view, s) : null), [s, view]);
   const save = useSaveRoll(summary, engine.pending);
 
   const layout = useLayout();
   const resultProps = {
-    result,
+    s,
     save,
     pending: engine.pending,
     status: view.complete ? engine.status : 'Choose both troopers to see the odds',
     diceLine: view.ledger ? {active: view.ledger.ledger.A?.dice, reactive: view.ledger.ledger.B?.dice} : null,
     ledger: view.ledger,
-    targets: view.targets,
   };
   const openSide = (side) => () => dispatch(openPicker(army, getState(), side));
   const picked = {A: view.A.resolved?.unit != null, B: view.B.resolved?.unit != null};

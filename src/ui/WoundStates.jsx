@@ -7,7 +7,7 @@
 // (that is what "at least" means); tapping a side's heading fades the other
 // side; Unconscious and Dead, the states that take a trooper out of the fight,
 // also give the chance over three orders. Phones tap where desktops hover.
-import {useState} from 'react';
+import {useState, useSyncExternalStore} from 'react';
 import PropTypes from 'prop-types';
 import {StateGlyph} from './icons.jsx';
 import {pct, shows} from './results.js';
@@ -15,23 +15,47 @@ import {pct, shows} from './results.js';
 const ORDERS = 3;
 const overOrders = (p) => 1 - (1 - p) ** ORDERS;
 
-export function useStatesUi() {
-  const [hover, setHover] = useState(null); // {kind: 'seg' | 'row', side, index}
-  const [focus, setFocus] = useState(null); // 'active' | 'reactive'
-  const [open, setOpen] = useState(null); // `${side}:${key}`, tapped open
-  return {hover, setHover, focus, setFocus, open, setOpen};
+// The bar and the list share this small store instead of React state in the
+// sheet: hovering re-renders only the bar and the list that read it, not the
+// whole results sheet and its ledger. The object itself never changes.
+//   hover  {kind: 'seg' | 'row', side, index}
+//   focus  'active' | 'reactive'
+//   open   `${side}:${key}`, tapped open
+function createStatesUi() {
+  let state = {hover: null, focus: null, open: null};
+  const subs = new Set();
+  const set = (patch) => {
+    state = {...state, ...patch};
+    subs.forEach((f) => f());
+  };
+  return {
+    get: () => state,
+    subscribe: (f) => { subs.add(f); return () => subs.delete(f); },
+    setHover: (hover) => set({hover}),
+    setFocus: (focus) => set({focus}),
+    setOpen: (open) => set({open}),
+  };
 }
 
-const dimSeg = (ui, seg) => {
-  if (!ui) return false;
-  if (ui.focus && seg.side !== ui.focus) return true;
-  const h = ui.hover;
+export function useStatesUi() {
+  const [ui] = useState(createStatesUi);
+  return ui;
+}
+
+const NO_UI = {hover: null, focus: null, open: null};
+const noSubscribe = () => () => {};
+// The current hover / focus / open of `ui` (null: none, nothing changes).
+const useUiState = (ui) => useSyncExternalStore(ui ? ui.subscribe : noSubscribe, ui ? ui.get : () => NO_UI);
+
+const dimSeg = (cur, seg) => {
+  if (cur.focus && seg.side !== cur.focus) return true;
+  const h = cur.hover;
   if (h?.kind !== 'row') return false;
   return seg.side !== h.side || seg.index < h.index;
 };
-const dimRow = (ui, side, index) => {
-  if (ui.focus && side !== ui.focus) return true;
-  const h = ui.hover;
+const dimRow = (cur, side, index) => {
+  if (cur.focus && side !== cur.focus) return true;
+  const h = cur.hover;
   if (h?.kind === 'seg') return h.side !== side || h.index !== index;
   return false;
 };
@@ -40,6 +64,7 @@ const dimRow = (ui, side, index) => {
 // glyph row: the phone sheet draws the bar in its top and the glyphs below).
 // ui null: a plain bar (the closed phone card, where a tap opens the sheet).
 export function StateBar({s, ui, glyphs = false, className = '', style}) {
+  const cur = useUiState(ui);
   const segs = s.stateBar.filter((b) => shows(b.chance));
   let x = 0;
   const marks = [];
@@ -62,14 +87,14 @@ export function StateBar({s, ui, glyphs = false, className = '', style}) {
     <>
       {glyphs !== 'only' && <div className={`bar sbar ${className}`} style={style} role="img" aria-label="Wounds by state">
         {segs.map((b) => (
-          <span key={`${b.side}${b.key}`} className={`sseg${b.side === 'none' ? ' seg-none' : ''}${dimSeg(ui, b) ? ' dim' : ''}`}
+          <span key={`${b.side}${b.key}`} className={`sseg${b.side === 'none' ? ' seg-none' : ''}${dimSeg(cur, b) ? ' dim' : ''}`}
             style={{width: `${100 * b.chance}%`, background: b.shade ?? undefined}} title={tip(b)} {...hov(b)} />
         ))}
       </div>}
       {glyphs && (
         <div className="sglyphs" aria-hidden="true">
           {marks.map(({b, glyph, left}) => (
-            <span key={`${b.side}${b.key}`} className={`c-${b.side}${dimSeg(ui, b) ? ' dim' : ''}`} style={{left: `${left}%`}}><StateGlyph glyph={glyph} size={14} /></span>
+            <span key={`${b.side}${b.key}`} className={`c-${b.side}${dimSeg(cur, b) ? ' dim' : ''}`} style={{left: `${left}%`}}><StateGlyph glyph={glyph} size={14} /></span>
           ))}
         </div>
       )}
@@ -79,16 +104,16 @@ export function StateBar({s, ui, glyphs = false, className = '', style}) {
 
 StateBar.propTypes = {s: PropTypes.object.isRequired, ui: PropTypes.object, glyphs: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]), className: PropTypes.string, style: PropTypes.object};
 
-function StateRow({st, side, ui}) {
+function StateRow({st, side, ui, cur}) {
   const id = `${side}:${st.key}`;
-  const segHover = ui.hover?.kind === 'seg' && ui.hover.side === side && ui.hover.index === st.index;
-  const rowHover = ui.hover?.kind === 'row' && ui.hover.side === side && ui.hover.index === st.index;
-  const more = st.outOfFight && (ui.open === id || segHover || rowHover);
+  const segHover = cur.hover?.kind === 'seg' && cur.hover.side === side && cur.hover.index === st.index;
+  const rowHover = cur.hover?.kind === 'row' && cur.hover.side === side && cur.hover.index === st.index;
+  const more = st.outOfFight && (cur.open === id || segHover || rowHover);
   return (
-    <div className={`srow${dimRow(ui, side, st.index) ? ' dim' : ''}${rowHover || segHover ? ' on' : ''}`} tabIndex={0}
+    <div className={`srow${dimRow(cur, side, st.index) ? ' dim' : ''}${rowHover || segHover ? ' on' : ''}`} tabIndex={0}
       onMouseEnter={() => ui.setHover({kind: 'row', side, index: st.index})} onMouseLeave={() => ui.setHover(null)}
       onFocus={() => ui.setHover({kind: 'row', side, index: st.index})} onBlur={() => ui.setHover(null)}
-      onClick={() => ui.setOpen(ui.open === id ? null : id)}>
+      onClick={() => ui.setOpen(cur.open === id ? null : id)}>
       <span className={`c-${side}`}><StateGlyph glyph={st.glyph} /></span>
       <span className={`k${st.key === 'dead' ? ' dead' : ''}`}>{st.label}{st.shock && <span className="stag">Shock</span>}</span>
       <span className="track"><span className="b" style={{width: `max(2px, ${100 * st.atLeast}%)`, background: st.shade}} /></span>
@@ -99,21 +124,22 @@ function StateRow({st, side, ui}) {
   );
 }
 
-StateRow.propTypes = {st: PropTypes.object.isRequired, side: PropTypes.string.isRequired, ui: PropTypes.object.isRequired};
+StateRow.propTypes = {st: PropTypes.object.isRequired, side: PropTypes.string.isRequired, ui: PropTypes.object.isRequired, cur: PropTypes.object.isRequired};
 
 export function StateList({s, ui}) {
+  const cur = useUiState(ui);
   const head = (side, text) => (
-    <button type="button" className={`shead${ui.focus && ui.focus !== side ? ' dim' : ''}`} aria-pressed={ui.focus === side}
-      onClick={() => ui.setFocus(ui.focus === side ? null : side)}>
+    <button type="button" className={`shead${cur.focus && cur.focus !== side ? ' dim' : ''}`} aria-pressed={cur.focus === side}
+      onClick={() => ui.setFocus(cur.focus === side ? null : side)}>
       <span className={`t c-${side}`}>{text}</span><span className="lab">Exactly</span><span className="lab">At least</span>
     </button>
   );
-  const rows = (side) => s.states[side].filter((st) => shows(st.atLeast)).map((st) => <StateRow key={st.key} st={st} side={side} ui={ui} />);
+  const rows = (side) => s.states[side].filter((st) => shows(st.atLeast)).map((st) => <StateRow key={st.key} st={st} side={side} ui={ui} cur={cur} />);
   return (
     <div className="slist">
       {shows(s.win.active) && head('active', `Active wins · ${pct(s.win.active)}`)}
       {shows(s.win.active) && rows('active')}
-      {shows(s.win.none) && <div className={`shead static${ui.focus ? ' dim' : ''}`}><span className="t">Nobody wins · {pct(s.win.none)}</span></div>}
+      {shows(s.win.none) && <div className={`shead static${cur.focus ? ' dim' : ''}`}><span className="t">Nobody wins · {pct(s.win.none)}</span></div>}
       {shows(s.win.reactive) && head('reactive', `Reactive wins · ${pct(s.win.reactive)}`)}
       {shows(s.win.reactive) && rows('reactive')}
     </div>

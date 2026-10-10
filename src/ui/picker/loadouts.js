@@ -1,6 +1,7 @@
 // How the picker sorts one unit's loadouts and shows its stats. Needs the
 // army data (weapon range bands, profile stats); without it the unit page is a
 // plain list.
+import {unitById} from '../../army/lookup.js';
 import {isLieutenant} from '../../army/traits.js';
 import {isNonLethal} from '../../army/weapons.js';
 import {RANGE_BANDS} from '../../rules/ranges.js';
@@ -49,7 +50,7 @@ export function groupLoadouts(army, hits) {
 
 // [['CC', 13], ['BS', 12], ...] for a unit's first profile in a faction.
 export function statLine(army, unitId, armyFactionId) {
-  const unit = army?.units.find((u) => u.id === unitId);
+  const unit = unitById(army, unitId);
   if (!unit) return null;
   const faction = unit.byFaction[armyFactionId] ?? Object.values(unit.byFaction)[0];
   const p = faction?.groups[0]?.profiles[0];
@@ -61,7 +62,7 @@ export function statLine(army, unitId, armyFactionId) {
 // skills it adds ("Forward Observer", "Hacker"), at most two. Lieutenant is
 // left out: it doesn't change a roll and only cluttered the list.
 export function loadoutTag(army, hit) {
-  const unit = army?.units.find((u) => u.id === hit.unitId);
+  const unit = unitById(army, hit.unitId);
   const group = unit?.byFaction[hit.armyFactionId]?.groups.find((g) => g.id === hit.groupId);
   const option = group?.options.find((o) => o.id === hit.optionId);
   const skills = (option?.skills ?? []).filter((sk) => !isLieutenant(sk)).map((sk) => sk.name);
@@ -119,9 +120,20 @@ export function orderLoadouts(army, hits) {
   return [...hits].sort((a, b) => (b.swc ?? 0) - (a.swc ?? 0) || reach(b) - reach(a) || a.points - b.points);
 }
 
-// Everything the desktop unit pane shows about a unit in one faction.
+// Everything the desktop unit pane shows about a unit in one faction. The
+// desk list asks for one per row on every keystroke, so each is built once.
+const details = new WeakMap();
 export function unitDetail(army, unitId, armyFactionId) {
-  const unit = army?.units.find((u) => u.id === unitId);
+  if (!army) return null;
+  let cache = details.get(army);
+  if (!cache) details.set(army, cache = new Map());
+  const key = `${unitId}:${armyFactionId}`;
+  if (!cache.has(key)) cache.set(key, buildUnitDetail(army, unitId, armyFactionId));
+  return cache.get(key);
+}
+
+function buildUnitDetail(army, unitId, armyFactionId) {
+  const unit = unitById(army, unitId);
   if (!unit) return null;
   const faction = unit.byFaction[armyFactionId] ?? Object.values(unit.byFaction)[0];
   const group = faction?.groups[0];

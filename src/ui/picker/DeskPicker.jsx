@@ -15,6 +15,7 @@ import {ROLE, other, recentsFor} from '../../state/schema.js';
 import {dispatch, getState, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
 import LoadFailed from '../LoadFailed.jsx';
+import {unitById} from '../../army/lookup.js';
 import {extraLoadoutName, shortIsc} from '../../army/names.js';
 import {loadoutCharts, loadoutTag, orderLoadouts, unitDetail} from './loadouts.js';
 import {TYPE_NAMES} from './TrooperPicker.jsx';
@@ -95,7 +96,9 @@ export default function DeskPicker({searcher, army, loadError}) {
 
   // Every match in every faction, for the chip counts and "in other factions".
   const all = useMemo(() => (searcher && typing ? searcher.search({query, factionId: null, recentIds}) : null), [searcher, typing, query, recentIds]);
-  const scoped = useMemo(() => (searcher && typing ? searcher.search({query, factionId: scope, recentIds}) : null), [searcher, typing, query, scope, recentIds]);
+  // In a faction: the same search, scoped. With All, that is `all` itself.
+  const scoped = useMemo(() => (searcher && typing && scope != null ? searcher.search({query, factionId: scope, recentIds}) : all),
+    [searcher, typing, query, scope, recentIds, all]);
   const browse = useMemo(() => (searcher && !typing ? searcher.browse({factionId: scope, recentIds}) : null), [searcher, typing, scope, recentIds]);
 
   // The left list: rows the arrow keys move through, with headings between.
@@ -198,7 +201,7 @@ export default function DeskPicker({searcher, army, loadError}) {
               <button type="button" key={s} className={`${s === side ? `on ${ROLE[s]}` : ''}`} aria-pressed={s === side}
                 onClick={() => s !== side && dispatch(pickerSide(army, getState(), s))}>
                 {s === 'A' ? 'ACTIVE' : 'REACTIVE'}
-                {s !== side && sides[s]?.unitId != null && <span className={`dp-set c-${ROLE[s]}`}> · {shortIsc(army?.units.find((u) => u.id === sides[s].unitId)?.isc)} ✓</span>}
+                {s !== side && sides[s]?.unitId != null && <span className={`dp-set c-${ROLE[s]}`}> · {shortIsc(unitById(army, sides[s].unitId)?.isc)} ✓</span>}
               </button>
             ))}
           </span>

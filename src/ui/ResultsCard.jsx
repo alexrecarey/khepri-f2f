@@ -12,7 +12,7 @@ import RollingNumber from './RollingNumber.jsx';
 import {shareLink} from './share.js';
 import useSheetGestures from './useSheetGestures.js';
 import Ledger from './Ledger.jsx';
-import {pct, shows, summarize} from './results.js';
+import {pct, shows} from './results.js';
 import {UnopposedCardBody, UnopposedSheetBody} from './Unopposed.jsx';
 import {StateBar, StateList, useStatesUi} from './WoundStates.jsx';
 
@@ -198,8 +198,7 @@ SheetTop.propTypes = {s: PropTypes.object, classic: PropTypes.bool, pending: Pro
 // Phone: one sheet that rests low with only its top showing (the results
 // card) and opens to the full results. Swipe it up or down (it follows the
 // finger) or tap the top to open, outside to close (useSheetGestures.js).
-export default function ResultsCard({result, status, diceLine, classic, ledger, save, pending, picked, targets}) {
-  const s = summarize(result, targets);
+export default function ResultsCard({s, status, diceLine, classic, ledger, save, pending, picked}) {
   const ui = useStatesUi();
   const open = useAppState((st) => st.ui.overlay === 'results') && Boolean(s);
   const setOpen = (o) => dispatch(o ? {type: 'openOverlay', overlay: 'results'} : {type: 'back'});
@@ -272,9 +271,8 @@ function ResultsBody({s, classic, ledger, diceLine, pending, ui}) {
 ResultsBody.propTypes = {s: PropTypes.object.isRequired, classic: PropTypes.bool, ledger: PropTypes.object, diceLine: PropTypes.object, pending: PropTypes.bool, ui: PropTypes.object};
 
 // Tablet and desktop: the results in their own column, always open. The mods
-// go in another column unless `withLedger`.
-export function ResultsPanel({result, status, diceLine, classic, ledger, save, pending, picked, targets, withLedger = false}) {
-  const s = summarize(result, targets);
+// go in another column (MatchupScreen).
+export function ResultsPanel({s, status, diceLine, classic, ledger, save, pending, picked}) {
   const ui = useStatesUi();
   const wait = waitingFor(picked);
   return (
@@ -283,19 +281,20 @@ export function ResultsPanel({result, status, diceLine, classic, ledger, save, p
       {wait ? <WaitPanel picked={wait} />
         : s ? <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} pending={pending} ui={ui} />
         : pending ? <EngineLoading label={status} /> : <span className="empty">{status}</span>}
-      {withLedger && s && ledger && <Ledger {...ledger} />}
       {s && status && <span className="status">{status}</span>}
     </section>
   );
 }
 
 ResultsPanel.propTypes = {
-  result: PropTypes.object, status: PropTypes.string, diceLine: PropTypes.object, classic: PropTypes.bool,
-  ledger: PropTypes.object, save: PropTypes.object, pending: PropTypes.bool, picked: PropTypes.object, targets: PropTypes.object, withLedger: PropTypes.bool,
+  s: PropTypes.object, status: PropTypes.string, diceLine: PropTypes.object, classic: PropTypes.bool,
+  ledger: PropTypes.object, save: PropTypes.object, pending: PropTypes.bool, picked: PropTypes.object,
 };
 
 ResultsCard.propTypes = {
-  result: PropTypes.object,
+  // results.js summarize() of the engine's result (with the targets' wound
+  // states in Matchup), or null before there is one.
+  s: PropTypes.object,
   status: PropTypes.string,
   // {active: 'B4 SV14 PS9', reactive: ...}; matchup only.
   diceLine: PropTypes.object,
@@ -308,8 +307,6 @@ ResultsCard.propTypes = {
   pending: PropTypes.bool,
   // {A, B}: which sides have a trooper; matchup only. Missing ones show the wait state.
   picked: PropTypes.object,
-  // {active, reactive}: the states each side's target goes through (matchupView); matchup only.
-  targets: PropTypes.object,
 };
 
 // Classic results: the face-to-face bar with its numbers, the wound bar, then

@@ -2,6 +2,7 @@
 // Army data into the trooper that rolls.
 import {SKILL} from '../army/ids.js';
 import {applyStatOverrides, applyUpgrades, pickedUpgrades} from '../army/loadouts.js';
+import {unitById} from '../army/lookup.js';
 import {effectiveTraits, hasSkill, skillExtras} from '../army/traits.js';
 import {ammoTypes, bsWeapons, hasAmmo, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
 import {dodgeSuccessValue, fireteamMax, fireteamSize} from './modifiers.js';
@@ -56,7 +57,7 @@ export function pseudoWeapons(profile, traits, side = 'B', dodgeMod = 0) {
 // the returned option includes upgrade weapons.
 export function resolveSelection(army, sel) {
   if (!army || !sel?.unitId) return null;
-  const unit = army.units.find((u) => u.id === sel.unitId);
+  const unit = unitById(army, sel.unitId);
   if (!unit) return null;
   const factionId = sel.factionId ?? (unit.inFactions.length === 1 ? unit.inFactions[0] : null);
   const groups = factionId ? unit.byFaction[factionId]?.groups ?? null : null;

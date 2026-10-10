@@ -133,10 +133,8 @@ ClassicSide.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, params: P
 const setParam = (key) => (value) => dispatch({type: 'setClassic', key, value});
 
 export default function ClassicScreen({params, engine}) {
-  const summary = useMemo(() => {
-    const s = summarize(engine.result);
-    return s ? classicRollSummary(params, s) : null;
-  }, [engine.result, params]);
+  const s = useMemo(() => summarize(engine.result), [engine.result]);
+  const summary = useMemo(() => (s ? classicRollSummary(params, s) : null), [s, params]);
   const save = useSaveRoll(summary, engine.pending);
   const layout = useLayout();
   if (layout === 'phone') {
@@ -146,7 +144,7 @@ export default function ClassicScreen({params, engine}) {
           <ClassicSide side="A" params={params} setParam={setParam} />
           <ClassicSide side="B" params={params} setParam={setParam} />
         </main>
-        <ResultsCard result={engine.result} status={engine.status} pending={engine.pending} classic save={save} />
+        <ResultsCard s={s} status={engine.status} pending={engine.pending} classic save={save} />
       </>
     );
   }
@@ -156,7 +154,7 @@ export default function ClassicScreen({params, engine}) {
     <main className={`workbench classic ${layout}`}>
       <ClassicSide side="A" params={params} setParam={setParam} />
       <ClassicSide side="B" params={params} setParam={setParam} />
-      <ResultsPanel result={engine.result} status={engine.status} pending={engine.pending} classic save={save} />
+      <ResultsPanel s={s} status={engine.status} pending={engine.pending} classic save={save} />
     </main>
   );
 }
