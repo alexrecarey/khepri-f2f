@@ -3,6 +3,7 @@
 // action's payload (a picked trooper's weapon, the picker's starting faction)
 // is worked out before dispatching, in actions.js.
 import {LIMITS} from '../engine/params.js';
+import {FIRETEAM_MAX, fireteamSize} from '../rules/modifiers.js';
 import {MODES} from '../ui/modes.js';
 import {setupKey} from './rolls.js';
 import {EMPTY_SIDE, EMPTY_UI, MAX_RECENT_FACTIONS, MAX_RECENTS, initialState} from './schema.js';
@@ -216,7 +217,7 @@ export function reduce(state, action) {
         ? {...ui.picker, side: other(action.side), scope: action.nextScope ?? null, query: '', stack: [], cursor: null, pane: 'list', lcursor: 0, profileId: null}
         : null;
       return {
-        ...setSide(state, action.side, {...EMPTY_SIDE, ...action.sel, inCover, ftSize}),
+        ...setSide(state, action.side, {...EMPTY_SIDE, ...action.sel, inCover, ftSize: fireteamSize(ftSize, action.ftMax ?? FIRETEAM_MAX)}),
         scopes: action.scope === undefined ? state.scopes : {...state.scopes, [action.side]: action.scope},
         ui: picker ? {...ui, picker} : {...ui, overlay: null, picker: null},
         lists: action.recent ? {...state.lists, recents: pushRecent(state.lists.recents, {...action.recent, side: action.side})} : state.lists,

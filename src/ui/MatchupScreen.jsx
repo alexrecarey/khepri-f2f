@@ -6,7 +6,7 @@ import {useEffect, useMemo} from 'react';
 import PropTypes from 'prop-types';
 import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
-import {FIRETEAM_MAX, FIRETEAM_MIN, surpriseAttackMod} from '../rules/modifiers.js';
+import {FIRETEAM_MIN, surpriseAttackMod} from '../rules/modifiers.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {isTemplate} from '../army/weapons.js';
 import {sortWeapons} from '../rules/defaultWeapon.js';
@@ -81,14 +81,16 @@ function flipSwap(run) {
   });
 }
 
-function FireteamChip({side, size, color}) {
+// Only for troopers that can be in a fireteam, with sizes up to their max.
+function FireteamChip({side, size, max, color}) {
   const editing = useAppState((st) => st.ui.edit?.side === side && st.ui.edit.chip === 'fireteam');
   const setEditing = (on) => dispatch({type: 'setEdit', edit: on ? {side, chip: 'fireteam'} : null});
   const onChange = (n) => patch(side, {ftSize: n});
   const inTeam = size >= FIRETEAM_MIN;
+  if (max < FIRETEAM_MIN) return null;
   if (editing) {
     const sizes = [];
-    for (let n = FIRETEAM_MIN; n <= FIRETEAM_MAX; n++) sizes.push(n);
+    for (let n = FIRETEAM_MIN; n <= max; n++) sizes.push(n);
     return (
       <span className={`chip-group ${color}`}>
         <span style={{marginRight: 4}}>Fireteam</span>
@@ -105,7 +107,7 @@ function FireteamChip({side, size, color}) {
     : <button type="button" className="chip" onClick={() => setEditing(true)}>+ Fireteam</button>;
 }
 
-FireteamChip.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, size: PropTypes.number.isRequired, color: PropTypes.string.isRequired};
+FireteamChip.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, size: PropTypes.number.isRequired, max: PropTypes.number.isRequired, color: PropTypes.string.isRequired};
 
 // A side with no trooper yet: a tall slot with the site mark, one call to
 // action and the latest recent picks as one-tap chips. A slow plasma tint
@@ -193,7 +195,7 @@ function SideCard({side, army, view, onOpenPicker}) {
               {sel.inCover ? 'Cover ✓' : '+ Cover'}
             </button>
           )}
-          <FireteamChip side={side} size={sel.ftSize} color={color} />
+          <FireteamChip side={side} size={resolved.ftSize} max={resolved.ftMax} color={color} />
           {surprise !== 0 && (
             <button type="button" className={`chip${sel.surpriseAttack ? ` on ${color}` : ''}`} aria-pressed={sel.surpriseAttack}
               onClick={() => patch(side, {surpriseAttack: !sel.surpriseAttack})}>

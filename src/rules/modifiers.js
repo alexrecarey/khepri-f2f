@@ -69,6 +69,19 @@ export function mimetismMod(targetTraits, attackerTraits) {
 // 4 = +1 BS, 5 = Sixth Sense. 0 means not in a Fireteam.
 export const FIRETEAM_MIN = 2;
 export const FIRETEAM_MAX = 5;
+// The largest fireteam a trooper can be in: army.json's unit.fireteam, the
+// most generous team it reaches in any army's chart (src/army/fireteams.js).
+// FTO loadouts may go further than the unit's other loadouts. 1 = none.
+export function fireteamMax(unit, option) {
+  const ft = unit?.fireteam;
+  if (!ft) return 1;
+  const n = /\bFTO\b/.test(option?.name ?? '') ? ft.fto : ft.all;
+  return n >= FIRETEAM_MIN ? n : 1;
+}
+
+// A size the trooper can actually have: above its max it drops to the max.
+export const fireteamSize = (size, max) => (max >= FIRETEAM_MIN ? Math.min(size ?? 1, max) : 1);
+
 export function fireteamBonuses(size = 0) {
   return {
     sd: size >= 2 ? 1 : 0,

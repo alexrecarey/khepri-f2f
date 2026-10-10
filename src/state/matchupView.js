@@ -29,7 +29,7 @@ function sideView(army, sel, side) {
   const resolved = resolveSelection(army, effective);
   const weapons = resolved?.option ? trooperWeapons(resolved.option, army.weapons, resolved.traits) : [];
   const pseudo = resolved?.profile
-    ? pseudoWeapons(resolved.profile, resolved.traits, side, fireteamBonuses(sel.ftSize).dodge)
+    ? pseudoWeapons(resolved.profile, resolved.traits, side, fireteamBonuses(resolved.ftSize).dodge)
     : [];
   return {sel: effective, resolved, weapons, pseudo};
 }

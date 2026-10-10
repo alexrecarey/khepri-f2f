@@ -37,7 +37,7 @@ export function matchupRollSummary(view, s) {
   const band = RANGE_BANDS.find((b) => b.to === view.rangeCm) ?? null;
   const bits = [band?.label];
   if (A.sel.inCover || B.sel.inCover) bits.push('cover');
-  for (const x of [A, B]) if (x.sel.ftSize > 1) bits.push(`FT${x.sel.ftSize}`);
+  for (const x of [A, B]) if (x.resolved.ftSize > 1) bits.push(`FT${x.resolved.ftSize}`);
   if (A.sel.surpriseAttack) bits.push('surprise');
   return {
     a: `${shortUnit(A.resolved.unit)} · ${weaponShort(A.resolved.weapon)}`,

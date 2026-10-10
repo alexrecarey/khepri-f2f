@@ -4,7 +4,7 @@ import {SKILL} from '../army/ids.js';
 import {applyStatOverrides, applyUpgrades, pickedUpgrades} from '../army/loadouts.js';
 import {effectiveTraits, hasSkill, skillExtras} from '../army/traits.js';
 import {ammoTypes, bsWeapons, hasAmmo, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
-import {dodgeSuccessValue} from './modifiers.js';
+import {dodgeSuccessValue, fireteamMax, fireteamSize} from './modifiers.js';
 
 // What the trooper's BS Attack skill (profile, loadout or upgrade) does to
 // every weapon it makes a BS Attack with, templates and grenades included:
@@ -80,13 +80,17 @@ export function resolveSelection(army, sel) {
       ?? pseudoWeapons(profile, traits, 'B').find((w) => w.key === sel.weaponKey)
       ?? null;
   }
+  const ftMax = fireteamMax(unit, baseOption);
   return {
     unit, factionId, groups, group, profile, option, traits, weapon,
     upgrades, unsupportedUpgradeWeapons,
     inCover: Boolean(sel.inCover),
     // The player chose to use Surprise Attack (active side only).
     surpriseAttack: Boolean(sel.surpriseAttack),
-    ftSize: sel.ftSize ?? 1,
+    // Fireteam: the largest this trooper can join, and the size in use
+    // (a stored size above the max, e.g. from a share link, drops to it).
+    ftMax,
+    ftSize: fireteamSize(sel.ftSize, ftMax),
   };
 }
 

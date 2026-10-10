@@ -26,6 +26,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {UnknownValue, fixName, normalizeWeaponRow, statOverrides} from '../src/army/normalize.js';
 import {validateArmy} from './army-validate.mjs';
+import {fireteamLimits} from '../src/army/fireteams.js';
 
 const API = 'https://api.corvusbelli.com/army';
 const HEADERS = {Origin: 'https://infinityuniverse.com', Accept: 'application/json'};
@@ -300,6 +301,14 @@ async function main() {
     }
     console.log(`${factions[fid].name} (${fid}): ${file.units.length - dropped} units, version ${file.version}` +
       (dropped ? `, skipped ${dropped} mercenary-pool units` : ''));
+  }
+
+  // The largest fireteam each unit can join in any army fetched (vanilla or
+  // sectorial; src/army/fireteams.js): {all, fto}, absent when it can't.
+  const fireteams = fireteamLimits(files.map((f) => f.fireteamChart));
+  for (const unit of units.values()) {
+    const ft = unit.slug ? fireteams[unit.slug] : null;
+    if (ft && (ft.all || ft.fto)) unit.fireteam = ft;
   }
 
   const data = {

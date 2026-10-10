@@ -35,12 +35,16 @@ export function scopeFor(army, state, side) {
 
 // The picked trooper's faction becomes its side's scope. `next`: the picker
 // stays open on the other side, with that side's scope.
+// ftMax: the new trooper's largest fireteam, so a kept fireteam size shrinks
+// to fit (or goes) when the new trooper can't match it.
 export function pickTrooper(army, side, hit, {next = false, state = null} = {}) {
   const otherSide = side === 'A' ? 'B' : 'A';
+  const sel = selectionFromHit(army, hit, side);
   return {
     type: 'pickTrooper',
     side,
-    sel: selectionFromHit(army, hit, side),
+    sel,
+    ftMax: resolveSelection(army, sel)?.ftMax ?? 1,
     recent: {unitId: hit.unitId, groupId: hit.groupId, optionId: hit.optionId, armyFactionId: hit.armyFactionId},
     scope: hit.factionId ?? null,
     ...(next ? {next: true, nextScope: state ? scopeFor(army, state, otherSide) : null} : {}),
