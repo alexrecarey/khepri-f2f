@@ -1,6 +1,8 @@
 // How the picker sorts one unit's loadouts and shows its stats. Needs the
 // army data (weapon range bands, profile stats); without it the unit page is a
 // plain list.
+import {isLieutenant} from '../../army/traits.js';
+import {isNonLethal} from '../../army/weapons.js';
 import {RANGE_BANDS} from '../../rules/ranges.js';
 
 export const REACH_GROUPS = [
@@ -12,7 +14,7 @@ export const REACH_GROUPS = [
 
 // Support kit doesn't say what a loadout is for: a Flash Pulse or a Disco
 // Baller reaches far but doesn't make a Combi Rifle loadout a long-range one.
-const isSupport = (row) => row.dmg == null || (row.props ?? []).includes('Non-lethal');
+const isSupport = (row) => row.dmg == null || isNonLethal(row);
 
 // The farthest distance (cm) at which a weapon gets its best positive Range
 // MOD: an HMG peaks at 32", a Combi Rifle at 16", a Shotgun at 8".
@@ -62,7 +64,7 @@ export function loadoutTag(army, hit) {
   const unit = army?.units.find((u) => u.id === hit.unitId);
   const group = unit?.byFaction[hit.armyFactionId]?.groups.find((g) => g.id === hit.groupId);
   const option = group?.options.find((o) => o.id === hit.optionId);
-  const skills = (option?.skills ?? []).filter((sk) => !/^Lieutenant/.test(sk.name)).map((sk) => sk.name);
+  const skills = (option?.skills ?? []).filter((sk) => !isLieutenant(sk)).map((sk) => sk.name);
   return skills.length ? skills.slice(0, 2).join(', ') : null;
 }
 

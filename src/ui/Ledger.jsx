@@ -4,7 +4,7 @@
 // what it comes from. Lines are coloured by the side that caused them;
 // cancelled lines are struck through and say what cancelled them.
 import PropTypes from 'prop-types';
-import {shortWeaponName} from './names.js';
+import {shortWeaponName} from '../army/names.js';
 
 const COLOR = {A: 'var(--active)', B: 'var(--reactive)'};
 // The source column is narrow: "Fennec" for Fennec Fusiliers.

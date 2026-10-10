@@ -9,7 +9,7 @@ import ClassicScreen from "./ui/ClassicScreen.jsx";
 import MatchupScreen from "./ui/MatchupScreen.jsx";
 import {AboutPage, Menu, SavedPage, SettingsPage, Toast} from "./ui/Chrome.jsx";
 import {MoreIcon} from "./ui/icons.jsx";
-import {MODES} from "./ui/modes.js";
+import {MODES} from './state/modes.js';
 import {useSearcher} from "./ui/picker/useTrooperSearch.js";
 import useLayout from "./ui/useLayout.js";
 

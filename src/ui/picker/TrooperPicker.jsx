@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import {recentsFor} from '../../state/schema.js';
 import {dispatch, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
-import {extraLoadoutName} from '../names.js';
+import {extraLoadoutName} from '../../army/names.js';
 import LoadFailed from '../LoadFailed.jsx';
 import {Page} from '../Sheet.jsx';
 import {groupLoadouts, loadoutTag, orderLoadouts, statLine} from './loadouts.js';

@@ -4,7 +4,7 @@ import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
 import {resolveSelection, trooperWeapons} from '../rules/trooper.js';
 import {vanillaOf} from './matchupView.js';
-import {EMPTY_SIDE} from './schema.js';
+import {EMPTY_SIDE, other} from './schema.js';
 
 // A search hit -> a side's selection. The weapon the query matched ("fus ml")
 // is preselected; otherwise weaponKey stays null and matchupView derives the
@@ -40,7 +40,7 @@ export function scopeFor(army, state, side) {
 // A new trooper starts in cover when cover can help it (not No Cover), or in
 // its Foxhole when it has Sapper (the Foxhole is its cover).
 export function pickTrooper(army, side, hit, {next = false, state = null} = {}) {
-  const otherSide = side === 'A' ? 'B' : 'A';
+  const otherSide = other(side);
   const base = selectionFromHit(army, hit);
   const r = resolveSelection(army, base);
   const sapper = Boolean(r?.canSapper);

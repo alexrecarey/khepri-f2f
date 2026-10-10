@@ -3,13 +3,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createStore} from '@tanstack/store';
 import {DEFAULT_PARAMS} from '../engine/params.js';
-import {classicSave, reduce, uiDepth} from './reduce.js';
+import {classicSave} from './classicView.js';
+import {reduce, uiDepth} from './reduce.js';
 import {EMPTY_SIDE, MAX_RECENTS, initialState, recentsFor} from './schema.js';
 import {STORAGE_KEY, loadPersisted, savePersisted} from './storage.js';
 import {bootState} from './store.js';
 import {startSync} from './sync.js';
 import {stateFromUrl, urlFromState} from './url.js';
-import {MODES} from '../ui/modes.js';
+import {MODES} from './modes.js';
 
 const run = (state, ...actions) => actions.reduce(reduce, state);
 const memStorage = (init = {}) => {
@@ -289,7 +290,6 @@ test('settings: start faction pref, clearing data', () => {
 });
 
 test('classic: the Opponent PS stepper keeps PS + ARM and PS + BTS right', async () => {
-  const {classicSave} = await import('./reduce.js');
   const c = {...DEFAULT_PARAMS, damageA: 7, armB: 2, btsB: 3};
   let n = classicSave(c, 'A', 'arm', 12);
   assert.equal(n.damageA + n.armB, 12);
@@ -372,4 +372,13 @@ test('a link with troopers and no mode opens Matchup, whatever mode was remember
   assert.equal(stateFromUrl('?unitA=1&factionA=101&groupA=1&optionA=1').mode, MODES.matchup);
   assert.equal(stateFromUrl('?burstA=4').mode, MODES.basic);
   assert.equal(stateFromUrl('').mode, undefined);
+});
+
+test('classic: which inputs a side shows', async () => {
+  const {classicSide} = await import('./classicView.js');
+  const c = {...DEFAULT_PARAMS};
+  assert.deepEqual(classicSide(c, 'A'), {rollsDice: true, causesSaves: true, plasma: false});
+  assert.equal(classicSide({...c, templateA: true}, 'A').rollsDice, false);        // a template doesn't roll
+  assert.equal(classicSide({...c, ammoB: 'DODGE'}, 'B').causesSaves, false);      // a Dodge causes no saves
+  assert.deepEqual(classicSide({...c, burstB: 0}, 'B'), {rollsDice: false, causesSaves: false, plasma: false});
 });

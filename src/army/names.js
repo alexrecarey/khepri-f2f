@@ -1,5 +1,9 @@
-// Display names shared by the picker and the side cards.
+// Display names shared by the search index, the picker, the side cards and
+// saved rolls.
 import {words} from '../search/text.js';
+
+// "Hexas, Strategic Security Division" -> "Hexas": what players call it.
+export const shortIsc = (isc) => (isc ?? '').split(',')[0].trim();
 
 // The loadout's own name when it says something the unit name doesn't
 // ("BIPANDRA", "Hacker"), else null. Army names most loadouts after the unit

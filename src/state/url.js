@@ -7,16 +7,14 @@
 // BTS (Plasma only). Older links with damageA / armB / btsB still load.
 import {DEFAULT_PARAMS, PARAM_KEYS, parseParams} from '../engine/params.js';
 import {decodeMatchup, encodeMatchup} from '../matchup/matchupParams.js';
-import {MODES} from '../ui/modes.js';
-import {classicSave, other} from './reduce.js';
+import {MODES} from './modes.js';
+import {armSave, btsSave, classicSave} from './classicView.js';
 import {DEFAULT_RANGE_CM, EMPTY_SIDE} from './schema.js';
 
 // Engine params the ps keys replace in new links.
 const SPLIT_KEYS = new Set(['A', 'B'].flatMap((s) => [`damage${s}`, `arm${s}`, `bts${s}`]));
 const psKey = (s) => `ps${s}`;
 const psBtsKey = (s) => `psBts${s}`;
-const armSave = (c, s) => c[`damage${s}`] + c[`arm${other(s)}`];
-const btsSave = (c, s) => c[`damage${s}`] + c[`bts${other(s)}`];
 
 // The ps keys of a link applied over its params (setClassicSave's rules).
 function applySaves(classic, params) {

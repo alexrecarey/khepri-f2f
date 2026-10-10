@@ -5,7 +5,7 @@ import {useEffect, useRef} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, GearIcon, InfoIcon} from './icons.jsx';
-import {MODES} from './modes.js';
+import {MODES} from '../state/modes.js';
 import {Page, Sheet} from './Sheet.jsx';
 
 /* global __APP_VERSION__, __ARMY_DATE__ */

@@ -4,22 +4,16 @@
 // out and turns taps into actions.
 import {useEffect, useMemo} from 'react';
 import PropTypes from 'prop-types';
-import {SKILL} from '../army/ids.js';
-import {hasSkill} from '../army/traits.js';
-import {FIRETEAM_MIN, surpriseAttackMod} from '../rules/modifiers.js';
-import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
-import {isTemplate} from '../army/weapons.js';
-import {sortWeapons} from '../rules/defaultWeapon.js';
-import {modeLabels, orderModes} from '../rules/weaponModes.js';
+import {FIRETEAM_MIN} from '../rules/modifiers.js';
+import {RANGE_BANDS} from '../rules/ranges.js';
 import {openPicker, pickTrooper} from '../state/actions.js';
-import {ROLE, vanillaOf} from '../state/matchupView.js';
-import {recentsFor} from '../state/schema.js';
+import {ROLE, recentsFor} from '../state/schema.js';
 import {dispatch, getState, useAppState} from '../state/store.js';
 import TrooperPicker from './picker/TrooperPicker.jsx';
 import DeskPicker from './picker/DeskPicker.jsx';
 import {useSearcher} from './picker/useTrooperSearch.js';
 import LoadFailed from './LoadFailed.jsx';
-import {extraLoadoutName, shortWeaponName} from './names.js';
+import {shortWeaponName} from '../army/names.js';
 import ResultsCard, {ResultsPanel} from './ResultsCard.jsx';
 import {SiteMark} from './icons.jsx';
 import Plasma from './Plasma.jsx';
@@ -34,27 +28,6 @@ import useSaveRoll from './useSaveRoll.js';
 const modeText = (w) => (w.mode ? ` (${w.mode.replace(/ Mode$/i, '')})` : '');
 const weaponText = (w) => `${shortWeaponName(w.name)}${modeText(w)}`;
 const weaponTitle = (w) => `${w.name}${modeText(w)}`;
-// Weapon buttons in list order, a weapon's fire modes gathered into one group
-// and put in their order for the side's role (rules/weaponModes.js).
-function weaponGroups(list, role) {
-  const groups = [];
-  for (const w of list) {
-    const prev = groups.at(-1);
-    if (w.mode && !w.pseudo && prev?.id === w.id && prev.name === w.name) {
-      prev.modes ??= [prev.w];
-      prev.modes.push(w);
-    } else {
-      groups.push({key: w.key, id: w.id, name: w.name, w});
-    }
-  }
-  for (const g of groups) {
-    if (!g.modes) continue;
-    g.modes = orderModes(g.modes, role, sortWeapons);
-    g.labels = modeLabels(g.modes);
-  }
-  return groups;
-}
-
 const patch = (side, p) => dispatch({type: 'patchSide', side, patch: p});
 
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -141,16 +114,11 @@ EmptySlot.propTypes = {
   onOpenPicker: PropTypes.func.isRequired, onPick: PropTypes.func.isRequired, hint: PropTypes.bool,
 };
 
-function SideCard({side, army, view, onOpenPicker}) {
+function SideCard({side, view, onOpenPicker}) {
   const color = ROLE[side];
-  const {sel, resolved, weapons, pseudo} = view[side];
+  const {sel, resolved, groups, noCover, surprise, faction, short, loadout} = view[side];
   const unit = resolved?.unit;
   const option = resolved?.option;
-  const noCover = hasSkill(resolved?.traits, SKILL.NO_COVER);
-  const surprise = side === 'A' ? surpriseAttackMod(resolved?.traits) : 0;
-  const faction = army?.factions[vanillaOf(army, resolved?.factionId)]?.name;
-  const short = unit ? unit.isc.split(',')[0].trim() : null;
-  const loadout = unit ? extraLoadoutName(option?.name, unit.isc) : null;
 
   return (
     <section className="card" data-side={side} aria-label={`${color} trooper`}>
@@ -162,7 +130,7 @@ function SideCard({side, army, view, onOpenPicker}) {
       </button>
       {option && (
         <div className="row-wrap" role="group" aria-label="Weapon">
-          {weaponGroups([...weapons, ...pseudo], color).map((g) => (g.modes ? (
+          {groups.map((g) => (g.modes ? (
             // One weapon, several fire modes, best first for this side: the
             // name picks the first; name and chosen mode are filled, the
             // other modes outlined.
@@ -219,10 +187,7 @@ function SideCard({side, army, view, onOpenPicker}) {
   );
 }
 
-SideCard.propTypes = {
-  side: PropTypes.oneOf(['A', 'B']).isRequired, army: PropTypes.object, view: PropTypes.object.isRequired,
-  onOpenPicker: PropTypes.func.isRequired,
-};
+SideCard.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, view: PropTypes.object.isRequired, onOpenPicker: PropTypes.func.isRequired};
 
 // Infinity's range-band colours for a Range MOD. Nothing (the card shows
 // through) when there is no band to colour: no weapon yet, a Dodge, a Direct
@@ -234,14 +199,6 @@ const bandColor = (mod) => {
   return mod <= -6 ? 'var(--band-minus6)' : 'var(--band-minus3)';
 };
 const signed = (n) => (n == null ? '—' : `${n > 0 ? '+' : ''}${n}`);
-
-// A side's Range MOD at a band, or undefined when it has no range bands
-// (nothing picked, Dodge, No ARO, Direct Template).
-function bandMod(side, to) {
-  const row = side.resolved?.weapon?.row;
-  if (!row || isTemplate(row)) return undefined;
-  return rangeModFor(row, to, side.resolved.traits);
-}
 
 // "Missile Launcher (Hit)", "Dodge": what the footer's Range MOD belongs to.
 const weaponName = (side) => {
@@ -263,10 +220,10 @@ function RangeSelector({view}) {
   const selected = Math.max(0, RANGE_BANDS.findIndex((b) => b.to === rangeCm));
   const band = RANGE_BANDS[selected];
   const from = selected ? RANGE_BANDS[selected - 1].inches : 0;
-  const modA = (to) => bandMod(view.A, to);
-  const modB = (to) => bandMod(view.B, to);
-  const hasA = modA(band.to) !== undefined;
-  const hasB = modB(band.to) !== undefined;
+  // Range MODs per band (matchupView bands): undefined = no range bands.
+  const mods = view.bands[selected];
+  const hasA = mods.A !== undefined;
+  const hasB = mods.B !== undefined;
 
   // Open, a tap anywhere outside the selector closes it (the scrim).
   return (
@@ -287,11 +244,11 @@ function RangeSelector({view}) {
           <span className="band-pill" aria-hidden="true" style={{left: `calc(${selected} * 100% / ${RANGE_BANDS.length})`, width: `calc(100% / ${RANGE_BANDS.length})`}} />
           {RANGE_BANDS.map((b, i) => (
             <button type="button" key={b.to} className={`band${i === selected ? ' on' : ''}`} aria-pressed={i === selected}
-              aria-label={`${b.label}: active ${signed(modA(b.to))}, reactive ${signed(modB(b.to))}`}
+              aria-label={`${b.label}: active ${signed(view.bands[i].A)}, reactive ${signed(view.bands[i].B)}`}
               onClick={() => dispatch({type: 'setRange', rangeCm: b.to, open: true})}>
-              <span className="stripe" style={{background: open ? bandColor(modA(b.to)) : 'transparent'}} />
+              <span className="stripe" style={{background: open ? bandColor(view.bands[i].A) : 'transparent'}} />
               <span className="dist">{i === selected ? `${b.inches}"` : b.inches}</span>
-              <span className="stripe" style={{background: open ? bandColor(modB(b.to)) : 'transparent'}} />
+              <span className="stripe" style={{background: open ? bandColor(view.bands[i].B) : 'transparent'}} />
             </button>
           ))}
         </div>
@@ -300,8 +257,8 @@ function RangeSelector({view}) {
       <div className="collapse" style={{maxHeight: open ? 64 : 0, opacity: open ? 1 : 0}} aria-hidden={!open}>
         <div className="range-foot">
           <div className="mods">
-            <span className="c-active">{weaponName(view.A)} <b>{hasA ? signed(modA(band.to)) : '—'}</b></span>
-            <span className="c-reactive">{weaponName(view.B)} <b>{hasB ? signed(modB(band.to)) : '—'}</b></span>
+            <span className="c-active">{weaponName(view.A)} <b>{hasA ? signed(mods.A) : '—'}</b></span>
+            <span className="c-reactive">{weaponName(view.B)} <b>{hasB ? signed(mods.B) : '—'}</b></span>
           </div>
           <div className="key">
             <span><i style={{background: 'var(--band-plus)'}} />+3</span>
@@ -368,7 +325,7 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
     return () => window.removeEventListener('keydown', onKey);
   }, [wide, picking, army]);
   const sideBox = (side) => (picked[side]
-    ? <SideCard side={side} army={army} view={view} onOpenPicker={openSide(side)} />
+    ? <SideCard side={side} view={view} onOpenPicker={openSide(side)} />
     : <EmptySlot side={side} recents={recentHits[side]} hint={wide} onOpenPicker={openSide(side)}
       onPick={(hit) => dispatch(pickTrooper(army, side, hit, {state: getState()}))} />);
   const cardA = sideBox('A');

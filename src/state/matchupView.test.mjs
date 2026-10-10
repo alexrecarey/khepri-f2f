@@ -38,3 +38,24 @@ test('pickTrooper preselects the weapon the query matched', () => {
   assert.equal(army.weapons[other.id] !== undefined, true);
   assert.equal(matchupView(army, s.matchup).A.resolved.weapon.id, other.id);
 });
+
+test('side cards: weapon groups, names, faction and the chips that apply', () => {
+  const v = matchupView(army, {A: corax, B: chaksa, rangeCm: 40});
+  for (const s of ['A', 'B']) {
+    const side = v[s];
+    assert.ok(side.groups.length > 0);
+    // Every weapon and pseudo-weapon (Dodge...) is in exactly one group.
+    const keys = side.groups.flatMap((g) => (g.modes ? g.modes.map((w) => w.key) : [g.w.key]));
+    assert.deepEqual([...keys].sort(), [...side.weapons, ...side.pseudo].map((w) => w.key).sort());
+    assert.equal(side.short, side.resolved.unit.isc.split(',')[0].trim());
+    assert.ok(side.faction);
+  }
+  assert.equal(v.B.surprise, 0);   // Surprise Attack is offered on the active side only
+});
+
+test('range bands: each side\'s Range MOD per band; none for a Dodge', () => {
+  const v = matchupView(army, {A: corax, B: {...chaksa, weaponKey: 'dodge'}, rangeCm: 40});
+  assert.equal(v.bands.length, 7);
+  assert.ok(v.bands.some((b) => typeof b.A === 'number'));
+  assert.ok(v.bands.every((b) => b.B === undefined));
+});

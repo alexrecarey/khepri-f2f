@@ -6,11 +6,11 @@
 //   setup     the situation: '24-32" · cover · FT5'
 //   ap / rp   chance each side wins (or, not face to face, causes a wound)
 import {RANGE_BANDS} from '../rules/ranges.js';
-import {shortWeaponName} from '../ui/names.js';
-import {MODES} from '../ui/modes.js';
+import {shortIsc, shortWeaponName} from '../army/names.js';
+import {MODES} from './modes.js';
 
 const pct0 = (p) => `${Math.round(100 * p)}%`;
-const shortUnit = (unit) => unit.isc.split(',')[0].trim();
+const shortUnit = (unit) => shortIsc(unit.isc);
 
 // The roll's identity: two rolls with the same setup are the same roll.
 export const setupKey = (mode, setup) => JSON.stringify([mode, setup]);

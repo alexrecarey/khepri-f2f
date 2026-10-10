@@ -4,6 +4,8 @@
 import {useMemo} from 'react';
 import PropTypes from 'prop-types';
 import {LIMITS} from '../engine/params.js';
+import {CLASSIC_AMMO, SAVE_LIMIT, armSave, btsSave, classicSide} from '../state/classicView.js';
+import {ROLE} from '../state/schema.js';
 import {dispatch} from '../state/store.js';
 import {D20} from './icons.jsx';
 import ResultsCard, {ResultsPanel} from './ResultsCard.jsx';
@@ -12,10 +14,6 @@ import {classicRollSummary} from '../state/rolls.js';
 import {summarize} from './results.js';
 import useSaveRoll from './useSaveRoll.js';
 
-const ROLE = {A: 'active', B: 'reactive'};
-const AMMO = [['N', 'N'], ['DA', 'DA'], ['EXP', 'EXP'], ['T2', 'T2'], ['PLASMA', 'PLASMA'], ['DODGE', 'Dodge']];
-// The highest Opponent PS the steppers reach: weapon PS + ARM (or BTS) limits.
-const SAVE_LIMIT = {arm: [0, LIMITS.damage[1] + LIMITS.arm[1]], bts: [0, LIMITS.damage[1] + LIMITS.bts[1]]};
 const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
 
 // Dice icons: tap the third die for burst 3; tap the lit last die to drop one.
@@ -75,15 +73,11 @@ Stepper.propTypes = {
 
 function ClassicSide({side, params, setParam}) {
   const color = ROLE[side];
-  const other = side === 'A' ? 'B' : 'A';
   const v = (k) => params[`${k}${side}`];
   const set = (k) => setParam(`${k}${side}`);
   const burst = v('burst');
   const ammo = v('ammo');
-  const template = v('template');
-  // A Direct Template hits automatically: no roll, so no Success Value.
-  const rollsDice = burst !== 0 && !template;
-  const causesSaves = burst !== 0 && ammo !== 'DODGE';
+  const {rollsDice, causesSaves, plasma} = classicSide(params, side);
   const toggle = (k, name) => (
     <button type="button" className={`chip solid${v(k) ? ` on ${color}` : ''}`} aria-pressed={v(k)} onClick={() => set(k)(!v(k))}>
       {v(k) ? `${name} ✓` : name}
@@ -101,18 +95,18 @@ function ClassicSide({side, params, setParam}) {
         {/* The save the opponent makes against this side: weapon PS + their ARM
             (cover included); Plasma also makes them save with BTS. */}
         {causesSaves && (
-          <Stepper name={ammo === 'PLASMA' ? 'Opponent PS ARM' : 'Opponent PS'} value={v('damage') + params[`arm${other}`]}
+          <Stepper name={plasma ? 'Opponent PS ARM' : 'Opponent PS'} value={armSave(params, side)}
             limit={SAVE_LIMIT.arm} color={color} onChange={(total) => dispatch({type: 'setClassicSave', side, which: 'arm', total})} />
         )}
-        {causesSaves && ammo === 'PLASMA' && (
-          <Stepper name="Opponent PS BTS" value={v('damage') + params[`bts${other}`]} limit={SAVE_LIMIT.bts} color={color}
+        {causesSaves && plasma && (
+          <Stepper name="Opponent PS BTS" value={btsSave(params, side)} limit={SAVE_LIMIT.bts} color={color}
             onChange={(total) => dispatch({type: 'setClassicSave', side, which: 'bts', total})} />
         )}
       </div>
       <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
         <span className="label">Ammunition</span>
         <div className="row-wrap">
-          {AMMO.map(([key, name]) => (
+          {CLASSIC_AMMO.map(([key, name]) => (
             <button type="button" key={key} className={`btn solid${ammo === key ? ` on ${color}` : ''}`} aria-pressed={ammo === key}
               onClick={() => set('ammo')(key)}>{name}</button>
           ))}

@@ -11,16 +11,14 @@ import PropTypes from 'prop-types';
 import {TIER} from '../../search/search.js';
 import {words} from '../../search/text.js';
 import {pickTrooper, pickerSide} from '../../state/actions.js';
-import {other} from '../../state/reduce.js';
-import {recentsFor} from '../../state/schema.js';
+import {ROLE, other, recentsFor} from '../../state/schema.js';
 import {dispatch, getState, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
 import LoadFailed from '../LoadFailed.jsx';
-import {extraLoadoutName} from '../names.js';
+import {extraLoadoutName, shortIsc} from '../../army/names.js';
 import {loadoutCharts, loadoutTag, orderLoadouts, unitDetail} from './loadouts.js';
 import {TYPE_NAMES} from './TrooperPicker.jsx';
 
-const ROLE = {A: 'active', B: 'reactive'};
 const back = () => dispatch({type: 'back'});
 const setCursor = (cursor) => dispatch({type: 'pickerCursor', cursor});
 
@@ -200,7 +198,7 @@ export default function DeskPicker({searcher, army, loadError}) {
               <button type="button" key={s} className={`${s === side ? `on ${ROLE[s]}` : ''}`} aria-pressed={s === side}
                 onClick={() => s !== side && dispatch(pickerSide(army, getState(), s))}>
                 {s === 'A' ? 'ACTIVE' : 'REACTIVE'}
-                {s !== side && sides[s]?.unitId != null && <span className={`dp-set c-${ROLE[s]}`}> · {army?.units.find((u) => u.id === sides[s].unitId)?.isc.split(',')[0]} ✓</span>}
+                {s !== side && sides[s]?.unitId != null && <span className={`dp-set c-${ROLE[s]}`}> · {shortIsc(army?.units.find((u) => u.id === sides[s].unitId)?.isc)} ✓</span>}
               </button>
             ))}
           </span>
@@ -266,7 +264,7 @@ export default function DeskPicker({searcher, army, loadError}) {
               <>
                 <div className="dp-unit">
                   <div>
-                    <span className="dp-name">{detail.unit.isc.split(',')[0]}</span>
+                    <span className="dp-name">{shortIsc(detail.unit.isc)}</span>
                     <div className="note">{factionName(factionId)} · {TYPE_NAMES[profile.type] ?? profile.type}</div>
                   </div>
                   {detail.profiles.length > 1 && (

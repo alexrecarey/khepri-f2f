@@ -7,9 +7,13 @@
 //   prefs, lists             persisted on this device (storage.js)
 //   ui                       ephemeral: overlays, open selectors, picker stack
 import {DEFAULT_PARAMS} from '../engine/params.js';
-import {MODES} from '../ui/modes.js';
+import {MODES} from './modes.js';
 
 export const STATE_VERSION = 1;
+
+// The two sides: A is the active trooper, B the reactive one.
+export const ROLE = {A: 'active', B: 'reactive'};
+export const other = (side) => (side === 'A' ? 'B' : 'A');
 
 // One side of a matchup: ids into the army data plus the situation chips.
 // weaponKey null = the default weapon for the side (rules/defaultWeapon.js),

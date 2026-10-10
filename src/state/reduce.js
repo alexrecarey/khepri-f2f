@@ -2,13 +2,11 @@
 // army data, no storage, no DOM. Anything that needs the army data to build an
 // action's payload (a picked trooper's weapon, the picker's starting faction)
 // is worked out before dispatching, in actions.js.
-import {LIMITS} from '../engine/params.js';
 import {FIRETEAM_MAX, fireteamSize} from '../rules/modifiers.js';
-import {MODES} from '../ui/modes.js';
+import {MODES} from './modes.js';
+import {classicSave} from './classicView.js';
 import {setupKey} from './rolls.js';
-import {EMPTY_SIDE, EMPTY_UI, MAX_RECENT_FACTIONS, MAX_RECENTS, initialState} from './schema.js';
-
-export const other = (side) => (side === 'A' ? 'B' : 'A');
+import {EMPTY_SIDE, EMPTY_UI, MAX_RECENT_FACTIONS, MAX_RECENTS, initialState, other} from './schema.js';
 
 // How many Back presses the open overlays take to close: the overlay itself,
 // plus each screen pushed inside the picker. Browser history mirrors this
@@ -42,26 +40,6 @@ const pushRecent = (list, pick) => {
     });
 };
 const pushFaction = (list, id) => (id == null ? list : [id, ...list.filter((f) => f !== id)].slice(0, MAX_RECENT_FACTIONS));
-
-const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
-
-// Classic: the save the opponent makes against side s, as one number (the
-// engine only reads PS + ARM and PS + BTS). Moves the weapon PS first and
-// spills into the target's ARM past its limits; a Plasma BTS total below the
-// PS lowers the PS and gives the difference to ARM, so the ARM total holds.
-export function classicSave(c, s, which, total) {
-  const t = other(s);
-  const dmg = c[`damage${s}`];
-  if (which === 'arm') {
-    const armT = c[`arm${t}`];
-    const want = clamp([0, LIMITS.damage[1] + LIMITS.arm[1]], total);
-    const damage = clamp(LIMITS.damage, want - armT);
-    return {...c, [`damage${s}`]: damage, [`arm${t}`]: clamp(LIMITS.arm, want - damage)};
-  }
-  const want = clamp([0, LIMITS.damage[1] + LIMITS.bts[1]], total);
-  if (want >= dmg) return {...c, [`bts${t}`]: clamp(LIMITS.bts, want - dmg)};
-  return {...c, [`damage${s}`]: want, [`arm${t}`]: clamp(LIMITS.arm, c[`arm${t}`] + dmg - want), [`bts${t}`]: 0};
-}
 
 function swapScopes(scopes) {
   const out = {};

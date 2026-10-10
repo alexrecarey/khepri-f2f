@@ -2,10 +2,20 @@
 // localStorage, under one versioned key. Reads the mode the old calculator
 // kept (calculatorMode) once, when the new key isn't there yet.
 // `storage` is anything with getItem/setItem (localStorage; a Map-like in tests).
-import {MODES} from '../ui/modes.js';
+import {MODES} from './modes.js';
 import {MAX_RECENTS, STATE_VERSION} from './schema.js';
 
 export const STORAGE_KEY = 'itc.state';
+
+// window.localStorage, or null where it is blocked (private mode, sandboxed
+// iframes): then nothing persists.
+export function browserStorage() {
+  try {
+    return typeof window === 'undefined' ? null : window.localStorage;
+  } catch {
+    return null;
+  }
+}
 const LEGACY_MODE = 'calculatorMode';
 
 const readJson = (storage, key) => {

@@ -2,6 +2,8 @@
 // with the words it can be found by. Runs at build time
 // (scripts/build-search-index.mjs) so the app loads a small JSON file instead
 // of the whole army; tests call it directly on army.json.
+import {shortIsc} from '../army/names.js';
+import {isLieutenant} from '../army/traits.js';
 import {KIND_ALIASES, SEARCHABLE_SKILLS, UNIT_ALIASES, WEAPON_ALIASES} from './aliases.js';
 import {indexWords, initials, words} from './text.js';
 
@@ -23,8 +25,6 @@ export function rootFaction(factions, id) {
   return cur;
 }
 
-// "Hexas, Strategic Security Division" -> "Hexas": what players call it.
-const shortName = (isc) => isc.split(',')[0].trim();
 
 export function buildIndex(army) {
   const factions = army.factions;
@@ -42,7 +42,7 @@ export function buildIndex(army) {
   const skills = [];
   const skillIds = new Map();
   for (const unit of army.units) {
-    const short = shortName(unit.isc);
+    const short = shortIsc(unit.isc);
     const unitWords = new Map(); // word -> field
     const add = (list, field) => {
       for (const w of list) if (!unitWords.has(w) || unitWords.get(w) > field) unitWords.set(w, field);
@@ -89,15 +89,14 @@ export function buildIndex(army) {
 // Lieutenant changes nothing on the table, so a Lieutenant loadout with the
 // same weapons, equipment and other skills as a plain one (points and SWC may
 // differ) is left out: the picker would list the same trooper twice.
-const isLt = (skill) => /^Lieutenant/.test(skill.name);
 const kit = (o) => JSON.stringify([
   o.weapons.map((w) => w.id).sort(),
   (o.equip ?? []).map((e) => e.name).sort(),
-  (o.skills ?? []).filter((s) => !isLt(s)).map((s) => `${s.name}${(s.extra ?? []).join(',')}`).sort(),
+  (o.skills ?? []).filter((s) => !isLieutenant(s)).map((s) => `${s.name}${(s.extra ?? []).join(',')}`).sort(),
 ]);
 export function lieutenantTwins(options) {
-  const plain = new Set(options.filter((o) => !(o.skills ?? []).some(isLt)).map(kit));
-  return new Set(options.filter((o) => (o.skills ?? []).some(isLt) && plain.has(kit(o))).map((o) => o.id));
+  const plain = new Set(options.filter((o) => !(o.skills ?? []).some(isLieutenant)).map(kit));
+  return new Set(options.filter((o) => (o.skills ?? []).some(isLieutenant) && plain.has(kit(o))).map((o) => o.id));
 }
 
 function weaponWords(name) {
@@ -153,4 +152,4 @@ function makeRow(id, unit, short, group, profile, option, unitWords, weapons, sk
 const skillNamesOf = (profile, option) => [...(profile?.skills ?? []), ...(option.skills ?? [])].map((s) => s.name);
 
 // For tests and the eval harness: the folded short name of a unit.
-export const foldedShort = (isc) => words(shortName(isc)).join(' ');
+export const foldedShort = (isc) => words(shortIsc(isc)).join(' ');
