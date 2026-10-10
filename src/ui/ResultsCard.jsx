@@ -8,7 +8,7 @@ import {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, D20, ShareIcon} from './icons.jsx';
-import RollingNumber from './RollingNumber.jsx';
+import SlideNumber from './SlideNumber.jsx';
 import {shareLink} from './share.js';
 import useDialogFocus from './useDialogFocus.js';
 import useSheetGestures from './useSheetGestures.js';
@@ -37,8 +37,8 @@ function SheetActions({save}) {
 
 SheetActions.propTypes = {save: PropTypes.object};
 
-// The wounds/order number: rolls digit by digit to a new value
-// (RollingNumber), shimmers while the next result is being worked out, and
+// The wounds/order number: slides to a new value, up or down with it
+// (SlideNumber), shimmers while the next result is being worked out, and
 // floats the change (+0.33) for a moment.
 function Wpo({value, side, size = '', pending}) {
   const prev = useRef(value);
@@ -53,7 +53,7 @@ function Wpo({value, side, size = '', pending}) {
   }, [value]);
   return (
     <span className="wpo-n">
-      <RollingNumber text={wpo(value)} className={`big ${size} c-${side}${pending ? ' computing' : ''}`} />
+      <SlideNumber text={wpo(value)} className={`big ${size} c-${side}${pending ? ' computing' : ''}`} />
       {delta != null && <span className={`delta c-${side}`} aria-hidden="true">{delta > 0 ? '+' : '−'}{Math.abs(delta).toFixed(2)}</span>}
     </span>
   );
