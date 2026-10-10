@@ -20,7 +20,9 @@
 //   joint      unopposed only: the two attacks are independent, so the order
 //              ends one of four ways: {both, onlyActive, onlyReactive, neither}
 //              (onlyActive = only the active side causes wounds)
-export const MAX_WOUNDS = 3;
+// Wounds the bars count one by one; more show as this many ("3+"). Not the
+// engine's MAX_WOUNDS (calculate.js), which caps what it calculates.
+export const BAR_WOUNDS = 3;
 
 const sum = (rows) => rows.reduce((s, r) => s + r.chance, 0);
 // Expected wounds: each outcome's wounds weighted by its chance.
@@ -30,7 +32,7 @@ const woundsPerOrder = (rows) => rows.reduce((t, r) => t + r.wounds * r.chance, 
 function attackOnItsOwn(sideResult, player) {
   const rows = sideResult.expected_wounds.filter((r) => r.player === player);
   const hit = sum((sideResult.face_to_face ?? []).filter((r) => r.player === player));
-  const wounds = [1, 2, 3].map((w) => sum(rows.filter((r) => (w === MAX_WOUNDS ? r.wounds >= w : r.wounds === w))));
+  const wounds = Array.from({length: BAR_WOUNDS}, (_, i) => i + 1).map((w) => sum(rows.filter((r) => (w === BAR_WOUNDS ? r.wounds >= w : r.wounds === w))));
   const wounded = wounds.reduce((a, b) => a + b, 0);
   return {wpo: woundsPerOrder(rows), wounds, wounded, saved: Math.max(0, hit - wounded), miss: Math.max(0, 1 - hit)};
 }
@@ -70,7 +72,7 @@ export function summarize(result, targets = null) {
   if (!result?.expected_wounds) return null;
   const rows = result.expected_wounds;
   const of = (player) => rows.filter((r) => r.player === player);
-  const exactly = (player, w) => sum(of(player).filter((r) => (w === MAX_WOUNDS ? r.wounds >= w : r.wounds === w)));
+  const exactly = (player, w) => sum(of(player).filter((r) => (w === BAR_WOUNDS ? r.wounds >= w : r.wounds === w)));
   const atLeast = (player) => [1, 2, 3].map((w) => sum(of(player).filter((r) => r.wounds >= w)));
 
   const ftf = result.face_to_face ?? [];
@@ -79,14 +81,14 @@ export function summarize(result, targets = null) {
   win.none = Math.max(0, 1 - win.active - win.reactive);
 
   const bar = [];
-  for (let w = MAX_WOUNDS; w >= 1; w--) bar.push({side: 'active', wounds: w, chance: exactly('active', w)});
+  for (let w = BAR_WOUNDS; w >= 1; w--) bar.push({side: 'active', wounds: w, chance: exactly('active', w)});
   const woundedA = sum(of('active').filter((r) => r.wounds > 0));
   const woundedB = sum(of('reactive').filter((r) => r.wounds > 0));
   // In an unopposed result both sides can wound in the same order, so "nobody"
   // is not the remainder there; the card then shows each side's own chance.
   const unopposed = Boolean(result.unopposed);
   bar.push({side: 'none', wounds: 0, chance: unopposed ? 0 : Math.max(0, 1 - woundedA - woundedB)});
-  for (let w = 1; w <= MAX_WOUNDS; w++) bar.push({side: 'reactive', wounds: w, chance: exactly('reactive', w)});
+  for (let w = 1; w <= BAR_WOUNDS; w++) bar.push({side: 'reactive', wounds: w, chance: exactly('reactive', w)});
 
   const states = !unopposed && targets?.active && targets?.reactive
     ? {active: byState(of('active'), targets.active, 'active'), reactive: byState(of('reactive'), targets.reactive, 'reactive')}

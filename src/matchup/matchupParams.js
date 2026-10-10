@@ -1,5 +1,6 @@
 // Matchup selections <-> URL params, for share links. Both sides use the same
 // keys with an A (active) / B (reactive) suffix; range is shared.
+import {FIRETEAM_MAX, FIRETEAM_MIN} from '../rules/modifiers.js';
 import {RANGE_BANDS} from '../rules/ranges.js';
 
 const EMPTY = {
@@ -60,7 +61,7 @@ export function decodeMatchup(params) {
   if (!A && !B) return null;
   const ft = (s) => {
     const n = Number(get(`ft${s}`));
-    return Number.isInteger(n) && n >= 2 && n <= 5 ? n : 1;
+    return Number.isInteger(n) && n >= FIRETEAM_MIN && n <= FIRETEAM_MAX ? n : 1;
   };
   const range = Number(get('range'));
   return {

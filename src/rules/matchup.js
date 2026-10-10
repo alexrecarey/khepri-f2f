@@ -1,16 +1,16 @@
 // Matchup -> calculator params: applies the N5 rules to two resolved troopers
 // (rules/trooper.js resolveSelection) and returns the engine input with the
 // notes and warnings to show next to it.
-import {EQUIP, SKILL} from '../army/ids.js';
+import {SKILL} from '../army/ids.js';
 import {hasEquip, hasSkill} from '../army/traits.js';
-import {causesWounds, hasAmmo, hasContinuousDamage, isNonLethal, isTemplate, weaponPS} from '../army/weapons.js';
+import {causesWounds, hasContinuousDamage, isNonLethal, isTemplate, weaponPS} from '../army/weapons.js';
 import {
-  LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, bsAttackMod, capMods, clamp, coverBsMod, dodgeExtras,
-  dodgeSuccessValue, fireteamBonuses, hasNanoscreen, hasSixthSense, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, surpriseAttackMod,
+  COVER_SAVE_MOD, LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, capMods, clamp, coverBsMod, dodgeExtras,
+  dodgeSuccessValue, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, opposingMods,
 } from './modifiers.js';
 import {rangeModFor} from './ranges.js';
 import {
-  calcAmmo, hasImmunity, hasNoEffect, immunityAgainst, immunityFor, immunityNote, shockApplies, vulnerabilityTo,
+  calcAmmo, hasImmunity, hasNoEffect, immunityAgainst, immunityFor, immunityNote, saveHalving, shockApplies, vulnerabilityTo,
 } from './saves.js';
 import {isSpecOps} from './trooper.js';
 
@@ -50,44 +50,14 @@ function approximationWarnings(label, side, target) {
 
 const signed = (n) => `${n > 0 ? '+' : ''}${n}`;
 
-// Does this side roll? A Dodge, or a BS Attack that isn't a Direct Template
-// (even one its target is immune to: the rolls are still opposed).
-function rolls(x, y) {
-  const w = x?.weapon;
-  if (!w) return false;
-  if (w.pseudo) return w.pseudo === 'dodge';
-  return !isTemplate(w.row) && attackStat(x.profile, w.row) > 0;
-}
-
-// The MODs x puts on y's Face to Face Roll. Negative MODs from x's skills
-// apply to the opponent, and only in opposed rolls: both roll against each
-// other (a Direct Template hits automatically, so nothing is opposed).
-// - x Dodges with Dodge (-X) and y attacks: y takes -X (wiki, Dodge).
-// - x attacks with BS Attack (-X): y takes -X attacking or Dodging, unless y
-//   has Warhorse (rules/modifiers.js bsAttackMod).
-// - x is the active trooper, attacks, and uses Surprise Attack (-X) (a player
-//   toggle): y takes -X attacking or Dodging, unless y has Combat Instinct or
-//   a Multispectral Visor L3.
-// - y Dodges with Sixth Sense (the skill or a Fireteam of 5): none of these
-//   negative MODs apply to its Dodge.
+// The MODs x puts on y's Face to Face Roll (modifiers.js opposingMods), with
+// a note for each one y ignores.
 function opposingMod(x, y, xActive, yLabel, notes) {
-  if (!rolls(x, y) || !rolls(y, x)) return 0;
-  if (x.weapon.pseudo === 'dodge') return y.weapon.pseudo ? 0 : dodgeExtras(x.traits).opponentMod;
-  const sixth = y.weapon.pseudo === 'dodge' && hasSixthSense(y);
   let total = 0;
-  const bs = bsAttackMod(x.traits);
-  if (bs && hasSkill(y.traits, SKILL.WARHORSE)) {
-    notes.push(`${yLabel}: Warhorse; the opponent's BS Attack (${bs}) has no effect`);
-  } else if (bs && sixth) {
-    notes.push(`${yLabel}: Sixth Sense; no negative MODs to its Dodge, the opponent's BS Attack (${bs}) included`);
-  } else total += bs;
-  const surprise = xActive && x.surpriseAttack ? surpriseAttackMod(x.traits) : 0;
-  const ignores = hasSkill(y.traits, SKILL.COMBAT_INSTINCT) ? 'Combat Instinct'
-    : hasEquip(y.traits, EQUIP.MSV3) ? 'Multispectral Visor L3'
-      : sixth ? 'Sixth Sense (Dodge)' : null;
-  if (surprise && ignores) {
-    notes.push(`${yLabel}: ${ignores}; the opponent's Surprise Attack (${surprise}) has no effect`);
-  } else total += surprise;
+  for (const m of opposingMods(x, y, xActive)) {
+    if (m.ignoredBy) notes.push(`${yLabel}: ${m.ignoredBy}; the opponent's ${m.label} has no effect`);
+    else total += m.value;
+  }
   return total;
 }
 
@@ -166,19 +136,13 @@ function defenseInputs(y, incoming, side, dodging = false) {
   const arm = (p.arm ?? 0) + (dodging ? dodgeExtras(y.traits).arm : 0);
   let base = save.attr === 'BTS' ? p.bts : save.armZero && !immune ? 0 : arm;
   base = Math.max(0, base ?? 0);
-  // Halved by AP Ammunition (the weapon's own, a loadout "AP", BS Attack (AP)),
-  // or printed halved for another reason (E/M: BTS/2). Immunity (AP) only
-  // ignores the first.
-  const row = incoming?.row;
-  const apHalving = Boolean(incoming?.mods?.forceAP) || (Boolean(save.halved) && hasAmmo(row, 'AP'));
-  const otherHalving = Boolean(save.halved) && !hasAmmo(row, 'AP');
-  const halve = !immune && (otherHalving || (apHalving && !hasImmunity(y.traits, 'AP', row)));
-  if (halve) base = Math.ceil(base / 2);
+  // AP or printed halving (saves.js saveHalving).
+  if (saveHalving(incoming?.row, incoming?.mods, y.traits).halves) base = Math.ceil(base / 2);
   // Cover's +3 is a Saving Roll MOD, not ARM: add it after AP halving. The
   // calculator saves on d20 <= PS + ARM, so this input is where the MOD goes.
   const templateIncoming = ignoresCoverOnSaves(incoming?.row);
-  const coverSave = benefitsFromCover(y) && !templateIncoming ? 3 : 0;
-  const nanoSave = hasNanoscreen(y) ? 3 : 0;
+  const coverSave = benefitsFromCover(y) && !templateIncoming ? COVER_SAVE_MOD : 0;
+  const nanoSave = hasNanoscreen(y) ? COVER_SAVE_MOD : 0;
   const cover = Math.max(coverSave, nanoSave);
   return {
     [`arm${side}`]: clamp(LIMITS.arm, base + cover),

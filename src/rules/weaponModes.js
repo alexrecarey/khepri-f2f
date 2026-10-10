@@ -8,7 +8,7 @@
 //   - DA wins over AP, AP over Shock;
 //   - Boarding Pistol always defaults to its Direct Template.
 // A weapon not listed falls back to the default-weapon keys (defaultWeapon.js).
-import {isImpactTemplate, isTemplate} from '../army/weapons.js';
+import {ammoName, isImpactTemplate, isTemplate} from '../army/weapons.js';
 
 // 'Anti-materiel Mode', 'Anti-Material Mode', 'Antimaterial Mode' -> 'am';
 // otherwise the mode's first word: 'ap', 'shock', 'blast', 'hit', 'burst'...
@@ -52,8 +52,7 @@ export function orderModes(modes, role, fallback) {
   return [...modes].sort((a, b) => rank(a) - rank(b));
 }
 
-const AMMO_LABEL = {EXP: 'EXP', DA: 'DA', AP: 'AP', SHOCK: 'Shock', N: 'N', T2: 'T2'};
-const ammoLabel = (w) => (w.row.ammo ?? ['N']).map((a) => AMMO_LABEL[a.toUpperCase()] ?? a).join('+');
+const ammoLabel = (w) => (w.row.ammo ?? ['N']).map(ammoName).join('+');
 const modeWord = (w) => (w.mode ?? '').replace(/ Mode$/i, '');
 
 // What each mode's button says: its ammo (DA, EXP, AP, Shock, AP+DA), so a
