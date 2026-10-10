@@ -189,7 +189,6 @@ export default function DeskPicker({searcher, army}) {
       .sort((a, b) => b.count - a.count);
   }, [searcher, all, scope]);
 
-  const sideSel = sides[side];
   return (
     <>
       <div className="desk-scrim" onClick={back} />
@@ -297,19 +296,8 @@ export default function DeskPicker({searcher, army}) {
                     );
                   })}
                 </div>
+                {/* Cover, Sapper and Fireteam are set on the side card after picking. */}
                 <div className="dp-actions">
-                  <span className="label">Set now</span>
-                  <label className="dp-ft">
-                    <span className="vh">Fireteam</span>
-                    <select value={sideSel.ftSize} onChange={(e) => dispatch({type: 'patchSide', side, patch: {ftSize: Number(e.target.value)}})}>
-                      <option value={1}>No fireteam</option>
-                      {[2, 3, 4, 5].map((n) => <option key={n} value={n}>Fireteam {n}</option>)}
-                    </select>
-                  </label>
-                  <button type="button" className={`chip${sideSel.inCover ? ` on ${color}` : ''}`} aria-pressed={sideSel.inCover}
-                    onClick={() => dispatch({type: 'patchSide', side, patch: {inCover: !sideSel.inCover}})}>
-                    {sideSel.inCover ? 'Cover ✓' : '+ Cover'}
-                  </button>
                   <span style={{flexGrow: 1}} />
                   {otherSet ? (
                     <>

@@ -396,7 +396,6 @@ b.hl { color: var(--text); background: #2e4a40; border-radius: 3px; padding: 0 1
 .stripe7 { display: flex; gap: 1px; width: 112px; border-radius: 2px; overflow: hidden; }
 .stripe7 i { flex-grow: 1; height: 5px; background: transparent; box-shadow: inset 0 0 0 1px #262626; }
 .dp-actions { display: flex; align-items: center; gap: 8px; padding-top: 10px; border-top: 1px solid #262626; margin-top: auto; flex-wrap: wrap; }
-.dp-ft select { font: inherit; font-size: 13px; color: var(--text); background: #222; border: 1px solid var(--line-strong); border-radius: 999px; padding: 6px 10px; }
 .dp-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .tile.type { flex-direction: column; align-items: stretch; gap: 4px; }
 .tile.type .tt { display: flex; justify-content: space-between; }
