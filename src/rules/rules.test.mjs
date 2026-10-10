@@ -637,10 +637,10 @@ test('No Cover units get nothing from "in cover"', () => {
   assert.equal(normal.inputs.armB, 11);
 });
 
-test('unsupported traits are reported as warnings', () => {
+test('Sixth Sense and Sapper are modelled, not reported as unsupported', () => {
   const p = profile({skills: [{id: 67, name: 'Sixth Sense'}, {id: 89, name: 'Sapper'}]});
   const r = deriveInputs({active: side(p, combi, '1:'), reactive: side(profile(), combi, '1:'), rangeCm: 40});
-  assert.ok(r.warnings.some((n) => n === 'Support for Sapper, Sixth Sense not implemented yet'), r.warnings.join(' | '));
+  assert.ok(!r.warnings.some((n) => n.includes('not implemented')), r.warnings.join(' | '));
 });
 
 test('Shock takes effect on VITA 1 targets only, unless immune', () => {
@@ -881,7 +881,10 @@ test('fireteam size sets cumulative bonuses', () => {
 
   assert.deepEqual(matchupTraits(at(3)), ['+1SD']);
   assert.deepEqual(matchupTraits(at(4)), ['+1SD', 'BS+1']);
-  assert.ok(deriveInputs({active: at(5), reactive: at(1), rangeCm: 40}).warnings.some((n) => n.includes('Sixth Sense')));
+  // A Fireteam of 5 gives Sixth Sense: its Dodge takes no negative MODs.
+  const bsAttacker = {...side(profile({skills: [{id: 201, name: 'BS Attack', extra: ['-3']}]}), combi, '1:'), ftSize: 1};
+  const dodgeVs = (n) => deriveInputs({active: bsAttacker, reactive: at(n, 'dodge'), rangeCm: 40}).inputs.successValueB;
+  assert.equal(dodgeVs(5), dodgeVs(4) + 3);
 
   const flamer = option([{id: 3, name: 'Heavy Flamethrower'}]);
   const t = deriveInputs({active: {...side(profile(), flamer, '3:'), ftSize: 4}, reactive: at(1), rangeCm: 20});
@@ -1422,18 +1425,25 @@ test('Surprise Attack with real units: Lù Duān, Hassassin Áyyār (-6), Combat
     return defaultWeapon(trooperWeapons(r.option, army.weapons, r.traits), 'active').key;
   };
   const vs = (a, b) => deriveInputs({active: resolveSelection(army, a), reactive: resolveSelection(army, b), rangeCm: 40});
+  // Fennec: a plain Dodge (Chaksa, with Sixth Sense, is checked below).
+  const fennec = {unitId: 1803, factionId: 101, groupId: 1, profileId: 1, optionId: 1, weaponKey: 'dodge'};
   const chaksa = {unitId: 1310, factionId: 801, groupId: 1, optionId: 1, weaponKey: 'dodge'};
 
   const luDuan = sel(160, 201, null);
   luDuan.weaponKey = weaponOf(luDuan);
-  const off = vs(luDuan, chaksa);
-  const on = vs({...luDuan, surpriseAttack: true}, chaksa);
+  const off = vs(luDuan, fennec);
+  const on = vs({...luDuan, surpriseAttack: true}, fennec);
   assert.equal(on.inputs.successValueB, off.inputs.successValueB - 3);
   assert.equal(on.inputs.successValueA, off.inputs.successValueA);
 
   const ayyar = sel(779, 402, null);
   ayyar.weaponKey = weaponOf(ayyar);
-  assert.equal(vs({...ayyar, surpriseAttack: true}, chaksa).inputs.successValueB, vs(ayyar, chaksa).inputs.successValueB - 6);
+  assert.equal(vs({...ayyar, surpriseAttack: true}, fennec).inputs.successValueB, vs(ayyar, fennec).inputs.successValueB - 6);
+
+  // Sixth Sense: a Dodge takes no negative MODs, Surprise Attack included.
+  const sixth = vs({...luDuan, surpriseAttack: true}, chaksa);
+  assert.equal(sixth.inputs.successValueB, vs(luDuan, chaksa).inputs.successValueB);
+  assert.ok(sixth.notes.includes("Reactive: Sixth Sense (Dodge); the opponent's Surprise Attack (-3) has no effect"), sixth.notes.join(' | '));
 
   const alFasid = {unitId: 343, factionId: 404, groupId: 1, profileId: 1, optionId: 1, weaponKey: 'dodge'};
   const ci = vs({...luDuan, surpriseAttack: true}, alFasid);

@@ -6,7 +6,7 @@ import {hasEquip, hasSkill} from '../army/traits.js';
 import {causesWounds, hasAmmo, hasContinuousDamage, isNonLethal, isTemplate, weaponPS} from '../army/weapons.js';
 import {
   LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, bsAttackMod, capMods, clamp, coverBsMod, dodgeExtras,
-  dodgeSuccessValue, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, surpriseAttackMod,
+  dodgeSuccessValue, fireteamBonuses, hasNanoscreen, hasSixthSense, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, surpriseAttackMod,
 } from './modifiers.js';
 import {rangeModFor} from './ranges.js';
 import {
@@ -29,10 +29,7 @@ export const MODELED_IMMUNITIES = ['AP', 'ARM', 'BTS', 'Continuous Damage', 'Cri
 export const STATE_IMMUNITIES = ['IMM-B', 'Isolated', 'POS'];
 
 // Traits that matter to the roll but aren't modelled yet: a warning.
-const IGNORED = [
-  ['skill', SKILL.SAPPER, 'Sapper'],
-  ['skill', SKILL.SIXTH_SENSE, 'Sixth Sense'],
-];
+const IGNORED = [];
 
 // Names of traits on this side that the converter does not model yet.
 function unsupportedTraits(side) {
@@ -40,7 +37,6 @@ function unsupportedTraits(side) {
   const found = IGNORED
     .filter(([kind, id]) => (kind === 'skill' ? hasSkill(side.traits, id) : hasEquip(side.traits, id)))
     .map(([, , name]) => name);
-  if (fireteamBonuses(side.ftSize).sixthSense) found.push('Sixth Sense');
   return found;
 }
 
@@ -78,17 +74,23 @@ function rolls(x, y) {
 // - x is the active trooper, attacks, and uses Surprise Attack (-X) (a player
 //   toggle): y takes -X attacking or Dodging, unless y has Combat Instinct or
 //   a Multispectral Visor L3.
+// - y Dodges with Sixth Sense (the skill or a Fireteam of 5): none of these
+//   negative MODs apply to its Dodge.
 function opposingMod(x, y, xActive, yLabel, notes) {
   if (!rolls(x, y) || !rolls(y, x)) return 0;
   if (x.weapon.pseudo === 'dodge') return y.weapon.pseudo ? 0 : dodgeExtras(x.traits).opponentMod;
+  const sixth = y.weapon.pseudo === 'dodge' && hasSixthSense(y);
   let total = 0;
   const bs = bsAttackMod(x.traits);
   if (bs && hasSkill(y.traits, SKILL.WARHORSE)) {
     notes.push(`${yLabel}: Warhorse; the opponent's BS Attack (${bs}) has no effect`);
+  } else if (bs && sixth) {
+    notes.push(`${yLabel}: Sixth Sense; no negative MODs to its Dodge, the opponent's BS Attack (${bs}) included`);
   } else total += bs;
   const surprise = xActive && x.surpriseAttack ? surpriseAttackMod(x.traits) : 0;
   const ignores = hasSkill(y.traits, SKILL.COMBAT_INSTINCT) ? 'Combat Instinct'
-    : hasEquip(y.traits, EQUIP.MSV3) ? 'Multispectral Visor L3' : null;
+    : hasEquip(y.traits, EQUIP.MSV3) ? 'Multispectral Visor L3'
+      : sixth ? 'Sixth Sense (Dodge)' : null;
   if (surprise && ignores) {
     notes.push(`${yLabel}: ${ignores}; the opponent's Surprise Attack (${surprise}) has no effect`);
   } else total += surprise;

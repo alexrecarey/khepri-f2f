@@ -22,7 +22,7 @@ import {
 } from '../army/weapons.js';
 import {
   albedoMod, attackBonuses, attackStat, benefitsFromCover, bsAttackMod, coverBsMod, dodgeExtras, fireteamBonuses,
-  hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, surpriseAttackMod,
+  hasNanoscreen, hasSixthSense, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, surpriseAttackMod,
 } from './modifiers.js';
 import {RANGE_BANDS, rangeModFor} from './ranges.js';
 import {immunityAgainst, hasImmunity} from './saves.js';
@@ -57,16 +57,17 @@ function opposingLines(y, x, ySide, yActive) {
     return mod ? [line(mod, `Dodge (${mod})`, ySide)] : [];
   }
   const out = [];
+  // Sixth Sense: x's Dodge takes no negative MODs.
+  const sixth = x.weapon.pseudo === 'dodge' && hasSixthSense(x) ? 'Sixth Sense' : null;
   const bs = bsAttackMod(y.traits);
   if (bs) {
-    out.push(hasSkill(x.traits, SKILL.WARHORSE)
-      ? line(bs, `BS Attack (${bs})`, ySide, 'Warhorse')
-      : line(bs, `BS Attack (${bs})`, ySide));
+    const why = hasSkill(x.traits, SKILL.WARHORSE) ? 'Warhorse' : sixth;
+    out.push(line(bs, `BS Attack (${bs})`, ySide, why));
   }
   const surprise = yActive && y.surpriseAttack ? surpriseAttackMod(y.traits) : 0;
   if (surprise) {
     const ignores = hasSkill(x.traits, SKILL.COMBAT_INSTINCT) ? 'Combat Instinct'
-      : hasEquip(x.traits, EQUIP.MSV3) ? 'MSV3' : null;
+      : hasEquip(x.traits, EQUIP.MSV3) ? 'MSV3' : sixth;
     out.push(line(surprise, 'Surprise attack', ySide, ignores));
   }
   return out;

@@ -82,6 +82,12 @@ export function fireteamMax(unit, option) {
 // A size the trooper can actually have: above its max it drops to the max.
 export const fireteamSize = (size, max) => (max >= FIRETEAM_MIN ? Math.min(size ?? 1, max) : 1);
 
+// Sixth Sense, from the skill or a Fireteam of 5. In N5 it doesn't touch
+// Surprise Attack (that moved to Combat Instinct); what matters here is that a
+// trooper with it who Dodges takes no negative MODs (wiki, Sixth Sense; the
+// Immobilized / Isolated exceptions are States the calculator doesn't model).
+export const hasSixthSense = (side) => hasSkill(side?.traits, SKILL.SIXTH_SENSE) || fireteamBonuses(side?.ftSize).sixthSense;
+
 export function fireteamBonuses(size = 0) {
   return {
     sd: size >= 2 ? 1 : 0,
