@@ -197,7 +197,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
             <>
               <div className="empty">No {factionName(scope)} matches for “{query}”</div>
               {results.elsewhere.map((o) => (
-                <button type="button" key={o.factionId} className="line-btn" style={{border: '1px solid #333', margin: '4px 0'}}
+                <button type="button" key={o.factionId} className="line-btn" style={{border: '1px solid var(--line-control)', margin: '4px 0'}}
                   onClick={() => setScope(o.factionId)}>
                   <span>{o.count} in {o.name}</span><span className={`r c-${color}`}>Show ›</span>
                 </button>

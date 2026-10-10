@@ -10,8 +10,8 @@ export function D20({fill, opacity = 1, crossed = false}) {
   return (
     <svg viewBox={`0 0 ${w} ${h}`} aria-hidden="true" style={{opacity}}>
       <path fill={fill} d={d20Path} />
-      {crossed && <path d="M40 472 L472 40" stroke="#121212" strokeWidth="64" />}
-      {crossed && <path d="M40 472 L472 40" stroke="#9a978f" strokeWidth="28" strokeLinecap="round" />}
+      {crossed && <path d="M40 472 L472 40" stroke="var(--bg)" strokeWidth="64" />}
+      {crossed && <path d="M40 472 L472 40" stroke="var(--text-3)" strokeWidth="28" strokeLinecap="round" />}
     </svg>
   );
 }

@@ -1,0 +1,79 @@
+/* ---------- shell ---------- */
+.app { max-width: 480px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column; }
+.app-header { display: flex; align-items: center; height: 52px; padding: 6px 8px 0 16px; flex-shrink: 0; }
+.wordmark { flex-grow: 1; font-family: var(--font-display); font-size: 13px; font-weight: 600; letter-spacing: .14em; color: var(--faint); }
+.wordmark small { font-size: inherit; color: var(--muted); }
+.icon-btn { all: unset; box-sizing: border-box; cursor: pointer; width: var(--tap); height: var(--tap); display: grid; place-items: center; color: var(--text-3); border-radius: 999px; }
+.icon-btn:focus-visible, .chip:focus-visible, .btn:focus-visible { outline: 2px solid var(--text-2); outline-offset: 2px; }
+.screen { flex-grow: 1; padding: 4px 16px calc(var(--results-card-h) + 30px); display: flex; flex-direction: column; gap: 10px; }
+
+/* ---------- side cards ---------- */
+.card { background: var(--surface); border-radius: var(--radius-card); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.role { font-family: var(--font-display); font-size: 12px; letter-spacing: .1em; }
+.role.active, .c-active { color: var(--active); }
+.role.reactive, .c-reactive { color: var(--reactive); }
+.unit-btn { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+.unit-name { font-size: 18px; font-weight: 600; }
+.unit-name .faction { font-size: 13px; font-weight: 400; color: var(--muted); }
+.unit-empty { font-size: 17px; color: var(--text-3); }
+.row-wrap { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.btn { all: unset; box-sizing: border-box; cursor: pointer; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line-control); font-size: 14px; color: var(--text-2); }
+.btn.on.active { background: var(--active); border-color: var(--active); color: var(--active-ink); font-weight: 600; }
+.btn.on.reactive { background: var(--reactive); border-color: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
+.btn:disabled { opacity: .4; cursor: default; }
+/* Classic's ammo: filled tiles, no outline. */
+.btn.solid { border-color: transparent; background: var(--surface-3); }
+.chip.solid { border-style: solid; color: var(--text-2); }
+/* One weapon with fire modes: [MULTI Pistol | AP | Shock | DA]. Chosen: the
+   name and the chosen mode filled, the other modes outlined. */
+.btn-group { display: inline-flex; align-items: stretch; border: 1px solid var(--line-control); border-radius: 8px; font-size: 14px; color: var(--text-2); overflow: hidden; }
+.btn-group .g-name, .btn-group .g-mode { all: unset; box-sizing: border-box; cursor: pointer; }
+.btn-group .g-name { padding: 8px 8px 8px 12px; }
+.btn-group .g-mode { padding: 8px 9px; border-left: 1px solid var(--line-control); }
+.btn-group .g-name:focus-visible, .btn-group .g-mode:focus-visible { outline: 2px solid var(--text-2); outline-offset: -2px; }
+.btn-group.on.active { border-color: var(--active); }
+.btn-group.on.reactive { border-color: var(--reactive); }
+.btn-group.on.active .g-name, .btn-group.active .g-mode.on { background: var(--active); color: var(--active-ink); font-weight: 600; }
+.btn-group.on.reactive .g-name, .btn-group.reactive .g-mode.on { background: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
+.btn-group.on.active .g-mode { border-left-color: var(--active); }
+.btn-group.on.reactive .g-mode { border-left-color: var(--reactive); }
+
+.chip { all: unset; box-sizing: border-box; cursor: pointer; padding: 7px 12px; border-radius: 999px; border: 1px dashed var(--line-strong); color: var(--text-3); font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
+.chip.on { border-style: solid; color: var(--text); }
+.chip.on.active { background: var(--active-tint); border-color: var(--active); }
+.chip.on.reactive { background: var(--reactive-tint); border-color: var(--reactive); }
+.chip-group { display: inline-flex; align-items: center; gap: 2px; padding: 2px 2px 2px 12px; border-radius: 999px; font-size: 13px; }
+.chip-group.active { background: var(--active-tint); border: 1px solid var(--active); }
+.chip-group.reactive { background: var(--reactive-tint); border: 1px solid var(--reactive); }
+.chip-group .n { all: unset; box-sizing: border-box; cursor: pointer; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 999px; color: var(--text-3); }
+.chip-group.active .n.on { background: var(--active); color: var(--active-ink); font-weight: 600; }
+.chip-group.reactive .n.on { background: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
+.note { font-size: 12px; color: var(--muted); }
+.link-btn { all: unset; cursor: pointer; color: var(--text-2); text-decoration: underline; }
+
+/* ---------- range selector ----------
+   One row of band buttons, the same size and place open or closed; opening
+   only adds the header above, the legend below and the stripes' colour. */
+.range { flex-shrink: 0; border-radius: var(--radius-card); transition: background .25s ease; }
+.range.open { background: var(--surface); position: relative; z-index: 16; }
+/* Open, the rest of the screen is a transparent button that closes it. */
+.range-scrim { all: unset; position: fixed; inset: 0; z-index: 15; cursor: default; }
+.range .collapse { overflow: hidden; transition: max-height .28s ease, opacity .2s ease; }
+.range-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px 6px; }
+.range-close { all: unset; box-sizing: border-box; cursor: pointer; font-size: 15px; font-weight: 600; padding: 4px 0 4px 12px; }
+.range-row { display: flex; align-items: center; gap: 8px; }
+.range-foot { display: flex; align-items: center; gap: 10px; padding: 8px 12px 10px; font-size: 11px; color: var(--muted); }
+.range-foot .key { margin-left: auto; display: flex; gap: 8px; flex-shrink: 0; }
+.range-foot i { display: inline-block; width: 10px; height: 4px; vertical-align: middle; margin-right: 3px; }
+.range-foot .mods { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: 13px; }
+.range-foot .mods span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.range-foot .mods b { font-family: var(--font-mono); font-weight: 600; }
+.swap { width: 40px; height: 40px; border: 1px solid var(--line-control); color: var(--text-2); flex-shrink: 0; }
+.label { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.bands { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); flex-grow: 1; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; position: relative; }
+.band { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.band-pill { position: absolute; top: 0; bottom: 0; background: var(--text); transition: left .32s cubic-bezier(.3,1.4,.5,1); }
+.band .stripe { height: 4px; transition: background .25s ease; }
+.band .dist { text-align: center; padding: 5px 0; font-size: 12px; color: var(--text-3); }
+.band.on .dist { color: var(--bg); font-weight: 700; }

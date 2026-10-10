@@ -1,0 +1,56 @@
+/* Design tokens: colours, fonts, sizes. From the design canvas
+   (docs/design-canvas/mobile-ux-redesign, Final page). Dark only. */
+:root {
+  --bg: #121212;
+  --surface: #1c1c1c;
+  --surface-2: #1f1f1f;
+  --surface-3: #262626;
+  --line: #2c2c2c;
+  --line-strong: #3a3a3a;
+  --line-soft: #2a2a2a;      /* rules between the classic steppers */
+  --line-control: #333;      /* button and chip outlines */
+  --well: #222;              /* inset wells: segmented controls, selects, mods card */
+  --hover: #212121;          /* desk picker rows */
+  --page: #161616;           /* full-screen pages */
+  --sheet: #1a1a1a;          /* bottom sheets, the desk picker */
+  --handle: #444;            /* a sheet's drag handle */
+  --text: #e8e6e1;
+  --text-2: #c9c6bf;
+  --text-3: #9a978f;
+  --muted: #8a877f;
+  --faint: #6b6861;
+
+  --active: #5fc4a0;
+  --active-tint: #1f3a31;
+  --active-ink: #0f1f19;
+  --active-1: #3a9a7a;
+  --active-3: #8fe0c2;
+  --reactive: #e59bc0;
+  --reactive-tint: #3a2330;
+  --reactive-ink: #2a0f1d;
+  --reactive-1: #a8457a;
+  --reactive-2: #d06fa0;
+  --none: #2e2e2e;
+  --danger: #f08a7a;
+
+  /* Infinity range-band colours, as the community knows them. */
+  --band-plus: #58b368;
+  --band-zero: #4a8fd6;
+  --band-minus3: #e3c34a;
+  --band-minus6: #d9534f;
+
+  /* The phone's results card at rest: about this tall. The screen leaves room
+     for it (+30), the toast floats just over it (-20), and the sheet rests
+     this far up until it is measured (useSheetGestures.js --rest-y). */
+  --results-card-h: 170px;
+  /* The Delete button behind a saved roll; Chrome.jsx OPEN slides this far. */
+  --roll-delete-w: 88px;
+
+  --font-display: 'Chakra Petch', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-card: 14px;
+  --radius-sheet: 20px;
+  --tap: 44px;
+}

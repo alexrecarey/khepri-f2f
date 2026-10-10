@@ -47,7 +47,9 @@ that review found. Layout and commands: README.md and CLAUDE.md.
 - Components stay under ~200 lines; behaviour goes in hooks, repeated JSX in
   small shared components.
 - Colours, sizes that must agree, and z-layers are CSS custom properties in
-  the tokens; no hex values in JSX or rules. Styles go in CSS, not `style={{}}`
+  src/ui/styles/tokens.css; no hex values in JSX or rules. Styles live in
+  one file per area under src/ui/styles, imported by app.css in cascade
+  order. Styles go in CSS, not `style={{}}`
   (only for values computed at runtime).
 - Interactive things are `<button>`s (or have role + keyboard handlers);
   dialogs move focus in and give it back; lists driven by the keyboard scroll

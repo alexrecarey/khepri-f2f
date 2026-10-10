@@ -29,14 +29,14 @@ function DiceInput({value, max, min, onChange, color, label, zeroOption}) {
             onClick={() => onChange(n === value ? Math.max(min, n - 1) : n)}>
             {/* Keyed on lit/unlit, so a die tumbles in when it lights up. */}
             <span key={n <= value ? 'lit' : 'off'} className={n <= value ? 'tumble' : 'fade-in'} style={{display: 'grid'}}>
-              <D20 fill={n <= value ? fill : '#e8e6e1'} opacity={n <= value ? 1 : 0.25} />
+              <D20 fill={n <= value ? fill : 'var(--text)'} opacity={n <= value ? 1 : 0.25} />
             </span>
           </button>
         ))}
         {zeroOption && (
           <button type="button" className="die" style={{marginLeft: 'auto', width: 44}} aria-pressed={value === 0}
             aria-label="Burst 0: no roll, the other side is unopposed" onClick={() => onChange(value === 0 ? 1 : 0)}>
-            <D20 fill={value === 0 ? fill : '#6b6861'} crossed />
+            <D20 fill={value === 0 ? fill : 'var(--faint)'} crossed />
           </button>
         )}
       </div>

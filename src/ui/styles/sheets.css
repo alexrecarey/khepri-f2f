@@ -1,0 +1,45 @@
+/* ---------- results card + sheet ---------- */
+.handle { align-self: center; width: 40px; height: 5px; border-radius: 3px; background: var(--handle); }
+.wpo-row { display: flex; justify-content: space-between; align-items: flex-end; }
+.wpo { display: flex; flex-direction: column; }
+.wpo.right { align-items: flex-end; }
+.big { font-family: var(--font-display); font-size: 34px; font-weight: 700; line-height: 1; }
+.big.xl { font-size: 48px; }
+.small { font-size: 12px; color: var(--text-3); }
+.bar { display: flex; overflow: hidden; }
+.bar span { display: block; height: 100%; }
+.seg-a3 { background: var(--active-3); } .seg-a2 { background: var(--active); } .seg-a1 { background: var(--active-1); }
+.seg-none { background: var(--none); }
+.seg-r1 { background: var(--reactive-1); } .seg-r2 { background: var(--reactive-2); } .seg-r3 { background: var(--reactive); }
+.split { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.status { font-size: 12px; color: var(--faint); text-align: center; }
+
+/* ---------- sheets ---------- */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 20; animation: fade .2s ease; }
+.sheet { position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: min(480px, 100%); max-height: 92dvh; overflow-y: auto; background: var(--sheet); border-radius: var(--radius-sheet) var(--radius-sheet) 0 0; padding: 10px 16px calc(24px + env(safe-area-inset-bottom)); z-index: 21; display: flex; flex-direction: column; gap: 14px;
+  /* Comes up with a little spring (MotionPolish 4). */
+  animation: rise .38s cubic-bezier(.3,1.25,.5,1); overscroll-behavior: contain; }
+/* A long sheet scrolls; its rows never squash (bars have overflow: hidden, so no min height). */
+.sheet > * { flex-shrink: 0; }
+.page { position: fixed; left: 0; right: 0; top: var(--vv-top, 0px); height: var(--vv-height, 100dvh); margin: 0 auto; max-width: 480px; background: var(--page); z-index: 30; display: flex; flex-direction: column; animation: fade .15s ease; }
+.page-head { padding: 10px 8px; display: flex; align-items: center; gap: 4px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+.page-title { font-size: 18px; font-weight: 600; }
+/* While a page is open the document behind it can't scroll (useVisualViewport.js).
+   If the keyboard's resize lags, the gap under the page shows page colour,
+   not the screen behind. */
+.page::after { content: ''; position: absolute; top: 100%; left: 0; right: 0; height: 100vh; background: var(--page); pointer-events: none; }
+/* Phones and tablets: a full-screen page is not position: fixed. WebKit
+   stops treating a scroll box inside a fixed layer as scrollable while the
+   keyboard resizes the screen (the picker list didn't scroll; iOS panned the
+   whole picker instead). So the screen underneath is hidden and the page is
+   laid out in the normal flow, sized to the visible area. */
+html.page-open .app:is(.phone, .tablet) > :not(.page) { display: none; }
+html.page-open .app:is(.phone, .tablet) > .page { position: relative; top: 0; flex-shrink: 0; width: 100%; }
+html.page-open, html.page-open body { overflow: hidden; overscroll-behavior: none; }
+.page-body { flex-grow: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; padding: 4px 8px 16px; display: flex; flex-direction: column; }
+@keyframes rise { from { transform: translate(-50%, 30%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+.menu-item { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 10px; font-size: 16px; }
+.menu-item .dot { width: 20px; text-align: center; }
+.menu-sep { height: 1px; background: var(--line); margin: 6px 14px; }

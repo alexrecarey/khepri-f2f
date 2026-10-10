@@ -1,0 +1,40 @@
+/* ---------- results sheet ---------- */
+.breakdown { display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.breakdown .row { display: grid; grid-template-columns: 84px minmax(0, 1fr) 56px; align-items: center; gap: 10px; }
+.breakdown .row .k { color: var(--text-2); }
+.breakdown .row .track { display: block; }
+.breakdown .row .b { display: block; height: 20px; border-radius: 4px; }
+.breakdown .row .p { font-family: var(--font-mono); text-align: right; }
+
+/* ---------- how the dice were built ---------- */
+.ledger { display: flex; flex-direction: column; gap: 10px; }
+.mods-sep { border-top: 1px solid var(--line); }
+.mods-card { padding: 14px; border-radius: 12px; background: var(--well); display: flex; flex-direction: column; gap: 16px; }
+.mods-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-family: var(--font-display); font-size: 13px; font-weight: 700; letter-spacing: .06em; }
+.mods-sec { display: flex; flex-direction: column; }
+.mods-h { font-size: 13px; font-weight: 700; letter-spacing: .02em; color: var(--muted); padding-bottom: 6px; }
+.mods-rows { font-family: var(--font-mono); font-size: 15px; }
+.mods-row, .mods-total { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 2px 0; color: var(--text); }
+.mods-row .v, .mods-total .v { text-align: right; }
+.mods-row .l { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mods-row .s { color: var(--muted); text-align: right; white-space: nowrap; font-size: 13px; }
+.mods-row.struck { color: var(--faint); }
+.mods-row.struck .v, .mods-row.struck .l { background: linear-gradient(currentColor, currentColor) no-repeat 0 55% / 100% 1.5px; animation: strike .4s .15s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes strike { from { background-size: 0 1.5px; } to { background-size: 100% 1.5px; } }
+.mods-total { grid-template-columns: 44px minmax(0, 1fr); border-top: 1px solid var(--line-control); margin-top: 6px; padding-top: 8px; font-weight: 600; }
+.ledger-top { display: flex; justify-content: space-between; gap: 8px; font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+
+/* ---------- not face to face ---------- */
+.seg-miss { background: var(--page); box-shadow: inset 0 0 0 1px var(--none); }
+.explain { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text-2); }
+.tiles4 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.tile4 { padding: 12px; border-radius: 12px; background: #232323; display: flex; flex-direction: column; gap: 2px; }
+.tile4 .n { font-family: var(--font-display); font-size: 24px; font-weight: 700; }
+.tile4 .t { font-size: 13px; color: var(--text-2); }
+.c-both { background: linear-gradient(90deg, var(--active), var(--reactive)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.c-none { color: var(--muted); }
+.attack { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line); padding-top: 14px; }
+.pct-list { display: flex; flex-direction: column; gap: 3px; font-size: 14px; color: var(--text-2); }
+.pct-list > div { display: flex; justify-content: space-between; }
+.pct-list > div span:last-child { font-family: var(--font-mono); text-align: right; }
+.pct-list .muted { color: var(--muted); font-size: 13px; padding-top: 4px; }

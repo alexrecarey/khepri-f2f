@@ -1,0 +1,31 @@
+/* ---------- chrome: sheet head, menu, saved rolls, settings, about, toast ---------- */
+.sheet-head { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 20px; }
+.sheet-actions { display: flex; justify-content: flex-end; gap: 2px; margin: -10px -8px -10px 0; }
+.icon-btn.sm { width: 40px; height: 40px; }
+.menu-ic { width: 20px; display: grid; place-items: center; color: var(--text-3); }
+
+.segs { display: flex; margin: 12px 4px 0; background: var(--well); border-radius: 10px; padding: 3px; }
+.seg { all: unset; box-sizing: border-box; cursor: pointer; flex: 1; text-align: center; padding: 10px; border-radius: 8px; color: var(--text-2); font-size: 15px; }
+.seg.on { background: var(--text); color: var(--bg); font-weight: 600; }
+.seg:focus-visible { outline: 2px solid var(--text-2); }
+
+.roll-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #3a1f1f; }
+.roll-delete { all: unset; box-sizing: border-box; cursor: pointer; position: absolute; top: 0; right: 0; bottom: 0; width: var(--roll-delete-w); display: grid; place-items: center; color: #fff; font-weight: 600; background: #b4423a; }
+.roll { all: unset; box-sizing: border-box; cursor: pointer; position: relative; width: 100%; display: flex; flex-direction: column; gap: 6px; padding: 14px; background: var(--surface-2); touch-action: pan-y; transition: transform .2s ease; user-select: none; }
+.roll.dragging { transition: none; }
+.roll:focus-visible { outline: 2px solid var(--text-2); outline-offset: -2px; }
+.roll-row { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; }
+.roll-row.dice { font-family: var(--font-display); font-weight: 600; }
+.roll-row.note { font-size: 13px; }
+
+.setting { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px; font-size: 15px; }
+.setting select { font: inherit; color: var(--text); background: var(--well); border: 1px solid var(--line-strong); border-radius: 8px; padding: 8px 10px; max-width: 55%; }
+.setting select:disabled { opacity: .6; }
+
+.about { display: flex; flex-direction: column; gap: 16px; padding: 18px 12px; font-size: 15px; line-height: 1.55; color: var(--text-2); }
+.about p { margin: 0; }
+.about a { color: var(--active); }
+.about-title { font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: .08em; color: var(--text); line-height: 1.2; }
+.small-print { font-size: 13px; color: var(--muted); }
+
+.toast { position: fixed; left: 50%; bottom: calc(var(--results-card-h) - 20px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 40; padding: 10px 16px; border-radius: 999px; background: var(--text); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,.5); animation: fade .15s ease; }

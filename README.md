@@ -36,7 +36,8 @@ src/search/    trooper search: build-time index (index.json) and the typo-tolera
                matcher; `yarn search-eval` scores it (docs/plans/search.md)
 src/data/      loads the army data chunk; src/lib/ small shared helpers
 src/ui/        the app's screens: shell, Matchup, Classic, trooper picker,
-               results card and sheet (design: docs/design-canvas/mobile-ux-redesign)
+               results card and sheet (design: docs/design-canvas/mobile-ux-redesign);
+               styles in src/ui/styles, design tokens in tokens.css
 ```
 
 Dependencies point one way: `ui -> state -> rules -> army`, and everything that
