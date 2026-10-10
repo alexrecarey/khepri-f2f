@@ -252,11 +252,15 @@ Fixtures: `?fixture=<Board>` opens the build in the state of a Final board
 (src/ui/fixtures: FinalPeek, FinalPeekRange, FinalResults, FinalUnopposed,
 FinalPicker, FinalMenu, FinalClassic, FinalClassicResults).
 
+Since then (2026-10-08 to 10-10): the results sheet is one element
+(`.rsheet`) that follows the finger while dragged and settles open or closed
+on release (useSheetGestures.js); the wounds/order numbers roll digit by
+digit (RollingNumber.jsx); search covers skills (docs/plans/search.md);
+fireteams, Sapper and Sixth Sense follow GAME_RULES.md.
+
 Not built, and why:
 - `⋯ More` situations (Low / Poor Visibility Zone, Saturation Zone, Prone,
   Engaged): no rules in `deriveInputs` yet; they need rulings first.
-- Search doesn't index skills; the desktop list labels matches only as "close
-  match" / "sounds like", not "fus → fug".
-- Motion: numbers tick in rather than rolling digit by digit; the results sheet
-  doesn't follow a drag.
+- The desktop list labels loose matches only as "close match" / "sounds
+  like", not "fus → fug".
 - Language: English only, the setting is a placeholder until translations land.
