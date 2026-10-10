@@ -39,8 +39,5 @@ export const store = createStore(browser ? bootState({search: window.location.se
 export const getState = () => store.get();
 export const dispatch = (action) => store.setState((s) => reduce(s, action));
 
-// `compare` (e.g. shallow from @tanstack/store, re-exported below) for
-// selectors that build a new object each time.
-export const useAppState = (selector, compare) => useSelector(store, selector, compare ? {compare} : undefined);
-
-export {shallow} from '@tanstack/store';
+// Selectors return a slice or a primitive (AGENTS.md): no compare needed.
+export const useAppState = (selector) => useSelector(store, selector);

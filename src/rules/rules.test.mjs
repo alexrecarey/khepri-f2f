@@ -7,7 +7,6 @@ import {normalizeWeaponRow, statOverrides} from '../army/normalize.js';
 import {effectiveTraits} from '../army/traits.js';
 import {bsWeapons, isBsAttackWeapon, parseWeaponMods} from '../army/weapons.js';
 import {searchKey} from '../lib/searchKey.js';
-import {loadoutLabels, matchupTraits} from '../matchup/labels.js';
 import {defaultWeapon} from './defaultWeapon.js';
 import {deriveInputs} from './matchup.js';
 import {attackStat, dodgeSuccessValue, mimetismMod, surpriseAttackMod} from './modifiers.js';
@@ -400,7 +399,6 @@ test('Immunity (ARM) is listed as used, with a note of what it ignored', () => {
   assert.deepEqual(shotAt(dog, 1, '1:', {extra: ['AP', 'Continuous Damage']}).notes,
     ['Active: target has Immunity (ARM); AP treated as N; Continuous Damage ignored']);
   assert.deepEqual(shotAt(dog, 1, '1:').notes, []);   // plain N: nothing to ignore
-  assert.deepEqual(matchupTraits(side(dog, combi, '1:')), ['Immunity (ARM)']);
 });
 
 test('Immunity (Enhanced) includes Immunity (ARM), and covers BTS saves too', () => {
@@ -433,7 +431,6 @@ test('Immunity (BTS): BTS-save ammo is treated as N, BTS not halved', () => {
   assert.equal(covered.armB, 8);
   assert.equal(covered.critImmuneB, false);
   assert.deepEqual(breaker.warnings, []);
-  assert.deepEqual(matchupTraits(side(jinwei, combi, '1:')), ['Immunity (BTS)']);
 });
 
 test('Immunity (BTS) does nothing against ARM saves; Plasma still rolls ARM and BTS', () => {
@@ -539,7 +536,6 @@ test('Vulnerability (Viral): no Immunity against Viral weapons', () => {
   assert.equal(breaker.inputs.ammoA, 'N');
   assert.equal(breaker.inputs.armB, 5);
   assert.equal(breaker.inputs.critImmuneB, true);
-  assert.deepEqual(matchupTraits(side(chaksa, combi, '1:')), ['Immunity (BTS)', 'Immunity (Critical)', 'Vulnerability (Viral)']);
 });
 
 // --- Loadout ammo extras: Combi Rifle (T2), Combi Rifle (Viral)... ---------
@@ -743,29 +739,12 @@ test('Nanoscreen works like cover, also against templates, and does not stack wi
 const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 const byIsc = (isc) => army.units.find((u) => u.isc === isc);
 
-test('Hatamoto: six distinguishable loadouts and only BS weapons listed', () => {
+test('Hatamoto: only BS weapons listed', () => {
   const hatamoto = byIsc('Hatamoto Imperial Guard');
   const group = hatamoto.byFaction['1102'].groups[0];
-  const labels = loadoutLabels(group, army.weapons).map((l) => l.label);
-  assert.equal(labels.length, 6);
-  assert.equal(new Set(labels).size, 6);
-  assert.match(labels[0], /Plasma Carbine/);
-  assert.match(labels[0], /NCO/);
-  assert.doesNotMatch(labels[0], /Heavy Pistol/);
   const names = bsWeapons(group.options[0], army.weapons).map((w) => w.label);
   assert.equal(names.length, 3);
   assert.ok(names.every((n) => /Plasma Carbine|Heavy Pistol/.test(n)));
-});
-
-test('matchupTraits lists only the traits the converter uses', () => {
-  const hatamoto = byIsc('Hatamoto Imperial Guard');
-  const active = resolveSelection(army, {unitId: hatamoto.id, factionId: 1102, optionId: 1, weaponKey: '111:Hit Mode', inCover: true});
-  assert.deepEqual(matchupTraits(active), ['Mimetism (-3)', 'No Cover', 'Nanoscreen', 'X Visor']);
-  const plain = side(profile({arm: 3}), combi, '1:', true);
-  assert.deepEqual(matchupTraits(plain), ['In cover']);
-  const dodger = side(profile({skills: [{id: 40, name: 'Dodge', extra: ['+3']}, {id: 162, name: 'Immunity', extra: ['Shock']}]}), combi, 'dodge');
-  assert.deepEqual(matchupTraits(dodger), ['Immunity (Shock)', 'Dodge +3']);
-  assert.deepEqual(matchupTraits({...dodger, ftSize: 3}), ['Immunity (Shock)', 'Dodge +4']);
 });
 
 test('Hatamoto plasma vs Sierra Dronbot HMG at 8-16"', () => {
@@ -795,7 +774,6 @@ test('Dog-Warrior shrugs off a Panzerfaust and a K1 (Immunity (ARM))', () => {
   const form = group.profiles.find((p) => p.name === 'DOG-WARRIOR FORM');
   const o = group.options[0];
   const reactive = resolveSelection(army, {unitId: dog.id, factionId: f, groupId: group.id, profileId: form.id, optionId: o.id, weaponKey: 'dodge'});
-  assert.ok(matchupTraits(reactive, 'B').includes('Immunity (ARM)'));
   const find = (name) => Object.entries(army.weapons).find(([, rows]) => rows[0].name === name);
   const shooter = (name) => {
     const [id, rows] = find(name);
@@ -879,8 +857,6 @@ test('fireteam size sets cumulative bonuses', () => {
   const dodge = (n) => deriveInputs({active: at(1), reactive: at(n, 'dodge'), rangeCm: 40}).inputs.successValueB;
   assert.deepEqual([0, 2, 3].map(dodge), [11, 11, 12]);
 
-  assert.deepEqual(matchupTraits(at(3)), ['+1SD']);
-  assert.deepEqual(matchupTraits(at(4)), ['+1SD', 'BS+1']);
   // A Fireteam of 5 gives Sixth Sense: its Dodge takes no negative MODs.
   const bsAttacker = {...side(profile({skills: [{id: 201, name: 'BS Attack', extra: ['-3']}]}), combi, '1:'), ftSize: 1};
   const dodgeVs = (n) => deriveInputs({active: bsAttacker, reactive: at(n, 'dodge'), rangeCm: 40}).inputs.successValueB;
@@ -897,15 +873,12 @@ test('BS Attack skill SD / B stack with Fireteam and loadout extras', () => {
   const r = deriveInputs({active: x, reactive: x, rangeCm: 40}).inputs;
   assert.equal(r.bonusBurstA, 2);
   assert.equal(r.bonusBurstB, 2);
-  assert.deepEqual(matchupTraits(x), ['+2SD']);
 
   const gecko = profile({skills: [{id: 201, name: 'BS Attack', extra: ['+1B']}]});
   const g = side(gecko, combi, '1:');
   const rg = deriveInputs({active: g, reactive: g, rangeCm: 40}).inputs;
   assert.equal(rg.burstA, 4);
   assert.equal(rg.burstB, 1);
-  assert.deepEqual(matchupTraits(g, 'A'), ['+1B']);
-  assert.deepEqual(matchupTraits(g, 'B'), []);
 });
 
 test('template burst comes from loadout extras (Dog-Warrior B2 Chain Rifle)', () => {
@@ -916,56 +889,6 @@ test('template burst comes from loadout extras (Dog-Warrior B2 Chain Rifle)', ()
   assert.equal(r.burstA, 2);
   assert.equal(r.bonusBurstA, 0);
   assert.equal(r.templateA, true);
-  assert.deepEqual(matchupTraits(x), []);
-});
-
-test('loadout labels: same-playing loadouts collapse to the lowest SWC/pts, extras disambiguate', () => {
-  const w = [{id: 1, name: 'Combi Rifle'}, {id: 8, name: 'CC Weapon'}];
-  const group = {options: [
-    option(w, {id: 1, points: 12, swc: '0.5'}),
-    option([...w].reverse(), {id: 2, points: 9}),
-    option(w, {id: 3, points: 10}),
-    option([{id: 1, name: 'Combi Rifle', extra: ['+1B']}, w[1]], {id: 4}),
-    option([{id: 1, name: 'Combi Rifle', extra: ['+1B']}, w[1]], {id: 5}),
-  ]};
-  assert.deepEqual(loadoutLabels(group, W), [
-    {id: 1, label: 'Combi Rifle', swc: '0+', points: '9+', detail: 'CC Weapon'},
-    {id: 4, label: 'Combi Rifle (+1B)', swc: '0', points: '10', detail: 'CC Weapon'},
-  ]);
-});
-
-test('loadout labels: name, then abbreviated skills and equipment, then weapons', () => {
-  const group = {options: [
-    option([{id: 1, name: 'Combi Rifle'}], {id: 1, skills: [{id: 64, name: 'Paramedic'}], equip: [{id: 106, name: 'MediKit'}]}),
-    option([{id: 7, name: 'Heavy Machine Gun'}], {
-      id: 2,
-      name: 'O FTO',
-      skills: [{id: 119, name: 'Lieutenant', extra: ['+1 Order']}],
-      equip: [{id: 115, name: 'Multispectral Visor L2'}],
-    }),
-  ]};
-  assert.deepEqual(loadoutLabels(group, W).map((l) => l.label), [
-    'O · Paramedic, MediKit · Combi Rifle',
-    'O FTO · Lt (+1 Order), MSV2 · Heavy Machine Gun',
-  ]);
-});
-
-test('loadout detail: weapons the label leaves out, alternatives over collapsed loadouts', () => {
-  const rifle = {id: 1, name: 'Combi Rifle'};
-  const pistol = {id: 6, name: 'Heavy Pistol'};
-  const cc = {id: 8, name: 'CC Weapon'};
-  const da = {id: 8, name: 'DA CC Weapon'};
-  const mines = {id: 99, name: 'Mines'};
-  // First row of a group whose other row also has the pistol, so the label drops it.
-  const first = (...loadouts) => loadoutLabels({options: [
-    ...loadouts.map((weapons, i) => option(weapons, {id: i + 1})),
-    option([{id: 7, name: 'Heavy Machine Gun'}, pistol], {id: 9}),
-  ]}, W)[0];
-  assert.deepEqual(first([rifle, pistol, cc]),
-    {id: 1, label: 'Combi Rifle', swc: '0', points: '10', detail: 'Heavy Pistol, CC Weapon'});
-  assert.equal(first([rifle, pistol, cc], [rifle, pistol, cc, mines]).detail, 'Heavy Pistol, CC Weapon · optional Mines');
-  assert.equal(first([rifle, pistol, cc], [rifle, pistol, da]).detail, 'Heavy Pistol · CC Weapon or DA CC Weapon');
-  assert.equal(loadoutLabels({options: [option([rifle])]}, W)[0].detail, '');
 });
 
 test('loadout stat overrides (BS=11, BTS=3) replace the profile stat', () => {
@@ -1022,7 +945,6 @@ test('Team-Ops upgrades: stat, equipment, TacBall weapon, unsupported weapon war
 
   const tac = pick(null, idx(unit.upgrades.ball, 'Plasma Carbine'));
   assert.ok(bsWeapons(tac.option, army.weapons).some((w) => w.name === 'Plasma Carbine'));
-  assert.deepEqual(matchupTraits(tac).includes('Plasma Carbine'), true);
 
   const mines = pick(idx(unit.upgrades.chart, 'Minelayer, Shock Mine'));
   const w = bsWeapons(mines.option, army.weapons)[0];
@@ -1074,7 +996,6 @@ test('BS Attack (AP) on the profile gives every BS weapon AP', () => {
   // ARM 5 halved, rounding up.
   const r = deriveInputs({active: side(p, o, '1:'), reactive: side(profile({arm: 5}), combi, '1:'), rangeCm: 40});
   assert.equal(r.inputs.armB, 3);
-  assert.deepEqual(matchupTraits(side(p, o, '1:'), 'A'), ['BS Attack (AP)']);
 });
 
 test('BS Attack (AP) on the loadout works the same; without it nothing changes', () => {
@@ -1163,14 +1084,13 @@ test('Immunity (Continuous Damage) ignores the Trait, not the hit', () => {
   assert.equal(shoot([], [{id: 14, name: 'Vulkan Shotgun'}], '14:', immune('Continuous Damage')).inputs.contA, false);
 });
 
-test('BS Attack extras combine, and the summary lists them', () => {
+test('BS Attack extras combine', () => {
   const skills = [bsAttack('SR-1', 'Continuous Damage', '+1B')];
   const r = shoot(skills, [{id: 1, name: 'Combi Rifle'}], '1:');
   assert.equal(r.inputs.damageA, 6);
   assert.equal(r.inputs.contA, true);
   assert.equal(r.inputs.burstA, 4);
   const s = side(profile({skills}), combi, '1:');
-  assert.deepEqual(matchupTraits(s, 'A'), ['BS Attack (SR-1)', 'BS Attack (Continuous Damage)', '+1B']);
 });
 
 const minus3 = {id: 201, name: 'BS Attack', extra: ['-3']};
@@ -1214,7 +1134,6 @@ test('Warhorse ignores BS Attack (-3), however it is gained', () => {
   assert.equal(r.inputs.successValueB, 15);
   assert.ok(r.notes.includes("Reactive: Warhorse; the opponent's BS Attack (-3) has no effect"), r.notes.join(' | '));
   assert.equal(duel(fromLoadout, side(profile({skills: [warhorse]}), combi, 'dodge')).inputs.successValueB, 12);
-  assert.deepEqual(matchupTraits(fromLoadout, 'A'), ['BS Attack (-3)']);
 });
 
 test('MODs to a roll are capped at +/-12; Fireteam +1 BS is a MOD and counts', () => {
@@ -1264,7 +1183,6 @@ test('Dodge (-3): the attacker takes -3 while the user Dodges; not its own Dodge
   assert.equal(duel(side(profile(), flamer, '3:'), side(firebat, combi, 'dodge')).inputs.successValueB, 12);
   // Not Warhorse's business.
   assert.equal(duel(side(profile({skills: [warhorse]}), combi, '1:'), side(firebat, combi, 'dodge')).inputs.successValueA, 12);
-  assert.deepEqual(matchupTraits(side(firebat, combi, 'dodge'), 'B'), ['Dodge (-3)']);
 });
 
 test('Dodge (+1SD): a Special Die on the Dodge Roll, template or not', () => {
@@ -1275,7 +1193,6 @@ test('Dodge (+1SD): a Special Die on the Dodge Roll, template or not', () => {
   assert.equal(vsTemplate.inputs.bonusBurstB, 1);
   assert.equal(duel(side(kazak, combi, 'dodge'), side(profile(), combi, '1:')).inputs.bonusBurstA, 1);
   assert.equal(duel(side(profile(), combi, '1:'), side(profile(), combi, 'dodge')).inputs.bonusBurstB, 0);
-  assert.deepEqual(matchupTraits(side(kazak, combi, 'dodge'), 'B'), ['+1SD']);
 });
 
 test('Dodge (ARM +3): +3 ARM against the attack it Dodges', () => {
@@ -1328,7 +1245,6 @@ test('Marksmanship ignores the -3 from cover and Nanoscreen, not the +3 to saves
   assert.deepEqual(at(m, profile(), true), [15, 5]);
   assert.deepEqual(at(m, profile({equip: [nanoscreen]})), [15, 5]);
   assert.deepEqual(at(m, profile({skills: [{id: 28, name: 'Mimetism', extra: ['-3']}]})), [12, 2]);   // not Mimetism
-  assert.ok(matchupTraits(side(m, combi, '1:'), 'A').includes('Marksmanship'));
 });
 
 test('Albedo (-X) hits MSV L1/L2/L3 and Marksmanship attackers; Marksmanship still cancels cover', () => {
@@ -1353,8 +1269,6 @@ test('Surprise Attack (-3): only when toggled on, the opponent takes -3 attackin
   assert.equal(duel(using(side(infiltrator, combi, '1:')), side(profile(), combi, 'dodge')).inputs.successValueB, 9);
   // Surprise Attack (-6).
   assert.equal(duel(using(side(profile({skills: [surprise('-6')]}), combi, '1:')), side(profile(), combi, '1:')).inputs.successValueB, 9);
-  assert.deepEqual(matchupTraits(using(side(infiltrator, combi, '1:')), 'A'), ['Surprise Attack (-3)']);
-  assert.deepEqual(matchupTraits(using(side(infiltrator, combi, '1:'), false), 'A'), []);
 });
 
 test('Surprise Attack: not from the reactive side, not with a template, not when Dodging, not without the skill', () => {

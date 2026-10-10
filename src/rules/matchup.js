@@ -14,18 +14,12 @@ import {
 } from './saves.js';
 import {isSpecOps} from './trooper.js';
 
-// Skills, equipment and Immunities the rules below take into account, for the
-// matchup summary (matchup/labels.js).
-export const MODELED_SKILLS = [
-  SKILL.MIMETISM, SKILL.NO_COVER, SKILL.LIMITED_COVER, SKILL.MARKSMANSHIP, SKILL.TOTAL_REACTION, SKILL.NEUROCINETICS,
-  SKILL.VULNERABILITY,
-];
-export const MODELED_EQUIP = [EQUIP.NANOSCREEN, EQUIP.MSV1, EQUIP.MSV2, EQUIP.MSV3, EQUIP.X_VISOR, EQUIP.ALBEDO];
+// The Immunities the rules here read, and Immunities to States the calculator
+// doesn't model (E/M's IMM-B and Isolated, Possession): recognized, and
+// correctly change nothing here, since a hit is scored the same and only the
+// State afterwards differs (Warhorse's immunity to Isolated is the same case).
+// scripts/army-validate.mjs fails on any other Immunity in the army data.
 export const MODELED_IMMUNITIES = ['AP', 'ARM', 'BTS', 'Continuous Damage', 'Critical', 'Enhanced', 'Shock'];
-// Immunities to States the calculator doesn't model (E/M's IMM-B and Isolated,
-// Possession). Recognized, and correctly change nothing here: a hit is scored
-// the same, only the State afterwards differs. Warhorse's immunity to Isolated
-// is the same case.
 export const STATE_IMMUNITIES = ['IMM-B', 'Isolated', 'POS'];
 
 // Traits that matter to the roll but aren't modelled yet: a warning.

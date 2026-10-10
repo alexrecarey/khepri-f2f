@@ -182,10 +182,8 @@ test('storage: saves the persisted slices and reads them back', () => {
 });
 
 test('storage: reads the keys older builds wrote, survives junk', () => {
-  const legacy = memStorage({calculatorMode: '"basic"', recentTroopers: JSON.stringify([{unitId: 5}])});
-  const out = loadPersisted(legacy);
-  assert.equal(out.mode, 'basic');
-  assert.deepEqual(out.lists.recents, [{unitId: 5}]);
+  const legacy = memStorage({calculatorMode: '"basic"'});
+  assert.equal(loadPersisted(legacy).mode, 'basic');
   const junk = memStorage({[STORAGE_KEY]: '{not json', calculatorMode: 'nope'});
   assert.deepEqual(loadPersisted(junk), {scopes: {}, prefs: {}, lists: {recents: [], recentFactions: [], saved: []}});
   assert.deepEqual(loadPersisted(null).lists.recents, []);

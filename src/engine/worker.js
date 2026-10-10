@@ -62,7 +62,6 @@ function run({data, requestId}) {
     return
   }
   results['parameters'] = data;
-  results['id'] = Date.now();
   const elapsed = Date.now() - startTime;
   self.postMessage({command: 'result', requestId, value: results, elapsed, totalRolls: results['total_rolls']})
 }

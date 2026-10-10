@@ -18,6 +18,7 @@
 //     scrolled). So a drag is cancelled unless it scrolls something that can
 //     still scroll that way: the list up and down, the chip row sideways.
 import {useEffect, useLayoutEffect} from 'react';
+import {DEV_TOOLS} from '../devTools.js';
 
 let touchStart = null;
 
@@ -62,8 +63,9 @@ function onTouchMove(e) {
   if (!ok && e.cancelable) e.preventDefault();
 }
 
-// ?debug=touch: a readout of the drag guard's decisions, for phone testing.
-if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === 'touch') {
+// ?debug=touch: a readout of the drag guard's decisions, for phone testing
+// (dev and previews only).
+if (DEV_TOOLS && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === 'touch') {
   const box = document.createElement('pre');
   box.style.cssText = 'position:fixed;left:0;right:0;top:40px;z-index:999;margin:0;padding:6px;font:10px/1.3 monospace;color:#0f0;background:rgba(0,0,0,.8);pointer-events:none;white-space:pre-wrap;max-height:40vh;overflow:hidden';
   const lines = [];

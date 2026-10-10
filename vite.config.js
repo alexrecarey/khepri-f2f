@@ -4,6 +4,7 @@ import svgr from 'vite-plugin-svgr'
 import { VitePWA } from 'vite-plugin-pwa'
 import { execSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
+import { PRECACHE_MAX_BYTES } from './scripts/precache.mjs'
 
 // Shown in the menu and About: which build and which army data this is.
 // Netlify sets COMMIT_REF; locally, ask git.
@@ -24,6 +25,8 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(commit()),
     __ARMY_DATE__: JSON.stringify(armyDate()),
+    // Netlify deploy previews keep the dev tools (src/devTools.js).
+    __PREVIEW__: JSON.stringify(['deploy-preview', 'branch-deploy'].includes(process.env.CONTEXT)),
   },
   plugins: [
     react(), 
@@ -61,8 +64,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png}'],
-        // The Army unit data chunk is ~2.6 MB unminified; keep it precached for offline use.
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        // The army data chunk (~2.7 MB minified) stays precached for offline
+        // use; scripts/check-build.mjs fails the build check if it outgrows this.
+        maximumFileSizeToCacheInBytes: PRECACHE_MAX_BYTES,
         cleanupOutdatedCaches: true,
         runtimeCaching: [
           {

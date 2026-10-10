@@ -1,13 +1,12 @@
 // The persisted slices of the state document (mode, prefs, lists, scopes) in
-// localStorage, under one versioned key. Reads the keys older builds used
-// (calculatorMode, recentTroopers) once, when the new key isn't there yet.
+// localStorage, under one versioned key. Reads the mode the old calculator
+// kept (calculatorMode) once, when the new key isn't there yet.
 // `storage` is anything with getItem/setItem (localStorage; a Map-like in tests).
 import {MODES} from '../ui/modes.js';
 import {MAX_RECENTS, STATE_VERSION} from './schema.js';
 
 export const STORAGE_KEY = 'itc.state';
 const LEGACY_MODE = 'calculatorMode';
-const LEGACY_RECENTS = 'recentTroopers';
 
 const readJson = (storage, key) => {
   try {
@@ -27,8 +26,7 @@ export function loadPersisted(storage) {
   if (!isObject(saved)) {
     // Older builds: jotai's atomWithStorage kept the mode as a JSON string.
     const mode = storage ? readJson(storage, LEGACY_MODE) : undefined;
-    const recents = storage ? readJson(storage, LEGACY_RECENTS) : undefined;
-    saved = {v: STATE_VERSION, mode, lists: {recents}};
+    saved = {v: STATE_VERSION, mode};
   }
   const lists = isObject(saved.lists) ? saved.lists : {};
   const scopes = {};

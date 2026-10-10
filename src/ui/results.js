@@ -20,11 +20,11 @@
 //   joint      unopposed only: the two attacks are independent, so the order
 //              ends one of four ways: {both, onlyActive, onlyReactive, neither}
 //              (onlyActive = only the active side causes wounds)
-import {woundsPerOrder} from '../display/DataTransform.js';
-
 export const MAX_WOUNDS = 3;
 
 const sum = (rows) => rows.reduce((s, r) => s + r.chance, 0);
+// Expected wounds: each outcome's wounds weighted by its chance.
+const woundsPerOrder = (rows) => rows.reduce((t, r) => t + r.wounds * r.chance, 0);
 
 // One side's attack when nothing opposes it (sideResult = result.unopposed.x).
 function attackOnItsOwn(sideResult, player) {
