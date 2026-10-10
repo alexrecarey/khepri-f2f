@@ -255,7 +255,6 @@ FinalPicker, FinalMenu, FinalClassic, FinalClassicResults).
 Not built, and why:
 - `⋯ More` situations (Low / Poor Visibility Zone, Saturation Zone, Prone,
   Engaged): no rules in `deriveInputs` yet; they need rulings first.
-- Fireteam chip still shows for every unit (no can-fireteam data).
 - Search doesn't index skills; the desktop list labels matches only as "close
   match" / "sounds like", not "fus → fug".
 - Motion: numbers tick in rather than rolling digit by digit; the results sheet
