@@ -27,7 +27,11 @@ const countsAs = (comment) => {
 };
 const isFto = (entry) => /\bFTO\b/.test(entry.name) || /^\s*FTO/.test(entry.comment ?? '');
 // "REGULAR" for "REGULAR", "BLADE" for "BLADE FTO": what a counts-as comment names.
-const baseName = (name) => name.replace(/\bFTO\b/g, '').trim().toLowerCase();
+// "fusilier" for "FUSILIERS", "blade" for "BLADE FTO": names compared without
+// case, FTO or a plural s.
+const norm = (name) => name.replace(/\bFTO\b/g, '').replace(/\s+/g, ' ').trim().toLowerCase().replace(/s$/, '');
+// A name matches a label word by word: "helot" covers "helot militiaman".
+const covers = (label, name) => name === label || name.startsWith(`${label} `);
 
 function coreCap(chart) {
   const m = /Core have a maximum of (\d+)/i.exec(chart.desc ?? '');
@@ -38,15 +42,19 @@ function teamSize(type, chart) {
   return type === 'CORE' ? coreCap(chart) : SIZE[type];
 }
 
-// Whether `m` stands in for `group`: its own unit (a slug), or a name from a
-// counts-as comment. That name is either another entry ("(Orc, Helot)") or a
-// label several entries share ("(Steel Phalanx)", "(Undertow)").
+// Whether `m` stands in for `group`: "n:<name>", an entry's own name, or
+// "l:<label>", a name from a counts-as comment. A label means another entry
+// ("(Orc Troops)" for ORC) or a name several entries share ("(Steel
+// Phalanx)", "(Undertow)"), so labels and names match word by word either
+// way; two entry names must be equal (Zhanshi is not Zhanshi Yisheng, and
+// Scarface is not Cordelia Turner though Army sells them as one unit).
 function standsFor(m, group) {
-  if (group === m.slug) return true;
-  if (!group.startsWith('as:')) return false;
-  const n = group.slice(3);
-  const own = baseName(m.name);
-  return countsAs(m.comment).includes(n) || (own && (own.startsWith(n) || n.startsWith(own)));
+  const kind = group.slice(0, 2);
+  const n = group.slice(2);
+  const own = norm(m.name);
+  const labels = countsAs(m.comment).map(norm);
+  if (kind === 'n:') return own === n || labels.some((c) => covers(c, n) || covers(n, c));
+  return labels.includes(n) || covers(n, own) || covers(own, n);
 }
 
 // The purity `x` can reach in one team. `x` is one of the team's entries, or
@@ -56,7 +64,7 @@ function teamPurity(x, team, chart, fielded, extra = false) {
   if (!sizes.length) return 0;
   const size = Math.max(...sizes);
   const members = (extra ? [...team.units, x] : team.units).filter((m) => m.slug);
-  const groups = new Set(members.flatMap((m) => [m.slug, ...countsAs(m.comment).map((n) => `as:${n}`)]));
+  const groups = new Set(members.flatMap((m) => [`n:${norm(m.name)}`, ...countsAs(m.comment).map((c) => `l:${norm(c)}`)]));
   let best = 0;
   for (const group of groups) {
     // Everyone who can stand in for the group, x included only if it does.

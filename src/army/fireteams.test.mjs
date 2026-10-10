@@ -65,3 +65,10 @@ test('a counts-as label shared by several entries makes them one unit', () => {
   assert.equal(ft.hoplites.all, 3); // with Makhai, both Steel Phalanx
   assert.equal(ft.dactyls.all, 2); // takes one of the three slots: 2 Steel Phalanx + Dactyl
 });
+
+test('two differently named entries of one unit are not pure together', () => {
+  const chart = {spec: SECTORIAL, teams: [{type: ['DUO'], units: [
+    entry('SCARFACE', 'scarface-cordelia'), entry('CORDELIA TURNER', 'scarface-cordelia'), entry('TRIPHAMMER', 'triphammers', 2),
+  ]}]};
+  assert.equal(fireteamLimits([chart])['scarface-cordelia'].all, 0);
+});

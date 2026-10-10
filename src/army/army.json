@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-09T23:59:18.597Z",
+ "generatedAt": "2026-10-10T00:19:20.067Z",
  "source": "https://api.corvusbelli.com/army (Corvus Belli, Infinity Army). Unofficial snapshot.",
  "factions": {
   "101": {
@@ -291471,10 +291471,6 @@
       }
      ]
     }
-   },
-   "fireteam": {
-    "all": 2,
-    "fto": 2
    }
   },
   {
