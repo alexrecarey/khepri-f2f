@@ -21,7 +21,7 @@ export function Menu() {
   const savedCount = useAppState((s) => s.lists.saved.length);
   const item = (m, text) => (
     <button type="button" className="menu-item" onClick={() => dispatch({type: 'setMode', mode: m})} aria-pressed={mode === m}>
-      <span className="dot" style={{color: mode === m ? 'var(--active)' : '#555'}}>{mode === m ? '●' : '○'}</span>
+      <span className="dot" style={{color: mode === m ? 'var(--active)' : 'var(--faint)'}}>{mode === m ? '●' : '○'}</span>
       <span style={{flexGrow: 1, color: mode === m ? 'var(--text)' : 'var(--text-2)'}}>{text}</span>
       {mode === m && <span className="note">opens next time</span>}
     </button>

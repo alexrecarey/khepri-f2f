@@ -16,9 +16,12 @@
   --handle: #444;            /* a sheet's drag handle */
   --text: #e8e6e1;
   --text-2: #c9c6bf;
-  --text-3: #9a978f;
-  --muted: #8a877f;
-  --faint: #6b6861;
+  /* Greys that carry text, lifted a step for WCAG AA (Oct 2026): --faint was 3.1:1 on
+     --surface and --muted 4.2:1 on --surface-3. Each now holds 4.5:1 on every grey ground
+     up to --surface-3. */
+  --text-3: #a6a39b;
+  --muted: #9a978f;
+  --faint: #8a877f;
 
   --active: #5fc4a0;
   --active-tint: #1f3a31;
@@ -45,6 +48,12 @@
   --results-card-h: 170px;
   /* The Delete button behind a saved roll; Chrome.jsx OPEN slides this far. */
   --roll-delete-w: 88px;
+
+  /* The smallest type (Oct 2026: readers found 9-11px too small). Nothing goes under
+     --fs-label; caps labels use it, everything lowercase starts at --fs-small. In rem so a
+     reader's browser font size scales them. */
+  --fs-label: 0.75rem;    /* 12px */
+  --fs-small: 0.8125rem;  /* 13px */
 
   --font-display: 'Chakra Petch', system-ui, sans-serif;
   --font-body: 'IBM Plex Sans', system-ui, sans-serif;

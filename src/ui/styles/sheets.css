@@ -5,7 +5,7 @@
 .wpo.right { align-items: flex-end; }
 .big { font-family: var(--font-display); font-size: 34px; font-weight: 700; line-height: 1; }
 .big.xl { font-size: 48px; }
-.small { font-size: 12px; color: var(--text-3); }
+.small { font-size: var(--fs-small); color: var(--text-3); }
 .bar { display: flex; overflow: hidden; }
 .bar span { display: block; height: 100%; }
 .seg-a3 { background: var(--active-3); } .seg-a2 { background: var(--active); } .seg-a1 { background: var(--active-1); }
@@ -26,8 +26,8 @@
 .hl-dots button { all: unset; cursor: pointer; display: grid; place-items: center; width: 24px; height: var(--tap); }
 .hl-dots button:focus-visible { outline: 2px solid var(--text-2); border-radius: 6px; }
 .hl-dots button:hover i:not(.on) { background: var(--text-3); }
-.split { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
-.status { font-size: 12px; color: var(--faint); text-align: center; }
+.split { display: flex; justify-content: space-between; font-size: var(--fs-small); color: var(--muted); }
+.status { font-size: var(--fs-small); color: var(--faint); text-align: center; }
 
 /* ---------- sheets ---------- */
 .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 20; animation: fade .2s ease; }
