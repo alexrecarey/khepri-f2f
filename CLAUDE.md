@@ -12,6 +12,10 @@ are in README.md ("How it's put together").
 - `yarn build` — production build (CI runs this too)
 - `yarn dev` — dev server
 
+## Code quality rules
+
+@AGENTS.md
+
 ## Working conventions
 
 - One branch per feature off `main`; PRs are rebase-merged.
