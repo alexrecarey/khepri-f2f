@@ -22,7 +22,7 @@ export function WoundBar({summary, height, labels = false, grow = false}) {
     <div className={`bar${grow ? ' rs-wbar' : ''}`} style={grow ? undefined : {height, borderRadius: height > 10 ? 8 : 3}}>
       {summary.bar.filter((s) => shows(s.chance)).map((s) => (
         <span key={`${s.side}${s.wounds}`} className={segClass(s)} style={{width: `${100 * s.chance}%`, display: 'grid', placeItems: 'center',
-          fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, color: s.side === 'none' ? 'var(--muted)' : 'var(--active-ink)'}}>
+          fontFamily: 'var(--font-mono)', fontSize: 'var(--fs-label)', fontWeight: 600, color: s.side === 'none' ? 'var(--muted)' : 'var(--active-ink)'}}>
           <span className="lbl">
             {labels && s.side === 'active' && s.chance > 0.05 ? woundsLabel(s.wounds, top) : ''}
             {labels && s.side === 'none' && s.chance > 0.05 ? '0' : ''}

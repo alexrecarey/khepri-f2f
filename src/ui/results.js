@@ -41,7 +41,8 @@ function attackOnItsOwn(sideResult, player) {
 // Dead always takes step 6. The other states spread down to step 3 at most,
 // so the state seen most often (1 wound, or Unconscious on 1 VITA) is not
 // the palest; only targets with five or six states reach down to 2 and 1.
-const RAMP = {active: ['#cdeee2', '#1f6b52'], reactive: ['#f6d9e8', '#8e3b67']};
+// The deep ends are dark enough that step 5 holds white text at 4.5:1 (WCAG AA).
+const RAMP = {active: ['#cdeee2', '#185e48'], reactive: ['#f6d9e8', '#8e3b67']};
 const STEPS = 6;
 const hex = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
 export function shadeStep(i, n) {
@@ -50,7 +51,7 @@ export function shadeStep(i, n) {
   return Math.round(start + (STEPS - start) * i / (n - 1));
 }
 // Text on a shade: dark ink on the light steps, near white on the deep ones.
-export const shadeInk = (side, i, n) => (shadeStep(i, n) >= 5 ? '#f4f2ee' : `var(--${side}-ink)`);
+export const shadeInk = (side, i, n) => (shadeStep(i, n) >= 5 ? '#ffffff' : `var(--${side}-ink)`);
 export function shade(side, i, n) {
   const [from, to] = RAMP[side].map(hex);
   const t = (shadeStep(i, n) - 1) / (STEPS - 1);

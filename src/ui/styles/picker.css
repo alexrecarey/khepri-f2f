@@ -1,12 +1,12 @@
 /* ---------- picker ---------- */
-.list-head { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 12px 8px 6px; }
+.list-head { font-size: var(--fs-label); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 12px 8px 6px; }
 .hit { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; gap: 3px; padding: 12px; border-radius: 10px; }
 .hit:active, .hit.first { background: var(--surface-3); }
 .hit .t { font-size: 16px; font-weight: 600; }
 .hit .t .tag { font-weight: 400; color: var(--text-3); }
 .hit .w { font-size: 14px; }
 .hit .m { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
-.hit .loose { font-size: 11px; color: var(--muted); font-family: var(--font-body); }
+.hit .loose { font-size: var(--fs-small); color: var(--muted); font-family: var(--font-body); }
 .line-btn { all: unset; box-sizing: border-box; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 14px 12px; font-size: 15px; border-radius: 10px; }
 .line-btn .r { color: var(--muted); font-size: 14px; }
 .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0 4px; }
