@@ -34,10 +34,13 @@ ChartLine.propTypes = {c: PropTypes.object.isRequired, sub: PropTypes.bool};
 
 // The unit: name, profile tabs, stats, skills, loadouts and the Use buttons.
 function UnitPane({m}) {
-  const {army, detail, profile, factionName, factionId, loadouts, pane, lat, color, pick, withProfile, hitFor, otherSet, otherName} = m;
+  const {army, detail, profile, factionName, factionId, loadouts, pane, lat, best, bestAt, color, pick, withProfile, hitFor, otherSet, otherName} = m;
+  // The loadout Enter picks is the lit one: the keyboard's in the loadouts
+  // pane, else the one the search matched ("fus ml") on a unit row.
+  const lit = pane === 'loadouts' ? lat : best ? bestAt : -1;
   useEffect(() => {
-    if (pane === 'loadouts') document.getElementById(`dp-lo-${lat}`)?.scrollIntoView({block: 'nearest'});
-  }, [pane, lat]);
+    if (lit >= 0) document.getElementById(`dp-lo-${lit}`)?.scrollIntoView({block: 'nearest'});
+  }, [lit, detail]);
   return (
     <>
       <div className="dp-unit">
@@ -63,7 +66,7 @@ function UnitPane({m}) {
         {loadouts.map((h, i) => {
           const charts = loadoutCharts(army, h.weaponIds);
           const tag = extraLoadoutName(h.loadout, h.unit) ?? loadoutTag(army, h);
-          const on = pane === 'loadouts' ? i === lat : false;
+          const on = i === lit;
           const main = charts[0];
           return (
             <div key={h.rowId} id={`dp-lo-${i}`} role="option" aria-selected={on} className={`dp-loadout${on ? ` on ${color}` : ''}`}

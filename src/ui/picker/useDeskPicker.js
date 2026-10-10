@@ -109,7 +109,7 @@ export default function useDeskPicker({searcher, army}) {
 
   return {
     searcher, army, sides, side, color, query, scope, pane, typing, browsing, factionName, matched,
-    all, browse, items, rows, at, current, unitId, factionId, loadouts, detail, profile, lat, bestAt,
+    all, browse, items, rows, at, current, unitId, factionId, loadouts, detail, profile, lat, best, bestAt,
     withProfile, hitFor, pick, otherSide, otherSet, otherName, chips,
   };
 }
