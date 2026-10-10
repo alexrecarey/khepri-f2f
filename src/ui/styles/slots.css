@@ -35,4 +35,4 @@
 .skel-row > :last-child { text-align: right; font-family: var(--font-mono); }
 .mods-wait { border: 1px dashed var(--line); border-radius: var(--radius-card); padding: 20px; display: flex; flex-direction: column; gap: 14px; font-family: var(--font-display); font-size: 13px; letter-spacing: .06em; opacity: .6; }
 .mods-wait .small { font-family: var(--font-body, inherit); letter-spacing: 0; }
-.btn kbd { color: inherit; border-color: currentColor; opacity: .7; margin-left: 4px; }
+.btn kbd { color: inherit; border-color: currentColor; margin-left: 4px; }
