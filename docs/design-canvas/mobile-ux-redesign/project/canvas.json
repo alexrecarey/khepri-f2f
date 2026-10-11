@@ -831,6 +831,51 @@
    "h": 900,
    "page": "final",
    "title": "Desktop saved rolls — centred dialog, same crest rows; hover/arrow row shows Delete, Enter loads, Esc closes"
+  },
+  "DeskChromeA.dc.html": {
+   "x": 0,
+   "y": 13640,
+   "w": 1440,
+   "h": 900,
+   "title": "Desktop menu A — header buttons: Saved, Settings (open), About",
+   "page": "final"
+  },
+  "DeskChromeB.dc.html": {
+   "x": 1520,
+   "y": 33350,
+   "w": 1440,
+   "h": 900,
+   "title": "B · ⋯ dropdown"
+  },
+  "DeskChromeBSettings.dc.html": {
+   "x": 3040,
+   "y": 33350,
+   "w": 1440,
+   "h": 900,
+   "title": "B · Settings dialog"
+  },
+  "DeskChromeAbout.dc.html": {
+   "x": 3040,
+   "y": 13640,
+   "w": 1440,
+   "h": 900,
+   "title": "Desktop menu A — About",
+   "page": "final"
+  },
+  "DeskChromeC.dc.html": {
+   "x": 6080,
+   "y": 33350,
+   "w": 1440,
+   "h": 900,
+   "title": "C · Side panel, stays open"
+  },
+  "DeskChromeASaved.dc.html": {
+   "x": 1520,
+   "y": 13640,
+   "w": 1440,
+   "h": 900,
+   "title": "Desktop menu A — Saved rolls open",
+   "page": "final"
   }
  },
  "createdOnFiles": {
@@ -1092,6 +1137,22 @@
    "kind": "title1",
    "maxW": 1440,
    "page": "final"
+  },
+  "deskchrome": {
+   "kind": "title1",
+   "x": 0,
+   "y": 33100,
+   "text": "Menu pages on desktop — Saved, Settings, About",
+   "w": 240,
+   "maxW": 7520
+  },
+  "finaldeskmenu": {
+   "x": 0,
+   "y": 13390,
+   "text": "Desktop menu — header buttons (A)",
+   "kind": "title1",
+   "maxW": 4480,
+   "page": "final"
   }
  },
  "order": [
@@ -1205,7 +1266,13 @@
   "HeadlineDiscover.dc.html",
   "FinalHeadline.dc.html",
   "ModsSummaryBottom.dc.html",
-  "FinalSavedDesk.dc.html"
+  "FinalSavedDesk.dc.html",
+  "DeskChromeA.dc.html",
+  "DeskChromeB.dc.html",
+  "DeskChromeBSettings.dc.html",
+  "DeskChromeAbout.dc.html",
+  "DeskChromeC.dc.html",
+  "DeskChromeASaved.dc.html"
  ],
  "pages": [
   {
