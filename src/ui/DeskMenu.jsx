@@ -6,7 +6,7 @@ import {useMemo} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {
-  ARMY_DATE, AboutIntro, AboutLinks, LanguageSetting, MADE_BY, StartFaction, TRADEMARK, VERSION,
+  ARMY_DATE, AboutContact, AboutIntro, AboutLinks, LanguageSetting, MADE_BY, StartFaction, TRADEMARK, VERSION,
   clearRecents, clearSaved, setHeadline,
 } from './Chrome.jsx';
 import DeskDialog from './DeskDialog.jsx';
@@ -94,6 +94,7 @@ export function AboutDialog() {
           <dt>App</dt><dd>v{VERSION}</dd>
         </dl>
         <p>{MADE_BY}</p>
+        <AboutContact />
         <AboutLinks />
         <p className="da-fine">{TRADEMARK}</p>
       </div>

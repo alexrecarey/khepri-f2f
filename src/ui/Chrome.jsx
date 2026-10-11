@@ -134,12 +134,16 @@ export const AboutIntro = () => (
 export const AboutLinks = () => (
   <p>
     <a href="https://github.com/alexrecarey/khepri-f2f">Source on GitHub</a>
-    {' · '}Powered by <a href="https://github.com/HighDiceRoller/icepool">icepool</a>
+    {' · '}Powered by <a href="https://github.com/HighDiceRoller/icepool">icepool</a> by <a href="https://github.com/HighDiceRoller">HighDiceRoller</a>
     {' · '}<a href="https://n4.infinitythecalculator.com">N4 calculator</a>
   </p>
 );
 export const MADE_BY = 'Made with ❤️ for the Infinity community by Khepri and Bebop.';
-export const TRADEMARK = 'Infinity is a trademark of Corvus Belli. This is a fan-made tool, not affiliated with Corvus Belli.';
+export const CONTACT_EMAIL = 'khepri@infinitythecalculator.com';
+export const AboutContact = () => (
+  <p>Bugs? Suggestions? Let me know at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
+);
+export const TRADEMARK = 'Infinity is a trademark of Corvus Belli. Thank you CB for being super supportive of fan projects like this one!';
 
 export function AboutPage() {
   return (
@@ -153,6 +157,7 @@ export function AboutPage() {
           App: v{VERSION}
         </p>
         <p>{MADE_BY}</p>
+        <AboutContact />
         <AboutLinks />
         <p className="small-print">{TRADEMARK}</p>
       </div>
