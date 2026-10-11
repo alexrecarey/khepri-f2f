@@ -17,7 +17,7 @@ body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#0f0f0f;color:#e
 
 <div style="display:flex;flex-direction:column;gap:6px">
 <span style="font-family:'Chakra Petch',sans-serif;font-size:22px;font-weight:700">Results card — the player picks the big number</span>
-<span style="font-size:13px;color:#8a877f;line-height:1.5;max-width:1100px">Settings › Results card sets it; a sideways swipe on the card (arrow keys when it has focus) moves to the next one and sticks. The dots only show where you are (the card itself is the button that opens the sheet); on the tablet/desktop results panel they are buttons. The big number and its bar change together; the small line carries what the headline gave up. FinalPeek roll, real engine output.</span>
+<span style="font-size:13px;color:#8a877f;line-height:1.5;max-width:1100px">Settings › Results card sets it; a sideways swipe on the card (arrow keys when it has focus) moves to the next one and sticks, wrapping round at either end. The dots only show where you are (the card itself is the button that opens the sheet) and are pinned to the centre of the row, so they stay still while the numbers change width. On the tablet/desktop results panel they are buttons. The big number and its bar change together; the small line carries what the headline gave up. FinalPeek roll, real engine output.</span>
 </div>
 
 <div style="display:flex;gap:40px;align-items:flex-start">
@@ -27,15 +27,15 @@ body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#0f0f0f;color:#e
 <div style="background:#121212;border-radius:14px;padding:24px 0 0;display:flex;justify-content:center">
 <div style="width:358px;display:flex;flex-direction:column;gap:10px;padding:8px 16px 24px;box-sizing:border-box;border-radius:20px 20px 0 0;background:#1f1f1f">
 <span style="align-self:center;width:40px;height:5px;border-radius:3px;background:#444"></span>
-<div style="display:flex;justify-content:space-between;align-items:flex-end">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;position:relative">
 <div style="display:flex;flex-direction:column"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#5fc4a0;line-height:1">0.81</span><span style="font-size:12px;color:#9a978f">wounds / order</span></div>
-<span aria-hidden="true" style="display:flex;gap:6px;align-self:center"><span style="width:6px;height:6px;border-radius:3px;background:#c9c6bf"></span><span style="width:6px;height:6px;border-radius:3px;background:#444"></span><span style="width:6px;height:6px;border-radius:3px;background:#444"></span></span><div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#e59bc0;line-height:1">0.46</span><span style="font-size:12px;color:#9a978f">wounds / order</span></div>
+<span aria-hidden="true" style="display:flex;gap:6px;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)"><span style="width:6px;height:6px;border-radius:3px;background:#c9c6bf"></span><span style="width:6px;height:6px;border-radius:3px;background:#444"></span><span style="width:6px;height:6px;border-radius:3px;background:#444"></span></span><div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#e59bc0;line-height:1">0.46</span><span style="font-size:12px;color:#9a978f">wounds / order</span></div>
 </div>
 <div style="display:flex;height:6px;border-radius:3px;overflow:hidden"><span style="width:23.6%;background:#1f6b52"></span><span style="width:24.1%;background:#87baa8"></span><span style="width:23.7%;background:#2e2e2e"></span><span style="width:14.7%;background:#e1b9ce"></span><span style="width:10.7%;background:#cc9ab4"></span><span style="width:3.0%;background:#b87a9b"></span><span style="width:0.2%;background:#a35b81"></span></div>
 <div style="display:flex;justify-content:space-between;font-size:12px;color:#8a877f"><span>47.7% at least one wound</span><span>28.6%</span></div>
 </div>
 </div>
-<span style="font-size:13px;color:#9a978f;line-height:1.5">Default. Swipe right to left for the next one; it wraps round.</span>
+<span style="font-size:13px;color:#9a978f;line-height:1.5">Default. Swipe right to left for the next one, left to right for the one before; past the last it wraps to the first, and back from the first to the last.</span>
 </div>
 
 <div style="display:flex;flex-direction:column;gap:12px;width:390px">
@@ -43,9 +43,9 @@ body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#0f0f0f;color:#e
 <div style="background:#121212;border-radius:14px;padding:24px 0 0;display:flex;justify-content:center">
 <div style="width:358px;display:flex;flex-direction:column;gap:10px;padding:8px 16px 24px;box-sizing:border-box;border-radius:20px 20px 0 0;background:#1f1f1f">
 <span style="align-self:center;width:40px;height:5px;border-radius:3px;background:#444"></span>
-<div style="display:flex;justify-content:space-between;align-items:flex-end">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;position:relative">
 <div style="display:flex;flex-direction:column"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#5fc4a0;line-height:1">56.8<span style="font-size:22px">%</span></span><span style="font-size:12px;color:#9a978f">wins face to face</span></div>
-<span aria-hidden="true" style="display:flex;gap:6px;align-self:center"><span style="width:6px;height:6px;border-radius:3px;background:#444"></span><span style="width:6px;height:6px;border-radius:3px;background:#c9c6bf"></span><span style="width:6px;height:6px;border-radius:3px;background:#444"></span></span><div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#e59bc0;line-height:1">35.6<span style="font-size:22px">%</span></span><span style="font-size:12px;color:#9a978f">wins face to face</span></div>
+<span aria-hidden="true" style="display:flex;gap:6px;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)"><span style="width:6px;height:6px;border-radius:3px;background:#444"></span><span style="width:6px;height:6px;border-radius:3px;background:#c9c6bf"></span><span style="width:6px;height:6px;border-radius:3px;background:#444"></span></span><div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#e59bc0;line-height:1">35.6<span style="font-size:22px">%</span></span><span style="font-size:12px;color:#9a978f">wins face to face</span></div>
 </div>
 <div style="display:flex;height:6px;border-radius:3px;overflow:hidden"><span style="width:56.8%;background:#5fc4a0"></span><span style="width:7.6%;background:#2e2e2e"></span><span style="width:35.6%;background:#e59bc0"></span></div>
 <div style="display:flex;justify-content:space-between;font-size:12px;color:#8a877f"><span>0.81 wounds / order</span><span>0.46</span></div>
@@ -59,9 +59,9 @@ body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#0f0f0f;color:#e
 <div style="background:#121212;border-radius:14px;padding:24px 0 0;display:flex;justify-content:center">
 <div style="width:358px;display:flex;flex-direction:column;gap:10px;padding:8px 16px 24px;box-sizing:border-box;border-radius:20px 20px 0 0;background:#1f1f1f">
 <span style="align-self:center;width:40px;height:5px;border-radius:3px;background:#444"></span>
-<div style="display:flex;justify-content:space-between;align-items:flex-end">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;position:relative">
 <div style="display:flex;flex-direction:column"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#5fc4a0;line-height:1">47.7<span style="font-size:22px">%</span></span><span style="font-size:12px;color:#9a978f">at least one wound</span></div>
-<span aria-hidden="true" style="display:flex;gap:6px;align-self:center"><span style="width:6px;height:6px;border-radius:3px;background:#444"></span><span style="width:6px;height:6px;border-radius:3px;background:#444"></span><span style="width:6px;height:6px;border-radius:3px;background:#c9c6bf"></span></span><div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#e59bc0;line-height:1">28.6<span style="font-size:22px">%</span></span><span style="font-size:12px;color:#9a978f">at least one wound</span></div>
+<span aria-hidden="true" style="display:flex;gap:6px;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)"><span style="width:6px;height:6px;border-radius:3px;background:#444"></span><span style="width:6px;height:6px;border-radius:3px;background:#444"></span><span style="width:6px;height:6px;border-radius:3px;background:#c9c6bf"></span></span><div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#e59bc0;line-height:1">28.6<span style="font-size:22px">%</span></span><span style="font-size:12px;color:#9a978f">at least one wound</span></div>
 </div>
 <div style="display:flex;height:6px;border-radius:3px;overflow:hidden"><span style="width:23.6%;background:#1f6b52"></span><span style="width:24.1%;background:#87baa8"></span><span style="width:23.7%;background:#2e2e2e"></span><span style="width:14.7%;background:#e1b9ce"></span><span style="width:10.7%;background:#cc9ab4"></span><span style="width:3.0%;background:#b87a9b"></span><span style="width:0.2%;background:#a35b81"></span></div>
 <div style="display:flex;justify-content:space-between;font-size:12px;color:#8a877f"><span>0.81 wounds / order</span><span>0.46</span></div>
@@ -75,9 +75,9 @@ body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#0f0f0f;color:#e
 <div style="background:#121212;border-radius:14px;padding:24px 0 0;display:flex;justify-content:center">
 <div style="width:358px;display:flex;flex-direction:column;gap:10px;padding:8px 16px 24px;box-sizing:border-box;border-radius:20px 20px 0 0;background:#1f1f1f">
 <span style="align-self:center;width:40px;height:5px;border-radius:3px;background:#444"></span>
-<div style="display:flex;justify-content:space-between;align-items:flex-end">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;position:relative">
 <div style="display:flex;flex-direction:column"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#5fc4a0;line-height:1">[A]<span style="font-size:22px">%</span></span><span style="font-size:12px;color:#9a978f">at least one wound</span></div>
-<span aria-hidden="true" style="display:flex;gap:6px;align-self:center"><span style="width:6px;height:6px;border-radius:3px;background:#444"></span><span style="width:6px;height:6px;border-radius:3px;background:#444"></span><span style="width:6px;height:6px;border-radius:3px;background:#c9c6bf"></span></span><div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#e59bc0;line-height:1">[R]<span style="font-size:22px">%</span></span><span style="font-size:12px;color:#9a978f">at least one wound</span></div>
+<span aria-hidden="true" style="display:flex;gap:6px;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)"><span style="width:6px;height:6px;border-radius:3px;background:#444"></span><span style="width:6px;height:6px;border-radius:3px;background:#444"></span><span style="width:6px;height:6px;border-radius:3px;background:#c9c6bf"></span></span><div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#e59bc0;line-height:1">[R]<span style="font-size:22px">%</span></span><span style="font-size:12px;color:#9a978f">at least one wound</span></div>
 </div>
 <div style="display:flex;gap:6px"><div style="flex-grow:1;height:6px;border-radius:3px;background:#2e2e2e;overflow:hidden;display:flex"><span style="width:62%;background:#87baa8"></span></div><div style="flex-grow:1;height:6px;border-radius:3px;background:#2e2e2e;overflow:hidden;display:flex;justify-content:flex-end"><span style="width:38%;background:#cc9ab4"></span></div></div>
 <div style="display:flex;justify-content:space-between;font-size:12px;color:#8a877f"><span>Not face to face · wounds / order [x]</span><span>[y]</span></div>
@@ -88,7 +88,7 @@ body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#0f0f0f;color:#e
 
 </div>
 
-<span style="font-size:13px;color:#8a877f;line-height:1.5;max-width:1500px">Open sheet: the chosen stat is the big pair at the top and both bars show as before; swiping works there too. Tablet and desktop: the panel's xl numbers follow the same setting, its dots are buttons. Classic follows it on the phone card.</span>
+<span style="font-size:13px;color:#8a877f;line-height:1.5;max-width:1500px">Open sheet: the chosen stat is the big pair at the top and both bars show as before; swiping works there too. Tablet and desktop: the panel's xl numbers follow the same setting; its dots are buttons side by side, each dot in the middle of its own 24 × 44 px target (no overlap, so a tap never lands on the neighbour). Classic follows it on the phone card.</span>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1760,"height":700}}'>
