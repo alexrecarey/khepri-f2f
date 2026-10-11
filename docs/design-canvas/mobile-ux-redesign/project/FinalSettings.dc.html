@@ -8,7 +8,7 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
 body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
 a{color:#5fc4a0}a:hover{color:#8fe0c2}
@@ -21,7 +21,19 @@ a{color:#5fc4a0}a:hover{color:#8fe0c2}
 </div>
 
 <div style="display:flex;flex-direction:column;padding:8px 8px">
-<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:14px 12px 6px">Starting factions</div>
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:14px 12px 6px">Results card</div>
+<div role="radiogroup" aria-label="Big number on the results card" style="display:flex;flex-direction:column">
+<sc-for list="{{choices}}" as="c" hint-placeholder-count="3">
+<button role="radio" aria-checked="{{c.on}}" onClick="{{c.pick}}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 12px;min-height:44px">
+<span style="width:20px;height:20px;border-radius:999px;box-sizing:border-box;border:2px solid {{c.ring}};display:grid;place-items:center;flex-shrink:0"><span style="width:10px;height:10px;border-radius:999px;background:{{c.dot}}"></span></span>
+<span style="display:flex;flex-direction:column;gap:2px;flex-grow:1"><span style="font-size:16px">{{c.name}}</span><span style="font-size:13px;color:#8a877f">{{c.hint}}</span></span>
+<span style="font-family:'Chakra Petch',sans-serif;font-size:20px;font-weight:700;color:{{c.numCol}}">{{c.sample}}</span>
+</button>
+</sc-for>
+</div>
+<span style="padding:4px 12px 0;font-size:13px;color:#8a877f;line-height:1.5">The big number on the results card; swipe the card sideways to change it there. The others are one swipe up.</span>
+
+<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;padding:18px 12px 6px">Starting factions</div>
 <button style="all:unset;cursor:pointer;display:flex;justify-content:space-between;padding:16px 12px;font-size:16px"><span>Active side</span><span style="color:#5fc4a0">Last used ›</span></button>
 <button style="all:unset;cursor:pointer;display:flex;justify-content:space-between;padding:16px 12px;font-size:16px"><span>Reactive side</span><span style="color:#e59bc0">Last used ›</span></button>
 
@@ -36,7 +48,26 @@ a{color:#5fc4a0}a:hover{color:#8fe0c2}
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
-class Component extends DCLogic { renderVals() { return {}; } }
+// The three headline choices; samples are the FinalPeek roll's active side.
+var CHOICES = [
+  { name: 'Wounds per order', hint: 'Average wounds this order causes', sample: '0.81' },
+  { name: 'Wins face to face', hint: 'Chance to win the roll', sample: '56.8%' },
+  { name: 'At least one wound', hint: 'Chance the target takes a wound', sample: '47.7%' }
+];
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { pick: 0 }; }
+  renderVals() {
+    var self = this;
+    return {
+      choices: CHOICES.map(function (c, i) {
+        var on = i === self.state.pick;
+        return { name: c.name, hint: c.hint, sample: c.sample, on: on ? 'true' : 'false',
+          ring: on ? '#5fc4a0' : '#555', dot: on ? '#5fc4a0' : 'transparent', numCol: on ? '#5fc4a0' : '#5a5852',
+          pick: function () { self.setState({ pick: i }); } };
+      })
+    };
+  }
+}
 </script>
 </body>
 </html>
