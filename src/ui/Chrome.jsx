@@ -1,7 +1,7 @@
-// The app chrome behind the ⋯ button: the menu sheet, Saved rolls, Settings,
-// About, and the toast. All of it reads the state document; each page is one
+// The app chrome behind the ⋯ button: the menu sheet, Settings, About and
+// the toast (Saved rolls: SavedRolls.jsx). All of it reads the state document; each page is one
 // overlay, so Back closes it.
-import {useEffect, useRef} from 'react';
+import {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, GearIcon, InfoIcon} from './icons.jsx';
@@ -49,106 +49,6 @@ export function Menu() {
         </span>
       </nav>
     </Sheet>
-  );
-}
-
-// How far a swiped card slides to show Delete: the Delete button's width
-// (app.css --roll-delete-w).
-const OPEN = -88;
-const deleteRoll = (id) => {
-  dispatch({type: 'deleteRoll', id});
-  dispatch({type: 'toast', text: 'Roll deleted'});
-};
-
-// One saved roll; swipe it left to show Delete.
-function RollCard({roll, swiped}) {
-  const {summary: s} = roll;
-  const drag = useRef(null);
-  const cardRef = useRef(null);
-  // When a swipe ended: the click that follows it is the swipe's own.
-  const swipeEnded = useRef(0);
-  const setX = (x) => { if (cardRef.current) cardRef.current.style.transform = x ? `translateX(${x}px)` : ''; };
-  const setDragging = (on) => cardRef.current?.classList.toggle('dragging', on);
-  useEffect(() => setX(swiped ? OPEN : 0), [swiped]);
-  const onDown = (e) => { drag.current = {x0: e.clientX, y0: e.clientY, base: swiped ? OPEN : 0, moved: false, id: e.pointerId}; };
-  const onMove = (e) => {
-    const d = drag.current;
-    if (!d) return;
-    const dx = e.clientX - d.x0;
-    if (!d.moved && Math.abs(dx) < 8) return;
-    if (!d.moved && Math.abs(e.clientY - d.y0) > Math.abs(dx)) { drag.current = null; return; }
-    if (!d.moved) {
-      // From here the card follows the pointer, even off the card, and
-      // without the transition that made it trail behind.
-      d.moved = true;
-      cardRef.current?.setPointerCapture?.(d.id);
-      setDragging(true);
-    }
-    setX(Math.min(0, Math.max(OPEN * 1.5, d.base + dx)));
-  };
-  const onUp = (e) => {
-    const d = drag.current;
-    drag.current = null;
-    if (!d?.moved) return;
-    setDragging(false);
-    swipeEnded.current = Date.now();
-    const x = d.base + e.clientX - d.x0;
-    const isOpen = x < OPEN / 2;
-    setX(isOpen ? OPEN : 0);
-    dispatch({type: 'setSwiped', id: isOpen ? roll.id : null});
-    e.preventDefault();
-  };
-  const onCancel = () => {
-    drag.current = null;
-    setDragging(false);
-    setX(swiped ? OPEN : 0);
-  };
-  const onClick = (e) => {
-    if (Date.now() - swipeEnded.current < 350) return;
-    if (swiped) { e.preventDefault(); dispatch({type: 'setSwiped', id: null}); return; }
-    dispatch({type: 'loadRoll', id: roll.id});
-  };
-  return (
-    <div className="roll-wrap">
-      <button type="button" className="roll-delete" tabIndex={swiped ? 0 : -1} onClick={() => deleteRoll(roll.id)}>Delete</button>
-      <button type="button" ref={cardRef} className="roll" onClick={onClick}
-        onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onCancel}
-        onKeyDown={(e) => { if (e.key === 'Delete' || e.key === 'Backspace') deleteRoll(roll.id); }}
-        aria-label={`${s.a} against ${s.r}, ${s.setup}. Load this roll`}>
-        <span className="roll-row" style={{fontWeight: 600}}><span className="c-active">{s.a}</span><span className="c-reactive">{s.r}</span></span>
-        <span className="roll-row dice"><span className="c-active">{s.ad}</span><span className="c-reactive">{s.rd}</span></span>
-        <span className="roll-row note"><span>{s.setup}</span><span><b className="c-active">{s.ap}</b> · <b className="c-reactive">{s.rp}</b></span></span>
-      </button>
-    </div>
-  );
-}
-
-RollCard.propTypes = {roll: PropTypes.object.isRequired, swiped: PropTypes.bool};
-
-export function SavedPage() {
-  const saved = useAppState((s) => s.lists.saved);
-  const mode = useAppState((s) => s.mode);
-  const tab = useAppState((s) => s.ui.savedTab) ?? mode;
-  const swiped = useAppState((s) => s.ui.swiped);
-  const count = (m) => saved.filter((r) => r.mode === m).length;
-  const list = saved.filter((r) => r.mode === tab);
-  const tabBtn = (m, name) => (
-    <button type="button" className={`seg${tab === m ? ' on' : ''}`} aria-pressed={tab === m}
-      onClick={() => dispatch({type: 'setSavedTab', tab: m})}>{name} · {count(m)}</button>
-  );
-  return (
-    <Page title="Saved rolls" className="from-menu" onBack={back} action={<span className="note" style={{paddingRight: 12, fontSize: 13}}>{saved.length}</span>}>
-      <div className="segs" role="group" aria-label="Which calculator">
-        {tabBtn(MODES.matchup, 'Matchup')}
-        {tabBtn(MODES.basic, 'Classic')}
-      </div>
-      <div style={{display: 'flex', flexDirection: 'column', gap: 8, padding: '12px 4px'}}>
-        {list.map((r) => <RollCard key={r.id} roll={r} swiped={swiped === r.id} />)}
-        {list.length > 0
-          ? <span className="note" style={{textAlign: 'center', padding: 8, color: 'var(--faint)'}}>Tap to load the whole setup · swipe left to delete</span>
-          : <span className="empty">Nothing saved yet. Open the results and tap Save to keep a roll here.</span>}
-      </div>
-    </Page>
   );
 }
 

@@ -17,6 +17,7 @@ import {modeLabels, orderModes} from '../rules/weaponModes.js';
 import {woundStates} from '../rules/woundStates.js';
 import {rootFaction} from '../search/buildIndex.js';
 import {ROLE} from './schema.js';
+import {crestOf} from '../army/crests.js';
 
 export const vanillaOf = (army, factionId) => (factionId == null || !army ? null : rootFaction(army.factions, factionId));
 
@@ -78,13 +79,17 @@ function sideView(army, sel, side) {
     // Surprise Attack's MOD, offered only on the active side.
     surprise: side === 'A' ? surpriseAttackMod(resolved?.traits) : 0,
     faction: unit ? army.factions[vanillaOf(army, resolved.factionId)]?.name ?? null : null,
+    // The vanilla faction id (its crest stands in for a missing unit crest)
+    // and the unit crest's slug (src/army/crests.js).
+    vanilla: unit ? vanillaOf(army, resolved.factionId) : null,
+    crest: unit ? crestOf(unit, resolved.profile) : null,
     short: unit ? shortIsc(unit.isc) : null,
     loadout: unit ? extraLoadoutName(resolved.option?.name, unit.isc) : null,
   };
 }
 
 const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], pseudo: [], groups: [], noCover: false, surprise: 0,
-  faction: null, short: null, loadout: null});
+  faction: null, vanilla: null, crest: null, short: null, loadout: null});
 
 
 export function matchupView(army, matchup) {

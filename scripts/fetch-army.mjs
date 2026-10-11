@@ -16,6 +16,9 @@
 //   4. validate  every value the rules read is one they understand
 //                (scripts/army-validate.mjs); anything new stops the build
 //                with the list of what to look at
+//   5. crests    each profile's unit crest as a slug (unit.crest, or
+//                profile.crest where a profile has its own); the SVGs are
+//                downloaded into public/crests by scripts/fetch-crests.mjs
 //
 // The API rejects requests without an `Origin: https://infinityuniverse.com`
 // header, which browsers cannot set, so this runs as a build-time script and
@@ -70,6 +73,18 @@ async function get(apiPath) {
   await mkdir(CACHE, {recursive: true});
   await writeFile(file, JSON.stringify(json));
   return json;
+}
+
+// "https://assets.corvusbelli.net/army/img/logo/units/scouts-1-1.svg" -> "scouts-1-1"
+const crestSlug = (url) => (typeof url === 'string' ? /\/units\/([a-z0-9-]+)\.svg$/.exec(url)?.[1] ?? null : null);
+
+// The unit's crest is its first profile's; a profile only keeps its own when
+// it differs, so army.json doesn't repeat the same slug on every profile.
+function hoistCrests(unit) {
+  const groups = Object.values(unit.byFaction).flatMap((f) => f.groups);
+  unit.crest = groups.flatMap((g) => g.profiles).find((p) => p.crest)?.crest ?? null;
+  for (const p of groups.flatMap((g) => g.profiles)) if (p.crest === unit.crest || !p.crest) delete p.crest;
+  if (!unit.crest) delete unit.crest;
 }
 
 const clean = (s) => (typeof s === 'string' ? fixName(s.replace(/\s+/g, ' ').trim()) || null : null);
@@ -262,6 +277,7 @@ async function main() {
           skills: refs(p.skills, skillName, extraName),
           equip: refs(p.equip, equipName, extraName),
           weapons: refs(p.weapons, weaponName, extraName),
+          crest: crestSlug(p.logo),
         })),
         options: (g.options ?? []).map((o) => {
           const skills = refs(o.skills, skillName, extraName);
@@ -307,6 +323,7 @@ async function main() {
   // sectorial; src/army/fireteams.js): {all, fto}, absent when it can't.
   const fireteams = fireteamLimits(files.map((f) => f.fireteamChart));
   for (const unit of units.values()) {
+    hoistCrests(unit);
     const ft = unit.slug ? fireteams[unit.slug] : null;
     if (ft && (ft.all || ft.fto)) unit.fireteam = ft;
   }

@@ -7,7 +7,8 @@ import {dispatch, useAppState} from "./state/store.js";
 import useMatchupView from "./state/useMatchupView.js";
 import ClassicScreen from "./ui/ClassicScreen.jsx";
 import MatchupScreen from "./ui/MatchupScreen.jsx";
-import {AboutPage, Menu, SavedPage, SettingsPage, Toast} from "./ui/Chrome.jsx";
+import {AboutPage, Menu, SettingsPage, Toast} from "./ui/Chrome.jsx";
+import SavedRolls from "./ui/SavedRolls.jsx";
 import {MoreIcon} from "./ui/icons.jsx";
 import {MODES} from './state/modes.js';
 import {useSearcher} from "./ui/picker/useTrooperSearch.js";
@@ -64,7 +65,7 @@ function Overlays() {
   // Settings lists the factions; the search index has them without the army data.
   const {searcher} = useSearcher(overlay === 'settings');
   if (overlay === 'menu') return <Menu />;
-  if (overlay === 'saved') return <SavedPage />;
+  if (overlay === 'saved') return <SavedRolls />;
   if (overlay === 'settings') return <SettingsPage factions={searcher?.factions ?? []} />;
   if (overlay === 'about') return <AboutPage />;
   return null;

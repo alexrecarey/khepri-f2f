@@ -18,6 +18,53 @@
 .roll-row { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; }
 .roll-row.dice { font-family: var(--font-display); font-weight: 600; }
 .roll-row.note { font-size: 13px; }
+.roll-list { display: flex; flex-direction: column; gap: 8px; padding: 12px 4px; }
+.roll-hint { text-align: center; padding: 8px; color: var(--faint); }
+.roll-classic { display: flex; flex-direction: column; gap: 6px; }
+
+/* Crest coins (Crest.jsx): the unit's crest ringed in its side's colour,
+   with a gap of the background they sit on (--crest-gap). */
+.crest { display: block; box-sizing: border-box; border-radius: 50%; object-fit: cover; background: var(--surface-3);
+  box-shadow: 0 0 0 2px var(--crest-gap, var(--page)), 0 0 0 3px var(--ring); }
+.crest.ring-active { --ring: var(--active); }
+.crest.ring-reactive { --ring: var(--reactive); }
+/* A faction crest standing in: a small mark inside the coin, not a badge. */
+.crest.fallback { object-fit: contain; padding: 18%; }
+.crest-pair { position: relative; flex-shrink: 0; width: calc(var(--crest) * 1.67); height: calc(var(--crest) + 4px); }
+.crest-pair .crest { position: absolute; top: 2px; left: 0; }
+.crest-pair .crest + .crest { left: calc(var(--crest) * .67); }
+
+/* Matchup rolls as crest rows (Crests E): flat rows on the page, not cards. */
+.roll-wrap.matchup { border-radius: 0; }
+.roll-wrap.matchup .roll { padding: 12px 4px; background: var(--page); border-bottom: 1px solid var(--line); }
+.roll-list:has(.roll-wrap.matchup) { gap: 0; padding-top: 6px; }
+.roll-crests { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.roll-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.roll-who { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.roll-weapon { font-weight: 400; color: var(--muted); }
+.roll-vs { color: var(--faint); font-weight: 400; }
+.roll-setup { font-size: 12px; color: var(--muted); }
+
+/* Desktop saved rolls (SavedRolls.jsx SavedDialog). */
+.saved-dialog { position: fixed; z-index: 30; left: 50%; top: max(24px, 10dvh); transform: translateX(-50%); width: min(720px, calc(100vw - 48px)); max-height: min(720px, calc(100dvh - 48px));
+  box-sizing: border-box; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; box-shadow: 0 24px 64px rgba(0,0,0,.6); animation: fade .15s ease; }
+.sd-head { display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 24px; border-bottom: 1px solid var(--line); }
+.sd-head .page-title { flex-grow: 1; }
+.sd-head .segs { margin: 0; }
+.sd-head .seg { padding: 7px 16px; font-size: 14px; }
+.sd-list { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; overflow-y: auto; --crest-gap: var(--surface); }
+.drow { display: flex; align-items: center; gap: 4px; border-radius: 10px; }
+.drow:hover, .drow:focus-within { background: var(--surface-3); --crest-gap: var(--surface-3); }
+.drow-load { all: unset; box-sizing: border-box; cursor: pointer; flex-grow: 1; min-width: 0; display: flex; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 10px; }
+.drow-load:focus-visible { outline: 2px solid var(--text-2); outline-offset: -2px; }
+.drow-load .roll-crests, .drow-load .roll-classic { flex-grow: 1; }
+.drow-load .roll-who { font-size: 15px; }
+.drow-load .roll-setup { font-size: 13px; }
+.drow-enter { visibility: hidden; flex-shrink: 0; }
+.drow-load:focus-visible .drow-enter { visibility: visible; }
+.drow-delete { color: var(--danger); visibility: hidden; flex-shrink: 0; }
+.drow:hover .drow-delete, .drow:focus-within .drow-delete { visibility: visible; }
+.sd-foot { display: flex; justify-content: space-between; gap: 12px; padding: 12px 24px 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--faint); }
 
 .setting { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px; font-size: 15px; }
 .setting select { font: inherit; color: var(--text); background: var(--well); border: 1px solid var(--line-strong); border-radius: 8px; padding: 8px 10px; max-width: 55%; }

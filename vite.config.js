@@ -64,11 +64,22 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png}'],
+        // ~900 unit crests (public/crests, WebP, ~5 MB): too many to precache;
+        // each is cached the first time it shows (runtimeCaching below).
         // The army data chunk (~2.7 MB minified) stays precached for offline
         // use; scripts/check-build.mjs fails the build check if it outgrows this.
         maximumFileSizeToCacheInBytes: PRECACHE_MAX_BYTES,
         cleanupOutdatedCaches: true,
         runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith("/crests/"),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "crests",
+              expiration: { maxEntries: 400 },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
           {
             urlPattern: ({ url }) => {
               // Exact hosts: a prefix match would also cache pypi.org.example.com.

@@ -8,10 +8,13 @@ const SLUG = {
   701: 'aleph', 801: 'tohaa', 901: 'non-aligned-armies', 1001: 'o-12', 1101: 'jsa',
 };
 
+// The crest's path, or null for an id without one.
+export const factionLogoSrc = (id) => (SLUG[id] ? `/factions/${SLUG[id]}.svg` : null);
+
 export default function FactionLogo({id, size = 24}) {
-  const slug = SLUG[id];
-  if (!slug) return null;
-  return <img className="faction-logo" src={`/factions/${slug}.svg`} alt="" width={size} height={size} loading="lazy" />;
+  const src = factionLogoSrc(id);
+  if (!src) return null;
+  return <img className="faction-logo" src={src} alt="" width={size} height={size} loading="lazy" />;
 }
 
 FactionLogo.propTypes = {id: PropTypes.number, size: PropTypes.number};
