@@ -54,7 +54,7 @@ export function SideMods({side, l, names, weapon}) {
   const sd = l.sd?.lines.length ? l.sd.lines.map((x) => ({...x, label: `${x.label} (SD)`})) : [];
   return (
     <section className="mods-card" aria-label={`${color} mods`}>
-      <div className={`mods-top c-${color}`}><span>{SIDE_NAME[side].toUpperCase()} MODS</span><span>{l.dice}</span></div>
+      <div className={`mods-top c-${color}`}>{SIDE_NAME[side].toUpperCase()} MODS</div>
       {l.kind === 'none' && <span className="note">No ARO: does not roll.</span>}
       {l.sv && (
         <Section title={l.kind === 'dodge' ? 'DODGE' : 'SUCCESS VALUE'} lines={l.sv.lines} total={l.sv.total}
@@ -72,6 +72,8 @@ export function SideMods({side, l, names, weapon}) {
       {l.ammo && <Section title="AMMO" lines={l.ammo.lines} total="" abbr={l.ammo.total} base={weaponName} names={names} />}
       {l.save && l.note && <span className="note">{l.note}</span>}
       {l.sv?.note && <span className="note">{l.sv.note}</span>}
+      {/* The dice it all adds up to (B4 SV15 PS7) come last, read after the sums. */}
+      {l.dice && <div className={`mods-foot c-${color}`}>{l.dice}</div>}
     </section>
   );
 }

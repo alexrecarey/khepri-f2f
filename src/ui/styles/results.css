@@ -10,7 +10,9 @@
 .ledger { display: flex; flex-direction: column; gap: 10px; }
 .mods-sep { border-top: 1px solid var(--line); }
 .mods-card { padding: 14px; border-radius: 12px; background: var(--well); display: flex; flex-direction: column; gap: 16px; }
-.mods-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-family: var(--font-display); font-size: 13px; font-weight: 700; letter-spacing: .06em; }
+/* The title on top and the dice summary at the bottom share one style. */
+.mods-top, .mods-foot { font-family: var(--font-display); font-size: 13px; font-weight: 700; letter-spacing: .06em; }
+.mods-foot { border-top: 1px solid var(--line-control); padding-top: 12px; }
 .mods-sec { display: flex; flex-direction: column; }
 .mods-h { font-size: 13px; font-weight: 700; letter-spacing: .02em; color: var(--muted); padding-bottom: 6px; }
 .mods-rows { font-family: var(--font-mono); font-size: 15px; }
