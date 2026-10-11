@@ -1,14 +1,14 @@
 // Run with: yarn test:js
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {existsSync, readFileSync} from 'node:fs';
+import {readFileSync} from 'node:fs';
 import {crestOf, crestSlugs} from './crests.js';
 
 const army = JSON.parse(readFileSync(new URL('./army.json', import.meta.url), 'utf8'));
 
-test('every crest army.json names is self-hosted (yarn fetch-army runs fetch-crests)', () => {
-  const missing = [...crestSlugs(army)].filter((slug) => !existsSync(new URL(`../../public/crests/${slug}.webp`, import.meta.url)));
-  assert.deepEqual(missing, []);
+test('every unit has a crest slug in CB\'s file-name form', () => {
+  assert.ok(army.units.every((u) => /^[a-z0-9-]+$/.test(u.crest)));
+  assert.ok(crestSlugs(army).size > 800);
 });
 
 test('a profile with its own crest wins over its unit\'s', () => {

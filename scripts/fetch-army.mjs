@@ -17,8 +17,9 @@
 //                (scripts/army-validate.mjs); anything new stops the build
 //                with the list of what to look at
 //   5. crests    each profile's unit crest as a slug (unit.crest, or
-//                profile.crest where a profile has its own); the SVGs are
-//                downloaded into public/crests by scripts/fetch-crests.mjs
+//                profile.crest where a profile has its own); yarn fetch-army
+//                then runs scripts/crests/sync.mjs, which uploads any new
+//                ones to R2
 //
 // The API rejects requests without an `Origin: https://infinityuniverse.com`
 // header, which browsers cannot set, so this runs as a build-time script and

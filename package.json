@@ -10,8 +10,8 @@
     "check-build": "node scripts/check-build.mjs",
     "check-search-index": "node scripts/build-search-index.mjs && git diff --exit-code src/search/index.json",
     "preview": "vite preview",
-    "fetch-army": "node --no-warnings scripts/fetch-army.mjs && node scripts/build-search-index.mjs && node scripts/fetch-crests.mjs",
-    "fetch-crests": "node scripts/fetch-crests.mjs",
+    "fetch-army": "node --no-warnings scripts/fetch-army.mjs && node scripts/build-search-index.mjs && node scripts/crests/sync.mjs",
+    "crests": "node scripts/crests/sync.mjs",
     "test": "yarn test:js && yarn test:engine",
     "test:js": "node --test $(find src -name '*.test.mjs')",
     "test:engine": "uv run --python 3.12 --with icepool==2.2.2 --with pytest pytest -q src/engine",
@@ -26,10 +26,12 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "2.6.2",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^3.0.0",
     "portless": "0.15.7",
+    "svgo": "3.3.2",
     "vite": "^4.0.0",
     "vite-plugin-pwa": "^0.14.4",
     "vite-plugin-svgr": "^2.4.0"

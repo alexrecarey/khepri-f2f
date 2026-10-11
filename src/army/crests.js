@@ -1,6 +1,6 @@
 // Unit crests: army.json names each one by a slug (unit.crest, or a
-// profile's own crest where it differs); the SVGs live in public/crests,
-// downloaded by scripts/fetch-crests.mjs.
+// profile's own crest where it differs), Corvus Belli's file name. The SVGs
+// live in R2, put there by scripts/crests/sync.mjs (yarn crests).
 
 // The crest for a trooper: its profile's own, else its unit's.
 export const crestOf = (unit, profile) => profile?.crest ?? unit?.crest ?? null;
