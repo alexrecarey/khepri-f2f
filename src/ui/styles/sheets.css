@@ -8,6 +8,10 @@
 .small { font-size: var(--fs-small); color: var(--text-3); }
 .bar { display: flex; overflow: hidden; }
 .bar span { display: block; height: 100%; }
+/* A bar segment that can carry a label (ResultsDetail WoundBar, Unopposed
+   AttackBar); width and shade come from the result, so they stay inline. */
+.bar .seg-l { display: grid; place-items: center; font-family: var(--font-mono); font-size: var(--fs-label); font-weight: 600; color: var(--active-ink); }
+.bar .seg-l.seg-none, .bar .seg-l.seg-miss { color: var(--muted); }
 .seg-a3 { background: var(--active-3); } .seg-a2 { background: var(--active); } .seg-a1 { background: var(--active-1); }
 .seg-none { background: var(--none); }
 .seg-r1 { background: var(--reactive-1); } .seg-r2 { background: var(--reactive-2); } .seg-r3 { background: var(--reactive); }
