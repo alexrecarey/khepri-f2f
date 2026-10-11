@@ -112,6 +112,7 @@ async function main() {
   const todo = new Map();   // slug -> why
   const unknown = named.filter((s) => !wanted.includes(s));
   if (unknown.length) throw new Error(`not crests army.json names: ${unknown.join(', ')}`);
+  if (named.length && !force) throw new Error('slugs only mean something with --force (yarn crests --force a-1-1 b-2-1)');
   if (force) for (const s of named.length ? named : wanted) todo.set(s, 'forced');
   for (const s of wanted) if (!have[s] && !todo.has(s)) todo.set(s, 'missing');
   if (checkChanges) {

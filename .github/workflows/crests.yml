@@ -33,7 +33,7 @@ jobs:
           node-version-file: .nvmrc
       - run: corepack enable && corepack prepare yarn@3.3.0 --activate
       - run: yarn install --immutable
-      - run: sudo apt-get install -y -qq imagemagick > /dev/null
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick > /dev/null
       - name: Sync
         env:
           FORCE: ${{ inputs.force }}

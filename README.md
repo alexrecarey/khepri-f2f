@@ -1,7 +1,7 @@
 # Infinity Face Off
 ### an Infinity the Game N4 expected wounds calculator
 
-[Infinity Face Off](https://khepri.netlify.app) is small web app that allows
+[Infinity Face Off](https://infinitythecalculator.com) is small web app that allows
 players of Infinity the Game to quickly calculate the expected outcome
 of a face to face roll. It is intended to be used to evaluate profiles
 and for new players to get of feel of the often unintuitive face 2 face

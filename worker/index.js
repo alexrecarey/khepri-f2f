@@ -16,6 +16,10 @@ export default {
     const headers = new Headers();
     object.writeHttpMetadata(headers);   // content-type, cache-control from the upload
     headers.set('etag', object.httpEtag);
+    // Third-party SVGs on our origin: never let one run script, even if a
+    // future CB update (or an opened-in-a-tab crest) carries some.
+    headers.set('content-security-policy', "default-src 'none'; img-src data:; style-src 'unsafe-inline'; sandbox");
+    headers.set('x-content-type-options', 'nosniff');
     // onlyIf matched If-None-Match: the browser's copy is current.
     if (!('body' in object)) return new Response(null, {status: 304, headers});
     return new Response(request.method === 'HEAD' ? null : object.body, {headers});
