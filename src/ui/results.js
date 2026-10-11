@@ -51,7 +51,7 @@ export function shadeStep(i, n) {
   return Math.round(start + (STEPS - start) * i / (n - 1));
 }
 // Text on a shade: dark ink on the light steps, near white on the deep ones.
-export const shadeInk = (side, i, n) => (shadeStep(i, n) >= 5 ? '#ffffff' : `var(--${side}-ink)`);
+export const shadeInk = (side, i, n) => (shadeStep(i, n) >= 5 ? 'var(--ink-on-deep)' : `var(--${side}-ink)`);
 export function shade(side, i, n) {
   const [from, to] = RAMP[side].map(hex);
   const t = (shadeStep(i, n) - 1) / (STEPS - 1);

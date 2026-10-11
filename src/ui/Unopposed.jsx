@@ -24,8 +24,7 @@ function AttackBar({a, side, height, labels = false}) {
   return (
     <div className="bar" style={{height, borderRadius: height > 10 ? 7 : 3}}>
       {segs.map((x) => (
-        <span key={x.key} className={x.cls} style={{width: `${100 * x.chance}%`, display: 'grid', placeItems: 'center',
-          fontFamily: 'var(--font-mono)', fontSize: 'var(--fs-label)', fontWeight: 600, background: x.bg, color: x.ink}}>
+        <span key={x.key} className={x.cls ? `${x.cls} seg-l` : 'seg-l'} style={{width: `${100 * x.chance}%`, background: x.bg, color: x.ink}}>
           {labels && x.chance > 0.07 ? x.text : ''}
         </span>
       ))}
