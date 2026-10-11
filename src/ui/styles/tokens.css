@@ -54,8 +54,8 @@
      reader's browser font size scales them. */
   --fs-label: 0.75rem;    /* 12px */
   --fs-small: 0.8125rem;  /* 13px */
-  /* Text on the two deepest wound shades (results.js shadeInk): white holds
-     4.5:1 on both ramps' deep ends. */
+  /* Text on the two deepest wound shades (results.js shadeInk): white, the
+     most contrast the sides' chosen tones allow. */
   --ink-on-deep: #ffffff;
   /* Wound-state header and rows share these columns (wound-states.css); the
      last two fit "EXACTLY" and "AT LEAST" at --fs-label on one line. */
