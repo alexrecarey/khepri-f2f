@@ -45,13 +45,16 @@
 .roll-vs { color: var(--faint); font-weight: 400; }
 .roll-setup { font-size: 12px; color: var(--muted); }
 
-/* Desktop saved rolls (SavedRolls.jsx SavedDialog). */
-.saved-dialog { position: fixed; z-index: 30; left: 50%; top: max(24px, 10dvh); transform: translateX(-50%); width: min(720px, calc(100vw - 48px)); max-height: min(720px, calc(100dvh - 48px));
+/* Desktop dialogs (DeskDialog.jsx): Saved rolls, Settings, About. */
+.desk-dialog { position: fixed; z-index: 30; left: 50%; top: max(24px, 10dvh); transform: translateX(-50%); max-height: min(720px, calc(100dvh - 48px));
   box-sizing: border-box; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; box-shadow: 0 24px 64px rgba(0,0,0,.6); animation: fade .15s ease; }
-.sd-head { display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 24px; border-bottom: 1px solid var(--line); }
-.sd-head .page-title { flex-grow: 1; }
-.sd-head .segs { margin: 0; }
-.sd-head .seg { padding: 7px 16px; font-size: 14px; }
+.desk-dialog.saved { width: min(720px, calc(100vw - 48px)); }
+.desk-dialog.settings { width: min(820px, calc(100vw - 48px)); }
+.desk-dialog.about { width: min(560px, calc(100vw - 48px)); }
+.dd-head { display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 24px; border-bottom: 1px solid var(--line); }
+.dd-head .page-title { flex-grow: 1; }
+.dd-head .segs { margin: 0; }
+.dd-head .seg { padding: 7px 16px; font-size: 14px; white-space: nowrap; }
 .sd-list { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; overflow-y: auto; --crest-gap: var(--surface); }
 .drow { display: flex; align-items: center; gap: 4px; border-radius: 10px; }
 .drow:hover, .drow:focus-within { background: var(--surface-3); --crest-gap: var(--surface-3); }
@@ -72,6 +75,7 @@
 .setting.radio { justify-content: flex-start; cursor: pointer; min-height: var(--tap); box-sizing: border-box; }
 .setting.radio input { accent-color: var(--active); width: 20px; height: 20px; margin: 0; flex-shrink: 0; }
 .radio-text { display: flex; flex-direction: column; gap: 2px; }
+.lang-page .note { padding: 0 12px; }
 
 .about { display: flex; flex-direction: column; gap: 16px; padding: 18px 12px; font-size: 15px; line-height: 1.55; color: var(--text-2); }
 .about p { margin: 0; }
@@ -80,3 +84,42 @@
 .small-print { font-size: 13px; color: var(--muted); }
 
 .toast { position: fixed; left: 50%; bottom: calc(var(--results-card-h) - 20px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 40; padding: 10px 16px; border-radius: 999px; background: var(--text); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,.5); animation: fade .15s ease; }
+
+/* Desktop Settings (DeskMenu.jsx): two columns, the results card choice on the left. */
+.ds-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; padding: 20px 24px 24px; overflow-y: auto; }
+.ds-col { display: flex; flex-direction: column; gap: 22px; }
+.ds-group { display: flex; flex-direction: column; }
+.ds-group > .label { padding-bottom: 8px; }
+.ds-choices { display: flex; flex-direction: column; gap: 2px; margin: 0 -12px; }
+.ds-choice { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; cursor: pointer; }
+.ds-choice:has(input:checked) { background: var(--well); }
+.ds-choice input { accent-color: var(--active); width: 20px; height: 20px; margin: 0; flex-shrink: 0; }
+.ds-choice .radio-text { flex-grow: 1; }
+.ds-choice .val { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--faint); font-variant-numeric: tabular-nums; }
+.ds-choice:has(input:checked) .val { color: var(--active); }
+.ds-group .setting { padding: 6px 0; }
+.ds-group .setting select { min-width: 180px; }
+.ds-group .setting select.c-active { color: var(--active); }
+.ds-group .setting select.c-reactive { color: var(--reactive); }
+.ds-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn.danger { color: var(--danger); border-color: var(--danger-line); }
+
+/* Desktop About (DeskMenu.jsx). */
+.da-body { display: flex; flex-direction: column; gap: 14px; padding: 20px 24px 24px; font-size: 15px; line-height: 1.55; color: var(--text-2); overflow-y: auto; }
+.da-body p { margin: 0; }
+.da-body a { color: var(--active); }
+.da-title { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: .04em; color: var(--text); }
+.da-facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: var(--fs-small); color: var(--muted); }
+.da-facts dd { margin: 0; color: var(--text-2); }
+.da-fine { font-size: var(--fs-small); color: var(--muted); }
+
+/* Header buttons for the menu pages (App.jsx, wide layouts). */
+.hdr-btns { display: flex; align-items: center; gap: 4px; }
+.hdr-btn { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 10px; font-size: 14px; color: var(--text-2); }
+.hdr-btn svg { color: var(--muted); }
+.hdr-btn:hover { background: var(--hover); }
+.hdr-btn[aria-pressed="true"] { background: var(--surface-3); color: var(--text); }
+.hdr-btn[aria-pressed="true"] svg { color: var(--text); }
+.hdr-btn:focus-visible { outline: 2px solid var(--text-2); outline-offset: 2px; }
+.hdr-btn.icon { width: 40px; padding: 0; justify-content: center; }
+.hdr-btn .n { font-size: var(--fs-small); color: var(--muted); }

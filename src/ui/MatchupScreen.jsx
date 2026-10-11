@@ -15,7 +15,7 @@ import ResultsCard, {ResultsPanel} from './ResultsCard.jsx';
 import Ledger from './Ledger.jsx';
 import RangeSelector from './RangeSelector.jsx';
 import SideCard, {EmptySlot} from './SideCard.jsx';
-import useLayout from './useLayout.js';
+import useLayout, {usesDialogs} from './useLayout.js';
 import {matchupRollSummary} from '../state/rolls.js';
 import useRollResults from './useRollResults.js';
 
@@ -84,7 +84,7 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
   );
   const mods = view.ledger && result && <Ledger {...view.ledger} />;
   // Phone and tablet: the full-screen picker; wider: the two-pane overlay.
-  const deskPicker = layout === 'landscape' || layout === 'desktop' || layout === 'wide';
+  const deskPicker = usesDialogs(layout);
   const picker = picking && (deskPicker
     ? <DeskPicker searcher={searcher} army={army} loadError={searchError ? retrySearch : null} />
     : <TrooperPicker side={picking} searcher={searcher} army={army} loadError={searchError ? retrySearch : null}

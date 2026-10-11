@@ -1,4 +1,5 @@
 import {useMemo} from 'react'
+import PropTypes from 'prop-types'
 
 import './ui/app.css'
 import useEngine from "./engine/useEngine.js";
@@ -8,11 +9,12 @@ import useMatchupView from "./state/useMatchupView.js";
 import ClassicScreen from "./ui/ClassicScreen.jsx";
 import MatchupScreen from "./ui/MatchupScreen.jsx";
 import {AboutPage, Menu, SettingsPage, Toast} from "./ui/Chrome.jsx";
+import {AboutDialog, HeaderButtons, SettingsDialog} from "./ui/DeskMenu.jsx";
 import SavedRolls from "./ui/SavedRolls.jsx";
 import {MoreIcon} from "./ui/icons.jsx";
 import {MODES} from './state/modes.js';
 import {useSearcher} from "./ui/picker/useTrooperSearch.js";
-import useLayout from "./ui/useLayout.js";
+import useLayout, {usesDialogs} from "./ui/useLayout.js";
 
 // The whole app is a function of the state document (src/state): the mode
 // picks the screen, the screens read their slices, and the engine runs on the
@@ -34,6 +36,13 @@ function App() {
     [matchupMode, view.params, classic],
   );
   const engine = useEngine(engineParams);
+  // The roll on screen, for the desktop Settings' headline previews.
+  const results = useMemo(() => ({
+    result: matchupMode ? (view.complete ? engine.result : null) : engine.result,
+    targets: matchupMode ? view.targets : null,
+    params: engineParams,
+  }), [matchupMode, view.complete, view.targets, engine.result, engineParams]);
+  const dialogs = usesDialogs(layout);
 
   return (
     <div className={`app ${layout}`}>
@@ -47,28 +56,34 @@ function App() {
             ))}
           </span>
         )}
-        <button type="button" className="icon-btn" aria-label="Menu" onClick={() => dispatch({type: 'openOverlay', overlay: 'menu'})}><MoreIcon /></button>
+        {dialogs
+          ? <HeaderButtons />
+          : <button type="button" className="icon-btn" aria-label="Menu" onClick={() => dispatch({type: 'openOverlay', overlay: 'menu'})}><MoreIcon /></button>}
       </header>
       {matchupMode
         ? <MatchupScreen army={army} armyError={armyError} retryArmy={retryArmy} view={view} engine={engine} />
         : <ClassicScreen params={classic} engine={engine} />}
-      <Overlays />
+      <Overlays dialogs={dialogs} results={results} />
       <Toast />
     </div>
   )
 }
 
 // The menu and its pages. Their own component, so opening or closing one
-// re-renders only this, not the screen behind.
-function Overlays() {
+// re-renders only this, not the screen behind. `dialogs`: wide layouts, where
+// the header buttons open them as dialogs (DeskMenu.jsx).
+function Overlays({dialogs, results}) {
   const overlay = useAppState((s) => s.ui.overlay);
   // Settings lists the factions; the search index has them without the army data.
   const {searcher} = useSearcher(overlay === 'settings');
+  const factions = searcher?.factions ?? [];
   if (overlay === 'menu') return <Menu />;
   if (overlay === 'saved') return <SavedRolls />;
-  if (overlay === 'settings') return <SettingsPage factions={searcher?.factions ?? []} />;
-  if (overlay === 'about') return <AboutPage />;
+  if (overlay === 'settings') return dialogs ? <SettingsDialog factions={factions} results={results} /> : <SettingsPage factions={factions} />;
+  if (overlay === 'about') return dialogs ? <AboutDialog /> : <AboutPage />;
   return null;
 }
+
+Overlays.propTypes = {dialogs: PropTypes.bool.isRequired, results: PropTypes.object.isRequired};
 
 export default App

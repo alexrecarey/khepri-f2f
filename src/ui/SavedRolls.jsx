@@ -3,16 +3,15 @@
 // Phone and tablet: a page whose cards swipe left to Delete. Wider: a dialog
 // over the workbench; Delete shows on the row under the mouse or the focus,
 // arrows move, Enter loads, Delete removes, Esc closes.
-import {useEffect, useRef} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {MODES} from '../state/modes.js';
 import {rollRow} from '../state/rolls.js';
 import {CrestPair} from './Crest.jsx';
-import {CloseIcon, TrashIcon} from './icons.jsx';
+import DeskDialog from './DeskDialog.jsx';
+import {TrashIcon} from './icons.jsx';
 import {Page} from './Sheet.jsx';
-import useDialogFocus from './useDialogFocus.js';
-import useLayout from './useLayout.js';
+import useLayout, {usesDialogs} from './useLayout.js';
 import useSwipeToDelete from './useSwipeToDelete.js';
 
 const back = () => dispatch({type: 'back'});
@@ -116,46 +115,30 @@ function moveFocus(e) {
 
 function SavedDialog() {
   const {list, tabs} = useSavedList();
-  const ref = useRef(null);
-  useDialogFocus(ref);
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') back(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
   return (
-    <>
-      <div className="desk-scrim" onClick={back} />
-      <div ref={ref} className="saved-dialog" role="dialog" aria-modal="true" aria-label="Saved rolls">
-        <div className="sd-head">
-          <span className="page-title">Saved rolls</span>
-          {tabs}
-          <button type="button" className="icon-btn" aria-label="Close" onClick={back}><CloseIcon /></button>
-        </div>
-        <div className="sd-list" onKeyDown={moveFocus}>
-          {list.map((r) => (
-            <div key={r.id} className={`drow ${r.mode}`}>
-              <button type="button" className="drow-load" aria-label={rollLabel(r.summary)} onClick={() => loadRoll(r.id)}
-                onKeyDown={(e) => { if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteRoll(r.id); } }}>
-                <RollBody roll={r} size={40} />
-                <kbd className="drow-enter" aria-hidden="true">↵ load</kbd>
-              </button>
-              <button type="button" className="icon-btn drow-delete" aria-label="Delete this roll" onClick={() => deleteRoll(r.id)}><TrashIcon /></button>
-            </div>
-          ))}
-          {list.length === 0 && <span className="empty">{EMPTY}</span>}
-        </div>
-        <div className="sd-foot">
-          <span>Click a roll to load the whole setup</span>
-          <span><kbd>↑</kbd> <kbd>↓</kbd> move · <kbd>↵</kbd> load · <kbd>Del</kbd> delete · <kbd>esc</kbd> close</span>
-        </div>
+    <DeskDialog title="Saved rolls" size="saved" head={tabs}>
+      <div className="sd-list" onKeyDown={moveFocus}>
+        {list.map((r) => (
+          <div key={r.id} className={`drow ${r.mode}`}>
+            <button type="button" className="drow-load" aria-label={rollLabel(r.summary)} onClick={() => loadRoll(r.id)}
+              onKeyDown={(e) => { if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteRoll(r.id); } }}>
+              <RollBody roll={r} size={40} />
+              <kbd className="drow-enter" aria-hidden="true">↵ load</kbd>
+            </button>
+            <button type="button" className="icon-btn drow-delete" aria-label="Delete this roll" onClick={() => deleteRoll(r.id)}><TrashIcon /></button>
+          </div>
+        ))}
+        {list.length === 0 && <span className="empty">{EMPTY}</span>}
       </div>
-    </>
+      <div className="sd-foot">
+        <span>Click a roll to load the whole setup</span>
+        <span><kbd>↑</kbd> <kbd>↓</kbd> move · <kbd>↵</kbd> load · <kbd>Del</kbd> delete · <kbd>esc</kbd> close</span>
+      </div>
+    </DeskDialog>
   );
 }
 
 // Same layouts as the trooper picker: a dialog from landscape tablets up.
 export default function SavedRolls() {
-  const layout = useLayout();
-  return layout === 'landscape' || layout === 'desktop' || layout === 'wide' ? <SavedDialog /> : <SavedPhone />;
+  return usesDialogs(useLayout()) ? <SavedDialog /> : <SavedPhone />;
 }

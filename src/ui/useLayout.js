@@ -11,6 +11,10 @@ const STEPS = [[1800, 'wide'], [1400, 'desktop'], [1100, 'landscape'], [768, 'ta
 
 export const layoutFor = (width) => STEPS.find(([min]) => width >= min)?.[1] ?? 'phone';
 
+// From landscape tablets up the menu pages and the picker are dialogs over
+// the workbench, reached from header buttons; below, full-screen pages.
+export const usesDialogs = (layout) => layout === 'landscape' || layout === 'desktop' || layout === 'wide';
+
 const subscribe = (cb) => {
   window.addEventListener('resize', cb);
   return () => window.removeEventListener('resize', cb);
