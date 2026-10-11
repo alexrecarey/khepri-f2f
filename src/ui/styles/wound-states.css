@@ -7,8 +7,8 @@
 .sglyphs { position: relative; height: 16px; margin-top: -6px; }
 .sglyphs > span { position: absolute; top: 0; transform: translateX(-50%); transition: opacity .15s; }
 .slist { display: flex; flex-direction: column; gap: 2px; }
-.srow { display: grid; grid-template-columns: 16px 128px minmax(0, 1fr) 46px 52px; gap: 8px; align-items: center; }
-.shead { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 16px 128px minmax(0, 1fr) 46px 52px; gap: 8px; align-items: baseline;
+.srow { display: grid; grid-template-columns: var(--srow-cols); gap: 8px; align-items: center; }
+.shead { all: unset; box-sizing: border-box; display: grid; grid-template-columns: var(--srow-cols); gap: 8px; align-items: baseline;
   padding: 12px 0 4px; cursor: pointer; transition: opacity .15s; }
 .shead.static { cursor: default; }
 .shead .t { grid-column: 1 / 4; font-size: var(--fs-label); letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
