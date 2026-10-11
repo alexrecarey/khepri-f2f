@@ -1,0 +1,81 @@
+name: deploy
+
+# Cloudflare Workers (wrangler.jsonc): main -> production; a PR -> a preview
+# version at https://pr-<n>-khepri-f2f.alex-985.workers.dev, reported as the
+# commit status "cloudflare/preview" (scripts/preview-url.sh waits for it).
+# Needs the repo secrets CLOUDFLARE_API_TOKEN (Workers Scripts Edit, Workers
+# R2 Storage Edit, Account Settings Read) and CLOUDFLARE_ACCOUNT_ID; PRs from
+# forks get no secrets, so no preview.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  statuses: write
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  WRANGLER: wrangler@4.149.0   # scripts/crests/config.mjs WRANGLER
+
+jobs:
+  deploy:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: corepack enable && corepack prepare yarn@3.3.0 --activate
+      - run: yarn install --immutable
+
+      # Production: upload crests army.json names that R2 doesn't have yet
+      # (usually none; one request). A failure doesn't block the deploy:
+      # the app shows the faction crest for a missing one.
+      - name: Crests
+        if: github.event_name == 'push'
+        continue-on-error: true
+        run: |
+          sudo apt-get install -y -qq imagemagick > /dev/null
+          yarn crests
+
+      - name: Build
+        run: yarn build
+        env:
+          PREVIEW: ${{ github.event_name == 'pull_request' && '1' || '' }}
+
+      - name: Deploy production
+        if: github.event_name == 'push'
+        run: npx --yes "$WRANGLER" deploy --message "${GITHUB_SHA::7}"
+
+      - name: Upload preview version
+        if: github.event_name == 'pull_request'
+        id: preview
+        run: |
+          out=$(npx --yes "$WRANGLER" versions upload --preview-alias "pr-${{ github.event.number }}" \
+            --message "PR #${{ github.event.number }} ${GITHUB_SHA::7}" 2>&1 | tee /dev/stderr)
+          # The alias URL stays the same for the PR; it shows this commit now.
+          url=$(grep -oE 'https://pr-[0-9]+-[a-z0-9.-]+\.workers\.dev' <<<"$out" | head -1)
+          test -n "$url"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      # On the PR's head commit (not the merge commit Actions builds), which is
+      # what preview-url.sh looks up.
+      - name: Report the preview
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STATE: ${{ steps.preview.outcome == 'success' && 'success' || 'failure' }}
+          URL: ${{ steps.preview.outputs.url || format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+        run: |
+          gh api "repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" \
+            -f state="$STATE" -f context=cloudflare/preview -f target_url="$URL" \
+            -f description="Cloudflare preview"

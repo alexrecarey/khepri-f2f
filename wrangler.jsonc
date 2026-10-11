@@ -1,0 +1,24 @@
+// Infinity the Calculator on Cloudflare Workers: the Vite build as static
+// assets (index.html for unknown paths, so the app's own URLs work) plus
+// worker/index.js for the unit crests in R2. Deployed by
+// .github/workflows/deploy.yml: main -> production, a PR -> a preview
+// version at https://pr-<n>-khepri-f2f.<account>.workers.dev.
+{
+  "name": "khepri-f2f",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    // Only crest requests reach the Worker; everything else is a static file.
+    "run_worker_first": ["/crests/*"]
+  },
+  "r2_buckets": [
+    // scripts/crests/config.mjs CREST_BUCKET
+    {"binding": "CRESTS", "bucket_name": "khepri-crests"}
+  ],
+  "workers_dev": true,
+  "preview_urls": true,
+  "observability": {"enabled": true}
+}

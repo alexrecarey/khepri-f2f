@@ -7,9 +7,9 @@ import { readFileSync } from 'node:fs'
 import { PRECACHE_MAX_BYTES } from './scripts/precache.mjs'
 
 // Shown in the menu and About: which build and which army data this is.
-// Netlify sets COMMIT_REF; locally, ask git.
+// CI sets GITHUB_SHA (.github/workflows/deploy.yml); locally, ask git.
 const commit = () => {
-  if (process.env.COMMIT_REF) return process.env.COMMIT_REF.slice(0, 7)
+  if (process.env.GITHUB_SHA) return process.env.GITHUB_SHA.slice(0, 7)
   try { return execSync('git rev-parse --short HEAD').toString().trim() } catch { return 'dev' }
 }
 const armyDate = () => {
@@ -25,8 +25,8 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(commit()),
     __ARMY_DATE__: JSON.stringify(armyDate()),
-    // Netlify deploy previews keep the dev tools (src/devTools.js).
-    __PREVIEW__: JSON.stringify(['deploy-preview', 'branch-deploy'].includes(process.env.CONTEXT)),
+    // PR preview builds keep the dev tools (src/devTools.js); deploy.yml sets it.
+    __PREVIEW__: JSON.stringify(process.env.PREVIEW === '1'),
   },
   plugins: [
     react(), 
@@ -64,8 +64,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png}'],
-        // ~900 unit crests (public/crests, WebP, ~5 MB): too many to precache;
-        // each is cached the first time it shows (runtimeCaching below).
+        // Unit crests come from the Worker (/crests/*, R2): too many to
+        // precache; each is cached the first time it shows (runtimeCaching).
         // The army data chunk (~2.7 MB minified) stays precached for offline
         // use; scripts/check-build.mjs fails the build check if it outgrows this.
         maximumFileSizeToCacheInBytes: PRECACHE_MAX_BYTES,
@@ -73,7 +73,8 @@ export default defineConfig({
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.pathname.startsWith("/crests/"),
-            handler: "CacheFirst",
+            // CB can update a crest under the same name.
+            handler: "StaleWhileRevalidate",
             options: {
               cacheName: "crests",
               expiration: { maxEntries: 400 },

@@ -24,18 +24,25 @@ are in README.md ("How it's put together").
 
 ## Every change gets a preview URL
 
-Alex tests on Netlify deploy previews, not on a local machine. So for any
+Alex tests on Cloudflare preview deploys, not on a local machine. So for any
 change, without being asked:
 
 1. Work on a feature branch (never commit to `main`), commit and push.
-2. Open a PR (a draft is fine) if the branch has none; Netlify only builds
-   previews for PRs.
+2. Open a PR (a draft is fine) if the branch has none; previews are only
+   built for PRs (`.github/workflows/deploy.yml`).
 3. Run `scripts/preview-url.sh` after each push. It waits for the preview of
    the pushed commit and prints the URL.
 4. End your reply with that URL and the short commit hash it was built from.
-   The URL is stable per PR (`https://deploy-preview-<PR#>--khepri.netlify.app`)
+   The URL is stable per PR (`https://pr-<PR#>-khepri-f2f.alex-985.workers.dev`)
    but only shows your change once the script succeeds for that commit.
-   If the build fails, say so and link the deploy log instead.
+   If the build fails, say so and link the workflow run instead.
+
+## Hosting
+
+Cloudflare Workers (`wrangler.jsonc`, `worker/index.js`): the build as static
+assets plus the unit crests from the R2 bucket `khepri-crests` at
+`/crests/<slug>.svg`. `yarn crests` keeps R2 in step with army.json
+(`scripts/crests/sync.mjs`; needs `wrangler login` and ImageMagick).
 
 ## Claude cloud sessions
 

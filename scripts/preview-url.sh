@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Waits for Netlify's deploy preview of the pushed HEAD commit and prints its URL.
-# Netlify only builds previews for PRs, so the branch needs an open PR.
+# Waits for the Cloudflare preview of the pushed HEAD commit and prints its URL.
+# .github/workflows/deploy.yml uploads one per PR commit and reports it as the
+# commit status "cloudflare/preview", so the branch needs an open PR.
 # Reads public commit statuses, so it needs neither gh nor a token.
 set -euo pipefail
 
@@ -8,10 +9,10 @@ repo="alexrecarey/khepri-f2f"
 sha="$(git rev-parse HEAD)"
 git branch -r --contains "$sha" | grep -q . || { echo "HEAD $sha is not pushed yet" >&2; exit 1; }
 
-for _ in $(seq 40); do   # ~10 minutes; builds take about 1
+for _ in $(seq 40); do   # ~10 minutes; builds take about 2
   read -r state url < <(curl -fsS "https://api.github.com/repos/$repo/commits/$sha/statuses" | python3 -c '
 import json, sys
-s = [x for x in json.load(sys.stdin) if x["context"] == "netlify/khepri/deploy-preview"]
+s = [x for x in json.load(sys.stdin) if x["context"] == "cloudflare/preview"]
 print(s[0]["state"], s[0]["target_url"]) if s else print("none -")')  # newest status first
   case "$state" in
     success) echo "$url"; exit 0 ;;
