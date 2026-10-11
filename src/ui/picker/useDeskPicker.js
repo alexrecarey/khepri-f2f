@@ -6,16 +6,11 @@ import {useMemo} from 'react';
 import {pickTrooper} from '../../state/actions.js';
 import {ROLE, other} from '../../state/schema.js';
 import {dispatch, getState, useAppState} from '../../state/store.js';
-import {TYPE_NAMES} from './constants.js';
+import {listItems, matchedCount} from './deskList.js';
 import {orderLoadouts, unitDetail} from './loadouts.js';
 import {factionNameOf, useRecentIds} from './useRecentIds.js';
 
 export const setCursor = (cursor) => dispatch({type: 'pickerCursor', cursor});
-
-// Matching units the list shows while typing. One or two letters match
-// hundreds of units; nobody scrolls those, they type another letter, and
-// rendering them all made each keystroke slow.
-export const MAX_LIST_UNITS = 50;
 
 export default function useDeskPicker({searcher, army}) {
   const picker = useAppState((s) => s.ui.picker);
@@ -38,30 +33,12 @@ export default function useDeskPicker({searcher, army}) {
     [searcher, typing, query, scope, recentIds, all]);
   const browse = useMemo(() => (searcher && !typing ? searcher.browse({factionId: scope, recentIds}) : null), [searcher, typing, scope, recentIds]);
 
-  // The left list: rows the arrow keys move through, with headings between.
-  const items = useMemo(() => {
-    if (!searcher) return [];
-    if (typing) {
-      const head = scope != null ? [{kind: 'head', text: factionName(scope)}] : [];
-      const mine = scoped.units.slice(0, MAX_LIST_UNITS).map((u) => ({kind: 'unit', u, factionId: scope ?? u.factionIds[0]}));
-      const elsewhere = scope != null
-        ? all.units.filter((u) => !u.factionIds.includes(scope)).slice(0, MAX_LIST_UNITS - mine.length)
-          .map((u) => ({kind: 'unit', u, factionId: u.factionIds[0], away: true}))
-        : [];
-      return [...head, ...mine, ...(elsewhere.length ? [{kind: 'head', text: 'In other factions'}, ...elsewhere] : [])];
-    }
-    if (top?.view === 'type') {
-      return [{kind: 'head', text: TYPE_NAMES[top.type] ?? top.type},
-        ...searcher.unitsOfType(top.type, scope).map((u) => ({kind: 'unit', u, factionId: scope ?? u.factionIds[0]}))];
-    }
-    const recent = browse.recent.map((hit) => ({kind: 'recent', hit}));
-    return recent.length ? [{kind: 'head', text: scope != null ? `Recent in ${factionName(scope)}` : 'Recent'}, ...recent] : [];
-  }, [searcher, typing, scoped, all, browse, top, scope]); // eslint-disable-line react-hooks/exhaustive-deps
+  // The left list (empty until the searcher has loaded).
+  const items = useMemo(() => listItems({searcher, typing, scope, top, all, scoped, browse, factionName}),
+    [searcher, typing, scoped, all, browse, top, scope]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const rows = items.filter((x) => x.kind !== 'head');
-  // Units matching the query, in this faction and others (the list shows
-  // at most MAX_LIST_UNITS of them).
-  const matched = typing ? (scope != null ? new Set([...scoped.units, ...all.units].map((u) => u.unitId)).size : all.units.length) : 0;
+  const matched = matchedCount({typing, scope, all, scoped});
   const at = Math.min(cursor, Math.max(0, rows.length - 1));
   // Before typing, the right pane browses factions and unit types until a
   // recent is highlighted (cursor set by a click or an arrow key).
