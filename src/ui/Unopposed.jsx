@@ -4,9 +4,8 @@
 // mislead, so each attack gets its own (card: two stacked bars; sheet: the
 // four ways the order can end, then each attack in detail).
 import PropTypes from 'prop-types';
-import SlideNumber from './SlideNumber.jsx';
+import Headline from './Headline.jsx';
 import {pct, shade, shadeInk, shows} from './results.js';
-import WpoRow from './WpoRow.jsx';
 
 const top = (a) => [3, 2, 1].find((w) => shows(a.wounds[w - 1])) ?? 0;
 
@@ -36,20 +35,19 @@ function AttackBar({a, side, height, labels = false}) {
 
 AttackBar.propTypes = {a: PropTypes.object.isRequired, side: PropTypes.string.isRequired, height: PropTypes.number.isRequired, labels: PropTypes.bool};
 
-// Card body: the two numbers, one thin bar per attack.
-export function UnopposedCardBody({s}) {
+// Card body: the two headline numbers, one thin bar per attack.
+export function UnopposedCardBody({s, h, choice}) {
   return (
     <>
-      <WpoRow active={<SlideNumber text={s.attacks.active.wpo.toFixed(2)} className="big c-active" />}
-        reactive={<SlideNumber text={s.attacks.reactive.wpo.toFixed(2)} className="big c-reactive" />} />
+      <Headline h={h} choice={choice} />
       <AttackBar a={s.attacks.active} side="active" height={6} />
       <AttackBar a={s.attacks.reactive} side="reactive" height={6} />
-      <div className="split"><span>{pct(s.attacks.active.wounded)} at least one wound</span><span>{pct(s.attacks.reactive.wounded)}</span></div>
+      <div className="split"><span>{h.small[0]}</span><span>{h.small[1]}</span></div>
     </>
   );
 }
 
-UnopposedCardBody.propTypes = {s: PropTypes.object.isRequired};
+UnopposedCardBody.propTypes = {s: PropTypes.object.isRequired, h: PropTypes.object.isRequired, choice: PropTypes.string.isRequired};
 
 function AttackDetail({a, side, name, dice}) {
   const t = top(a);

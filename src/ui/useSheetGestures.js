@@ -8,11 +8,14 @@
 // written straight to the element each move, not through React state. Whether
 // the sheet is open stays in the state document (ui.overlay): onOpen /
 // onClose run once a drag has settled, so Back and history work as before.
+// A sideways swipe on the top is not the sheet's: it calls onSwipeX(+1 for
+// right to left, -1 for left to right) to change the headline number.
 import {useCallback, useEffect, useLayoutEffect, useRef} from 'react';
 
 const SLOP = 8;          // px before a press becomes a drag
 const FLICK = 0.4;       // px/ms that counts as a flick
 const SETTLE_MS = 330;   // the spring in app.css
+const SWIPE_X = 32;      // px sideways that change the headline
 
 // Velocity over the last moves, in px/ms (positive = down).
 function tracker() {
@@ -29,11 +32,11 @@ function tracker() {
 
 // measureKey: changes when the top's content may change size (new numbers,
 // status); only then is the resting position measured again.
-export default function useSheetGestures({open, canOpen, onOpen, onClose, measureKey}) {
+export default function useSheetGestures({open, canOpen, onOpen, onClose, onSwipeX, measureKey}) {
   const sheetRef = useRef(null);
   const scrimRef = useRef(null);
-  const live = useRef({open, canOpen, onOpen, onClose});
-  live.current = {open, canOpen, onOpen, onClose};
+  const live = useRef({open, canOpen, onOpen, onClose, onSwipeX});
+  live.current = {open, canOpen, onOpen, onClose, onSwipeX};
   // When a drag ended: a click right after it is the drag's own, not a tap.
   const dragEnded = useRef(0);
   // The settle timers: cleared on unmount (a layout change can remove the
@@ -103,16 +106,30 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, measur
     const s = sheetRef.current;
     if (!s) return undefined;
     let d = null;
-    const start = (y, t) => {
+    const start = (x, y, t, target) => {
       const {open: isOpen, canOpen: can} = live.current;
       if ((!isOpen && !can) || timers.current.length) return;
-      d = {y0: y, from: isOpen ? 0 : restY.current, open: isOpen, armed: !isOpen || s.scrollTop <= 0, moved: false, track: tracker()};
+      d = {x0: x, y0: y, from: isOpen ? 0 : restY.current, open: isOpen, armed: !isOpen || s.scrollTop <= 0, moved: false,
+        onTop: Boolean(target?.closest?.('.rs-top')), track: tracker()};
       d.track.add(y, t);
     };
-    const move = (y, t, e) => {
+    const move = (x, y, t, e) => {
       if (!d) return;
+      const dx = x - d.x0;
       const dy = y - d.y0;
       d.track.add(y, t);
+      // Mostly sideways before it became a drag: the headline's, never the
+      // sheet's. Past SWIPE_X it changes the number, once per touch.
+      if (!d.moved && (d.sideways || (Math.abs(dx) > SLOP && Math.abs(dx) > Math.abs(dy)))) {
+        d.sideways = true;
+        const swipeX = live.current.onSwipeX;
+        if (d.onTop && swipeX && Math.abs(dx) >= SWIPE_X) {
+          swipeX(dx < 0 ? 1 : -1);
+          dragEnded.current = Date.now();
+          d = null;
+        }
+        return;
+      }
       if (!d.moved) {
         // Closed: only up opens. Open: down at the top closes, anything else scrolls.
         const wrongWay = d.open ? dy < 0 || !d.armed || s.scrollTop > 0 : dy > 0;
@@ -136,17 +153,17 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, measur
     // A second finger ends the drag where it is (settling to the nearer
     // position); dropping it instead left the sheet stuck mid-way.
     const ts = (e) => {
-      if (e.touches.length === 1) start(e.touches[0].clientY, e.timeStamp);
+      if (e.touches.length === 1) start(e.touches[0].clientX, e.touches[0].clientY, e.timeStamp, e.target);
       else if (d?.moved) end();
       else d = null;
     };
-    const tm = (e) => { if (d) move(e.touches[0].clientY, e.timeStamp, e); };
+    const tm = (e) => { if (d) move(e.touches[0].clientX, e.touches[0].clientY, e.timeStamp, e); };
     const pd = (e) => {
       if (e.pointerType !== 'mouse' || !e.target.closest('.rs-top, .rs-head')) return;
-      start(e.clientY, e.timeStamp);
+      start(e.clientX, e.clientY, e.timeStamp, e.target);
       if (d) { d.armed = true; s.setPointerCapture?.(e.pointerId); }
     };
-    const pm = (e) => { if (e.pointerType === 'mouse' && d) move(e.clientY, e.timeStamp, null); };
+    const pm = (e) => { if (e.pointerType === 'mouse' && d) move(e.clientX, e.clientY, e.timeStamp, null); };
     const pu = (e) => { if (e.pointerType === 'mouse') end(); };
     s.addEventListener('touchstart', ts, {passive: true});
     s.addEventListener('touchmove', tm, {passive: false});

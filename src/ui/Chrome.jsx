@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, GearIcon, InfoIcon} from './icons.jsx';
 import {MODES} from '../state/modes.js';
+import {HEADLINES, HEADLINE_HINTS, HEADLINE_NAMES, headlineChoice} from './headline.js';
 import {Page, Sheet} from './Sheet.jsx';
 
 /* global __APP_VERSION__, __ARMY_DATE__ */
@@ -169,6 +170,17 @@ export function SettingsPage({factions}) {
   };
   return (
     <Page title="Settings" className="from-menu" onBack={back}>
+      <div className="list-head" id="headline-head">Results card</div>
+      <div role="radiogroup" aria-labelledby="headline-head">
+        {HEADLINES.map((c) => (
+          <label key={c} className="setting radio">
+            <input type="radio" name="headline" value={c} checked={headlineChoice(prefs) === c}
+              onChange={() => dispatch({type: 'setPref', key: 'headline', value: c})} />
+            <span className="radio-text"><span>{HEADLINE_NAMES[c]}</span><span className="note">{HEADLINE_HINTS[c]}</span></span>
+          </label>
+        ))}
+      </div>
+      <span className="note" style={{padding: '0 12px'}}>The big number on the results card; swipe the card sideways to change it there. The others are one swipe up.</span>
       <div className="list-head">Starting factions</div>
       {select('A', 'Active side')}
       {select('B', 'Reactive side')}

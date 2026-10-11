@@ -4,11 +4,12 @@
 //   ResultsPanel  tablet and desktop: the results inline, in their column
 // The top: wounds per order for each side over the shaded wound bar. Below:
 // the Face to Face bar, the labelled wound bar and the breakdown.
-import {useEffect, useRef, useState} from 'react';
+import {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, D20, ShareIcon} from './icons.jsx';
-import SlideNumber from './SlideNumber.jsx';
+import Headline, {setHeadline} from './Headline.jsx';
+import {headline, headlineChoice, nextHeadline} from './headline.js';
 import {shareLink} from './share.js';
 import useDialogFocus from './useDialogFocus.js';
 import useSheetGestures from './useSheetGestures.js';
@@ -18,8 +19,6 @@ import {Breakdown, ClassicBody, WoundBar} from './ResultsDetail.jsx';
 import {UnopposedCardBody, UnopposedSheetBody} from './Unopposed.jsx';
 import WpoRow from './WpoRow.jsx';
 import {StateBar, StateList, useStatesUi} from './WoundStates.jsx';
-
-const wpo = (n) => (n == null ? '—' : n.toFixed(2));
 
 // Save and Share on the sheet's handle row. `save` = {saved, pending, toggle}
 // or null while there is nothing to save; pending, Save is disabled.
@@ -36,30 +35,6 @@ function SheetActions({save}) {
 }
 
 SheetActions.propTypes = {save: PropTypes.object};
-
-// The wounds/order number: slides to a new value, up or down with it
-// (SlideNumber), shimmers while the next result is being worked out, and
-// floats the change (+0.33) for a moment.
-function Wpo({value, side, size = '', pending}) {
-  const prev = useRef(value);
-  const [delta, setDelta] = useState(null);
-  useEffect(() => {
-    const before = prev.current;
-    prev.current = value;
-    if (value == null || before == null || Math.abs(value - before) < 0.005) return undefined;
-    setDelta(value - before);
-    const t = setTimeout(() => setDelta(null), 1600);
-    return () => clearTimeout(t);
-  }, [value]);
-  return (
-    <span className="wpo-n">
-      <SlideNumber text={wpo(value)} className={`big ${size} c-${side}${pending ? ' computing' : ''}`} />
-      {delta != null && <span className={`delta c-${side}`} aria-hidden="true">{delta > 0 ? '+' : '−'}{Math.abs(delta).toFixed(2)}</span>}
-    </span>
-  );
-}
-
-Wpo.propTypes = {value: PropTypes.number, side: PropTypes.string.isRequired, size: PropTypes.string, pending: PropTypes.bool};
 
 // Until the first result shows up (the dice engine loading on a first visit,
 // a few seconds) the two dice roll at each other, bump and bounce back: the
@@ -137,10 +112,12 @@ function WaitPanel({picked}) {
 WaitPanel.propTypes = {picked: PropTypes.object.isRequired};
 
 // The top of the phone sheet, which is all that shows while it rests low (the
-// results card): both sides' wounds per order over the shaded wound bar. Open,
-// the numbers and the bar are bigger and the face-to-face bar appears above
-// it; app.css grows them with --open as the sheet is dragged.
-function SheetTop({s, classic, pending, status, picked, ui}) {
+// results card): both sides' headline numbers (wounds per order unless the
+// player chose another, headline.js) over the shaded wound bar, or over the
+// face-to-face bar when the headline is winning it. Open, the numbers and the
+// bars are bigger and both bars show; app.css grows them with --open as the
+// sheet is dragged.
+function SheetTop({s, h, choice, classic, pending, status, picked, ui}) {
   const wait = waitingFor(picked);
   if (wait) {
     return (
@@ -151,34 +128,37 @@ function SheetTop({s, classic, pending, status, picked, ui}) {
       </>
     );
   }
-  if (s?.unopposed) return <UnopposedCardBody s={s} />;
+  if (s?.unopposed) return <UnopposedCardBody s={s} h={h} choice={choice} />;
   if (!s && pending) return <EngineLoading label={status} />;
   return (
     <>
-      <WpoRow active={<Wpo value={s?.wpo.active} side="active" pending={pending} />}
-        reactive={<Wpo value={s?.wpo.reactive} side="reactive" pending={pending} />} />
-      {s && !classic && <F2FBar s={s} className="rs-f2f" />}
+      {h ? <Headline h={h} choice={choice} pending={pending} />
+        : <WpoRow active={<span className="big c-active">—</span>} reactive={<span className="big c-reactive">—</span>} />}
+      {s && (!classic || h.kind === 'win') && <F2FBar s={s} className="rs-f2f" />}
       {s?.states ? <StateBar s={s} ui={ui} className="rs-wbar" />
         : s ? <WoundBar summary={s} grow labels /> : <div className="bar rs-wbar" style={{background: 'var(--none)'}} />}
       <div className="split">
-        {s ? <><span>{pct(s.atLeast.active[0])} at least one wound</span><span>{pct(s.atLeast.reactive[0])}</span></>
-          : <span>{status}</span>}
+        {h ? <><span>{h.small[0]}</span><span>{h.small[1]}</span></> : <span>{status}</span>}
       </div>
     </>
   );
 }
 
-SheetTop.propTypes = {s: PropTypes.object, classic: PropTypes.bool, pending: PropTypes.bool, status: PropTypes.string, picked: PropTypes.object, ui: PropTypes.object};
+SheetTop.propTypes = {s: PropTypes.object, h: PropTypes.object, choice: PropTypes.string, classic: PropTypes.bool, pending: PropTypes.bool, status: PropTypes.string, picked: PropTypes.object, ui: PropTypes.object};
 
 // Phone: one sheet that rests low with only its top showing (the results
 // card) and opens to the full results. Swipe it up or down (it follows the
 // finger) or tap the top to open, outside to close (useSheetGestures.js).
-export default function ResultsCard({s, status, diceLine, classic, ledger, save, pending, picked}) {
+// Swipe the top sideways (or arrow keys on it) for the next headline.
+export default function ResultsCard({s, status, diceLine, classic, ledger, save, pending, picked, params}) {
   const ui = useStatesUi();
+  const choice = useAppState((st) => headlineChoice(st.prefs));
+  const h = s ? headline(s, choice, params) : null;
+  const swipe = (step) => setHeadline(nextHeadline(choice, step));
   const open = useAppState((st) => st.ui.overlay === 'results') && Boolean(s);
   const setOpen = (o) => dispatch(o ? {type: 'openOverlay', overlay: 'results'} : {type: 'back'});
   const g = useSheetGestures({open, canOpen: Boolean(s), onOpen: () => setOpen(true), onClose: () => setOpen(false),
-    measureKey: [s?.wpo.active, s?.wpo.reactive, s?.unopposed, classic, status].join('|')});
+    onSwipeX: s ? swipe : null, measureKey: [s?.wpo.active, s?.wpo.reactive, s?.unopposed, classic, status, h?.kind].join('|')});
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
@@ -192,7 +172,7 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
   return (
     <>
       <div className={`rscrim${open ? ' open' : ''}`} ref={g.scrimRef} onClick={() => setOpen(false)} />
-      <section className={`rsheet${open ? ' open' : ''}${classic ? ' classic' : ''}`} ref={g.sheetRef} aria-label="Results"
+      <section className={`rsheet${open ? ' open' : ''}${classic ? ' classic' : ''}${h?.kind === 'win' ? ' hl-win' : ''}`} ref={g.sheetRef} aria-label="Results"
         {...(open ? {role: 'dialog', 'aria-modal': true} : {})}>
         <div className="rs-head"><span /><span className="handle" /><span className="sheet-actions">{open && <SheetActions save={save} />}</span></div>
         {/* Closed, the top is the card: a button that opens the sheet, its
@@ -201,10 +181,13 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
             element stays the same either way: the gestures measure it. */}
         <div className="rs-top" onClick={g.onTopClick} {...(open ? {} : {
           role: 'button', tabIndex: 0, 'aria-expanded': false,
-          onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); g.onTopClick(); } },
+          onKeyDown: (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); g.onTopClick(); }
+            if (s && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { e.preventDefault(); swipe(e.key === 'ArrowRight' ? 1 : -1); }
+          },
         })}>
-          <SheetTop s={s} classic={classic} pending={pending} status={status} picked={picked} ui={open ? ui : null} />
-          {!open && <span className="vh">Show full results</span>}
+          <SheetTop s={s} h={h} choice={choice} classic={classic} pending={pending} status={status} picked={picked} ui={open ? ui : null} />
+          {!open && <span className="vh">Show full results. Left and right arrows change the big number.</span>}
         </div>
         {/* Below the top: only there for screen readers and keys while open. */}
         <div className="rs-rest" {...(open ? {} : {inert: '', 'aria-hidden': true})}>
@@ -222,13 +205,13 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
 }
 
 // What the results say, wherever they are shown.
-function ResultsBody({s, classic, ledger, diceLine, pending, ui}) {
+function ResultsBody({s, classic, ledger, diceLine, pending, ui, params}) {
+  const choice = useAppState((st) => headlineChoice(st.prefs));
   if (s.unopposed) return <UnopposedSheetBody s={s} names={ledger?.names ?? {A: 'Active', B: 'Reactive'}} diceLine={diceLine} />;
   if (classic) return <ClassicBody s={s} />;
   return (
     <>
-      <WpoRow active={<Wpo value={s.wpo.active} side="active" size="xl" pending={pending} />}
-        reactive={<Wpo value={s.wpo.reactive} side="reactive" size="xl" pending={pending} />} />
+      <Headline h={headline(s, choice, params)} choice={choice} size="xl" pending={pending} buttons />
       <F2FBar s={s} style={{height: 4, borderRadius: 2}} />
       {s.states ? (
         <>
@@ -245,18 +228,21 @@ function ResultsBody({s, classic, ledger, diceLine, pending, ui}) {
   );
 }
 
-ResultsBody.propTypes = {s: PropTypes.object.isRequired, classic: PropTypes.bool, ledger: PropTypes.object, diceLine: PropTypes.object, pending: PropTypes.bool, ui: PropTypes.object};
+ResultsBody.propTypes = {
+  s: PropTypes.object.isRequired, classic: PropTypes.bool, ledger: PropTypes.object, diceLine: PropTypes.object,
+  pending: PropTypes.bool, ui: PropTypes.object, params: PropTypes.object,
+};
 
 // Tablet and desktop: the results in their own column, always open. The mods
 // go in another column (MatchupScreen).
-export function ResultsPanel({s, status, diceLine, classic, ledger, save, pending, picked}) {
+export function ResultsPanel({s, status, diceLine, classic, ledger, save, pending, picked, params}) {
   const ui = useStatesUi();
   const wait = waitingFor(picked);
   return (
     <section className="results-panel" aria-label="Results">
       <div className="panel-head"><span className="label">Results</span><span className="sheet-actions"><SheetActions save={save} /></span></div>
       {wait ? <WaitPanel picked={wait} />
-        : s ? <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} pending={pending} ui={ui} />
+        : s ? <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} pending={pending} ui={ui} params={params} />
         : pending ? <EngineLoading label={status} /> : <span className="empty">{status}</span>}
       {s && status && <span className="status">{status}</span>}
     </section>
@@ -265,7 +251,7 @@ export function ResultsPanel({s, status, diceLine, classic, ledger, save, pendin
 
 ResultsPanel.propTypes = {
   s: PropTypes.object, status: PropTypes.string, diceLine: PropTypes.object, classic: PropTypes.bool,
-  ledger: PropTypes.object, save: PropTypes.object, pending: PropTypes.bool, picked: PropTypes.object,
+  ledger: PropTypes.object, save: PropTypes.object, pending: PropTypes.bool, picked: PropTypes.object, params: PropTypes.object,
 };
 
 ResultsCard.propTypes = {
@@ -284,4 +270,6 @@ ResultsCard.propTypes = {
   pending: PropTypes.bool,
   // {A, B}: which sides have a trooper; matchup only. Missing ones show the wait state.
   picked: PropTypes.object,
+  // The engine params: who is dodging, for the headline's label.
+  params: PropTypes.object,
 };

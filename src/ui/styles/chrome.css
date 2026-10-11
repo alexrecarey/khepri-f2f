@@ -22,6 +22,9 @@
 .setting { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px; font-size: 15px; }
 .setting select { font: inherit; color: var(--text); background: var(--well); border: 1px solid var(--line-strong); border-radius: 8px; padding: 8px 10px; max-width: 55%; }
 .setting select:disabled { opacity: .6; }
+.setting.radio { justify-content: flex-start; cursor: pointer; min-height: var(--tap); box-sizing: border-box; }
+.setting.radio input { accent-color: var(--active); width: 20px; height: 20px; margin: 0; flex-shrink: 0; }
+.radio-text { display: flex; flex-direction: column; gap: 2px; }
 
 .about { display: flex; flex-direction: column; gap: 16px; padding: 18px 12px; font-size: 15px; line-height: 1.55; color: var(--text-2); }
 .about p { margin: 0; }

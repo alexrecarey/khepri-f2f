@@ -142,7 +142,7 @@ export default function ClassicScreen({params, engine}) {
           <ClassicSide side="A" params={params} setParam={setParam} />
           <ClassicSide side="B" params={params} setParam={setParam} />
         </main>
-        <ResultsCard s={s} status={engine.status} pending={engine.pending} classic save={save} />
+        <ResultsCard s={s} status={engine.status} pending={engine.pending} classic save={save} params={params} />
       </>
     );
   }
@@ -152,7 +152,7 @@ export default function ClassicScreen({params, engine}) {
     <main className={`workbench classic ${layout}`}>
       <ClassicSide side="A" params={params} setParam={setParam} />
       <ClassicSide side="B" params={params} setParam={setParam} />
-      <ResultsPanel s={s} status={engine.status} pending={engine.pending} classic save={save} />
+      <ResultsPanel s={s} status={engine.status} pending={engine.pending} classic save={save} params={params} />
     </main>
   );
 }

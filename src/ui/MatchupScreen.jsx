@@ -35,6 +35,7 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
     status: view.complete ? engine.status : 'Choose both troopers to see the odds',
     diceLine: view.ledger ? {active: view.ledger.ledger.A?.dice, reactive: view.ledger.ledger.B?.dice} : null,
     ledger: view.ledger,
+    params: view.params,
   };
   const openSide = (side) => () => dispatch(openPicker(army, getState(), side));
   const picked = {A: view.A.resolved?.unit != null, B: view.B.resolved?.unit != null};

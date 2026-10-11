@@ -10,8 +10,9 @@ import PropTypes from 'prop-types';
 export default function SlideNumber({text, className = ''}) {
   const [s, setS] = useState({text, old: null, dir: 'up', n: 0});
   if (s.text !== text) {
-    // Non-numbers ("—") have no direction; they come in like a rise.
-    const dir = Number(text) < Number(s.text) ? 'down' : 'up';
+    // Percentages compare by their number; non-numbers ("—") have no
+    // direction, they come in like a rise.
+    const dir = parseFloat(text) < parseFloat(s.text) ? 'down' : 'up';
     setS({text, old: s.text, dir, n: s.n + 1});
   }
   const dropOld = () => setS((cur) => (cur.n === s.n ? {...cur, old: null} : cur));

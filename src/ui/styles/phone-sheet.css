@@ -34,6 +34,11 @@
 .rs-wbar { height: calc(6px + 34px * var(--open)); border-radius: calc(3px + 5px * var(--open)); }
 .rsheet.classic .rs-wbar { height: calc(6px + 22px * var(--open)); }
 .rs-wbar .lbl { opacity: var(--open); }
+/* Headline "wins face to face": resting, the card shows the face-to-face bar
+   in the wound bar's place, which folds away; open, both bars as usual. */
+.rsheet.hl-win .rs-f2f { height: calc(6px - 2px * var(--open)); opacity: 1; margin-bottom: 0; border-radius: 3px; }
+.rsheet.hl-win .rs-wbar { height: calc(40px * var(--open)); opacity: var(--open); margin-top: calc(-10px * (1 - var(--open))); }
+.rsheet.hl-win.classic .rs-wbar { height: calc(28px * var(--open)); }
 /* The label inside a segment is text, not a segment: .bar span would make it
    full height and push its number to the top. */
 .bar span.lbl { display: inline; height: auto; }
