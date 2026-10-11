@@ -13,10 +13,17 @@
 .seg-r1 { background: var(--reactive-1); } .seg-r2 { background: var(--reactive-2); } .seg-r3 { background: var(--reactive); }
 /* Which of the three headlines shows (Headline.jsx): a picture on the phone
    card, buttons on the results panel. */
-.hl-dots { display: flex; gap: 6px; align-self: center; }
+.wpo-row { position: relative; }
+/* Centred on the row, out of the flow: the numbers on either side change
+   width (0.81 vs 56.8%, and while two values cross), which moved them. */
+.hl-dots { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; gap: 6px; }
 .hl-dots i { display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--line-strong); transition: background .2s ease; }
 .hl-dots i.on { background: var(--text-2); }
-.hl-dots button { all: unset; cursor: pointer; display: grid; place-items: center; width: 22px; height: var(--tap); margin: 0 -8px; }
+/* Buttons side by side with no gap or overlap, so each dot sits in the
+   middle of its own target (overlapping ones gave each dot's right half to
+   the next). */
+.hl-dots.buttons { gap: 0; }
+.hl-dots button { all: unset; cursor: pointer; display: grid; place-items: center; width: 24px; height: var(--tap); }
 .hl-dots button:focus-visible { outline: 2px solid var(--text-2); border-radius: 6px; }
 .hl-dots button:hover i:not(.on) { background: var(--text-3); }
 .split { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }

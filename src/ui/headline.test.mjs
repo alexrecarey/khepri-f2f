@@ -22,6 +22,7 @@ test('unknown or missing prefs show wounds per order', () => {
 
 test('the swipe wraps round both ways', () => {
   assert.equal(nextHeadline('wpo', 1), 'win');
+  assert.equal(nextHeadline('win', -1), 'wpo');
   assert.equal(nextHeadline('wound', 1), 'wpo');
   assert.equal(nextHeadline('wpo', -1), 'wound');
 });

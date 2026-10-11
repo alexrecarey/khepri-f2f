@@ -54,7 +54,7 @@ function Dots({choice, buttons}) {
     );
   }
   return (
-    <span className="hl-dots" role="group" aria-label="Big number">
+    <span className="hl-dots buttons" role="group" aria-label="Big number">
       {HEADLINES.map((c) => (
         <button key={c} type="button" aria-pressed={c === choice} aria-label={HEADLINE_NAMES[c]} title={HEADLINE_NAMES[c]}
           onClick={() => setHeadline(c)}><i className={c === choice ? 'on' : undefined} /></button>
