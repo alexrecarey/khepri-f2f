@@ -24,7 +24,7 @@ a{color:#5fc4a0}a:hover{color:#8fe0c2}
 </header>
 <div style="padding:4px 16px 0;display:flex;flex-direction:column;gap:10px;flex-grow:1;overflow:hidden">
 <section style="position:relative;overflow:hidden;isolation:isolate;padding:14px;border-radius:14px;background:#1c1c1c;display:flex;flex-direction:column;gap:10px">
-<img src="crests/squalos-mk-ii.svg" alt="" aria-hidden="true" style="position:absolute;z-index:0;right:-46px;top:50%;width:188px;height:188px;margin-top:-94px;pointer-events:none;opacity:{{a.op}};filter:{{a.filter}};transition:opacity .18s ease, filter .18s ease;-webkit-mask-image:linear-gradient(270deg,#000 20%,transparent 88%);mask-image:linear-gradient(270deg,#000 20%,transparent 88%)">
+<img src="crests/squalos-mk-ii.svg" alt="" aria-hidden="true" style="position:absolute;z-index:0;right:-34px;top:-34px;width:120px;height:120px;pointer-events:none;opacity:{{a.op}};filter:{{a.filter}};transition:opacity .18s ease, filter .18s ease;-webkit-mask-image:linear-gradient(to bottom left,rgba(0,0,0,.7) 40%,transparent 90%);mask-image:linear-gradient(to bottom left,rgba(0,0,0,.7) 40%,transparent 90%)">
 <div style="position:relative;z-index:1;display:flex;flex-direction:column;gap:10px">
 <button onClick="{{a.tap}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px">
 <span style="font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.1em;color:#5fc4a0">ACTIVE</span>
@@ -36,7 +36,7 @@ a{color:#5fc4a0}a:hover{color:#8fe0c2}
 </section>
 <div style="display:flex;align-items:center;gap:8px;flex-shrink:0"><div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));flex-grow:1;border:1px solid #2c2c2c;border-radius:10px;overflow:hidden"><span style="text-align:center;padding:9px 0;font-size:12px;font-weight:400;background:transparent;color:#9a978f">8</span><span style="text-align:center;padding:9px 0;font-size:12px;font-weight:400;background:transparent;color:#9a978f">16</span><span style="text-align:center;padding:9px 0;font-size:12px;font-weight:700;background:#e8e6e1;color:#121212">24"</span><span style="text-align:center;padding:9px 0;font-size:12px;font-weight:400;background:transparent;color:#9a978f">32</span><span style="text-align:center;padding:9px 0;font-size:12px;font-weight:400;background:transparent;color:#9a978f">40</span><span style="text-align:center;padding:9px 0;font-size:12px;font-weight:400;background:transparent;color:#9a978f">48</span><span style="text-align:center;padding:9px 0;font-size:12px;font-weight:400;background:transparent;color:#9a978f">96</span></div><span style="width:40px;height:40px;flex-shrink:0;display:grid;place-items:center;border-radius:999px;border:1px solid #333;color:#c9c6bf">⇅</span></div>
 <section style="position:relative;overflow:hidden;isolation:isolate;padding:14px;border-radius:14px;background:#1c1c1c;display:flex;flex-direction:column;gap:10px">
-<img src="crests/zhanshi.svg" alt="" aria-hidden="true" style="position:absolute;z-index:0;right:-46px;top:50%;width:188px;height:188px;margin-top:-94px;pointer-events:none;opacity:{{b.op}};filter:{{b.filter}};transition:opacity .18s ease, filter .18s ease;-webkit-mask-image:linear-gradient(270deg,#000 20%,transparent 88%);mask-image:linear-gradient(270deg,#000 20%,transparent 88%)">
+<img src="crests/zhanshi.svg" alt="" aria-hidden="true" style="position:absolute;z-index:0;right:-34px;top:-34px;width:120px;height:120px;pointer-events:none;opacity:{{b.op}};filter:{{b.filter}};transition:opacity .18s ease, filter .18s ease;-webkit-mask-image:linear-gradient(to bottom left,rgba(0,0,0,.7) 40%,transparent 90%);mask-image:linear-gradient(to bottom left,rgba(0,0,0,.7) 40%,transparent 90%)">
 <div style="position:relative;z-index:1;display:flex;flex-direction:column;gap:10px">
 <button onClick="{{b.tap}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px">
 <span style="font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.1em;color:#e59bc0">REACTIVE</span>
@@ -59,16 +59,16 @@ a{color:#5fc4a0}a:hover{color:#8fe0c2}
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 844}, "rest": {"editor": "number", "default": 0.16, "min": 0, "max": 1, "step": 0.02}, "lit": {"editor": "number", "default": 0.4, "min": 0, "max": 1, "step": 0.02}}'>
-// Rest: ink-tinted in the side colour, faint. Tap a card's name (stands in for "this card is being edited",
-// i.e. its picker or a weapon is in focus): the crest shows its own colours, a little stronger.
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 844}, "rest": {"editor": "number", "default": 0.5, "min": 0, "max": 1, "step": 0.02}, "lit": {"editor": "number", "default": 0.75, "min": 0, "max": 1, "step": 0.02}}'>
+// A5: own colours, 120 px, cut by the top-right corner, fading towards the bottom left. Tap a card's name
+// (stands in for "this card is being edited", i.e. its picker or a weapon is in focus): a little stronger.
 class Component extends DCLogic {
   constructor(props) { super(props); this.state = { lit: 'a' }; }
   renderVals() {
-    var self = this, lit = this.state.lit, rest = this.props.rest ?? 0.16, on = this.props.lit ?? 0.4;
+    var self = this, lit = this.state.lit, rest = this.props.rest ?? 0.5, on = this.props.lit ?? 0.75;
     function side(k) {
       var l = lit === k;
-      return { op: l ? on : rest, filter: l ? 'none' : 'url(#ink-' + k + ')',
+      return { op: l ? on : rest, filter: 'none',
         tap: function () { self.setState({ lit: l ? null : k }); } };
     }
     return { a: side('a'), b: side('b') };
