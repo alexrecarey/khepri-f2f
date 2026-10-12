@@ -41,7 +41,7 @@ jobs:
       # (usually none; one request). A failure doesn't block the deploy:
       # the app shows the faction crest for a missing one.
       - name: Crests
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && hashFiles('scripts/crests/sync.mjs') != ''
         continue-on-error: true
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick > /dev/null
