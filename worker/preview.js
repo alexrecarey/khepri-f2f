@@ -1,7 +1,9 @@
 // Link previews (Discord, WhatsApp...). index.html carries the site's own
-// tags, so any link unfurls; a link from the Share button carries its share
-// card (?card=, src/share/card.js), and for those the page's tags are swapped
-// for the card's: its words (canvas ShareText, T1) and its image.
+// tags, so any link unfurls. The Share button's links go to /s with their
+// share card (?card=, src/share/card.js): /s is the app's own page with the
+// site's tags swapped for the card's (its words, canvas ShareText T1, and its
+// image), so people land straight in the app, no redirect, and the app moves
+// its address to /?<setup> itself. Images live under /og/.
 import {CARD_PARAM, decodeCard, previewDescription, previewTitle} from '../src/share/card.js';
 import {CARD_H, CARD_W, renderCard, renderDefault} from './card.js';
 
@@ -37,12 +39,12 @@ function cardTags(card, url) {
   ].map(([attr, key, value]) => `<meta ${attr}="${key}" content="${esc(value)}">`).join('\n');
 }
 
-// The page with the card's tags in place of the site's, or null when the
-// link has no (valid) card and the page goes out as built.
-export async function pageWithCard(request, env, url) {
+// /s: the app's page, with the card's tags in place of the site's; as built
+// when the link has no (valid) card.
+export async function sharePage(request, env, url) {
+  const page = await env.ASSETS.fetch(new Request(new URL('/', url), request));
   const card = decodeCard(url.searchParams.get(CARD_PARAM));
-  if (!card) return null;
-  const page = await env.ASSETS.fetch(request);
+  if (!card) return page;
   const isSiteTag = (el) => /^(og:|twitter:)/.test(el.getAttribute('property') ?? el.getAttribute('name') ?? '')
     || el.getAttribute('name') === 'theme-color';
   return new HTMLRewriter()
@@ -52,10 +54,10 @@ export async function pageWithCard(request, env, url) {
     .transform(page);
 }
 
-// /og/v1/card.png?card=... and /og/v1/default.png, or null for anything else.
+// /og/v1/card.png?card=... and /og/v1/default.png; anything else under /og/
+// is not found (not the app's page, which is what the assets would answer).
 export async function previewImage(request, env, ctx, url) {
-  if (!url.pathname.startsWith(IMAGE_PATH)) return null;
-  const name = url.pathname.slice(IMAGE_PATH.length);
+  const name = url.pathname.startsWith(IMAGE_PATH) ? url.pathname.slice(IMAGE_PATH.length) : '';
   const card = name === 'card.png' ? decodeCard(url.searchParams.get(CARD_PARAM)) : null;
   if (name !== 'default.png' && !card) return new Response('Not found', {status: 404});
   // Drawing one takes about a second; Cloudflare's cache keeps each for

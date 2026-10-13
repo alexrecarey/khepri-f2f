@@ -1,9 +1,11 @@
 // The share card: what a shared Matchup link unfurls into on Discord and
 // WhatsApp (design: canvas Final, "Share card"). The app can't hand the
 // numbers to anyone else (the dice run in the browser), so the Share button
-// packs what the card shows into the link itself (?card=, base64url JSON);
-// the Worker reads it back to write the preview tags and draw the image
-// (worker/card.js). The app ignores the param: the first URL sync drops it.
+// packs what the card shows into the link itself (?card=, base64url JSON)
+// and points it at /s, the share path: the only page the Worker touches
+// (worker/preview.js), so / stays a plain static file. /s is the app itself
+// with the card's preview tags; the app's first URL sync turns the address
+// into /?<setup> and drops the card (state/sync.js).
 //
 // The Worker only displays these strings; every number and label is worked
 // out in the app (headline.js), so a link shows what its sender saw.
@@ -20,6 +22,7 @@
 //            c: 'squalos-mk-ii-1-1'}}  unit crest slug (src/army/crests.js) or ''
 
 export const CARD_PARAM = 'card';
+export const SHARE_PATH = '/s';
 const KINDS = ['wpo', 'win', 'wound'];
 const MAX_TEXT = 60;
 const SLUG = /^[a-z0-9-]{1,80}$/;
@@ -29,6 +32,15 @@ const fromB64url = (s) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g
 
 export function encodeCard(card) {
   return toB64url(new TextEncoder().encode(JSON.stringify(card)));
+}
+
+// The share link for the app address href (which holds the setup) and its card.
+export function shareUrl(href, card) {
+  const url = new URL(href);
+  url.pathname = SHARE_PATH;
+  url.hash = '';
+  url.searchParams.set(CARD_PARAM, encodeCard(card));
+  return url.href;
 }
 
 // Hand-written links get the same treatment as real ones: anything missing,
