@@ -90,7 +90,7 @@ export function AboutDialog() {
         <AboutIntro />
         <AboutContact />
         <AboutLinks />
-        <p className="da-fine">{TRADEMARK}</p>
+        <p>{TRADEMARK}</p>
         <dl className="da-facts">
           <dt>Army data</dt><dd>Corvus Belli Infinity Army{ARMY_DATE ? ` · ${ARMY_DATE}` : ''}</dd>
           <dt>Rules</dt><dd>N5</dd>

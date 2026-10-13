@@ -111,7 +111,6 @@
 .da-title { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: .04em; color: var(--text); }
 .da-facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: var(--fs-small); color: var(--muted); }
 .da-facts dd { margin: 0; color: var(--text-2); }
-.da-fine { font-size: var(--fs-small); color: var(--muted); }
 
 /* Header buttons for the menu pages (App.jsx, wide layouts). */
 .hdr-btns { display: flex; align-items: center; gap: 4px; }

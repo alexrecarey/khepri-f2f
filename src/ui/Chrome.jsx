@@ -143,7 +143,7 @@ export const CONTACT_EMAIL = 'khepri@infinitythecalculator.com';
 export const AboutContact = () => (
   <p>Bugs? Suggestions? Let me know at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
 );
-export const TRADEMARK = 'Infinity is a trademark of Corvus Belli. Thank you CB for being super supportive of fan projects like this one!';
+export const TRADEMARK = 'Infinity the Calculator is a fan made project with no affiliation to Corvus Belli. Thank you CB for being super supportive of fan projects like this one!';
 
 export function AboutPage() {
   return (
@@ -153,7 +153,7 @@ export function AboutPage() {
         <AboutIntro />
         <AboutContact />
         <AboutLinks />
-        <p className="small-print">{TRADEMARK}</p>
+        <p>{TRADEMARK}</p>
         <p className="small-print">
           Army data: Corvus Belli&apos;s Infinity Army{ARMY_DATE ? ` · ${ARMY_DATE}` : ''} (unofficial snapshot)<br />
           Rules: N5<br />
