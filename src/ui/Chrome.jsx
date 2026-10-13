@@ -133,15 +133,24 @@ export const AboutIntro = () => (
   </>
 );
 export const AboutLinks = () => (
-  <p>
-    <a href="https://github.com/alexrecarey/khepri-f2f">Source on GitHub</a>
-    {' · '}Powered by <a href="https://github.com/HighDiceRoller/icepool">icepool</a> by <a href="https://github.com/HighDiceRoller">HighDiceRoller</a>
-    {' · '}<a href="https://n4.infinitythecalculator.com">N4 calculator</a>
-  </p>
+  <>
+    <p>
+      <a href="https://github.com/alexrecarey/khepri-f2f">Source on GitHub</a>
+      {' · '}Powered by <a href="https://github.com/HighDiceRoller/icepool">icepool</a> by <a href="https://github.com/HighDiceRoller">HighDiceRoller</a>
+    </p>
+    <p>
+      <a href="https://n4.infinitythecalculator.com">N4 calculator</a>
+      {' · '}<a href="https://n5classic.infinitythecalculator.com">Classic N5 calculator</a>
+    </p>
+  </>
 );
 export const CONTACT_EMAIL = 'khepri@infinitythecalculator.com';
 export const AboutContact = () => (
   <p>Bugs? Suggestions? Let me know at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
+);
+// The pre-Matchup calculator, frozen on branch n5classic.
+export const AboutClassic = () => (
+  <p>Hate this new version? Go back to the <a href="https://n5classic.infinitythecalculator.com">classic N5 calc</a>!</p>
 );
 export const TRADEMARK = 'Infinity the Calculator is a fan made project with no affiliation to Corvus Belli. Thank you CB for being super supportive of fan projects like this one!';
 
@@ -152,6 +161,7 @@ export function AboutPage() {
         <span className="about-title">Infinity the Calculator</span>
         <AboutIntro />
         <AboutContact />
+        <AboutClassic />
         <AboutLinks />
         <p>{TRADEMARK}</p>
         <p className="small-print">
