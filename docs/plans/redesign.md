@@ -8,7 +8,7 @@ status: phases 1-9 built on calculator-redesign (2026-10-08); open gaps in secti
 
 Source: the **Final** page of the design canvas (Infinity the Calculator,
 https://claude.ai/artifact/Ki3XWPgrkwNu9zARuS6YnY). Branch `calculator-redesign`, draft PR #42; every
-phase below ends in something Alex can try on `deploy-preview-42--khepri.netlify.app`.
+phase below ends in something Alex can try on `pr-42-khepri-f2f.alex-985.workers.dev`.
 
 ## 1. What the Final page specifies
 
