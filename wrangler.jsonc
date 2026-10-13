@@ -2,7 +2,7 @@
 // was before Matchup mode and the redesign), kept for players who prefer it.
 // Static only: the Vite build in ./dist. This branch is frozen; build with the
 // pinned lockfile (yarn install --immutable && yarn build), then deploy by hand:
-//   npx wrangler@4 deploy
+//   volta run --node 24 npx wrangler@4 deploy   (build needs Node 18, wrangler 22+)
 {
   "name": "khepri-f2f-n5classic",
   "compatibility_date": "2026-09-01",
