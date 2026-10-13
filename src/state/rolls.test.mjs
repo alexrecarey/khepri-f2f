@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {matchupView} from './matchupView.js';
-import {matchupRollSummary, rollRow} from './rolls.js';
+import {matchupRollSummary, matchupShareCard, rollRow} from './rolls.js';
 import {EMPTY_SIDE} from './schema.js';
 
 const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
@@ -25,4 +25,16 @@ test('a Matchup roll keeps each side\'s unit, weapon, crest and vanilla faction 
 test('rolls saved before the crests still make a row, from "Unit · Weapon"', () => {
   const r = rollRow({a: 'Squalos · HMG', r: 'Fennec · ML', setup: '24-32"'});
   assert.deepEqual([r.au, r.aw, r.ru, r.rw, r.ca, r.fr], ['Squalos', 'HMG', 'Fennec', 'ML', null, null]);
+});
+
+test('the share card puts each side\'s own situation under it, with the headline the sender sees', () => {
+  const v = matchupView(army, {A: {...corax, surpriseAttack: true}, B: chaksa, rangeCm: 40});
+  const h = {kind: 'win', fallback: false, text: {active: '61%', reactive: '22%'}, label: {active: 'wins face to face', reactive: 'dodges'}};
+  const card = matchupShareCard(v, h);
+  assert.equal(card.k, 'win');
+  assert.deepEqual([card.a.n, card.a.l, card.b.n, card.b.l], ['61%', 'wins face to face', '22%', 'dodges']);
+  assert.equal(card.a.s, 'Surprise attack');
+  assert.equal(card.b.s, 'Cover');
+  assert.equal(card.x, matchupRollSummary(v, null).setup.split(' · ')[0]);
+  assert.match(card.a.c, /^[a-z0-9-]+$/);
 });

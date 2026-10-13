@@ -51,15 +51,22 @@ function weaponShort(w) {
   return shortWeaponName(w.name);
 }
 
+// What a side's situation says, for the saved-rolls line and the share card.
+// A sapper's cover is its Foxhole, so it never says Cover as well.
+const inFoxhole = (x) => Boolean(x.resolved.sapper);
+const inCover = (x) => x.sel.inCover && !x.resolved.sapper;
+const fireteam = (x) => (x.resolved.ftSize > 1 ? `Fireteam ${x.resolved.ftSize}` : null);
+const surprise = (x, role) => role === 'A' && x.sel.surpriseAttack;
+const bandOf = (view) => RANGE_BANDS.find((b) => b.to === view.rangeCm) ?? null;
+
 // view: matchupView(); s: results.js summarize()
 export function matchupRollSummary(view, s) {
   const {A, B} = view;
-  const band = RANGE_BANDS.find((b) => b.to === view.rangeCm) ?? null;
-  const bits = [band?.label];
-  if (A.resolved.sapper || B.resolved.sapper) bits.push('Foxhole');
-  if ((A.sel.inCover && !A.resolved.sapper) || (B.sel.inCover && !B.resolved.sapper)) bits.push('Cover');
-  for (const x of [A, B]) if (x.resolved.ftSize > 1) bits.push(`Fireteam ${x.resolved.ftSize}`);
-  if (A.sel.surpriseAttack) bits.push('Surprise attack');
+  const bits = [bandOf(view)?.label];
+  if (inFoxhole(A) || inFoxhole(B)) bits.push('Foxhole');
+  if (inCover(A) || inCover(B)) bits.push('Cover');
+  for (const x of [A, B]) bits.push(fireteam(x));
+  if (surprise(A, 'A')) bits.push('Surprise attack');
   const [au, aw, ru, rw] = [shortUnit(A.resolved.unit), weaponShort(A.resolved.weapon), shortUnit(B.resolved.unit), weaponShort(B.resolved.weapon)];
   return {
     a: `${au} · ${aw}`,
@@ -72,6 +79,21 @@ export function matchupRollSummary(view, s) {
     setup: bits.filter(Boolean).join(' · '),
     ...chances(s),
   };
+}
+
+// The share card for a complete matchup (src/share/card.js): who rolls, with
+// what and how, plus the headline the sender sees. h: ui/headline.js headline().
+export function matchupShareCard(view, h) {
+  const side = (role, key) => {
+    const x = view[role];
+    const situation = [inFoxhole(x) && 'Foxhole', inCover(x) && 'Cover', fireteam(x), surprise(x, role) && 'Surprise attack'];
+    return {
+      n: h.text[key], l: h.label[key],
+      u: shortUnit(x.resolved.unit), w: weaponShort(x.resolved.weapon), s: situation.filter(Boolean).join(', '),
+      c: x.crest ?? '',
+    };
+  };
+  return {k: h.kind, nf: h.fallback, x: bandOf(view)?.label ?? '', a: side('A', 'active'), b: side('B', 'reactive')};
 }
 
 const classicDice = (p, side) => {
