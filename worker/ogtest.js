@@ -97,12 +97,28 @@ for (const b of document.querySelectorAll('button')) b.onclick = async () => {
 </body></html>`;
 }
 
+import {renderCard} from './og/render.js';
+
+// SPIKE: /og-test/render.png?long=1 draws card A in the Worker.
+async function renderSpike(url, env) {
+  const long = url.searchParams.has('long');
+  const t0 = Date.now();
+  const png = await renderCard(env, {
+    ca: url.searchParams.get('ca') ?? 'squalos-mk-ii-1-1', cb: url.searchParams.get('cb') ?? 'zhanshi-1-1',
+    a: {num: '0.81', label: 'wounds / order', name: long ? 'Mech-Engineer, Zhanshi Gongchéng' : 'Squalos Mk-II', sub: 'HMG · Surprise attack'},
+    b: {num: '0.46', label: 'wounds / order', name: 'Zhanshi', sub: 'Missile L. · Cover · Fireteam 5'},
+    foot: '16–24″',
+  });
+  return new Response(png, {headers: {'content-type': 'image/png', 'cache-control': 'no-store', 'x-render-ms': String(Date.now() - t0)}});
+}
+
 const html = body => new Response(body, {headers: {'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store'}});
 
 export function ogTest(request, env) {
   const url = new URL(request.url);
   const path = url.pathname;
   if (path.startsWith('/og-test/img/')) return env.ASSETS.fetch(request);
+  if (path === '/og-test/render.png') return renderSpike(url, env);
   if (path === '/og-test' || path === '/og-test/') return html(listPage(url.origin));
   const id = path.match(/^\/og-test\/([^/]+)\/?$/)?.[1];
   if (id === 'ua') {

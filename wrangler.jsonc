@@ -18,6 +18,8 @@
     // scripts/crests/config.mjs CREST_BUCKET
     {"binding": "CRESTS", "bucket_name": "khepri-crests"}
   ],
+  // SPIKE: share-card fonts are bundled as bytes.
+  "rules": [{"type": "Data", "globs": ["**/*.ttf"]}],
   "workers_dev": true,
   "preview_urls": true,
   "observability": {"enabled": true}
