@@ -9,7 +9,9 @@ import PropTypes from 'prop-types';
 import {ROLE, SIDE_NAME} from '../../state/schema.js';
 import {dispatch, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
+import {crestForRow} from '../../army/crests.js';
 import {extraLoadoutName} from '../../army/names.js';
+import {RowCrest} from '../Crest.jsx';
 import LoadFailed from '../LoadFailed.jsx';
 import {Page} from '../Sheet.jsx';
 import {QUICK, TYPE_NAMES, TYPE_ORDER} from './constants.js';
@@ -27,6 +29,7 @@ function ProfileRow({hit, onPick, first, color, army}) {
   const extra = extraLoadoutName(hit.loadout, hit.unit) ?? loadoutTag(army, hit);
   return (
     <button type="button" className={`hit${first ? ' first' : ''}`} onClick={() => onPick(hit)}>
+      <RowCrest slug={crestForRow(army, hit)} />
       <span className="t">{hit.unit}{extra && <span className="tag"> · {extra}</span>}</span>
       <span className={`w c-${color}`}>{weaponList(hit)}</span>
       <span className="m">BS {hit.bs ?? '—'} · {hit.swc} SWC · {hit.points} pts{hit.loose && <span className="loose"> · close match</span>}</span>

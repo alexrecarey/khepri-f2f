@@ -4,6 +4,8 @@ import {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {TIER} from '../../search/search.js';
 import {words} from '../../search/text.js';
+import {crestForRow} from '../../army/crests.js';
+import {RowCrest} from '../Crest.jsx';
 import LoadFailed from '../LoadFailed.jsx';
 import {TYPE_NAMES} from './constants.js';
 import {unitDetail} from './loadouts.js';
@@ -56,6 +58,7 @@ export default function DeskList({m, loadError}) {
           return (
             <div key={`r${x.hit.rowId}`} id={`dp-row-${idx}`} role="option" aria-selected={on} className={`dp-row${on ? ' on' : ''}`}
               onClick={select} onDoubleClick={() => pick(x.hit)}>
+              <RowCrest slug={crestForRow(army, x.hit)} />
               <span className="t">{x.hit.unit} · {x.hit.weapon}</span><span className="s">{shortStats(d)}</span>
               <span className="sub">{factionName(x.hit.factionId)}</span>
             </div>
@@ -66,6 +69,7 @@ export default function DeskList({m, loadError}) {
         return (
           <div key={`u${x.u.unitId}${x.away ? 'x' : ''}`} id={`dp-row-${idx}`} role="option" aria-selected={on}
             className={`dp-row${on ? ' on' : ''}`} onClick={select} onDoubleClick={() => (x.u.best ? pick(x.u.best) : select())}>
+            <RowCrest slug={d?.profiles[0]?.crest} />
             <span className="t"><Highlight text={x.u.short} query={query} />{x.away ? ` · ${factionName(x.factionId)}` : ''}</span>
             <span className="s">{shortStats(d)}</span>
             <span className="sub">{TYPE_NAMES[x.u.type] ?? x.u.type ?? ''}{reason && <span className="reason"> · {reason}</span>}</span>

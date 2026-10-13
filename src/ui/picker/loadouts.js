@@ -1,6 +1,7 @@
 // How the picker sorts one unit's loadouts and shows its stats. Needs the
 // army data (weapon range bands, profile stats); without it the unit page is a
 // plain list.
+import {crestOf} from '../../army/crests.js';
 import {unitById} from '../../army/lookup.js';
 import {isLieutenant} from '../../army/traits.js';
 import {isNonLethal} from '../../army/weapons.js';
@@ -141,6 +142,7 @@ function buildUnitDetail(army, unitId, armyFactionId) {
     id: p.id,
     name: p.name,
     type: p.type,
+    crest: crestOf(unit, p),
     stats: [['MOV', (p.move ?? []).map((m) => Math.round(m / 2.5)).join('-')], ['CC', p.cc], ['BS', p.bs], ['PH', p.ph],
       ['WIP', p.wip], ['ARM', p.arm], ['BTS', p.bts], [p.str ? 'STR' : 'W', p.w], ['S', p.s]],
     skills: (p.skills ?? []).map((sk) => (sk.extra?.length ? `${sk.name} (${sk.extra.join(', ')})` : sk.name)),

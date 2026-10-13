@@ -48,3 +48,14 @@ export function CardCrest({slug}) {
 }
 
 CardCrest.propTypes = {slug: PropTypes.string};
+
+// A picker row's crest (design canvas: Crests D): behind the row's right
+// edge, faint and grey, in its own colours on the row Enter or a tap would
+// pick (picker.css). Decoration only, like CardCrest.
+export function RowCrest({slug}) {
+  const [failed, setFailed] = useState(null);
+  if (!slug || failed === slug) return null;
+  return <img className="row-crest" src={`/crests/${slug}`} alt="" aria-hidden="true" loading="lazy" onError={() => setFailed(slug)} />;
+}
+
+RowCrest.propTypes = {slug: PropTypes.string};

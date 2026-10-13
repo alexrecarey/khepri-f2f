@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import {extraLoadoutName, shortIsc} from '../../army/names.js';
 import {dispatch} from '../../state/store.js';
 import {bandColor} from '../bands.js';
+import {CardCrest} from '../Crest.jsx';
 import FactionLogo from '../factionLogo.jsx';
 import {TYPE_NAMES} from './constants.js';
 import {loadoutCharts, loadoutTag} from './loadouts.js';
@@ -43,6 +44,8 @@ function UnitPane({m}) {
   }, [lit, detail]);
   return (
     <>
+      {/* The highlighted profile's crest in the pane's corner, like the setup cards (A5). */}
+      <CardCrest slug={profile.crest} />
       <div className="dp-unit">
         <div>
           <span className="dp-name">{shortIsc(detail.unit.isc)}</span>
