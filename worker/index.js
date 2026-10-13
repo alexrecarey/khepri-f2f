@@ -7,12 +7,14 @@
 // the content type tells the browser which it got, so the app doesn't care.
 
 import {CREST_CACHE_CONTROL} from '../scripts/crests/config.mjs';
+import {ogTest} from './ogtest.js';
 
 const SLUG = /^\/crests\/([a-z0-9-]+)$/;
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname.startsWith('/og-test')) return ogTest(request, env);
     const m = SLUG.exec(url.pathname);
     if (!m || (request.method !== 'GET' && request.method !== 'HEAD')) return env.ASSETS.fetch(request);
     // SVG first: nearly every crest is one, so most requests are one lookup.

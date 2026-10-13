@@ -64,6 +64,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png}'],
+        globIgnores: ['og-test/**'],
         // Unit crests come from the Worker (/crests/*, R2): too many to
         // precache; each is cached the first time it shows (runtimeCaching).
         // The army data chunk (~2.7 MB minified) stays precached for offline

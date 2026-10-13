@@ -12,7 +12,7 @@
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
     // Only crest requests reach the Worker; everything else is a static file.
-    "run_worker_first": ["/crests/*"]
+    "run_worker_first": ["/crests/*", "/og-test", "/og-test/*"]
   },
   "r2_buckets": [
     // scripts/crests/config.mjs CREST_BUCKET
