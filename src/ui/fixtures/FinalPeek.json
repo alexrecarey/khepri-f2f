@@ -1,0 +1,32 @@
+{
+  "mode": "matchup",
+  "matchup": {
+    "A": {
+      "unitId": 1651,
+      "factionId": 101,
+      "groupId": 1,
+      "profileId": null,
+      "optionId": 2,
+      "weaponKey": "2:",
+      "inCover": false,
+      "surpriseAttack": false,
+      "upgrade": null,
+      "ball": null,
+      "ftSize": 1
+    },
+    "B": {
+      "unitId": 1803,
+      "factionId": 101,
+      "groupId": 1,
+      "profileId": null,
+      "optionId": 3,
+      "weaponKey": "58:Blast Mode",
+      "inCover": true,
+      "surpriseAttack": false,
+      "upgrade": null,
+      "ball": null,
+      "ftSize": 5
+    },
+    "rangeCm": 80
+  }
+}

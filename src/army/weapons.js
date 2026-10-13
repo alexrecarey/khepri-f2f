@@ -37,6 +37,14 @@ export const bioweaponAmmo = (row) => {
   return null;
 };
 
+// A Bioweapon's ammo as its brackets list it: "Bioweapon (DA+SHOCK)" ->
+// ['DA', 'SHOCK']; [] for any other weapon.
+export const bioweaponParts = (row) => bioweaponProp(row)?.match(/\(([^)]+)\)/)?.[1].split('+') ?? [];
+
+// Ammunition as players write it: DA, EXP, AP, T2, but Shock, Stun, Plasma.
+const AMMO_NAMES = {N: 'N', DA: 'DA', EXP: 'EXP', AP: 'AP', T2: 'T2', SHOCK: 'Shock', STUN: 'Stun', PLASMA: 'Plasma'};
+export const ammoName = (a) => AMMO_NAMES[a.toUpperCase()] ?? a;
+
 export const hasAmmo = (row, name) => (row?.ammo ?? []).some((a) => a.toUpperCase() === name.toUpperCase());
 
 export const hasShockAmmo = (row) =>

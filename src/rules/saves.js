@@ -85,3 +85,17 @@ export function shockApplies(row, target) {
   if (target.profile.str || target.profile.w !== 1) return false;
   return !immunityAgainst(target.traits, row) && !hasImmunity(target.traits, 'Shock', row);
 }
+
+// How a hit halves the target's ARM / BTS: by AP Ammunition (the weapon's own,
+// a loadout "AP", BS Attack (AP)), or printed halved for another reason (E/M:
+// BTS/2). Immunity (AP) only ignores the first; any Immunity that turns the
+// hit into Normal Ammunition (immunityAgainst) ignores both.
+//   {ap, other, apIgnored, halves}
+export function saveHalving(row, mods, targetTraits) {
+  const save = row?.save ?? {};
+  const ap = Boolean(mods?.forceAP) || (Boolean(save.halved) && hasAmmo(row, 'AP'));
+  const other = Boolean(save.halved) && !hasAmmo(row, 'AP');
+  const immune = Boolean(immunityAgainst(targetTraits, row));
+  const apIgnored = ap && hasImmunity(targetTraits, 'AP', row);
+  return {ap, other, apIgnored, halves: !immune && (other || (ap && !apIgnored))};
+}

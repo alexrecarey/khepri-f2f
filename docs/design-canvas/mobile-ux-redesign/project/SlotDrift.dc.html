@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Empty slot drift</title><script src="./support.js"></script></head>
+<body><x-dc><helmet><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+@property --x1{syntax:'<percentage>';inherits:false;initial-value:20%}@property --y1{syntax:'<percentage>';inherits:false;initial-value:15%}
+@property --x2{syntax:'<percentage>';inherits:false;initial-value:80%}@property --y2{syntax:'<percentage>';inherits:false;initial-value:85%}
+@property --x3{syntax:'<percentage>';inherits:false;initial-value:60%}@property --y3{syntax:'<percentage>';inherits:false;initial-value:40%}
+.t{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:15px;letter-spacing:.03em}.d{font-size:13px;color:#9a978f;line-height:1.45}.cost{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#c9c6bf}
+.card{position:relative;isolation:isolate;overflow:hidden;height:340px;border-radius:14px;background:#1c1c1c;border:1.5px dashed color-mix(in srgb,var(--side) 40%,transparent);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}
+.content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px}
+.role{font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.12em;color:var(--side)}.ttl{font-size:20px;font-weight:600}
+.chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}.chip{font-size:13px;padding:5px 11px;border-radius:999px;border:1px solid #3a3a3a;color:#c9c6bf}
+.grain{position:absolute;inset:0;z-index:1;width:100%;height:100%;opacity:.09;pointer-events:none}
+.v-current{background:linear-gradient(180deg,color-mix(in srgb,var(--side) 18%,transparent),transparent 50%,color-mix(in srgb,var(--side) 18%,transparent)) #1c1c1c;background-size:100% 300%;animation:slot-drift 6s ease-in-out infinite}
+@keyframes slot-drift{0%,100%{background-position:0 0}50%{background-position:0 100%}}
+.blob{position:absolute;z-index:0;width:120%;aspect-ratio:1;border-radius:50%;will-change:transform;background:radial-gradient(closest-side,color-mix(in srgb,var(--side) 34%,transparent),transparent)}
+.b1{left:-55%;top:-45%;animation:b1 19s ease-in-out infinite alternate}
+.b2{right:-55%;bottom:-45%;animation:b2 23s ease-in-out infinite alternate;background:radial-gradient(closest-side,color-mix(in oklab,var(--side) 26%,transparent),transparent)}
+.b3{left:10%;top:30%;width:80%;animation:b3 29s ease-in-out infinite alternate;background:radial-gradient(closest-side,color-mix(in oklab,color-mix(in oklab,var(--side),#7aa8ff 40%) 20%,transparent),transparent)}
+@keyframes b1{0%{transform:translate(0,0) scale(1)}35%{transform:translate(35%,30%) scale(1.15)}70%{transform:translate(15%,65%) scale(.9)}100%{transform:translate(45%,15%) scale(1.1)}}
+@keyframes b2{0%{transform:translate(0,0) scale(1.1)}40%{transform:translate(-30%,-40%) scale(.9)}75%{transform:translate(-50%,-10%) scale(1.2)}100%{transform:translate(-15%,-60%) scale(1)}}
+@keyframes b3{0%{transform:translate(-20%,-30%) scale(.8)}50%{transform:translate(25%,20%) scale(1.1)}100%{transform:translate(-10%,35%) scale(.9)}}
+.sweep{position:absolute;z-index:0;inset:-45%;will-change:transform;filter:blur(28px);background:conic-gradient(from 0deg,color-mix(in srgb,var(--side) 30%,transparent),transparent 22%,color-mix(in oklab,color-mix(in oklab,var(--side),#7aa8ff 45%) 22%,transparent) 40%,transparent 58%,color-mix(in srgb,var(--side) 24%,transparent) 76%,transparent 90%,color-mix(in srgb,var(--side) 30%,transparent));animation:sweep 38s linear infinite,wobble 13s ease-in-out infinite alternate}
+.veil{position:absolute;inset:0;z-index:0;background:radial-gradient(70% 60% at 50% 50%,#1c1c1c 0%,transparent 100%);opacity:.7}
+@keyframes sweep{to{rotate:360deg}}@keyframes wobble{0%{translate:-6% 4%;scale:1}100%{translate:6% -5%;scale:1.15}}
+.v-mesh{animation:x1 11s ease-in-out infinite alternate,y1 7s ease-in-out infinite alternate,x2 13s ease-in-out infinite alternate,y2 17s ease-in-out infinite alternate,x3 19s ease-in-out infinite alternate,y3 9s ease-in-out infinite alternate;background:radial-gradient(55% 45% at var(--x1) var(--y1),color-mix(in srgb,var(--side) 30%,transparent),transparent),radial-gradient(60% 50% at var(--x2) var(--y2),color-mix(in srgb,var(--side) 24%,transparent),transparent),radial-gradient(45% 40% at var(--x3) var(--y3),color-mix(in oklab,color-mix(in oklab,var(--side),#7aa8ff 40%) 22%,transparent),transparent),#1c1c1c}
+@keyframes x1{to{--x1:75%}}@keyframes y1{to{--y1:60%}}@keyframes x2{to{--x2:25%}}@keyframes y2{to{--y2:30%}}@keyframes x3{to{--x3:30%}}@keyframes y3{to{--y3:80%}}
+.plasma{position:absolute;inset:0;z-index:0;width:100%;height:100%}
+.seg{display:inline-flex;border:1px solid #3a3a3a;border-radius:999px;overflow:hidden}
+.pill{all:unset;cursor:pointer;font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.1em;padding:7px 14px;color:#c9c6bf}
+.pill.on{background:var(--side);color:#111}.tg{border:1px solid #3a3a3a;border-radius:999px}.tg.on{border-color:var(--side);color:#e8e6e1;background:transparent}
+.pill:focus-visible{outline:2px solid var(--side);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style></helmet>
+<div style="width:1600px;height:1010px;background:#121212;padding:28px;box-sizing:border-box;display:flex;flex-direction:column;gap:20px;--side:{{side}}">
+<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><span style="font-family:'Chakra Petch',sans-serif;font-size:22px;font-weight:700">Empty slot drift — five takes on the moving tint (D chosen)</span><span style="flex-grow:1"></span>
+<div class="seg"><button type="button" class="pill {{activeOn}}" onClick="{{ pickActive }}">ACTIVE</button><button type="button" class="pill {{reactiveOn}}" onClick="{{ pickReactive }}">REACTIVE</button></div>
+<button type="button" class="pill tg {{grainOn}}" onClick="{{ toggleGrain }}">GRAIN</button></div>
+<span style="font-size:13px;color:#9a978f;margin-top:-10px;max-width:1100px;line-height:1.5">All CSS or a tiny canvas, no video. Grain is a still noise layer that hides the banding stripes faint gradients get on 8-bit screens; it never moves, so it costs one paint.</span>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px 20px">
+<div style="display:flex;flex-direction:column;gap:10px"><div class="card v-current"><sc-if value="{{grain}}" hint-placeholder-val="{{ false }}"><svg class="grain"><filter id="sd-n0"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"></feTurbulence><feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0"></feColorMatrix></filter><rect width="100%" height="100%" filter="url(#sd-n0)"></rect></svg></sc-if><div class="content"><svg width="52" height="52" viewBox="0 0 100 100"><path fill="{{side}}" opacity=".9" d="M50 4 90 27v46L50 96 10 73V27Z"></path><path fill="#1c1c1c" opacity=".55" d="M50 22 72 62H28Z"></path></svg><span class="role">{{role}}</span><span class="ttl">Choose a trooper</span><div class="chips"><span class="chip">Fusilier</span><span class="chip">Swiss Guard</span><span class="chip">Hac Tao</span></div></div></div><span class="t">0 · Current</span><span class="d">One tall linear gradient sliding up and down. Its horizontal edges are what read as scanlines.</span><span class="cost">background-position · repaints each frame</span></div>
+<div style="display:flex;flex-direction:column;gap:10px"><div class="card"><i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><sc-if value="{{grain}}" hint-placeholder-val="{{ false }}"><svg class="grain"><filter id="sd-n1"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"></feTurbulence><feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0"></feColorMatrix></filter><rect width="100%" height="100%" filter="url(#sd-n1)"></rect></svg></sc-if><div class="content"><svg width="52" height="52" viewBox="0 0 100 100"><path fill="{{side}}" opacity=".9" d="M50 4 90 27v46L50 96 10 73V27Z"></path><path fill="#1c1c1c" opacity=".55" d="M50 22 72 62H28Z"></path></svg><span class="role">{{role}}</span><span class="ttl">Choose a trooper</span><div class="chips"><span class="chip">Fusilier</span><span class="chip">Swiss Guard</span><span class="chip">Hac Tao</span></div></div></div><span class="t">A · Lava</span><span class="d">Three soft blobs drifting on unrelated 19, 23 and 29 second loops. Round shapes, so no edges to catch the eye.</span><span class="cost">transform only · GPU compositor, no repaint</span></div>
+<div style="display:flex;flex-direction:column;gap:10px"><div class="card"><i class="sweep"></i><i class="veil"></i><sc-if value="{{grain}}" hint-placeholder-val="{{ false }}"><svg class="grain"><filter id="sd-n2"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"></feTurbulence><feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0"></feColorMatrix></filter><rect width="100%" height="100%" filter="url(#sd-n2)"></rect></svg></sc-if><div class="content"><svg width="52" height="52" viewBox="0 0 100 100"><path fill="{{side}}" opacity=".9" d="M50 4 90 27v46L50 96 10 73V27Z"></path><path fill="#1c1c1c" opacity=".55" d="M50 22 72 62H28Z"></path></svg><span class="role">{{role}}</span><span class="ttl">Choose a trooper</span><div class="chips"><span class="chip">Fusilier</span><span class="chip">Swiss Guard</span><span class="chip">Hac Tao</span></div></div></div><span class="t">B · Aurora</span><span class="d">A blurred conic layer turning slowly behind a dark centre veil. Light sweeps around the edges of the card.</span><span class="cost">rotate + translate · GPU compositor, no repaint</span></div>
+<div style="display:flex;flex-direction:column;gap:10px"><div class="card v-mesh"><sc-if value="{{grain}}" hint-placeholder-val="{{ false }}"><svg class="grain"><filter id="sd-n3"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"></feTurbulence><feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0"></feColorMatrix></filter><rect width="100%" height="100%" filter="url(#sd-n3)"></rect></svg></sc-if><div class="content"><svg width="52" height="52" viewBox="0 0 100 100"><path fill="{{side}}" opacity=".9" d="M50 4 90 27v46L50 96 10 73V27Z"></path><path fill="#1c1c1c" opacity=".55" d="M50 22 72 62H28Z"></path></svg><span class="role">{{role}}</span><span class="ttl">Choose a trooper</span><div class="chips"><span class="chip">Fusilier</span><span class="chip">Swiss Guard</span><span class="chip">Hac Tao</span></div></div></div><span class="t">C · Mesh</span><span class="d">Three radial gradients whose centres wander on six independent periods. Closest to the Stripe feel in pure CSS.</span><span class="cost">@property · repaints each frame (card-sized)</span></div>
+<div style="display:flex;flex-direction:column;gap:10px"><div class="card"><canvas class="plasma" width="32" height="24" ref="{{ setCanvas }}"></canvas><sc-if value="{{grain}}" hint-placeholder-val="{{ false }}"><svg class="grain"><filter id="sd-n4"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"></feTurbulence><feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0"></feColorMatrix></filter><rect width="100%" height="100%" filter="url(#sd-n4)"></rect></svg></sc-if><div class="content"><svg width="52" height="52" viewBox="0 0 100 100"><path fill="{{side}}" opacity=".9" d="M50 4 90 27v46L50 96 10 73V27Z"></path><path fill="#1c1c1c" opacity=".55" d="M50 22 72 62H28Z"></path></svg><span class="role">{{role}}</span><span class="ttl">Choose a trooper</span><div class="chips"><span class="chip">Fusilier</span><span class="chip">Swiss Guard</span><span class="chip">Hac Tao</span></div></div></div><span class="t">D · Plasma (chosen)</span><span class="d">Summed sine waves on a 32×24 canvas, stretched by the browser. Shapes merge and split like Stripe’s shader.</span><span class="cost">canvas 2D · ~800 px/frame at 30 fps, paused off screen</span></div>
+</div></div></x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":1010}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this.t = 0; this.last = 0;
+    var self = this;
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function frame(now) {
+      if (!reduce) self.raf = requestAnimationFrame(frame);
+      var cv = self.cv;
+      if (!cv || (now - self.last < 33 && !reduce)) return;
+      self.t += reduce ? 3 : Math.min(0.1, (now - self.last) / 1000); self.last = now;
+      var reactive = self.state && self.state.reactive;
+      self.draw(cv, reactive ? [229, 155, 192] : [95, 196, 160], self.t);
+    }
+    this.raf = requestAnimationFrame(frame);
+  }
+  componentWillUnmount() { cancelAnimationFrame(this.raf); }
+  draw(cv, rgb, t) {
+    var ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+    if (!this.img) this.img = ctx.createImageData(W, H);
+    var d = this.img.data, alt = [122, 168, 255];
+    for (var y = 0, i = 0; y < H; y++) for (var x = 0; x < W; x++, i += 4) {
+      var v = Math.sin(x * .21 + t * .5) + Math.sin(y * .33 - t * .37) + Math.sin((x + y) * .17 + t * .23)
+        + Math.sin(Math.hypot(x - W / 2 - 6 * Math.sin(t * .2), y - H / 2) * .3 - t * .45);
+      var a = Math.max(0, v / 4 + .5), k = a * a * (3 - 2 * a), m = (.5 + .5 * Math.sin(x * .12 - t * .3)) * .35;
+      d[i] = rgb[0] + (alt[0] - rgb[0]) * m; d[i + 1] = rgb[1] + (alt[1] - rgb[1]) * m; d[i + 2] = rgb[2] + (alt[2] - rgb[2]) * m; d[i + 3] = k * 80;
+    }
+    ctx.putImageData(this.img, 0, 0);
+  }
+  renderVals() {
+    var s = this.state || {};
+    var self = this;
+    if (!this._setCanvas) this._setCanvas = function (el) { self.cv = el; };
+    return {
+      side: s.reactive ? '#e59bc0' : '#5fc4a0',
+      role: s.reactive ? 'REACTIVE' : 'ACTIVE',
+      activeOn: s.reactive ? '' : 'on', reactiveOn: s.reactive ? 'on' : '',
+      grain: !!s.grain, grainOn: s.grain ? 'on' : '',
+      pickActive: function () { self.setState({ reactive: false }); },
+      pickReactive: function () { self.setState({ reactive: true }); },
+      toggleGrain: function () { self.setState({ grain: !s.grain }); },
+      setCanvas: this._setCanvas,
+    };
+  }
+}
+</script></body></html>

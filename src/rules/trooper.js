@@ -2,9 +2,10 @@
 // Army data into the trooper that rolls.
 import {SKILL} from '../army/ids.js';
 import {applyStatOverrides, applyUpgrades, pickedUpgrades} from '../army/loadouts.js';
+import {unitById} from '../army/lookup.js';
 import {effectiveTraits, hasSkill, skillExtras} from '../army/traits.js';
 import {ammoTypes, bsWeapons, hasAmmo, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
-import {dodgeSuccessValue} from './modifiers.js';
+import {dodgeSuccessValue, fireteamMax, fireteamSize} from './modifiers.js';
 
 // What the trooper's BS Attack skill (profile, loadout or upgrade) does to
 // every weapon it makes a BS Attack with, templates and grenades included:
@@ -15,7 +16,7 @@ import {dodgeSuccessValue} from './modifiers.js';
 // (+1B / +1SD are roll bonuses, see rules/modifiers.js attackBonuses.)
 export const BS_ATTACK_WEAPON_EXTRAS = /^(AP|T2|SR-\d+|Continuous Damage)$/;
 
-function bsAttackWeaponMods(traits) {
+export function bsAttackWeaponMods(traits) {
   const extras = skillExtras(traits, SKILL.BS_ATTACK);
   const sr = extras.map((e) => /^SR-(\d+)$/.exec(e)).filter(Boolean).map((m) => Number(m[1]));
   return {
@@ -56,7 +57,7 @@ export function pseudoWeapons(profile, traits, side = 'B', dodgeMod = 0) {
 // the returned option includes upgrade weapons.
 export function resolveSelection(army, sel) {
   if (!army || !sel?.unitId) return null;
-  const unit = army.units.find((u) => u.id === sel.unitId);
+  const unit = unitById(army, sel.unitId);
   if (!unit) return null;
   const factionId = sel.factionId ?? (unit.inFactions.length === 1 ? unit.inFactions[0] : null);
   const groups = factionId ? unit.byFaction[factionId]?.groups ?? null : null;
@@ -73,21 +74,40 @@ export function resolveSelection(army, sel) {
     .flatMap((u) => u.attrs.filter((x) => x.type === 'weapon'))
     .filter((w) => !(army.weapons[w.id] ?? []).some(isBsAttackWeapon))
     .map((w) => w.name);
-  const traits = profile ? effectiveTraits(profile, option) : null;
+  const baseTraits = profile ? effectiveTraits(profile, option) : null;
+  // Sapper: the trooper may sit in a Foxhole (player's chip), which gives it
+  // Partial Cover and Mimetism (-3) (wiki, Foxhole State). Cover doesn't
+  // stack: the Foxhole is its cover.
+  const canSapper = hasSkill(baseTraits, SKILL.SAPPER);
+  const sapper = canSapper && Boolean(sel.sapper);
+  const traits = sapper ? foxholeTraits(baseTraits) : baseTraits;
   let weapon = null;
   if (option && profile && sel.weaponKey) {
     weapon = trooperWeapons(option, army.weapons, traits).find((w) => w.key === sel.weaponKey)
       ?? pseudoWeapons(profile, traits, 'B').find((w) => w.key === sel.weaponKey)
       ?? null;
   }
+  const ftMax = fireteamMax(unit, baseOption);
   return {
     unit, factionId, groups, group, profile, option, traits, weapon,
     upgrades, unsupportedUpgradeWeapons,
-    inCover: Boolean(sel.inCover),
+    inCover: Boolean(sel.inCover) || sapper,
+    canSapper,
+    sapper,
     // The player chose to use Surprise Attack (active side only).
     surpriseAttack: Boolean(sel.surpriseAttack),
-    ftSize: sel.ftSize ?? 1,
+    // Fireteam: the largest this trooper can join, and the size in use
+    // (a stored size above the max, e.g. from a share link, drops to it).
+    ftMax,
+    ftSize: fireteamSize(sel.ftSize, ftMax),
   };
+}
+
+// In a Foxhole, Mimetism (-3) joins the trooper's skills unless it already has
+// Mimetism (no stacking: a -6 stays -6). Marked so the ledger can say why.
+function foxholeTraits(traits) {
+  if (hasSkill(traits, SKILL.MIMETISM)) return traits;
+  return {...traits, skills: [...traits.skills, {id: SKILL.MIMETISM, name: 'Mimetism', extra: ['-3'], foxhole: true}]};
 }
 
 // Spec-Ops trooper? Only the Initial profile lists the skill, so check the group.

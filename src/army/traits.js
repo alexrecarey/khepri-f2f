@@ -19,3 +19,7 @@ export const skillExtras = (traits, id) =>
 
 // "Name (extra, extra)" as the Army list shows it.
 export const traitLabel = (t) => (t.extra?.length ? `${t.name} (${t.extra.join(', ')})` : t.name);
+
+// Lieutenant (any level): changes nothing on the table, so the picker and the
+// index leave it out when telling loadouts apart.
+export const isLieutenant = (skill) => /^Lieutenant/.test(skill?.name ?? '');

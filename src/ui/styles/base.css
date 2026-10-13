@@ -1,0 +1,5 @@
+/* Document defaults. */
+html, body { background: var(--bg); color: var(--text); margin: 0; }
+body { font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; }
+* { box-sizing: border-box; }

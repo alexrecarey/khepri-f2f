@@ -2,46 +2,25 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
-import {
-  createBrowserRouter, Navigate,
-  RouterProvider,
-} from "react-router-dom";
-import * as Sentry from "@sentry/react";
+import {dispatch, store} from './state/store.js';
+import {browserStorage} from './state/storage.js';
+import {startSync} from './state/sync.js';
+import {DEV_TOOLS} from './devTools.js';
+import {loadFixture} from './ui/fixtures/index.js';
 
+// ?fixture=FinalPeek: the state a design-canvas board shows (src/ui/fixtures).
+// Dev and previews only, and never saved over the visitor's own state.
+const fixture = DEV_TOOLS ? new URLSearchParams(window.location.search).get('fixture') : null;
+if (fixture) loadFixture(fixture).then((state) => state && dispatch({type: 'replace', state}));
 
-Sentry.init({
-  dsn: "https://43af9393fc55104e36288fc1844716be@o4506078646239232.ingest.sentry.io/4506078647943168",
-  integrations: [
-    Sentry.browserTracingIntegration({
-      // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-      tracePropagationTargets: [/^https:\/\/infinitythecalculator\.com\//],
-    }),
-    Sentry.replayIntegration()
-  ],
-  // Performance Monitoring
-  // tracesSampleRate: 1.0, // Capture 100% of the transactions
-  // Session Replay
-  replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
-  replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
-  enabled: false// import.meta.env.MODE !== 'development'
-});
+// URL, history and localStorage follow the state document from here on.
+startSync(store, dispatch, {storage: fixture ? null : browserStorage()});
 
-const sentryCreateBrowserRouter = Sentry.wrapCreateBrowserRouter(createBrowserRouter);
-
-const router = sentryCreateBrowserRouter([ 
-  {
-    path: "/",
-    element: <App/>,
-  },
-  {
-    path: "*",
-    element: <Navigate to="/" />,
-  }
-]);
-
+// The store on window, to inspect or replace the whole document.
+if (DEV_TOOLS) window.__app = {store, dispatch};
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <App/>
   </React.StrictMode>,
 )

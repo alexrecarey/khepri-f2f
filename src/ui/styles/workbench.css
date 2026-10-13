@@ -1,0 +1,28 @@
+/* ---------- tablet and desktop (ui/useLayout.js) ---------- */
+.app:not(.phone) { max-width: none; height: 100dvh; min-height: 0; }
+.app:not(.phone) .app-header { padding: 6px 16px 0 24px; gap: 16px; }
+.app:not(.phone) .wordmark { flex-grow: 0; }
+.mode-switch { display: inline-flex; background: var(--well); border-radius: 10px; padding: 3px; margin-right: auto; }
+.mode-switch button { all: unset; box-sizing: border-box; cursor: pointer; padding: 7px 14px; border-radius: 8px; font-size: 14px; color: var(--text-2); }
+.mode-switch button.on { background: var(--text); color: var(--bg); font-weight: 600; }
+.mode-switch button:focus-visible { outline: 2px solid var(--text-2); }
+
+.workbench { flex-grow: 1; min-height: 0; display: grid; gap: 20px; padding: 24px; align-items: start; }
+.workbench .col { display: flex; flex-direction: column; gap: 10px; min-height: 0; max-height: 100%; overflow-y: auto; }
+.workbench.tablet { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 20px; overflow-y: auto; align-content: start; }
+.workbench.tablet .sides { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.workbench.landscape { grid-template-columns: 380px minmax(0, 1fr); gap: 18px; padding: 18px; height: 100%; }
+.workbench.desktop { grid-template-columns: 400px minmax(0, 1fr) 440px; height: 100%; }
+.workbench.wide { grid-template-columns: 420px 540px minmax(0, 1fr); gap: 24px; height: 100%; }
+.mods-grid .ledger { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.mods-grid .ledger > .note { grid-column: 1 / -1; }
+.workbench.wide .mods-grid { display: block; }
+
+.results-panel { background: var(--surface); border-radius: var(--radius-card); padding: 16px 18px 20px; display: flex; flex-direction: column; gap: 16px; }
+.results-panel > * { flex-shrink: 0; }
+.panel-head { display: flex; justify-content: space-between; align-items: center; min-height: 28px; }
+.panel-head .sheet-actions { margin: -8px -10px -8px 0; }
+
+.workbench.classic { grid-template-columns: repeat(2, minmax(0, 1fr)) 460px; overflow-y: auto; height: 100%; }
+.workbench.classic.tablet { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.workbench.classic.tablet .results-panel { grid-column: 1 / -1; }

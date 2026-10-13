@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Saved rolls — desktop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:1440px;height:900px;box-sizing:border-box;background:#121212;position:relative;overflow:hidden">
+<div aria-hidden="true" style="position:absolute;inset:0;padding:20px 24px;display:grid;grid-template-columns:420px 1fr 420px;gap:20px;box-sizing:border-box">
+<div style="display:flex;flex-direction:column;gap:16px"><div style="height:56px"></div><div style="height:300px;border-radius:14px;background:#1c1c1c"></div><div style="height:300px;border-radius:14px;background:#1c1c1c"></div></div>
+<div style="display:flex;flex-direction:column;gap:16px"><div style="height:56px"></div><div style="height:620px;border-radius:14px;background:#1c1c1c"></div></div>
+<div style="display:flex;flex-direction:column;gap:16px"><div style="height:56px"></div><div style="height:620px;border-radius:14px;background:#1c1c1c"></div></div>
+</div>
+<div style="position:absolute;inset:0;background:rgba(0,0,0,.6)"></div>
+<div role="dialog" aria-label="Saved rolls" style="position:absolute;left:50%;top:90px;transform:translateX(-50%);width:720px;max-height:720px;box-sizing:border-box;background:#1c1c1c;border-radius:16px;box-shadow:0 24px 64px rgba(0,0,0,.6);display:flex;flex-direction:column">
+<div style="display:flex;align-items:center;gap:12px;padding:16px 16px 12px 24px;border-bottom:1px solid #2a2a2a">
+<span style="font-size:18px;font-weight:600;flex-grow:1">Saved rolls</span>
+<div style="display:flex;background:#262626;border-radius:10px;padding:3px;font-size:14px">
+<button style="all:unset;cursor:pointer;padding:7px 16px;border-radius:8px;background:#e8e6e1;color:#121212;font-weight:600">Matchup · 9</button>
+<button style="all:unset;cursor:pointer;padding:7px 16px;border-radius:8px;color:#c9c6bf">Classic · 4</button>
+</div>
+<button aria-label="Close" style="all:unset;cursor:pointer;width:40px;height:40px;display:grid;place-items:center;border-radius:8px;color:#9a978f;font-size:20px">✕</button>
+</div>
+<div style="display:flex;flex-direction:column;gap:2px;padding:10px 12px;overflow:hidden">
+<div style="display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:10px;background:transparent">
+<a href="DeskWorkbench.dc.html" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;flex-grow:1;min-width:0">
+<span style="position:relative;width:68px;height:44px;flex-shrink:0"><img src="crests/squalos-mk-ii.svg" alt="" style="position:absolute;left:0;top:2px;width:40px;height:40px;border-radius:999px;box-shadow:0 0 0 2px #1c1c1c, 0 0 0 3px #5fc4a0"><img src="crests/zhanshi.svg" alt="" style="position:absolute;left:26px;top:2px;width:40px;height:40px;border-radius:999px;box-shadow:0 0 0 2px #1c1c1c, 0 0 0 3px #e59bc0"></span>
+<span style="display:flex;flex-direction:column;gap:3px;min-width:0;flex-grow:1">
+<span style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="color:#5fc4a0">Squalos Mk-II</span> <span style="font-weight:400;color:#8a877f">HMG</span> <span style="color:#6b6861">vs</span> <span style="color:#e59bc0">Zhanshi</span> <span style="font-weight:400;color:#8a877f">Missile L.</span></span>
+<span style="font-size:13px;color:#8a877f">16–24" · Cover · Fireteam 5</span>
+</span>
+
+</a>
+<span style="width:36px"></span>
+</div>
+<div style="display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:10px;background:#262626">
+<a href="DeskWorkbench.dc.html" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;flex-grow:1;min-width:0">
+<span style="position:relative;width:68px;height:44px;flex-shrink:0"><img src="crests/intruders.svg" alt="" style="position:absolute;left:0;top:2px;width:40px;height:40px;border-radius:999px;box-shadow:0 0 0 2px #262626, 0 0 0 3px #5fc4a0"><img src="crests/fusiliers.svg" alt="" style="position:absolute;left:26px;top:2px;width:40px;height:40px;border-radius:999px;box-shadow:0 0 0 2px #262626, 0 0 0 3px #e59bc0"></span>
+<span style="display:flex;flex-direction:column;gap:3px;min-width:0;flex-grow:1">
+<span style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="color:#5fc4a0">Intruders</span> <span style="font-weight:400;color:#8a877f">HMG</span> <span style="color:#6b6861">vs</span> <span style="color:#e59bc0">Fusiliers</span> <span style="font-weight:400;color:#8a877f">Missile L.</span></span>
+<span style="font-size:13px;color:#8a877f">24–32" · Cover</span>
+</span>
+<span style="font-size:12px;color:#9a978f;font-family:IBM Plex Mono,monospace;flex-shrink:0">↵ load</span>
+</a>
+<button aria-label="Delete this roll" style="all:unset;cursor:pointer;width:36px;height:36px;display:grid;place-items:center;border-radius:8px;color:#f08a7a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"></path></svg></button>
+</div>
+<div style="display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:10px;background:transparent">
+<a href="DeskWorkbench.dc.html" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;flex-grow:1;min-width:0">
+<span style="position:relative;width:68px;height:44px;flex-shrink:0"><img src="crests/morat-vanguard-infantry.svg" alt="" style="position:absolute;left:0;top:2px;width:40px;height:40px;border-radius:999px;box-shadow:0 0 0 2px #1c1c1c, 0 0 0 3px #5fc4a0"><img src="crests/ghulam-infantry.svg" alt="" style="position:absolute;left:26px;top:2px;width:40px;height:40px;border-radius:999px;box-shadow:0 0 0 2px #1c1c1c, 0 0 0 3px #e59bc0"></span>
+<span style="display:flex;flex-direction:column;gap:3px;min-width:0;flex-grow:1">
+<span style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="color:#5fc4a0">Morat Vanguard</span> <span style="font-weight:400;color:#8a877f">HMG</span> <span style="color:#6b6861">vs</span> <span style="color:#e59bc0">Ghulam Infantry</span> <span style="font-weight:400;color:#8a877f">HMG</span></span>
+<span style="font-size:13px;color:#8a877f">16–24"</span>
+</span>
+
+</a>
+<span style="width:36px"></span>
+</div>
+<div style="display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:10px;background:transparent">
+<a href="DeskWorkbench.dc.html" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;flex-grow:1;min-width:0">
+<span style="position:relative;width:68px;height:44px;flex-shrink:0"><img src="crests/zhanshi.svg" alt="" style="position:absolute;left:0;top:2px;width:40px;height:40px;border-radius:999px;box-shadow:0 0 0 2px #1c1c1c, 0 0 0 3px #5fc4a0"><img src="crests/intruders.svg" alt="" style="position:absolute;left:26px;top:2px;width:40px;height:40px;border-radius:999px;box-shadow:0 0 0 2px #1c1c1c, 0 0 0 3px #e59bc0"></span>
+<span style="display:flex;flex-direction:column;gap:3px;min-width:0;flex-grow:1">
+<span style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="color:#5fc4a0">Zhanshi</span> <span style="font-weight:400;color:#8a877f">HMG</span> <span style="color:#6b6861">vs</span> <span style="color:#e59bc0">Intruders</span> <span style="font-weight:400;color:#8a877f">Dodge</span></span>
+<span style="font-size:13px;color:#8a877f">8–16" · Surprise attack</span>
+</span>
+
+</a>
+<span style="width:36px"></span>
+</div>
+<div style="display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:10px;background:transparent">
+<a href="DeskWorkbench.dc.html" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;flex-grow:1;min-width:0">
+<span style="position:relative;width:68px;height:44px;flex-shrink:0"><img src="crests/fusiliers.svg" alt="" style="position:absolute;left:0;top:2px;width:40px;height:40px;border-radius:999px;box-shadow:0 0 0 2px #1c1c1c, 0 0 0 3px #5fc4a0"><img src="crests/morat-vanguard-infantry.svg" alt="" style="position:absolute;left:26px;top:2px;width:40px;height:40px;border-radius:999px;box-shadow:0 0 0 2px #1c1c1c, 0 0 0 3px #e59bc0"></span>
+<span style="display:flex;flex-direction:column;gap:3px;min-width:0;flex-grow:1">
+<span style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="color:#5fc4a0">Fusiliers</span> <span style="font-weight:400;color:#8a877f">Combi Rifle</span> <span style="color:#6b6861">vs</span> <span style="color:#e59bc0">Morat Vanguard</span> <span style="font-weight:400;color:#8a877f">Combi Rifle</span></span>
+<span style="font-size:13px;color:#8a877f">8–16"</span>
+</span>
+
+</a>
+<span style="width:36px"></span>
+</div>
+</div>
+<div style="display:flex;justify-content:space-between;padding:12px 24px 16px;border-top:1px solid #2a2a2a;font-size:12px;color:#6b6861">
+<span>Click a roll to load the whole setup</span>
+<span style="font-family:IBM Plex Mono,monospace">↑ ↓ move · ↵ load · Del delete · Esc close</span>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

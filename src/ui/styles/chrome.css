@@ -1,0 +1,125 @@
+/* ---------- chrome: sheet head, menu, saved rolls, settings, about, toast ---------- */
+.sheet-head { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 20px; }
+.sheet-actions { display: flex; justify-content: flex-end; gap: 2px; margin: -10px -8px -10px 0; }
+.icon-btn.sm { width: 40px; height: 40px; }
+.icon-btn:disabled { opacity: .4; cursor: default; }
+.menu-ic { width: 20px; display: grid; place-items: center; color: var(--text-3); }
+
+.segs { display: flex; margin: 12px 4px 0; background: var(--well); border-radius: 10px; padding: 3px; }
+.seg { all: unset; box-sizing: border-box; cursor: pointer; flex: 1; text-align: center; padding: 10px; border-radius: 8px; color: var(--text-2); font-size: 15px; }
+.seg.on { background: var(--text); color: var(--bg); font-weight: 600; }
+.seg:focus-visible { outline: 2px solid var(--text-2); }
+
+.roll-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #3a1f1f; }
+.roll-delete { all: unset; box-sizing: border-box; cursor: pointer; position: absolute; top: 0; right: 0; bottom: 0; width: var(--roll-delete-w); display: grid; place-items: center; color: #fff; font-weight: 600; background: #b4423a; }
+.roll { all: unset; box-sizing: border-box; cursor: pointer; position: relative; width: 100%; display: flex; flex-direction: column; gap: 6px; padding: 14px; background: var(--surface-2); touch-action: pan-y; transition: transform .2s ease; user-select: none; }
+.roll.dragging { transition: none; }
+.roll:focus-visible { outline: 2px solid var(--text-2); outline-offset: -2px; }
+.roll-row { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; }
+.roll-row.dice { font-family: var(--font-display); font-weight: 600; }
+.roll-row.note { font-size: 13px; }
+.roll-list { display: flex; flex-direction: column; gap: 8px; padding: 12px 4px; }
+.roll-hint { text-align: center; padding: 8px; color: var(--faint); }
+.roll-classic { display: flex; flex-direction: column; gap: 6px; }
+
+/* Crest coins (Crest.jsx): the unit's crest ringed in its side's colour,
+   with a gap of the background they sit on (--crest-gap). */
+.crest { display: block; box-sizing: border-box; border-radius: 50%; object-fit: cover; background: var(--surface-3);
+  box-shadow: 0 0 0 2px var(--crest-gap, var(--page)), 0 0 0 3px var(--ring); }
+.crest.ring-active { --ring: var(--active); }
+.crest.ring-reactive { --ring: var(--reactive); }
+/* A faction crest standing in: a small mark inside the coin, not a badge. */
+.crest.fallback { object-fit: contain; padding: 18%; }
+.crest-pair { position: relative; flex-shrink: 0; width: calc(var(--crest) * 1.67); height: calc(var(--crest) + 4px); }
+.crest-pair .crest { position: absolute; top: 2px; left: 0; }
+.crest-pair .crest + .crest { left: calc(var(--crest) * .67); }
+
+/* Matchup rolls as crest rows (Crests E): flat rows on the page, not cards. */
+.roll-wrap.matchup { border-radius: 0; }
+.roll-wrap.matchup .roll { padding: 12px 4px; background: var(--page); border-bottom: 1px solid var(--line); }
+.roll-list:has(.roll-wrap.matchup) { gap: 0; padding-top: 6px; }
+.roll-crests { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.roll-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.roll-who { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.roll-weapon { font-weight: 400; color: var(--muted); }
+.roll-vs { color: var(--faint); font-weight: 400; }
+.roll-setup { font-size: 12px; color: var(--muted); }
+
+/* Desktop dialogs (DeskDialog.jsx): Saved rolls, Settings, About. */
+.desk-dialog { position: fixed; z-index: 30; left: 50%; top: max(24px, 10dvh); transform: translateX(-50%); max-height: min(720px, calc(100dvh - 48px));
+  box-sizing: border-box; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; box-shadow: 0 24px 64px rgba(0,0,0,.6); animation: fade .15s ease; }
+.desk-dialog.saved { width: min(720px, calc(100vw - 48px)); }
+.desk-dialog.settings { width: min(820px, calc(100vw - 48px)); }
+.desk-dialog.about { width: min(560px, calc(100vw - 48px)); }
+.dd-head { display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 24px; border-bottom: 1px solid var(--line); }
+.dd-head .page-title { flex-grow: 1; }
+.dd-head .segs { margin: 0; }
+.dd-head .seg { padding: 7px 16px; font-size: 14px; white-space: nowrap; }
+.sd-list { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; overflow-y: auto; --crest-gap: var(--surface); }
+.drow { display: flex; align-items: center; gap: 4px; border-radius: 10px; }
+.drow:hover, .drow:focus-within { background: var(--surface-3); --crest-gap: var(--surface-3); }
+.drow-load { all: unset; box-sizing: border-box; cursor: pointer; flex-grow: 1; min-width: 0; display: flex; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 10px; }
+.drow-load:focus-visible { outline: 2px solid var(--text-2); outline-offset: -2px; }
+.drow-load .roll-crests, .drow-load .roll-classic { flex-grow: 1; }
+.drow-load .roll-who { font-size: 15px; }
+.drow-load .roll-setup { font-size: 13px; }
+.drow-enter { visibility: hidden; flex-shrink: 0; }
+.drow-load:focus-visible .drow-enter { visibility: visible; }
+.drow-delete { color: var(--danger); visibility: hidden; flex-shrink: 0; }
+.drow:hover .drow-delete, .drow:focus-within .drow-delete { visibility: visible; }
+.sd-foot { display: flex; justify-content: space-between; gap: 12px; padding: 12px 24px 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--faint); }
+
+.setting { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px; font-size: 15px; }
+.setting select { font: inherit; color: var(--text); background: var(--well); border: 1px solid var(--line-strong); border-radius: 8px; padding: 8px 10px; max-width: 55%; }
+.setting select:disabled { opacity: .6; }
+.setting.radio { justify-content: flex-start; cursor: pointer; min-height: var(--tap); box-sizing: border-box; }
+.setting.radio input { accent-color: var(--active); width: 20px; height: 20px; margin: 0; flex-shrink: 0; }
+.radio-text { display: flex; flex-direction: column; gap: 2px; }
+.lang-page .note { padding: 0 12px; }
+
+.about { display: flex; flex-direction: column; gap: 16px; padding: 18px 12px; font-size: 15px; line-height: 1.55; color: var(--text-2); }
+.about p { margin: 0; }
+.about a { color: var(--active); }
+.about-title { font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: .08em; color: var(--text); line-height: 1.2; }
+.small-print { font-size: 13px; color: var(--muted); }
+
+.toast { position: fixed; left: 50%; bottom: calc(var(--results-card-h) - 20px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 40; padding: 10px 16px; border-radius: 999px; background: var(--text); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,.5); animation: fade .15s ease; }
+
+/* Desktop Settings (DeskMenu.jsx): two columns, the results card choice on the left. */
+.ds-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; padding: 20px 24px 24px; overflow-y: auto; }
+.ds-col { display: flex; flex-direction: column; gap: 22px; }
+.ds-group { display: flex; flex-direction: column; }
+.ds-group > .label { padding-bottom: 8px; }
+.ds-choices { display: flex; flex-direction: column; gap: 2px; margin: 0 -12px; }
+.ds-choice { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; cursor: pointer; }
+.ds-choice:has(input:checked) { background: var(--well); }
+.ds-choice input { accent-color: var(--active); width: 20px; height: 20px; margin: 0; flex-shrink: 0; }
+.ds-choice .radio-text { flex-grow: 1; }
+.ds-choice .val { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--faint); font-variant-numeric: tabular-nums; }
+.ds-choice:has(input:checked) .val { color: var(--active); }
+.ds-group .setting { padding: 6px 0; }
+.ds-group .setting select { min-width: 180px; }
+.ds-group .setting select.c-active { color: var(--active); }
+.ds-group .setting select.c-reactive { color: var(--reactive); }
+.ds-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn.danger { color: var(--danger); border-color: var(--danger-line); }
+
+/* Desktop About (DeskMenu.jsx). */
+.da-body { display: flex; flex-direction: column; gap: 14px; padding: 20px 24px 24px; font-size: 15px; line-height: 1.55; color: var(--text-2); overflow-y: auto; }
+.da-body p { margin: 0; }
+.da-body a { color: var(--active); }
+.da-title { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: .04em; color: var(--text); }
+.da-facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: var(--fs-small); color: var(--muted); }
+.da-facts dd { margin: 0; color: var(--text-2); }
+.da-fine { font-size: var(--fs-small); color: var(--muted); }
+
+/* Header buttons for the menu pages (App.jsx, wide layouts). */
+.hdr-btns { display: flex; align-items: center; gap: 4px; }
+.hdr-btn { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 10px; font-size: 14px; color: var(--text-2); }
+.hdr-btn svg { color: var(--muted); }
+.hdr-btn:hover { background: var(--hover); }
+.hdr-btn[aria-pressed="true"] { background: var(--surface-3); color: var(--text); }
+.hdr-btn[aria-pressed="true"] svg { color: var(--text); }
+.hdr-btn:focus-visible { outline: 2px solid var(--text-2); outline-offset: 2px; }
+.hdr-btn.icon { width: 40px; padding: 0; justify-content: center; }
+.hdr-btn .n { font-size: var(--fs-small); color: var(--muted); }

@@ -12,7 +12,8 @@ export {LIMITS};
 export const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
 
 // "The sum total of the Modifiers applied to a Roll can never exceed +12 or
-// -12." Attribute changes (Fireteam +1 BS, Dodge (PH=14)) are not MODs.
+// -12." Fireteam +1 BS is a MOD and counts; Dodge (PH=14) replaces the
+// Attribute and doesn't.
 export const MOD_CAP = [-12, 12];
 export const capMods = (sum) => clamp(MOD_CAP, sum);
 
@@ -34,31 +35,43 @@ export const hasNanoscreen = (side) => hasEquip(side?.traits, EQUIP.NANOSCREEN);
 // - No Cover: neither (benefitsFromCover). Nanoscreen still works.
 // - Marksmanship (attacker): ignores the -3 from cover and from Nanoscreen,
 //   not the target's +3 to its saves.
+export const COVER_BS_MOD = -3;
+// Cover's (or Nanoscreen's) MOD to the target's Saving Rolls.
+export const COVER_SAVE_MOD = 3;
 export function coverBsMod(target, attackerTraits) {
   if (hasSkill(attackerTraits, SKILL.MARKSMANSHIP)) return 0;
   const cover = benefitsFromCover(target) && !hasSkill(target?.traits, SKILL.LIMITED_COVER);
-  return cover || hasNanoscreen(target) ? -3 : 0;
+  return cover || hasNanoscreen(target) ? COVER_BS_MOD : 0;
 }
 
 const hasMsv = (traits) => hasEquip(traits, EQUIP.MSV1) || hasEquip(traits, EQUIP.MSV2) || hasEquip(traits, EQUIP.MSV3);
+// The attacker's Multispectral Visor as players write it, or null.
+export const msvName = (traits) => (hasEquip(traits, EQUIP.MSV3) ? 'MSV3' : hasEquip(traits, EQUIP.MSV2) ? 'MSV2'
+  : hasEquip(traits, EQUIP.MSV1) ? 'MSV1' : null);
+
+// A bracketed negative MOD (Mimetism (-6), Albedo (-3)); -3 when the data
+// gives none.
+const bracketMod = (extra) => {
+  const mod = Number(extra);
+  return Number.isFinite(mod) && mod < 0 ? mod : -3;
+};
+// The printed MOD of a target's Mimetism / Albedo, 0 without it.
+export const mimetismValue = (traits) => (hasSkill(traits, SKILL.MIMETISM) ? bracketMod(skillExtra(traits, SKILL.MIMETISM)) : 0);
+export const albedoValue = (traits) => (hasEquip(traits, EQUIP.ALBEDO) ? bracketMod(equipExtra(traits, EQUIP.ALBEDO)) : 0);
 
 // Albedo (wiki): an enemy with a Multispectral Visor or Marksmanship who
 // declares a BS Attack requiring LoF against the bearer applies the bracketed
 // MOD (-3 / -6). Not applied to CC. Other attackers are unaffected.
 export function albedoMod(targetTraits, attackerTraits) {
-  if (!hasEquip(targetTraits, EQUIP.ALBEDO)) return 0;
   if (!hasMsv(attackerTraits) && !hasSkill(attackerTraits, SKILL.MARKSMANSHIP)) return 0;
-  const mod = Number(equipExtra(targetTraits, EQUIP.ALBEDO));
-  return Number.isFinite(mod) && mod < 0 ? mod : -3;
+  return albedoValue(targetTraits);
 }
 
 // Mimetism (-3) / (-6) against the attacker's Multispectral Visor:
 // MSV1 cancels 3 of it (-3 -> 0, -6 -> -3); MSV2 and MSV3 cancel it all.
 export function mimetismMod(targetTraits, attackerTraits) {
-  const extra = skillExtra(targetTraits, SKILL.MIMETISM);
-  if (!hasSkill(targetTraits, SKILL.MIMETISM)) return 0;
-  const mod = Number(extra);
-  const value = Number.isFinite(mod) && mod < 0 ? mod : -3;
+  const value = mimetismValue(targetTraits);
+  if (!value) return 0;
   if (hasEquip(attackerTraits, EQUIP.MSV2) || hasEquip(attackerTraits, EQUIP.MSV3)) return 0;
   if (hasEquip(attackerTraits, EQUIP.MSV1)) return Math.min(0, value + 3);
   return value;
@@ -69,6 +82,25 @@ export function mimetismMod(targetTraits, attackerTraits) {
 // 4 = +1 BS, 5 = Sixth Sense. 0 means not in a Fireteam.
 export const FIRETEAM_MIN = 2;
 export const FIRETEAM_MAX = 5;
+// The largest fireteam a trooper can be in: army.json's unit.fireteam, the
+// most generous team it reaches in any army's chart (src/army/fireteams.js).
+// FTO loadouts may go further than the unit's other loadouts. 1 = none.
+export function fireteamMax(unit, option) {
+  const ft = unit?.fireteam;
+  if (!ft) return 1;
+  const n = /\bFTO\b/.test(option?.name ?? '') ? ft.fto : ft.all;
+  return n >= FIRETEAM_MIN ? n : 1;
+}
+
+// A size the trooper can actually have: above its max it drops to the max.
+export const fireteamSize = (size, max) => (max >= FIRETEAM_MIN ? Math.min(size ?? 1, max) : 1);
+
+// Sixth Sense, from the skill or a Fireteam of 5. In N5 it doesn't touch
+// Surprise Attack (that moved to Combat Instinct); what matters here is that a
+// trooper with it who Dodges takes no negative MODs (wiki, Sixth Sense; the
+// Immobilized / Isolated exceptions are States the calculator doesn't model).
+export const hasSixthSense = (side) => hasSkill(side?.traits, SKILL.SIXTH_SENSE) || fireteamBonuses(side?.ftSize).sixthSense;
+
 export function fireteamBonuses(size = 0) {
   return {
     sd: size >= 2 ? 1 : 0,
@@ -132,6 +164,47 @@ export function bsAttackMod(traits) {
 // (WIP) (e.g. Grenades, Flash Pulse). BS MODs still apply.
 export function attackStat(profile, row) {
   return profile?.[attackAttribute(row)] ?? 0;
+}
+
+// Does this side roll? A Dodge, or a BS Attack that isn't a Direct Template
+// (even one its target is immune to: the rolls are still opposed).
+export function rollsDice(x) {
+  const w = x?.weapon;
+  if (!w) return false;
+  if (w.pseudo) return w.pseudo === 'dodge';
+  return !isTemplate(w.row) && attackStat(x.profile, w.row) > 0;
+}
+
+// The MODs x's skills put on y's Face to Face Roll, one entry each:
+// {value, label, ignoredBy} (ignoredBy: what of y's cancels it, else null).
+// Negative MODs from x's skills apply to the opponent, and only in opposed
+// rolls: both roll against each other (a Direct Template hits automatically,
+// so nothing is opposed).
+// - x Dodges with Dodge (-X) and y attacks: y takes -X (wiki, Dodge).
+// - x attacks with BS Attack (-X): y takes -X attacking or Dodging, unless y
+//   has Warhorse (bsAttackMod).
+// - x is the active trooper, attacks, and uses Surprise Attack (-X) (a player
+//   toggle): y takes -X attacking or Dodging, unless y has Combat Instinct or
+//   a Multispectral Visor L3.
+// - y Dodges with Sixth Sense (the skill or a Fireteam of 5): none of these
+//   negative MODs apply to its Dodge.
+export function opposingMods(x, y, xActive) {
+  if (!rollsDice(x) || !rollsDice(y)) return [];
+  if (x.weapon.pseudo === 'dodge') {
+    const mod = y.weapon.pseudo ? 0 : dodgeExtras(x.traits).opponentMod;
+    return mod ? [{value: mod, label: `Dodge (${mod})`, ignoredBy: null}] : [];
+  }
+  const sixth = y.weapon.pseudo === 'dodge' && hasSixthSense(y) ? 'Sixth Sense (Dodge)' : null;
+  const out = [];
+  const bs = bsAttackMod(x.traits);
+  if (bs) out.push({value: bs, label: `BS Attack (${bs})`, ignoredBy: hasSkill(y.traits, SKILL.WARHORSE) ? 'Warhorse' : sixth});
+  const surprise = xActive && x.surpriseAttack ? surpriseAttackMod(x.traits) : 0;
+  if (surprise) {
+    const ignoredBy = hasSkill(y.traits, SKILL.COMBAT_INSTINCT) ? 'Combat Instinct'
+      : hasEquip(y.traits, EQUIP.MSV3) ? 'MSV3' : sixth;
+    out.push({value: surprise, label: `Surprise Attack (${surprise})`, ignoredBy});
+  }
+  return out;
 }
 
 // Only Total Reaction / Neurocinetics keep their full burst in ARO.

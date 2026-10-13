@@ -1,0 +1,61 @@
+// A unit crest as a coin (design canvas: Crests E), ringed in its side's
+// colour. Crests are Corvus Belli's SVGs (a WebP for the few heavy ones),
+// kept in R2 and served by the app's Worker at /crests/<slug>, whichever
+// format it is (scripts/crests); a missing or failed one
+// shows the trooper's vanilla faction crest instead, and with neither, an
+// empty coin.
+import {useState} from 'react';
+import PropTypes from 'prop-types';
+import {factionLogoSrc} from './factionLogo.jsx';
+
+export function Crest({slug, faction, side, size = 36}) {
+  const [failed, setFailed] = useState(null);
+  const unit = slug && failed !== slug ? `/crests/${slug}` : null;
+  const src = unit ?? factionLogoSrc(faction);
+  const cls = `crest ring-${side}${unit ? '' : ' fallback'}`;
+  const style = {width: size, height: size};
+  return src
+    ? <img className={cls} style={style} src={src} alt="" loading="lazy" onError={() => setFailed(slug)} />
+    : <span className={cls} style={style} />;
+}
+
+Crest.propTypes = {slug: PropTypes.string, faction: PropTypes.number, side: PropTypes.oneOf(['active', 'reactive']).isRequired, size: PropTypes.number};
+
+// Active's coin with reactive's overlapping it on the right.
+export function CrestPair({row, size = 36}) {
+  return (
+    <span className="crest-pair" style={{'--crest': `${size}px`}}>
+      <Crest slug={row.ca} faction={row.fa} side="active" size={size} />
+      <Crest slug={row.cr} faction={row.fr} side="reactive" size={size} />
+    </span>
+  );
+}
+
+CrestPair.propTypes = {row: PropTypes.object.isRequired, size: PropTypes.number};
+
+// The unit's crest behind a setup card (design canvas: Crests A5): in its own
+// colours, cut by the card's top-right corner and fading towards the bottom
+// left (matchup.css). Decoration only, so a missing crest just isn't there
+// (a faction crest would read as a different, brighter mark).
+export function CardCrest({slug}) {
+  const [failed, setFailed] = useState(null);
+  if (!slug || failed === slug) return null;
+  return (
+    <span className="card-crest" aria-hidden="true">
+      <img src={`/crests/${slug}`} alt="" loading="lazy" onError={() => setFailed(slug)} />
+    </span>
+  );
+}
+
+CardCrest.propTypes = {slug: PropTypes.string};
+
+// A picker row's crest (design canvas: Crests D): behind the row's right
+// edge, faint and grey, in its own colours on the row Enter or a tap would
+// pick (picker.css). Decoration only, like CardCrest.
+export function RowCrest({slug}) {
+  const [failed, setFailed] = useState(null);
+  if (!slug || failed === slug) return null;
+  return <img className="row-crest" src={`/crests/${slug}`} alt="" aria-hidden="true" loading="lazy" onError={() => setFailed(slug)} />;
+}
+
+RowCrest.propTypes = {slug: PropTypes.string};

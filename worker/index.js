@@ -2,19 +2,28 @@
 // served by Workers static assets before this code runs, with index.html
 // for any other path (single-page app). This only handles what the assets
 // can't: the unit crests, which live in R2 (scripts/crests/sync.mjs) under
-// Corvus Belli's file names and are served at /crests/<slug>.svg.
+// Corvus Belli's file names and are served at /crests/<slug>. R2 holds each
+// one as <slug>.svg or, for the few heavy ones, <slug>.webp (never both);
+// the content type tells the browser which it got, so the app doesn't care.
 
-const SLUG = /^\/crests\/([a-z0-9-]+)\.svg$/;
+import {CREST_CACHE_CONTROL} from '../scripts/crests/config.mjs';
+
+const SLUG = /^\/crests\/([a-z0-9-]+)$/;
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const m = SLUG.exec(url.pathname);
     if (!m || (request.method !== 'GET' && request.method !== 'HEAD')) return env.ASSETS.fetch(request);
-    const object = await env.CRESTS.get(`${m[1]}.svg`, {onlyIf: request.headers});
+    // SVG first: nearly every crest is one, so most requests are one lookup.
+    const object = await env.CRESTS.get(`${m[1]}.svg`, {onlyIf: request.headers})
+      ?? await env.CRESTS.get(`${m[1]}.webp`, {onlyIf: request.headers});
     if (!object) return new Response('Not found', {status: 404});
     const headers = new Headers();
-    object.writeHttpMetadata(headers);   // content-type, cache-control from the upload
+    object.writeHttpMetadata(headers);   // content-type from the upload
+    // The policy lives in config.mjs, not in each object's upload metadata,
+    // so crests uploaded under an older policy follow the current one.
+    headers.set('cache-control', CREST_CACHE_CONTROL);
     headers.set('etag', object.httpEtag);
     // Third-party SVGs on our origin: never let one run script, even if a
     // future CB update (or an opened-in-a-tab crest) carries some.

@@ -12,6 +12,10 @@ are in README.md ("How it's put together").
 - `yarn build` — production build (CI runs this too)
 - `yarn dev` — dev server
 
+## Code quality rules
+
+@AGENTS.md
+
 ## Working conventions
 
 - One branch per feature off `main`; PRs are rebase-merged.
@@ -37,10 +41,11 @@ change, without being asked:
 
 Cloudflare Workers (`wrangler.jsonc`, `worker/index.js`): the build as static
 assets plus the unit crests from the R2 bucket `khepri-crests` at
-`/crests/<slug>.svg` (the crests themselves arrive with the calculator
-redesign, PR #42). `infinitythecalculator.com` is a custom domain on that
-Worker; `www` 301s to the apex (a redirect rule on the Cloudflare zone).
-`n4.infinitythecalculator.com` is the frozen N4 edition: the separate static
+`/crests/<slug>` (SVG, or a lossless WebP for the few over 60 KB). `yarn
+crests` keeps R2 in step with army.json (`scripts/crests/sync.mjs`; needs
+`wrangler login` and ImageMagick). `infinitythecalculator.com` is a custom
+domain on that Worker; `www` 301s to the apex (a redirect rule on the
+Cloudflare zone). `n4.infinitythecalculator.com` is the frozen N4 edition: the separate static
 Worker `khepri-f2f-n4`, deployed by hand from branch `n4` (`cloudflare/`).
 DNS is on Cloudflare; nothing is on Netlify any more.
 

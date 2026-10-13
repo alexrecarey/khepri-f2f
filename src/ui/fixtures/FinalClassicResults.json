@@ -1,0 +1,17 @@
+{
+  "mode": "basic",
+  "classic": {
+    "burstA": 4,
+    "successValueA": 14,
+    "damageA": 5,
+    "armA": 4,
+    "burstB": 2,
+    "successValueB": 13,
+    "damageB": 6,
+    "armB": 6,
+    "ammoB": "EXP"
+  },
+  "ui": {
+    "overlay": "results"
+  }
+}
