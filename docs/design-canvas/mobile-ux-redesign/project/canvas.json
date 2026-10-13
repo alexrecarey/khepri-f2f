@@ -78,10 +78,11 @@
   "CrestPicker.dc.html": {
    "h": 844,
    "is_interactive": true,
-   "title": "Crests D — picker results carry the infinitystats row watermark; the highlighted row lights up",
+   "title": "Picker results, phone (Crests D): crest behind each row, faint grey; in its own colours on the row a tap or Enter picks",
    "w": 390,
-   "x": 1410,
-   "y": 27400
+   "x": 470,
+   "y": 15040,
+   "page": "final"
   },
   "CrestSaved.dc.html": {
    "h": 844,
@@ -877,6 +878,15 @@
    "w": 390,
    "x": 1780,
    "y": 23320
+  },
+  "CrestPickerDesk.dc.html": {
+   "x": 940,
+   "y": 15040,
+   "w": 1440,
+   "h": 900,
+   "is_interactive": true,
+   "title": "Picker, desktop (Crests D): crest behind each list row, the highlighted one in its own colours; the detail pane repeats it in its corner (A5)",
+   "page": "final"
   }
  },
  "createdOnFiles": {
@@ -1159,8 +1169,8 @@
   },
   "finalcrests": {
    "kind": "title1",
-   "maxW": 1440,
-   "text": "Unit crests on the setup cards",
+   "maxW": 2380,
+   "text": "Unit crests",
    "w": 240,
    "x": 0,
    "y": 14790,
@@ -1284,7 +1294,8 @@
   "DeskChromeBSettings.dc.html",
   "DeskChromeAbout.dc.html",
   "DeskChromeC.dc.html",
-  "DeskChromeASaved.dc.html"
+  "DeskChromeASaved.dc.html",
+  "CrestPickerDesk.dc.html"
  ],
  "pages": [
   {
