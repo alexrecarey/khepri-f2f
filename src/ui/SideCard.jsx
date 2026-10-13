@@ -5,6 +5,7 @@ import {shortWeaponName} from '../army/names.js';
 import {FIRETEAM_MIN} from '../rules/modifiers.js';
 import {ROLE, SIDE_NAME} from '../state/schema.js';
 import {dispatch, useAppState} from '../state/store.js';
+import {CardCrest} from './Crest.jsx';
 import {SiteMark} from './icons.jsx';
 import Plasma from './Plasma.jsx';
 
@@ -76,12 +77,13 @@ EmptySlot.propTypes = {
 
 export default function SideCard({side, view, onOpenPicker}) {
   const color = ROLE[side];
-  const {sel, resolved, groups, noCover, surprise, faction, short, loadout} = view[side];
+  const {sel, resolved, groups, noCover, surprise, faction, crest, short, loadout} = view[side];
   const unit = resolved?.unit;
   const option = resolved?.option;
 
   return (
     <section className="card" data-side={side} aria-label={`${color} trooper`}>
+      <CardCrest slug={crest} />
       <button type="button" className="unit-btn" onClick={onOpenPicker}>
         <span className={`role ${color}`}>{SIDE_NAME[side].toUpperCase()}</span>
         {unit

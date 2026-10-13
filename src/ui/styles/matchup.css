@@ -8,7 +8,15 @@
 .screen { flex-grow: 1; padding: 4px 16px calc(var(--results-card-h) + 30px); display: flex; flex-direction: column; gap: 10px; }
 
 /* ---------- side cards ---------- */
-.card { background: var(--surface); border-radius: var(--radius-card); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.card { position: relative; isolation: isolate; background: var(--surface); border-radius: var(--radius-card); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+/* The unit crest (Crest.jsx CardCrest, canvas Crests A5): own colours, cut by
+   the top-right corner, dimmer there (.7 of .5) and gone towards the bottom
+   left. Its own clipping layer, so the card itself never clips (focus rings,
+   chip groups); behind the card's content (isolation above). */
+.card-crest { position: absolute; inset: 0; z-index: -1; overflow: hidden; border-radius: inherit; pointer-events: none; }
+.card-crest img { position: absolute; top: -34px; right: -34px; width: 120px; height: 120px; opacity: .5;
+  -webkit-mask-image: linear-gradient(to bottom left, rgba(0, 0, 0, .7) 40%, transparent 90%);
+  mask-image: linear-gradient(to bottom left, rgba(0, 0, 0, .7) 40%, transparent 90%); }
 .role { font-family: var(--font-display); font-size: var(--fs-small); letter-spacing: .1em; }
 .role.active, .c-active { color: var(--active); }
 .role.reactive, .c-reactive { color: var(--reactive); }

@@ -41,7 +41,7 @@ change, without being asked:
 
 Cloudflare Workers (`wrangler.jsonc`, `worker/index.js`): the build as static
 assets plus the unit crests from the R2 bucket `khepri-crests` at
-`/crests/<slug>.svg`. `yarn crests` keeps R2 in step with army.json
+`/crests/<slug>` (SVG, or a lossless WebP for the few over 60 KB). `yarn crests` keeps R2 in step with army.json
 (`scripts/crests/sync.mjs`; needs `wrangler login` and ImageMagick).
 
 ## Claude cloud sessions

@@ -32,3 +32,19 @@ export function CrestPair({row, size = 36}) {
 }
 
 CrestPair.propTypes = {row: PropTypes.object.isRequired, size: PropTypes.number};
+
+// The unit's crest behind a setup card (design canvas: Crests A5): in its own
+// colours, cut by the card's top-right corner and fading towards the bottom
+// left (matchup.css). Decoration only, so a missing crest just isn't there
+// (a faction crest would read as a different, brighter mark).
+export function CardCrest({slug}) {
+  const [failed, setFailed] = useState(null);
+  if (!slug || failed === slug) return null;
+  return (
+    <span className="card-crest" aria-hidden="true">
+      <img src={`/crests/${slug}`} alt="" loading="lazy" onError={() => setFailed(slug)} />
+    </span>
+  );
+}
+
+CardCrest.propTypes = {slug: PropTypes.string};
