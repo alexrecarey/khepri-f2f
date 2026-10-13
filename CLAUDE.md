@@ -41,8 +41,13 @@ change, without being asked:
 
 Cloudflare Workers (`wrangler.jsonc`, `worker/index.js`): the build as static
 assets plus the unit crests from the R2 bucket `khepri-crests` at
-`/crests/<slug>` (SVG, or a lossless WebP for the few over 60 KB). `yarn crests` keeps R2 in step with army.json
-(`scripts/crests/sync.mjs`; needs `wrangler login` and ImageMagick).
+`/crests/<slug>` (SVG, or a lossless WebP for the few over 60 KB). `yarn
+crests` keeps R2 in step with army.json (`scripts/crests/sync.mjs`; needs
+`wrangler login` and ImageMagick). `infinitythecalculator.com` is a custom
+domain on that Worker; `www` 301s to the apex (a redirect rule on the
+Cloudflare zone). `n4.infinitythecalculator.com` is the frozen N4 edition: the separate static
+Worker `khepri-f2f-n4`, deployed by hand from branch `n4` (`cloudflare/`).
+DNS is on Cloudflare; nothing is on Netlify any more.
 
 ## Claude cloud sessions
 
