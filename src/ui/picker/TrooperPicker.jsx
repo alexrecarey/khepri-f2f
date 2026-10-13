@@ -230,7 +230,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
           <div className="list-head">Pick a faction</div>
           <div className="tiles three">
             {searcher.factions.map((f) => (
-              <button type="button" key={f.id} className="tile crest" onClick={() => setScope(f.id)}>
+              <button type="button" key={f.id} className="tile faction-pick" onClick={() => setScope(f.id)}>
                 <FactionLogo id={f.id} size={30} /><span>{SHORT_NAMES[f.name] ?? f.name}</span>
               </button>
             ))}
