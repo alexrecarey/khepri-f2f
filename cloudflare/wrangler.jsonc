@@ -1,0 +1,9 @@
+// n4.infinitythecalculator.com: the frozen N4 edition, served as-is (files
+// mirrored from the Netlify deploy of branch n4, 2026-10-13). Static only.
+{
+  "name": "khepri-f2f-n4",
+  "compatibility_date": "2026-09-01",
+  "assets": {"directory": "./site", "not_found_handling": "single-page-application"},
+  "workers_dev": true
+}
+// Deploy by hand: npx wrangler@4 deploy -c cloudflare/wrangler.jsonc
