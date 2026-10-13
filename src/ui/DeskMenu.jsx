@@ -6,7 +6,7 @@ import {useMemo} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {
-  ARMY_DATE, AboutClassic, AboutContact, AboutIntro, AboutLinks, LanguageSetting, StartFaction, TRADEMARK, VERSION,
+  ARMY_DATE, AboutContact, AboutIntro, AboutLinks, LanguageSetting, StartFaction, TRADEMARK, VERSION,
   clearRecents, clearSaved, setHeadline,
 } from './Chrome.jsx';
 import DeskDialog from './DeskDialog.jsx';
@@ -89,7 +89,6 @@ export function AboutDialog() {
         <span className="da-title">Infinity the Calculator</span>
         <AboutIntro />
         <AboutContact />
-        <AboutClassic />
         <AboutLinks />
         <p>{TRADEMARK}</p>
         <dl className="da-facts">
