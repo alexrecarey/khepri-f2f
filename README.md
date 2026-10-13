@@ -32,6 +32,8 @@ src/engine/    the dice: params.js (the calculator params every mode builds),
 src/state/     the state document: schema, pure reducer, store, URL / history /
                storage sync, and matchupView (what the Matchup screen shows)
 src/matchup/   share-link params for a matchup (matchupParams.js)
+src/share/     the share card a shared link unfurls into (card.js): packed into the
+               link by the Share button, drawn by the Worker (worker/card.js)
 src/search/    trooper search: build-time index (index.json) and the typo-tolerant
                matcher; `yarn search-eval` scores it (docs/plans/search.md)
 src/data/      loads the army data chunk; src/lib/ small shared helpers

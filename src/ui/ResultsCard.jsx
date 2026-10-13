@@ -22,19 +22,24 @@ import {StateBar, StateList, useStatesUi} from './WoundStates.jsx';
 
 // Save and Share on the sheet's handle row. `save` = {saved, pending, toggle}
 // or null while there is nothing to save; pending, Save is disabled.
-function SheetActions({save}) {
+// onShare: shares the link (with the share card and the headline it shows).
+function SheetActions({save, onShare}) {
   return (
     <>
       {save && (
         <button type="button" className="icon-btn sm" aria-pressed={save.saved} aria-label={save.saved ? 'Saved; remove from saved rolls' : 'Save this roll'}
           disabled={save.pending} onClick={save.toggle} style={{color: save.saved ? 'var(--active)' : undefined}}><BookmarkIcon filled={save.saved} /></button>
       )}
-      <button type="button" className="icon-btn sm" aria-label="Share a link to this roll" onClick={shareLink}><ShareIcon /></button>
+      <button type="button" className="icon-btn sm" aria-label="Share a link to this roll" onClick={onShare}><ShareIcon /></button>
     </>
   );
 }
 
-SheetActions.propTypes = {save: PropTypes.object};
+SheetActions.propTypes = {save: PropTypes.object, onShare: PropTypes.func.isRequired};
+
+// The link with its share card, for the headline this player sees (h).
+// shareCard(h): MatchupScreen's matchupShareCard; missing in Classic.
+const shareWith = (shareCard, h) => () => shareLink(h && shareCard ? shareCard(h) : null, h);
 
 // Until the first result shows up (the dice engine loading on a first visit,
 // a few seconds) the two dice roll at each other, bump and bounce back: the
@@ -150,7 +155,7 @@ SheetTop.propTypes = {s: PropTypes.object, h: PropTypes.object, choice: PropType
 // card) and opens to the full results. Swipe it up or down (it follows the
 // finger) or tap the top to open, outside to close (useSheetGestures.js).
 // Swipe the top sideways (or arrow keys on it) for the next headline.
-export default function ResultsCard({s, status, diceLine, classic, ledger, save, pending, picked, params}) {
+export default function ResultsCard({s, status, diceLine, classic, ledger, save, pending, picked, params, shareCard}) {
   const ui = useStatesUi();
   const choice = useAppState((st) => headlineChoice(st.prefs));
   const h = s ? headline(s, choice, params) : null;
@@ -174,7 +179,7 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
       <div className={`rscrim${open ? ' open' : ''}`} ref={g.scrimRef} onClick={() => setOpen(false)} />
       <section className={`rsheet${open ? ' open' : ''}${classic ? ' classic' : ''}${h?.kind === 'win' ? ' hl-win' : ''}`} ref={g.sheetRef} aria-label="Results"
         {...(open ? {role: 'dialog', 'aria-modal': true} : {})}>
-        <div className="rs-head"><span /><span className="handle" /><span className="sheet-actions">{open && <SheetActions save={save} />}</span></div>
+        <div className="rs-head"><span /><span className="handle" /><span className="sheet-actions">{open && <SheetActions save={save} onShare={shareWith(shareCard, h)} />}</span></div>
         {/* Closed, the top is the card: a button that opens the sheet, its
             numbers still read out. Open, it holds the state bar's own
             controls, so it is no longer a button (no nested controls). The
@@ -235,12 +240,14 @@ ResultsBody.propTypes = {
 
 // Tablet and desktop: the results in their own column, always open. The mods
 // go in another column (MatchupScreen).
-export function ResultsPanel({s, status, diceLine, classic, ledger, save, pending, picked, params}) {
+export function ResultsPanel({s, status, diceLine, classic, ledger, save, pending, picked, params, shareCard}) {
   const ui = useStatesUi();
+  const choice = useAppState((st) => headlineChoice(st.prefs));
+  const h = s ? headline(s, choice, params) : null;
   const wait = waitingFor(picked);
   return (
     <section className="results-panel" aria-label="Results">
-      <div className="panel-head"><span className="label">Results</span><span className="sheet-actions"><SheetActions save={save} /></span></div>
+      <div className="panel-head"><span className="label">Results</span><span className="sheet-actions"><SheetActions save={save} onShare={shareWith(shareCard, h)} /></span></div>
       {wait ? <WaitPanel picked={wait} />
         : s ? <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} pending={pending} ui={ui} params={params} />
         : pending ? <EngineLoading label={status} /> : <span className="empty">{status}</span>}
@@ -252,6 +259,7 @@ export function ResultsPanel({s, status, diceLine, classic, ledger, save, pendin
 ResultsPanel.propTypes = {
   s: PropTypes.object, status: PropTypes.string, diceLine: PropTypes.object, classic: PropTypes.bool,
   ledger: PropTypes.object, save: PropTypes.object, pending: PropTypes.bool, picked: PropTypes.object, params: PropTypes.object,
+  shareCard: PropTypes.func,
 };
 
 ResultsCard.propTypes = {
@@ -272,4 +280,6 @@ ResultsCard.propTypes = {
   picked: PropTypes.object,
   // The engine params: who is dodging, for the headline's label.
   params: PropTypes.object,
+  // h -> the share card (state/rolls.js matchupShareCard); Matchup only.
+  shareCard: PropTypes.func,
 };
