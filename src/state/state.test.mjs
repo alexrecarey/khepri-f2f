@@ -222,6 +222,18 @@ function fakeWindow(url = '/?x=1') {
   return win;
 }
 
+test('sync: a share link (/s?<setup>&card=..) opens the app at /?<setup>, without the card', () => {
+  const link = `/s?mode=matchup&unitA=10&factionA=101&groupA=1&optionA=2&card=eyJrIjoid3BvIn0`;
+  const store = createStore(bootState({search: new URL(link, 'https://x.test').search, storage: null}));
+  const dispatch = (a) => store.setState((s) => reduce(s, a));
+  const win = fakeWindow(link);
+  const stop = startSync(store, dispatch, {win});
+  assert.equal(win.entries.length, 1);   // replaced, not a new history entry
+  assert.match(win.entries[0].url, /^\/\?mode=matchup&unitA=10&/);
+  assert.doesNotMatch(win.entries[0].url, /card=/);
+  stop();
+});
+
 test('sync: the URL follows the state, each overlay layer is a history entry', () => {
   const store = createStore(initialState());
   const dispatch = (a) => store.setState((s) => reduce(s, a));
