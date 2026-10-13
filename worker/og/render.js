@@ -21,7 +21,8 @@ const FONTS = [
   {name: PLEX, data: plex400, weight: 400}, {name: PLEX, data: plex600, weight: 600},
 ];
 
-const h = (type, style, ...children) => ({type, props: {style, children: children.length === 1 ? children[0] : children}});
+// Satori wants every div to say how it lays out its children.
+const h = (type, style, ...children) => ({type, props: {style: {display: 'flex', ...style}, children: children.length === 1 ? children[0] : children}});
 const one = {overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 470};
 
 async function crestUri(env, slug) {
