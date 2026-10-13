@@ -1,0 +1,12 @@
+// n5classic.infinitythecalculator.com: the classic N5 calculator (the app as it
+// was before Matchup mode and the redesign), kept for players who prefer it.
+// Static only: the Vite build in ./dist. This branch is frozen; build with the
+// pinned lockfile (yarn install --immutable && yarn build), then deploy by hand:
+//   npx wrangler@4 deploy
+{
+  "name": "khepri-f2f-n5classic",
+  "compatibility_date": "2026-09-01",
+  "assets": {"directory": "./dist", "not_found_handling": "single-page-application"},
+  "workers_dev": true,
+  "routes": [{"pattern": "n5classic.infinitythecalculator.com", "custom_domain": true}]
+}

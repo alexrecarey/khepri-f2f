@@ -407,6 +407,10 @@ function App() {
             <Typography color="text.secondary" variant="body2" sx={{marginTop: 1, marginLeft: 2, marginRight: 2}}>
               Looking for the <Link href="https://n4.infinitythecalculator.com">N4 Calculator</Link>?
             </Typography>
+            <Typography color="text.secondary" variant="body2" sx={{marginTop: 1, marginLeft: 2, marginRight: 2}}>
+              This is the classic N5 calculator. The <Link href="https://infinitythecalculator.com">new calculator</Link> has
+              Matchup mode with units from army data.
+            </Typography>
           </Grid>
         </Grid>
       </Container>

@@ -67,7 +67,7 @@ export default function ShareResultsModal(props) {
   const reactiveNoWounds = reactivePlayer(failureList);
   const activeWinsF2F = formatPercentage(sumChance(activePlayer(rows)));
   const reactiveWinsF2F = formatPercentage(sumChance(reactivePlayer(rows)));
-  const shareURL = `https://infinitythecalculator.com/?${encodeQueryData(parameters)}`;
+  const shareURL = `https://n5classic.infinitythecalculator.com/?${encodeQueryData(parameters)}`;
 
   // Full text
   const fullResultText =
