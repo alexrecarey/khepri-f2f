@@ -1,15 +1,16 @@
 // The app's Cloudflare Worker. Static files (the Vite build in dist/) are
 // served by Workers static assets before this code runs, with index.html
 // for any other path (single-page app). This only handles what the assets
-// can't: link previews for shared matchups (preview.js: the page at / when
-// it carries a share card, and the card images under /og/), and the unit
+// can't: link previews for shared matchups (preview.js: the share page /s
+// and the card images under /og/), and the unit
 // crests, which live in R2 (scripts/crests/sync.mjs) under Corvus Belli's
 // file names and are served at /crests/<slug>. R2 holds each one as
 // <slug>.svg or, for the few heavy ones, <slug>.webp (never both); the
 // content type tells the browser which it got, so the app doesn't care.
 
 import {CREST_CACHE_CONTROL} from '../scripts/crests/config.mjs';
-import {pageWithCard, previewImage} from './preview.js';
+import {SHARE_PATH} from '../src/share/card.js';
+import {previewImage, sharePage} from './preview.js';
 
 const SLUG = /^\/crests\/([a-z0-9-]+)$/;
 
@@ -17,8 +18,8 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (request.method === 'GET' || request.method === 'HEAD') {
-      const preview = url.pathname === '/' ? await pageWithCard(request, env, url) : await previewImage(request, env, ctx, url);
-      if (preview) return preview;
+      if (url.pathname === SHARE_PATH || url.pathname === `${SHARE_PATH}/`) return sharePage(request, env, url);
+      if (url.pathname.startsWith('/og/')) return previewImage(request, env, ctx, url);
     }
     const m = SLUG.exec(url.pathname);
     if (!m || (request.method !== 'GET' && request.method !== 'HEAD')) return env.ASSETS.fetch(request);

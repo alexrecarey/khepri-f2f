@@ -1,7 +1,7 @@
 // Run with: yarn test:js
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {decodeCard, encodeCard, numbersLine, previewDescription, previewTitle, shareText} from './card.js';
+import {decodeCard, encodeCard, numbersLine, previewDescription, previewTitle, shareText, shareUrl} from './card.js';
 
 const side = (n, u, w, s, c) => ({n, l: 'wounds / order', u, w, s, c});
 const card = {k: 'wpo', nf: false, x: '16-24"', a: side('0.81', 'Squalos Mk-II', 'HMG', 'Surprise attack', 'squalos-mk-ii-1-1'),
@@ -35,4 +35,12 @@ test('each number keeps its own label when the sides differ (one is dodging)', (
 
 test('a headline that fell back says so after the range', () => {
   assert.match(previewDescription({...card, nf: true}), /16-24" · Not face to face/);
+});
+
+test('a share link is the app address at /s, plus the card', () => {
+  const url = new URL(shareUrl('https://x.test/?mode=matchup&unitA=10#top', card));
+  assert.equal(url.pathname, '/s');
+  assert.equal(url.hash, '');
+  assert.equal(url.searchParams.get('unitA'), '10');
+  assert.deepEqual(decodeCard(url.searchParams.get('card')), card);
 });

@@ -11,9 +11,9 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    // Only these reach the Worker; everything else is a static file. "/"
-    // for the share card's link preview (worker/preview.js).
-    "run_worker_first": ["/", "/og/*", "/crests/*"]
+    // Only these reach the Worker; everything else is a static file. /s and
+    // /og/* for shared links' previews (worker/preview.js).
+    "run_worker_first": ["/s", "/s/", "/og/*", "/crests/*"]
   },
   "r2_buckets": [
     // scripts/crests/config.mjs CREST_BUCKET
