@@ -24,7 +24,7 @@ kbd { padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line-strong)
 .dp-list { border-right: 1px solid var(--surface-3); padding: 10px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
 .dp-head { font-size: var(--fs-label); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 10px 12px 6px; }
 .dp-row { padding: 9px 12px; border-radius: 10px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; cursor: pointer;
-  position: relative; overflow: hidden; isolation: isolate; }
+  position: relative; overflow: hidden; isolation: isolate; flex-shrink: 0; }
 .dp-row .row-crest { width: 84px; height: 84px; margin-top: -42px; right: -15px; }
 .dp-row:hover { background: var(--hover); }
 .dp-row.on { background: var(--surface-3); }
