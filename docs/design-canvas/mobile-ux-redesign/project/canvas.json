@@ -963,7 +963,7 @@
    "y": 40930,
    "w": 1200,
    "h": 630,
-   "title": "Empty share E1 — The mark: logo centred, a green and a pink line meet in it (square-safe)"
+   "title": "Empty share E1 (chosen) — The mark: logo centred, a green and a pink line meet in it (square-safe)"
   },
   "ShareEmptySituE1.dc.html": {
    "x": 1280,
@@ -1015,6 +1015,22 @@
    "h": 630,
    "page": "final",
    "title": "Share card A as built (1200×630, worker/card.js); Tweaks: headline"
+  },
+  "FinalShareEmpty.dc.html": {
+   "x": 0,
+   "y": 17490,
+   "w": 1200,
+   "h": 630,
+   "page": "final",
+   "title": "Link with nothing picked: site card E1 (the mark), /og/v1/default.png"
+  },
+  "FinalShareEmptySitu.dc.html": {
+   "x": 1280,
+   "y": 17490,
+   "w": 1765,
+   "h": 660,
+   "page": "final",
+   "title": "E1 in Discord and WhatsApp (approx); stripe stays the page theme colour"
   }
  },
  "createdOnFiles": {
@@ -1323,7 +1339,7 @@
    "y": 16300,
    "text": "Share card — Discord & WhatsApp",
    "kind": "title1",
-   "maxW": 2600,
+   "maxW": 3045,
    "page": "final"
   }
  },
@@ -1463,7 +1479,9 @@
   "ShareEmptyE3.dc.html",
   "ShareEmptySituE3.dc.html",
   "FinalShare.dc.html",
-  "FinalShareCard.dc.html"
+  "FinalShareCard.dc.html",
+  "FinalShareEmpty.dc.html",
+  "FinalShareEmptySitu.dc.html"
  ],
  "pages": [
   {
