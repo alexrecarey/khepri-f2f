@@ -84,16 +84,23 @@ export async function renderCard(env, card) {
   return new Resvg(svg, {fitTo: {mode: 'width', value: CARD_W}}).render().asPng();
 }
 
-// The site's own image, for links without a card (index.html's tags).
+// The site's mark (public/favicon.svg): a hexagon with a triangle in it.
+const MARK = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+  + '<path fill="#e59bc0" d="M50 4 90 27v46L50 96 10 73V27Z"/><path fill="#7e4c5e" d="M50 22 72 62H28Z"/></svg>');
+
+// The site's own image, for links without a card (index.html's tags); canvas
+// Final, option E1. The mark sits in the middle so WhatsApp's square
+// thumbnail still shows it; a green and a pink line (active, reactive) run in
+// from the edges and meet in it.
 export async function renderDefault() {
   await setup();
-  const stripe = (colour, width) => div({width, height: 14, background: colour});
-  const tree = div({width: CARD_W, height: CARD_H, flexDirection: 'column', justifyContent: 'center',
-    padding: '0 96px', gap: 28, background: BG, color: INK, fontFamily: PLEX},
-  div({fontFamily: CHAKRA, fontWeight: 700, fontSize: 96, lineHeight: 1}, 'Infinity the Calculator'),
-  div({fontSize: 46, color: GREY}, 'Face-to-face odds for Infinity N5'),
-  div({width: 640, marginTop: 24, borderRadius: 7, overflow: 'hidden'},
-    stripe(ACTIVE, 300), stripe('#2e2e2e', 140), stripe(REACTIVE, 200)));
+  const lane = (edge, colour) => div({position: 'absolute', top: 213, [edge]: 0, width: 500, height: 8, borderRadius: 4, background: colour});
+  const tree = div({width: CARD_W, height: CARD_H, flexDirection: 'column', alignItems: 'center',
+    padding: '92px 64px 64px', background: BG, color: INK, fontFamily: PLEX, position: 'relative'},
+  lane('left', ACTIVE), lane('right', REACTIVE),
+  {type: 'img', props: {src: MARK, width: 250, height: 250}},
+  div({fontFamily: CHAKRA, fontWeight: 700, fontSize: 64, letterSpacing: 7.68, lineHeight: 1, marginTop: 44}, 'INFINITY THE CALCULATOR'),
+  div({fontSize: 36, color: GREY, marginTop: 22}, 'Face-to-face odds for Infinity N5'));
   const svg = await satori(tree, {width: CARD_W, height: CARD_H, fonts: FONTS});
   return new Resvg(svg, {fitTo: {mode: 'width', value: CARD_W}}).render().asPng();
 }
