@@ -125,9 +125,11 @@ export function SettingsPage({factions}) {
 SettingsPage.propTypes = {factions: PropTypes.array.isRequired};
 
 // About text shared by the phone page and the desktop dialog.
+export const MADE_BY = 'Made with ❤️ for the Infinity community by Khepri and Bebop.';
 export const AboutIntro = () => (
   <>
     <p>Face-to-face odds for Infinity N5. Odds are exact: every possible roll is counted, not simulated.</p>
+    <p>{MADE_BY}</p>
   </>
 );
 export const AboutLinks = () => (
