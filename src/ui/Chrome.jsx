@@ -127,8 +127,7 @@ SettingsPage.propTypes = {factions: PropTypes.array.isRequired};
 // About text shared by the phone page and the desktop dialog.
 export const AboutIntro = () => (
   <>
-    <p>Face-to-face odds for Infinity N5. Pick two troopers, set the situation, see every modifier and the dice that get rolled.</p>
-    <p>Odds are exact: every possible roll is counted, not simulated.</p>
+    <p>Face-to-face odds for Infinity N5. Odds are exact: every possible roll is counted, not simulated.</p>
   </>
 );
 export const AboutLinks = () => (
@@ -138,7 +137,6 @@ export const AboutLinks = () => (
     {' · '}<a href="https://n4.infinitythecalculator.com">N4 calculator</a>
   </p>
 );
-export const MADE_BY = 'Made with ❤️ for the Infinity community by Khepri and Bebop.';
 export const CONTACT_EMAIL = 'khepri@infinitythecalculator.com';
 export const AboutContact = () => (
   <p>Bugs? Suggestions? Let me know at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
@@ -151,15 +149,14 @@ export function AboutPage() {
       <div className="about">
         <span className="about-title">Infinity the Calculator</span>
         <AboutIntro />
+        <AboutContact />
+        <AboutLinks />
+        <p className="small-print">{TRADEMARK}</p>
         <p className="small-print">
           Army data: Corvus Belli&apos;s Infinity Army{ARMY_DATE ? ` · ${ARMY_DATE}` : ''} (unofficial snapshot)<br />
           Rules: N5<br />
           App: v{VERSION}
         </p>
-        <p>{MADE_BY}</p>
-        <AboutContact />
-        <AboutLinks />
-        <p className="small-print">{TRADEMARK}</p>
       </div>
     </Page>
   );
