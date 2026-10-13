@@ -1,6 +1,7 @@
 // A unit crest as a coin (design canvas: Crests E), ringed in its side's
-// colour. Crests are Corvus Belli's SVGs, kept in R2 and served by the app's
-// Worker at /crests/<slug>.svg (scripts/crests); a missing or failed one
+// colour. Crests are Corvus Belli's SVGs (a WebP for the few heavy ones),
+// kept in R2 and served by the app's Worker at /crests/<slug>, whichever
+// format it is (scripts/crests); a missing or failed one
 // shows the trooper's vanilla faction crest instead, and with neither, an
 // empty coin.
 import {useState} from 'react';
@@ -9,7 +10,7 @@ import {factionLogoSrc} from './factionLogo.jsx';
 
 export function Crest({slug, faction, side, size = 36}) {
   const [failed, setFailed] = useState(null);
-  const unit = slug && failed !== slug ? `/crests/${slug}.svg` : null;
+  const unit = slug && failed !== slug ? `/crests/${slug}` : null;
   const src = unit ?? factionLogoSrc(faction);
   const cls = `crest ring-${side}${unit ? '' : ' fallback'}`;
   const style = {width: size, height: size};

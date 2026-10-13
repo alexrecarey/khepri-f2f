@@ -2,10 +2,14 @@
 // Keeps the R2 bucket of unit crests in step with army.json. Each crest is
 // Corvus Belli's SVG, made smaller where CB's file is wasteful (optimize.mjs)
 // and checked to look the same (verify.mjs), stored under CB's own file name:
-// <slug>.svg. The app's Worker serves them at /crests/<slug>.svg.
+// <slug>.svg. The few still over WEBP_OVER_BYTES are stored as <slug>.webp
+// instead (raster.mjs), never both. The app's Worker serves whichever exists
+// at /crests/<slug>, so the app never needs to know which it is.
 //
 //   yarn crests                    upload crests army.json names that R2
-//                                  doesn't have yet (usually: nothing)
+//                                  doesn't have yet (usually: nothing), and
+//                                  redo any stored in the wrong format for
+//                                  WEBP_OVER_BYTES (e.g. after changing it)
 //   yarn crests --check-changes    also ask CB (headers only) whether any
 //                                  crest changed since it was uploaded, and
 //                                  redo those (the weekly crests workflow)
@@ -15,7 +19,8 @@
 //
 // What R2 holds is recorded in manifest.json in the same bucket: per slug,
 // CB's ETag and Last-Modified when it was fetched, the sizes, how it was
-// optimized and how different it looked (0 = identical). A run reads that one
+// optimized and how different it looked (0 = identical), and the format R2
+// serves (svg, or webp with its own size and difference). A run reads that one
 // file, so a run with nothing to do makes one request.
 //
 // Auth: wrangler's (`wrangler login` locally; CLOUDFLARE_API_TOKEN and
@@ -28,8 +33,9 @@ import path from 'node:path';
 import {promisify} from 'node:util';
 import {fileURLToPath} from 'node:url';
 import {crestSlugs} from '../../src/army/crests.js';
-import {CREST_BUCKET, CREST_CACHE_CONTROL, WRANGLER} from './config.mjs';
+import {CREST_BUCKET, CREST_CACHE_CONTROL, WEBP_OVER_BYTES, WRANGLER} from './config.mjs';
 import {crestCandidates} from './optimize.mjs';
+import {crestWebp} from './raster.mjs';
 import {MAX_DIFF, crestDiff} from './verify.mjs';
 
 const SOURCE = 'https://assets.corvusbelli.net/army/img/logo/units';
@@ -69,6 +75,16 @@ async function put(key, file, contentType) {
     '--content-type', contentType, '--cache-control', CREST_CACHE_CONTROL);
 }
 
+// Removing a key that isn't there is fine (it's how a crest changes format).
+async function remove(key) {
+  await wrangler('r2', 'object', 'delete', `${CREST_BUCKET}/${key}`, '--remote').catch((e) => {
+    if (!/does not exist|NoSuchKey|10007/.test(String(e.stderr ?? e.message))) throw e;
+  });
+}
+
+// What a crest of this optimized size is served as.
+const formatFor = (bytes) => (bytes > WEBP_OVER_BYTES ? 'webp' : 'svg');
+
 // CB's validators for a crest, from a HEAD request.
 async function sourceHead(slug) {
   const res = await fetch(`${SOURCE}/${slug}.svg`, {method: 'HEAD'});
@@ -89,16 +105,30 @@ async function processCrest(slug, tmp) {
     const diff = c.how === 'original' ? 0 : crestDiff(source, c.svg);
     if (diff <= MAX_DIFF) { pick = {...c, diff}; break; }
   }
-  const file = path.join(tmp, `${slug}.svg`);
-  await writeFile(file, pick.svg);
-  if (!dryRun) await put(`${slug}.svg`, file, 'image/svg+xml');
+  const bytes = Buffer.byteLength(pick.svg);
+  let format = formatFor(bytes);
+  let raster = null;
+  if (format === 'webp') {
+    raster = await crestWebp(pick.svg);
+    // Not like the crest: serve the SVG after all, and say so.
+    if (raster.diff > MAX_DIFF) { format = 'svg'; pick.notes = [...pick.notes, `webp rejected, diff ${raster.diff.toFixed(4)}`]; }
+  }
+  const file = path.join(tmp, `${slug}.${format}`);
+  await writeFile(file, format === 'webp' ? raster.webp : pick.svg);
+  if (!dryRun) {
+    await put(`${slug}.${format}`, file, `image/${format === 'webp' ? 'webp' : 'svg+xml'}`);
+    // One file per crest: the Worker serves whichever exists.
+    await remove(`${slug}.${format === 'webp' ? 'svg' : 'webp'}`);
+  }
   return {
     etag: res.headers.get('etag'),
     lastModified: res.headers.get('last-modified'),
     sourceBytes: Buffer.byteLength(source),
-    bytes: Buffer.byteLength(pick.svg),
+    bytes,
     how: pick.how,
     diff: Math.round(pick.diff * 10000) / 10000,
+    format,
+    ...(format === 'webp' ? {webpBytes: raster.webp.length, webpDiff: Math.round(raster.diff * 10000) / 10000} : {}),
     ...(pick.notes.length ? {notes: pick.notes} : {}),
   };
 }
@@ -115,6 +145,15 @@ async function main() {
   if (named.length && !force) throw new Error('slugs only mean something with --force (yarn crests --force a-1-1 b-2-1)');
   if (force) for (const s of named.length ? named : wanted) todo.set(s, 'forced');
   for (const s of wanted) if (!have[s] && !todo.has(s)) todo.set(s, 'missing');
+  // Stored as the other format than its size calls for (entries from before
+  // WebPs have no format: they are SVGs). A rejected WebP stays an SVG on
+  // purpose, so it isn't redone every run.
+  for (const s of wanted) {
+    const e = have[s];
+    if (e && !todo.has(s) && (e.format ?? 'svg') !== formatFor(e.bytes) && !e.notes?.some((n) => n.startsWith('webp rejected'))) {
+      todo.set(s, `as ${formatFor(e.bytes)}`);
+    }
+  }
   if (checkChanges) {
     await pool(wanted.filter((s) => have[s] && !todo.has(s)), 16, async (s) => {
       const head = await sourceHead(s).catch(() => null);
@@ -135,8 +174,9 @@ async function main() {
     try {
       have[slug] = await processCrest(slug, tmp);
       const e = have[slug];
-      if (e.how !== 'svgo 2 decimals' || e.sourceBytes > 100_000 || todo.get(slug) !== 'missing') {
-        console.log(`  ${slug}: ${todo.get(slug)}; ${Math.round(e.sourceBytes / 1000)} -> ${Math.round(e.bytes / 1000)} KB, ${e.how}, diff ${e.diff}`);
+      if (e.how !== 'svgo 2 decimals' || e.sourceBytes > 100_000 || e.format === 'webp' || todo.get(slug) !== 'missing') {
+        const webp = e.format === 'webp' ? `, as WebP ${Math.round(e.webpBytes / 1000)} KB diff ${e.webpDiff}` : '';
+        console.log(`  ${slug}: ${todo.get(slug)}; ${Math.round(e.sourceBytes / 1000)} -> ${Math.round(e.bytes / 1000)} KB, ${e.how}, diff ${e.diff}${webp}`);
       }
     } catch (e) {
       failed.push(`${slug} (${e.message})`);
@@ -148,8 +188,10 @@ async function main() {
     await writeFile(file, JSON.stringify({version: 1, updatedAt: new Date().toISOString(), crests: have}, null, 1));
     await put(MANIFEST, file, 'application/json');
   }
-  const total = (k) => Object.values(have).reduce((n, e) => n + (e[k] ?? 0), 0);
-  console.log(`${dryRun ? 'Would upload' : 'Uploaded'} ${todo.size - failed.length}; all crests ${Math.round(total('sourceBytes') / 1e5) / 10} MB from CB -> ${Math.round(total('bytes') / 1e5) / 10} MB in R2`);
+  const total = (f) => Math.round(Object.values(have).reduce((n, e) => n + f(e), 0) / 1e5) / 10;
+  const served = (e) => (e.format === 'webp' ? e.webpBytes : e.bytes);
+  const webps = Object.values(have).filter((e) => e.format === 'webp').length;
+  console.log(`${dryRun ? 'Would upload' : 'Uploaded'} ${todo.size - failed.length}; all crests ${total((e) => e.sourceBytes)} MB from CB -> ${total(served)} MB in R2 (${webps} as WebP)`);
   if (failed.length) {
     // The app shows the faction crest for a missing one, so this isn't fatal
     // for the app; it is for the run, so CI notices.
