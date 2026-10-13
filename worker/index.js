@@ -4,6 +4,8 @@
 // can't: the unit crests, which live in R2 (scripts/crests/sync.mjs) under
 // Corvus Belli's file names and are served at /crests/<slug>.svg.
 
+import {CREST_CACHE_CONTROL} from '../scripts/crests/config.mjs';
+
 const SLUG = /^\/crests\/([a-z0-9-]+)\.svg$/;
 
 export default {
@@ -14,7 +16,10 @@ export default {
     const object = await env.CRESTS.get(`${m[1]}.svg`, {onlyIf: request.headers});
     if (!object) return new Response('Not found', {status: 404});
     const headers = new Headers();
-    object.writeHttpMetadata(headers);   // content-type, cache-control from the upload
+    object.writeHttpMetadata(headers);   // content-type from the upload
+    // The policy lives in config.mjs, not in each object's upload metadata,
+    // so crests uploaded under an older policy follow the current one.
+    headers.set('cache-control', CREST_CACHE_CONTROL);
     headers.set('etag', object.httpEtag);
     // Third-party SVGs on our origin: never let one run script, even if a
     // future CB update (or an opened-in-a-tab crest) carries some.

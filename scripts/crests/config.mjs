@@ -1,8 +1,11 @@
 // Where the unit crests live, shared by the sync script and the Worker
 // config (wrangler.jsonc binds the same bucket as CRESTS).
 export const CREST_BUCKET = 'khepri-crests';
-// Same name when CB updates a crest, so browsers recheck after a week.
-export const CREST_CACHE_CONTROL = 'public, max-age=604800, stale-while-revalidate=86400';
+// Crests almost never change, and when CB updates one it keeps its name: a
+// month fresh, then up to another month served from cache while the browser
+// rechecks in the background (a 304 via the ETag unless it really changed).
+// The Worker sends this on every crest, so changing it here needs no re-upload.
+export const CREST_CACHE_CONTROL = 'public, max-age=2592000, stale-while-revalidate=2592000';
 // wrangler isn't a dependency (its runtime is ~100 MB in the zero-install
 // cache); scripts and CI run this pinned version through npx.
 export const WRANGLER = 'wrangler@4.149.0';
