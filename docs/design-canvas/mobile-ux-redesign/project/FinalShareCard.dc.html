@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Share card</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:1200px;height:630px;box-sizing:border-box;position:relative;overflow:hidden;background:#121212;display:flex;flex-direction:column;align-items:center;padding:44px 64px 40px">
+<img src="crests/squalos-mk-ii.svg" alt="" aria-hidden="true" style="position:absolute;left:-170px;top:15px;width:600px;height:600px;opacity:.4"><div style="position:absolute;left:0;top:0;bottom:0;width:470px;background:linear-gradient(90deg,rgba(18,18,18,0) 25%,#121212 100%)"></div><img src="crests/zhanshi.svg" alt="" aria-hidden="true" style="position:absolute;right:-170px;top:15px;width:600px;height:600px;opacity:.4"><div style="position:absolute;right:0;top:0;bottom:0;width:470px;background:linear-gradient(270deg,rgba(18,18,18,0) 25%,#121212 100%)"></div>
+<span style="position:relative;font-family:'Chakra Petch',sans-serif;font-size:30px;font-weight:600;letter-spacing:.12em;color:#9a978f">INFINITY THE CALCULATOR</span>
+<div style="position:relative;flex-grow:1;width:100%;display:flex;justify-content:center;align-items:center;gap:72px">
+<div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;width:500px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:150px;font-weight:700;line-height:.95;color:#5fc4a0">{{an}}</span>
+<span style="font-size:30px;color:#5fc4a0;margin-top:8px">{{al}}</span>
+<span style="font-size:46px;font-weight:600;margin-top:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:500px">Squalos Mk-II</span>
+<span style="font-size:32px;color:#9a978f;white-space:nowrap">HMG · Surprise attack</span>
+</div>
+<div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;width:500px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:150px;font-weight:700;line-height:.95;color:#e59bc0">{{bn}}</span>
+<span style="font-size:30px;color:#e59bc0;margin-top:8px">{{bl}}</span>
+<span style="font-size:46px;font-weight:600;margin-top:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:500px">Zhanshi</span>
+<span style="font-size:32px;color:#9a978f;white-space:nowrap">Missile L. · Cover, Fireteam 5</span>
+</div>
+</div>
+<span style="position:relative;font-size:32px;color:#9a978f">16-24″</span>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1200, "height": 630}, "headline": {"editor": "enum", "options": ["wpo", "win", "wound"], "default": "wpo"}}'>
+// The share card as built (worker/card.js): numbers follow the sender's headline choice;
+// each side's label sits under its own number; the range alone at the bottom.
+// Numbers for win / at least one wound are illustrative.
+class Component extends DCLogic {
+  renderVals() {
+    var v = {
+      wpo: ['0.81', 'wounds / order', '0.46', 'wounds / order'],
+      win: ['56%', 'wins face to face', '32%', 'wins face to face'],
+      wound: ['48%', 'at least one wound', '29%', 'at least one wound'],
+    }[this.props.headline ?? 'wpo'] || ['0.81', 'wounds / order', '0.46', 'wounds / order'];
+    return { an: v[0], al: v[1], bn: v[2], bl: v[3] };
+  }
+}
+</script>
+</body>
+</html>

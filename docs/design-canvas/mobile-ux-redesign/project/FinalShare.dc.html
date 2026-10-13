@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Share card, final</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:1320px;height:820px;box-sizing:border-box;background:#0b0b0b;color:#e8e6e1;padding:40px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:40px">
+<div style="display:flex;flex-direction:column;gap:10px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:600;letter-spacing:.1em">WOUNDS / ORDER (DEFAULT)</span>
+<div style="width:600px;height:315px;overflow:hidden;position:relative;border-radius:6px"><div style="position:absolute;left:0;top:0;width:1200px;height:630px;transform:scale(.5);transform-origin:0 0"><dc-import name="FinalShareCard" headline="wpo" hint-size="1200px,630px"></dc-import></div></div>
+</div><div style="display:flex;flex-direction:column;gap:10px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:600;letter-spacing:.1em">WINS FACE TO FACE</span>
+<div style="width:600px;height:315px;overflow:hidden;position:relative;border-radius:6px"><div style="position:absolute;left:0;top:0;width:1200px;height:630px;transform:scale(.5);transform-origin:0 0"><dc-import name="FinalShareCard" headline="win" hint-size="1200px,630px"></dc-import></div></div>
+</div><div style="display:flex;flex-direction:column;gap:10px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:600;letter-spacing:.1em">AT LEAST ONE WOUND</span>
+<div style="width:600px;height:315px;overflow:hidden;position:relative;border-radius:6px"><div style="position:absolute;left:0;top:0;width:1200px;height:630px;transform:scale(.5);transform-origin:0 0"><dc-import name="FinalShareCard" headline="wound" hint-size="1200px,630px"></dc-import></div></div>
+</div><div style="display:flex;flex-direction:column;gap:10px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:600;letter-spacing:.1em">THE WORDS AROUND IT (T1)</span>
+<div style="width:600px;box-sizing:border-box;background:#313338;border-radius:6px;padding:16px;font-family:'gg sans','Noto Sans','IBM Plex Sans',sans-serif;display:flex;flex-direction:column;gap:10px">
+<span style="font-size:15px;color:#dbdee1;line-height:1.35">Squalos Mk-II HMG vs Zhanshi Missile L.: 0.81 vs 0.46 wounds / order<br><span style="color:#00a8fc">https://infinitythecalculator.com/?mode=matchup&amp;…&amp;card=…</span></span>
+<div style="background:#2b2d31;border-left:4px solid #5fc4a0;border-radius:4px;padding:8px 16px 14px 12px;display:flex;flex-direction:column;gap:6px">
+<span style="font-size:12px;color:#b5bac1">Infinity the Calculator</span>
+<span style="font-size:16px;font-weight:600;color:#00a8fc">Squalos Mk-II vs Zhanshi</span>
+<span style="font-size:14px;color:#dbdee1;line-height:1.35">0.81 vs 0.46 wounds / order · 16-24″ · HMG, Surprise attack vs Missile L., Cover, Fireteam 5</span>
+<span style="font-size:13px;color:#949ba4">+ the card image above, 1200×630</span>
+</div>
+<span style="font-size:13px;color:#949ba4;line-height:1.4">First line: the text the Share button sends with the link. Stripe: the side with the bigger number. A one-side Dodge keeps each label after its own number ("56% wins face to face vs 32% dodges"); a headline that fell back adds "Not face to face" after the range.</span>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1320, "height": 820}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

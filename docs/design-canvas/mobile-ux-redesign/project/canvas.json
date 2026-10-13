@@ -887,6 +887,134 @@
    "is_interactive": true,
    "title": "Picker, desktop (Crests D): crest behind each list row, the highlighted one in its own colours; the detail pane repeats it in its corner (A5)",
    "page": "final"
+  },
+  "ShareSituNow.dc.html": {
+   "x": 0,
+   "y": 34950,
+   "w": 2172,
+   "h": 680,
+   "title": "Share today vs Crests F as designed — no preview tags yet; F at real Discord / WhatsApp size"
+  },
+  "ShareCardA.dc.html": {
+   "x": 0,
+   "y": 35790,
+   "w": 1200,
+   "h": 630,
+   "title": "Share A — Scoreboard: two big numbers meet in the middle, all text ≥32 px"
+  },
+  "ShareSituA.dc.html": {
+   "x": 1280,
+   "y": 35790,
+   "w": 1765,
+   "h": 660,
+   "title": "Share A in Discord and WhatsApp (approx sizes)"
+  },
+  "ShareCardB.dc.html": {
+   "x": 0,
+   "y": 36610,
+   "w": 1200,
+   "h": 630,
+   "title": "Share B — Square-safe: the story lives in the centre square, crests own the wings"
+  },
+  "ShareSituB.dc.html": {
+   "x": 1280,
+   "y": 36610,
+   "w": 1765,
+   "h": 660,
+   "title": "Share B in Discord and WhatsApp (approx sizes)"
+  },
+  "ShareCardC.dc.html": {
+   "x": 0,
+   "y": 37430,
+   "w": 1200,
+   "h": 630,
+   "title": "Share C — Bar-led: who comes out on top, as three plain percentages"
+  },
+  "ShareSituC.dc.html": {
+   "x": 1280,
+   "y": 37430,
+   "w": 1765,
+   "h": 660,
+   "title": "Share C in Discord and WhatsApp (approx sizes)"
+  },
+  "ShareCardD.dc.html": {
+   "x": 0,
+   "y": 38250,
+   "w": 1200,
+   "h": 1200,
+   "title": "Share D — Square 1200×1200: never cropped, stacked like the phone app"
+  },
+  "ShareSituD.dc.html": {
+   "x": 1280,
+   "y": 38250,
+   "w": 1765,
+   "h": 800,
+   "title": "Share D in Discord and WhatsApp (approx sizes)"
+  },
+  "ShareText.dc.html": {
+   "x": 0,
+   "y": 39610,
+   "w": 1568,
+   "h": 1000,
+   "title": "The words around the image — og:title / description, Discord stripe, the message text"
+  },
+  "ShareEmptyE1.dc.html": {
+   "x": 0,
+   "y": 40930,
+   "w": 1200,
+   "h": 630,
+   "title": "Empty share E1 — The mark: logo centred, a green and a pink line meet in it (square-safe)"
+  },
+  "ShareEmptySituE1.dc.html": {
+   "x": 1280,
+   "y": 40930,
+   "w": 1765,
+   "h": 660,
+   "title": "Empty share E1 in Discord and WhatsApp (approx sizes); bare home-page link"
+  },
+  "ShareEmptyE2.dc.html": {
+   "x": 0,
+   "y": 41750,
+   "w": 1200,
+   "h": 630,
+   "title": "Empty share E2 — Every army: the 11 vanilla crests ring the mark, name on the left"
+  },
+  "ShareEmptySituE2.dc.html": {
+   "x": 1280,
+   "y": 41750,
+   "w": 1765,
+   "h": 660,
+   "title": "Empty share E2 in Discord and WhatsApp (approx sizes); bare home-page link"
+  },
+  "ShareEmptyE3.dc.html": {
+   "x": 0,
+   "y": 42570,
+   "w": 1200,
+   "h": 630,
+   "title": "Empty share E3 — Empty matchup: share A with nothing picked, so bare and filled links match"
+  },
+  "ShareEmptySituE3.dc.html": {
+   "x": 1280,
+   "y": 42570,
+   "w": 1765,
+   "h": 660,
+   "title": "Empty share E3 in Discord and WhatsApp (approx sizes); bare home-page link"
+  },
+  "FinalShare.dc.html": {
+   "x": 0,
+   "y": 16550,
+   "w": 1320,
+   "h": 820,
+   "page": "final",
+   "title": "Share card A + words T1: the number follows the player's headline choice"
+  },
+  "FinalShareCard.dc.html": {
+   "x": 1400,
+   "y": 16550,
+   "w": 1200,
+   "h": 630,
+   "page": "final",
+   "title": "Share card A as built (1200×630, worker/card.js); Tweaks: headline"
   }
  },
  "createdOnFiles": {
@@ -1175,6 +1303,28 @@
    "x": 0,
    "y": 14790,
    "page": "final"
+  },
+  "share": {
+   "x": 0,
+   "y": 34700,
+   "text": "Share card — built for Discord and WhatsApp",
+   "kind": "title1",
+   "maxW": 3100
+  },
+  "shareempty": {
+   "x": 0,
+   "y": 40700,
+   "text": "Share card — a link with nothing picked",
+   "kind": "title1",
+   "maxW": 3100
+  },
+  "finalshare": {
+   "x": 0,
+   "y": 16300,
+   "text": "Share card — Discord & WhatsApp",
+   "kind": "title1",
+   "maxW": 2600,
+   "page": "final"
   }
  },
  "order": [
@@ -1295,7 +1445,25 @@
   "DeskChromeAbout.dc.html",
   "DeskChromeC.dc.html",
   "DeskChromeASaved.dc.html",
-  "CrestPickerDesk.dc.html"
+  "CrestPickerDesk.dc.html",
+  "ShareSituNow.dc.html",
+  "ShareCardA.dc.html",
+  "ShareSituA.dc.html",
+  "ShareCardB.dc.html",
+  "ShareSituB.dc.html",
+  "ShareCardC.dc.html",
+  "ShareSituC.dc.html",
+  "ShareCardD.dc.html",
+  "ShareSituD.dc.html",
+  "ShareText.dc.html",
+  "ShareEmptyE1.dc.html",
+  "ShareEmptySituE1.dc.html",
+  "ShareEmptyE2.dc.html",
+  "ShareEmptySituE2.dc.html",
+  "ShareEmptyE3.dc.html",
+  "ShareEmptySituE3.dc.html",
+  "FinalShare.dc.html",
+  "FinalShareCard.dc.html"
  ],
  "pages": [
   {
