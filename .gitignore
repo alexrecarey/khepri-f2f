@@ -49,3 +49,6 @@ __pycache__/
 # Claude Code local worktrees and personal settings
 .claude/worktrees/
 .claude/settings.local.json
+
+# wrangler dev/deploy state
+.wrangler/
