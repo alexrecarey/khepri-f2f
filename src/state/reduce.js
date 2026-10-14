@@ -79,12 +79,18 @@ export function reduce(state, action) {
       return setSide(state, action.side, {...EMPTY_SIDE, ...action.sel});
     case 'patchSide':
       return setSide(state, action.side, {...matchup[action.side], ...action.patch});
-    case 'setRange':
+    // side 'B' sets the reactive's own distance (only once the range is split).
+    case 'setRange': {
+      const key = action.side === 'B' && matchup.rangeCmB != null ? 'rangeCmB' : 'rangeCm';
       return {
         ...state,
-        matchup: {...matchup, rangeCm: action.rangeCm},
+        matchup: {...matchup, [key]: action.rangeCm},
         ui: action.open === undefined ? ui : {...ui, rangeOpen: action.open},
       };
+    }
+    // Splitting starts the reactive at the shared distance; joining keeps the active's.
+    case 'setRangeSplit':
+      return {...state, matchup: {...matchup, rangeCmB: action.on ? matchup.rangeCm : null}};
     case 'setZone':
       return {...state, matchup: {...matchup, [action.zone]: Boolean(action.on)}};
     case 'setRangeOpen':
@@ -99,6 +105,8 @@ export function reduce(state, action) {
           ...matchup,
           A: {...matchup.B, weaponKey: matchup.B.weaponKey === 'none' ? null : matchup.B.weaponKey},
           B: {...matchup.A, surpriseAttack: false},
+          // A split range follows the troopers too.
+          ...(matchup.rangeCmB != null && {rangeCm: matchup.rangeCmB, rangeCmB: matchup.rangeCm}),
         },
         // Each side's faction follows its trooper.
         scopes: swapScopes(state.scopes ?? {}),

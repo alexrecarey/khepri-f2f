@@ -161,7 +161,10 @@ function noLofInputs(side) {
 
 // Builds the partial calculator input object for both sides.
 // `active` / `reactive` are results of resolveSelection() (or null).
-export function deriveInputs({active, reactive, rangeCm, zones}) {
+// rangeCm is the distance both shoot at, unless the reactive shoots at its own
+// rangeCmB (a split range: it answers from somewhere else on the table).
+export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
+  const rangeB = rangeCmB ?? rangeCm;
   const inputs = {};
   const errors = [];
   const notes = [];
@@ -218,7 +221,7 @@ export function deriveInputs({active, reactive, rangeCm, zones}) {
     } else if (vis.B.blocked) {
       Object.assign(inputs, noLofInputs('B'));
     } else {
-      Object.assign(inputs, attackInputs(b, a, rangeCm, 'B', errors, notes, onB, vis.B.mod));
+      Object.assign(inputs, attackInputs(b, a, rangeB, 'B', errors, notes, onB, vis.B.mod));
       inputs.templateB = bTemplate;
       // A Direct Template on either side: nothing is opposed, each attack is its own roll.
       if ((aTemplate || bTemplate) && !vis.A.blocked && !vis.B.blocked) notes.push('Direct Template: no Face to Face Roll; each attack is rolled on its own');

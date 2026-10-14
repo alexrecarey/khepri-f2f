@@ -39,7 +39,9 @@ export const EMPTY_SIDE = {
 };
 
 // The distance both sides share, as the upper bound of a range band in cm
-// (rules/ranges.js RANGE_BANDS): 40 = 8-16".
+// (rules/ranges.js RANGE_BANDS): 40 = 8-16". matchup.rangeCmB is null, or the
+// reactive's own distance when the range is split (it answers a different
+// trooper, or from somewhere else); rangeCm is then the active's.
 export const DEFAULT_RANGE_CM = 40;
 
 // Smoke / White Noise between the troopers (rules/visibility.js): like the
@@ -66,7 +68,7 @@ export function initialState() {
   return {
     v: STATE_VERSION,
     mode: MODES.matchup,
-    matchup: {A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}, rangeCm: DEFAULT_RANGE_CM, ...NO_ZONES},
+    matchup: {A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}, rangeCm: DEFAULT_RANGE_CM, rangeCmB: null, ...NO_ZONES},
     classic: {...DEFAULT_PARAMS},
     ui: {...EMPTY_UI},
     // startFaction: {A, B}, the faction the picker opens on for an empty side

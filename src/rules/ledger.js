@@ -6,7 +6,7 @@
 // changes there and not here, the gap shows as an "other rules" line instead of
 // a wrong total, and the tests (ledger.test.mjs) fail.
 //
-// buildLedger({active, reactive, rangeCm, inputs, zones}) -> {A, B}, per side:
+// buildLedger({active, reactive, rangeCm, rangeCmB, inputs, zones}) -> {A, B}, per side:
 //   kind    'attack' | 'dodge' | 'template' | 'none'
 //   dice    'B4 SV14 PS9': burst (+special dice), Success Value, save value
 //   burst, sv, save   {lines, total, note}; a line is
@@ -290,10 +290,11 @@ function sideLedger(x, y, s, rangeCm, inputs, vis) {
   return {kind: 'attack', dice: `${b} SV${sv.total} PS${save.total}${tag}`, burst, sd, sv, save, ammo: ammoLines(x, y, s, inputs), note: ammoNote(inputs, s)};
 }
 
-export function buildLedger({active, reactive, rangeCm, inputs, zones}) {
+// rangeCmB: the reactive's own distance when the range is split (deriveInputs).
+export function buildLedger({active, reactive, rangeCm, rangeCmB, inputs, zones}) {
   const vis = visibility(active, reactive, zones);
   return {
     A: sideLedger(active, reactive, 'A', rangeCm, inputs, vis),
-    B: sideLedger(reactive, active, 'B', rangeCm, inputs, vis),
+    B: sideLedger(reactive, active, 'B', rangeCmB ?? rangeCm, inputs, vis),
   };
 }

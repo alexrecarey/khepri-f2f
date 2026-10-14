@@ -87,16 +87,40 @@
 .band .dist { text-align: center; padding: 5px 0; font-size: var(--fs-small); color: var(--text-3); }
 .band.on .dist { color: var(--bg); font-weight: 700; }
 
+/* Split range (RangeScale.jsx, canvas board S3): one row of distances, the
+   active's track above it, the reactive's below. Closed, the tracks are thin
+   bars that still show each side's pick; each pick's tap area reaches into
+   the distances row. */
+.scale { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); column-gap: 2px; flex-grow: 1; }
+.scale-col { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.scale .dist { text-align: center; padding: 3px 0; font-size: var(--fs-small); color: var(--text-3); }
+.scale .dist.on { color: var(--text); font-weight: 700; }
+.scale-pick { all: unset; box-sizing: border-box; cursor: pointer; position: relative; z-index: 1; display: flex; flex-direction: column; }
+.scale-pick.A { padding: 6px 0 10px; margin: -6px 0 -10px; }
+.scale-pick.B { padding: 10px 0 6px; margin: -10px 0 -6px; justify-content: flex-end; }
+.scale-pick .track { display: flex; flex-direction: column; height: 6px; border-radius: 2px; overflow: hidden; background: var(--line-soft);
+  transition: height .25s ease, background .25s ease; }
+.scale-pick.B .track { justify-content: flex-end; }
+.range.open .scale-pick .track { height: 22px; background: var(--surface-2); }
+.scale-pick.A.on .track, .range.open .scale-pick.A.on .track { background: var(--active); }
+.scale-pick.B.on .track, .range.open .scale-pick.B.on .track { background: var(--reactive); }
+.scale-pick .stripe { height: 4px; flex-shrink: 0; transition: background .25s ease; }
+.scale-col:first-child .A .track { border-top-left-radius: 6px; }
+.scale-col:last-child .A .track { border-top-right-radius: 6px; }
+.scale-col:first-child .B .track { border-bottom-left-radius: 6px; }
+.scale-col:last-child .B .track { border-bottom-right-radius: 6px; }
+
 /* ---------- Smoke / White Noise (RangeZones.jsx) ----------
    Small and quiet: two chips at the right under the legend, each with a full
    44 px tap area around it. */
 .range-foot .mods small { font-size: inherit; color: var(--muted); }
-.zone-chips { display: flex; justify-content: flex-end; gap: 6px; padding: 0 12px 10px; }
-.zone-chip { all: unset; box-sizing: border-box; position: relative; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+.range-chips { display: flex; justify-content: flex-end; gap: 6px; padding: 0 12px 10px; }
+.zone-chips { display: flex; gap: 6px; }
+.range-chip { all: unset; box-sizing: border-box; position: relative; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
   height: 26px; padding: 0 9px; border-radius: 6px; font-size: var(--fs-label); border: 1px solid var(--line); color: var(--faint); }
-.zone-chip::before { content: ''; position: absolute; inset: -9px -3px; }
-.zone-chip.on { background: var(--none); border-color: var(--faint); color: var(--text); }
-.zone-chip:focus-visible, .zone-marks:focus-visible { outline: 2px solid var(--text-2); outline-offset: 2px; }
+.range-chip::before { content: ''; position: absolute; inset: -9px -3px; }
+.range-chip.on { background: var(--none); border-color: var(--faint); color: var(--text); }
+.range-chip:focus-visible, .zone-marks:focus-visible, .scale-pick:focus-visible { outline: 2px solid var(--text-2); outline-offset: 2px; }
 /* Always there, open or closed, so the bands keep one length. Off: faint. */
 .zone-marks { all: unset; box-sizing: border-box; cursor: pointer; flex-shrink: 0; width: 28px; height: var(--tap); display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 2px; color: var(--zone-off); }

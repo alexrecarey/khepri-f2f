@@ -175,3 +175,23 @@ test('Fireteam +1 BS is a MOD: it counts toward the ±12 cap', () => {
   assert.ok(sv.lines.some((l) => l.label === 'MODs cap at ±12'));
   assert.equal(sv.lines.some((l) => l.label === 'other rules'), false);
 });
+
+test('a split range: each side shoots at its own distance, dice and ledger alike', () => {
+  // Acontecimento Regulars with Combi Rifles on both sides.
+  const active = pickSide({unitId: 21, factionId: 102, groupId: 1, optionId: 1, weaponKey: '33:'});
+  const reactive = pickSide({unitId: 21, factionId: 102, groupId: 1, optionId: 1, weaponKey: '33:'});
+  const cms = RANGE_BANDS.map((b) => b.to);
+  const modB = (cm) => rangeModFor(reactive.weapon.row, cm, reactive.traits);
+  // Two distances the reactive's weapon treats differently.
+  const rangeCm = cms.find((cm) => modB(cm) !== null);
+  const rangeCmB = cms.find((cm) => modB(cm) !== null && modB(cm) !== modB(rangeCm));
+  const split = deriveInputs({active, reactive, rangeCm, rangeCmB});
+  assert.ok(split.ok);
+  assert.equal(split.inputs.successValueA, deriveInputs({active, reactive, rangeCm}).inputs.successValueA);
+  assert.equal(split.inputs.successValueB, deriveInputs({active, reactive, rangeCm: rangeCmB}).inputs.successValueB);
+  assert.notEqual(split.inputs.successValueB, deriveInputs({active, reactive, rangeCm}).inputs.successValueB);
+  const ledger = buildLedger({active, reactive, rangeCm, rangeCmB, inputs: split.inputs});
+  assert.equal(ledger.B.sv.total, split.inputs.successValueB);
+  // null (not split) is the shared distance.
+  assert.deepEqual(deriveInputs({active, reactive, rangeCm, rangeCmB: null}).inputs, deriveInputs({active, reactive, rangeCm}).inputs);
+});

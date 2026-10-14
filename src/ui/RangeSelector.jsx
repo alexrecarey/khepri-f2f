@@ -3,11 +3,10 @@ import {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {RANGE_BANDS} from '../rules/ranges.js';
 import {dispatch, useAppState} from '../state/store.js';
-import {bandColor} from './bands.js';
+import {bandColor, signedMod as signed} from './bands.js';
+import RangeScale, {SplitChip} from './RangeScale.jsx';
 import {ZoneChips, ZoneMarks, zoneText} from './RangeZones.jsx';
 import {weaponText} from './SideCard.jsx';
-
-const signed = (n) => (n == null ? '—' : `${n > 0 ? '+' : ''}${n}`);
 
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
@@ -42,14 +41,22 @@ const weaponName = (side) => {
   return weaponText(w);
 };
 
-// The shared distance. Closed: one slim row of bands. Tapping a band picks it
+const bandIndex = (cm) => Math.max(0, RANGE_BANDS.findIndex((b) => b.to === cm));
+// "24–32"" for a band index.
+const span = (i) => `${i ? RANGE_BANDS[i - 1].inches : 0}–${RANGE_BANDS[i].inches}"`;
+
+// The distance. Closed: one slim row of bands. Tapping a band picks it
 // straight away and opens the selector, which adds a header above and a
 // legend below and lights up each weapon's Range MOD as a stripe (active above,
 // reactive below). The row of bands itself never moves or resizes, open or
-// closed. Lines of fire are reciprocal, so both sides share the distance.
+// closed. Lines of fire are reciprocal, so both sides usually share the
+// distance; Split range gives each its own (RangeScale), as when the reactive
+// answers from somewhere else.
 export default function RangeSelector({view}) {
   const open = useAppState((st) => st.ui.rangeOpen);
   const rangeCm = useAppState((st) => st.matchup.rangeCm);
+  const rangeCmB = useAppState((st) => st.matchup.rangeCmB ?? null);
+  const split = rangeCmB != null;
   const setOpen = (o) => dispatch({type: 'setRangeOpen', open: o});
   // Open, Escape closes it like a tap outside.
   useEffect(() => {
@@ -58,13 +65,11 @@ export default function RangeSelector({view}) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
-  const selected = Math.max(0, RANGE_BANDS.findIndex((b) => b.to === rangeCm));
-  const band = RANGE_BANDS[selected];
-  const from = selected ? RANGE_BANDS[selected - 1].inches : 0;
+  const selected = bandIndex(rangeCm);
+  const selB = split ? bandIndex(rangeCmB) : selected;
   // Range MODs per band (matchupView bands): undefined = no range bands.
-  const mods = view.bands[selected];
-  const hasA = mods.A !== undefined;
-  const hasB = mods.B !== undefined;
+  const modA = view.bands[selected].A;
+  const modB = view.bands[selB].B;
   // What Smoke / White Noise do to each side (null before the army loads).
   const vis = view.vis ?? null;
 
@@ -77,11 +82,12 @@ export default function RangeSelector({view}) {
         <div className="range-head">
           <span className="label">Range</span>
           <button type="button" className="range-close" onClick={() => setOpen(false)} tabIndex={open ? 0 : -1}>
-            {from}–{band.inches}" ⌃
+            {split ? <><span className="c-active">{span(selected)}</span> <span className="c-reactive">{span(selB)}</span></> : span(selected)} ⌃
           </button>
         </div>
       </div>
       <div className="range-row">
+        {split ? <RangeScale bands={view.bands} open={open} selA={selected} selB={selB} /> : (
         <div className="bands" role="group" aria-label="Range">
           {/* The selected band's highlight glides to the tapped band. */}
           <span className="band-pill" aria-hidden="true" style={{left: `calc(${selected} * 100% / ${RANGE_BANDS.length})`, width: `calc(100% / ${RANGE_BANDS.length})`}} />
@@ -95,14 +101,15 @@ export default function RangeSelector({view}) {
             </button>
           ))}
         </div>
+        )}
         <ZoneMarks zones={view.zones} open={open} />
         <button type="button" className="icon-btn swap" aria-label="Swap active and reactive" onClick={() => flipSwap(() => dispatch({type: 'swapSides'}))}>⇅</button>
       </div>
       <div className="collapse" style={{maxHeight: open ? 104 : 0, opacity: open ? 1 : 0}} aria-hidden={!open}>
         <div className="range-foot">
           <div className="mods">
-            <span className="c-active">{weaponName(view.A)} <b>{hasA ? signed(mods.A) : '—'}</b><small>{vis && zoneText(vis.A)}</small></span>
-            <span className="c-reactive">{weaponName(view.B)} <b>{hasB ? signed(mods.B) : '—'}</b><small>{vis && zoneText(vis.B)}</small></span>
+            <span className="c-active">{weaponName(view.A)} <b>{signed(modA)}</b><small>{vis && zoneText(vis.A)}</small></span>
+            <span className="c-reactive">{weaponName(view.B)} <b>{signed(modB)}</b><small>{vis && zoneText(vis.B)}</small></span>
           </div>
           <div className="key">
             <span><i style={{background: 'var(--band-plus)'}} />+3</span>
@@ -111,7 +118,10 @@ export default function RangeSelector({view}) {
             <span><i style={{background: 'var(--band-minus6)'}} />−6</span>
           </div>
         </div>
-        <ZoneChips zones={view.zones} open={open} />
+        <div className="range-chips">
+          <SplitChip split={split} open={open} />
+          <ZoneChips zones={view.zones} open={open} />
+        </div>
       </div>
     </div>
     </>

@@ -52,6 +52,28 @@ test('setRange can open the selector in the same step', () => {
   assert.equal(run(s, {type: 'setRange', rangeCm: 60}).ui.rangeOpen, true);   // open left alone
 });
 
+test('split range: starts at the shared distance, B picks its own, joining keeps the active\'s', () => {
+  const s = run(initialState(), {type: 'setRange', rangeCm: 80}, {type: 'setRangeSplit', on: true});
+  assert.equal(s.matchup.rangeCmB, 80);
+  const t = run(s, {type: 'setRange', side: 'B', rangeCm: 100}, {type: 'setRange', side: 'A', rangeCm: 60});
+  assert.deepEqual([t.matchup.rangeCm, t.matchup.rangeCmB], [60, 100]);
+  // Each trooper keeps its distance when the sides swap.
+  const swapped = run(t, {type: 'swapSides'});
+  assert.deepEqual([swapped.matchup.rangeCm, swapped.matchup.rangeCmB], [100, 60]);
+  const joined = run(t, {type: 'setRangeSplit', on: false});
+  assert.deepEqual([joined.matchup.rangeCm, joined.matchup.rangeCmB], [60, null]);
+  // Not split, side B moves the shared distance.
+  assert.deepEqual(run(initialState(), {type: 'setRange', side: 'B', rangeCm: 100}).matchup, {...initialState().matchup, rangeCm: 100});
+  // Swapping an unsplit range leaves it alone.
+  assert.equal(run(initialState(), {type: 'swapSides'}).matchup.rangeCmB, null);
+});
+
+test('a split range round-trips through the URL', () => {
+  const s = run(initialState(), {type: 'setSide', side: 'A', sel: fennec}, {type: 'setRange', rangeCm: 80},
+    {type: 'setRangeSplit', on: true}, {type: 'setRange', side: 'B', rangeCm: 120});
+  assert.deepEqual(stateFromUrl(urlFromState(s)).matchup, s.matchup);
+});
+
 test('picker: open, drill in, back one screen at a time', () => {
   let s = run(initialState(), {type: 'openPicker', side: 'B', scope: 101});
   assert.equal(uiDepth(s.ui), 1);
