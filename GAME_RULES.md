@@ -32,6 +32,13 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 ## Skills and MODs
 - Mimetism −3 / −6: MSV1 cancels 3, MSV2 and MSV3 cancel all.
 - Albedo −3 / −6: only against attackers with MSV or Marksmanship, BS Attacks needing LoF.
+- Smoke and White Noise between the troopers (Alex, 2026-10-13; chips in the range selector):
+  - Smoke is a Zero Visibility Zone for troopers without MSV: they can't shoot through it, unless the other trooper attacks them through it (a template counts; a Dodge doesn't); then they shoot back at −6 (Poor Visibility Zone). If neither can see, nobody shoots.
+  - MSV1 shoots through Smoke at −3 when it is attacked, −6 (Zero Visibility Zone) when the other trooper Dodges or does nothing. MSV2 and MSV3 ignore Smoke.
+  - White Noise does the same to troopers WITH MSV (any level) or Marksmanship, always at −6; everyone else ignores it.
+  - Sixth Sense (or a Fireteam of 5) cancels the Poor Visibility MOD of a trooper being attacked, not the Zero Visibility −6.
+  - White Noise and Albedo stack. With Smoke and White Noise both up, every trooper is blocked by one of them, so nobody shoots.
+  - A trooper with no LoF rolls nothing ("No LoF" in How the dice were built). A Direct Template needs LoF too. Dodging is unaffected.
 - Dodge: PH (or PH=14), plus its bracketed MODs (+3 to itself, −3 to the opponent, +1SD, ARM +3 while Dodging).
   - A weapon's ARM = 0 wins over the Dodge's ARM +3.
 - BS Attack (−X): the opponent takes −X whatever it does, while the attack is rolled. Warhorse ignores it.
@@ -61,7 +68,7 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - Shock: a 1 VITA target goes straight to Dead (no Unconscious, NWI or Dogged). STR, VITA 2+ and Shock-immune troopers are immune.
 
 ## Not modelled yet
-- ⋯ More situations: Low / Poor Visibility Zone, Saturation Zone, Engaged (need rulings). Prone changes nothing to the roll.
+- ⋯ More situations: Low Visibility Zone, other Poor Visibility Zones (not Smoke / White Noise), Saturation Zone, Engaged (need rulings). Prone changes nothing to the roll.
 - Biometric Visor (ignores Surprise Attack from Impersonation / Holoecho attackers).
 - IMM-B, Isolated and Possession immunities change nothing here (States only).
 - Spec-Ops upgrades and SpecBall.

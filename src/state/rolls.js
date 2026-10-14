@@ -14,7 +14,8 @@ import {RANGE_BANDS} from '../rules/ranges.js';
 import {shortIsc, shortWeaponName} from '../army/names.js';
 import {DEFAULT_PARAMS} from '../engine/params.js';
 import {MODES} from './modes.js';
-import {DEFAULT_RANGE_CM, EMPTY_SIDE} from './schema.js';
+import {ZONES, ZONE_NAME} from '../rules/visibility.js';
+import {DEFAULT_RANGE_CM, EMPTY_SIDE, NO_ZONES} from './schema.js';
 
 const pct0 = (p) => `${Math.round(100 * p)}%`;
 const shortUnit = (unit) => shortIsc(unit.isc);
@@ -23,7 +24,10 @@ const shortUnit = (unit) => shortIsc(unit.isc);
 // its default, so it loads complete and matches the same setup saved now.
 export function normalizeSetup(mode, setup) {
   if (mode === MODES.matchup) {
-    return {A: {...EMPTY_SIDE, ...setup?.A}, B: {...EMPTY_SIDE, ...setup?.B}, rangeCm: setup?.rangeCm ?? DEFAULT_RANGE_CM};
+    return {
+      ...NO_ZONES, ...setup,
+      A: {...EMPTY_SIDE, ...setup?.A}, B: {...EMPTY_SIDE, ...setup?.B}, rangeCm: setup?.rangeCm ?? DEFAULT_RANGE_CM,
+    };
   }
   return {...DEFAULT_PARAMS, ...setup};
 }
@@ -58,11 +62,13 @@ const inCover = (x) => x.sel.inCover && !x.resolved.sapper;
 const fireteam = (x) => (x.resolved.ftSize > 1 ? `Fireteam ${x.resolved.ftSize}` : null);
 const surprise = (x, role) => role === 'A' && x.sel.surpriseAttack;
 const bandOf = (view) => RANGE_BANDS.find((b) => b.to === view.rangeCm) ?? null;
+// Smoke / White Noise between them, by name.
+const zoneNames = (view) => ZONES.filter((z) => view.zones?.[z]).map((z) => ZONE_NAME[z]);
 
 // view: matchupView(); s: results.js summarize()
 export function matchupRollSummary(view, s) {
   const {A, B} = view;
-  const bits = [bandOf(view)?.label];
+  const bits = [bandOf(view)?.label, ...zoneNames(view)];
   if (inFoxhole(A) || inFoxhole(B)) bits.push('Foxhole');
   if (inCover(A) || inCover(B)) bits.push('Cover');
   for (const x of [A, B]) bits.push(fireteam(x));
@@ -93,7 +99,7 @@ export function matchupShareCard(view, h) {
       c: x.crest ?? '',
     };
   };
-  return {k: h.kind, nf: h.fallback, x: bandOf(view)?.label ?? '', a: side('A', 'active'), b: side('B', 'reactive')};
+  return {k: h.kind, nf: h.fallback, x: [bandOf(view)?.label, ...zoneNames(view)].filter(Boolean).join(' · '), a: side('A', 'active'), b: side('B', 'reactive')};
 }
 
 const classicDice = (p, side) => {

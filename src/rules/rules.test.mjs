@@ -1526,3 +1526,79 @@ test('a Success Value above 30 is capped at 30, in the inputs and the ledger', (
   const sv = buildLedger({...args, inputs: r.inputs}).A.sv;
   assert.ok(sv.lines.some((l) => l.label === 'capped at 30' && l.value === -2), JSON.stringify(sv.lines));
 });
+
+// Smoke and White Noise (rules/visibility.js), combi vs combi at 8-16" (+3).
+const zoneDuel = (a, b, zones) => derive({active: a, reactive: b, rangeCm: 40, zones});
+const shooter = (over) => side(profile(over), combi, '1:');
+const dodger = (over) => side(profile(over), combi, 'dodge');
+const SMOKE = {smoke: true};
+const WHITE_NOISE = {whiteNoise: true};
+
+test('Smoke: without MSV nobody can shoot through it', () => {
+  const r = zoneDuel(shooter(), shooter(), SMOKE);
+  assert.equal(r.ok, true);
+  assert.equal(r.inputs.burstA, 0);
+  assert.equal(r.inputs.burstB, 0);
+  assert.ok(r.notes.includes("Active: no line of fire through Smoke; its attack can't be declared"), r.notes.join(' | '));
+  const l = buildLedger({active: shooter(), reactive: shooter(), rangeCm: 40, inputs: r.inputs, zones: SMOKE});
+  assert.equal(l.A.dice, 'No LoF (Smoke)');
+  // A Dodge isn't an attack: the shooter still can't see.
+  assert.equal(zoneDuel(shooter(), dodger(), SMOKE).inputs.burstA, 0);
+});
+
+test('Smoke: MSV2 / MSV3 see through; the target shoots back at -6, Sixth Sense cancels it', () => {
+  const r = zoneDuel(shooter({equip: [msv(2)]}), shooter(), SMOKE);
+  assert.equal(r.inputs.successValueA, 15);
+  assert.equal(r.inputs.successValueB, 9);
+  assert.equal(zoneDuel(shooter({equip: [msv(3)]}), shooter(), SMOKE).inputs.successValueA, 15);
+  const sixth = zoneDuel(shooter({equip: [msv(2)]}), shooter({skills: [{id: 67, name: 'Sixth Sense'}]}), SMOKE);
+  assert.equal(sixth.inputs.successValueB, 15);
+  // The reactive side sees, the active shoots back (Alex: the active trooper can shoot if the reactive shoots it).
+  assert.equal(zoneDuel(shooter(), shooter({equip: [msv(2)]}), SMOKE).inputs.successValueA, 9);
+});
+
+test('Smoke: MSV1 takes -3 when shot at, -6 (Zero Visibility) when the target Dodges', () => {
+  const shot = zoneDuel(shooter({equip: [msv(1)]}), shooter(), SMOKE);
+  assert.equal(shot.inputs.successValueA, 12);
+  assert.equal(shot.inputs.successValueB, 9);
+  assert.equal(zoneDuel(shooter({equip: [msv(1)]}), dodger(), SMOKE).inputs.successValueA, 9);
+  // Sixth Sense cancels the Poor Visibility -3, not the Zero Visibility -6.
+  const sixth = {equip: [msv(1)], skills: [{id: 67, name: 'Sixth Sense'}]};
+  assert.equal(zoneDuel(shooter(sixth), shooter(), SMOKE).inputs.successValueA, 15);
+  assert.equal(zoneDuel(shooter(sixth), dodger(), SMOKE).inputs.successValueA, 9);
+});
+
+test('Smoke: a Direct Template needs LoF too, and counts as an attack', () => {
+  const flamer = side(profile(), option([{id: 3, name: 'Heavy Flamethrower'}]), '3:');
+  assert.equal(zoneDuel(flamer, shooter(), SMOKE).inputs.burstA, 0);
+  // Templated through smoke by an MSV2 trooper: the shooter fires back at -6.
+  const msvFlamer = side(profile({equip: [msv(2)]}), option([{id: 3, name: 'Heavy Flamethrower'}]), '3:');
+  assert.equal(zoneDuel(msvFlamer, shooter(), SMOKE).inputs.successValueB, 9);
+});
+
+test('White Noise: blocks MSV and Marksmanship, not other troopers', () => {
+  assert.equal(zoneDuel(shooter(), shooter(), WHITE_NOISE).inputs.successValueA, 15);
+  const r = zoneDuel(shooter({equip: [msv(2)]}), shooter(), WHITE_NOISE);
+  assert.equal(r.inputs.successValueA, 9);                     // shot at: -6
+  assert.equal(r.inputs.successValueB, 15);
+  assert.equal(zoneDuel(shooter({equip: [msv(1)]}), shooter(), WHITE_NOISE).inputs.successValueA, 9);   // MSV1 can't soften it
+  assert.equal(zoneDuel(shooter({skills: [{id: 156, name: 'Marksmanship'}]}), dodger(), WHITE_NOISE).inputs.burstA, 0);
+  assert.equal(zoneDuel(shooter({equip: [msv(3)]}), dodger(), WHITE_NOISE).inputs.burstA, 0);
+  const sixth = zoneDuel(shooter(), shooter({equip: [msv(2)], skills: [{id: 67, name: 'Sixth Sense'}]}), WHITE_NOISE);
+  assert.equal(sixth.inputs.successValueB, 15);
+});
+
+test('White Noise and Albedo stack; with Smoke and White Noise nobody sees', () => {
+  const albedo = {equip: [{id: 183, name: 'Albedo', extra: ['-3']}]};
+  // MSV1 shot at by an Albedo trooper through White Noise: 15 - 6 - 3.
+  const r = zoneDuel(shooter({equip: [msv(1)]}), shooter(albedo), WHITE_NOISE);
+  assert.equal(r.inputs.successValueA, 6);
+  const l = buildLedger({active: shooter({equip: [msv(1)]}), reactive: shooter(albedo), rangeCm: 40, inputs: r.inputs, zones: WHITE_NOISE});
+  assert.deepEqual(l.A.sv.lines.filter((x) => x.value < 0).map((x) => x.label), ['Albedo', 'White Noise, Poor Visibility']);
+  // Smoke blocks troopers without MSV, White Noise those with it.
+  const both = {smoke: true, whiteNoise: true};
+  for (const a of [{}, {equip: [msv(1)]}, {equip: [msv(2)]}]) {
+    const b = zoneDuel(shooter(a), shooter(), both).inputs;
+    assert.deepEqual([b.burstA, b.burstB], [0, 0]);
+  }
+});

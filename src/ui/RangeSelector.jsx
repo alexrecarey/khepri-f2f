@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import {RANGE_BANDS} from '../rules/ranges.js';
 import {dispatch, useAppState} from '../state/store.js';
 import {bandColor} from './bands.js';
+import {ZoneChips, ZoneMarks, zoneText} from './RangeZones.jsx';
 import {weaponText} from './SideCard.jsx';
 
 const signed = (n) => (n == null ? '—' : `${n > 0 ? '+' : ''}${n}`);
@@ -64,6 +65,8 @@ export default function RangeSelector({view}) {
   const mods = view.bands[selected];
   const hasA = mods.A !== undefined;
   const hasB = mods.B !== undefined;
+  // What Smoke / White Noise do to each side (null before the army loads).
+  const vis = view.vis ?? null;
 
   // Open, a tap anywhere outside the selector closes it (the scrim).
   return (
@@ -92,13 +95,14 @@ export default function RangeSelector({view}) {
             </button>
           ))}
         </div>
+        {!open && <ZoneMarks zones={view.zones} />}
         <button type="button" className="icon-btn swap" aria-label="Swap active and reactive" onClick={() => flipSwap(() => dispatch({type: 'swapSides'}))}>⇅</button>
       </div>
-      <div className="collapse" style={{maxHeight: open ? 64 : 0, opacity: open ? 1 : 0}} aria-hidden={!open}>
+      <div className="collapse" style={{maxHeight: open ? 104 : 0, opacity: open ? 1 : 0}} aria-hidden={!open}>
         <div className="range-foot">
           <div className="mods">
-            <span className="c-active">{weaponName(view.A)} <b>{hasA ? signed(mods.A) : '—'}</b></span>
-            <span className="c-reactive">{weaponName(view.B)} <b>{hasB ? signed(mods.B) : '—'}</b></span>
+            <span className="c-active">{weaponName(view.A)} <b>{hasA ? signed(mods.A) : '—'}</b><small>{vis && zoneText(vis.A)}</small></span>
+            <span className="c-reactive">{weaponName(view.B)} <b>{hasB ? signed(mods.B) : '—'}</b><small>{vis && zoneText(vis.B)}</small></span>
           </div>
           <div className="key">
             <span><i style={{background: 'var(--band-plus)'}} />+3</span>
@@ -107,6 +111,7 @@ export default function RangeSelector({view}) {
             <span><i style={{background: 'var(--band-minus6)'}} />−6</span>
           </div>
         </div>
+        <ZoneChips zones={view.zones} open={open} />
       </div>
     </div>
     </>

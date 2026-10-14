@@ -9,6 +9,7 @@ import {
   dodgeSuccessValue, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, neurocineticsAroBurst, opposingMods,
 } from './modifiers.js';
 import {rangeModFor} from './ranges.js';
+import {ZONE_NAME, visibility} from './visibility.js';
 import {
   calcAmmo, hasImmunity, hasNoEffect, immunityAgainst, immunityFor, immunityNote, saveHalving, shockApplies, vulnerabilityTo,
 } from './saves.js';
@@ -61,7 +62,7 @@ function opposingMod(x, y, xActive, yLabel, notes) {
   return total;
 }
 
-function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0) {
+function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0, visMod = 0) {
   const label = side === 'A' ? 'Active' : 'Reactive';
   const {row, mods} = x.weapon;
   let rangeMod = rangeModFor(row, rangeCm, x.traits);
@@ -74,7 +75,7 @@ function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0) {
   const cover = y ? coverBsMod(y, x.traits) : 0;
   const bonus = attackBonuses(x);
   // Every MOD counts toward the cap, Fireteam +1 BS included (Alex, 2026-10-10).
-  const modSum = bonus.bs + rangeMod + mim + albedo + cover + mods.sv + opposing;
+  const modSum = bonus.bs + rangeMod + mim + albedo + cover + mods.sv + opposing + visMod;
   const modTotal = capMods(modSum);
   if (!outOfRange && modTotal !== modSum) notes.push(`${label}: MODs add up to ${signed(modSum)}, capped at ${signed(modTotal)}`);
   const sv = outOfRange
@@ -152,9 +153,15 @@ function defenseInputs(y, incoming, side, dodging = false) {
   };
 }
 
+// No LoF through Smoke / White Noise: the side's attack never happens, so it
+// rolls nothing (like No ARO).
+function noLofInputs(side) {
+  return {[`burst${side}`]: 0, [`bonusBurst${side}`]: 0, [`shock${side}`]: false, [`template${side}`]: false};
+}
+
 // Builds the partial calculator input object for both sides.
 // `active` / `reactive` are results of resolveSelection() (or null).
-export function deriveInputs({active, reactive, rangeCm}) {
+export function deriveInputs({active, reactive, rangeCm, zones}) {
   const inputs = {};
   const errors = [];
   const notes = [];
@@ -166,8 +173,14 @@ export function deriveInputs({active, reactive, rangeCm}) {
   const aTemplate = usesTemplate(a);
   const bTemplate = usesTemplate(b);
   // BS Attack (-X) MODs on each side's roll.
-  const onA = opposingMod(b, a, false, 'Active', notes);
-  const onB = opposingMod(a, b, true, 'Reactive', notes);
+  // Smoke / White Noise between them. A side with no line of fire doesn't
+  // attack, so its skills put no MODs on the other side's roll.
+  const vis = visibility(a, b, zones);
+  const onA = vis.B.blocked ? 0 : opposingMod(b, a, false, 'Active', notes);
+  const onB = vis.A.blocked ? 0 : opposingMod(a, b, true, 'Reactive', notes);
+  for (const [s, label] of [['A', 'Active'], ['B', 'Reactive']]) {
+    if (vis[s].blocked) notes.push(`${label}: no line of fire through ${ZONE_NAME[vis[s].blocked]}; its attack can't be declared`);
+  }
 
   if (a) {
     if (!a.weapon) {
@@ -179,8 +192,10 @@ export function deriveInputs({active, reactive, rangeCm}) {
       incomplete = true; // e.g. "No ARO" carried over; the active side needs a real choice
     } else if (attackStat(a.profile, a.weapon.row) <= 0) {
       errors.push('Active: this profile cannot make BS attacks; pick Dodge');
+    } else if (vis.A.blocked) {
+      Object.assign(inputs, noLofInputs('A'));
     } else {
-      Object.assign(inputs, attackInputs(a, b, rangeCm, 'A', errors, notes, onA));
+      Object.assign(inputs, attackInputs(a, b, rangeCm, 'A', errors, notes, onA, vis.A.mod));
       inputs.templateA = aTemplate;
     }
     if (b?.weapon?.row) Object.assign(inputs, defenseInputs(a, b.weapon, 'A', a.weapon?.pseudo === 'dodge'));
@@ -200,11 +215,13 @@ export function deriveInputs({active, reactive, rangeCm}) {
       inputs.templateB = false;
     } else if (attackStat(b.profile, b.weapon.row) <= 0) {
       errors.push('Reactive: this profile cannot make BS attacks; pick Dodge or No ARO');
+    } else if (vis.B.blocked) {
+      Object.assign(inputs, noLofInputs('B'));
     } else {
-      Object.assign(inputs, attackInputs(b, a, rangeCm, 'B', errors, notes, onB));
+      Object.assign(inputs, attackInputs(b, a, rangeCm, 'B', errors, notes, onB, vis.B.mod));
       inputs.templateB = bTemplate;
       // A Direct Template on either side: nothing is opposed, each attack is its own roll.
-      if (aTemplate || bTemplate) notes.push('Direct Template: no Face to Face Roll; each attack is rolled on its own');
+      if ((aTemplate || bTemplate) && !vis.A.blocked && !vis.B.blocked) notes.push('Direct Template: no Face to Face Roll; each attack is rolled on its own');
     }
     if (a?.weapon?.row) Object.assign(inputs, defenseInputs(b, a.weapon, 'B', b.weapon?.pseudo === 'dodge'));
     else if (a) Object.assign(inputs, defenseInputs(b, null, 'B'));

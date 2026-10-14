@@ -88,3 +88,17 @@ export function StateGlyph({glyph, size = 15}) {
 }
 
 StateGlyph.propTypes = {glyph: PropTypes.string, size: PropTypes.number};
+
+// Smoke (a cloud) and White Noise (static), for the zone chips by the range.
+const zonePath = {
+  smoke: 'M5.5 15h8.5a3.2 3.2 0 0 0 .3-6.4A4.5 4.5 0 0 0 5.8 8 3.5 3.5 0 0 0 5.5 15z',
+  whiteNoise: 'M2 10h2.5l1.5-4 2 8 2-10 2 12 2-8 1.5 2H18',
+};
+export function ZoneIcon({zone, size = 13}) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"
+      strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={zonePath[zone]} /></svg>
+  );
+}
+
+ZoneIcon.propTypes = {zone: PropTypes.oneOf(['smoke', 'whiteNoise']).isRequired, size: PropTypes.number};

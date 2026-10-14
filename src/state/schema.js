@@ -42,6 +42,10 @@ export const EMPTY_SIDE = {
 // (rules/ranges.js RANGE_BANDS): 40 = 8-16".
 export const DEFAULT_RANGE_CM = 40;
 
+// Smoke / White Noise between the troopers (rules/visibility.js): like the
+// range, they belong to the table, not to either side.
+export const NO_ZONES = {smoke: false, whiteNoise: false};
+
 export const MAX_RECENTS = 8; // per side
 
 // The recents for one side, newest first. Untagged (older) entries belong to both.
@@ -62,7 +66,7 @@ export function initialState() {
   return {
     v: STATE_VERSION,
     mode: MODES.matchup,
-    matchup: {A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}, rangeCm: DEFAULT_RANGE_CM},
+    matchup: {A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}, rangeCm: DEFAULT_RANGE_CM, ...NO_ZONES},
     classic: {...DEFAULT_PARAMS},
     ui: {...EMPTY_UI},
     // startFaction: {A, B}, the faction the picker opens on for an empty side

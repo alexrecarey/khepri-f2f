@@ -12,6 +12,7 @@ import {buildLedger} from '../rules/ledger.js';
 import {deriveInputs} from '../rules/matchup.js';
 import {fireteamBonuses, surpriseAttackMod} from '../rules/modifiers.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
+import {visibility} from '../rules/visibility.js';
 import {pseudoWeapons, resolveSelection, trooperWeapons} from '../rules/trooper.js';
 import {modeLabels, orderModes} from '../rules/weaponModes.js';
 import {woundStates} from '../rules/woundStates.js';
@@ -93,20 +94,21 @@ const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], pseudo: [],
 
 
 export function matchupView(army, matchup) {
+  const zones = {smoke: Boolean(matchup.smoke), whiteNoise: Boolean(matchup.whiteNoise)};
   if (!army) {
-    return {ready: false, rangeCm: matchup.rangeCm, A: EMPTY_VIEW_SIDE(matchup.A), B: EMPTY_VIEW_SIDE(matchup.B),
+    return {ready: false, rangeCm: matchup.rangeCm, zones, A: EMPTY_VIEW_SIDE(matchup.A), B: EMPTY_VIEW_SIDE(matchup.B),
       derived: null, params: null, ledger: null, bands: RANGE_BANDS.map((b) => ({to: b.to})),
       hasSelection: Boolean(matchup.A.unitId || matchup.B.unitId), complete: false, targets: null};
   }
   const A = sideView(army, matchup.A, 'A');
   const B = sideView(army, matchup.B, 'B');
-  const derived = deriveInputs({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm});
+  const derived = deriveInputs({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, zones});
   const hasSelection = Boolean(matchup.A.unitId || matchup.B.unitId);
   // Both sides fully chosen (unit through weapon) and the matchup is valid.
   const complete = Boolean(A.resolved?.weapon && B.resolved?.weapon && derived?.ok);
   const params = derived?.ok ? fullParams(derived.inputs) : null;
   const ledger = complete ? {
-    ledger: buildLedger({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, inputs: params}),
+    ledger: buildLedger({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, inputs: params, zones}),
     names: {A: shortIsc(A.resolved.unit.isc), B: shortIsc(B.resolved.unit.isc)},
     weapons: {A: A.resolved.weapon?.name, B: B.resolved.weapon?.name},
     notes: [...derived.warnings, ...derived.notes],
@@ -118,5 +120,7 @@ export function matchupView(army, matchup) {
   const targets = complete ? {active: statesOf(B.resolved, params.shockA), reactive: statesOf(A.resolved, params.shockB)} : null;
   // Each band's Range MOD per side, for the range selector's stripes.
   const bands = RANGE_BANDS.map((b) => ({to: b.to, A: bandMod(A.resolved, b.to), B: bandMod(B.resolved, b.to)}));
-  return {ready: true, A, B, rangeCm: matchup.rangeCm, derived, params, ledger, bands, hasSelection, complete, targets};
+  // What Smoke / White Noise do to each side, for the range selector.
+  const vis = visibility(A.resolved, B.resolved, zones);
+  return {ready: true, A, B, rangeCm: matchup.rangeCm, zones, vis, derived, params, ledger, bands, hasSelection, complete, targets};
 }
