@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Zones A3, switch rows</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#121212;display:flex;flex-direction:column;position:relative">
+
+<header style="display:flex;align-items:center;padding:6px 8px 0 16px;height:48px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:13px;font-weight:600;letter-spacing:.14em;color:#6b6861;flex-grow:1">INFINITY THE CALCULATOR</span>
+<a href="FinalMenu.dc.html" aria-label="Menu" style="width:44px;height:44px;display:grid;place-items:center;color:#9a978f">
+<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="4" cy="10" r="1.8"></circle><circle cx="10" cy="10" r="1.8"></circle><circle cx="16" cy="10" r="1.8"></circle></svg>
+</a>
+</header>
+
+<div style="padding:4px 16px 0;display:flex;flex-direction:column;gap:10px;flex-grow:1;overflow:hidden">
+
+<section style="padding:14px;border-radius:14px;background:#1c1c1c;display:flex;flex-direction:column;gap:10px">
+<button style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.1em;color:#5fc4a0">ACTIVE</span>
+<span style="font-size:18px;font-weight:600">Squalos Mk-II <span style="font-size:13px;font-weight:400;color:#8a877f">PanOceania ›</span></span>
+</button>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;background:#5fc4a0;color:#0f1f19;font-size:14px;font-weight:600">HMG</button>
+<button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #333;font-size:14px;color:#c9c6bf">Grenade L.</button>
+<button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #333;font-size:14px;color:#c9c6bf">Pistol</button>
+<button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #333;font-size:14px;color:#c9c6bf">CC</button>
+</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<button style="all:unset;cursor:pointer;padding:7px 12px;border-radius:999px;border:1px dashed #3a3a3a;color:#9a978f;font-size:13px">+ Cover</button>
+<button style="all:unset;cursor:pointer;padding:7px 12px;border-radius:999px;background:#1f3a31;border:1px solid #5fc4a0;font-size:13px">Surprise attack ✓</button>
+</div>
+</section>
+
+<sc-if value="{{rangeIsOpen}}" hint-placeholder-val="{{false}}"><button onClick="{{close}}" aria-label="Close range" style="all:unset;position:absolute;inset:0;z-index:5;cursor:default"></button></sc-if>
+<div style="flex-shrink:0;border-radius:14px;transition:background .25s ease;background:{{rangeBg}};position:relative;z-index:6">
+<div style="overflow:hidden;transition:max-height .28s ease, opacity .2s ease;max-height:{{headH}};opacity:{{openO}}">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px 6px">
+<span style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f">Range</span>
+<button onClick="{{close}}" style="all:unset;cursor:pointer;font-size:15px;font-weight:600">{{rangeLabel}}" ⌃</button>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<div style="position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));flex-grow:1;border:1px solid #2c2c2c;border-radius:10px;overflow:hidden">
+<sc-for list="{{bands}}" as="b" hint-placeholder-count="7">
+<button onClick="{{b.pick}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;background:{{b.bg}}">
+<span style="height:4px;transition:background .25s ease;background:{{b.aCol}}"></span>
+<span style="text-align:center;padding:5px 0;font-size:12px;font-weight:{{b.fw}};color:{{b.fg}}">{{b.label}}</span>
+<span style="height:4px;transition:background .25s ease;background:{{b.rCol}}"></span>
+</button>
+</sc-for>
+</div>
+<span style="width:40px;height:40px;flex-shrink:0;display:grid;place-items:center;border-radius:999px;border:1px solid #333;color:#c9c6bf">⇅</span>
+</div>
+<sc-if value="{{closedTag}}" hint-placeholder-val="{{false}}"><div style="display:flex;justify-content:center;gap:6px;padding-top:6px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#9a978f">{{zoneCaps}}</div></sc-if>
+<div style="overflow:hidden;transition:max-height .28s ease, opacity .2s ease;max-height:{{footH}};opacity:{{openO}}">
+<div style="display:flex;align-items:center;gap:10px;padding:8px 12px 10px">
+<div style="display:flex;flex-direction:column;gap:2px;min-width:0;font-size:13px">
+<span style="color:#5fc4a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{nameA}} <b style="font-family:'IBM Plex Mono',monospace">{{modA}}</b><span style="color:#9a978f">{{zA}}</span></span>
+<span style="color:#e59bc0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{nameB}} <b style="font-family:'IBM Plex Mono',monospace">{{modB}}</b><span style="color:#9a978f">{{zB}}</span></span>
+</div>
+<div style="margin-left:auto;display:flex;gap:8px;flex-shrink:0;font-size:11px;color:#8a877f"><span><span style="display:inline-block;width:10px;height:4px;background:#58b368;vertical-align:middle"></span> +3</span><span><span style="display:inline-block;width:10px;height:4px;background:#4a8fd6;vertical-align:middle"></span> 0</span><span><span style="display:inline-block;width:10px;height:4px;background:#e3c34a;vertical-align:middle"></span> −3</span><span><span style="display:inline-block;width:10px;height:4px;background:#d9534f;vertical-align:middle"></span> −6</span></div>
+</div>
+<div style="border-top:1px solid #2a2a2a;padding:2px 0 4px">
+<button onClick="{{toggle.smoke}}" role="switch" aria-checked="{{on.smoke}}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:9px 12px">
+<span style="color:#c9c6bf;display:grid"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 15h8.5a3.2 3.2 0 0 0 .3-6.4A4.5 4.5 0 0 0 5.8 8 3.5 3.5 0 0 0 5.5 15z"></path></svg></span>
+<span style="display:flex;flex-direction:column;flex-grow:1;min-width:0"><span style="font-size:14px;font-weight:600">Smoke</span><span style="font-size:12px;color:#8a877f">No LoF without MSV; MSV2 sees through</span></span>
+<span style="width:40px;height:24px;border-radius:12px;flex-shrink:0;background:{{swBg.smoke}};position:relative;transition:background .2s"><span style="position:absolute;top:3px;left:{{swX.smoke}};width:18px;height:18px;border-radius:9px;background:#e8e6e1;transition:left .2s"></span></span>
+</button>
+<button onClick="{{toggle.wn}}" role="switch" aria-checked="{{on.wn}}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:9px 12px">
+<span style="color:#c9c6bf;display:grid"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10h2.5l1.5-4 2 8 2-10 2 12 2-8 1.5 2H18"></path></svg></span>
+<span style="display:flex;flex-direction:column;flex-grow:1;min-width:0"><span style="font-size:14px;font-weight:600">White noise</span><span style="font-size:12px;color:#8a877f">No LoF with MSV or Marksmanship</span></span>
+<span style="width:40px;height:24px;border-radius:12px;flex-shrink:0;background:{{swBg.wn}};position:relative;transition:background .2s"><span style="position:absolute;top:3px;left:{{swX.wn}};width:18px;height:18px;border-radius:9px;background:#e8e6e1;transition:left .2s"></span></span>
+</button>
+</div>
+</div>
+</div>
+
+<section style="padding:14px;border-radius:14px;background:#1c1c1c;display:flex;flex-direction:column;gap:10px">
+<button style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.1em;color:#e59bc0">REACTIVE</span>
+<span style="font-size:18px;font-weight:600">Fennec Fusiliers <span style="font-size:13px;font-weight:400;color:#8a877f">PanOceania ›</span></span>
+</button>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;background:#e59bc0;color:#2a0f1d;font-size:14px;font-weight:600">Missile L.</button>
+<button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #333;font-size:14px;color:#c9c6bf">Pistol</button>
+<button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #333;font-size:14px;color:#c9c6bf">Dodge</button>
+</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<button style="all:unset;cursor:pointer;padding:7px 12px;border-radius:999px;background:#3a2330;border:1px solid #e59bc0;font-size:13px">Cover ✓</button>
+<button style="all:unset;cursor:pointer;padding:7px 12px;border-radius:999px;background:#3a2330;border:1px solid #e59bc0;font-size:13px">Fireteam 5</button>
+</div>
+</section>
+<div style="flex-grow:1"></div>
+</div>
+
+<a href="FinalResults.dc.html" style="display:flex;flex-direction:column;gap:10px;margin:0 8px;padding:8px 16px 24px;border-radius:20px 20px 0 0;background:#1f1f1f;text-decoration:none;color:#e8e6e1">
+<span style="align-self:center;width:40px;height:5px;border-radius:3px;background:#444"></span>
+<div style="display:flex;justify-content:space-between;align-items:flex-end">
+<div style="display:flex;flex-direction:column"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#5fc4a0;line-height:1">0.81</span><span style="font-size:12px;color:#9a978f">wounds / order</span></div>
+<div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#e59bc0;line-height:1">0.46</span><span style="font-size:12px;color:#9a978f">wounds / order</span></div>
+</div>
+<div style="display:flex;height:6px;border-radius:3px;overflow:hidden"><span style="width:23.6%;background:#1f6b52"></span><span style="width:24.0%;background:#87baa8"></span><span style="width:23.7%;background:#2e2e2e"></span><span style="width:14.7%;background:#e1b9ce"></span><span style="width:10.7%;background:#cc9ab4"></span><span style="width:3.0%;background:#b87a9b"></span><span style="width:0.2%;background:#a35b81"></span></div>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:#8a877f"><span>47.7% at least one wound</span><span>28.6%</span></div>
+</a>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+var BANDS = ['8', '16', '24', '32', '40', '48', '96'];
+var HMG = [-3, 0, 3, 3, -3, -6, null];
+var ML = [-3, 0, 0, 3, 3, -3, -6];
+var IC = { '3': '#58b368', '0': '#4a8fd6', '-3': '#e3c34a', '-6': '#d9534f' };
+function col(m) { return m == null ? 'transparent' : IC[String(m)]; }
+function fmt(n) { return n === null ? '—' : n > 0 ? '+' + n : n < 0 ? '−' + (-n) : '0'; }
+var NAMES = { smoke: 'Smoke', wn: 'White noise' };
+// Squalos (MSV2, HMG) shoots Fennec (no MSV, Missile L.), who shoots back.
+// Smoke: MSV2 sees through; Fennec, shot at, fires back at -6. White noise:
+// blocks the Squalos' MSV, shot at, so -6; Fennec unaffected. Both: the worst
+// visibility MOD per side (they don't stack).
+function zoneText(z) {
+  var a = '', b = '';
+  if (z.smoke && z.wn) { a = ' · white noise −6'; b = ' · smoke −6'; }
+  else if (z.smoke) { a = ' · smoke 0 (MSV2)'; b = ' · smoke −6'; }
+  else if (z.wn) { a = ' · white noise −6'; b = ' · white noise 0'; }
+  return { a: a, b: b };
+}
+function texture(z) {
+  var t = [];
+  if (z.smoke) t.push('repeating-linear-gradient(135deg, rgba(201,198,191,.16) 0 5px, transparent 5px 10px)');
+  if (z.wn) t.push('repeating-linear-gradient(90deg, rgba(201,198,191,.16) 0 1px, transparent 1px 4px)');
+  return t.length ? t.join(', ') : 'none';
+}
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { range: 3, open: true, smoke: true, wn: false }; }
+  renderVals() {
+    var self = this, st = this.state, r = st.range, z = { smoke: st.smoke, wn: st.wn }, any = z.smoke || z.wn;
+    function flip(k) { return function () { var s = {}; s[k] = !st[k]; self.setState(s); }; }
+    var keys = ['smoke', 'wn'], m = { on: {}, on2: {}, tileBg: {}, tileFg: {}, hBd: {}, swBg: {}, swX: {}, tFg: {}, tFw: {}, tTxt: {} };
+    keys.forEach(function (k) {
+      var o = z[k];
+      m.on[k] = o ? 'true' : 'false'; m.on2[k] = o;
+      m.tileBg[k] = o ? '#e8e6e1' : '#1c1c1c'; m.tileBg2 = m.tileBg2 || {}; m.tileFg2 = m.tileFg2 || {}; m.hBd2 = m.hBd2 || {}; m.tileBg2[k] = o ? '#2e2e2e' : 'transparent'; m.tileFg2[k] = o ? '#e8e6e1' : '#8a877f'; m.hBd2[k] = o ? '#8a877f' : '#2c2c2c'; m.tileFg[k] = o ? '#121212' : '#9a978f'; m.hBd[k] = o ? '#e8e6e1' : '#333';
+      m.swBg[k] = o ? '#c9c6bf' : '#3a3a3a'; m.swX[k] = o ? '19px' : '3px';
+      m.tFg[k] = o ? '#e8e6e1' : '#9a978f'; m.tFw[k] = o ? 600 : 400; m.tTxt[k] = o ? NAMES[k] + ' ✕' : '+ ' + NAMES[k];
+    });
+    var names = keys.filter(function (k) { return z[k]; }).map(function (k) { return NAMES[k]; });
+    var zt = zoneText(z);
+    return Object.assign(m, {
+      rangeBg: st.open ? '#1c1c1c' : 'transparent', headH: st.open ? '48px' : '0px', footH: st.open ? '200px' : '0px', openO: st.open ? 1 : 0,
+      close: function () { self.setState({ open: false }); },
+      rangeLabel: (r ? BANDS[r - 1] : '0') + '–' + BANDS[r],
+      rangeIsOpen: st.open, nameA: 'HMG', nameB: 'Missile L.', modA: fmt(HMG[r]), modB: fmt(ML[r]), zA: zt.a, zB: zt.b,
+      anyZone: any, closedTag: any && !st.open, zoneText: names.join(' and '), zoneCaps: names.join(' · '), texture: texture(z),
+      toggle: { smoke: flip('smoke'), wn: flip('wn') },
+      bands: BANDS.map(function (to, i) {
+        var sel = i === r;
+        return { label: sel ? to + '"' : to, aCol: st.open ? col(HMG[i]) : 'transparent', rCol: st.open ? col(ML[i]) : 'transparent',
+          bg: sel ? '#e8e6e1' : 'transparent', fg: sel ? '#121212' : '#9a978f', fw: sel ? 700 : 400,
+          pick: function () { self.setState({ range: i, open: true }); } };
+      })
+    });
+  }
+}
+</script>
+</body>
+</html>

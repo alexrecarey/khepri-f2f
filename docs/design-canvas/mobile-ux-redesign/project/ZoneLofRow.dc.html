@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Zones C, line of fire row</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#121212;display:flex;flex-direction:column;position:relative">
+
+<header style="display:flex;align-items:center;padding:6px 8px 0 16px;height:48px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:13px;font-weight:600;letter-spacing:.14em;color:#6b6861;flex-grow:1">INFINITY THE CALCULATOR</span>
+<a href="FinalMenu.dc.html" aria-label="Menu" style="width:44px;height:44px;display:grid;place-items:center;color:#9a978f">
+<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="4" cy="10" r="1.8"></circle><circle cx="10" cy="10" r="1.8"></circle><circle cx="16" cy="10" r="1.8"></circle></svg>
+</a>
+</header>
+
+<div style="padding:4px 16px 0;display:flex;flex-direction:column;gap:10px;flex-grow:1;overflow:hidden">
+
+<section style="padding:14px;border-radius:14px;background:#1c1c1c;display:flex;flex-direction:column;gap:10px">
+<button style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.1em;color:#5fc4a0">ACTIVE</span>
+<span style="font-size:18px;font-weight:600">Squalos Mk-II <span style="font-size:13px;font-weight:400;color:#8a877f">PanOceania ›</span></span>
+</button>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;background:#5fc4a0;color:#0f1f19;font-size:14px;font-weight:600">HMG</button>
+<button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #333;font-size:14px;color:#c9c6bf">Grenade L.</button>
+<button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #333;font-size:14px;color:#c9c6bf">Pistol</button>
+<button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #333;font-size:14px;color:#c9c6bf">CC</button>
+</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<button style="all:unset;cursor:pointer;padding:7px 12px;border-radius:999px;border:1px dashed #3a3a3a;color:#9a978f;font-size:13px">+ Cover</button>
+<button style="all:unset;cursor:pointer;padding:7px 12px;border-radius:999px;background:#1f3a31;border:1px solid #5fc4a0;font-size:13px">Surprise attack ✓</button>
+</div>
+</section>
+
+<div style="flex-shrink:0;display:flex;flex-direction:column;gap:8px;padding:10px 12px;border-radius:14px;border:1px solid {{lofBd}};background-image:{{texture}}">
+<div style="display:flex;align-items:center;gap:8px">
+<span style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f;margin-right:auto">Line of fire</span>
+<div role="group" aria-label="Line of fire" style="display:flex;border:1px solid #333;border-radius:999px;overflow:hidden">
+<button onClick="{{clear}}" aria-pressed="{{clearOn}}" style="all:unset;cursor:pointer;padding:6px 11px;font-size:13px;background:{{clearBg}};color:{{clearFg}}">Clear</button>
+<button onClick="{{toggle.smoke}}" aria-pressed="{{on.smoke}}" style="all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:6px 11px;font-size:13px;border-left:1px solid #333;background:{{segBg.smoke}};color:{{segFg.smoke}}"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 15h8.5a3.2 3.2 0 0 0 .3-6.4A4.5 4.5 0 0 0 5.8 8 3.5 3.5 0 0 0 5.5 15z"></path></svg>Smoke</button>
+<button onClick="{{toggle.wn}}" aria-pressed="{{on.wn}}" style="all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:6px 11px;font-size:13px;border-left:1px solid #333;background:{{segBg.wn}};color:{{segFg.wn}}"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10h2.5l1.5-4 2 8 2-10 2 12 2-8 1.5 2H18"></path></svg>White noise</button>
+</div>
+</div>
+<sc-if value="{{anyZone}}" hint-placeholder-val="{{true}}">
+<div style="display:flex;flex-direction:column;gap:3px;font-size:13px">
+<span style="color:#5fc4a0">{{nameA}} <b style="font-family:'IBM Plex Mono',monospace">{{fxA.mod}}</b> <span style="color:#9a978f">{{fxA.why}}</span></span>
+<span style="color:#e59bc0">{{nameB}} <b style="font-family:'IBM Plex Mono',monospace">{{fxB.mod}}</b> <span style="color:#9a978f">{{fxB.why}}</span></span>
+</div>
+</sc-if>
+</div>
+<sc-if value="{{rangeIsOpen}}" hint-placeholder-val="{{false}}"><button onClick="{{close}}" aria-label="Close range" style="all:unset;position:absolute;inset:0;z-index:5;cursor:default"></button></sc-if>
+<div style="flex-shrink:0;border-radius:14px;transition:background .25s ease;background:{{rangeBg}};position:relative;z-index:6">
+<div style="overflow:hidden;transition:max-height .28s ease, opacity .2s ease;max-height:{{headH}};opacity:{{openO}}">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px 6px">
+<span style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a877f">Range</span>
+<button onClick="{{close}}" style="all:unset;cursor:pointer;font-size:15px;font-weight:600">{{rangeLabel}}" ⌃</button>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<div style="position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));flex-grow:1;border:1px solid {{stripBorder}};border-radius:10px;overflow:hidden;background-image:{{texture}}">
+<sc-for list="{{bands}}" as="b" hint-placeholder-count="7">
+<button onClick="{{b.pick}}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;background:{{b.bg}}">
+<span style="height:4px;transition:background .25s ease;background:{{b.aCol}}"></span>
+<span style="text-align:center;padding:5px 0;font-size:12px;font-weight:{{b.fw}};color:{{b.fg}}">{{b.label}}</span>
+<span style="height:4px;transition:background .25s ease;background:{{b.rCol}}"></span>
+</button>
+</sc-for>
+</div>
+<span style="width:40px;height:40px;flex-shrink:0;display:grid;place-items:center;border-radius:999px;border:1px solid #333;color:#c9c6bf">⇅</span>
+</div>
+<div style="overflow:hidden;transition:max-height .28s ease, opacity .2s ease;max-height:{{footH}};opacity:{{openO}}">
+<div style="display:flex;align-items:center;gap:10px;padding:8px 12px 10px;font-size:11px;color:#8a877f">
+<div style="display:flex;flex-direction:column;gap:2px;min-width:0;font-size:13px">
+<span style="color:#5fc4a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{nameA}} <b style="font-family:'IBM Plex Mono',monospace">{{modA}}</b></span>
+<span style="color:#e59bc0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{nameB}} <b style="font-family:'IBM Plex Mono',monospace">{{modB}}</b></span>
+</div>
+<div style="margin-left:auto;display:flex;gap:8px;flex-shrink:0"><span><span style="display:inline-block;width:10px;height:4px;background:#58b368;vertical-align:middle"></span> +3</span><span><span style="display:inline-block;width:10px;height:4px;background:#4a8fd6;vertical-align:middle"></span> 0</span><span><span style="display:inline-block;width:10px;height:4px;background:#e3c34a;vertical-align:middle"></span> −3</span><span><span style="display:inline-block;width:10px;height:4px;background:#d9534f;vertical-align:middle"></span> −6</span></div>
+</div>
+</div>
+</div>
+
+<section style="padding:14px;border-radius:14px;background:#1c1c1c;display:flex;flex-direction:column;gap:10px">
+<button style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px">
+<span style="font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.1em;color:#e59bc0">REACTIVE</span>
+<span style="font-size:18px;font-weight:600">Fennec Fusiliers <span style="font-size:13px;font-weight:400;color:#8a877f">PanOceania ›</span></span>
+</button>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;background:#e59bc0;color:#2a0f1d;font-size:14px;font-weight:600">Missile L.</button>
+<button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #333;font-size:14px;color:#c9c6bf">Pistol</button>
+<button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #333;font-size:14px;color:#c9c6bf">Dodge</button>
+</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<button style="all:unset;cursor:pointer;padding:7px 12px;border-radius:999px;background:#3a2330;border:1px solid #e59bc0;font-size:13px">Cover ✓</button>
+<button style="all:unset;cursor:pointer;padding:7px 12px;border-radius:999px;background:#3a2330;border:1px solid #e59bc0;font-size:13px">Fireteam 5</button>
+</div>
+</section>
+<div style="flex-grow:1"></div>
+</div>
+
+<a href="FinalResults.dc.html" style="display:flex;flex-direction:column;gap:10px;margin:0 8px;padding:8px 16px 24px;border-radius:20px 20px 0 0;background:#1f1f1f;text-decoration:none;color:#e8e6e1">
+<span style="align-self:center;width:40px;height:5px;border-radius:3px;background:#444"></span>
+<div style="display:flex;justify-content:space-between;align-items:flex-end">
+<div style="display:flex;flex-direction:column"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#5fc4a0;line-height:1">0.81</span><span style="font-size:12px;color:#9a978f">wounds / order</span></div>
+<div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#e59bc0;line-height:1">0.46</span><span style="font-size:12px;color:#9a978f">wounds / order</span></div>
+</div>
+<div style="display:flex;height:6px;border-radius:3px;overflow:hidden"><span style="width:23.6%;background:#1f6b52"></span><span style="width:24.0%;background:#87baa8"></span><span style="width:23.7%;background:#2e2e2e"></span><span style="width:14.7%;background:#e1b9ce"></span><span style="width:10.7%;background:#cc9ab4"></span><span style="width:3.0%;background:#b87a9b"></span><span style="width:0.2%;background:#a35b81"></span></div>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:#8a877f"><span>47.7% at least one wound</span><span>28.6%</span></div>
+</a>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+var BANDS = ['8', '16', '24', '32', '40', '48', '96'];
+var HMG = [-3, 0, 3, 3, -3, -6, null];
+var ML = [-3, 0, 0, 3, 3, -3, -6];
+var IC = { '3': '#58b368', '0': '#4a8fd6', '-3': '#e3c34a', '-6': '#d9534f' };
+function col(m) { return m == null ? 'transparent' : IC[String(m)]; }
+function fmt(n) { return n === null ? '—' : n > 0 ? '+' + n : n < 0 ? '−' + (-n) : '0'; }
+var NAMES = { smoke: 'Smoke', wn: 'White noise' };
+// Squalos (MSV2, HMG) shoots Fennec (no MSV, Missile L.), who shoots back.
+// Smoke: MSV2 sees through; Fennec is shot at, so fires back at -6.
+// White noise: blocks the Squalos' MSV; it is shot at, so -6. Fennec unaffected.
+// Both: visibility MODs don't stack, the worst counts per side.
+function effects(z) {
+  var a = null, b = null, aw = [], bw = [];
+  if (z.smoke) { aw.push('MSV2 sees through smoke'); b = -6; bw.push('Poor Visibility: shot at through smoke'); }
+  if (z.wn) { a = -6; aw = ['Poor Visibility: shot at through white noise (MSV)']; if (!z.smoke) bw.push('no MSV, white noise does nothing'); }
+  return { a: { mod: a == null ? '0' : fmt(a), why: aw.join(' · ') }, b: { mod: b == null ? '0' : fmt(b), why: bw.join(' · ') } };
+}
+// Smoke: soft diagonal haze; white noise: fine static. Over the strip or row.
+function texture(z) {
+  var t = [];
+  if (z.smoke) t.push('repeating-linear-gradient(135deg, rgba(201,198,191,.10) 0 6px, transparent 6px 12px)');
+  if (z.wn) t.push('repeating-linear-gradient(90deg, rgba(201,198,191,.10) 0 1px, transparent 1px 4px)');
+  return t.length ? t.join(', ') : 'none';
+}
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = Object.assign({ range: 3, open: true, menu: false, smoke: true, wn: false }, this.initial()); }
+  initial() { return { open: false }; }
+  renderVals() {
+    var self = this, st = this.state, r = st.range, z = { smoke: st.smoke, wn: st.wn };
+    var fx = effects(z), any = z.smoke || z.wn;
+    function flip(k) { return function () { var s = {}; s[k] = !st[k]; self.setState(s); }; }
+    var keys = ['smoke', 'wn'], on = {}, chipBg = {}, chipBd = {}, chipFg = {}, chipLine = {}, chipTxt = {}, rowBg = {}, boxBd = {}, boxBg = {}, check = {}, segBg = {}, segFg = {};
+    keys.forEach(function (k) {
+      on[k] = z[k] ? 'true' : 'false';
+      chipBg[k] = z[k] ? '#2e2e2e' : 'transparent'; chipBd[k] = z[k] ? '#c9c6bf' : '#3a3a3a'; chipLine[k] = z[k] ? 'solid' : 'dashed';
+      chipFg[k] = z[k] ? '#e8e6e1' : '#9a978f'; chipTxt[k] = z[k] ? NAMES[k] + ' ✓' : NAMES[k];
+      rowBg[k] = z[k] ? '#303030' : 'transparent'; boxBd[k] = z[k] ? '#e8e6e1' : '#555'; boxBg[k] = z[k] ? '#e8e6e1' : 'transparent'; check[k] = z[k] ? '✓' : '';
+      segBg[k] = z[k] ? '#e8e6e1' : 'transparent'; segFg[k] = z[k] ? '#121212' : '#c9c6bf';
+    });
+    var names = keys.filter(function (k) { return z[k]; }).map(function (k) { return NAMES[k]; });
+    return {
+      rangeBg: st.open ? '#1c1c1c' : 'transparent', headH: st.open ? '48px' : '0px', footH: st.open ? '220px' : '0px', openO: st.open ? 1 : 0,
+      close: function () { self.setState({ open: false, menu: false }); },
+      rangeLabel: (r ? BANDS[r - 1] : '0') + '–' + BANDS[r],
+      rangeIsOpen: st.open || st.menu, nameA: 'HMG', nameB: 'Missile L.', modA: fmt(HMG[r]), modB: fmt(ML[r]),
+      texture: texture(z), stripBorder: any ? '#4a4a4a' : '#2c2c2c', lofBd: any ? '#4a4a4a' : '#2a2a2a',
+      anyZone: any, closedTag: any && !st.open, zoneText: names.join(' and '), zoneCount: String(names.length),
+      fxA: fx.a, fxB: fx.b, toggle: { smoke: flip('smoke'), wn: flip('wn') }, on: on,
+      chipBg: chipBg, chipBd: chipBd, chipFg: chipFg, chipLine: chipLine, chipTxt: chipTxt, rowBg: rowBg, boxBd: boxBd, boxBg: boxBg, check: check,
+      segBg: segBg, segFg: segFg, clearOn: any ? 'false' : 'true', clearBg: any ? 'transparent' : '#e8e6e1', clearFg: any ? '#c9c6bf' : '#121212',
+      clear: function () { self.setState({ smoke: false, wn: false }); },
+      menuOpen: st.menu, toggleMenu: function () { self.setState({ menu: !st.menu }); },
+      zoneBtnBg: any ? '#2e2e2e' : 'transparent', zoneBtnBd: any ? '#c9c6bf' : '#333',
+      showChips: any && !st.menu,
+      activeZones: keys.filter(function (k) { return z[k]; }).map(function (k) { return { label: NAMES[k], remove: flip(k) }; }),
+      bands: BANDS.map(function (to, i) {
+        var sel = i === r;
+        return { label: sel ? to + '"' : to, aCol: st.open ? col(HMG[i]) : 'transparent', rCol: st.open ? col(ML[i]) : 'transparent',
+          bg: sel ? '#e8e6e1' : 'transparent', fg: sel ? '#121212' : '#9a978f', fw: sel ? 700 : 400,
+          pick: function () { self.setState({ range: i, open: true }); } };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>
