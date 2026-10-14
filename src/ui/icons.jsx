@@ -89,6 +89,16 @@ export function StateGlyph({glyph, size = 15}) {
 
 StateGlyph.propTypes = {glyph: PropTypes.string, size: PropTypes.number};
 
+// Split range: one line pulling apart, up and down.
+export function SplitIcon({size = 13}) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"
+      strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 10h14M7 6l3-3 3 3M7 14l3 3 3-3" /></svg>
+  );
+}
+
+SplitIcon.propTypes = {size: PropTypes.number};
+
 // Smoke (a cloud) and White Noise (static), for the zone chips by the range.
 const zonePath = {
   smoke: 'M5.5 15h8.5a3.2 3.2 0 0 0 .3-6.4A4.5 4.5 0 0 0 5.8 8 3.5 3.5 0 0 0 5.5 15z',

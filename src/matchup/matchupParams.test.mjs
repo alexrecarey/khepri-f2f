@@ -49,3 +49,16 @@ test('Smoke and White Noise round-trip as smoke=1 / wn=1, off by default', () =>
   // Nothing picked: no link, zones or not.
   assert.deepEqual(encodeMatchup({selA: {unitId: null}, selB: {unitId: null}, ftSize: {A: 1, B: 1}, rangeCm: 40, zones: {smoke: true}}), {});
 });
+
+test('a split range round-trips as rangeB; left out while both share the range', () => {
+  const params = encodeMatchup({selA, selB, ftSize: {A: 1, B: 1}, rangeCm: 80, rangeCmB: 100});
+  assert.equal(params.rangeB, '100');
+  const back = decodeMatchup(new URLSearchParams(params));
+  assert.equal(back.rangeCm, 80);
+  assert.equal(back.rangeCmB, 100);
+  assert.equal(encodeMatchup({selA, selB, ftSize: {A: 1, B: 1}, rangeCm: 80, rangeCmB: null}).rangeB, undefined);
+  assert.equal(decodeMatchup(new URLSearchParams('unitA=5&range=80')).rangeCmB, null);
+  // Not a band, or no shared range to split from: ignored.
+  assert.equal(decodeMatchup(new URLSearchParams('unitA=5&range=80&rangeB=33')).rangeCmB, null);
+  assert.equal(decodeMatchup(new URLSearchParams('unitA=5&rangeB=100')).rangeCmB, null);
+});

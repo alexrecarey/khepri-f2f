@@ -23,7 +23,7 @@ export function ZoneChips({zones, open}) {
   return (
     <div className="zone-chips" role="group" aria-label="Between the troopers">
       {ZONES.map((z) => (
-        <button type="button" key={z} className={`zone-chip${zones[z] ? ' on' : ''}`} aria-pressed={zones[z]} tabIndex={open ? 0 : -1}
+        <button type="button" key={z} className={`range-chip${zones[z] ? ' on' : ''}`} aria-pressed={zones[z]} tabIndex={open ? 0 : -1}
           onClick={() => dispatch({type: 'setZone', zone: z, on: !zones[z]})}>
           <ZoneIcon zone={z} />{ZONE_NAME[z]}
         </button>

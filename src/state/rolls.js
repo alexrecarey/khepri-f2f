@@ -27,6 +27,7 @@ export function normalizeSetup(mode, setup) {
     return {
       ...NO_ZONES, ...setup,
       A: {...EMPTY_SIDE, ...setup?.A}, B: {...EMPTY_SIDE, ...setup?.B}, rangeCm: setup?.rangeCm ?? DEFAULT_RANGE_CM,
+      rangeCmB: setup?.rangeCmB ?? null,
     };
   }
   return {...DEFAULT_PARAMS, ...setup};
@@ -61,14 +62,16 @@ const inFoxhole = (x) => Boolean(x.resolved.sapper);
 const inCover = (x) => x.sel.inCover && !x.resolved.sapper;
 const fireteam = (x) => (x.resolved.ftSize > 1 ? `Fireteam ${x.resolved.ftSize}` : null);
 const surprise = (x, role) => role === 'A' && x.sel.surpriseAttack;
-const bandOf = (view) => RANGE_BANDS.find((b) => b.to === view.rangeCm) ?? null;
+const bandAt = (cm) => RANGE_BANDS.find((b) => b.to === cm)?.label ?? null;
+// '24-32"', or each side's when the range is split: '24-32" / 32-40"'.
+const rangeText = (view) => (view.rangeCmB == null ? bandAt(view.rangeCm) : `${bandAt(view.rangeCm)} / ${bandAt(view.rangeCmB)}`);
 // Smoke / White Noise between them, by name.
 const zoneNames = (view) => ZONES.filter((z) => view.zones?.[z]).map((z) => ZONE_NAME[z]);
 
 // view: matchupView(); s: results.js summarize()
 export function matchupRollSummary(view, s) {
   const {A, B} = view;
-  const bits = [bandOf(view)?.label, ...zoneNames(view)];
+  const bits = [rangeText(view), ...zoneNames(view)];
   if (inFoxhole(A) || inFoxhole(B)) bits.push('Foxhole');
   if (inCover(A) || inCover(B)) bits.push('Cover');
   for (const x of [A, B]) bits.push(fireteam(x));
@@ -99,7 +102,7 @@ export function matchupShareCard(view, h) {
       c: x.crest ?? '',
     };
   };
-  return {k: h.kind, nf: h.fallback, x: [bandOf(view)?.label, ...zoneNames(view)].filter(Boolean).join(' · '), a: side('A', 'active'), b: side('B', 'reactive')};
+  return {k: h.kind, nf: h.fallback, x: [rangeText(view), ...zoneNames(view)].filter(Boolean).join(' · '), a: side('A', 'active'), b: side('B', 'reactive')};
 }
 
 const classicDice = (p, side) => {

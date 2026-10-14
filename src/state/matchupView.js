@@ -93,22 +93,25 @@ const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], pseudo: [],
   faction: null, vanilla: null, crest: null, short: null, loadout: null});
 
 
+// The reactive's own distance, or null while both share rangeCm.
+const rangeCmB = (matchup) => matchup.rangeCmB ?? null;
+
 export function matchupView(army, matchup) {
   const zones = {smoke: Boolean(matchup.smoke), whiteNoise: Boolean(matchup.whiteNoise)};
   if (!army) {
-    return {ready: false, rangeCm: matchup.rangeCm, zones, A: EMPTY_VIEW_SIDE(matchup.A), B: EMPTY_VIEW_SIDE(matchup.B),
+    return {ready: false, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones, A: EMPTY_VIEW_SIDE(matchup.A), B: EMPTY_VIEW_SIDE(matchup.B),
       derived: null, params: null, ledger: null, bands: RANGE_BANDS.map((b) => ({to: b.to})),
       hasSelection: Boolean(matchup.A.unitId || matchup.B.unitId), complete: false, targets: null};
   }
   const A = sideView(army, matchup.A, 'A');
   const B = sideView(army, matchup.B, 'B');
-  const derived = deriveInputs({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, zones});
+  const derived = deriveInputs({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones});
   const hasSelection = Boolean(matchup.A.unitId || matchup.B.unitId);
   // Both sides fully chosen (unit through weapon) and the matchup is valid.
   const complete = Boolean(A.resolved?.weapon && B.resolved?.weapon && derived?.ok);
   const params = derived?.ok ? fullParams(derived.inputs) : null;
   const ledger = complete ? {
-    ledger: buildLedger({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, inputs: params, zones}),
+    ledger: buildLedger({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), inputs: params, zones}),
     names: {A: shortIsc(A.resolved.unit.isc), B: shortIsc(B.resolved.unit.isc)},
     weapons: {A: A.resolved.weapon?.name, B: B.resolved.weapon?.name},
     notes: [...derived.warnings, ...derived.notes],
@@ -122,5 +125,5 @@ export function matchupView(army, matchup) {
   const bands = RANGE_BANDS.map((b) => ({to: b.to, A: bandMod(A.resolved, b.to), B: bandMod(B.resolved, b.to)}));
   // What Smoke / White Noise do to each side, for the range selector.
   const vis = visibility(A.resolved, B.resolved, zones);
-  return {ready: true, A, B, rangeCm: matchup.rangeCm, zones, vis, derived, params, ledger, bands, hasSelection, complete, targets};
+  return {ready: true, A, B, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones, vis, derived, params, ledger, bands, hasSelection, complete, targets};
 }
