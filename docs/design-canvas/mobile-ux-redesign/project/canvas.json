@@ -5,49 +5,49 @@
   "CardLedger.dc.html": {
    "h": 844,
    "is_interactive": true,
-   "title": "Ledger inside each card — press Play, tap \"View mods\"",
+   "title": "Ledger inside each card \u2014 press Play, tap \"View mods\"",
    "w": 390,
    "x": 0,
    "y": 8350
   },
   "ChromeAbout.dc.html": {
    "h": 844,
-   "title": "Chrome 5 — about",
+   "title": "Chrome 5 \u2014 about",
    "w": 390,
    "x": 1880,
    "y": 4400
   },
   "ChromeHome.dc.html": {
    "h": 844,
-   "title": "Chrome 1 — the whole footprint: wordmark + one menu",
+   "title": "Chrome 1 \u2014 the whole footprint: wordmark + one menu",
    "w": 390,
    "x": 0,
    "y": 4400
   },
   "ChromeMenu.dc.html": {
    "h": 844,
-   "title": "Chrome 2 — menu sheet",
+   "title": "Chrome 2 \u2014 menu sheet",
    "w": 390,
    "x": 470,
    "y": 4400
   },
   "ChromeSaved.dc.html": {
    "h": 844,
-   "title": "Chrome 3 — saved rolls",
+   "title": "Chrome 3 \u2014 saved rolls",
    "w": 390,
    "x": 940,
    "y": 4400
   },
   "ChromeSettings.dc.html": {
    "h": 844,
-   "title": "Chrome 4 — settings",
+   "title": "Chrome 4 \u2014 settings",
    "w": 390,
    "x": 1410,
    "y": 4400
   },
   "ClearedNumbers.dc.html": {
    "h": 820,
-   "title": "Results card when nothing is picked — six options for the — numbers (B chosen)",
+   "title": "Results card when nothing is picked \u2014 six options for the \u2014 numbers (B chosen)",
    "w": 1240,
    "x": 2400,
    "y": 21860
@@ -55,7 +55,7 @@
   "CrestCoin.dc.html": {
    "h": 844,
    "is_interactive": true,
-   "title": "Crests B — a coin per side: in the card header (tap = change trooper), echoed small by each result number",
+   "title": "Crests B \u2014 a coin per side: in the card header (tap = change trooper), echoed small by each result number",
    "w": 390,
    "x": 470,
    "y": 27400
@@ -63,14 +63,14 @@
   "CrestFaceoff.dc.html": {
    "h": 844,
    "is_interactive": true,
-   "title": "Crests C — face-off in the results: each crest as loud as its side’s share of wounds; tap to open",
+   "title": "Crests C \u2014 face-off in the results: each crest as loud as its side\u2019s share of wounds; tap to open",
    "w": 390,
    "x": 940,
    "y": 27400
   },
   "CrestIntensity.dc.html": {
    "h": 810,
-   "title": "Crests A — keep the crest’s brightness: ink (inverted) vs luminance tints, greyscale, own colours",
+   "title": "Crests A \u2014 keep the crest\u2019s brightness: ink (inverted) vs luminance tints, greyscale, own colours",
    "w": 1626,
    "x": 1840,
    "y": 28364
@@ -87,7 +87,7 @@
   "CrestSaved.dc.html": {
    "h": 844,
    "is_interactive": true,
-   "title": "Crests E (chosen) — saved rolls as crest pairs (active ring green, reactive pink); same coins on recent-trooper chips",
+   "title": "Crests E (chosen) \u2014 saved rolls as crest pairs (active ring green, reactive pink); same coins on recent-trooper chips",
    "w": 390,
    "x": 1880,
    "y": 27400
@@ -95,7 +95,7 @@
   "CrestShare.dc.html": {
    "h": 630,
    "is_interactive": true,
-   "title": "Crests F — share-link preview (1200×630): the two crests face off behind the odds",
+   "title": "Crests F \u2014 share-link preview (1200\u00d7630): the two crests face off behind the odds",
    "w": 1200,
    "x": 2350,
    "y": 27400
@@ -111,7 +111,7 @@
   },
   "CrestWatermarkVariants.dc.html": {
    "h": 1068,
-   "title": "Crests A variants — size, position, own colours vs side ink, more and less faded",
+   "title": "Crests A variants \u2014 size, position, own colours vs side ink, more and less faded",
    "w": 1760,
    "x": 0,
    "y": 28364
@@ -119,7 +119,7 @@
   "DeskChromeA.dc.html": {
    "h": 900,
    "page": "final",
-   "title": "Desktop menu A — header buttons: Saved, Settings (open), About",
+   "title": "Desktop menu A \u2014 header buttons: Saved, Settings (open), About",
    "w": 1440,
    "x": 0,
    "y": 13640
@@ -127,7 +127,7 @@
   "DeskChromeASaved.dc.html": {
    "h": 900,
    "page": "final",
-   "title": "Desktop menu A — Saved rolls open",
+   "title": "Desktop menu A \u2014 Saved rolls open",
    "w": 1440,
    "x": 1520,
    "y": 13640
@@ -135,28 +135,28 @@
   "DeskChromeAbout.dc.html": {
    "h": 900,
    "page": "final",
-   "title": "Desktop menu A — About",
+   "title": "Desktop menu A \u2014 About",
    "w": 1440,
    "x": 3040,
    "y": 13640
   },
   "DeskChromeB.dc.html": {
    "h": 900,
-   "title": "B · ⋯ dropdown",
+   "title": "B \u00b7 \u22ef dropdown",
    "w": 1440,
    "x": 1520,
    "y": 33350
   },
   "DeskChromeBSettings.dc.html": {
    "h": 900,
-   "title": "B · Settings dialog",
+   "title": "B \u00b7 Settings dialog",
    "w": 1440,
    "x": 3040,
    "y": 33350
   },
   "DeskChromeC.dc.html": {
    "h": 900,
-   "title": "C · Side panel, stays open",
+   "title": "C \u00b7 Side panel, stays open",
    "w": 1440,
    "x": 6080,
    "y": 33350
@@ -164,14 +164,14 @@
   "DeskClassicColumns.dc.html": {
    "h": 900,
    "page": "final",
-   "title": "Desktop classic (1440) — active, reactive, results rail",
+   "title": "Desktop classic (1440) \u2014 active, reactive, results rail",
    "w": 1440,
    "x": 0,
    "y": 4500
   },
   "DeskClassicFaceoff.dc.html": {
    "h": 900,
-   "title": "Classic B — face-off: results in the middle",
+   "title": "Classic B \u2014 face-off: results in the middle",
    "w": 1440,
    "x": 1520,
    "y": 16150
@@ -179,14 +179,14 @@
   "DeskPicker.dc.html": {
    "h": 900,
    "page": "final",
-   "title": "Desktop picker — typing, reactive still empty: Use and choose reactive is the default",
+   "title": "Desktop picker \u2014 typing, reactive still empty: Use and choose reactive is the default",
    "w": 1440,
    "x": 3040,
    "y": 6150
   },
   "DeskPickerCommand.dc.html": {
    "h": 900,
-   "title": "v2 · Desktop picker B — ⌘K command bar: one line sets up the whole roll, candidates show their odds",
+   "title": "v2 \u00b7 Desktop picker B \u2014 \u2318K command bar: one line sets up the whole roll, candidates show their odds",
    "w": 1440,
    "x": 4530,
    "y": 15000
@@ -194,14 +194,14 @@
   "DeskPickerEmpty.dc.html": {
    "h": 900,
    "page": "final",
-   "title": "Desktop picker — before typing: recents, all factions",
+   "title": "Desktop picker \u2014 before typing: recents, all factions",
    "w": 1440,
    "x": 0,
    "y": 6150
   },
   "DeskPickerExplorer.dc.html": {
    "h": 900,
-   "title": "v2 · Desktop picker C — explorer: facets + sortable table, every row computed vs the current opponent",
+   "title": "v2 \u00b7 Desktop picker C \u2014 explorer: facets + sortable table, every row computed vs the current opponent",
    "w": 1440,
    "x": 6050,
    "y": 15000
@@ -209,28 +209,28 @@
   "DeskPickerFaction.dc.html": {
    "h": 900,
    "page": "final",
-   "title": "Desktop picker — faction chosen: unit types",
+   "title": "Desktop picker \u2014 faction chosen: unit types",
    "w": 1440,
    "x": 1520,
    "y": 6150
   },
   "DeskPickerGroups.dc.html": {
    "h": 900,
-   "title": "Loadouts F — grouped by main gun; loadouts sharing a gun become small options inside one card",
+   "title": "Loadouts F \u2014 grouped by main gun; loadouts sharing a gun become small options inside one card",
    "w": 1440,
    "x": 3040,
    "y": 17400
   },
   "DeskPickerGroupsCompact.dc.html": {
    "h": 900,
-   "title": "Loadouts F compact — one line per main weapon, its loadouts inline as text",
+   "title": "Loadouts F compact \u2014 one line per main weapon, its loadouts inline as text",
    "w": 1440,
    "x": 4560,
    "y": 17400
   },
   "DeskPickerMatrix.dc.html": {
    "h": 900,
-   "title": "Loadouts E — each weapon once, loadouts as columns of dots; pick a column",
+   "title": "Loadouts E \u2014 each weapon once, loadouts as columns of dots; pick a column",
    "w": 1440,
    "x": 1520,
    "y": 17400
@@ -238,14 +238,14 @@
   "DeskPickerOtherSet.dc.html": {
    "h": 900,
    "page": "final",
-   "title": "Desktop picker — reactive already set: Use is the default, change reactive is secondary",
+   "title": "Desktop picker \u2014 reactive already set: Use is the default, change reactive is secondary",
    "w": 1440,
    "x": 4560,
    "y": 6150
   },
   "DeskPickerRows.dc.html": {
    "h": 900,
-   "title": "Loadouts D — one line per loadout, main gun only; selected row opens to show sidearms; extras as muted text",
+   "title": "Loadouts D \u2014 one line per loadout, main gun only; selected row opens to show sidearms; extras as muted text",
    "w": 1440,
    "x": 0,
    "y": 17400
@@ -253,7 +253,7 @@
   "DeskWorkbench.dc.html": {
    "h": 900,
    "page": "final",
-   "title": "Desktop matchup (1440) — setup | results | mods, active then reactive",
+   "title": "Desktop matchup (1440) \u2014 setup | results | mods, active then reactive",
    "w": 1440,
    "x": 0,
    "y": 2600
@@ -261,7 +261,7 @@
   "DeskWorkbenchWide.dc.html": {
    "h": 1080,
    "page": "final",
-   "title": "Desktop matchup (1920) — mods cards side by side",
+   "title": "Desktop matchup (1920) \u2014 mods cards side by side",
    "w": 1920,
    "x": 1520,
    "y": 2600
@@ -269,28 +269,28 @@
   "EmptyA.dc.html": {
    "h": 844,
    "page": "final",
-   "title": "Empty home, phone — tall slots with recent troopers as chips, plasma tint",
+   "title": "Empty home, phone \u2014 tall slots with recent troopers as chips, plasma tint",
    "w": 390,
    "x": 0,
    "y": 7550
   },
   "EmptyB.dc.html": {
    "h": 844,
-   "title": "Empty B — recent matchups: one tap restores both sides and the range; new-matchup slots below",
+   "title": "Empty B \u2014 recent matchups: one tap restores both sides and the range; new-matchup slots below",
    "w": 390,
    "x": 470,
    "y": 21860
   },
   "EmptyC.dc.html": {
    "h": 844,
-   "title": "Empty C — crest shortcuts: each slot shows your factions, first tap opens the picker scoped",
+   "title": "Empty C \u2014 crest shortcuts: each slot shows your factions, first tap opens the picker scoped",
    "w": 390,
    "x": 940,
    "y": 21860
   },
   "EmptyD.dc.html": {
    "h": 844,
-   "title": "Empty D — guided face-off: the dice stare each other down, step 1 / step 2",
+   "title": "Empty D \u2014 guided face-off: the dice stare each other down, step 1 / step 2",
    "w": 390,
    "x": 1410,
    "y": 21860
@@ -298,7 +298,7 @@
   "EmptyDesk.dc.html": {
    "h": 900,
    "page": "final",
-   "title": "Empty home, desktop — slots keep a 9:8 shape; results and mods wait, nothing moves",
+   "title": "Empty home, desktop \u2014 slots keep a 9:8 shape; results and mods wait, nothing moves",
    "w": 1440,
    "x": 470,
    "y": 7550
@@ -306,14 +306,14 @@
   "EmptyDeskActive.dc.html": {
    "h": 900,
    "page": "final",
-   "title": "Desktop, one side picked — the results panel in skeleton form: Ready, still die, empty bars and rows, partial mods",
+   "title": "Desktop, one side picked \u2014 the results panel in skeleton form: Ready, still die, empty bars and rows, partial mods",
    "w": 1440,
    "x": 470,
    "y": 8570
   },
   "EmptyE.dc.html": {
    "h": 844,
-   "title": "Empty E — example roll: a dimmed real matchup with odds, tap a side to make it yours",
+   "title": "Empty E \u2014 example roll: a dimmed real matchup with odds, tap a side to make it yours",
    "w": 390,
    "x": 1880,
    "y": 21860
@@ -321,35 +321,35 @@
   "EngineLoading.dc.html": {
    "h": 860,
    "page": "anim",
-   "title": "Pyodide loading — six options (D chosen)",
+   "title": "Pyodide loading \u2014 six options (D chosen)",
    "w": 1240,
    "x": 0,
    "y": 1680
   },
   "ExpandFlip.dc.html": {
    "h": 844,
-   "title": "Expand B — card flips to its mods, same height",
+   "title": "Expand B \u2014 card flips to its mods, same height",
    "w": 390,
    "x": 470,
    "y": 9450
   },
   "ExpandIcon.dc.html": {
    "h": 844,
-   "title": "Expand A — stat summary in the header row, popover over the card",
+   "title": "Expand A \u2014 stat summary in the header row, popover over the card",
    "w": 390,
    "x": 0,
    "y": 9450
   },
   "ExpandResultNumber.dc.html": {
    "h": 844,
-   "title": "Expand C — in results: tap a dice line, its build opens under it",
+   "title": "Expand C \u2014 in results: tap a dice line, its build opens under it",
    "w": 390,
    "x": 940,
    "y": 9450
   },
   "ExpandResultRows.dc.html": {
    "h": 844,
-   "title": "Expand D — in results: both builds at the end of the scroll, no tap",
+   "title": "Expand D \u2014 in results: both builds at the end of the scroll, no tap",
    "w": 390,
    "x": 1410,
    "y": 9450
@@ -365,7 +365,7 @@
   "FinalClassic.dc.html": {
    "h": 1560,
    "page": "final",
-   "title": "Classic calculator — same inputs, new design language",
+   "title": "Classic calculator \u2014 same inputs, new design language",
    "w": 390,
    "x": 3290,
    "y": 300
@@ -373,7 +373,7 @@
   "FinalClassicResults.dc.html": {
    "h": 844,
    "page": "final",
-   "title": "Classic results — swipe up: F2F bar, wounds bar, percentages",
+   "title": "Classic results \u2014 swipe up: F2F bar, wounds bar, percentages",
    "w": 390,
    "x": 3760,
    "y": 300
@@ -381,7 +381,7 @@
   "FinalCleared.dc.html": {
    "h": 626,
    "page": "final",
-   "title": "Results card before the odds — still dice; a picked side reads Ready",
+   "title": "Results card before the odds \u2014 still dice; a picked side reads Ready",
    "w": 428,
    "x": 1990,
    "y": 7550
@@ -389,7 +389,7 @@
   "FinalEngineLoading.dc.html": {
    "h": 400,
    "page": "final",
-   "title": "Dice engine loading — the two dice clash until the first result",
+   "title": "Dice engine loading \u2014 the two dice clash until the first result",
    "w": 420,
    "x": 1410,
    "y": 1260
@@ -397,21 +397,21 @@
   "FinalHeadline.dc.html": {
    "h": 700,
    "page": "final",
-   "title": "Results card headline — player picks it; swipe the card sideways, dots show where you are",
+   "title": "Results card headline \u2014 player picks it; swipe the card sideways, dots show where you are",
    "w": 1760,
    "x": 0,
    "y": 11300
   },
   "FinalHome.dc.html": {
    "h": 844,
-   "title": "Final 1 — weapons as buttons, range between, chips; result peeks",
+   "title": "Final 1 \u2014 weapons as buttons, range between, chips; result peeks",
    "w": 390,
    "x": 0,
    "y": 5650
   },
   "FinalLedger.dc.html": {
    "h": 844,
-   "title": "Final 3 — superseded: ledger now at the end of Final 2",
+   "title": "Final 3 \u2014 superseded: ledger now at the end of Final 2",
    "w": 390,
    "x": 940,
    "y": 5650
@@ -419,7 +419,7 @@
   "FinalMenu.dc.html": {
    "h": 844,
    "page": "final",
-   "title": "Menu sheet (from ⋯)",
+   "title": "Menu sheet (from \u22ef)",
    "w": 390,
    "x": 1410,
    "y": 300
@@ -427,7 +427,7 @@
   "FinalNumberChange.dc.html": {
    "h": 400,
    "page": "final",
-   "title": "Wounds / order changes — the number slides up or down with the value",
+   "title": "Wounds / order changes \u2014 the number slides up or down with the value",
    "w": 420,
    "x": 1910,
    "y": 1260
@@ -436,7 +436,7 @@
    "h": 844,
    "is_interactive": true,
    "page": "final",
-   "title": "Matchup screen with the results peek — press Play, tap the range strip",
+   "title": "Matchup screen with the results peek \u2014 press Play, tap the range strip",
    "w": 390,
    "x": 470,
    "y": 300
@@ -454,7 +454,7 @@
    "h": 844,
    "is_interactive": true,
    "page": "final",
-   "title": "Mobile interaction — press Play: pick troopers, factions, profiles",
+   "title": "Mobile interaction \u2014 press Play: pick troopers, factions, profiles",
    "w": 390,
    "x": 0,
    "y": 300
@@ -462,7 +462,7 @@
   "FinalResults.dc.html": {
    "h": 1680,
    "page": "final",
-   "title": "Swipe-up results — odds, breakdown, how the dice were built",
+   "title": "Swipe-up results \u2014 odds, breakdown, how the dice were built",
    "w": 390,
    "x": 940,
    "y": 300
@@ -470,7 +470,7 @@
   "FinalSaved.dc.html": {
    "h": 844,
    "page": "final",
-   "title": "Saved rolls — crest pairs (E): active coin ringed green, reactive pink; names + weapons, situation",
+   "title": "Saved rolls \u2014 crest pairs (E): active coin ringed green, reactive pink; names + weapons, situation",
    "w": 390,
    "x": 1880,
    "y": 300
@@ -478,7 +478,7 @@
   "FinalSavedDesk.dc.html": {
    "h": 900,
    "page": "final",
-   "title": "Desktop saved rolls — centred dialog, same crest rows; hover/arrow row shows Delete, Enter loads, Esc closes",
+   "title": "Desktop saved rolls \u2014 centred dialog, same crest rows; hover/arrow row shows Delete, Enter loads, Esc closes",
    "w": 1440,
    "x": 0,
    "y": 12370
@@ -486,14 +486,14 @@
   "FinalSettings.dc.html": {
    "h": 844,
    "page": "final",
-   "title": "Settings — Results card choice at the top",
+   "title": "Settings \u2014 Results card choice at the top",
    "w": 390,
    "x": 2350,
    "y": 300
   },
   "FinalSheet.dc.html": {
    "h": 1440,
-   "title": "Final 2 — swipe up, then just scroll: dice, odds, breakdown, how the dice were built",
+   "title": "Final 2 \u2014 swipe up, then just scroll: dice, odds, breakdown, how the dice were built",
    "w": 390,
    "x": 470,
    "y": 5650
@@ -501,7 +501,7 @@
   "FinalSlotMotion.dc.html": {
    "h": 600,
    "page": "final",
-   "title": "Empty slot — plasma tint, whole card opens the search, still chips",
+   "title": "Empty slot \u2014 plasma tint, whole card opens the search, still chips",
    "w": 820,
    "x": 2498,
    "y": 7550
@@ -509,91 +509,91 @@
   "FinalUnopposed.dc.html": {
    "h": 1360,
    "page": "final",
-   "title": "Not face to face (Direct Template vs a shot) — card and swipe-up sheet",
+   "title": "Not face to face (Direct Template vs a shot) \u2014 card and swipe-up sheet",
    "w": 390,
    "x": 4230,
    "y": 300
   },
   "Fireteam.dc.html": {
    "h": 560,
-   "title": "Conditional inputs — fireteam hidden until it matters",
+   "title": "Conditional inputs \u2014 fireteam hidden until it matters",
    "w": 1280,
    "x": 0,
    "y": 1180
   },
   "HeadlineDiscover.dc.html": {
    "h": 900,
-   "title": "Finding the choice — A pin, B swipe (chosen), C long-press, D nudge",
+   "title": "Finding the choice \u2014 A pin, B swipe (chosen), C long-press, D nudge",
    "w": 1880,
    "x": 0,
    "y": 30764
   },
   "HeadlineSettings.dc.html": {
    "h": 844,
-   "title": "Settings — \"Results card\" choice at the top (tap to try)",
+   "title": "Settings \u2014 \"Results card\" choice at the top (tap to try)",
    "w": 390,
    "x": 1840,
    "y": 29800
   },
   "HeadlineThree.dc.html": {
    "h": 700,
-   "title": "Headline number — wounds/order, wins F2F, at least one wound (+ no-F2F fallback)",
+   "title": "Headline number \u2014 wounds/order, wins F2F, at least one wound (+ no-F2F fallback)",
    "w": 1760,
    "x": 0,
    "y": 29800
   },
   "LedgerA.dc.html": {
    "h": 844,
-   "title": "Ledger A — equation strip",
+   "title": "Ledger A \u2014 equation strip",
    "w": 390,
    "x": 0,
    "y": 7250
   },
   "LedgerAOpen.dc.html": {
    "h": 844,
-   "title": "Ledger A open — expands in place, both sides as sums",
+   "title": "Ledger A open \u2014 expands in place, both sides as sums",
    "w": 390,
    "x": 470,
    "y": 7250
   },
   "LedgerB.dc.html": {
    "h": 844,
-   "title": "Ledger B — net modifier chips",
+   "title": "Ledger B \u2014 net modifier chips",
    "w": 390,
    "x": 940,
    "y": 7250
   },
   "LedgerBOpen.dc.html": {
    "h": 844,
-   "title": "Ledger B open — sheet, one row per modifier, both sides",
+   "title": "Ledger B open \u2014 sheet, one row per modifier, both sides",
    "w": 390,
    "x": 1410,
    "y": 7250
   },
   "LedgerC.dc.html": {
    "h": 844,
-   "title": "Ledger C — base → final stats",
+   "title": "Ledger C \u2014 base \u2192 final stats",
    "w": 390,
    "x": 1880,
    "y": 7250
   },
   "LedgerCOpen.dc.html": {
    "h": 844,
-   "title": "Ledger C open — page per stat (SV · PS · B)",
+   "title": "Ledger C open \u2014 page per stat (SV \u00b7 PS \u00b7 B)",
    "w": 390,
    "x": 2350,
    "y": 7250
   },
   "LedgerD.dc.html": {
    "h": 844,
-   "title": "Ledger D — sentence of what changed",
+   "title": "Ledger D \u2014 sentence of what changed",
    "w": 390,
    "x": 2820,
    "y": 7250
   },
   "LedgerDOpen.dc.html": {
    "h": 844,
-   "title": "Ledger D open — step-by-step build of each roll",
+   "title": "Ledger D open \u2014 step-by-step build of each roll",
    "w": 390,
    "x": 3290,
    "y": 7250
@@ -601,14 +601,14 @@
   "Main.dc.html": {
    "h": 1060,
    "is_interactive": true,
-   "title": "Ledger — press Play: range, cover, skills, fireteam",
+   "title": "Ledger \u2014 press Play: range, cover, skills, fireteam",
    "w": 1280,
    "x": 0,
    "y": 0
   },
   "MobileEmpty.dc.html": {
    "h": 844,
-   "title": "Mobile 4 — sheet before typing",
+   "title": "Mobile 4 \u2014 sheet before typing",
    "w": 390,
    "x": 1410,
    "y": 2003
@@ -616,28 +616,28 @@
   "MobileFlow.dc.html": {
    "h": 844,
    "is_interactive": true,
-   "title": "Final mobile interaction Prototype — press Play",
+   "title": "Final mobile interaction Prototype \u2014 press Play",
    "w": 390,
    "x": 1880,
    "y": 2003
   },
   "MobileSearch.dc.html": {
    "h": 844,
-   "title": "Mobile 2 — search sheet, input by the thumb",
+   "title": "Mobile 2 \u2014 search sheet, input by the thumb",
    "w": 390,
    "x": 470,
    "y": 2003
   },
   "MobileSetup.dc.html": {
    "h": 844,
-   "title": "Mobile 1 — matchup, tap a side to change it",
+   "title": "Mobile 1 \u2014 matchup, tap a side to change it",
    "w": 390,
    "x": 0,
    "y": 2003
   },
   "MobileUnit.dc.html": {
    "h": 844,
-   "title": "Mobile 3 — browsing one unit's profiles",
+   "title": "Mobile 3 \u2014 browsing one unit's profiles",
    "w": 390,
    "x": 940,
    "y": 2003
@@ -652,7 +652,7 @@
   "MotionPolish.dc.html": {
    "h": 1180,
    "page": "anim",
-   "title": "Twelve looping micro-interactions — numbers, bars, range, sheet, chips, search, ledger, computing, swap, press, dice, pa",
+   "title": "Twelve looping micro-interactions \u2014 numbers, bars, range, sheet, chips, search, ledger, computing, swap, press, dice, pa",
    "w": 1600,
    "x": 0,
    "y": 2900
@@ -660,56 +660,56 @@
   "NumberChange.dc.html": {
    "h": 560,
    "page": "anim",
-   "title": "Number change — today’s odometer + four alternatives (B chosen)",
+   "title": "Number change \u2014 today\u2019s odometer + four alternatives (B chosen)",
    "w": 1600,
    "x": 0,
    "y": 4500
   },
   "PeekA.dc.html": {
    "h": 420,
-   "title": "Peek A — two big wounds/order numbers over the shaded bar",
+   "title": "Peek A \u2014 two big wounds/order numbers over the shaded bar",
    "w": 390,
    "x": 0,
    "y": 10550
   },
   "PeekB.dc.html": {
    "h": 420,
-   "title": "Peek B — wounds/order + ≥1 / ≥2 / ≥3 ladder per side",
+   "title": "Peek B \u2014 wounds/order + \u22651 / \u22652 / \u22653 ladder per side",
    "w": 390,
    "x": 470,
    "y": 10550
   },
   "PeekBars.dc.html": {
    "h": 1000,
-   "title": "Peek A — bar at 16 / 10 / 6 / 4 px",
+   "title": "Peek A \u2014 bar at 16 / 10 / 6 / 4 px",
    "w": 390,
    "x": 1880,
    "y": 10550
   },
   "PeekC.dc.html": {
    "h": 420,
-   "title": "Peek C — what it means: who goes down, nothing happens",
+   "title": "Peek C \u2014 what it means: who goes down, nothing happens",
    "w": 390,
    "x": 940,
    "y": 10550
   },
   "PeekD.dc.html": {
    "h": 420,
-   "title": "Peek D — what changed since your last tap, with undo",
+   "title": "Peek D \u2014 what changed since your last tap, with undo",
    "w": 390,
    "x": 1410,
    "y": 10550
   },
   "Picker.dc.html": {
    "h": 980,
-   "title": "Unit picker — one search, many options",
+   "title": "Unit picker \u2014 one search, many options",
    "w": 880,
    "x": 1360,
    "y": 0
   },
   "PickerFactions2.dc.html": {
    "h": 844,
-   "title": "Empty picker A — 2 columns, slim rows with crest + full name, recents follow",
+   "title": "Empty picker A \u2014 2 columns, slim rows with crest + full name, recents follow",
    "w": 390,
    "x": 1760,
    "y": 18800
@@ -717,7 +717,7 @@
   "PickerFactions3.dc.html": {
    "h": 844,
    "page": "final",
-   "title": "Picker, empty search — 3-column faction grid, then recents",
+   "title": "Picker, empty search \u2014 3-column faction grid, then recents",
    "w": 390,
    "x": 4700,
    "y": 300
@@ -725,28 +725,28 @@
   "RangeOptions.dc.html": {
    "h": 760,
    "is_interactive": true,
-   "title": "Range selector — slim until tapped, four expanded views (press Play)",
+   "title": "Range selector \u2014 slim until tapped, four expanded views (press Play)",
    "w": 1720,
    "x": 0,
    "y": 11900
   },
   "ResultInline.dc.html": {
    "h": 844,
-   "title": "Results C — expands in place, tap a number",
+   "title": "Results C \u2014 expands in place, tap a number",
    "w": 390,
    "x": 940,
    "y": 3190
   },
   "ResultPage.dc.html": {
    "h": 844,
-   "title": "Results B — full page, Odds | Ledger tabs",
+   "title": "Results B \u2014 full page, Odds | Ledger tabs",
    "w": 390,
    "x": 470,
    "y": 3190
   },
   "ResultSheet.dc.html": {
    "h": 844,
-   "title": "Results A — bottom sheet, ledger below",
+   "title": "Results A \u2014 bottom sheet, ledger below",
    "w": 390,
    "x": 0,
    "y": 3190
@@ -755,7 +755,7 @@
    "h": 1010,
    "is_interactive": true,
    "page": "anim",
-   "title": "Empty slot drift — five takes on the moving tint (D plasma chosen)",
+   "title": "Empty slot drift \u2014 five takes on the moving tint (D plasma chosen)",
    "w": 1600,
    "x": 0,
    "y": 300
@@ -763,7 +763,7 @@
   "SlotMotion.dc.html": {
    "h": 960,
    "page": "anim",
-   "title": "Subtle motion for the empty slot you still have to fill — seven options (B + F chosen)",
+   "title": "Subtle motion for the empty slot you still have to fill \u2014 seven options (B + F chosen)",
    "w": 1600,
    "x": 1680,
    "y": 300
@@ -771,7 +771,7 @@
   "TabletClassic.dc.html": {
    "h": 1194,
    "page": "final",
-   "title": "Tablet portrait classic — sides next to each other, results below",
+   "title": "Tablet portrait classic \u2014 sides next to each other, results below",
    "w": 834,
    "x": 1520,
    "y": 4500
@@ -779,7 +779,7 @@
   "TabletLandscape.dc.html": {
    "h": 834,
    "page": "final",
-   "title": "Tablet landscape — mods under the results",
+   "title": "Tablet landscape \u2014 mods under the results",
    "w": 1194,
    "x": 3520,
    "y": 2600
@@ -787,35 +787,35 @@
   "TabletPortrait.dc.html": {
    "h": 1440,
    "page": "final",
-   "title": "Tablet portrait — sides next to each other, mods under the results",
+   "title": "Tablet portrait \u2014 sides next to each other, mods under the results",
    "w": 834,
    "x": 4794,
    "y": 2600
   },
   "UnoppGrid.dc.html": {
    "h": 1240,
-   "title": "Not F2F C — the four ways the order can end (both / only one / nobody)",
+   "title": "Not F2F C \u2014 the four ways the order can end (both / only one / nobody)",
    "w": 390,
    "x": 940,
    "y": 13150
   },
   "UnoppHalves.dc.html": {
    "h": 1240,
-   "title": "Not F2F B — face-to-face card, bar split in two halves",
+   "title": "Not F2F B \u2014 face-to-face card, bar split in two halves",
    "w": 390,
    "x": 470,
    "y": 13150
   },
   "UnoppLanes.dc.html": {
    "h": 1240,
-   "title": "Not F2F A — two lanes: one row per attack, each adds to 100%",
+   "title": "Not F2F A \u2014 two lanes: one row per attack, each adds to 100%",
    "w": 390,
    "x": 0,
    "y": 13150
   },
   "UnoppTabs.dc.html": {
    "h": 1240,
-   "title": "Not F2F D — two stacked bars; sheet shows one attack at a time",
+   "title": "Not F2F D \u2014 two stacked bars; sheet shows one attack at a time",
    "w": 390,
    "x": 1410,
    "y": 13150
@@ -829,7 +829,7 @@
   },
   "WoundIcons.dc.html": {
    "h": 1240,
-   "title": "State glyphs (Unconscious, ×2, NWI, Dogged, Dead) and five ways to mark the graph without words",
+   "title": "State glyphs (Unconscious, \u00d72, NWI, Dogged, Dead) and five ways to mark the graph without words",
    "w": 1800,
    "x": 0,
    "y": 24340
@@ -845,7 +845,7 @@
   },
   "WoundShadeSteps.dc.html": {
    "h": 1240,
-   "title": "Wound shades — start deeper, light end only for many-wound targets (A / B / C vs today)",
+   "title": "Wound shades \u2014 start deeper, light end only for many-wound targets (A / B / C vs today)",
    "w": 1800,
    "x": 0,
    "y": 25700
@@ -860,21 +860,21 @@
   },
   "WoundsExtreme.dc.html": {
    "h": 400,
-   "title": "Extreme — 4 VITA with NWI vs 2 VITA Dogged",
+   "title": "Extreme \u2014 4 VITA with NWI vs 2 VITA Dogged",
    "w": 390,
    "x": 2250,
    "y": 23320
   },
   "WoundsPeek.dc.html": {
    "h": 340,
-   "title": "Closed results card — keep wounds/order, lead with Dead, or both",
+   "title": "Closed results card \u2014 keep wounds/order, lead with Dead, or both",
    "w": 1240,
    "x": 2720,
    "y": 23320
   },
   "WoundsPhone.dc.html": {
    "h": 500,
-   "title": "Phone results — Fennec (1 VITA) vs Squalos (3 STR + RP): five states one side, two the other",
+   "title": "Phone results \u2014 Fennec (1 VITA) vs Squalos (3 STR + RP): five states one side, two the other",
    "w": 390,
    "x": 1780,
    "y": 23320
@@ -893,14 +893,14 @@
    "y": 34950,
    "w": 2172,
    "h": 680,
-   "title": "Share today vs Crests F as designed — no preview tags yet; F at real Discord / WhatsApp size"
+   "title": "Share today vs Crests F as designed \u2014 no preview tags yet; F at real Discord / WhatsApp size"
   },
   "ShareCardA.dc.html": {
    "x": 0,
    "y": 35790,
    "w": 1200,
    "h": 630,
-   "title": "Share A — Scoreboard: two big numbers meet in the middle, all text ≥32 px"
+   "title": "Share A \u2014 Scoreboard: two big numbers meet in the middle, all text \u226532 px"
   },
   "ShareSituA.dc.html": {
    "x": 1280,
@@ -914,7 +914,7 @@
    "y": 36610,
    "w": 1200,
    "h": 630,
-   "title": "Share B — Square-safe: the story lives in the centre square, crests own the wings"
+   "title": "Share B \u2014 Square-safe: the story lives in the centre square, crests own the wings"
   },
   "ShareSituB.dc.html": {
    "x": 1280,
@@ -928,7 +928,7 @@
    "y": 37430,
    "w": 1200,
    "h": 630,
-   "title": "Share C — Bar-led: who comes out on top, as three plain percentages"
+   "title": "Share C \u2014 Bar-led: who comes out on top, as three plain percentages"
   },
   "ShareSituC.dc.html": {
    "x": 1280,
@@ -942,7 +942,7 @@
    "y": 38250,
    "w": 1200,
    "h": 1200,
-   "title": "Share D — Square 1200×1200: never cropped, stacked like the phone app"
+   "title": "Share D \u2014 Square 1200\u00d71200: never cropped, stacked like the phone app"
   },
   "ShareSituD.dc.html": {
    "x": 1280,
@@ -956,14 +956,14 @@
    "y": 39610,
    "w": 1568,
    "h": 1000,
-   "title": "The words around the image — og:title / description, Discord stripe, the message text"
+   "title": "The words around the image \u2014 og:title / description, Discord stripe, the message text"
   },
   "ShareEmptyE1.dc.html": {
    "x": 0,
    "y": 40930,
    "w": 1200,
    "h": 630,
-   "title": "Empty share E1 (chosen) — The mark: logo centred, a green and a pink line meet in it (square-safe)"
+   "title": "Empty share E1 (chosen) \u2014 The mark: logo centred, a green and a pink line meet in it (square-safe)"
   },
   "ShareEmptySituE1.dc.html": {
    "x": 1280,
@@ -977,7 +977,7 @@
    "y": 41750,
    "w": 1200,
    "h": 630,
-   "title": "Empty share E2 — Every army: the 11 vanilla crests ring the mark, name on the left"
+   "title": "Empty share E2 \u2014 Every army: the 11 vanilla crests ring the mark, name on the left"
   },
   "ShareEmptySituE2.dc.html": {
    "x": 1280,
@@ -991,7 +991,7 @@
    "y": 42570,
    "w": 1200,
    "h": 630,
-   "title": "Empty share E3 — Empty matchup: share A with nothing picked, so bare and filled links match"
+   "title": "Empty share E3 \u2014 Empty matchup: share A with nothing picked, so bare and filled links match"
   },
   "ShareEmptySituE3.dc.html": {
    "x": 1280,
@@ -1014,7 +1014,7 @@
    "w": 1200,
    "h": 630,
    "page": "final",
-   "title": "Share card A as built (1200×630, worker/card.js); Tweaks: headline"
+   "title": "Share card A as built (1200\u00d7630, worker/card.js); Tweaks: headline"
   },
   "FinalShareEmpty.dc.html": {
    "x": 0,
@@ -1031,6 +1031,95 @@
    "h": 660,
    "page": "final",
    "title": "E1 in Discord and WhatsApp (approx); stripe stays the page theme colour"
+  },
+  "ZoneInRange.dc.html": {
+   "x": 0,
+   "y": 43760,
+   "w": 390,
+   "h": 844,
+   "title": "Zones A \u2014 in the range panel: \"Between them\" chips; closed strip wears the haze + one caption line",
+   "is_interactive": true
+  },
+  "ZoneButton.dc.html": {
+   "x": 470,
+   "y": 43760,
+   "w": 390,
+   "h": 844,
+   "title": "Zones B \u2014 a zone button beside \u21c5: small menu, removable chips under the strip",
+   "is_interactive": true
+  },
+  "ZoneLofRow.dc.html": {
+   "x": 940,
+   "y": 43760,
+   "w": 390,
+   "h": 844,
+   "title": "Zones C \u2014 a \"Line of fire\" row of its own above the range strip, always visible, effects per side",
+   "is_interactive": true
+  },
+  "ZoneA1Tiles.dc.html": {
+   "x": 0,
+   "y": 44984,
+   "w": 390,
+   "h": 844,
+   "title": "A1 Small chips \u2014 two small Smoke / White noise chips tucked right under the legend; zone MOD on each side's line; closed: icon by \u21c5",
+   "is_interactive": true
+  },
+  "ZoneA2Header.dc.html": {
+   "x": 470,
+   "y": 44984,
+   "w": 390,
+   "h": 844,
+   "title": "A2 Header toggles \u2014 Smoke / White noise beside the range label; closed: small caps caption",
+   "is_interactive": true
+  },
+  "ZoneA3Switches.dc.html": {
+   "x": 940,
+   "y": 44984,
+   "w": 390,
+   "h": 844,
+   "title": "A3 Switches \u2014 one row per zone with its rule and a switch; closed: small caps caption",
+   "is_interactive": true
+  },
+  "ZoneA4Fog.dc.html": {
+   "x": 1410,
+   "y": 44984,
+   "w": 390,
+   "h": 844,
+   "title": "A4 Fog \u2014 the zone is drawn across the bands (open or closed); plain \"+ Smoke\" text buttons",
+   "is_interactive": true
+  },
+  "ZoneB1Split.dc.html": {
+   "x": 0,
+   "y": 46208,
+   "w": 390,
+   "h": 844,
+   "title": "B1 Split pill \u2014 zone and \u21c5 share one pill (72 px, was 88 in B); bands 41 px each instead of 37",
+   "is_interactive": true
+  },
+  "ZoneB2SwapMenu.dc.html": {
+   "x": 470,
+   "y": 46208,
+   "w": 390,
+   "h": 844,
+   "title": "B2 Swap opens a menu \u2014 one button as today, bands keep full width; Swap sides becomes the menu's first row",
+   "is_interactive": true
+  },
+  "ZoneB3Line.dc.html": {
+   "x": 940,
+   "y": 46208,
+   "w": 390,
+   "h": 844,
+   "title": "B3 A line under the strip \u2014 \"+ Smoke / White noise\" pill, then chips and a small +; bands keep full width",
+   "is_interactive": true
+  },
+  "FinalZones.dc.html": {
+   "x": 0,
+   "y": 18660,
+   "w": 390,
+   "h": 844,
+   "page": "final",
+   "title": "Smoke and White Noise (Zones A1) \u2014 two small chips under the range legend; each side's zone MOD on its line; closed: icons by \u21c5 (tap opens)",
+   "is_interactive": true
   }
  },
  "createdOnFiles": {
@@ -1053,7 +1142,7 @@
   "chrome": {
    "kind": "title1",
    "maxW": 2300,
-   "text": "App chrome — out of the way",
+   "text": "App chrome \u2014 out of the way",
    "w": 240,
    "x": 0,
    "y": 4150
@@ -1061,7 +1150,7 @@
   "crests": {
    "kind": "title1",
    "maxW": 3550,
-   "text": "Unit crests — six places they could live",
+   "text": "Unit crests \u2014 six places they could live",
    "w": 240,
    "x": 0,
    "y": 27140
@@ -1069,7 +1158,7 @@
   "deskchrome": {
    "kind": "title1",
    "maxW": 7520,
-   "text": "Menu pages on desktop — Saved, Settings, About",
+   "text": "Menu pages on desktop \u2014 Saved, Settings, About",
    "w": 240,
    "x": 0,
    "y": 33100
@@ -1077,7 +1166,7 @@
   "deskclassic": {
    "kind": "title1",
    "maxW": 4560,
-   "text": "Desktop classic — three layouts",
+   "text": "Desktop classic \u2014 three layouts",
    "w": 240,
    "x": 0,
    "y": 15900
@@ -1093,7 +1182,7 @@
   "emptyhome": {
    "kind": "title1",
    "maxW": 2400,
-   "text": "Empty home — before any trooper is picked",
+   "text": "Empty home \u2014 before any trooper is picked",
    "w": 240,
    "x": 0,
    "y": 21610
@@ -1135,7 +1224,7 @@
    "kind": "title1",
    "maxW": 6400,
    "page": "final",
-   "text": "Desktop & tablet — matchup",
+   "text": "Desktop & tablet \u2014 matchup",
    "w": 240,
    "x": 0,
    "y": 2350
@@ -1144,7 +1233,7 @@
    "kind": "title1",
    "maxW": 2400,
    "page": "final",
-   "text": "Desktop & tablet — classic",
+   "text": "Desktop & tablet \u2014 classic",
    "w": 240,
    "x": 0,
    "y": 4250
@@ -1153,7 +1242,7 @@
    "kind": "title1",
    "maxW": 4480,
    "page": "final",
-   "text": "Desktop menu — header buttons (A)",
+   "text": "Desktop menu \u2014 header buttons (A)",
    "w": 240,
    "x": 0,
    "y": 13390
@@ -1171,7 +1260,7 @@
    "kind": "title1",
    "maxW": 2400,
    "page": "final",
-   "text": "Empty home — before any trooper is picked",
+   "text": "Empty home \u2014 before any trooper is picked",
    "w": 240,
    "x": 0,
    "y": 7300
@@ -1180,7 +1269,7 @@
    "kind": "title1",
    "maxW": 1760,
    "page": "final",
-   "text": "Results card — the player picks the big number",
+   "text": "Results card \u2014 the player picks the big number",
    "w": 240,
    "x": 0,
    "y": 11050
@@ -1189,7 +1278,7 @@
    "kind": "title1",
    "maxW": 4620,
    "page": "final",
-   "text": "Infinity the Calculator — final",
+   "text": "Infinity the Calculator \u2014 final",
    "w": 240,
    "x": 0,
    "y": 0
@@ -1215,7 +1304,7 @@
   "headline": {
    "kind": "title1",
    "maxW": 2230,
-   "text": "Results card — choose your headline number",
+   "text": "Results card \u2014 choose your headline number",
    "w": 240,
    "x": 0,
    "y": 29550
@@ -1223,7 +1312,7 @@
   "ledgercard": {
    "kind": "title1",
    "maxW": 3700,
-   "text": "Ledger belongs to the setup — four small cards and what they open",
+   "text": "Ledger belongs to the setup \u2014 four small cards and what they open",
    "w": 240,
    "x": 0,
    "y": 7000
@@ -1231,7 +1320,7 @@
   "loadouts": {
    "kind": "title1",
    "maxW": 6100,
-   "text": "Picker — presenting loadouts without the height",
+   "text": "Picker \u2014 presenting loadouts without the height",
    "w": 240,
    "x": 0,
    "y": 17150
@@ -1273,7 +1362,7 @@
   "range": {
    "kind": "title1",
    "maxW": 1720,
-   "text": "Range selector — slim, grows on tap",
+   "text": "Range selector \u2014 slim, grows on tap",
    "w": 240,
    "x": 0,
    "y": 11650
@@ -1306,7 +1395,7 @@
   "wounds": {
    "kind": "title1",
    "maxW": 3400,
-   "text": "Wound states — VITA / STR, Remote Presence, NWI, Dogged",
+   "text": "Wound states \u2014 VITA / STR, Remote Presence, NWI, Dogged",
    "w": 240,
    "x": 0,
    "y": 23070
@@ -1323,23 +1412,52 @@
   "share": {
    "x": 0,
    "y": 34700,
-   "text": "Share card — built for Discord and WhatsApp",
+   "text": "Share card \u2014 built for Discord and WhatsApp",
    "kind": "title1",
    "maxW": 3100
   },
   "shareempty": {
    "x": 0,
    "y": 40700,
-   "text": "Share card — a link with nothing picked",
+   "text": "Share card \u2014 a link with nothing picked",
    "kind": "title1",
    "maxW": 3100
   },
   "finalshare": {
    "x": 0,
    "y": 16300,
-   "text": "Share card — Discord & WhatsApp",
+   "text": "Share card \u2014 Discord & WhatsApp",
    "kind": "title1",
    "maxW": 3045,
+   "page": "final"
+  },
+  "zones": {
+   "x": 0,
+   "y": 43500,
+   "text": "Smoke and White noise \u2014 between the cards",
+   "kind": "title1",
+   "maxW": 1330
+  },
+  "zonesa": {
+   "x": 0,
+   "y": 44724,
+   "text": "Zones A \u2014 four looks",
+   "kind": "title1",
+   "maxW": 1800
+  },
+  "zonesb": {
+   "x": 0,
+   "y": 45948,
+   "text": "Zones B \u2014 without squeezing the bands",
+   "kind": "title1",
+   "maxW": 1330
+  },
+  "finalzones": {
+   "x": 0,
+   "y": 18400,
+   "text": "Smoke and White Noise \u2014 between the cards",
+   "kind": "title1",
+   "maxW": 1330,
    "page": "final"
   }
  },
@@ -1481,7 +1599,18 @@
   "FinalShare.dc.html",
   "FinalShareCard.dc.html",
   "FinalShareEmpty.dc.html",
-  "FinalShareEmptySitu.dc.html"
+  "FinalShareEmptySitu.dc.html",
+  "ZoneInRange.dc.html",
+  "ZoneButton.dc.html",
+  "ZoneLofRow.dc.html",
+  "ZoneA1Tiles.dc.html",
+  "ZoneA2Header.dc.html",
+  "ZoneA3Switches.dc.html",
+  "ZoneA4Fog.dc.html",
+  "ZoneB1Split.dc.html",
+  "ZoneB2SwapMenu.dc.html",
+  "ZoneB3Line.dc.html",
+  "FinalZones.dc.html"
  ],
  "pages": [
   {
