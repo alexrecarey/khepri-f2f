@@ -1118,7 +1118,31 @@
    "w": 390,
    "h": 844,
    "page": "final",
-   "title": "Smoke and White Noise (Zones A1) \u2014 two small chips under the range legend; each side's zone MOD on its line; closed: icons by \u21c5 (tap opens)",
+   "title": "Smoke and White Noise (Zones A1 + D3) \u2014 two small chips under the range legend; each side's zone MOD on its line; a fixed slot by \u21c5 (icons when on, faint cloud when off; tap opens) so the bands never change length; \u21c5 without its circle",
+   "is_interactive": true
+  },
+  "ZoneA1Badge.dc.html": {
+   "x": 0,
+   "y": 47432,
+   "w": 390,
+   "h": 844,
+   "title": "D1 Badge \u2014 the icons ride on the swap button's corner; strip and \u21c5 never move",
+   "is_interactive": true
+  },
+  "ZoneA1Notch.dc.html": {
+   "x": 470,
+   "y": 47432,
+   "w": 390,
+   "h": 844,
+   "title": "D2 Notch \u2014 the icons sit in a gap on the strip's top border, by its right end",
+   "is_interactive": true
+  },
+  "ZoneA1Slot.dc.html": {
+   "x": 940,
+   "y": 47432,
+   "w": 390,
+   "h": 844,
+   "title": "D3 Fixed slot \u2014 a narrow slot by \u21c5 that is always there: icons when on, faint cloud when off (tap opens)",
    "is_interactive": true
   }
  },
@@ -1459,6 +1483,13 @@
    "kind": "title1",
    "maxW": 1330,
    "page": "final"
+  },
+  "zonesd": {
+   "x": 0,
+   "y": 47172,
+   "text": "Zone icons \u2014 the strip keeps its length",
+   "kind": "title1",
+   "maxW": 1330
   }
  },
  "order": [
@@ -1610,7 +1641,10 @@
   "ZoneB1Split.dc.html",
   "ZoneB2SwapMenu.dc.html",
   "ZoneB3Line.dc.html",
-  "FinalZones.dc.html"
+  "FinalZones.dc.html",
+  "ZoneA1Badge.dc.html",
+  "ZoneA1Notch.dc.html",
+  "ZoneA1Slot.dc.html"
  ],
  "pages": [
   {
