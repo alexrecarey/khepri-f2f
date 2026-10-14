@@ -1500,6 +1500,23 @@ test('Neurocinetics: Burst 1 in the Active Turn, Burst MODs and Fireteam SD asid
   assert.equal(derive({active: side(profile(), hmg, '7:'), reactive: side(profile(), combi, '1:'), rangeCm: 40}).inputs.burstA, 5);
 });
 
+test('Neurocinetics (+1B): the extra Burst counts in the Reactive Turn only (Yan Huo)', () => {
+  const neuro = profile({skills: [{id: 109, name: 'Neurocinetics', extra: ['+1B']}]});
+  const ml = option([{id: 9, name: 'Missile Launcher'}]);
+  const args = {active: side(profile(), combi, '1:'), reactive: side(neuro, ml, '9:Hit Mode'), rangeCm: 40};
+  const r = derive(args);
+  assert.equal(r.inputs.burstB, 2);
+  const burst = buildLedger({...args, inputs: r.inputs}).B.burst;
+  assert.ok(burst.lines.some((l) => l.label === 'Neurocinetics' && l.value === 1), JSON.stringify(burst.lines));
+  // Active Turn: still B 1.
+  const a = derive({active: side(neuro, ml, '9:Hit Mode'), reactive: side(profile(), combi, '1:'), rangeCm: 40});
+  assert.equal(a.inputs.burstA, 1);
+  // A weapon +1B on a Neurocinetics trooper also counts in ARO.
+  const plain = profile({skills: [{id: 109, name: 'Neurocinetics'}]});
+  const ml1 = option([{id: 9, name: 'Missile Launcher', extra: ['+1B']}]);
+  assert.equal(derive({active: side(profile(), combi, '1:'), reactive: side(plain, ml1, '9:Hit Mode'), rangeCm: 40}).inputs.burstB, 2);
+});
+
 test('a Success Value above 30 is capped at 30, in the inputs and the ledger', () => {
   // BS 29 + 3 (range) = 32.
   const a = side(profile({bs: 29}), combi, '1:');

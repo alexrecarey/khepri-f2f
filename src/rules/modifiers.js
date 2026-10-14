@@ -210,6 +210,14 @@ export function opposingMods(x, y, xActive) {
 // Only Total Reaction / Neurocinetics keep their full burst in ARO.
 export const keepsAroBurst = (x) => hasSkill(x.traits, SKILL.TOTAL_REACTION) || hasSkill(x.traits, SKILL.NEUROCINETICS);
 
+// Neurocinetics (+1B): the extra Burst counts in the Reactive Turn only (the
+// Active Turn is B 1 regardless). Yan Huo, Sunduqbut.
+export const neurocineticsAroBurst = (traits) =>
+  skillExtras(traits, SKILL.NEUROCINETICS)
+    .map((e) => /^\+(\d+)B$/.exec(e))
+    .filter(Boolean)
+    .reduce((n, m) => n + Number(m[1]), 0);
+
 // Burst, SD and BS bonuses on a BS Attack, summed over the weapon's loadout
 // extras, the profile's BS Attack (+1SD / +1B) skill and the Fireteam.
 // Templates keep their burst bonuses but don't roll, so get no SD or BS.

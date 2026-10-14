@@ -6,7 +6,7 @@ import {hasEquip, hasSkill} from '../army/traits.js';
 import {causesWounds, hasContinuousDamage, isNonLethal, isTemplate, weaponPS} from '../army/weapons.js';
 import {
   COVER_SAVE_MOD, LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, capMods, clamp, coverBsMod, dodgeExtras,
-  dodgeSuccessValue, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, opposingMods,
+  dodgeSuccessValue, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, neurocineticsAroBurst, opposingMods,
 } from './modifiers.js';
 import {rangeModFor} from './ranges.js';
 import {
@@ -84,6 +84,7 @@ function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0) {
   const noEffect = hasNoEffect(y?.traits, row);
   let burst = (row.burst ?? 1) + bonus.burst;
   if (side === 'B' && !keepsAroBurst(x)) burst = 1;
+  if (side === 'B') burst += neurocineticsAroBurst(x.traits);
   // Neurocinetics: B 1 in the Active Turn, Burst MODs included (wiki).
   if (side === 'A' && hasSkill(x.traits, SKILL.NEUROCINETICS)) {
     burst = 1;
