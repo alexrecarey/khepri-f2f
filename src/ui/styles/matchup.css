@@ -89,15 +89,15 @@
 
 /* Split range (RangeScale.jsx, canvas board S3): one row of distances, the
    active's track above it, the reactive's below. Closed, the tracks are thin
-   bars that still show each side's pick; each pick's tap area reaches into
-   the distances row. */
+   bars that still show each side's pick. The distances row is its own tap
+   target (it only opens), so each pick's tap area reaches outwards only. */
 .scale { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); column-gap: 2px; flex-grow: 1; }
 .scale-col { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.scale .dist { text-align: center; padding: 3px 0; font-size: var(--fs-small); color: var(--text-3); }
+.scale .dist { all: unset; box-sizing: border-box; cursor: pointer; text-align: center; padding: 3px 0; font-size: var(--fs-small); color: var(--text-3); }
 .scale .dist.on { color: var(--text); font-weight: 700; }
 .scale-pick { all: unset; box-sizing: border-box; cursor: pointer; position: relative; z-index: 1; display: flex; flex-direction: column; }
-.scale-pick.A { padding: 6px 0 10px; margin: -6px 0 -10px; }
-.scale-pick.B { padding: 10px 0 6px; margin: -10px 0 -6px; justify-content: flex-end; }
+.scale-pick.A { padding-top: 6px; margin-top: -6px; }
+.scale-pick.B { padding-bottom: 6px; margin-bottom: -6px; justify-content: flex-end; }
 .scale-pick .track { display: flex; flex-direction: column; height: 6px; border-radius: 2px; overflow: hidden; background: var(--line-soft);
   transition: height .25s ease, background .25s ease; }
 .scale-pick.B .track { justify-content: flex-end; }
