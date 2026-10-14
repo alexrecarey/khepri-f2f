@@ -14,6 +14,7 @@
   --page: #161616;           /* full-screen pages */
   --sheet: #1a1a1a;          /* bottom sheets, the desk picker */
   --handle: #444;            /* a sheet's drag handle */
+  --zone-off: #555;          /* the Smoke / White Noise slot with no zone on: there, but quiet */
   --text: #e8e6e1;
   --text-2: #c9c6bf;
   /* Greys that carry text, lifted a step for WCAG AA (Oct 2026): --faint was 3.1:1 on

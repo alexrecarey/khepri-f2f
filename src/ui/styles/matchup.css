@@ -96,4 +96,7 @@
 .zone-chip::before { content: ''; position: absolute; inset: -9px -3px; }
 .zone-chip.on { background: var(--none); border-color: var(--faint); color: var(--text); }
 .zone-chip:focus-visible, .zone-marks:focus-visible { outline: 2px solid var(--text-2); outline-offset: 2px; }
-.zone-marks { all: unset; cursor: pointer; display: flex; align-items: center; gap: 2px; height: var(--tap); padding: 0 2px; color: var(--text-2); }
+/* Always there, open or closed, so the bands keep one length. Off: faint. */
+.zone-marks { all: unset; box-sizing: border-box; cursor: pointer; flex-shrink: 0; width: 28px; height: var(--tap); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2px; color: var(--zone-off); }
+.zone-marks.on { color: var(--text); }
