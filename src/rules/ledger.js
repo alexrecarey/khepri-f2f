@@ -6,7 +6,7 @@
 // changes there and not here, the gap shows as an "other rules" line instead of
 // a wrong total, and the tests (ledger.test.mjs) fail.
 //
-// buildLedger({active, reactive, rangeCm, inputs}) -> {A, B}, per side:
+// buildLedger({active, reactive, rangeCm, inputs, zones}) -> {A, B}, per side:
 //   kind    'attack' | 'dodge' | 'template' | 'none'
 //   dice    'B4 SV14 PS9': burst (+special dice), Success Value, save value
 //   burst, sv, save   {lines, total, note}; a line is
@@ -29,6 +29,7 @@ import {
 import {RANGE_BANDS, rangeModFor} from './ranges.js';
 import {hasImmunity, immunityAgainst, saveHalving} from './saves.js';
 import {bsAttackWeaponMods} from './trooper.js';
+import {ZONE_NAME, visibility} from './visibility.js';
 
 const other = (s) => (s === 'A' ? 'B' : 'A');
 const line = (value, label, by, struck) => ({value, label, by, ...(struck ? {struck} : {})});
@@ -54,7 +55,7 @@ function rangeLabel(rangeCm) {
   return `range ${i ? RANGE_BANDS[i - 1].inches : 0}–${band.inches}"`;
 }
 
-function attackSv(x, y, s, rangeCm, total) {
+function attackSv(x, y, s, rangeCm, total, vis) {
   const t = other(s);
   const {row, mods} = x.weapon;
   const attr = attackAttribute(row);
@@ -84,6 +85,8 @@ function attackSv(x, y, s, rangeCm, total) {
       const why = hasSkill(x.traits, SKILL.MARKSMANSHIP) ? 'Marksmanship' : 'Limited Cover';
       lines.push(line(COVER_BS_MOD, coverName, t, why));
     }
+    // Smoke / White Noise: x's own sight, so x's colour.
+    for (const v of vis.lines) lines.push(line(v.value, v.label, s, v.ignoredBy));
     lines.push(...opposingLines(y, x, t, t === 'A'));
   }
   // Every line after the Attribute is a MOD, Fireteam +1 BS included.
@@ -103,14 +106,14 @@ function clampSv(lines) {
   else if (t > max) lines.push(line(max - t, `capped at ${max}`, null));
 }
 
-function dodgeSv(x, y, s, total) {
+function dodgeSv(x, y, s, total, yBlocked) {
   const t = other(s);
   const d = dodgeExtras(x.traits);
   const lines = [d.ph !== null ? line(d.ph, `Dodge (PH=${d.ph})`, s) : line(x.profile.ph ?? 0, 'PH', null)];
   if (d.mod) lines.push(line(d.mod, `Dodge (+${d.mod})`, s));
   const ft = fireteamBonuses(x.ftSize).dodge;
   if (ft) lines.push(line(ft, `Fireteam ${x.ftSize}`, s));
-  if (y) lines.push(...opposingLines(y, x, t, t === 'A'));
+  if (y && !yBlocked) lines.push(...opposingLines(y, x, t, t === 'A'));
   clampSv(lines);
   return {lines: reconcile(lines, total), total};
 }
@@ -265,12 +268,13 @@ function ammoLines(x, y, s, inputs) {
   return {lines, total};
 }
 
-function sideLedger(x, y, s, rangeCm, inputs) {
+function sideLedger(x, y, s, rangeCm, inputs, vis) {
   if (!x?.weapon) return null;
   const w = x.weapon;
   if (w.pseudo === 'none') return {kind: 'none', dice: 'No ARO'};
+  if (vis[s].blocked) return {kind: 'none', dice: `No LoF (${ZONE_NAME[vis[s].blocked]})`};
   if (w.pseudo === 'dodge') {
-    const sv = dodgeSv(x, y, s, inputs[`successValue${s}`]);
+    const sv = dodgeSv(x, y, s, inputs[`successValue${s}`], Boolean(vis[other(s)].blocked));
     const sd = sdLines(x, s, inputs, true);
     return {kind: 'dodge', dice: `Dodge${sd.total ? ` +${sd.total}SD` : ''} SV${sv.total}`, sv, sd};
   }
@@ -282,13 +286,14 @@ function sideLedger(x, y, s, rangeCm, inputs) {
   if (isTemplate(w.row)) {
     return {kind: 'template', dice: `${b} template PS${save.total}${tag}`, burst, sd, save, ammo: ammoLines(x, y, s, inputs), note: ammoNote(inputs, s)};
   }
-  const sv = attackSv(x, y, s, rangeCm, inputs[`successValue${s}`]);
+  const sv = attackSv(x, y, s, rangeCm, inputs[`successValue${s}`], vis[s]);
   return {kind: 'attack', dice: `${b} SV${sv.total} PS${save.total}${tag}`, burst, sd, sv, save, ammo: ammoLines(x, y, s, inputs), note: ammoNote(inputs, s)};
 }
 
-export function buildLedger({active, reactive, rangeCm, inputs}) {
+export function buildLedger({active, reactive, rangeCm, inputs, zones}) {
+  const vis = visibility(active, reactive, zones);
   return {
-    A: sideLedger(active, reactive, 'A', rangeCm, inputs),
-    B: sideLedger(reactive, active, 'B', rangeCm, inputs),
+    A: sideLedger(active, reactive, 'A', rangeCm, inputs, vis),
+    B: sideLedger(reactive, active, 'B', rangeCm, inputs, vis),
   };
 }

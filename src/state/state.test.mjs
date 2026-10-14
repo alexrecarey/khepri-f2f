@@ -425,3 +425,16 @@ test('saved rolls from older builds: missing fields default, key order does not 
   const storage = memStorage({[STORAGE_KEY]: JSON.stringify({v: 1, lists: {saved: [{id: 'x'}, old]}})});
   assert.deepEqual(loadPersisted(storage).lists.saved.map((r) => r.id), ['r1']);
 });
+
+test('Smoke / White Noise: setZone, kept by a swap, in the URL and back', () => {
+  let s = run(initialState(), {type: 'setSide', side: 'A', sel: {unitId: 1934, factionId: 603, groupId: 1, optionId: 4}},
+    {type: 'setZone', zone: 'smoke', on: true});
+  assert.equal(s.matchup.smoke, true);
+  assert.equal(s.matchup.whiteNoise, false);
+  s = run(s, {type: 'swapSides'});
+  assert.equal(s.matchup.smoke, true);
+  const url = urlFromState(s);
+  assert.match(url, /smoke=1/);
+  assert.equal(stateFromUrl(url).matchup.smoke, true);
+  assert.equal(stateFromUrl(url).matchup.whiteNoise, false);
+});

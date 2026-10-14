@@ -1,5 +1,6 @@
 // Matchup selections <-> URL params, for share links. Both sides use the same
-// keys with an A (active) / B (reactive) suffix; range is shared.
+// keys with an A (active) / B (reactive) suffix; range and the zones between
+// them (smoke=1, wn=1) are shared.
 import {FIRETEAM_MAX, FIRETEAM_MIN} from '../rules/modifiers.js';
 import {RANGE_BANDS} from '../rules/ranges.js';
 
@@ -21,7 +22,7 @@ const FIELDS = [
 ];
 
 // Only what's set, so links stay short.
-export function encodeMatchup({selA, selB, ftSize, rangeCm}) {
+export function encodeMatchup({selA, selB, ftSize, rangeCm, zones}) {
   const out = {};
   for (const [side, sel] of [['A', selA], ['B', selB]]) {
     if (!sel?.unitId) continue;
@@ -34,6 +35,10 @@ export function encodeMatchup({selA, selB, ftSize, rangeCm}) {
     if (ftSize?.[side] > 1) out[`ft${side}`] = String(ftSize[side]);
   }
   if (Object.keys(out).length > 0 && rangeCm) out.range = String(rangeCm);
+  if (Object.keys(out).length > 0) {
+    if (zones?.smoke) out.smoke = '1';
+    if (zones?.whiteNoise) out.wn = '1';
+  }
   return out;
 }
 
@@ -69,5 +74,6 @@ export function decodeMatchup(params) {
     B: B ?? {...EMPTY},
     ftSize: {A: ft('A'), B: ft('B')},
     rangeCm: RANGE_BANDS.some((b) => b.to === range) ? range : null,
+    zones: {smoke: get('smoke') === '1', whiteNoise: get('wn') === '1'},
   };
 }

@@ -59,3 +59,12 @@ test('range bands: each side\'s Range MOD per band; none for a Dodge', () => {
   assert.ok(v.bands.some((b) => typeof b.A === 'number'));
   assert.ok(v.bands.every((b) => b.B === undefined));
 });
+
+test('Smoke is passed to the rules: a side without MSV that cannot see rolls nothing', () => {
+  const plain = matchupView(army, {A: corax, B: chaksa, rangeCm: 40});
+  const smoke = matchupView(army, {A: corax, B: chaksa, rangeCm: 40, smoke: true});
+  assert.deepEqual(smoke.zones, {smoke: true, whiteNoise: false});
+  assert.ok(smoke.vis.A && smoke.vis.B);
+  // Whatever these two carry, Smoke changes the dice or blocks a side.
+  assert.notDeepEqual(smoke.params, plain.params);
+});

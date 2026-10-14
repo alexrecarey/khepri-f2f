@@ -39,3 +39,13 @@ test('no matchup in params: null; bad values are ignored', () => {
 test('an empty matchup encodes to nothing', () => {
   assert.deepEqual(encodeMatchup({selA: {unitId: null}, selB: {unitId: null}, ftSize: {A: 1, B: 1}, rangeCm: 40}), {});
 });
+
+test('Smoke and White Noise round-trip as smoke=1 / wn=1, off by default', () => {
+  const params = encodeMatchup({selA, selB, ftSize: {A: 1, B: 1}, rangeCm: 40, zones: {smoke: true, whiteNoise: false}});
+  assert.equal(params.smoke, '1');
+  assert.equal(params.wn, undefined);
+  assert.deepEqual(decodeMatchup(new URLSearchParams(params)).zones, {smoke: true, whiteNoise: false});
+  assert.deepEqual(decodeMatchup(new URLSearchParams('unitA=5&wn=1')).zones, {smoke: false, whiteNoise: true});
+  // Nothing picked: no link, zones or not.
+  assert.deepEqual(encodeMatchup({selA: {unitId: null}, selB: {unitId: null}, ftSize: {A: 1, B: 1}, rangeCm: 40, zones: {smoke: true}}), {});
+});

@@ -85,3 +85,15 @@
 .band .stripe { height: 4px; transition: background .25s ease; }
 .band .dist { text-align: center; padding: 5px 0; font-size: var(--fs-small); color: var(--text-3); }
 .band.on .dist { color: var(--bg); font-weight: 700; }
+
+/* ---------- Smoke / White Noise (RangeZones.jsx) ----------
+   Small and quiet: two chips at the right under the legend, each with a full
+   44 px tap area around it. */
+.range-foot .mods small { font-size: inherit; color: var(--muted); }
+.zone-chips { display: flex; justify-content: flex-end; gap: 6px; padding: 0 12px 10px; }
+.zone-chip { all: unset; box-sizing: border-box; position: relative; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+  height: 26px; padding: 0 9px; border-radius: 6px; font-size: var(--fs-label); border: 1px solid var(--line); color: var(--faint); }
+.zone-chip::before { content: ''; position: absolute; inset: -9px -3px; }
+.zone-chip.on { background: var(--none); border-color: var(--faint); color: var(--text); }
+.zone-chip:focus-visible, .zone-marks:focus-visible { outline: 2px solid var(--text-2); outline-offset: 2px; }
+.zone-marks { all: unset; cursor: pointer; display: flex; align-items: center; gap: 2px; height: var(--tap); padding: 0 2px; color: var(--text-2); }

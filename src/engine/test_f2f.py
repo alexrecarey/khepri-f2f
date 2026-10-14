@@ -800,3 +800,11 @@ class TestSavingRolls:
         """A Dodge (saves 0) wins the roll but causes nothing, Criticals included."""
         result = calculate(engine_input(side(sv=40, saves=0), side(burst=0)))
         assert result['outcomes'] == [{'player': 'active', 'wounds': 0, 'chance': 1.0}]
+
+
+@pytest.mark.parametrize('b', [side(burst=0), side(burst=1, saves=0)])
+def test_no_line_of_fire_nobody_wounds(b):
+    """Smoke / White Noise with no LoF: the attack rolls no dice (burst 0); nothing is wounded."""
+    out = calculate(engine_input(side(burst=0), b))
+    assert all(o['wounds'] == 0 for o in out['outcomes'])
+    assert isclose(sum(o['chance'] for o in out['outcomes']), 1)

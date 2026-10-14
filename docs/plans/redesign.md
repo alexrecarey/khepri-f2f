@@ -223,7 +223,9 @@ pass.
 ## 5. Gaps the design assumes (rules / data work, not UI)
 
 - `⋯ More` situations — Low / Poor Visibility Zone, Saturation Zone, Engaged — none are
-  modelled in `deriveInputs` yet. Ship the chip list only for the ones that are.
+  modelled in `deriveInputs` yet. Smoke and White Noise are done, but not as `⋯ More`: they
+  belong to the table between the troopers, so they are two small chips in the range selector
+  (canvas Exploration "Zones A1", 2026-10-13; rules/visibility.js). Ship the chip list only for the ones that are.
 - "Missile Launcher (Hit)" / "(Blast)" as separate weapon buttons (DeskWorkbench) — check whether
   `bsWeapons` splits multi-mode weapons today.
 - **No ARO** as a reactive option (unopposed active roll).
@@ -270,7 +272,7 @@ Flagged in the app:
   ("More languages are on the way").
 
 Not flagged in the app:
-- `⋯ More` situations (Low / Poor Visibility Zone, Saturation Zone, Engaged):
+- `⋯ More` situations (Low / Poor Visibility Zone other than Smoke / White Noise, Saturation Zone, Engaged):
   no rules in `deriveInputs` yet; they need rulings first. Prone changes
   nothing to the roll (Alex, 2026-10-10), so it isn't on the list.
 - Biometric Visor ignoring Surprise Attack from Impersonation / Holoecho

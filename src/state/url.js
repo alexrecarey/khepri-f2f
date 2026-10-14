@@ -43,6 +43,7 @@ export function stateFromUrl(search) {
       A: {...EMPTY_SIDE, ...m.A, ftSize: m.ftSize.A},
       B: {...EMPTY_SIDE, ...m.B, ftSize: m.ftSize.B},
       rangeCm: m.rangeCm ?? DEFAULT_RANGE_CM,
+      ...m.zones,
     };
   }
   const hasCalc = PARAM_KEYS.some((k) => params.has(k)) || params.has('dtwVsDodge')
@@ -59,8 +60,8 @@ export function stateFromUrl(search) {
 export function urlFromState(state) {
   const q = new URLSearchParams({mode: state.mode});
   if (state.mode === MODES.matchup) {
-    const {A, B, rangeCm} = state.matchup;
-    const enc = encodeMatchup({selA: A, selB: B, ftSize: {A: A.ftSize, B: B.ftSize}, rangeCm});
+    const {A, B, rangeCm, smoke, whiteNoise} = state.matchup;
+    const enc = encodeMatchup({selA: A, selB: B, ftSize: {A: A.ftSize, B: B.ftSize}, rangeCm, zones: {smoke, whiteNoise}});
     for (const [k, v] of Object.entries(enc)) q.set(k, v);
   } else {
     const c = state.classic;

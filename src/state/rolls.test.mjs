@@ -38,3 +38,10 @@ test('the share card puts each side\'s own situation under it, with the headline
   assert.equal(card.x, matchupRollSummary(v, null).setup.split(' · ')[0]);
   assert.match(card.a.c, /^[a-z0-9-]+$/);
 });
+
+test('Smoke is part of the saved setup line and the share card', () => {
+  const v = matchupView(army, {A: corax, B: chaksa, rangeCm: 40, smoke: true});
+  assert.match(matchupRollSummary(v, null).setup, /Smoke/);
+  const h = {kind: 'wpo', fallback: false, text: {active: '1', reactive: '2'}, label: {active: 'a', reactive: 'r'}};
+  assert.match(matchupShareCard(v, h).x, / · Smoke$/);
+});

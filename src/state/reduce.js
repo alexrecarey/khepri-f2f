@@ -85,6 +85,8 @@ export function reduce(state, action) {
         matchup: {...matchup, rangeCm: action.rangeCm},
         ui: action.open === undefined ? ui : {...ui, rangeOpen: action.open},
       };
+    case 'setZone':
+      return {...state, matchup: {...matchup, [action.zone]: Boolean(action.on)}};
     case 'setRangeOpen':
       return {...state, ui: {...ui, rangeOpen: action.open}};
     // "No ARO" only exists on the reactive side: drop it so the new active side
