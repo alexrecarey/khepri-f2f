@@ -1,6 +1,7 @@
 // Smoke and White Noise, inside the range selector (canvas board A1): two
 // small chips under the legend, each side's zone MOD after its Range MOD, and
-// with the selector closed, the zones' icons by the swap button.
+// a narrow slot by the swap button (board D3) that is always there, open or
+// closed, so the bands never change length.
 import PropTypes from 'prop-types';
 import {ZONES, ZONE_NAME} from '../rules/visibility.js';
 import {dispatch} from '../state/store.js';
@@ -33,16 +34,17 @@ export function ZoneChips({zones, open}) {
 
 ZoneChips.propTypes = {zones: PropTypes.object.isRequired, open: PropTypes.bool};
 
-// Closed: which zones are on, by the swap button; a tap opens the selector.
-export function ZoneMarks({zones}) {
+// The slot: the icons of the zones that are on, or a faint cloud when none
+// is (so the feature can be found); a tap opens or closes the selector.
+export function ZoneMarks({zones, open}) {
   const on = ZONES.filter((z) => zones[z]);
-  if (!on.length) return null;
+  const label = on.length ? `${on.map((z) => ZONE_NAME[z]).join(' and ')} between them` : 'Smoke and White Noise';
   return (
-    <button type="button" className="zone-marks" aria-label={`${on.map((z) => ZONE_NAME[z]).join(' and ')} between them; open range`}
-      onClick={() => dispatch({type: 'setRangeOpen', open: true})}>
-      {on.map((z) => <ZoneIcon key={z} zone={z} size={18} />)}
+    <button type="button" className={`zone-marks${on.length ? ' on' : ''}`} aria-label={`${label}; ${open ? 'close' : 'open'} range`}
+      aria-expanded={open} onClick={() => dispatch({type: 'setRangeOpen', open: !open})}>
+      {on.length ? on.map((z) => <ZoneIcon key={z} zone={z} size={16} />) : <ZoneIcon zone="smoke" size={16} />}
     </button>
   );
 }
 
-ZoneMarks.propTypes = {zones: PropTypes.object.isRequired};
+ZoneMarks.propTypes = {zones: PropTypes.object.isRequired, open: PropTypes.bool};

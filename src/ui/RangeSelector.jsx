@@ -95,7 +95,7 @@ export default function RangeSelector({view}) {
             </button>
           ))}
         </div>
-        {!open && <ZoneMarks zones={view.zones} />}
+        <ZoneMarks zones={view.zones} open={open} />
         <button type="button" className="icon-btn swap" aria-label="Swap active and reactive" onClick={() => flipSwap(() => dispatch({type: 'swapSides'}))}>⇅</button>
       </div>
       <div className="collapse" style={{maxHeight: open ? 104 : 0, opacity: open ? 1 : 0}} aria-hidden={!open}>
