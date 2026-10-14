@@ -23,7 +23,7 @@ import {
 import {AMMO} from '../engine/calculate.js';
 import {
   COVER_BS_MOD, COVER_SAVE_MOD, LIMITS, MOD_CAP, albedoMod, albedoValue, attackBonuses, attackStat, benefitsFromCover, capMods,
-  coverBsMod, dodgeExtras, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, mimetismValue, msvName,
+  coverBsMod, dodgeExtras, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, neurocineticsAroBurst, mimetismValue, msvName,
   opposingMods,
 } from './modifiers.js';
 import {RANGE_BANDS, rangeModFor} from './ranges.js';
@@ -124,6 +124,8 @@ function burstLines(x, s, inputs) {
   const lines = [line(row.burst ?? 1, x.weapon.name ?? row.name, null)];
   const b = attackBonuses(x);
   if (b.burst) lines.push(line(b.burst, 'loadout / BS Attack', s));
+  const neuro = s === 'B' ? neurocineticsAroBurst(x.traits) : 0;
+  if (neuro) lines.push(line(neuro, 'Neurocinetics', s));
   // In ARO a trooper rolls one die, whatever its burst (Total Reaction aside).
   if (s === 'B' && !keepsAroBurst(x) && sum(lines) !== 1) lines.push(line(1 - sum(lines), 'ARO: one die', null));
   return {lines: reconcile(lines, total), total};
