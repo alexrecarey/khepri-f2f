@@ -77,7 +77,8 @@
 .range-foot .mods { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: 13px; }
 .range-foot .mods span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .range-foot .mods b { font-family: var(--font-mono); font-weight: 600; }
-.swap { width: 40px; height: 40px; border: 1px solid var(--line-control); color: var(--text-2); flex-shrink: 0; }
+/* No circle: a narrow glyph with a full-height tap area, so the bands get the width. */
+.swap { width: 28px; height: var(--tap); border-radius: 8px; font-size: 18px; color: var(--text-2); flex-shrink: 0; }
 .label { font-size: var(--fs-label); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .bands { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); flex-grow: 1; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; position: relative; }
 .band { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; position: relative; z-index: 1; }
