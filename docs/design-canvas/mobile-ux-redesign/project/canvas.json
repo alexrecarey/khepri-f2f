@@ -1,5 +1,4 @@
 {
- "v": 3,
  "attachments": {},
  "boards": {
   "CardLedger.dc.html": {
@@ -78,11 +77,20 @@
   "CrestPicker.dc.html": {
    "h": 844,
    "is_interactive": true,
+   "page": "final",
    "title": "Picker results, phone (Crests D): crest behind each row, faint grey; in its own colours on the row a tap or Enter picks",
    "w": 390,
    "x": 470,
-   "y": 15040,
-   "page": "final"
+   "y": 15040
+  },
+  "CrestPickerDesk.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "final",
+   "title": "Picker, desktop (Crests D): crest behind each list row, the highlighted one in its own colours; the detail pane repeats",
+   "w": 1440,
+   "x": 940,
+   "y": 15040
   },
   "CrestSaved.dc.html": {
    "h": 844,
@@ -103,11 +111,11 @@
   "CrestWatermark.dc.html": {
    "h": 844,
    "is_interactive": true,
+   "page": "final",
    "title": "Setup cards with the unit crest (A5): own colours, cut by the top-right corner, soft fade; tap a name to strengthen",
    "w": 390,
    "x": 0,
-   "y": 15040,
-   "page": "final"
+   "y": 15040
   },
   "CrestWatermarkVariants.dc.html": {
    "h": 1068,
@@ -459,6 +467,24 @@
    "x": 0,
    "y": 300
   },
+  "FinalRangeSplit.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "page": "final",
+   "title": "Split range (S3), open \u2014 \"Split range\" chip by Smoke / White Noise; one row of distances, active track above, reactive below",
+   "w": 390,
+   "x": 0,
+   "y": 19884
+  },
+  "FinalRangeSplitClosed.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "page": "final",
+   "title": "Split range (S3), closed \u2014 thin tracks with a green and a pink thumb around the distances",
+   "w": 390,
+   "x": 470,
+   "y": 19884
+  },
   "FinalResults.dc.html": {
    "h": 1680,
    "page": "final",
@@ -491,6 +517,38 @@
    "x": 2350,
    "y": 300
   },
+  "FinalShare.dc.html": {
+   "h": 820,
+   "page": "final",
+   "title": "Share card A + words T1: the number follows the player's headline choice",
+   "w": 1320,
+   "x": 0,
+   "y": 16550
+  },
+  "FinalShareCard.dc.html": {
+   "h": 630,
+   "page": "final",
+   "title": "Share card A as built (1200\u00d7630, worker/card.js); Tweaks: headline",
+   "w": 1200,
+   "x": 1400,
+   "y": 16550
+  },
+  "FinalShareEmpty.dc.html": {
+   "h": 630,
+   "page": "final",
+   "title": "Link with nothing picked: site card E1 (the mark), /og/v1/default.png",
+   "w": 1200,
+   "x": 0,
+   "y": 17490
+  },
+  "FinalShareEmptySitu.dc.html": {
+   "h": 660,
+   "page": "final",
+   "title": "E1 in Discord and WhatsApp (approx); stripe stays the page theme colour",
+   "w": 1765,
+   "x": 1280,
+   "y": 17490
+  },
   "FinalSheet.dc.html": {
    "h": 1440,
    "title": "Final 2 \u2014 swipe up, then just scroll: dice, odds, breakdown, how the dice were built",
@@ -513,6 +571,15 @@
    "w": 390,
    "x": 4230,
    "y": 300
+  },
+  "FinalZones.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "page": "final",
+   "title": "Smoke and White Noise (Zones A1 + D3) \u2014 two small chips under the range legend; each side's zone MOD on its line; a fixe",
+   "w": 390,
+   "x": 0,
+   "y": 18660
   },
   "Fireteam.dc.html": {
    "h": 560,
@@ -730,6 +797,54 @@
    "x": 0,
    "y": 11900
   },
+  "RangeSplitS1Closed.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "S1 Two strips, closed \u2014 both strips stay, stacked; colour stripes hide as today, the green and pink picks show each side",
+   "w": 390,
+   "x": 470,
+   "y": 48656
+  },
+  "RangeSplitS1Open.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "S1 Two strips, open \u2014 \"Split range\" chip next to Smoke / White Noise; top strip = active (its colours on top, green pick",
+   "w": 390,
+   "x": 0,
+   "y": 48656
+  },
+  "RangeSplitS2Closed.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "S2 One strip, two marks, closed \u2014 back to one strip of today's height: green bar on top over the active's band, pink bar",
+   "w": 390,
+   "x": 1410,
+   "y": 48656
+  },
+  "RangeSplitS2Open.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "S2 One strip, two marks, open \u2014 same two strips as S1 while choosing",
+   "w": 390,
+   "x": 940,
+   "y": 48656
+  },
+  "RangeSplitS3Closed.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "S3 Shared scale, closed \u2014 tracks shrink to 6 px bars around the numbers: a green thumb above, a pink one below; strip 4",
+   "w": 390,
+   "x": 2350,
+   "y": 48656
+  },
+  "RangeSplitS3Open.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "S3 Shared scale, open \u2014 one row of distances, a track above for the active and one below for the reactive; each side's c",
+   "w": 390,
+   "x": 1880,
+   "y": 48656
+  },
   "ResultInline.dc.html": {
    "h": 844,
    "title": "Results C \u2014 expands in place, tap a number",
@@ -750,6 +865,118 @@
    "w": 390,
    "x": 0,
    "y": 3190
+  },
+  "ShareCardA.dc.html": {
+   "h": 630,
+   "title": "Share A \u2014 Scoreboard: two big numbers meet in the middle, all text \u226532 px",
+   "w": 1200,
+   "x": 0,
+   "y": 35790
+  },
+  "ShareCardB.dc.html": {
+   "h": 630,
+   "title": "Share B \u2014 Square-safe: the story lives in the centre square, crests own the wings",
+   "w": 1200,
+   "x": 0,
+   "y": 36610
+  },
+  "ShareCardC.dc.html": {
+   "h": 630,
+   "title": "Share C \u2014 Bar-led: who comes out on top, as three plain percentages",
+   "w": 1200,
+   "x": 0,
+   "y": 37430
+  },
+  "ShareCardD.dc.html": {
+   "h": 1200,
+   "title": "Share D \u2014 Square 1200\u00d71200: never cropped, stacked like the phone app",
+   "w": 1200,
+   "x": 0,
+   "y": 38250
+  },
+  "ShareEmptyE1.dc.html": {
+   "h": 630,
+   "title": "Empty share E1 (chosen) \u2014 The mark: logo centred, a green and a pink line meet in it (square-safe)",
+   "w": 1200,
+   "x": 0,
+   "y": 40930
+  },
+  "ShareEmptyE2.dc.html": {
+   "h": 630,
+   "title": "Empty share E2 \u2014 Every army: the 11 vanilla crests ring the mark, name on the left",
+   "w": 1200,
+   "x": 0,
+   "y": 41750
+  },
+  "ShareEmptyE3.dc.html": {
+   "h": 630,
+   "title": "Empty share E3 \u2014 Empty matchup: share A with nothing picked, so bare and filled links match",
+   "w": 1200,
+   "x": 0,
+   "y": 42570
+  },
+  "ShareEmptySituE1.dc.html": {
+   "h": 660,
+   "title": "Empty share E1 in Discord and WhatsApp (approx sizes); bare home-page link",
+   "w": 1765,
+   "x": 1280,
+   "y": 40930
+  },
+  "ShareEmptySituE2.dc.html": {
+   "h": 660,
+   "title": "Empty share E2 in Discord and WhatsApp (approx sizes); bare home-page link",
+   "w": 1765,
+   "x": 1280,
+   "y": 41750
+  },
+  "ShareEmptySituE3.dc.html": {
+   "h": 660,
+   "title": "Empty share E3 in Discord and WhatsApp (approx sizes); bare home-page link",
+   "w": 1765,
+   "x": 1280,
+   "y": 42570
+  },
+  "ShareSituA.dc.html": {
+   "h": 660,
+   "title": "Share A in Discord and WhatsApp (approx sizes)",
+   "w": 1765,
+   "x": 1280,
+   "y": 35790
+  },
+  "ShareSituB.dc.html": {
+   "h": 660,
+   "title": "Share B in Discord and WhatsApp (approx sizes)",
+   "w": 1765,
+   "x": 1280,
+   "y": 36610
+  },
+  "ShareSituC.dc.html": {
+   "h": 660,
+   "title": "Share C in Discord and WhatsApp (approx sizes)",
+   "w": 1765,
+   "x": 1280,
+   "y": 37430
+  },
+  "ShareSituD.dc.html": {
+   "h": 800,
+   "title": "Share D in Discord and WhatsApp (approx sizes)",
+   "w": 1765,
+   "x": 1280,
+   "y": 38250
+  },
+  "ShareSituNow.dc.html": {
+   "h": 680,
+   "title": "Share today vs Crests F as designed \u2014 no preview tags yet; F at real Discord / WhatsApp size",
+   "w": 2172,
+   "x": 0,
+   "y": 34950
+  },
+  "ShareText.dc.html": {
+   "h": 1000,
+   "title": "The words around the image \u2014 og:title / description, Discord stripe, the message text",
+   "w": 1568,
+   "x": 0,
+   "y": 39610
   },
   "SlotDrift.dc.html": {
    "h": 1010,
@@ -879,271 +1106,109 @@
    "x": 1780,
    "y": 23320
   },
-  "CrestPickerDesk.dc.html": {
-   "x": 940,
-   "y": 15040,
-   "w": 1440,
-   "h": 900,
-   "is_interactive": true,
-   "title": "Picker, desktop (Crests D): crest behind each list row, the highlighted one in its own colours; the detail pane repeats it in its corner (A5)",
-   "page": "final"
-  },
-  "ShareSituNow.dc.html": {
-   "x": 0,
-   "y": 34950,
-   "w": 2172,
-   "h": 680,
-   "title": "Share today vs Crests F as designed \u2014 no preview tags yet; F at real Discord / WhatsApp size"
-  },
-  "ShareCardA.dc.html": {
-   "x": 0,
-   "y": 35790,
-   "w": 1200,
-   "h": 630,
-   "title": "Share A \u2014 Scoreboard: two big numbers meet in the middle, all text \u226532 px"
-  },
-  "ShareSituA.dc.html": {
-   "x": 1280,
-   "y": 35790,
-   "w": 1765,
-   "h": 660,
-   "title": "Share A in Discord and WhatsApp (approx sizes)"
-  },
-  "ShareCardB.dc.html": {
-   "x": 0,
-   "y": 36610,
-   "w": 1200,
-   "h": 630,
-   "title": "Share B \u2014 Square-safe: the story lives in the centre square, crests own the wings"
-  },
-  "ShareSituB.dc.html": {
-   "x": 1280,
-   "y": 36610,
-   "w": 1765,
-   "h": 660,
-   "title": "Share B in Discord and WhatsApp (approx sizes)"
-  },
-  "ShareCardC.dc.html": {
-   "x": 0,
-   "y": 37430,
-   "w": 1200,
-   "h": 630,
-   "title": "Share C \u2014 Bar-led: who comes out on top, as three plain percentages"
-  },
-  "ShareSituC.dc.html": {
-   "x": 1280,
-   "y": 37430,
-   "w": 1765,
-   "h": 660,
-   "title": "Share C in Discord and WhatsApp (approx sizes)"
-  },
-  "ShareCardD.dc.html": {
-   "x": 0,
-   "y": 38250,
-   "w": 1200,
-   "h": 1200,
-   "title": "Share D \u2014 Square 1200\u00d71200: never cropped, stacked like the phone app"
-  },
-  "ShareSituD.dc.html": {
-   "x": 1280,
-   "y": 38250,
-   "w": 1765,
-   "h": 800,
-   "title": "Share D in Discord and WhatsApp (approx sizes)"
-  },
-  "ShareText.dc.html": {
-   "x": 0,
-   "y": 39610,
-   "w": 1568,
-   "h": 1000,
-   "title": "The words around the image \u2014 og:title / description, Discord stripe, the message text"
-  },
-  "ShareEmptyE1.dc.html": {
-   "x": 0,
-   "y": 40930,
-   "w": 1200,
-   "h": 630,
-   "title": "Empty share E1 (chosen) \u2014 The mark: logo centred, a green and a pink line meet in it (square-safe)"
-  },
-  "ShareEmptySituE1.dc.html": {
-   "x": 1280,
-   "y": 40930,
-   "w": 1765,
-   "h": 660,
-   "title": "Empty share E1 in Discord and WhatsApp (approx sizes); bare home-page link"
-  },
-  "ShareEmptyE2.dc.html": {
-   "x": 0,
-   "y": 41750,
-   "w": 1200,
-   "h": 630,
-   "title": "Empty share E2 \u2014 Every army: the 11 vanilla crests ring the mark, name on the left"
-  },
-  "ShareEmptySituE2.dc.html": {
-   "x": 1280,
-   "y": 41750,
-   "w": 1765,
-   "h": 660,
-   "title": "Empty share E2 in Discord and WhatsApp (approx sizes); bare home-page link"
-  },
-  "ShareEmptyE3.dc.html": {
-   "x": 0,
-   "y": 42570,
-   "w": 1200,
-   "h": 630,
-   "title": "Empty share E3 \u2014 Empty matchup: share A with nothing picked, so bare and filled links match"
-  },
-  "ShareEmptySituE3.dc.html": {
-   "x": 1280,
-   "y": 42570,
-   "w": 1765,
-   "h": 660,
-   "title": "Empty share E3 in Discord and WhatsApp (approx sizes); bare home-page link"
-  },
-  "FinalShare.dc.html": {
-   "x": 0,
-   "y": 16550,
-   "w": 1320,
-   "h": 820,
-   "page": "final",
-   "title": "Share card A + words T1: the number follows the player's headline choice"
-  },
-  "FinalShareCard.dc.html": {
-   "x": 1400,
-   "y": 16550,
-   "w": 1200,
-   "h": 630,
-   "page": "final",
-   "title": "Share card A as built (1200\u00d7630, worker/card.js); Tweaks: headline"
-  },
-  "FinalShareEmpty.dc.html": {
-   "x": 0,
-   "y": 17490,
-   "w": 1200,
-   "h": 630,
-   "page": "final",
-   "title": "Link with nothing picked: site card E1 (the mark), /og/v1/default.png"
-  },
-  "FinalShareEmptySitu.dc.html": {
-   "x": 1280,
-   "y": 17490,
-   "w": 1765,
-   "h": 660,
-   "page": "final",
-   "title": "E1 in Discord and WhatsApp (approx); stripe stays the page theme colour"
-  },
-  "ZoneInRange.dc.html": {
-   "x": 0,
-   "y": 43760,
-   "w": 390,
-   "h": 844,
-   "title": "Zones A \u2014 in the range panel: \"Between them\" chips; closed strip wears the haze + one caption line",
-   "is_interactive": true
-  },
-  "ZoneButton.dc.html": {
-   "x": 470,
-   "y": 43760,
-   "w": 390,
-   "h": 844,
-   "title": "Zones B \u2014 a zone button beside \u21c5: small menu, removable chips under the strip",
-   "is_interactive": true
-  },
-  "ZoneLofRow.dc.html": {
-   "x": 940,
-   "y": 43760,
-   "w": 390,
-   "h": 844,
-   "title": "Zones C \u2014 a \"Line of fire\" row of its own above the range strip, always visible, effects per side",
-   "is_interactive": true
-  },
-  "ZoneA1Tiles.dc.html": {
-   "x": 0,
-   "y": 44984,
-   "w": 390,
-   "h": 844,
-   "title": "A1 Small chips \u2014 two small Smoke / White noise chips tucked right under the legend; zone MOD on each side's line; closed: icon by \u21c5",
-   "is_interactive": true
-  },
-  "ZoneA2Header.dc.html": {
-   "x": 470,
-   "y": 44984,
-   "w": 390,
-   "h": 844,
-   "title": "A2 Header toggles \u2014 Smoke / White noise beside the range label; closed: small caps caption",
-   "is_interactive": true
-  },
-  "ZoneA3Switches.dc.html": {
-   "x": 940,
-   "y": 44984,
-   "w": 390,
-   "h": 844,
-   "title": "A3 Switches \u2014 one row per zone with its rule and a switch; closed: small caps caption",
-   "is_interactive": true
-  },
-  "ZoneA4Fog.dc.html": {
-   "x": 1410,
-   "y": 44984,
-   "w": 390,
-   "h": 844,
-   "title": "A4 Fog \u2014 the zone is drawn across the bands (open or closed); plain \"+ Smoke\" text buttons",
-   "is_interactive": true
-  },
-  "ZoneB1Split.dc.html": {
-   "x": 0,
-   "y": 46208,
-   "w": 390,
-   "h": 844,
-   "title": "B1 Split pill \u2014 zone and \u21c5 share one pill (72 px, was 88 in B); bands 41 px each instead of 37",
-   "is_interactive": true
-  },
-  "ZoneB2SwapMenu.dc.html": {
-   "x": 470,
-   "y": 46208,
-   "w": 390,
-   "h": 844,
-   "title": "B2 Swap opens a menu \u2014 one button as today, bands keep full width; Swap sides becomes the menu's first row",
-   "is_interactive": true
-  },
-  "ZoneB3Line.dc.html": {
-   "x": 940,
-   "y": 46208,
-   "w": 390,
-   "h": 844,
-   "title": "B3 A line under the strip \u2014 \"+ Smoke / White noise\" pill, then chips and a small +; bands keep full width",
-   "is_interactive": true
-  },
-  "FinalZones.dc.html": {
-   "x": 0,
-   "y": 18660,
-   "w": 390,
-   "h": 844,
-   "page": "final",
-   "title": "Smoke and White Noise (Zones A1 + D3) \u2014 two small chips under the range legend; each side's zone MOD on its line; a fixed slot by \u21c5 (icons when on, faint cloud when off; tap opens) so the bands never change length; \u21c5 without its circle",
-   "is_interactive": true
-  },
   "ZoneA1Badge.dc.html": {
-   "x": 0,
-   "y": 47432,
-   "w": 390,
    "h": 844,
+   "is_interactive": true,
    "title": "D1 Badge \u2014 the icons ride on the swap button's corner; strip and \u21c5 never move",
-   "is_interactive": true
+   "w": 390,
+   "x": 0,
+   "y": 47432
   },
   "ZoneA1Notch.dc.html": {
-   "x": 470,
-   "y": 47432,
-   "w": 390,
    "h": 844,
+   "is_interactive": true,
    "title": "D2 Notch \u2014 the icons sit in a gap on the strip's top border, by its right end",
-   "is_interactive": true
+   "w": 390,
+   "x": 470,
+   "y": 47432
   },
   "ZoneA1Slot.dc.html": {
-   "x": 940,
-   "y": 47432,
-   "w": 390,
    "h": 844,
+   "is_interactive": true,
    "title": "D3 Fixed slot \u2014 a narrow slot by \u21c5 that is always there: icons when on, faint cloud when off (tap opens)",
-   "is_interactive": true
+   "w": 390,
+   "x": 940,
+   "y": 47432
+  },
+  "ZoneA1Tiles.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "A1 Small chips \u2014 two small Smoke / White noise chips tucked right under the legend; zone MOD on each side's line; closed",
+   "w": 390,
+   "x": 0,
+   "y": 44984
+  },
+  "ZoneA2Header.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "A2 Header toggles \u2014 Smoke / White noise beside the range label; closed: small caps caption",
+   "w": 390,
+   "x": 470,
+   "y": 44984
+  },
+  "ZoneA3Switches.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "A3 Switches \u2014 one row per zone with its rule and a switch; closed: small caps caption",
+   "w": 390,
+   "x": 940,
+   "y": 44984
+  },
+  "ZoneA4Fog.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "A4 Fog \u2014 the zone is drawn across the bands (open or closed); plain \"+ Smoke\" text buttons",
+   "w": 390,
+   "x": 1410,
+   "y": 44984
+  },
+  "ZoneB1Split.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "B1 Split pill \u2014 zone and \u21c5 share one pill (72 px, was 88 in B); bands 41 px each instead of 37",
+   "w": 390,
+   "x": 0,
+   "y": 46208
+  },
+  "ZoneB2SwapMenu.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "B2 Swap opens a menu \u2014 one button as today, bands keep full width; Swap sides becomes the menu's first row",
+   "w": 390,
+   "x": 470,
+   "y": 46208
+  },
+  "ZoneB3Line.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "B3 A line under the strip \u2014 \"+ Smoke / White noise\" pill, then chips and a small +; bands keep full width",
+   "w": 390,
+   "x": 940,
+   "y": 46208
+  },
+  "ZoneButton.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "Zones B \u2014 a zone button beside \u21c5: small menu, removable chips under the strip",
+   "w": 390,
+   "x": 470,
+   "y": 43760
+  },
+  "ZoneInRange.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "Zones A \u2014 in the range panel: \"Between them\" chips; closed strip wears the haze + one caption line",
+   "w": 390,
+   "x": 0,
+   "y": 43760
+  },
+  "ZoneLofRow.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "Zones C \u2014 a \"Line of fire\" row of its own above the range strip, always visible, effects per side",
+   "w": 390,
+   "x": 940,
+   "y": 43760
   }
  },
  "createdOnFiles": {
@@ -1244,6 +1309,15 @@
    "x": 0,
    "y": 5400
   },
+  "finalcrests": {
+   "kind": "title1",
+   "maxW": 2380,
+   "page": "final",
+   "text": "Unit crests",
+   "w": 240,
+   "x": 0,
+   "y": 14790
+  },
   "finaldesk": {
    "kind": "title1",
    "maxW": 6400,
@@ -1307,6 +1381,14 @@
    "x": 0,
    "y": 0
   },
+  "finalrangesplit": {
+   "kind": "title1",
+   "maxW": 860,
+   "page": "final",
+   "text": "Split range \u2014 each side at its own distance",
+   "x": 0,
+   "y": 19624
+  },
   "finalsaveddesk": {
    "kind": "title1",
    "maxW": 1440,
@@ -1316,6 +1398,15 @@
    "x": 0,
    "y": 12120
   },
+  "finalshare": {
+   "kind": "title1",
+   "maxW": 3045,
+   "page": "final",
+   "text": "Share card \u2014 Discord & WhatsApp",
+   "w": 240,
+   "x": 0,
+   "y": 16300
+  },
   "finalwounds": {
    "kind": "title1",
    "maxW": 3000,
@@ -1324,6 +1415,15 @@
    "w": 240,
    "x": 0,
    "y": 9720
+  },
+  "finalzones": {
+   "kind": "title1",
+   "maxW": 1330,
+   "page": "final",
+   "text": "Smoke and White Noise \u2014 between the cards",
+   "w": 240,
+   "x": 0,
+   "y": 18400
   },
   "headline": {
    "kind": "title1",
@@ -1391,6 +1491,14 @@
    "x": 0,
    "y": 11650
   },
+  "rangesplit": {
+   "kind": "title1",
+   "maxW": 2740,
+   "text": "Split range \u2014 each side picks its own distance",
+   "w": 240,
+   "x": 0,
+   "y": 48396
+  },
   "results": {
    "kind": "title1",
    "maxW": 1800,
@@ -1398,6 +1506,22 @@
    "w": 240,
    "x": 0,
    "y": 2960
+  },
+  "share": {
+   "kind": "title1",
+   "maxW": 3100,
+   "text": "Share card \u2014 built for Discord and WhatsApp",
+   "w": 240,
+   "x": 0,
+   "y": 34700
+  },
+  "shareempty": {
+   "kind": "title1",
+   "maxW": 3100,
+   "text": "Share card \u2014 a link with nothing picked",
+   "w": 240,
+   "x": 0,
+   "y": 40700
   },
   "slotmotion": {
    "kind": "title1",
@@ -1424,72 +1548,37 @@
    "x": 0,
    "y": 23070
   },
-  "finalcrests": {
-   "kind": "title1",
-   "maxW": 2380,
-   "text": "Unit crests",
-   "w": 240,
-   "x": 0,
-   "y": 14790,
-   "page": "final"
-  },
-  "share": {
-   "x": 0,
-   "y": 34700,
-   "text": "Share card \u2014 built for Discord and WhatsApp",
-   "kind": "title1",
-   "maxW": 3100
-  },
-  "shareempty": {
-   "x": 0,
-   "y": 40700,
-   "text": "Share card \u2014 a link with nothing picked",
-   "kind": "title1",
-   "maxW": 3100
-  },
-  "finalshare": {
-   "x": 0,
-   "y": 16300,
-   "text": "Share card \u2014 Discord & WhatsApp",
-   "kind": "title1",
-   "maxW": 3045,
-   "page": "final"
-  },
   "zones": {
-   "x": 0,
-   "y": 43500,
-   "text": "Smoke and White noise \u2014 between the cards",
-   "kind": "title1",
-   "maxW": 1330
-  },
-  "zonesa": {
-   "x": 0,
-   "y": 44724,
-   "text": "Zones A \u2014 four looks",
-   "kind": "title1",
-   "maxW": 1800
-  },
-  "zonesb": {
-   "x": 0,
-   "y": 45948,
-   "text": "Zones B \u2014 without squeezing the bands",
-   "kind": "title1",
-   "maxW": 1330
-  },
-  "finalzones": {
-   "x": 0,
-   "y": 18400,
-   "text": "Smoke and White Noise \u2014 between the cards",
    "kind": "title1",
    "maxW": 1330,
-   "page": "final"
+   "text": "Smoke and White noise \u2014 between the cards",
+   "w": 240,
+   "x": 0,
+   "y": 43500
+  },
+  "zonesa": {
+   "kind": "title1",
+   "maxW": 1800,
+   "text": "Zones A \u2014 four looks",
+   "w": 240,
+   "x": 0,
+   "y": 44724
+  },
+  "zonesb": {
+   "kind": "title1",
+   "maxW": 1330,
+   "text": "Zones B \u2014 without squeezing the bands",
+   "w": 240,
+   "x": 0,
+   "y": 45948
   },
   "zonesd": {
-   "x": 0,
-   "y": 47172,
-   "text": "Zone icons \u2014 the strip keeps its length",
    "kind": "title1",
-   "maxW": 1330
+   "maxW": 1330,
+   "text": "Zone icons \u2014 the strip keeps its length",
+   "w": 240,
+   "x": 0,
+   "y": 47172
   }
  },
  "order": [
@@ -1644,7 +1733,15 @@
   "FinalZones.dc.html",
   "ZoneA1Badge.dc.html",
   "ZoneA1Notch.dc.html",
-  "ZoneA1Slot.dc.html"
+  "ZoneA1Slot.dc.html",
+  "RangeSplitS1Open.dc.html",
+  "RangeSplitS1Closed.dc.html",
+  "RangeSplitS2Open.dc.html",
+  "RangeSplitS2Closed.dc.html",
+  "RangeSplitS3Open.dc.html",
+  "RangeSplitS3Closed.dc.html",
+  "FinalRangeSplit.dc.html",
+  "FinalRangeSplitClosed.dc.html"
  ],
  "pages": [
   {
@@ -1660,5 +1757,6 @@
    "name": "Final"
   }
  ],
- "title": "Infinity the Calculator"
+ "title": "Infinity the Calculator",
+ "v": 3
 }
