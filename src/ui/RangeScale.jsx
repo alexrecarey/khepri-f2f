@@ -2,7 +2,8 @@
 // shared row of distances, a track above it for the active and one below for
 // the reactive, each holding its side's pick. Open, each track carries its
 // weapon's Range MOD colours; closed, the tracks shrink to thin bars, so both
-// distances still show.
+// distances still show. A tap on a distance only opens the selector: it
+// belongs to both sides, so it can't pick for either.
 import PropTypes from 'prop-types';
 import {RANGE_BANDS} from '../rules/ranges.js';
 import {dispatch} from '../state/store.js';
@@ -33,7 +34,9 @@ export default function RangeScale({bands, open, selA, selB}) {
         return (
           <div className="scale-col" key={b.to}>
             <Pick side="A" i={i} on={i === selA} mod={bands[i].A} open={open} />
-            <span className={`dist${on ? ' on' : ''}`} aria-hidden="true">{on ? `${b.inches}"` : b.inches}</span>
+            {/* Keyboard users pick on the tracks, which open it too. */}
+            <button type="button" className={`dist${on ? ' on' : ''}`} tabIndex={-1} aria-label={`${b.label}; open range`}
+              onClick={() => dispatch({type: 'setRangeOpen', open: true})}>{on ? `${b.inches}"` : b.inches}</button>
             <Pick side="B" i={i} on={i === selB} mod={bands[i].B} open={open} />
           </div>
         );
