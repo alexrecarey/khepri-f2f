@@ -141,6 +141,16 @@ export function dodgeSuccessValue(profile, traits, mod = 0) {
   return clamp(LIMITS.successValue, sv + capMods(dodge.mod + mod));
 }
 
+// Bangbomb (+X): +X to the user's Dodge Roll, but not against Template
+// Weapons (Direct or Impact). `incoming` is the attacker's weapon; nothing
+// when it isn't attacking. The LoF/ZoC restriction always holds in a Face to
+// Face Roll between the two.
+export function bangbombMod(traits, incoming) {
+  if (!incoming?.row || isTemplate(incoming.row) || isImpactTemplate(incoming.row)) return 0;
+  const m = /^\+(\d+)$/.exec(equipExtra(traits, EQUIP.BANGBOMB) ?? '');
+  return m ? Number(m[1]) : 0;
+}
+
 // BS Attack (-X): while the trooper makes a BS Attack that is rolled, the
 // opponent takes -X on its Face to Face Roll, whatever it does (shoot or
 // Dodge). Nothing when the trooper Dodges, uses a Direct Template (no roll, so

@@ -6,7 +6,7 @@ import {hasEquip, hasSkill} from '../army/traits.js';
 import {causesWounds, hasContinuousDamage, isNonLethal, isTemplate, weaponPS} from '../army/weapons.js';
 import {
   COVER_SAVE_MOD, LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, capMods, clamp, coverBsMod, dodgeExtras,
-  dodgeSuccessValue, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, neurocineticsAroBurst, opposingMods,
+  bangbombMod, dodgeSuccessValue, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, neurocineticsAroBurst, opposingMods,
 } from './modifiers.js';
 import {rangeModFor} from './ranges.js';
 import {ZONE_NAME, visibility} from './visibility.js';
@@ -116,14 +116,15 @@ function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0, visMod =
   return out;
 }
 
-// A Dodge: one PH roll (Dodge MODs and the Fireteam's +1 included, Dodge
-// (+1SD) as Special Dice) that causes no Saving Rolls.
-function dodgeInputs(x, side, opposing = 0) {
+// A Dodge: one PH roll (Dodge MODs, Bangbomb and the Fireteam's +1 included,
+// Dodge (+1SD) as Special Dice) that causes no Saving Rolls. `incoming`: the
+// weapon being Dodged, if any.
+function dodgeInputs(x, side, opposing = 0, incoming = null) {
   return {
     [`ammo${side}`]: 'DODGE',
     [`burst${side}`]: 1,
     [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, dodgeExtras(x.traits).sd),
-    [`successValue${side}`]: dodgeSuccessValue(x.profile, x.traits, fireteamBonuses(x.ftSize).dodge + opposing),
+    [`successValue${side}`]: dodgeSuccessValue(x.profile, x.traits, fireteamBonuses(x.ftSize).dodge + bangbombMod(x.traits, incoming) + opposing),
     [`cont${side}`]: false,
     [`shock${side}`]: false,
   };
@@ -189,7 +190,7 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
     if (!a.weapon) {
       incomplete = true;
     } else if (a.weapon.pseudo === 'dodge') {
-      Object.assign(inputs, dodgeInputs(a, 'A', onA));
+      Object.assign(inputs, dodgeInputs(a, 'A', onA, vis.B.blocked ? null : b?.weapon));
       inputs.templateA = false;
     } else if (a.weapon.pseudo) {
       incomplete = true; // e.g. "No ARO" carried over; the active side needs a real choice
@@ -209,7 +210,7 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
     if (!b.weapon) {
       incomplete = true;
     } else if (b.weapon.pseudo === 'dodge') {
-      Object.assign(inputs, dodgeInputs(b, 'B', onB));
+      Object.assign(inputs, dodgeInputs(b, 'B', onB, vis.A.blocked ? null : a?.weapon));
       inputs.templateB = false;
     } else if (b.weapon.pseudo === 'none') {
       inputs.burstB = 0;
