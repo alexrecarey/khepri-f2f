@@ -50,7 +50,7 @@ const profile = (over = {}) => ({id: 1, name: 'P', bs: 12, ph: 12, arm: 2, bts: 
 const option = (weapons, over = {}) => ({id: 1, name: 'O', points: 10, swc: '0', weapons, skills: [], equip: [], ...over});
 const side = (p, o, weaponKey, inCover = false) => {
   const traits = effectiveTraits(p, o);
-  const weapon = trooperWeapons(o, W, traits).find((w) => w.key === weaponKey) ?? pseudoWeapons(p, traits).find((w) => w.key === weaponKey) ?? null;
+  const weapon = trooperWeapons(o, W, traits).find((w) => w.key === weaponKey) ?? pseudoWeapons(traits).find((w) => w.key === weaponKey) ?? null;
   return {profile: p, option: o, traits, weapon, inCover};
 };
 const combi = option([{id: 1, name: 'Combi Rifle'}, {id: 8, name: 'CC Weapon'}]);
@@ -293,8 +293,8 @@ test('active Dodge: PH roll, no damage, reactive still shoots', () => {
   assert.equal(r.inputs.successValueB, 15);   // 12 + 3 range, dodger not in cover
   assert.equal(r.inputs.burstB, 1);
   assert.equal(r.inputs.armA, 2);
-  assert.deepEqual(pseudoWeapons(dodger, effectiveTraits(dodger, combi), 'A').map((w) => w.key), ['dodge']);
-  assert.deepEqual(pseudoWeapons(dodger, effectiveTraits(dodger, combi), 'B').map((w) => w.key), ['dodge', 'none']);
+  assert.deepEqual(pseudoWeapons(effectiveTraits(dodger, combi), 'A').map((w) => w.key), ['dodge']);
+  assert.deepEqual(pseudoWeapons(effectiveTraits(dodger, combi), 'B').map((w) => w.key), ['dodge', 'none']);
   // Dodging an ARO template: the template's hits are the reactive side's.
   const vsTemplate = derive({active: side(dodger, combi, 'dodge'), reactive: side(profile(), option([{id: 3, name: 'Heavy Flamethrower'}]), '3:'), rangeCm: 20});
   assert.equal(vsTemplate.ok, true);
@@ -1605,15 +1605,19 @@ test('White Noise and Albedo stack; with Smoke and White Noise nobody sees', () 
 
 test('Bangbomb (+X) is its own Dodge choice: +X, but not against Template Weapons', () => {
   const bandit = profile({ph: 13, equip: [{id: 246, name: 'Bangbomb', extra: ['+4']}]});
-  const choices = pseudoWeapons(bandit, effectiveTraits(bandit, combi), 'B');
-  assert.deepEqual(choices.map((w) => w.label), ['Dodge (PH 13)', 'Bangbomb (PH 17)', 'No ARO (unopposed)']);
-  assert.equal(pseudoWeapons(profile(), {skills: [], equip: []}).some((w) => w.bangbomb), false);
+  const choices = pseudoWeapons(effectiveTraits(bandit, combi), 'B');
+  assert.deepEqual(choices.map((w) => w.label), ['Dodge', 'Bangbomb', 'No ARO (unopposed)']);
+  assert.equal(pseudoWeapons({skills: [], equip: []}).some((w) => w.bangbomb), false);
   const dodgeVs = (weapons, key, pick = 'bangbomb') =>
     derive({active: side(profile(), option(weapons), key), reactive: side(bandit, combi, pick), rangeCm: 20}).inputs.successValueB;
   assert.equal(dodgeVs([{id: 1, name: 'Combi Rifle'}], '1:'), 17);
   // A plain Dodge (e.g. shot in the back, outside its LoF): no Bangbomb.
   assert.equal(dodgeVs([{id: 1, name: 'Combi Rifle'}], '1:', 'dodge'), 13);
   assert.equal(dodgeVs([{id: 3, name: 'Heavy Flamethrower'}], '3:'), 13);
+  // The ledger shows the cancelled bonus struck out.
+  const vsFlamer = {active: side(profile(), option([{id: 3, name: 'Heavy Flamethrower'}]), '3:'), reactive: side(bandit, combi, 'bangbomb'), rangeCm: 20};
+  const sv = buildLedger({...vsFlamer, inputs: derive(vsFlamer).inputs}).B.sv.lines;
+  assert.deepEqual(sv.find((x) => x.label === 'Bangbomb (+4)'), {value: 4, label: 'Bangbomb (+4)', by: 'B', struck: 'Template'});
   assert.equal(dodgeVs([{id: 19, name: 'Light Rocket Launcher'}], '19:Blast Mode'), 13);
   // Bangbomb in the Active Turn against a shot.
   const r = derive({active: side(bandit, combi, 'bangbomb'), reactive: side(profile(), combi, '1:'), rangeCm: 20});

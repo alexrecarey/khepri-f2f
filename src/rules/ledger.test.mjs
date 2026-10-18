@@ -28,7 +28,7 @@ function randomSide(side) {
       inCover: rand() < 0.4, surpriseAttack: rand() < 0.5, ftSize: pickOne([1, 1, 2, 3, 4, 5])};
     const r = resolveSelection(army, sel);
     const weapons = trooperWeapons(r.option, army.weapons, r.traits);
-    const choices = [...weapons, ...pseudoWeapons(r.profile, r.traits, side)];
+    const choices = [...weapons, ...pseudoWeapons(r.traits, side)];
     const w = rand() < 0.85 && weapons.length ? pickOne(weapons) : pickOne(choices);
     return resolveSelection(army, {...sel, weaponKey: w.key});
   }
