@@ -10,7 +10,7 @@ import {fullParams} from '../engine/params.js';
 import {defaultWeapon, sortWeapons} from '../rules/defaultWeapon.js';
 import {buildLedger} from '../rules/ledger.js';
 import {deriveInputs} from '../rules/matchup.js';
-import {fireteamBonuses, surpriseAttackMod} from '../rules/modifiers.js';
+import {surpriseAttackMod} from '../rules/modifiers.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {visibility} from '../rules/visibility.js';
 import {pseudoWeapons, resolveSelection, trooperWeapons} from '../rules/trooper.js';
@@ -69,7 +69,7 @@ function sideView(army, sel, side) {
   const resolved = resolveSelection(army, effective);
   const weapons = resolved?.option ? trooperWeapons(resolved.option, army.weapons, resolved.traits) : [];
   const pseudo = resolved?.profile
-    ? pseudoWeapons(resolved.profile, resolved.traits, side, fireteamBonuses(resolved.ftSize).dodge)
+    ? pseudoWeapons(resolved.traits, side)
     : [];
   const unit = resolved?.unit;
   return {

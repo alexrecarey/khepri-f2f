@@ -152,8 +152,10 @@ export function bangbombValue(traits) {
 // Dodge: it needs the attacker in the user's LoF or ZoC, which the calculator
 // can't tell (a shot in the back), so the player chooses. Never against
 // Template Weapons, Direct or Impact.
+export const cancelsBangbomb = (row) => isTemplate(row) || isImpactTemplate(row);
+
 export function bangbombMod(x, incoming) {
-  if (!x?.weapon?.bangbomb || !incoming?.row || isTemplate(incoming.row) || isImpactTemplate(incoming.row)) return 0;
+  if (!x?.weapon?.bangbomb || !incoming?.row || cancelsBangbomb(incoming.row)) return 0;
   return bangbombValue(x.traits);
 }
 
