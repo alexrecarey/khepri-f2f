@@ -113,7 +113,7 @@ function dodgeSv(x, y, s, total, yBlocked) {
   if (d.mod) lines.push(line(d.mod, `Dodge (+${d.mod})`, s));
   const ft = fireteamBonuses(x.ftSize).dodge;
   if (ft) lines.push(line(ft, `Fireteam ${x.ftSize}`, s));
-  const bang = yBlocked ? 0 : bangbombMod(x.traits, y?.weapon);
+  const bang = yBlocked ? 0 : bangbombMod(x, y?.weapon);
   if (bang) lines.push(line(bang, `Bangbomb (+${bang})`, s));
   if (y && !yBlocked) lines.push(...opposingLines(y, x, t, t === 'A'));
   clampSv(lines);

@@ -2,6 +2,7 @@
 import {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {RANGE_BANDS} from '../rules/ranges.js';
+import {pseudoName} from '../rules/trooper.js';
 import {dispatch, useAppState} from '../state/store.js';
 import {bandColor, signedMod as signed} from './bands.js';
 import RangeScale, {SplitChip} from './RangeScale.jsx';
@@ -37,7 +38,7 @@ function flipSwap(run) {
 const weaponName = (side) => {
   const w = side.resolved?.weapon;
   if (!w) return '—';
-  if (w.pseudo) return w.pseudo === 'dodge' ? 'Dodge' : 'No ARO';
+  if (w.pseudo) return pseudoName(w);
   return weaponText(w);
 };
 
