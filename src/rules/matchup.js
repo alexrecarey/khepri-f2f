@@ -124,7 +124,7 @@ function dodgeInputs(x, side, opposing = 0, incoming = null) {
     [`ammo${side}`]: 'DODGE',
     [`burst${side}`]: 1,
     [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, dodgeExtras(x.traits).sd),
-    [`successValue${side}`]: dodgeSuccessValue(x.profile, x.traits, fireteamBonuses(x.ftSize).dodge + bangbombMod(x.traits, incoming) + opposing),
+    [`successValue${side}`]: dodgeSuccessValue(x.profile, x.traits, fireteamBonuses(x.ftSize).dodge + bangbombMod(x, incoming) + opposing),
     [`cont${side}`]: false,
     [`shock${side}`]: false,
   };

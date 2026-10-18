@@ -1603,14 +1603,19 @@ test('White Noise and Albedo stack; with Smoke and White Noise nobody sees', () 
   }
 });
 
-test('Bangbomb (+X) adds to the Dodge, but not against Template Weapons', () => {
+test('Bangbomb (+X) is its own Dodge choice: +X, but not against Template Weapons', () => {
   const bandit = profile({ph: 13, equip: [{id: 246, name: 'Bangbomb', extra: ['+4']}]});
-  const dodgeVs = (weapons, key) =>
-    derive({active: side(profile(), option(weapons), key), reactive: side(bandit, combi, 'dodge'), rangeCm: 20}).inputs.successValueB;
+  const choices = pseudoWeapons(bandit, effectiveTraits(bandit, combi), 'B');
+  assert.deepEqual(choices.map((w) => w.label), ['Dodge (PH 13)', 'Bangbomb (PH 17)', 'No ARO (unopposed)']);
+  assert.equal(pseudoWeapons(profile(), {skills: [], equip: []}).some((w) => w.bangbomb), false);
+  const dodgeVs = (weapons, key, pick = 'bangbomb') =>
+    derive({active: side(profile(), option(weapons), key), reactive: side(bandit, combi, pick), rangeCm: 20}).inputs.successValueB;
   assert.equal(dodgeVs([{id: 1, name: 'Combi Rifle'}], '1:'), 17);
+  // A plain Dodge (e.g. shot in the back, outside its LoF): no Bangbomb.
+  assert.equal(dodgeVs([{id: 1, name: 'Combi Rifle'}], '1:', 'dodge'), 13);
   assert.equal(dodgeVs([{id: 3, name: 'Heavy Flamethrower'}], '3:'), 13);
   assert.equal(dodgeVs([{id: 19, name: 'Light Rocket Launcher'}], '19:Blast Mode'), 13);
-  // Dodging in the Active Turn against a shot.
-  const r = derive({active: side(bandit, combi, 'dodge'), reactive: side(profile(), combi, '1:'), rangeCm: 20});
+  // Bangbomb in the Active Turn against a shot.
+  const r = derive({active: side(bandit, combi, 'bangbomb'), reactive: side(profile(), combi, '1:'), rangeCm: 20});
   assert.equal(r.inputs.successValueA, 17);
 });

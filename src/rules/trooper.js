@@ -5,7 +5,7 @@ import {applyStatOverrides, applyUpgrades, pickedUpgrades} from '../army/loadout
 import {unitById} from '../army/lookup.js';
 import {effectiveTraits, hasSkill, skillExtras} from '../army/traits.js';
 import {ammoTypes, bsWeapons, hasAmmo, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
-import {dodgeSuccessValue, fireteamMax, fireteamSize} from './modifiers.js';
+import {bangbombValue, dodgeSuccessValue, fireteamMax, fireteamSize} from './modifiers.js';
 
 // What the trooper's BS Attack skill (profile, loadout or upgrade) does to
 // every weapon it makes a BS Attack with, templates and grenades included:
@@ -46,11 +46,18 @@ export function trooperWeapons(option, weapons, traits) {
 
 // Choices that are not weapons.
 // Dodge is valid for both sides; "No ARO" only makes sense for the reactive one.
+// Bangbomb is a second Dodge, for the player to pick when its LoF/ZoC
+// restriction holds; the label shows its PH before any Template cancels it.
 export function pseudoWeapons(profile, traits, side = 'B', dodgeMod = 0) {
   const list = [{key: 'dodge', pseudo: 'dodge', label: `Dodge (PH ${dodgeSuccessValue(profile, traits, dodgeMod)})`}];
+  const bang = bangbombValue(traits);
+  if (bang) list.push({key: 'bangbomb', pseudo: 'dodge', bangbomb: true, label: `Bangbomb (PH ${dodgeSuccessValue(profile, traits, dodgeMod + bang)})`});
   if (side === 'B') list.push({key: 'none', pseudo: 'none', label: 'No ARO (unopposed)'});
   return list;
 }
+
+// Short name of a choice that is not a weapon.
+export const pseudoName = (w) => (w.pseudo === 'dodge' ? (w.bangbomb ? 'Bangbomb' : 'Dodge') : 'No ARO');
 
 // Resolves a picker selection (ids) against the army data. The returned
 // profile has the loadout's stat overrides and any Team-Ops upgrades applied;

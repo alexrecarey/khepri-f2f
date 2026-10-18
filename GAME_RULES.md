@@ -41,7 +41,7 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
   - A trooper with no LoF rolls nothing ("No LoF" in How the dice were built). A Direct Template needs LoF too: blocked unless attacked through the zone; once it can fire it rolls nothing, so no visibility MOD touches it (Alex, 2026-10-14). Dodging is unaffected.
 - Dodge: PH (or PH=14), plus its bracketed MODs (+3 to itself, −3 to the opponent, +1SD, ARM +3 while Dodging).
   - A weapon's ARM = 0 wins over the Dodge's ARM +3.
-- Bangbomb (+X): +X to Dodge Rolls, except against Template Weapons (Direct or Impact). Its LoF/ZoC restriction always holds in a Face to Face Roll.
+- Bangbomb (+X): +X to Dodge Rolls, except against Template Weapons (Direct or Impact). It only counts against attackers in the user's LoF or ZoC (not a shot in the back), so it is a separate choice next to Dodge.
 - BS Attack (−X): the opponent takes −X whatever it does, while the attack is rolled. Warhorse ignores it.
 - Surprise Attack (−X): the opponent takes −X on its Face to Face Roll in ARO. A player's choice (chip), active side only.
   - Combat Instinct ignores it (N5; in N4 this was part of Sixth Sense).

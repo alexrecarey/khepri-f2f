@@ -15,6 +15,7 @@ import {shortIsc, shortWeaponName} from '../army/names.js';
 import {DEFAULT_PARAMS} from '../engine/params.js';
 import {MODES} from './modes.js';
 import {ZONES, ZONE_NAME} from '../rules/visibility.js';
+import {pseudoName} from '../rules/trooper.js';
 import {DEFAULT_RANGE_CM, EMPTY_SIDE, NO_ZONES} from './schema.js';
 
 const pct0 = (p) => `${Math.round(100 * p)}%`;
@@ -52,7 +53,7 @@ function chances(s) {
 
 function weaponShort(w) {
   if (!w) return '';
-  if (w.pseudo) return w.pseudo === 'dodge' ? 'Dodge' : 'No ARO';
+  if (w.pseudo) return pseudoName(w);
   return shortWeaponName(w.name);
 }
 
