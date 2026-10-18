@@ -32,6 +32,7 @@ const EQUIPS = {
   MSV3: [116, 'Multispectral Visor L3'],
   X_VISOR: [117, 'X Visor'],
   ALBEDO: [183, 'Albedo'],
+  BANGBOMB: [246, 'Bangbomb'],
 };
 
 const ids = (table) => Object.fromEntries(Object.entries(table).map(([k, [id]]) => [k, id]));

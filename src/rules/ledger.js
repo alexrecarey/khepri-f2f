@@ -23,7 +23,7 @@ import {
 import {AMMO} from '../engine/calculate.js';
 import {
   COVER_BS_MOD, COVER_SAVE_MOD, LIMITS, MOD_CAP, albedoMod, albedoValue, attackBonuses, attackStat, benefitsFromCover, capMods,
-  coverBsMod, dodgeExtras, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, neurocineticsAroBurst, mimetismValue, msvName,
+  bangbombMod, coverBsMod, dodgeExtras, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, neurocineticsAroBurst, mimetismValue, msvName,
   opposingMods,
 } from './modifiers.js';
 import {RANGE_BANDS, rangeModFor} from './ranges.js';
@@ -113,6 +113,8 @@ function dodgeSv(x, y, s, total, yBlocked) {
   if (d.mod) lines.push(line(d.mod, `Dodge (+${d.mod})`, s));
   const ft = fireteamBonuses(x.ftSize).dodge;
   if (ft) lines.push(line(ft, `Fireteam ${x.ftSize}`, s));
+  const bang = yBlocked ? 0 : bangbombMod(x.traits, y?.weapon);
+  if (bang) lines.push(line(bang, `Bangbomb (+${bang})`, s));
   if (y && !yBlocked) lines.push(...opposingLines(y, x, t, t === 'A'));
   clampSv(lines);
   return {lines: reconcile(lines, total), total};

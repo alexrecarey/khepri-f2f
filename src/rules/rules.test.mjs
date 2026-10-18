@@ -1602,3 +1602,15 @@ test('White Noise and Albedo stack; with Smoke and White Noise nobody sees', () 
     assert.deepEqual([b.burstA, b.burstB], [0, 0]);
   }
 });
+
+test('Bangbomb (+X) adds to the Dodge, but not against Template Weapons', () => {
+  const bandit = profile({ph: 13, equip: [{id: 246, name: 'Bangbomb', extra: ['+4']}]});
+  const dodgeVs = (weapons, key) =>
+    derive({active: side(profile(), option(weapons), key), reactive: side(bandit, combi, 'dodge'), rangeCm: 20}).inputs.successValueB;
+  assert.equal(dodgeVs([{id: 1, name: 'Combi Rifle'}], '1:'), 17);
+  assert.equal(dodgeVs([{id: 3, name: 'Heavy Flamethrower'}], '3:'), 13);
+  assert.equal(dodgeVs([{id: 19, name: 'Light Rocket Launcher'}], '19:Blast Mode'), 13);
+  // Dodging in the Active Turn against a shot.
+  const r = derive({active: side(bandit, combi, 'dodge'), reactive: side(profile(), combi, '1:'), rangeCm: 20});
+  assert.equal(r.inputs.successValueA, 17);
+});
