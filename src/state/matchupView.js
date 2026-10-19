@@ -83,10 +83,9 @@ function sideView(army, sel, side) {
     noCover: hasSkill(resolved?.traits, SKILL.NO_COVER),
     // Surprise Attack's MOD, offered only on the active side.
     surprise: side === 'A' ? surpriseAttackMod(resolved?.traits) : 0,
-    // Berserk, offered only on the active side (a Long Skill): its MOD, and
-    // the CC weapon declaring it picks when a gun is chosen.
-    berserk: side === 'A' && hasBerserk(resolved?.traits) && ccWeapons.length > 0
-      ? {mod: berserkMod(resolved.traits), weapon: ccWeapons[0]} : null,
+    // Berserk's MOD, offered only on the active side (a Long Skill) while it
+    // has a CC weapon picked; null otherwise.
+    berserk: side === 'A' && isCcAttack(resolved) && hasBerserk(resolved.traits) ? {mod: berserkMod(resolved.traits)} : null,
     faction: unit ? army.factions[vanillaOf(army, resolved.factionId)]?.name ?? null : null,
     // The vanilla faction id (its crest stands in for a missing unit crest)
     // and the unit crest's slug (src/army/crests.js).
