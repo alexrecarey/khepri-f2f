@@ -63,7 +63,8 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png}'],
+        // The dice engine's .wasm is precached too, so the calculator works offline.
+        globPatterns: ['**/*.{js,css,html,svg,png,wasm}'],
         // Unit crests come from the Worker (/crests/*, R2): too many to
         // precache; each is cached the first time it shows (runtimeCaching).
         // The army data chunk (~2.7 MB minified) stays precached for offline
@@ -82,14 +83,11 @@ export default defineConfig({
             },
           },
           {
-            urlPattern: ({ url }) => {
-              // Exact hosts: a prefix match would also cache pypi.org.example.com.
-              return url.hostname === "pypi.org" || url.hostname === "files.pythonhosted.org" ||
-                url.pathname.startsWith("/assets") || url.pathname.startsWith("/pyodide");
-            },
+            // Build assets the precache leaves out (other file types).
+            urlPattern: ({ url }) => url.pathname.startsWith("/assets"),
             handler: "StaleWhileRevalidate",
             options: {
-              cacheName: "pyodide-cache",
+              cacheName: "assets",
               cacheableResponse: {
                 statuses: [0, 200],
               },

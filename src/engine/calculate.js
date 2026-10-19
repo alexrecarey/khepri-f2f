@@ -1,4 +1,4 @@
-// Calculator params (src/engine/params.js) -> dice engine (src/engine/f2f.py)
+// Calculator params (src/engine/params.js) -> dice engine (src/engine/wasm/, f2f.py's calculate)
 // -> result rows for the display.
 //
 // The engine only rolls dice. The rules that turn a weapon and a target into
@@ -23,7 +23,7 @@ export const AMMO = {
   NONE: {saves: 0},
 };
 
-// Keys of one side's engine input; f2f.py reads these with an A or B suffix.
+// Keys of one side's engine input; the engine reads these with an A or B suffix.
 export const ENGINE_SIDE_KEYS = [
   'successValue', 'burst', 'bonusBurst', 'template',
   'saveValue', 'saves', 'critSave', 'woundsPerFailure', 'cont', 'secondarySave',
@@ -115,7 +115,7 @@ export function formatResult(p, {rolls, outcomes}) {
 }
 
 // Runs the calculator params through `runEngine` (engine input -> engine
-// output: f2f.py calculate) and returns the result the display reads.
+// output: the engine's calculate, see worker.js) and returns the result the display reads.
 //
 // A Direct Template against an attack (isUnopposed) is two engine runs, one
 // per side. The result then holds 'unopposed': {active, reactive}, one result

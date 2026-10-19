@@ -9,10 +9,11 @@ roll probabilities.
 
 It's a static, single page application written in Javascript using react. 
 The site does not require any backend other than a webserver to serve the files.
-The actual die probability rolls are done using the incredible 
-[icepool](https://github.com/HighDiceRoller/icepool) library. 
-To run python on the client side web browser, we use WASM and the Pyodide
-library.
+The actual die probability rolls are done using the incredible
+[icepool](https://github.com/HighDiceRoller/icepool) library: in the browser,
+through [icepool-rs](https://github.com/alexrecarey/icepool-rs), its Rust port
+compiled to WebAssembly, which gives exactly the same results as Python
+icepool.
 
 # Installing
 
@@ -28,7 +29,8 @@ src/rules/     N5 rules: ranges, MODs, saves and Immunity, default weapon,
                that explains them ("How the dice were built")
 src/engine/    the dice: params.js (the calculator params every mode builds),
                calculate.js (calculator params -> engine input -> result rows),
-               f2f.py (icepool) and the Pyodide worker that runs it
+               the WASM engine (wasm/) and the worker that runs it, f2f.py
+               (Python icepool) as its reference (golden.py, engine.golden.json)
 src/state/     the state document: schema, pure reducer, store, URL / history /
                storage sync, and matchupView (what the Matchup screen shows)
 src/matchup/   share-link params for a matchup (matchupParams.js)

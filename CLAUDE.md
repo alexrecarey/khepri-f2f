@@ -1,13 +1,16 @@
 # khepri-f2f
 
 Infinity N5 face-to-face dice calculator. Static React/Vite app; the dice run
-in Python (icepool) under Pyodide in a web worker. Layout and dependency rules
+in a web worker on khepri's engine compiled to WebAssembly (src/engine/wasm/,
+from icepool-rs). src/engine/f2f.py (Python icepool) is its reference: the
+WASM must match engine.golden.json, which golden.py writes from f2f.py. Layout and dependency rules
 are in README.md ("How it's put together").
 
 ## Commands
 
 - Node 24 LTS (`.nvmrc`, Volta pin); `yarn` installs (yarn 3.3.0, zero-install cache in `.yarn/cache`)
-- `yarn test` — JS tests (`node --test src/`) + engine tests (pytest via uv)
+- `yarn test` — JS tests (`node --test src/`, including the WASM engine against
+  engine.golden.json) + engine tests (pytest via uv: f2f.py and the golden file)
 - `yarn test:js` / `yarn test:engine` — one side only
 - `yarn build` — production build (CI runs this too)
 - `yarn dev` — dev server
@@ -52,6 +55,4 @@ DNS is on Cloudflare; nothing is on Netlify any more.
 ## Claude cloud sessions
 
 `scripts/claude-cloud-setup.sh` runs on SessionStart when
-`CLAUDE_CODE_REMOTE=true` and installs yarn deps and uv/icepool. The browser
-UI loads Pyodide from cdn.jsdelivr.net, so results only compute in a browser
-that can reach it; rely on `yarn test` in the cloud.
+`CLAUDE_CODE_REMOTE=true` and installs yarn deps and uv/icepool (for the f2f.py reference tests).
