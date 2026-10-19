@@ -58,9 +58,11 @@ const modeWord = (w) => (w.mode ?? '').replace(/ Mode$/i, '');
 // What each mode's button says: its ammo (DA, EXP, AP, Shock, AP+DA), so a
 // MULTI weapon reads [MULTI Rifle | AP | Shock | DA]. Where a mode is a
 // template the ammo doesn't tell them apart, so Hit / Blast stays; so does
-// the mode name if two modes would read the same.
+// the mode name if two modes would read the same, or one is a CC Mode.
 export function modeLabels(modes) {
-  const template = modes.some((w) => isTemplate(w.row) || isImpactTemplate(w.row));
+  // A CC Mode next to a BS one (Vorpal, Kobra Pistol): "BS" / "CC" says
+  // more than the ammo.
+  const template = modes.some((w) => isTemplate(w.row) || isImpactTemplate(w.row) || w.cc);
   const ammo = modes.map(ammoLabel);
   const clash = new Set(ammo).size < ammo.length;
   return new Map(modes.map((w, i) => [w.key, template || clash ? modeWord(w) : ammo[i]]));

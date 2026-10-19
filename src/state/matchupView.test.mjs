@@ -44,9 +44,9 @@ test('side cards: weapon groups, names, faction and the chips that apply', () =>
   for (const s of ['A', 'B']) {
     const side = v[s];
     assert.ok(side.groups.length > 0);
-    // Every weapon and pseudo-weapon (Dodge...) is in exactly one group.
+    // Every weapon, CC weapon and pseudo-weapon (Dodge...) is in exactly one group.
     const keys = side.groups.flatMap((g) => (g.modes ? g.modes.map((w) => w.key) : [g.w.key]));
-    assert.deepEqual([...keys].sort(), [...side.weapons, ...side.pseudo].map((w) => w.key).sort());
+    assert.deepEqual([...keys].sort(), [...side.weapons, ...side.ccWeapons, ...side.pseudo].map((w) => w.key).sort());
     assert.equal(side.short, side.resolved.unit.isc.split(',')[0].trim());
     assert.ok(side.faction);
   }
@@ -67,4 +67,27 @@ test('Smoke is passed to the rules: a side without MSV that cannot see rolls not
   assert.ok(smoke.vis.A && smoke.vis.B);
   // Whatever these two carry, Smoke changes the dice or blocks a side.
   assert.notDeepEqual(smoke.params, plain.params);
+});
+
+// The first loadout (in army order) carrying weapon `id`, as a selection.
+function withWeapon(id) {
+  for (const u of army.units) {
+    for (const [fid, {groups}] of Object.entries(u.byFaction)) {
+      for (const g of groups) {
+        const o = g.options.find((x) => x.weapons.some((w) => w.id === id));
+        if (o) return {...EMPTY_SIDE, unitId: u.id, factionId: Number(fid), groupId: g.id, profileId: g.profiles[0].id, optionId: o.id};
+      }
+    }
+  }
+  return null;
+}
+
+test('CC weapons are in the weapon list; a CC Mode joins its weapon as a BS / CC mode', () => {
+  const kobra = withWeapon(221);
+  const v = matchupView(army, {A: kobra, B: chaksa, rangeCm: 40});
+  const g = v.A.groups.find((x) => x.id === 221);
+  assert.deepEqual(g.modes.map((w) => g.labels.get(w.key)), ['BS', 'CC']);
+  assert.ok(v.A.groups.some((x) => x.w.cc && !x.modes));
+  // The default stays a shot.
+  assert.equal(v.A.resolved.weapon.cc, undefined);
 });

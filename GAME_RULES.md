@@ -53,7 +53,7 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 
 ## Close combat
 Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Warrior, Weapon Chart). Code: `src/rules/closeCombat.js`.
-- Picking a CC weapon (its own "CC" row of buttons) makes that side a CC Attack: it rolls CC against the other side's Face to Face Roll. The other side may answer in CC, Dodge, or shoot (it isn't Engaged yet when the attacker charges in; Alex, 2026-10-19).
+- Picking a CC weapon (in the weapon list with the others; a CC Mode is a mode of its weapon: Vorpal, Kobra Pistol) makes that side a CC Attack: it rolls CC against the other side's Face to Face Roll. The other side may answer in CC, Dodge, or shoot (it isn't Engaged yet when the attacker charges in; Alex, 2026-10-19).
 - A CC Attack has no range band: the side's range does nothing to it, the other side's still works. Both in CC: the range plays no part.
 - None of the shooting MODs touch a CC Attack: no range, cover (−3 or the +3 save), Nanoscreen, Mimetism, Albedo, Smoke or White Noise, no Fireteam bonus. A shot at a trooper who is CC attacking still takes all of them.
 - CC weapons are B1 with the loadout's PS (`CC Weapon (PS=6)`). PARA CC Weapon: the target rolls PH−6 (no PS). D-Charges (CC Mode) are Improvised: −6 to the user. Chest Mine (CC Mode): +3.

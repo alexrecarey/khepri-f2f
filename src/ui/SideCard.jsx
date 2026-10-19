@@ -76,7 +76,7 @@ EmptySlot.propTypes = {
 
 export default function SideCard({side, view, onOpenPicker}) {
   const color = ROLE[side];
-  const {sel, resolved, groups, ccGroups, cc, ccAlliesMax, noCover, surprise, faction, crest, short, loadout} = view[side];
+  const {sel, resolved, groups, cc, ccAlliesMax, noCover, surprise, faction, crest, short, loadout} = view[side];
   const unit = resolved?.unit;
   const option = resolved?.option;
 
@@ -89,11 +89,7 @@ export default function SideCard({side, view, onOpenPicker}) {
           ? <span className="unit-name">{short}{loadout ? ` · ${loadout}` : ''} <span className="faction">{faction} ›</span></span>
           : <span className="unit-empty">Choose a trooper ›</span>}
       </button>
-      {option && <WeaponButtons side={side} groups={groups} selected={sel.weaponKey} color={color} ariaLabel="Weapon" />}
-      {/* Close combat weapons: picking one makes this side a CC Attack. */}
-      {option && ccGroups.length > 0 && (
-        <WeaponButtons side={side} groups={ccGroups} selected={sel.weaponKey} color={color} label="CC" ariaLabel="Close combat weapon" />
-      )}
+      {option && <WeaponButtons side={side} groups={groups} selected={sel.weaponKey} color={color} />}
       {unit && (
         <div className="row-wrap">
           {/* Cover or, for Sapper, the Foxhole (its own cover): one or the other. */}
