@@ -4,7 +4,8 @@ import {SKILL} from '../army/ids.js';
 import {applyStatOverrides, applyUpgrades, pickedUpgrades} from '../army/loadouts.js';
 import {unitById} from '../army/lookup.js';
 import {effectiveTraits, hasSkill, skillExtras} from '../army/traits.js';
-import {ammoTypes, bsWeapons, hasAmmo, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
+import {ammoTypes, bsWeapons, ccWeapons, hasAmmo, hasShockAmmo, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
+import {ccAttackSkill} from './closeCombat.js';
 import {bangbombValue, fireteamMax, fireteamSize} from './modifiers.js';
 
 // What the trooper's BS Attack skill (profile, loadout or upgrade) does to
@@ -40,6 +41,21 @@ export function trooperWeapons(option, weapons, traits) {
     if (bs.cont) mods = {...mods, cont: true};
     if (bs.sr) mods = {...mods, psMod: mods.psMod - bs.sr};
     if (bs.t2 && !hasAmmo(row, 'T2')) row = {...row, ammo: [...ammoTypes(row), 'T2']};
+    return {...w, row, mods, label: weaponLabel(row, mods)};
+  });
+}
+
+// The trooper's CC weapons (army/weapons.js ccWeapons), with its CC Attack
+// skill applied: AP, Shock and Continuous Damage go on every one of them.
+export function trooperCcWeapons(option, weapons, traits) {
+  const list = ccWeapons(option, weapons);
+  const cc = ccAttackSkill(traits);
+  if (!cc.ap && !cc.shock && !cc.cont) return list;
+  return list.map((w) => {
+    let {row, mods} = w;
+    if (cc.ap) mods = {...mods, forceAP: true};
+    if (cc.cont) mods = {...mods, cont: true};
+    if (cc.shock && !hasShockAmmo(row)) row = {...row, ammo: [...ammoTypes(row), 'Shock']};
     return {...w, row, mods, label: weaponLabel(row, mods)};
   });
 }
@@ -90,6 +106,7 @@ export function resolveSelection(army, sel) {
   let weapon = null;
   if (option && profile && sel.weaponKey) {
     weapon = trooperWeapons(option, army.weapons, traits).find((w) => w.key === sel.weaponKey)
+      ?? trooperCcWeapons(option, army.weapons, traits).find((w) => w.key === sel.weaponKey)
       ?? pseudoWeapons(traits, 'B').find((w) => w.key === sel.weaponKey)
       ?? null;
   }

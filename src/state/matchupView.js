@@ -13,7 +13,8 @@ import {deriveInputs} from '../rules/matchup.js';
 import {surpriseAttackMod} from '../rules/modifiers.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {visibility} from '../rules/visibility.js';
-import {pseudoWeapons, resolveSelection, trooperWeapons} from '../rules/trooper.js';
+import {isCcAttack} from '../rules/closeCombat.js';
+import {pseudoWeapons, resolveSelection, trooperCcWeapons, trooperWeapons} from '../rules/trooper.js';
 import {modeLabels, orderModes} from '../rules/weaponModes.js';
 import {woundStates} from '../rules/woundStates.js';
 import {rootFaction} from '../search/buildIndex.js';
@@ -55,10 +56,10 @@ function weaponGroups(list, role) {
 }
 
 // A side's Range MOD at a band: null out of range, undefined when it has no
-// range bands (nothing picked, Dodge, No ARO, Direct Template).
+// range bands (nothing picked, Dodge, No ARO, Direct Template, CC Attack).
 function bandMod(resolved, to) {
   const row = resolved?.weapon?.row;
-  if (!row || isTemplate(row)) return undefined;
+  if (!row || isTemplate(row) || isCcAttack(resolved)) return undefined;
   return rangeModFor(row, to, resolved.traits);
 }
 
@@ -68,6 +69,7 @@ function sideView(army, sel, side) {
   const effective = {...sel, weaponKey: effectiveWeaponKey(army, sel, side)};
   const resolved = resolveSelection(army, effective);
   const weapons = resolved?.option ? trooperWeapons(resolved.option, army.weapons, resolved.traits) : [];
+  const cc = resolved?.option ? trooperCcWeapons(resolved.option, army.weapons, resolved.traits) : [];
   const pseudo = resolved?.profile
     ? pseudoWeapons(resolved.traits, side)
     : [];
@@ -75,6 +77,8 @@ function sideView(army, sel, side) {
   return {
     sel: effective, resolved, weapons, pseudo,
     groups: weaponGroups([...weapons, ...pseudo], ROLE[side]),
+    // Close combat weapons, a row of their own.
+    ccGroups: weaponGroups(cc, ROLE[side]),
     // No Cover: cover does nothing for it, so no Cover chip.
     noCover: hasSkill(resolved?.traits, SKILL.NO_COVER),
     // Surprise Attack's MOD, offered only on the active side.
@@ -89,7 +93,7 @@ function sideView(army, sel, side) {
   };
 }
 
-const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], pseudo: [], groups: [], noCover: false, surprise: 0,
+const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], pseudo: [], groups: [], ccGroups: [], noCover: false, surprise: 0,
   faction: null, vanilla: null, crest: null, short: null, loadout: null});
 
 
@@ -125,5 +129,7 @@ export function matchupView(army, matchup) {
   const bands = RANGE_BANDS.map((b) => ({to: b.to, A: bandMod(A.resolved, b.to), B: bandMod(B.resolved, b.to)}));
   // What Smoke / White Noise do to each side, for the range selector.
   const vis = visibility(A.resolved, B.resolved, zones);
-  return {ready: true, A, B, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones, vis, derived, params, ledger, bands, hasSelection, complete, targets};
+  // Both in close combat: the distance plays no part.
+  const rangeUnused = isCcAttack(A.resolved) && isCcAttack(B.resolved);
+  return {ready: true, rangeUnused, A, B, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones, vis, derived, params, ledger, bands, hasSelection, complete, targets};
 }

@@ -64,8 +64,12 @@ const inCover = (x) => x.sel.inCover && !x.resolved.sapper;
 const fireteam = (x) => (x.resolved.ftSize > 1 ? `Fireteam ${x.resolved.ftSize}` : null);
 const surprise = (x, role) => role === 'A' && x.sel.surpriseAttack;
 const bandAt = (cm) => RANGE_BANDS.find((b) => b.to === cm)?.label ?? null;
-// '24-32"', or each side's when the range is split: '24-32" / 32-40"'.
-const rangeText = (view) => (view.rangeCmB == null ? bandAt(view.rangeCm) : `${bandAt(view.rangeCm)} / ${bandAt(view.rangeCmB)}`);
+// '24-32"', or each side's when the range is split: '24-32" / 32-40"';
+// 'Close combat' when both are in CC (no range plays a part).
+const rangeText = (view) => {
+  if (view.rangeUnused) return 'Close combat';
+  return view.rangeCmB == null ? bandAt(view.rangeCm) : `${bandAt(view.rangeCm)} / ${bandAt(view.rangeCmB)}`;
+};
 // Smoke / White Noise between them, by name.
 const zoneNames = (view) => ZONES.filter((z) => view.zones?.[z]).map((z) => ZONE_NAME[z]);
 

@@ -14,6 +14,7 @@
 // nobody shoots. Albedo is not a visibility MOD and adds on top (modifiers.js).
 import {EQUIP, SKILL} from '../army/ids.js';
 import {hasEquip, hasSkill} from '../army/traits.js';
+import {isCcAttack} from './closeCombat.js';
 import {hasSixthSense, msvName} from './modifiers.js';
 
 export const ZONES = ['smoke', 'whiteNoise'];
@@ -62,7 +63,8 @@ export function visibility(a, b, zones) {
   const on = zonesOn(zones);
   const empty = {blocked: null, lines: [], mod: 0};
   if (!on.length || !a || !b) return {A: empty, B: empty};
-  const fx = (x) => on.map((zone) => ({zone, fx: zoneOn(zone, x.traits)}));
+  // A CC Attack is in base contact: no zone between them, so none applies.
+  const fx = (x) => (isCcAttack(x) ? [] : on.map((zone) => ({zone, fx: zoneOn(zone, x.traits)})));
   const sees = (x) => fx(x).every(({fx: f}) => !f || f.sees);
   const canA = attacks(a) && (sees(a) || (attacks(b) && sees(b)));
   const canB = attacks(b) && (sees(b) || (attacks(a) && sees(a)));

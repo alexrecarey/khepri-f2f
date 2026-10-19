@@ -51,6 +51,22 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - Sapper: the trooper may be in a Foxhole (chip): Partial Cover (−3 / +3 like cover) and Mimetism (−3), which doesn't stack with its own Mimetism. One or the other: Foxhole or cover.
 - A trooper starts in cover when picked, unless cover can't help it (No Cover); a Sapper starts in its Foxhole.
 
+## Close combat
+Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Warrior, Weapon Chart). Code: `src/rules/closeCombat.js`.
+- Picking a CC weapon (its own "CC" row of buttons) makes that side a CC Attack: it rolls CC against the other side's Face to Face Roll. The other side may answer in CC, Dodge, or shoot (it isn't Engaged yet when the attacker charges in; Alex, 2026-10-19).
+- A CC Attack has no range band: the side's range does nothing to it, the other side's still works. Both in CC: the range plays no part.
+- None of the shooting MODs touch a CC Attack: no range, cover (−3 or the +3 save), Nanoscreen, Mimetism, Albedo, Smoke or White Noise, no Fireteam bonus. A shot at a trooper who is CC attacking still takes all of them.
+- CC weapons are B1 with the loadout's PS (`CC Weapon (PS=6)`). PARA CC Weapon: the target rolls PH−6 (no PS). D-Charges (CC Mode) are Improvised: −6 to the user. Chest Mine (CC Mode): +3.
+- A CC weapon's bracketed negative MOD (PARA CC Weapon (−6), Monofilament CC Weapon (−3)) goes on the opponent's Face to Face Roll.
+- Burst: in ARO a CC Attack is one die; loadout and CC Attack (+1B) count only in the Active Turn.
+- Martial Arts (not cumulative; both turns; the opponent's −3 applies to whatever it rolls, a Dodge or a shot included):
+  L1 −3 to the opponent · L2 +3 / −3 · L3 +3 / −3, +1 SD · L4 +3 / −3, +1 B · L5 +3 / −3, +1 B, +1 SD.
+- CC Attack (+X / −X / +1B / AP / Shock / Continuous Damage): like BS Attack, for CC Attacks. Antimaterial only matters against scenery.
+- BS Attack (−X) is for shots only; it does nothing while the trooper CC attacks.
+- Surprise Attack applies to a CC Attack too.
+- Natural Born Warrior: the target of a CC Attack that answers with a CC Attack ignores every negative MOD the attacker imposes (Martial Arts, Surprise Attack, CC Attack (−X), the weapon's (−X)). Not when it Dodges or shoots.
+- Sixth Sense's Dodge ignores the Martial Arts −3 like any other negative MOD.
+
 ## Fireteams
 - Bonuses (cumulative, by purity): 2 = BS Attack +1 SD, 3 = +1 Dodge MOD, 4 = +1 BS, 5 = Sixth Sense.
 - Who can join, from every army's fireteam chart (vanilla and sectorial; the picker's vanilla grouping is only for browsing, not a restriction). Each unit gets the most generous team it reaches anywhere.
@@ -73,3 +89,4 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - Biometric Visor (ignores Surprise Attack from Impersonation / Holoecho attackers).
 - IMM-B, Isolated and Possession immunities change nothing here (States only).
 - Spec-Ops upgrades and SpecBall.
+- Close combat: +1 B per ally in base contact, Berserk, Guard, Protheion, Coup de Grâce, a Chest Mine hitting every enemy in contact.

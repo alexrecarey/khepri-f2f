@@ -23,6 +23,13 @@ const SKILLS = {
   DOGGED: [85, 'Dogged'],
   NWI: [86, 'No Wound Incapacitation'],
   REMOTE_PRESENCE: [235, 'Remote Presence'],
+  MARTIAL_ARTS_L1: [19, 'Martial Arts L1'],
+  MARTIAL_ARTS_L2: [20, 'Martial Arts L2'],
+  MARTIAL_ARTS_L3: [21, 'Martial Arts L3'],
+  MARTIAL_ARTS_L4: [22, 'Martial Arts L4'],
+  MARTIAL_ARTS_L5: [23, 'Martial Arts L5'],
+  NATURAL_BORN_WARRIOR: [39, 'Natural Born Warrior'],
+  CC_ATTACK: [240, 'CC Attack'],
 };
 
 const EQUIPS = {

@@ -29,6 +29,7 @@ import {
 import {RANGE_BANDS, rangeModFor} from './ranges.js';
 import {hasImmunity, immunityAgainst, saveHalving} from './saves.js';
 import {bsAttackWeaponMods} from './trooper.js';
+import {ccAttackMods, ccAttackSkill, ccBurst, ccSd, isCcAttack} from './closeCombat.js';
 import {ZONE_NAME, visibility} from './visibility.js';
 
 const other = (s) => (s === 'A' ? 'B' : 'A');
@@ -124,7 +125,29 @@ function dodgeSv(x, y, s, total, yBlocked) {
   return {lines: reconcile(lines, total), total};
 }
 
+// A CC Attack's Success Value: CC, its own MODs, the opponent's
+// (closeCombat.js). No range, cover, Mimetism or Smoke.
+function ccSv(x, y, s, total) {
+  const t = other(s);
+  const lines = [line(attackStat(x.profile, x.weapon.row), 'CC', null)];
+  for (const m of ccAttackMods(x)) lines.push(line(m.value, m.label, s));
+  if (y) lines.push(...opposingLines(y, x, t, t === 'A'));
+  const modSum = sum(live(lines).slice(1));
+  const capped = capMods(modSum);
+  if (capped !== modSum) lines.push(line(capped - modSum, `MODs cap at ±${MOD_CAP[1]}`, null));
+  clampSv(lines);
+  return {lines: reconcile(lines, total), total};
+}
+
+// One line per closeCombat.js line: the weapon's B is the weapon's, ARO is
+// the rules', the rest are x's.
+const ccLines = (lines, s) => lines.map((l, i) => line(l.value, l.label, i === 0 || /^ARO/.test(l.label) ? null : s));
+
 function burstLines(x, s, inputs) {
+  if (isCcAttack(x)) {
+    const total = inputs[`burst${s}`];
+    return {lines: reconcile(ccLines(ccBurst(x, s === 'A'), s), total), total};
+  }
   const row = x.weapon.row;
   const total = inputs[`burst${s}`];
   if (s === 'A' && hasSkill(x.traits, SKILL.NEUROCINETICS)) {
@@ -143,7 +166,9 @@ function burstLines(x, s, inputs) {
 function sdLines(x, s, inputs, dodge) {
   const total = inputs[`bonusBurst${s}`] ?? 0;
   const lines = [];
-  if (dodge) {
+  if (isCcAttack(x)) {
+    lines.push(...ccSd(x).map((l) => line(l.value, l.label, s)));
+  } else if (dodge) {
     const sd = dodgeExtras(x.traits).sd;
     if (sd) lines.push(line(sd, 'Dodge (+SD)', s));
   } else {
@@ -167,11 +192,15 @@ function saveLines(x, y, s, inputs) {
   if (!y) return {lines: reconcile(lines, total), total};
   const save = row.save ?? {attr: 'ARM'};
   const immune = Boolean(immunityAgainst(y.traits, row));
-  const attr = save.attr === 'BTS' ? 'BTS' : 'ARM';
+  const attr = save.attr === 'BTS' || save.attr === 'PH' ? save.attr : 'ARM';
   const p = y.profile;
   const dodging = y.weapon?.pseudo === 'dodge';
-  let base = attr === 'BTS' ? p.bts ?? 0 : (p.arm ?? 0);
-  if (attr === 'ARM' && save.armZero && !immune) {
+  let base = attr === 'BTS' ? p.bts ?? 0 : attr === 'PH' ? p.ph ?? 0 : (p.arm ?? 0);
+  if (attr === 'PH') {
+    // PARA: the target rolls PH at the weapon's MOD, no PS.
+    lines.push(line(base, 'PH', t));
+    if (save.mod) lines.push(line(save.mod, row.name, s));
+  } else if (attr === 'ARM' && save.armZero && !immune) {
     lines.push(line(base, 'ARM', t, `${row.name}: ARM = 0`));
     base = 0;
   } else {
@@ -194,7 +223,8 @@ function saveLines(x, y, s, inputs) {
   }
   if (benefitsFromCover(y) || hasNanoscreen(y)) {
     const name = benefitsFromCover(y) ? (y.sapper ? 'Foxhole cover' : 'cover') : 'Nanoscreen';
-    if (ignoresCoverOnSaves(row) && !hasNanoscreen(y)) lines.push(line(COVER_SAVE_MOD, name, t, 'template'));
+    if (isCcAttack(x)) lines.push(line(COVER_SAVE_MOD, name, t, 'close combat'));
+    else if (ignoresCoverOnSaves(row) && !hasNanoscreen(y)) lines.push(line(COVER_SAVE_MOD, name, t, 'template'));
     else lines.push(line(COVER_SAVE_MOD, name, t));
   }
   return {lines: reconcile(lines, total), total};
@@ -236,13 +266,19 @@ export function ammoTag(row, mods) {
 function ammoLines(x, y, s, inputs) {
   const t = other(s);
   const {row, mods} = x.weapon;
-  const bs = bsAttackWeaponMods(x.traits);
+  // What the trooper's skill adds: CC Attack for a CC weapon, else BS Attack.
+  const cc = isCcAttack(x) ? ccAttackSkill(x.traits) : null;
+  const bs = cc ? {ap: cc.ap, cont: cc.cont, t2: false} : bsAttackWeaponMods(x.traits);
   const added = [];
   // The chart's ammo, before the loadout and skills.
   let own = ammoTypes(row).map((a) => a.toUpperCase());
   if (mods.ammo && mods.ammo !== 'Viral') {
     own = own.filter((a) => a !== mods.ammo.toUpperCase());
     added.push(fromSource(line('+', ammoName(mods.ammo), null), 'loadout'));
+  }
+  if (cc?.shock && own.includes('SHOCK')) {
+    own = own.filter((a) => a !== 'SHOCK');
+    added.push(line('+', 'Shock', s));
   }
   if (bs.t2 && own.includes('T2')) {
     own = own.filter((a) => a !== 'T2');
@@ -289,6 +325,10 @@ function sideLedger(x, y, s, rangeCm, inputs, vis) {
   const save = saveLines(x, y, s, inputs);
   const b = `B${burst.total}${sd.total ? `+${sd.total}` : ''}`;
   const tag = ammoTag(w.row, w.mods);
+  if (isCcAttack(x)) {
+    const sv = ccSv(x, y, s, inputs[`successValue${s}`]);
+    return {kind: 'attack', dice: `CC ${b} SV${sv.total} PS${save.total}${tag}`, burst, sd, sv, save, ammo: ammoLines(x, y, s, inputs), note: ammoNote(inputs, s)};
+  }
   if (isTemplate(w.row)) {
     return {kind: 'template', dice: `${b} template PS${save.total}${tag}`, burst, sd, save, ammo: ammoLines(x, y, s, inputs), note: ammoNote(inputs, s)};
   }
