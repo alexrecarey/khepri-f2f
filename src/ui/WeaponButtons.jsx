@@ -1,5 +1,5 @@
-// One row of a side card's weapon buttons: each weapon a button, a weapon
-// with several fire modes a group (name + one button per mode).
+// A side card's weapon buttons (CC weapons included): each weapon a button,
+// a weapon with several fire modes a group (name + one button per mode).
 import PropTypes from 'prop-types';
 import {shortWeaponName} from '../army/names.js';
 import {dispatch} from '../state/store.js';
@@ -11,11 +11,9 @@ export const weaponText = (w) => `${shortWeaponName(w.name)}${modeText(w)}`;
 const weaponTitle = (w) => `${w.name}${modeText(w)}`;
 const pick = (side, w) => dispatch({type: 'pickWeapon', side, key: w.key, cc: Boolean(w.cc)});
 
-// `label`: a heading at the start of the row ("CC").
-export default function WeaponButtons({side, groups, selected, color, label, ariaLabel}) {
+export default function WeaponButtons({side, groups, selected, color}) {
   return (
-    <div className="row-wrap" role="group" aria-label={ariaLabel}>
-      {label && <span className="row-label" aria-hidden="true">{label}</span>}
+    <div className="row-wrap" role="group" aria-label="Weapon">
       {groups.map((g) => (g.modes ? (
         // One weapon, several fire modes, best first for this side: the
         // name picks the first; name and chosen mode are filled, the
@@ -46,5 +44,5 @@ export default function WeaponButtons({side, groups, selected, color, label, ari
 
 WeaponButtons.propTypes = {
   side: PropTypes.oneOf(['A', 'B']).isRequired, groups: PropTypes.array.isRequired, selected: PropTypes.string,
-  color: PropTypes.string.isRequired, label: PropTypes.string, ariaLabel: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
 };

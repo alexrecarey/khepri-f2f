@@ -33,16 +33,17 @@ export function effectiveWeaponKey(army, sel, side) {
 }
 
 // Weapon buttons in list order, a weapon's fire modes gathered into one group
-// and put in their order for the side's role:
+// (a CC Mode joins its weapon's BS Mode: Vorpal, Kobra Pistol) and put in
+// their order for the side's role:
 //   [{key, id, name, w, modes?, labels?}]  modes / labels only for a weapon
 //   with several fire modes (labels: modeLabels).
 function weaponGroups(list, role) {
   const groups = [];
   for (const w of list) {
-    const prev = groups.at(-1);
-    if (w.mode && !w.pseudo && prev?.id === w.id && prev.name === w.name) {
-      prev.modes ??= [prev.w];
-      prev.modes.push(w);
+    const same = w.mode && !w.pseudo ? groups.find((g) => g.id === w.id && g.name === w.name) : null;
+    if (same) {
+      same.modes ??= [same.w];
+      same.modes.push(w);
     } else {
       groups.push({key: w.key, id: w.id, name: w.name, w});
     }
@@ -69,16 +70,15 @@ function sideView(army, sel, side) {
   const effective = {...sel, weaponKey: effectiveWeaponKey(army, sel, side)};
   const resolved = resolveSelection(army, effective);
   const weapons = resolved?.option ? trooperWeapons(resolved.option, army.weapons, resolved.traits) : [];
-  const cc = resolved?.option ? trooperCcWeapons(resolved.option, army.weapons, resolved.traits) : [];
+  const ccWeapons = resolved?.option ? trooperCcWeapons(resolved.option, army.weapons, resolved.traits) : [];
   const pseudo = resolved?.profile
     ? pseudoWeapons(resolved.traits, side)
     : [];
   const unit = resolved?.unit;
   return {
-    sel: effective, resolved, weapons, pseudo,
-    groups: weaponGroups([...weapons, ...pseudo], ROLE[side]),
-    // Close combat weapons, a row of their own.
-    ccGroups: weaponGroups(cc, ROLE[side]),
+    sel: effective, resolved, weapons, ccWeapons, pseudo,
+    // CC weapons are weapons like any other, after the BS ones.
+    groups: weaponGroups([...weapons, ...ccWeapons, ...pseudo], ROLE[side]),
     // No Cover: cover does nothing for it, so no Cover chip.
     noCover: hasSkill(resolved?.traits, SKILL.NO_COVER),
     // Surprise Attack's MOD, offered only on the active side.
@@ -93,7 +93,7 @@ function sideView(army, sel, side) {
   };
 }
 
-const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], pseudo: [], groups: [], ccGroups: [], cc: false, ccAlliesMax: 0, noCover: false, surprise: 0,
+const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], ccWeapons: [], pseudo: [], groups: [], cc: false, ccAlliesMax: 0, noCover: false, surprise: 0,
   faction: null, vanilla: null, crest: null, short: null, loadout: null});
 
 
