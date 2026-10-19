@@ -4,9 +4,9 @@ import assert from 'node:assert/strict';
 import {decodeMatchup, encodeMatchup} from './matchupParams.js';
 
 const selA = {unitId: 42, factionId: 1102, groupId: 1, profileId: null, optionId: 3, weaponKey: '111:Hit Mode',
-  inCover: true, sapper: false, surpriseAttack: true, upgrade: 2, ball: null};
+  inCover: true, sapper: false, surpriseAttack: true, upgrade: 2, ball: null, ccAllies: 3};
 const selB = {unitId: 7, factionId: 107, groupId: null, profileId: 2, optionId: 1, weaponKey: 'dodge',
-  inCover: false, sapper: true, surpriseAttack: false, upgrade: null, ball: 0};
+  inCover: false, sapper: true, surpriseAttack: false, upgrade: null, ball: 0, ccAllies: 0};
 
 test('matchup round-trips through URL params', () => {
   const params = encodeMatchup({selA, selB, ftSize: {A: 3, B: 1}, rangeCm: 60});
@@ -61,4 +61,14 @@ test('a split range round-trips as rangeB; left out while both share the range',
   // Not a band, or no shared range to split from: ignored.
   assert.equal(decodeMatchup(new URLSearchParams('unitA=5&range=80&rangeB=33')).rangeCmB, null);
   assert.equal(decodeMatchup(new URLSearchParams('unitA=5&rangeB=100')).rangeCmB, null);
+});
+
+test('allies in CC round-trip as alliesA / alliesB, capped at 5', () => {
+  const selA = {unitId: 3, ccAllies: 2};
+  const enc = encodeMatchup({selA, selB: {unitId: 4}, rangeCm: 20});
+  assert.equal(enc.alliesA, '2');
+  assert.equal(enc.alliesB, undefined);
+  const dec = decodeMatchup(new URLSearchParams({...enc, alliesB: '9'}));
+  assert.equal(dec.A.ccAllies, 2);
+  assert.equal(dec.B.ccAllies, 5);
 });

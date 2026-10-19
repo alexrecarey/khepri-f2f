@@ -143,10 +143,14 @@ function ccSv(x, y, s, total) {
 // the rules', the rest are x's.
 const ccLines = (lines, s) => lines.map((l, i) => line(l.value, l.label, i === 0 || /^ARO/.test(l.label) ? null : s));
 
-function burstLines(x, s, inputs) {
+function burstLines(x, y, s, inputs) {
   if (isCcAttack(x)) {
     const total = inputs[`burst${s}`];
-    return {lines: reconcile(ccLines(ccBurst(x, s === 'A'), s), total), total};
+    const lines = ccLines(ccBurst(x, s === 'A', y), s);
+    // B over the cap (LIMITS.burst): the rest is lost.
+    const over = sum(lines) - total;
+    if (over > 0) lines.push(line(-over, `B caps at ${LIMITS.burst[1]}`, null));
+    return {lines: reconcile(lines, total), total};
   }
   const row = x.weapon.row;
   const total = inputs[`burst${s}`];
@@ -320,7 +324,7 @@ function sideLedger(x, y, s, rangeCm, inputs, vis) {
     const sd = sdLines(x, s, inputs, true);
     return {kind: 'dodge', dice: `Dodge${sd.total ? ` +${sd.total}SD` : ''} SV${sv.total}`, sv, sd};
   }
-  const burst = burstLines(x, s, inputs);
+  const burst = burstLines(x, y, s, inputs);
   const sd = sdLines(x, s, inputs, false);
   const save = saveLines(x, y, s, inputs);
   const b = `B${burst.total}${sd.total ? `+${sd.total}` : ''}`;

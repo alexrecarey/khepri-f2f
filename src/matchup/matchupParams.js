@@ -2,12 +2,13 @@
 // keys with an A (active) / B (reactive) suffix; range and the zones between
 // them (smoke=1, wn=1) are shared, rangeB is the reactive's own distance when
 // the range is split.
+import {CC_ALLIES_MAX} from '../rules/closeCombat.js';
 import {FIRETEAM_MAX, FIRETEAM_MIN} from '../rules/modifiers.js';
 import {RANGE_BANDS} from '../rules/ranges.js';
 
 const EMPTY = {
   unitId: null, factionId: null, groupId: null, profileId: null, optionId: null,
-  weaponKey: null, inCover: false, sapper: false, surpriseAttack: false, upgrade: null, ball: null,
+  weaponKey: null, inCover: false, sapper: false, surpriseAttack: false, upgrade: null, ball: null, ccAllies: 0,
 };
 
 // param name -> selection field, and how to read it back
@@ -34,6 +35,7 @@ export function encodeMatchup({selA, selB, ftSize, rangeCm, rangeCmB, zones}) {
     if (sel.sapper) out[`sapper${side}`] = '1';
     if (sel.surpriseAttack) out[`surprise${side}`] = '1';
     if (ftSize?.[side] > 1) out[`ft${side}`] = String(ftSize[side]);
+    if (sel.ccAllies > 0) out[`allies${side}`] = String(sel.ccAllies);
   }
   if (Object.keys(out).length > 0 && rangeCm) out.range = String(rangeCm);
   if (out.range && rangeCmB) out.rangeB = String(rangeCmB);
@@ -61,6 +63,8 @@ export function decodeMatchup(params) {
     sel.inCover = get(`cover${s}`) === '1';
     sel.sapper = get(`sapper${s}`) === '1';
     sel.surpriseAttack = get(`surprise${s}`) === '1';
+    const allies = Number(get(`allies${s}`));
+    sel.ccAllies = Number.isInteger(allies) && allies > 0 ? Math.min(allies, CC_ALLIES_MAX) : 0;
     return sel;
   };
   const A = side('A');

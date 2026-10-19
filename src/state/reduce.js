@@ -3,6 +3,7 @@
 // action's payload (a picked trooper's weapon, the picker's starting faction)
 // is worked out before dispatching, in actions.js.
 import {FIRETEAM_MAX, fireteamSize} from '../rules/modifiers.js';
+import {RANGE_BANDS} from '../rules/ranges.js';
 import {MODES} from './modes.js';
 import {classicSave} from './classicView.js';
 import {normalizeSetup, setupKey} from './rolls.js';
@@ -79,6 +80,16 @@ export function reduce(state, action) {
       return setSide(state, action.side, {...EMPTY_SIDE, ...action.sel});
     case 'patchSide':
       return setSide(state, action.side, {...matchup[action.side], ...action.patch});
+    // A weapon button. Picking a CC weapon moves the range to the closest
+    // band (0-8"): whoever shoots at a trooper charging into CC almost always
+    // does so from there (Alex, 2026-10-19). The CC side has no range, so a
+    // split range closes on both.
+    case 'pickWeapon': {
+      const next = setSide(state, action.side, {...matchup[action.side], weaponKey: action.key});
+      if (!action.cc) return next;
+      const close = RANGE_BANDS[0].to;
+      return {...next, matchup: {...next.matchup, rangeCm: close, ...(matchup.rangeCmB != null && {rangeCmB: close})}};
+    }
     // side 'B' sets the reactive's own distance (only once the range is split).
     case 'setRange': {
       const key = action.side === 'B' && matchup.rangeCmB != null ? 'rangeCmB' : 'rangeCm';

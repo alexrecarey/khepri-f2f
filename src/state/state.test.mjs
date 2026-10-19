@@ -460,3 +460,13 @@ test('Smoke / White Noise: setZone, kept by a swap, in the URL and back', () => 
   assert.equal(stateFromUrl(url).matchup.smoke, true);
   assert.equal(stateFromUrl(url).matchup.whiteNoise, false);
 });
+
+test('picking a CC weapon moves the range to the closest band, a split range too', () => {
+  const s = run(initialState(), {type: 'setRange', rangeCm: 80});
+  assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: '1:', cc: false}).matchup.rangeCm, 80);
+  const cc = run(s, {type: 'pickWeapon', side: 'A', key: '11:', cc: true}).matchup;
+  assert.deepEqual([cc.A.weaponKey, cc.rangeCm, cc.rangeCmB], ['11:', 20, null]);
+  const split = run(s, {type: 'setRangeSplit', on: true}, {type: 'setRange', side: 'B', rangeCm: 120},
+    {type: 'pickWeapon', side: 'A', key: '11:', cc: true}).matchup;
+  assert.deepEqual([split.rangeCm, split.rangeCmB], [20, 20]);
+});

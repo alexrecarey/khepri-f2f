@@ -28,6 +28,19 @@ export function martialArts(traits) {
 }
 const maName = (ma) => `Martial Arts L${ma.level}`;
 
+// Close Combat With Multiple Troopers: the trooper attacking gets +1 B for
+// each ally (trooper or Peripheral) in Silhouette contact with the target,
+// in the Active and the Reactive Turn. At most 4 models can touch a 25 mm
+// base and 6 a 40 mm or larger one (wiki, Other CC Restrictions); the
+// attacker is one of them. The Army data has no base sizes: S1-S2 are taken
+// as 25 mm, S3 and up as 40 mm or larger.
+export const CONTACT_LIMIT = {small: 4, large: 6};
+export const CC_ALLIES_MAX = CONTACT_LIMIT.large - 1;
+export const ccAlliesMax = (target) =>
+  ((target?.profile?.s ?? 2) >= 3 ? CONTACT_LIMIT.large : CONTACT_LIMIT.small) - 1;
+// The allies x counts against y: the player's number, down to what fits.
+export const ccAllies = (x, y) => Math.min(x?.ccAllies ?? 0, ccAlliesMax(y));
+
 // Improvised weapons (D-Charges in CC Mode): -6 to the user's CC.
 export const IMPROVISED_MOD = -6;
 
@@ -90,10 +103,10 @@ export function ccOpposingMods(x) {
 export const naturalBornWarrior = (x, y) =>
   isCcAttack(x) && isCcAttack(y) && hasSkill(y.traits, SKILL.NATURAL_BORN_WARRIOR);
 
-// x's CC Burst, as lines: the weapon's B, then the loadout's and the CC
-// Attack skill's +B in the Active Turn only (in ARO the Burst is 1), and
-// Martial Arts' +1 B in both turns.
-export function ccBurst(x, active) {
+// x's CC Burst against y, as lines: the weapon's B, then the loadout's and
+// the CC Attack skill's +B in the Active Turn only (in ARO the Burst is 1),
+// Martial Arts' +1 B and the allies in contact in both turns.
+export function ccBurst(x, active, y) {
   const {row, mods} = x.weapon;
   const lines = [{value: row.burst ?? 1, label: x.weapon.name}];
   const extra = (mods?.burst ?? 0) + ccAttackSkill(x.traits).burst;
@@ -104,6 +117,8 @@ export function ccBurst(x, active) {
   }
   const ma = martialArts(x.traits);
   if (ma?.burst) lines.push({value: ma.burst, label: maName(ma)});
+  const allies = ccAllies(x, y);
+  if (allies) lines.push({value: allies, label: `${allies} ${allies === 1 ? 'ally' : 'allies'} in contact`});
   return lines;
 }
 
