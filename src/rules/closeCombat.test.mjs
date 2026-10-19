@@ -16,6 +16,9 @@ const W = {
   1: [{name: 'Combi Rifle', mode: null, burst: 3, dmg: 7, ranges: RIFLE, ammo: ['N'], save: {attr: 'ARM'}, saveRolls: 1, props: []}],
   5: [{name: 'CC Weapon', mode: null, burst: 1, dmg: 8, ranges: null, ammo: ['N'], save: {attr: 'ARM'}, saveRolls: 1, props: ['CC']}],
   11: [{name: 'DA CC Weapon', mode: null, burst: 1, dmg: 8, ranges: null, ammo: ['DA'], save: {attr: 'ARM'}, saveRolls: 2, props: ['Anti-materiel', 'CC']}],
+  6: [{name: 'AP CC Weapon', mode: null, burst: 1, dmg: 8, ranges: null, ammo: ['AP'], save: {attr: 'ARM', halved: true}, saveRolls: 1, props: ['CC']}],
+  8: [{name: 'EXP CC Weapon', mode: null, burst: 1, dmg: 8, ranges: null, ammo: ['Exp'], save: {attr: 'ARM'}, saveRolls: 3, props: ['Anti-materiel', 'CC']}],
+  227: [{name: 'AP + EXP CC Weapon', mode: null, burst: 1, dmg: 8, ranges: null, ammo: ['AP', 'Exp'], save: {attr: 'ARM', halved: true}, saveRolls: 3, props: ['Anti-materiel', 'CC']}],
   17: [{name: 'D-Charges', mode: 'CC Mode', burst: 1, dmg: 6, ranges: null, ammo: ['AP', 'Exp'], save: {attr: 'ARM', halved: true}, saveRolls: 3, props: ['Anti-materiel', 'CC', 'Disposable (3)', 'Improvised', '[*]']}],
   71: [{name: 'PARA CC Weapon', mode: null, burst: 1, dmg: null, ranges: null, ammo: ['PARA'], save: {attr: 'PH', mod: -6}, saveRolls: 1, props: ['CC', 'Non-lethal', 'State: IMM-A']}],
   149: [
@@ -202,4 +205,22 @@ test('a shot with BS Attack (-3) at a trooper charging in CC: -3 applies, Natura
   const r = derive({active: charger, reactive: shooter});
   assert.equal(r.inputs.successValueA, 13);
   assert.ok(r.ledger.A.sv.lines.some((l) => l.label === 'BS Attack (-3)' && !l.struck));
+});
+
+test('AP, DA, EXP and AP + EXP CC Weapons: labels and what their hits do', () => {
+  const cases = [
+    // [weapon id, name, label ammo, dice tag, engine ammo, target ARM 5 after AP]
+    [6, 'AP CC Weapon', 'AP', ' AP', 'N', 3],
+    [11, 'DA CC Weapon', 'DA', ' DA', 'DA', 5],
+    [8, 'EXP CC Weapon', 'EXP', ' EXP', 'EXP', 5],
+    [227, 'AP + EXP CC Weapon', 'AP+EXP', ' AP EXP', 'EXP', 3],
+  ];
+  for (const [id, name, ammo, tag, engine, arm] of cases) {
+    const x = trooper('cc', {weapons: [{id, name, extra: ['PS=5']}]});
+    assert.equal(x.weapon.label, `${name} · B1 · PS5 · ${ammo}`);
+    const {inputs, ledger} = derive({active: x, reactive: trooper('cc', {arm: 5})});
+    assert.equal(ledger.A.dice, `CC B1 SV15 PS${5 + arm}${tag}`, name);
+    assert.equal(inputs.ammoA, engine, name);
+    assert.equal(inputs.armB, arm, name);
+  }
 });

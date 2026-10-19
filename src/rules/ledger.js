@@ -331,7 +331,9 @@ function sideLedger(x, y, s, rangeCm, inputs, vis) {
   const tag = ammoTag(w.row, w.mods);
   if (isCcAttack(x)) {
     const sv = ccSv(x, y, s, inputs[`successValue${s}`]);
-    return {kind: 'attack', dice: `CC ${b} SV${sv.total} PS${save.total}${tag}`, burst, sd, sv, save, ammo: ammoLines(x, y, s, inputs), note: ammoNote(inputs, s)};
+    // PARA's save is the target's PH roll, not PS + ARM.
+    const saveTag = w.row.save?.attr === 'PH' ? 'PH' : 'PS';
+    return {kind: 'attack', dice: `CC ${b} SV${sv.total} ${saveTag}${save.total}${tag}`, burst, sd, sv, save, ammo: ammoLines(x, y, s, inputs), note: ammoNote(inputs, s)};
   }
   if (isTemplate(w.row)) {
     return {kind: 'template', dice: `${b} template PS${save.total}${tag}`, burst, sd, save, ammo: ammoLines(x, y, s, inputs), note: ammoNote(inputs, s)};
