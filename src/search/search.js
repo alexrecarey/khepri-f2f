@@ -13,6 +13,9 @@ const MAX_PROFILES = 30;
 export function createSearch(index) {
   const rows = index.rows;
   const unitById = new Map(index.units.map((u) => [u.id, u]));
+  // Peripherals (Crabbots, Auxbots...) ride in their controller's unit entry (see matchRows).
+  const peripheralSkill = index.skills.findIndex((sk) => sk.name === 'Peripheral');
+  const isPeripheral = (row) => row.skills.includes(peripheralSkill);
   const factionName = new Map(index.factions.map((f) => [f.id, f.name]));
 
   // word -> postings [rowId, field, weaponIndex], plus its sound key. Unit and
@@ -114,7 +117,20 @@ export function createSearch(index) {
     }
     out.sort((a, b) => a.score - b.score || a.row.points - b.row.points
       || a.row.unit.localeCompare(b.row.unit) || a.row.id - b.row.id);
-    return out;
+    // Within the places one unit's rows already hold, its own loadouts come before its peripherals: a cheap,
+    // weaponless Crabbot matching only the unit's name scored best and became the pick. Units keep their rank.
+    const slots = new Map();
+    out.forEach((m, i) => {
+      if (!slots.has(m.row.unitId)) slots.set(m.row.unitId, []);
+      slots.get(m.row.unitId).push(i);
+    });
+    const reordered = [...out];
+    for (const places of slots.values()) {
+      const mine = places.map((i) => out[i]);
+      const own = [...mine.filter((m) => !isPeripheral(m.row)), ...mine.filter((m) => isPeripheral(m.row))];
+      places.forEach((i, k) => { reordered[i] = own[k]; });
+    }
+    return reordered;
   }
 
   const inScope = (row, factionId) => factionId == null || factionId in row.factions;
