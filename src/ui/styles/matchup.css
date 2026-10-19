@@ -51,6 +51,7 @@
 .chip.on { border-style: solid; color: var(--text); }
 .chip.on.active { background: var(--active-tint); border-color: var(--active); }
 .chip.on.reactive { background: var(--reactive-tint); border-color: var(--reactive); }
+.chip-group .chip-label { margin-right: 4px; }
 .chip-group { display: inline-flex; align-items: center; gap: 2px; padding: 2px 2px 2px 12px; border-radius: 999px; font-size: 13px; }
 .chip-group.active { background: var(--active-tint); border: 1px solid var(--active); }
 .chip-group.reactive { background: var(--reactive-tint); border: 1px solid var(--reactive); }

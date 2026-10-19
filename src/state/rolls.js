@@ -10,6 +10,7 @@
 //   au / aw, ru / rw   unit and weapon, apart: "Squalos Mk-II", "HMG"
 //   ca / cr            unit crest slugs (src/army/crests.js)
 //   fa / fr            vanilla faction ids, whose crest stands in
+import {ccAllies} from '../rules/closeCombat.js';
 import {RANGE_BANDS} from '../rules/ranges.js';
 import {shortIsc, shortWeaponName} from '../army/names.js';
 import {DEFAULT_PARAMS} from '../engine/params.js';
@@ -63,6 +64,11 @@ const inFoxhole = (x) => Boolean(x.resolved.sapper);
 const inCover = (x) => x.sel.inCover && !x.resolved.sapper;
 const fireteam = (x) => (x.resolved.ftSize > 1 ? `Fireteam ${x.resolved.ftSize}` : null);
 const surprise = (x, role) => role === 'A' && x.sel.surpriseAttack;
+// Allies in contact, as the CC Attack counts them (closeCombat.js ccAllies).
+const allies = (x, y) => {
+  const n = x.cc ? ccAllies(x.resolved, y.resolved) : 0;
+  return n ? `${n} ${n === 1 ? 'ally' : 'allies'}` : null;
+};
 const bandAt = (cm) => RANGE_BANDS.find((b) => b.to === cm)?.label ?? null;
 // '24-32"', or each side's when the range is split: '24-32" / 32-40"';
 // 'Close combat' when both are in CC (no range plays a part).
@@ -80,6 +86,7 @@ export function matchupRollSummary(view, s) {
   if (inFoxhole(A) || inFoxhole(B)) bits.push('Foxhole');
   if (inCover(A) || inCover(B)) bits.push('Cover');
   for (const x of [A, B]) bits.push(fireteam(x));
+  bits.push(allies(A, B), allies(B, A));
   if (surprise(A, 'A')) bits.push('Surprise attack');
   const [au, aw, ru, rw] = [shortUnit(A.resolved.unit), weaponShort(A.resolved.weapon), shortUnit(B.resolved.unit), weaponShort(B.resolved.weapon)];
   return {
@@ -100,7 +107,8 @@ export function matchupRollSummary(view, s) {
 export function matchupShareCard(view, h) {
   const side = (role, key) => {
     const x = view[role];
-    const situation = [inFoxhole(x) && 'Foxhole', inCover(x) && 'Cover', fireteam(x), surprise(x, role) && 'Surprise attack'];
+    const situation = [inFoxhole(x) && 'Foxhole', inCover(x) && 'Cover', fireteam(x), allies(x, view[role === 'A' ? 'B' : 'A']),
+      surprise(x, role) && 'Surprise attack'];
     return {
       n: h.text[key], l: h.label[key],
       u: shortUnit(x.resolved.unit), w: weaponShort(x.resolved.weapon), s: situation.filter(Boolean).join(', '),

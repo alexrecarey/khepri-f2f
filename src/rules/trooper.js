@@ -123,6 +123,9 @@ export function resolveSelection(army, sel) {
     // (a stored size above the max, e.g. from a share link, drops to it).
     ftMax,
     ftSize: fireteamSize(sel.ftSize, ftMax),
+    // Allies in contact with the target (a CC Attack's +1 B each); what fits
+    // against the actual target is closeCombat.js ccAllies.
+    ccAllies: sel.ccAllies ?? 0,
   };
 }
 

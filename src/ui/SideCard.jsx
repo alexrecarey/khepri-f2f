@@ -11,33 +11,37 @@ import WeaponButtons from './WeaponButtons.jsx';
 
 const patch = (side, p) => dispatch({type: 'patchSide', side, patch: p});
 
-// Only for troopers that can be in a fireteam, with sizes up to their max.
-function FireteamChip({side, size, max, color}) {
-  const editing = useAppState((st) => st.ui.edit?.side === side && st.ui.edit.chip === 'fireteam');
-  const setEditing = (on) => dispatch({type: 'setEdit', edit: on ? {side, chip: 'fireteam'} : null});
-  const onChange = (n) => patch(side, {ftSize: n});
-  const inTeam = size >= FIRETEAM_MIN;
-  if (max < FIRETEAM_MIN) return null;
+// A number the player sets with a chip: closed, "+ Fireteam" or "Fireteam 3";
+// tapped, one button per value from `min` to `max` and × for none (`none`).
+// Hidden when nothing above `none` is possible.
+function CountChip({side, chip, label, value, min, max, none, color}) {
+  const editing = useAppState((st) => st.ui.edit?.side === side && st.ui.edit.chip === chip);
+  const setEditing = (on) => dispatch({type: 'setEdit', edit: on ? {side, chip} : null});
+  const set = (n) => { patch(side, {[chip]: n}); setEditing(false); };
+  if (max < min) return null;
   if (editing) {
-    const sizes = [];
-    for (let n = FIRETEAM_MIN; n <= max; n++) sizes.push(n);
+    const values = [];
+    for (let n = min; n <= max; n++) values.push(n);
     return (
       <span className={`chip-group ${color}`}>
-        <span style={{marginRight: 4}}>Fireteam</span>
-        {sizes.map((n) => (
-          <button type="button" key={n} className={`n${n === size ? ' on' : ''}`}
-            onClick={() => { onChange(n); setEditing(false); }}>{n}</button>
+        <span className="chip-label">{label}</span>
+        {values.map((n) => (
+          <button type="button" key={n} className={`n${n === value ? ' on' : ''}`} onClick={() => set(n)}>{n}</button>
         ))}
-        <button type="button" className="n" aria-label="Not in a fireteam" onClick={() => { onChange(1); setEditing(false); }}>×</button>
+        <button type="button" className="n" aria-label={`No ${label.toLowerCase()}`} onClick={() => set(none)}>×</button>
       </span>
     );
   }
-  return inTeam
-    ? <button type="button" className={`chip on ${color}`} onClick={() => setEditing(true)}>Fireteam {size}</button>
-    : <button type="button" className="chip" onClick={() => setEditing(true)}>+ Fireteam</button>;
+  return value >= min
+    ? <button type="button" className={`chip on ${color}`} onClick={() => setEditing(true)}>{label} {value}</button>
+    : <button type="button" className="chip" onClick={() => setEditing(true)}>+ {label}</button>;
 }
 
-FireteamChip.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, size: PropTypes.number.isRequired, max: PropTypes.number.isRequired, color: PropTypes.string.isRequired};
+CountChip.propTypes = {
+  side: PropTypes.oneOf(['A', 'B']).isRequired, chip: PropTypes.string.isRequired, label: PropTypes.string.isRequired,
+  value: PropTypes.number.isRequired, min: PropTypes.number.isRequired, max: PropTypes.number.isRequired,
+  none: PropTypes.number.isRequired, color: PropTypes.string.isRequired,
+};
 
 // A side with no trooper yet: a tall slot with the site mark, one call to
 // action and the latest recent picks as one-tap chips. A slow plasma tint
@@ -72,7 +76,7 @@ EmptySlot.propTypes = {
 
 export default function SideCard({side, view, onOpenPicker}) {
   const color = ROLE[side];
-  const {sel, resolved, groups, ccGroups, noCover, surprise, faction, crest, short, loadout} = view[side];
+  const {sel, resolved, groups, ccGroups, cc, ccAlliesMax, noCover, surprise, faction, crest, short, loadout} = view[side];
   const unit = resolved?.unit;
   const option = resolved?.option;
 
@@ -105,7 +109,13 @@ export default function SideCard({side, view, onOpenPicker}) {
               {resolved.sapper ? 'Sapper ✓' : '+ Sapper'}
             </button>
           )}
-          <FireteamChip side={side} size={resolved.ftSize} max={resolved.ftMax} color={color} />
+          {/* Fireteams only: the size of the team, 1 = none. */}
+          <CountChip side={side} chip="ftSize" label="Fireteam" value={resolved.ftSize} min={FIRETEAM_MIN} max={resolved.ftMax} none={1} color={color} />
+          {/* CC Attack: allies in contact with the target, +1 B each. */}
+          {cc && (
+            <CountChip side={side} chip="ccAllies" label="Allies" value={Math.min(resolved.ccAllies, ccAlliesMax)} min={1} max={ccAlliesMax}
+              none={0} color={color} />
+          )}
           {surprise !== 0 && (
             <button type="button" className={`chip${sel.surpriseAttack ? ` on ${color}` : ''}`} aria-pressed={sel.surpriseAttack}
               onClick={() => patch(side, {surpriseAttack: !sel.surpriseAttack})}>

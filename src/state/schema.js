@@ -36,6 +36,8 @@ export const EMPTY_SIDE = {
   ball: null,
   // Fireteam size; 1 = not in a fireteam.
   ftSize: 1,
+  // Allies in base contact with the target, each +1 B to a CC Attack.
+  ccAllies: 0,
 };
 
 // The distance both sides share, as the upper bound of a range band in cm
@@ -58,7 +60,7 @@ export const MAX_RECENT_FACTIONS = 3;
 // picker:  {side: 'A'|'B', query, scope: factionId|null, stack: [view]} while
 //          overlay is 'picker'; a view is {view: 'factions'} | {view: 'type', type}
 //          | {view: 'unit', unitId, name}
-// edit:    {side, chip: 'fireteam'} while a chip shows its inline editor
+// edit:    {side, chip: 'ftSize' | 'ccAllies'} while a chip shows its inline editor
 // savedTab: which list Saved rolls shows, 'matchup' | 'basic'
 // swiped:  id of the saved roll swiped open to show its Delete button
 // toast:   {text} for a moment after Save, Share or Delete

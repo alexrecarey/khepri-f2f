@@ -59,6 +59,9 @@ Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Wa
 - CC weapons are B1 with the loadout's PS (`CC Weapon (PS=6)`). PARA CC Weapon: the target rolls PH−6 (no PS). D-Charges (CC Mode) are Improvised: −6 to the user. Chest Mine (CC Mode): +3.
 - A CC weapon's bracketed negative MOD (PARA CC Weapon (−6), Monofilament CC Weapon (−3)) goes on the opponent's Face to Face Roll.
 - Burst: in ARO a CC Attack is one die; loadout and CC Attack (+1B) count only in the Active Turn.
+- Allies in contact (chip): +1 B per ally (trooper or Peripheral) in Silhouette contact with the target, in both turns. At most 4 models touch a 25 mm base and 6 a 40 mm or larger one, the attacker included, so 3 or 5 allies. No base sizes in the Army data: S1–S2 count as 25 mm, S3+ as 40 mm or larger. B caps at 6.
+- Picking a CC weapon moves the range to 0–8": a shot at a trooper charging into CC almost always comes from there (Alex, 2026-10-19).
+- A shot with BS Attack (−X) at a trooper charging in: the −X applies to its CC roll (it's a Face to Face Roll). Natural Born Warrior doesn't stop it: it needs the user to be the target of a CC Attack (Alex, 2026-10-19).
 - Martial Arts (not cumulative; both turns; the opponent's −3 applies to whatever it rolls, a Dodge or a shot included):
   L1 −3 to the opponent · L2 +3 / −3 · L3 +3 / −3, +1 SD · L4 +3 / −3, +1 B · L5 +3 / −3, +1 B, +1 SD.
 - CC Attack (+X / −X / +1B / AP / Shock / Continuous Damage): like BS Attack, for CC Attacks. Antimaterial only matters against scenery.
@@ -89,4 +92,4 @@ Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Wa
 - Biometric Visor (ignores Surprise Attack from Impersonation / Holoecho attackers).
 - IMM-B, Isolated and Possession immunities change nothing here (States only).
 - Spec-Ops upgrades and SpecBall.
-- Close combat: +1 B per ally in base contact, Berserk, Guard, Protheion, Coup de Grâce, a Chest Mine hitting every enemy in contact.
+- Close combat: Berserk, Guard, Protheion, Coup de Grâce, a Chest Mine hitting every enemy in contact.

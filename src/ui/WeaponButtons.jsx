@@ -9,7 +9,7 @@ import {dispatch} from '../state/store.js';
 const modeText = (w) => (w.mode ? ` (${w.mode.replace(/ Mode$/i, '')})` : '');
 export const weaponText = (w) => `${shortWeaponName(w.name)}${modeText(w)}`;
 const weaponTitle = (w) => `${w.name}${modeText(w)}`;
-const pick = (side, key) => dispatch({type: 'patchSide', side, patch: {weaponKey: key}});
+const pick = (side, w) => dispatch({type: 'pickWeapon', side, key: w.key, cc: Boolean(w.cc)});
 
 // `label`: a heading at the start of the row ("CC").
 export default function WeaponButtons({side, groups, selected, color, label, ariaLabel}) {
@@ -23,12 +23,12 @@ export default function WeaponButtons({side, groups, selected, color, label, ari
         <span key={g.key} className={`btn-group ${color}${g.modes.some((w) => w.key === selected) ? ' on' : ''}`}
           role="group" aria-label={shortWeaponName(g.name)}>
           <button type="button" className="g-name" title={`${g.name}: ${g.labels.get(g.modes[0].key)}`}
-            aria-pressed={g.modes.some((w) => w.key === selected)} onClick={() => pick(side, g.modes[0].key)}>
+            aria-pressed={g.modes.some((w) => w.key === selected)} onClick={() => pick(side, g.modes[0])}>
             {shortWeaponName(g.name)}
           </button>
           {g.modes.map((w) => (
             <button type="button" key={w.key} className={`g-mode${selected === w.key ? ' on' : ''}`}
-              aria-pressed={selected === w.key} title={weaponTitle(w)} onClick={() => pick(side, w.key)}>
+              aria-pressed={selected === w.key} title={weaponTitle(w)} onClick={() => pick(side, w)}>
               {g.labels.get(w.key)}
             </button>
           ))}
@@ -36,7 +36,7 @@ export default function WeaponButtons({side, groups, selected, color, label, ari
       ) : (
         <button type="button" key={g.key} className={`btn${selected === g.w.key ? ` on ${color}` : ''}`}
           aria-pressed={selected === g.w.key} title={g.w.pseudo ? undefined : weaponTitle(g.w)}
-          onClick={() => pick(side, g.w.key)}>
+          onClick={() => pick(side, g.w)}>
           {g.w.pseudo ? g.w.label.replace(/ \(unopposed\)$/, '') : weaponText(g.w)}
         </button>
       )))}

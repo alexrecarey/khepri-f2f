@@ -13,7 +13,7 @@ import {deriveInputs} from '../rules/matchup.js';
 import {surpriseAttackMod} from '../rules/modifiers.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {visibility} from '../rules/visibility.js';
-import {isCcAttack} from '../rules/closeCombat.js';
+import {ccAlliesMax, isCcAttack} from '../rules/closeCombat.js';
 import {pseudoWeapons, resolveSelection, trooperCcWeapons, trooperWeapons} from '../rules/trooper.js';
 import {modeLabels, orderModes} from '../rules/weaponModes.js';
 import {woundStates} from '../rules/woundStates.js';
@@ -93,7 +93,7 @@ function sideView(army, sel, side) {
   };
 }
 
-const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], pseudo: [], groups: [], ccGroups: [], noCover: false, surprise: 0,
+const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], pseudo: [], groups: [], ccGroups: [], cc: false, ccAlliesMax: 0, noCover: false, surprise: 0,
   faction: null, vanilla: null, crest: null, short: null, loadout: null});
 
 
@@ -109,6 +109,12 @@ export function matchupView(army, matchup) {
   }
   const A = sideView(army, matchup.A, 'A');
   const B = sideView(army, matchup.B, 'B');
+  // A side CC attacking may count allies in contact, as many as fit around
+  // the other side's base.
+  for (const [x, y] of [[A, B], [B, A]]) {
+    x.cc = isCcAttack(x.resolved);
+    x.ccAlliesMax = x.cc ? ccAlliesMax(y.resolved) : 0;
+  }
   const derived = deriveInputs({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones});
   const hasSelection = Boolean(matchup.A.unitId || matchup.B.unitId);
   // Both sides fully chosen (unit through weapon) and the matchup is valid.

@@ -111,7 +111,7 @@ function ccAttackInputs(x, y, side, notes, opposing = 0) {
   if (modTotal !== modSum) notes.push(`${label}: MODs add up to ${signed(modSum)}, capped at ${signed(modTotal)}`);
   return {
     [`successValue${side}`]: clamp(LIMITS.successValue, attackStat(x.profile, x.weapon.row) + modTotal),
-    [`burst${side}`]: clamp(LIMITS.burst, total(ccBurst(x, side === 'A'))),
+    [`burst${side}`]: clamp(LIMITS.burst, total(ccBurst(x, side === 'A', y))),
     [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, total(ccSd(x))),
     [`template${side}`]: false,
     ...hitInputs(x, y, side, notes),

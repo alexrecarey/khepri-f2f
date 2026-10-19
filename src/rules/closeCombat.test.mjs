@@ -174,3 +174,32 @@ test('Smoke does not stop a CC Attack', () => {
   assert.equal(r.inputs.burstA, 1);
   assert.equal(r.inputs.successValueA, 15);
 });
+
+test('allies in contact: +1 B each, in both turns', () => {
+  const x = (n) => trooper('cc', {}, {ccAllies: n});
+  assert.equal(derive({active: x(2), reactive: trooper('cc')}).inputs.burstA, 3);
+  // In ARO too, on top of the one die.
+  assert.equal(derive({active: trooper('cc'), reactive: x(2)}).inputs.burstB, 3);
+});
+
+test('allies in contact: at most 3 around a 25 mm base (S1-S2), 5 around a larger one', () => {
+  const x = trooper('cc', {}, {ccAllies: 5});
+  assert.equal(derive({active: x, reactive: trooper('cc', {s: 2})}).inputs.burstA, 4);
+  assert.equal(derive({active: x, reactive: trooper('cc', {s: 3})}).inputs.burstA, 6);
+});
+
+test('allies and Martial Arts L4 together are capped at B6', () => {
+  const x = trooper('cc', {skills: [skill(MA[4])]}, {ccAllies: 5});
+  const r = derive({active: x, reactive: trooper('cc', {s: 6})});
+  assert.equal(r.inputs.burstA, 6);
+  assert.ok(r.ledger.A.burst.lines.some((l) => /caps at 6/.test(l.label)));
+});
+
+test('a shot with BS Attack (-3) at a trooper charging in CC: -3 applies, Natural Born Warrior or not', () => {
+  // NBW needs the trooper to be the target of a CC Attack; this is a shot.
+  const shooter = trooper('1:', {skills: [skill(SKILL.BS_ATTACK, '-3')]});
+  const charger = trooper('cc', {cc: 16, skills: [skill(SKILL.NATURAL_BORN_WARRIOR)]});
+  const r = derive({active: charger, reactive: shooter});
+  assert.equal(r.inputs.successValueA, 13);
+  assert.ok(r.ledger.A.sv.lines.some((l) => l.label === 'BS Attack (-3)' && !l.struck));
+});
