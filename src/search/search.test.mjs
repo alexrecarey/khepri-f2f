@@ -174,3 +174,14 @@ test("each unit carries its best match: the loadout Enter picks, past the profil
     assert.ok(u.best.weapons.some((w) => /spitfire/i.test(w)), `${u.short} -> ${u.best.weapons}`);
   }
 });
+
+test("a TAG's own loadout ranks above its Crabbot peripheral", () => {
+  // The Crabbot (2 pts, no weapons) used to be the cheapest match, so Enter or the unit row picked it and the
+  // trooper could only Dodge. Peripherals now follow their unit's own loadouts on equal matches.
+  for (const [query, want] of [['squalo', 'SQUALO Mk-II'], ['jotum', 'JOTUM'], ['cutter', 'CUTTER']]) {
+    const r = searcher.search({query});
+    assert.equal(r.profiles[0]?.loadout, want, `${query}: top profile`);
+    assert.equal(r.units[0]?.best.loadout, want, `${query}: the unit row's pick`);
+    assert.ok(r.profiles.some((h) => h.loadout === 'CRABBOT'), `${query}: the Crabbot is still listed`);
+  }
+});
