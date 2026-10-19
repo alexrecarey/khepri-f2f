@@ -145,7 +145,8 @@ export function weaponLabel(row, mods) {
   const sd = mods.sd > 0 ? `+${mods.sd}SD` : '';
   // PARA: no PS, the target rolls PH-6.
   const dmg = row.save?.attr === 'PH' ? `PH${row.save.mod ?? ''}` : `PS${weaponPS(row, mods)}`;
-  const ammo = ammoTypes(row, mods).join('+') || 'N';
+  // As players write it: "AP+EXP", not the data's "AP+Exp".
+  const ammo = ammoTypes(row, mods).map(ammoName).join('+') || 'N';
   return `${row.name}${modeSuffix(row.mode)} · B${burst}${sd} · ${dmg} · ${ammo}`;
 }
 

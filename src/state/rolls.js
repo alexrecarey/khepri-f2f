@@ -55,7 +55,8 @@ function chances(s) {
 function weaponShort(w) {
   if (!w) return '';
   if (w.pseudo) return pseudoName(w);
-  return shortWeaponName(w.name);
+  // A CC Mode says so: "Kobra Pistol (CC)", not the same as its shot.
+  return `${shortWeaponName(w.name)}${w.cc && w.mode ? ' (CC)' : ''}`;
 }
 
 // What a side's situation says, for the saved-rolls line and the share card.
