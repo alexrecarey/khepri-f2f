@@ -244,3 +244,29 @@ test('plain Berserk changes nothing on the roll', () => {
   assert.equal(r.inputs.successValueA, 15);
   assert.ok(r.ledger.A.sv.lines.some((l) => l.label === 'Berserk' && l.value === 0));
 });
+
+test('Protheion (-X): declared, the MOD goes on the opponent, in both turns', () => {
+  const x = (mod, on = true) => trooper('cc', {skills: [skill(SKILL.PROTHEION, String(mod))]}, {protheion: on});
+  assert.equal(derive({active: x(-3), reactive: trooper('cc')}).inputs.successValueB, 12);
+  assert.equal(derive({active: trooper('cc'), reactive: x(-6)}).inputs.successValueA, 9);
+  // On a Dodge too; not declared, nothing.
+  assert.equal(derive({active: x(-6), reactive: trooper('dodge')}).inputs.successValueB, 6);
+  assert.equal(derive({active: x(-6, false), reactive: trooper('cc')}).inputs.successValueB, 15);
+  const {ledger} = derive({active: x(-3), reactive: trooper('cc')});
+  assert.ok(ledger.B.sv.lines.some((l) => l.label === 'Protheion (-3)' && l.by === 'A'));
+});
+
+test('Protheion needs a MOD, a CC Attack and a target with VITA', () => {
+  // Plain Protheion has no MOD to put on the roll.
+  assert.equal(derive({active: trooper('cc', {skills: [skill(SKILL.PROTHEION)]}, {protheion: true}), reactive: trooper('cc')}).inputs.successValueB, 15);
+  const x = (key) => trooper(key, {skills: [skill(SKILL.PROTHEION, '-3')]}, {protheion: true});
+  assert.equal(derive({active: x('1:'), reactive: trooper('cc')}).inputs.successValueB, 15);
+  assert.equal(derive({active: x('cc'), reactive: trooper('cc', {str: true})}).inputs.successValueB, 15);
+});
+
+test('Natural Born Warrior ignores Protheion when it answers in CC', () => {
+  const x = trooper('cc', {skills: [skill(SKILL.PROTHEION, '-6')]}, {protheion: true});
+  const r = derive({active: x, reactive: trooper('cc', {skills: [skill(SKILL.NATURAL_BORN_WARRIOR)]})});
+  assert.equal(r.inputs.successValueB, 15);
+  assert.ok(r.ledger.B.sv.lines.some((l) => l.label === 'Protheion (-6)' && l.struck === 'Natural Born Warrior'));
+});

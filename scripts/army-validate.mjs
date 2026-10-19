@@ -42,6 +42,7 @@ const TRAIT_EXTRAS = [
   {kind: 'skill', id: SKILL.BS_ATTACK, name: 'BS Attack', read: /^(\+\d+(B|SD)|AP|T2|SR-\d+|Continuous Damage|-\d+)$/,
     known: ['Shock', 'Guided']},
   {kind: 'skill', id: SKILL.BERSERK, name: 'Berserk', read: /^\+\d+$/, known: []},
+  {kind: 'skill', id: SKILL.PROTHEION, name: 'Protheion', read: /^-\d+$/, known: []},
   // Antimaterial only matters against scenery.
   {kind: 'skill', id: SKILL.CC_ATTACK, name: 'CC Attack', read: /^([+-]\d+|\+\d+B|AP|Shock|Continuous Damage)$/,
     known: ['Antimaterial']},

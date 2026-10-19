@@ -221,7 +221,7 @@ export function opposingMods(x, y, xActive) {
   const nbw = naturalBornWarrior(x, y) ? 'Natural Born Warrior' : null;
   const out = [];
   if (isCcAttack(x)) {
-    for (const m of ccOpposingMods(x)) out.push({...m, ignoredBy: nbw ?? sixth});
+    for (const m of ccOpposingMods(x, y)) out.push({...m, ignoredBy: nbw ?? sixth});
   } else {
     const bs = bsAttackMod(x.traits);
     if (bs) out.push({value: bs, label: `BS Attack (${bs})`, ignoredBy: hasSkill(y.traits, SKILL.WARHORSE) ? 'Warhorse' : sixth});

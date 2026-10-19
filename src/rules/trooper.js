@@ -121,6 +121,8 @@ export function resolveSelection(army, sel) {
     surpriseAttack: Boolean(sel.surpriseAttack),
     // The player declared Berserk (active side, units with the skill).
     berserk: Boolean(sel.berserk),
+    // The player declared Protheion (either side, units with the skill).
+    protheion: Boolean(sel.protheion),
     // Fireteam: the largest this trooper can join, and the size in use
     // (a stored size above the max, e.g. from a share link, drops to it).
     ftMax,

@@ -69,6 +69,7 @@ Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Wa
 - Surprise Attack applies to a CC Attack too.
 - Berserk (chip, active side, troopers with the skill): a Long Skill, Move (both MOV values) + CC Attack, so Active Turn only. Berserk (+X) adds +X to the CC Attack; +1 SD still applies. Plain Berserk changes nothing on the roll. The chip shows only while a CC weapon is picked; picking a gun or Dodge drops it. N5 has no "opponent makes a Normal Roll" rule.
 - Natural Born Warrior: the target of a CC Attack that answers with a CC Attack ignores every negative MOD the attacker imposes (Martial Arts, Surprise Attack, CC Attack (−X), the weapon's (−X)). Not when it Dodges or shoots.
+- Protheion (chip, either side, while a CC weapon is picked; N5.3 errata): declared, its bracketed MOD goes on the enemy's Face to Face Roll. A trooper has one value, Protheion (−3) or (−6), never a choice (Alex, 2026-10-19). Only against a target with VITA (not STR). Natural Born Warrior answering in CC ignores it. Its healing / VITA gain doesn't change the roll.
 - Sixth Sense's Dodge ignores the Martial Arts −3 like any other negative MOD.
 
 ## Fireteams
@@ -93,4 +94,4 @@ Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Wa
 - Biometric Visor (ignores Surprise Attack from Impersonation / Holoecho attackers).
 - IMM-B, Isolated and Possession immunities change nothing here (States only).
 - Spec-Ops upgrades and SpecBall.
-- Close combat: Guard, Protheion, Coup de Grâce, a Chest Mine hitting every enemy in contact.
+- Close combat: Guard, Coup de Grâce, a Chest Mine hitting every enemy in contact.

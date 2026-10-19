@@ -476,9 +476,11 @@ test('Berserk stays with the active side: swapping drops it', () => {
   assert.equal(s.matchup.B.berserk, false);
 });
 
-test('picking a shooting weapon (or Dodge) drops Berserk; a CC weapon keeps it', () => {
-  const s = run(initialState(), {type: 'patchSide', side: 'A', patch: {unitId: 1, weaponKey: '11:', berserk: true}});
+test('picking a shooting weapon (or Dodge) drops Berserk and Protheion; a CC weapon keeps them', () => {
+  const s = run(initialState(), {type: 'patchSide', side: 'A', patch: {unitId: 1, weaponKey: '11:', berserk: true, protheion: true}});
   assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: '5:', cc: true}).matchup.A.berserk, true);
+  assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: '5:', cc: true}).matchup.A.protheion, true);
   assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: '1:', cc: false}).matchup.A.berserk, false);
+  assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: '1:', cc: false}).matchup.A.protheion, false);
   assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: 'dodge', cc: false}).matchup.A.berserk, false);
 });

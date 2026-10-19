@@ -83,9 +83,10 @@ export function reduce(state, action) {
     // A weapon button. Picking a CC weapon moves the range to the closest
     // band (0-8"): whoever shoots at a trooper charging into CC almost always
     // does so from there (Alex, 2026-10-19). The CC side has no range, so a
-    // split range closes on both. Any other pick drops Berserk (a CC Attack).
+    // split range closes on both. Any other pick drops Berserk and Protheion
+    // (both need a CC Attack).
     case 'pickWeapon': {
-      const next = setSide(state, action.side, {...matchup[action.side], weaponKey: action.key, ...(!action.cc && {berserk: false})});
+      const next = setSide(state, action.side, {...matchup[action.side], weaponKey: action.key, ...(!action.cc && {berserk: false, protheion: false})});
       if (!action.cc) return next;
       const close = RANGE_BANDS[0].to;
       return {...next, matchup: {...next.matchup, rangeCm: close, ...(matchup.rangeCmB != null && {rangeCmB: close})}};

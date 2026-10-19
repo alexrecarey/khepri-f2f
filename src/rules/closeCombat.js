@@ -78,6 +78,21 @@ export function berserkMod(traits) {
 // x declared Berserk: the chip is on, x is the active side and CC attacks.
 export const usesBerserk = (x, active) => active && isCcAttack(x) && Boolean(x.berserk) && hasBerserk(x.traits);
 
+// Protheion (wiki, N5.3): optional, in the Active or Reactive Turn, with a
+// CC Attack on a target that has VITA. Declared (a chip), its bracketed
+// negative MOD goes on the enemy's Face to Face Roll. A trooper has one
+// value, Protheion (-3) or (-6); plain Protheion has none.
+export function protheionValue(traits) {
+  const printed = skillExtras(traits, SKILL.PROTHEION).map((e) => /^-(\d+)$/.exec(e)).filter(Boolean).map((m) => -Number(m[1]));
+  return printed.length ? Math.min(...printed) : 0;
+}
+// The MOD x's declared Protheion puts on y, 0 when it doesn't apply: not
+// declared, not a CC Attack, or a target without VITA (STR).
+export function protheionMod(x, y) {
+  if (!x?.protheion || !isCcAttack(x) || y?.profile?.str) return 0;
+  return protheionValue(x.traits);
+}
+
 // Is this side making a CC Attack?
 export const isCcAttack = (x) => Boolean(x?.weapon?.cc);
 
@@ -102,9 +117,10 @@ export function ccAttackMods(x, active) {
   return lines;
 }
 
-// MODs x's CC Attack puts on its opponent's Face to Face Roll: Martial Arts,
-// CC Attack (-X) and the weapon's own (-X) (PARA CC Weapon (-6)).
-export function ccOpposingMods(x) {
+// MODs x's CC Attack puts on its opponent y's Face to Face Roll: Martial
+// Arts, CC Attack (-X), the weapon's own (-X) (PARA CC Weapon (-6)) and a
+// declared Protheion (-X).
+export function ccOpposingMods(x, y) {
   const lines = [];
   const ma = martialArts(x.traits);
   if (ma?.opponent) lines.push({value: ma.opponent, label: maName(ma)});
@@ -112,6 +128,8 @@ export function ccOpposingMods(x) {
   if (skill.opponent) lines.push({value: skill.opponent, label: `CC Attack (${skill.opponent})`});
   const weapon = x.weapon.mods?.opponent ?? 0;
   if (weapon) lines.push({value: weapon, label: `${x.weapon.name} (${weapon})`});
+  const protheion = protheionMod(x, y);
+  if (protheion) lines.push({value: protheion, label: `Protheion (${protheion})`});
   return lines;
 }
 

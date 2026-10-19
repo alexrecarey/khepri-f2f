@@ -31,6 +31,7 @@ const SKILLS = {
   NATURAL_BORN_WARRIOR: [39, 'Natural Born Warrior'],
   CC_ATTACK: [240, 'CC Attack'],
   BERSERK: [24, 'Berserk'],
+  PROTHEION: [72, 'Protheion'],
 };
 
 const EQUIPS = {

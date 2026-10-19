@@ -76,7 +76,7 @@ EmptySlot.propTypes = {
 
 export default function SideCard({side, view, onOpenPicker}) {
   const color = ROLE[side];
-  const {sel, resolved, groups, cc, ccAlliesMax, noCover, surprise, berserk, faction, crest, short, loadout} = view[side];
+  const {sel, resolved, groups, cc, ccAlliesMax, noCover, surprise, berserk, protheion, faction, crest, short, loadout} = view[side];
   const unit = resolved?.unit;
   const option = resolved?.option;
 
@@ -116,6 +116,12 @@ export default function SideCard({side, view, onOpenPicker}) {
             <button type="button" className={`chip${sel.berserk ? ` on ${color}` : ''}`} aria-pressed={sel.berserk}
               onClick={() => patch(side, {berserk: !sel.berserk})}>
               {sel.berserk ? `Berserk${berserk.mod ? ` (+${berserk.mod})` : ''} ✓` : '+ Berserk'}
+            </button>
+          )}
+          {protheion !== 0 && (
+            <button type="button" className={`chip${sel.protheion ? ` on ${color}` : ''}`} aria-pressed={sel.protheion}
+              onClick={() => patch(side, {protheion: !sel.protheion})}>
+              {sel.protheion ? `Protheion (${protheion}) ✓` : '+ Protheion'}
             </button>
           )}
           {surprise !== 0 && (

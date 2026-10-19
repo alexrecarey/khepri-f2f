@@ -8,7 +8,7 @@ import {RANGE_BANDS} from '../rules/ranges.js';
 
 const EMPTY = {
   unitId: null, factionId: null, groupId: null, profileId: null, optionId: null,
-  weaponKey: null, inCover: false, sapper: false, surpriseAttack: false, upgrade: null, ball: null, ccAllies: 0, berserk: false,
+  weaponKey: null, inCover: false, sapper: false, surpriseAttack: false, upgrade: null, ball: null, ccAllies: 0, berserk: false, protheion: false,
 };
 
 // param name -> selection field, and how to read it back
@@ -35,6 +35,7 @@ export function encodeMatchup({selA, selB, ftSize, rangeCm, rangeCmB, zones}) {
     if (sel.sapper) out[`sapper${side}`] = '1';
     if (sel.surpriseAttack) out[`surprise${side}`] = '1';
     if (sel.berserk) out[`berserk${side}`] = '1';
+    if (sel.protheion) out[`protheion${side}`] = '1';
     if (ftSize?.[side] > 1) out[`ft${side}`] = String(ftSize[side]);
     if (sel.ccAllies > 0) out[`allies${side}`] = String(sel.ccAllies);
   }
@@ -65,6 +66,7 @@ export function decodeMatchup(params) {
     sel.sapper = get(`sapper${s}`) === '1';
     sel.surpriseAttack = get(`surprise${s}`) === '1';
     sel.berserk = get(`berserk${s}`) === '1';
+    sel.protheion = get(`protheion${s}`) === '1';
     const allies = Number(get(`allies${s}`));
     sel.ccAllies = Number.isInteger(allies) && allies > 0 ? Math.min(allies, CC_ALLIES_MAX) : 0;
     return sel;
