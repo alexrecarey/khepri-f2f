@@ -65,13 +65,31 @@ export function ccAttackSkill(traits) {
   return out;
 }
 
+// Berserk (wiki, N5): a Long Skill, Move (both MOV values) + CC Attack, so
+// Active Turn only. Its bracketed MOD (Berserk (+3), (+6)) goes on the CC
+// Attack; +1 SD still applies. Plain Berserk changes nothing on the roll,
+// only how far the trooper moves. Whether it is used is the player's call
+// (chip); the MOD, 0 for plain Berserk.
+export const hasBerserk = (traits) => hasSkill(traits, SKILL.BERSERK);
+export function berserkMod(traits) {
+  const mods = skillExtras(traits, SKILL.BERSERK).map((e) => /^\+(\d+)$/.exec(e)).filter(Boolean).map((m) => Number(m[1]));
+  return mods.length ? Math.max(...mods) : 0;
+}
+// x declared Berserk: the chip is on, x is the active side and CC attacks.
+export const usesBerserk = (x, active) => active && isCcAttack(x) && Boolean(x.berserk) && hasBerserk(x.traits);
+
 // Is this side making a CC Attack?
 export const isCcAttack = (x) => Boolean(x?.weapon?.cc);
 
-// MODs to x's own CC Attack roll (before the opponent's).
-export function ccAttackMods(x) {
+// MODs to x's own CC Attack roll (before the opponent's). `active`: x is
+// the active side (Berserk).
+export function ccAttackMods(x, active) {
   const {row} = x.weapon;
   const lines = [];
+  if (usesBerserk(x, active)) {
+    const mod = berserkMod(x.traits);
+    lines.push({value: mod, label: mod ? `Berserk (+${mod})` : 'Berserk'});
+  }
   const ma = martialArts(x.traits);
   if (ma?.attack) lines.push({value: ma.attack, label: maName(ma)});
   const skill = ccAttackSkill(x.traits);

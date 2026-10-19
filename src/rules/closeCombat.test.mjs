@@ -224,3 +224,23 @@ test('AP, DA, EXP and AP + EXP CC Weapons: labels and what their hits do', () =>
     assert.equal(inputs.armB, arm, name);
   }
 });
+
+test('Berserk (+X): the MOD goes on the CC Attack, in the Active Turn only', () => {
+  const x = (key, berserk = true) => trooper(key, {skills: [skill(SKILL.BERSERK, '+6'), skill(MA[3])]}, {berserk});
+  const r = derive({active: x('cc'), reactive: trooper('cc')});
+  assert.equal(r.inputs.successValueA, 15 + 6 + 3);
+  // +1 SD (Martial Arts L3) still applies.
+  assert.equal(r.inputs.bonusBurstA, 1);
+  assert.ok(r.ledger.A.sv.lines.some((l) => l.label === 'Berserk (+6)'));
+  // Not declared, in ARO, or with a gun: nothing.
+  assert.equal(derive({active: x('cc', false), reactive: trooper('cc')}).inputs.successValueA, 18);
+  assert.equal(derive({active: trooper('cc'), reactive: x('cc')}).inputs.successValueB, 15 + 3);
+  assert.equal(derive({active: x('1:'), reactive: trooper('cc')}).inputs.successValueA, 12 + 3);
+});
+
+test('plain Berserk changes nothing on the roll', () => {
+  const x = trooper('cc', {skills: [skill(SKILL.BERSERK)]}, {berserk: true});
+  const r = derive({active: x, reactive: trooper('cc')});
+  assert.equal(r.inputs.successValueA, 15);
+  assert.ok(r.ledger.A.sv.lines.some((l) => l.label === 'Berserk' && l.value === 0));
+});

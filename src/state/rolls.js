@@ -10,7 +10,7 @@
 //   au / aw, ru / rw   unit and weapon, apart: "Squalos Mk-II", "HMG"
 //   ca / cr            unit crest slugs (src/army/crests.js)
 //   fa / fr            vanilla faction ids, whose crest stands in
-import {ccAllies} from '../rules/closeCombat.js';
+import {ccAllies, usesBerserk} from '../rules/closeCombat.js';
 import {RANGE_BANDS} from '../rules/ranges.js';
 import {shortIsc, shortWeaponName} from '../army/names.js';
 import {DEFAULT_PARAMS} from '../engine/params.js';
@@ -65,6 +65,7 @@ const inFoxhole = (x) => Boolean(x.resolved.sapper);
 const inCover = (x) => x.sel.inCover && !x.resolved.sapper;
 const fireteam = (x) => (x.resolved.ftSize > 1 ? `Fireteam ${x.resolved.ftSize}` : null);
 const surprise = (x, role) => role === 'A' && x.sel.surpriseAttack;
+const berserk = (x, role) => usesBerserk(x.resolved, role === 'A');
 // Allies in contact, as the CC Attack counts them (closeCombat.js ccAllies).
 const allies = (x, y) => {
   const n = x.cc ? ccAllies(x.resolved, y.resolved) : 0;
@@ -89,6 +90,7 @@ export function matchupRollSummary(view, s) {
   for (const x of [A, B]) bits.push(fireteam(x));
   bits.push(allies(A, B), allies(B, A));
   if (surprise(A, 'A')) bits.push('Surprise attack');
+  if (berserk(A, 'A')) bits.push('Berserk');
   const [au, aw, ru, rw] = [shortUnit(A.resolved.unit), weaponShort(A.resolved.weapon), shortUnit(B.resolved.unit), weaponShort(B.resolved.weapon)];
   return {
     a: `${au} · ${aw}`,
@@ -109,7 +111,7 @@ export function matchupShareCard(view, h) {
   const side = (role, key) => {
     const x = view[role];
     const situation = [inFoxhole(x) && 'Foxhole', inCover(x) && 'Cover', fireteam(x), allies(x, view[role === 'A' ? 'B' : 'A']),
-      surprise(x, role) && 'Surprise attack'];
+      surprise(x, role) && 'Surprise attack', berserk(x, role) && 'Berserk'];
     return {
       n: h.text[key], l: h.label[key],
       u: shortUnit(x.resolved.unit), w: weaponShort(x.resolved.weapon), s: situation.filter(Boolean).join(', '),

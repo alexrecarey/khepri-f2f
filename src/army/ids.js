@@ -30,6 +30,7 @@ const SKILLS = {
   MARTIAL_ARTS_L5: [23, 'Martial Arts L5'],
   NATURAL_BORN_WARRIOR: [39, 'Natural Born Warrior'],
   CC_ATTACK: [240, 'CC Attack'],
+  BERSERK: [24, 'Berserk'],
 };
 
 const EQUIPS = {

@@ -108,14 +108,15 @@ export function reduce(state, action) {
       return {...state, ui: {...ui, rangeOpen: action.open}};
     // "No ARO" only exists on the reactive side: drop it so the new active side
     // falls back to its default weapon (Dodge is valid on both). Surprise
-    // Attack is the active side's, so it doesn't follow a trooper to reactive.
+    // Attack and Berserk are the active side's, so they don't follow a trooper
+    // to reactive.
     case 'swapSides':
       return {
         ...state,
         matchup: {
           ...matchup,
           A: {...matchup.B, weaponKey: matchup.B.weaponKey === 'none' ? null : matchup.B.weaponKey},
-          B: {...matchup.A, surpriseAttack: false},
+          B: {...matchup.A, surpriseAttack: false, berserk: false},
           // A split range follows the troopers too.
           ...(matchup.rangeCmB != null && {rangeCm: matchup.rangeCmB, rangeCmB: matchup.rangeCm}),
         },

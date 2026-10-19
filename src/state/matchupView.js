@@ -13,7 +13,7 @@ import {deriveInputs} from '../rules/matchup.js';
 import {surpriseAttackMod} from '../rules/modifiers.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {visibility} from '../rules/visibility.js';
-import {ccAlliesMax, isCcAttack} from '../rules/closeCombat.js';
+import {berserkMod, ccAlliesMax, hasBerserk, isCcAttack} from '../rules/closeCombat.js';
 import {pseudoWeapons, resolveSelection, trooperCcWeapons, trooperWeapons} from '../rules/trooper.js';
 import {modeLabels, orderModes} from '../rules/weaponModes.js';
 import {woundStates} from '../rules/woundStates.js';
@@ -83,6 +83,10 @@ function sideView(army, sel, side) {
     noCover: hasSkill(resolved?.traits, SKILL.NO_COVER),
     // Surprise Attack's MOD, offered only on the active side.
     surprise: side === 'A' ? surpriseAttackMod(resolved?.traits) : 0,
+    // Berserk, offered only on the active side (a Long Skill): its MOD, and
+    // the CC weapon declaring it picks when a gun is chosen.
+    berserk: side === 'A' && hasBerserk(resolved?.traits) && ccWeapons.length > 0
+      ? {mod: berserkMod(resolved.traits), weapon: ccWeapons[0]} : null,
     faction: unit ? army.factions[vanillaOf(army, resolved.factionId)]?.name ?? null : null,
     // The vanilla faction id (its crest stands in for a missing unit crest)
     // and the unit crest's slug (src/army/crests.js).
@@ -93,7 +97,7 @@ function sideView(army, sel, side) {
   };
 }
 
-const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], ccWeapons: [], pseudo: [], groups: [], cc: false, ccAlliesMax: 0, noCover: false, surprise: 0,
+const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], ccWeapons: [], pseudo: [], groups: [], cc: false, ccAlliesMax: 0, noCover: false, surprise: 0, berserk: null,
   faction: null, vanilla: null, crest: null, short: null, loadout: null});
 
 

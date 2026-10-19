@@ -31,6 +31,8 @@ export const EMPTY_SIDE = {
   sapper: false,
   // Use Surprise Attack (active side, units with the skill).
   surpriseAttack: false,
+  // Declare Berserk (active side, units with the skill): a CC Attack.
+  berserk: false,
   // Team-Ops: index into unit.upgrades.chart / .ball, or null.
   upgrade: null,
   ball: null,
