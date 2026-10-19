@@ -1,9 +1,10 @@
-// Runs the icepool dice engine (src/engine/f2f.py) in Pyodide, off the main
-// thread. A module worker: calculate.js turns the calculator params into
-// engine input and the engine's output into result rows.
+// Runs the dice engine off the main thread: khepri's Face to Face engine
+// compiled to WebAssembly (src/engine/wasm/, see its README), a drop-in for
+// f2f.py's calculate(). A module worker: calculate.js turns the calculator
+// params into engine input and the engine's output into result rows.
 //
 // Messages in:
-//   {command: 'init', source}                   source = text of f2f.py
+//   {command: 'init'}
 //   {command: 'calculate', data, requestId}     data = calculator params (src/engine/params.js)
 // Messages out:
 //   {command: 'status', value: 'loading' | 'ready' | 'error', description}
@@ -13,42 +14,34 @@
 // Only the newest calculation runs: one that arrives while another is running
 // (or while the engine loads) replaces any still waiting, so tapping a stepper
 // five times runs the first and the last, not all five.
+import init, {calculate as runEngine} from './wasm/icepool_wasm.js';
+import wasmUrl from './wasm/icepool_wasm_bg.wasm?url';
 import {calculate} from './calculate.js';
 import {latestOnly} from './latestOnly.js';
 
-const PYODIDE = 'https://cdn.jsdelivr.net/pyodide/v0.26.3/full/';
-const ICEPOOL = 'icepool==2.2.2';
+// Any valid engine input: run once at start-up so the first real calculation
+// doesn't pay for compiling the hot code.
+const WARM_UP = {
+  successValueA: 13, burstA: 2, bonusBurstA: 0, templateA: false, saveValueA: 10, savesA: 1, critSaveA: true,
+  woundsPerFailureA: 1, contA: false, secondarySaveA: null,
+  successValueB: 12, burstB: 1, bonusBurstB: 0, templateB: false, saveValueB: 10, savesB: 1, critSaveB: true,
+  woundsPerFailureB: 1, contB: false, secondarySaveB: null,
+  fixedFaceToFace: false,
+};
 
-let engineFn;
+let ready = false;
 let starting = null;  // init() promise, once 'init' arrives
 
-async function init(source) {
-  self.postMessage({command: 'status', value: 'loading', description: 'Initializing icepool worker'})
-  const {loadPyodide} = await import(/* @vite-ignore */ `${PYODIDE}pyodide.mjs`)
-  const pyodide = await loadPyodide({indexURL: PYODIDE})
-  await pyodide.loadPackage(['micropip'])
-  await pyodide.pyimport('micropip').install(ICEPOOL)
-  const namespace = pyodide.globals.get('dict')()
-  pyodide.runPython(source, {globals: namespace})
-  engineFn = namespace.get('calculate')
-  self.pyodide = pyodide
-  self.postMessage({command: 'status', value: 'ready', description: 'Icepool worker ready'})
-}
-
-// One engine run: engine input (calculate.js engineInput) -> engine output.
-function runEngine(input) {
-  const pyInput = self.pyodide.toPy(new Map(Object.entries(input)))
-  const pyResult = engineFn(pyInput)
-  try {
-    return pyResult.toJs({dict_converter: Object.fromEntries})
-  } finally {
-    pyInput.destroy()
-    pyResult.destroy()
-  }
+async function start() {
+  self.postMessage({command: 'status', value: 'loading', description: 'Loading the dice engine'})
+  await init({module_or_path: wasmUrl})
+  runEngine(WARM_UP)
+  ready = true
+  self.postMessage({command: 'status', value: 'ready', description: 'Dice engine ready'})
 }
 
 function run({data, requestId}) {
-  if (engineFn === undefined) {
+  if (!ready) {
     self.postMessage({command: 'error', requestId, value: 'dice engine not loaded'})
     return
   }
@@ -74,10 +67,10 @@ self.onmessage = async (msg) => {
     enqueue(msg.data);
   } else if (msg.data.command === 'init') {
     try {
-      starting = init(msg.data.source)
+      starting = start()
       await starting
     } catch (e) {
-      console.error('Could not start the icepool engine', e)
+      console.error('Could not start the dice engine', e)
       self.postMessage({command: 'status', value: 'error', description: String(e.message ?? e)})
     }
   }

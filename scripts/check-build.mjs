@@ -8,7 +8,7 @@ const dir = new URL('../dist/assets/', import.meta.url);
 const mb = (n) => `${(n / 1024 / 1024).toFixed(2)} MB`;
 let failed = false;
 for (const name of readdirSync(dir)) {
-  if (!/\.(js|css)$/.test(name)) continue;
+  if (!/\.(js|css|wasm)$/.test(name)) continue;
   const size = statSync(new URL(name, dir)).size;
   if (size > PRECACHE_MAX_BYTES) {
     console.error(`${name}: ${mb(size)} is over the ${mb(PRECACHE_MAX_BYTES)} precache limit (vite.config.js)`);

@@ -1,5 +1,4 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
-import engineSource from './f2f.py?raw';
 import {paramsKey} from './params.js';
 
 // The dice engine, running in a Web Worker. Recalculates `params` whenever
@@ -11,7 +10,7 @@ import {paramsKey} from './params.js';
 // setup that is no longer on screen.
 export default function useEngine(params) {
   const [result, setResult] = useState(null);
-  const [status, setStatus] = useState('Loading icepool engine');
+  const [status, setStatus] = useState('Loading the dice engine');
   // A calculation is on its way: the old numbers stay up, shimmering.
   const [pending, setPending] = useState(params != null);
   const workerRef = useRef(null);
@@ -41,7 +40,7 @@ export default function useEngine(params) {
       setPending(false);
       setStatus(`Worker error: ${error.message}`);
     };
-    worker.postMessage({command: 'init', source: engineSource});
+    worker.postMessage({command: 'init'});
     workerRef.current = worker;
     return () => worker.terminate();
   }, []);
