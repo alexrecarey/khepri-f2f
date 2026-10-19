@@ -106,7 +106,7 @@ const total = (lines) => lines.reduce((t, l) => t + l.value, 0);
 // the weapon and Martial Arts.
 function ccAttackInputs(x, y, side, notes, opposing = 0) {
   const label = side === 'A' ? 'Active' : 'Reactive';
-  const modSum = total(ccAttackMods(x)) + opposing;
+  const modSum = total(ccAttackMods(x, side === 'A')) + opposing;
   const modTotal = capMods(modSum);
   if (modTotal !== modSum) notes.push(`${label}: MODs add up to ${signed(modSum)}, capped at ${signed(modTotal)}`);
   return {

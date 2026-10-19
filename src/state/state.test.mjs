@@ -470,3 +470,8 @@ test('picking a CC weapon moves the range to the closest band, a split range too
     {type: 'pickWeapon', side: 'A', key: '11:', cc: true}).matchup;
   assert.deepEqual([split.rangeCm, split.rangeCmB], [20, 20]);
 });
+
+test('Berserk stays with the active side: swapping drops it', () => {
+  const s = run(initialState(), {type: 'patchSide', side: 'A', patch: {unitId: 1, berserk: true}}, {type: 'swapSides'});
+  assert.equal(s.matchup.B.berserk, false);
+});

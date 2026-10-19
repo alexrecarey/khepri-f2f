@@ -130,7 +130,7 @@ function dodgeSv(x, y, s, total, yBlocked) {
 function ccSv(x, y, s, total) {
   const t = other(s);
   const lines = [line(attackStat(x.profile, x.weapon.row), 'CC', null)];
-  for (const m of ccAttackMods(x)) lines.push(line(m.value, m.label, s));
+  for (const m of ccAttackMods(x, s === 'A')) lines.push(line(m.value, m.label, s));
   if (y) lines.push(...opposingLines(y, x, t, t === 'A'));
   const modSum = sum(live(lines).slice(1));
   const capped = capMods(modSum);

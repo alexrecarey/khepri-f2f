@@ -67,6 +67,7 @@ Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Wa
 - CC Attack (+X / −X / +1B / AP / Shock / Continuous Damage): like BS Attack, for CC Attacks. Antimaterial only matters against scenery.
 - BS Attack (−X) is for shots only; it does nothing while the trooper CC attacks.
 - Surprise Attack applies to a CC Attack too.
+- Berserk (chip, active side, troopers with the skill): a Long Skill, Move (both MOV values) + CC Attack, so Active Turn only. Berserk (+X) adds +X to the CC Attack; +1 SD still applies. Plain Berserk changes nothing on the roll. Declaring it with a gun picked switches to the trooper's CC weapon. N5 has no "opponent makes a Normal Roll" rule.
 - Natural Born Warrior: the target of a CC Attack that answers with a CC Attack ignores every negative MOD the attacker imposes (Martial Arts, Surprise Attack, CC Attack (−X), the weapon's (−X)). Not when it Dodges or shoots.
 - Sixth Sense's Dodge ignores the Martial Arts −3 like any other negative MOD.
 
@@ -92,4 +93,4 @@ Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Wa
 - Biometric Visor (ignores Surprise Attack from Impersonation / Holoecho attackers).
 - IMM-B, Isolated and Possession immunities change nothing here (States only).
 - Spec-Ops upgrades and SpecBall.
-- Close combat: Berserk, Guard, Protheion, Coup de Grâce, a Chest Mine hitting every enemy in contact.
+- Close combat: Guard, Protheion, Coup de Grâce, a Chest Mine hitting every enemy in contact.
