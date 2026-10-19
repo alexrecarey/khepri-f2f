@@ -14,6 +14,7 @@ import {
   calcAmmo, hasImmunity, hasNoEffect, immunityAgainst, immunityFor, immunityNote, saveHalving, shockApplies, vulnerabilityTo,
 } from './saves.js';
 import {isSpecOps} from './trooper.js';
+import {ccAttackMods, ccBurst, ccSd, isCcAttack} from './closeCombat.js';
 
 // The Immunities the rules here read, and Immunities to States the calculator
 // doesn't model (E/M's IMM-B and Isolated, Possession): recognized, and
@@ -82,7 +83,6 @@ function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0, visMod =
     ? 0
     : clamp(LIMITS.successValue, attackStat(x.profile, row) + modTotal);
 
-  const noEffect = hasNoEffect(y?.traits, row);
   let burst = (row.burst ?? 1) + bonus.burst;
   if (side === 'B' && !keepsAroBurst(x)) burst = 1;
   if (side === 'B') burst += neurocineticsAroBurst(x.traits);
@@ -91,13 +91,43 @@ function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0, visMod =
     burst = 1;
     notes.push(`${label}: Neurocinetics; Burst reduced to 1 in the Active Turn`);
   }
+  return {
+    [`successValue${side}`]: sv,
+    [`burst${side}`]: clamp(LIMITS.burst, burst),
+    [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, bonus.sd),
+    ...hitInputs(x, y, side, notes),
+  };
+}
+
+const total = (lines) => lines.reduce((t, l) => t + l.value, 0);
+
+// A CC Attack (closeCombat.js): CC plus its own MODs and the opponent's,
+// capped; no range, cover, Mimetism or Smoke. Burst and Special Dice from
+// the weapon and Martial Arts.
+function ccAttackInputs(x, y, side, notes, opposing = 0) {
+  const label = side === 'A' ? 'Active' : 'Reactive';
+  const modSum = total(ccAttackMods(x)) + opposing;
+  const modTotal = capMods(modSum);
+  if (modTotal !== modSum) notes.push(`${label}: MODs add up to ${signed(modSum)}, capped at ${signed(modTotal)}`);
+  return {
+    [`successValue${side}`]: clamp(LIMITS.successValue, attackStat(x.profile, x.weapon.row) + modTotal),
+    [`burst${side}`]: clamp(LIMITS.burst, total(ccBurst(x, side === 'A'))),
+    [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, total(ccSd(x))),
+    [`template${side}`]: false,
+    ...hitInputs(x, y, side, notes),
+  };
+}
+
+// What x's hits do to y: PS, ammunition, Continuous Damage, Shock, with the
+// notes on Immunity and Vulnerability. The same for a shot and a CC Attack.
+function hitInputs(x, y, side, notes) {
+  const label = side === 'A' ? 'Active' : 'Reactive';
+  const {row, mods} = x.weapon;
+  const noEffect = hasNoEffect(y?.traits, row);
   const immunity = immunityAgainst(y?.traits, row);
   // Immunity (Continuous Damage): the Trait is ignored, the hit is not.
   const contImmune = hasImmunity(y?.traits, 'Continuous Damage', row);
   const out = {
-    [`successValue${side}`]: sv,
-    [`burst${side}`]: clamp(LIMITS.burst, burst),
-    [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, bonus.sd),
     [`damage${side}`]: clamp(LIMITS.damage, weaponPS(row, mods)),
     [`ammo${side}`]: noEffect ? 'NONE' : calcAmmo(row, y?.traits),
     [`cont${side}`]: !immunity && !contImmune && hasContinuousDamage(row, mods),
@@ -137,15 +167,19 @@ function defenseInputs(y, incoming, side, dodging = false) {
   // Immune: the Attribute is rolled as printed, no ARM=0 and no AP halving.
   const immune = Boolean(immunityAgainst(y.traits, incoming?.row));
   const arm = (p.arm ?? 0) + (dodging ? dodgeExtras(y.traits).arm : 0);
-  let base = save.attr === 'BTS' ? p.bts : save.armZero && !immune ? 0 : arm;
+  // PARA: a PH roll at the weapon's MOD (PH-6), with PS 0 (weaponPS).
+  let base = save.attr === 'PH' ? (p.ph ?? 0) + (save.mod ?? 0)
+    : save.attr === 'BTS' ? p.bts : save.armZero && !immune ? 0 : arm;
   base = Math.max(0, base ?? 0);
   // AP or printed halving (saves.js saveHalving).
   if (saveHalving(incoming?.row, incoming?.mods, y.traits).halves) base = Math.ceil(base / 2);
   // Cover's +3 is a Saving Roll MOD, not ARM: add it after AP halving. The
   // calculator saves on d20 <= PS + ARM, so this input is where the MOD goes.
+  // Cover and Nanoscreen are against BS Attacks: nothing against a CC Attack.
   const templateIncoming = ignoresCoverOnSaves(incoming?.row);
-  const coverSave = benefitsFromCover(y) && !templateIncoming ? COVER_SAVE_MOD : 0;
-  const nanoSave = hasNanoscreen(y) ? COVER_SAVE_MOD : 0;
+  const ccIncoming = Boolean(incoming?.cc);
+  const coverSave = benefitsFromCover(y) && !templateIncoming && !ccIncoming ? COVER_SAVE_MOD : 0;
+  const nanoSave = hasNanoscreen(y) && !ccIncoming ? COVER_SAVE_MOD : 0;
   const cover = Math.max(coverSave, nanoSave);
   return {
     [`arm${side}`]: clamp(LIMITS.arm, base + cover),
@@ -195,7 +229,9 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
     } else if (a.weapon.pseudo) {
       incomplete = true; // e.g. "No ARO" carried over; the active side needs a real choice
     } else if (attackStat(a.profile, a.weapon.row) <= 0) {
-      errors.push('Active: this profile cannot make BS attacks; pick Dodge');
+      errors.push(`Active: this profile cannot make ${isCcAttack(a) ? 'CC' : 'BS'} attacks; pick Dodge`);
+    } else if (isCcAttack(a)) {
+      Object.assign(inputs, ccAttackInputs(a, b, 'A', notes, onA));
     } else if (vis.A.blocked) {
       Object.assign(inputs, noLofInputs('A'));
     } else {
@@ -218,7 +254,9 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
       inputs.shockB = false;
       inputs.templateB = false;
     } else if (attackStat(b.profile, b.weapon.row) <= 0) {
-      errors.push('Reactive: this profile cannot make BS attacks; pick Dodge or No ARO');
+      errors.push(`Reactive: this profile cannot make ${isCcAttack(b) ? 'CC' : 'BS'} attacks; pick Dodge or No ARO`);
+    } else if (isCcAttack(b)) {
+      Object.assign(inputs, ccAttackInputs(b, a, 'B', notes, onB));
     } else if (vis.B.blocked) {
       Object.assign(inputs, noLofInputs('B'));
     } else {

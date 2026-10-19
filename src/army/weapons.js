@@ -12,6 +12,12 @@ export const isTemplate = (row) => (row?.props ?? []).some((p) => p.startsWith('
 // the pipeline stops if another shape appears (scripts/army-validate.mjs).
 export const isImpactTemplate = (row) => (row?.props ?? []).some((p) => p.startsWith('Impact Template'));
 
+// Close combat weapons: the CC Trait, or a Chest Mine's CC Mode ("CC Attack
+// (+3)"). They need a Saving Roll to cause anything: ARM / BTS, or PH for
+// PARA (no PS; save.mod is the MOD to the PH roll).
+export const isCcWeapon = (row) => (row?.props ?? []).some((p) => p === 'CC' || p.startsWith('CC Attack ('))
+  && (row.save?.attr === 'ARM' || row.save?.attr === 'BTS' || row.save?.attr === 'PH');
+
 export function isBsAttackWeapon(row) {
   if (!row || typeof row.dmg !== 'number') return false;
   if (row.save?.attr !== 'ARM' && row.save?.attr !== 'BTS') return false;
@@ -21,8 +27,10 @@ export function isBsAttackWeapon(row) {
 
 // Weapons with the BS Weapon (PH) / (WIP) trait roll against that attribute
 // instead of BS (e.g. Grenades, Flash Pulse).
+// CC weapons roll against CC.
 export function attackAttribute(row) {
   const props = row?.props ?? [];
+  if (isCcWeapon(row)) return 'cc';
   if (props.includes('BS Weapon (PH)')) return 'ph';
   if (props.includes('BS Weapon (WIP)')) return 'wip';
   return 'bs';
@@ -55,7 +63,8 @@ export const isPlasma = (row) => Boolean(row?.save?.alsoBts);
 
 // The Attribute of the Saving Roll. Plasma's combined save counts as ARM: its
 // BTS half is a plain Saving Roll, with nothing for an Immunity to ignore.
-export const saveAttribute = (row) => (row?.save?.attr === 'BTS' ? 'BTS' : 'ARM');
+// PARA saves with PH, which no Immunity covers.
+export const saveAttribute = (row) => (row?.save?.attr === 'BTS' || row?.save?.attr === 'PH' ? row.save.attr : 'ARM');
 
 export const hasContinuousDamage = (row, mods) => Boolean(mods?.cont) || (row?.props ?? []).includes('Continuous Damage');
 
@@ -126,34 +135,50 @@ const modeSuffix = (mode) => (mode ? ` (${mode.replace(/ Mode$/i, '')})` : '');
 
 // The PS the target saves against: the loadout's "PS=6" or the chart's, with
 // any Saving Roll MOD (BS Attack (SR-1)).
-export const weaponPS = (row, mods) => (mods?.ps ?? row.dmg) + (mods?.psMod ?? 0);
+// PARA has no PS: 0, its save is the target's PH roll (rules/matchup.js).
+export const weaponPS = (row, mods) => (mods?.ps ?? row.dmg ?? 0) + (mods?.psMod ?? 0);
 
 export function weaponLabel(row, mods) {
   // Templates show their burst too (e.g. a Dog-Warrior's B2 Chain Rifle); the
   // weapon menu marks them "template" in place of the range MOD.
   const burst = (row.burst ?? 1) + mods.burst;
   const sd = mods.sd > 0 ? `+${mods.sd}SD` : '';
-  const dmg = weaponPS(row, mods);
+  // PARA: no PS, the target rolls PH-6.
+  const dmg = row.save?.attr === 'PH' ? `PH${row.save.mod ?? ''}` : `PS${weaponPS(row, mods)}`;
   const ammo = ammoTypes(row, mods).join('+') || 'N';
-  return `${row.name}${modeSuffix(row.mode)} · B${burst}${sd} · PS${dmg} · ${ammo}`;
+  return `${row.name}${modeSuffix(row.mode)} · B${burst}${sd} · ${dmg} · ${ammo}`;
 }
 
 // Weapon menu order: single-mode first, then "Hit Mode", then other modes.
 const modeRank = (row) => (!row.mode ? 0 : /^hit/i.test(row.mode) ? 1 : 2);
 
-// BS-attack capable weapons of a loadout, one entry per firing mode.
-export function bsWeapons(option, weapons) {
+// A CC weapon's bracketed negative MOD ("PARA CC Weapon (-6)",
+// "Monofilament CC Weapon (-3)") is not the user's: like every negative MOD
+// on a profile it goes on the opponent's Face to Face Roll (wiki, Modifiers).
+function ccMods(mods) {
+  return mods.sv < 0 ? {...mods, sv: 0, opponent: mods.sv} : {...mods, opponent: 0};
+}
+
+// The loadout's weapons that pass `keep`, one entry per firing mode.
+function loadoutWeapons(option, weapons, keep, cc) {
   const out = [];
   for (const w of option?.weapons ?? []) {
-    const mods = parseWeaponMods(w.extra);
+    const parsed = parseWeaponMods(w.extra);
+    const mods = cc ? ccMods(parsed) : parsed;
     const rows = [...(weapons?.[w.id] ?? [])].sort((a, b) => modeRank(a) - modeRank(b));
     for (const base of rows) {
-      if (!isBsAttackWeapon(base)) continue;
+      if (!keep(base)) continue;
       const row = withAmmoExtra(base, mods);
       const key = `${w.id}:${row.mode ?? ''}`;
       if (out.some((x) => x.key === key)) continue;
-      out.push({key, id: w.id, name: row.name, mode: row.mode, row, mods, label: weaponLabel(row, mods)});
+      out.push({key, id: w.id, name: row.name, mode: row.mode, row, mods, label: weaponLabel(row, mods), ...(cc && {cc: true})});
     }
   }
   return out;
 }
+
+// BS-attack capable weapons of a loadout, one entry per firing mode.
+export const bsWeapons = (option, weapons) => loadoutWeapons(option, weapons, isBsAttackWeapon, false);
+
+// CC weapons of a loadout (CC Mode of a weapon with several), marked `cc`.
+export const ccWeapons = (option, weapons) => loadoutWeapons(option, weapons, isCcWeapon, true);

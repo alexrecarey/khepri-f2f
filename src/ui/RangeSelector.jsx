@@ -7,7 +7,7 @@ import {dispatch, useAppState} from '../state/store.js';
 import {bandColor, signedMod as signed} from './bands.js';
 import RangeScale, {SplitChip} from './RangeScale.jsx';
 import {ZoneChips, ZoneMarks, zoneText} from './RangeZones.jsx';
-import {weaponText} from './SideCard.jsx';
+import {weaponText} from './WeaponButtons.jsx';
 
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
@@ -78,7 +78,9 @@ export default function RangeSelector({view}) {
   return (
     <>
     {open && <button type="button" className="range-scrim" aria-label="Close range" onClick={() => setOpen(false)} />}
-    <div className={`range${open ? ' open' : ''}`}>
+    {/* Both sides in close combat: the distance changes nothing, so it dims. */}
+    <div className={`range${open ? ' open' : ''}${view.rangeUnused ? ' unused' : ''}`}
+      title={view.rangeUnused ? 'Close combat: range has no effect' : undefined}>
       <div className="collapse" style={{maxHeight: open ? 48 : 0, opacity: open ? 1 : 0}} aria-hidden={!open}>
         <div className="range-head">
           <span className="label">Range</span>

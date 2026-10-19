@@ -4,6 +4,7 @@ import {LIMITS} from '../engine/params.js';
 import {EQUIP, SKILL} from '../army/ids.js';
 import {equipExtra, hasEquip, hasSkill, skillExtra, skillExtras} from '../army/traits.js';
 import {attackAttribute, isImpactTemplate, isTemplate, parseWeaponMods} from '../army/weapons.js';
+import {ccOpposingMods, isCcAttack, naturalBornWarrior} from './closeCombat.js';
 
 // A Success Value below 1 is an automatic failure (no roll can pass or crit):
 // it is clamped to 0, which the engine treats exactly that way. The same
@@ -184,7 +185,7 @@ export function attackStat(profile, row) {
   return profile?.[attackAttribute(row)] ?? 0;
 }
 
-// Does this side roll? A Dodge, or a BS Attack that isn't a Direct Template
+// Does this side roll? A Dodge, a CC Attack, or a BS Attack that isn't a Direct Template
 // (even one its target is immune to: the rolls are still opposed).
 export function rollsDice(x) {
   const w = x?.weapon;
@@ -199,13 +200,17 @@ export function rollsDice(x) {
 // rolls: both roll against each other (a Direct Template hits automatically,
 // so nothing is opposed).
 // - x Dodges with Dodge (-X) and y attacks: y takes -X (wiki, Dodge).
-// - x attacks with BS Attack (-X): y takes -X attacking or Dodging, unless y
-//   has Warhorse (bsAttackMod).
-// - x is the active trooper, attacks, and uses Surprise Attack (-X) (a player
-//   toggle): y takes -X attacking or Dodging, unless y has Combat Instinct or
-//   a Multispectral Visor L3.
+// - x makes a BS Attack with BS Attack (-X): y takes -X attacking or Dodging,
+//   unless y has Warhorse (bsAttackMod).
+// - x makes a CC Attack: Martial Arts, CC Attack (-X) and the weapon's (-X)
+//   go on y's roll, whatever y does (closeCombat.js ccOpposingMods).
+// - x is the active trooper, attacks (BS or CC), and uses Surprise Attack
+//   (-X) (a player toggle): y takes -X attacking or Dodging, unless y has
+//   Combat Instinct or a Multispectral Visor L3.
 // - y Dodges with Sixth Sense (the skill or a Fireteam of 5): none of these
 //   negative MODs apply to its Dodge.
+// - y answers x's CC Attack with its own and has Natural Born Warrior: none
+//   of x's negative MODs apply either.
 export function opposingMods(x, y, xActive) {
   if (!rollsDice(x) || !rollsDice(y)) return [];
   if (x.weapon.pseudo === 'dodge') {
@@ -213,13 +218,18 @@ export function opposingMods(x, y, xActive) {
     return mod ? [{value: mod, label: `Dodge (${mod})`, ignoredBy: null}] : [];
   }
   const sixth = y.weapon.pseudo === 'dodge' && hasSixthSense(y) ? 'Sixth Sense (Dodge)' : null;
+  const nbw = naturalBornWarrior(x, y) ? 'Natural Born Warrior' : null;
   const out = [];
-  const bs = bsAttackMod(x.traits);
-  if (bs) out.push({value: bs, label: `BS Attack (${bs})`, ignoredBy: hasSkill(y.traits, SKILL.WARHORSE) ? 'Warhorse' : sixth});
+  if (isCcAttack(x)) {
+    for (const m of ccOpposingMods(x)) out.push({...m, ignoredBy: nbw ?? sixth});
+  } else {
+    const bs = bsAttackMod(x.traits);
+    if (bs) out.push({value: bs, label: `BS Attack (${bs})`, ignoredBy: hasSkill(y.traits, SKILL.WARHORSE) ? 'Warhorse' : sixth});
+  }
   const surprise = xActive && x.surpriseAttack ? surpriseAttackMod(x.traits) : 0;
   if (surprise) {
-    const ignoredBy = hasSkill(y.traits, SKILL.COMBAT_INSTINCT) ? 'Combat Instinct'
-      : hasEquip(y.traits, EQUIP.MSV3) ? 'MSV3' : sixth;
+    const ignoredBy = nbw ?? (hasSkill(y.traits, SKILL.COMBAT_INSTINCT) ? 'Combat Instinct'
+      : hasEquip(y.traits, EQUIP.MSV3) ? 'MSV3' : sixth);
     out.push({value: surprise, label: `Surprise Attack (${surprise})`, ignoredBy});
   }
   return out;

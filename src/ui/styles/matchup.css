@@ -125,3 +125,7 @@
 .zone-marks { all: unset; box-sizing: border-box; cursor: pointer; flex-shrink: 0; width: 28px; height: var(--tap); display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 2px; color: var(--zone-off); }
 .zone-marks.on { color: var(--text); }
+
+/* "CC" at the start of the close combat weapon row. */
+.row-label { align-self: center; font-size: var(--fs-label); font-weight: 600; letter-spacing: .06em; color: var(--muted); margin-right: 2px; }
+.range.unused .bands, .range.unused .scale { opacity: .35; }

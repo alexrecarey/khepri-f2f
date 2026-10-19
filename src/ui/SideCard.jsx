@@ -1,19 +1,14 @@
 // One side of the matchup: the picked trooper's card (weapon buttons and the
 // situation chips), or the empty slot that asks for one.
 import PropTypes from 'prop-types';
-import {shortWeaponName} from '../army/names.js';
 import {FIRETEAM_MIN} from '../rules/modifiers.js';
 import {ROLE, SIDE_NAME} from '../state/schema.js';
 import {dispatch, useAppState} from '../state/store.js';
 import {CardCrest} from './Crest.jsx';
 import {SiteMark} from './icons.jsx';
 import Plasma from './Plasma.jsx';
+import WeaponButtons from './WeaponButtons.jsx';
 
-// Weapon button text: the short name and fire mode, "Missile L. (Blast)". The
-// full stat line (B, PS, ammo) belongs to the results, not to a button.
-const modeText = (w) => (w.mode ? ` (${w.mode.replace(/ Mode$/i, '')})` : '');
-export const weaponText = (w) => `${shortWeaponName(w.name)}${modeText(w)}`;
-const weaponTitle = (w) => `${w.name}${modeText(w)}`;
 const patch = (side, p) => dispatch({type: 'patchSide', side, patch: p});
 
 // Only for troopers that can be in a fireteam, with sizes up to their max.
@@ -77,7 +72,7 @@ EmptySlot.propTypes = {
 
 export default function SideCard({side, view, onOpenPicker}) {
   const color = ROLE[side];
-  const {sel, resolved, groups, noCover, surprise, faction, crest, short, loadout} = view[side];
+  const {sel, resolved, groups, ccGroups, noCover, surprise, faction, crest, short, loadout} = view[side];
   const unit = resolved?.unit;
   const option = resolved?.option;
 
@@ -90,33 +85,10 @@ export default function SideCard({side, view, onOpenPicker}) {
           ? <span className="unit-name">{short}{loadout ? ` · ${loadout}` : ''} <span className="faction">{faction} ›</span></span>
           : <span className="unit-empty">Choose a trooper ›</span>}
       </button>
-      {option && (
-        <div className="row-wrap" role="group" aria-label="Weapon">
-          {groups.map((g) => (g.modes ? (
-            // One weapon, several fire modes, best first for this side: the
-            // name picks the first; name and chosen mode are filled, the
-            // other modes outlined.
-            <span key={g.key} className={`btn-group ${color}${g.modes.some((w) => w.key === sel.weaponKey) ? ' on' : ''}`}
-              role="group" aria-label={shortWeaponName(g.name)}>
-              <button type="button" className="g-name" title={`${g.name}: ${g.labels.get(g.modes[0].key)}`}
-                aria-pressed={g.modes.some((w) => w.key === sel.weaponKey)} onClick={() => patch(side, {weaponKey: g.modes[0].key})}>
-                {shortWeaponName(g.name)}
-              </button>
-              {g.modes.map((w) => (
-                <button type="button" key={w.key} className={`g-mode${sel.weaponKey === w.key ? ' on' : ''}`}
-                  aria-pressed={sel.weaponKey === w.key} title={weaponTitle(w)} onClick={() => patch(side, {weaponKey: w.key})}>
-                  {g.labels.get(w.key)}
-                </button>
-              ))}
-            </span>
-          ) : (
-            <button type="button" key={g.key} className={`btn${sel.weaponKey === g.w.key ? ` on ${color}` : ''}`}
-              aria-pressed={sel.weaponKey === g.w.key} title={g.w.pseudo ? undefined : weaponTitle(g.w)}
-              onClick={() => patch(side, {weaponKey: g.w.key})}>
-              {g.w.pseudo ? g.w.label.replace(/ \(unopposed\)$/, '') : weaponText(g.w)}
-            </button>
-          )))}
-        </div>
+      {option && <WeaponButtons side={side} groups={groups} selected={sel.weaponKey} color={color} ariaLabel="Weapon" />}
+      {/* Close combat weapons: picking one makes this side a CC Attack. */}
+      {option && ccGroups.length > 0 && (
+        <WeaponButtons side={side} groups={ccGroups} selected={sel.weaponKey} color={color} label="CC" ariaLabel="Close combat weapon" />
       )}
       {unit && (
         <div className="row-wrap">

@@ -5,7 +5,7 @@
 // a note on why it doesn't matter.
 
 import {EXPECTED_NAMES, SKILL, EQUIP} from '../src/army/ids.js';
-import {isBsAttackWeapon, unreadWeaponExtras} from '../src/army/weapons.js';
+import {isBsAttackWeapon, isCcWeapon, unreadWeaponExtras} from '../src/army/weapons.js';
 import {MODELED_IMMUNITIES, STATE_IMMUNITIES} from '../src/rules/matchup.js';
 
 // Ammunition names. The rules read AP, T2, Shock (and N); the default-weapon
@@ -25,7 +25,9 @@ const KNOWN_PROPS = [
   'Suppressive Fire', 'Anti-materiel', 'Intuitive Attack', 'Speculative Attack', 'Disposable (1)', 'Disposable (2)',
   'Disposable (3)', 'Non-Reloadable', 'Concealed', 'State: IMM-A', 'State: Dead', 'State: Sepsitorized',
   'State: Isolated', 'No LoF', 'Zone of Control', 'Reflective', 'Double Shot', 'Silent (-6)', 'Boost',
-  'Burst: Single Target', 'Target (VITA)', 'Improvised', 'Throwing Weapon', 'Indiscriminate',
+  'Burst: Single Target', 'Target (VITA)', 'Throwing Weapon', 'Indiscriminate',
+  // Read by rules/closeCombat.js: -6 to the user's CC (D-Charges in CC Mode).
+  'Improvised',
   '[*]', '[**]', '[***]',
 ];
 
@@ -39,6 +41,9 @@ const TRAIT_EXTRAS = [
   {kind: 'equip', id: EQUIP.ALBEDO, name: 'Albedo', read: /^-\d+$/, known: []},
   {kind: 'skill', id: SKILL.BS_ATTACK, name: 'BS Attack', read: /^(\+\d+(B|SD)|AP|T2|SR-\d+|Continuous Damage|-\d+)$/,
     known: ['Shock', 'Guided']},
+  // Antimaterial only matters against scenery.
+  {kind: 'skill', id: SKILL.CC_ATTACK, name: 'CC Attack', read: /^([+-]\d+|\+\d+B|AP|Shock|Continuous Damage)$/,
+    known: ['Antimaterial']},
   {kind: 'skill', id: SKILL.IMMUNITY, name: 'Immunity',
     read: new RegExp(`^(${[...MODELED_IMMUNITIES, ...STATE_IMMUNITIES].join('|')})$`), known: []},
 ];
@@ -85,9 +90,9 @@ export function validateArmy(army) {
   }
 
   for (const h of holders(army)) {
-    // Loadout extras on weapons that can make a BS Attack must all be read.
+    // Loadout extras on weapons that can make a BS or CC Attack must all be read.
     for (const w of h.weapons ?? []) {
-      if (!(army.weapons[w.id] ?? []).some(isBsAttackWeapon)) continue;
+      if (!(army.weapons[w.id] ?? []).some((r) => isBsAttackWeapon(r) || isCcWeapon(r))) continue;
       for (const e of unreadWeaponExtras(w.extra)) once(`weapon extra "${e}" on ${w.name} (${h.where})`);
     }
     // Bracketed values of the traits the rules read.
