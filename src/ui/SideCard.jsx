@@ -43,28 +43,6 @@ CountChip.propTypes = {
   none: PropTypes.number.isRequired, color: PropTypes.string.isRequired,
 };
 
-// Berserk is a CC Attack: declaring it with a gun picked also picks the
-// trooper's CC weapon.
-function BerserkChip({side, on, cc, berserk, color}) {
-  const name = berserk.mod ? `Berserk (+${berserk.mod})` : 'Berserk';
-  // Declared only while a CC weapon is picked: a stored "on" with a gun is off.
-  const declared = on && cc;
-  const toggle = () => {
-    if (!declared && !cc) dispatch({type: 'pickWeapon', side, key: berserk.weapon.key, cc: true});
-    patch(side, {berserk: !declared});
-  };
-  return (
-    <button type="button" className={`chip${declared ? ` on ${color}` : ''}`} aria-pressed={declared} onClick={toggle}>
-      {declared ? `${name} ✓` : '+ Berserk'}
-    </button>
-  );
-}
-
-BerserkChip.propTypes = {
-  side: PropTypes.oneOf(['A', 'B']).isRequired, on: PropTypes.bool.isRequired, cc: PropTypes.bool.isRequired,
-  berserk: PropTypes.object.isRequired, color: PropTypes.string.isRequired,
-};
-
 // A side with no trooper yet: a tall slot with the site mark, one call to
 // action and the latest recent picks as one-tap chips. A slow plasma tint
 // behind it draws the eye to what is still missing. Tapping anywhere on the
@@ -134,7 +112,12 @@ export default function SideCard({side, view, onOpenPicker}) {
             <CountChip side={side} chip="ccAllies" label="Allies" value={Math.min(resolved.ccAllies, ccAlliesMax)} min={1} max={ccAlliesMax}
               none={0} color={color} />
           )}
-          {berserk && <BerserkChip side={side} on={Boolean(sel.berserk)} cc={cc} berserk={berserk} color={color} />}
+          {berserk && (
+            <button type="button" className={`chip${sel.berserk ? ` on ${color}` : ''}`} aria-pressed={sel.berserk}
+              onClick={() => patch(side, {berserk: !sel.berserk})}>
+              {sel.berserk ? `Berserk${berserk.mod ? ` (+${berserk.mod})` : ''} ✓` : '+ Berserk'}
+            </button>
+          )}
           {surprise !== 0 && (
             <button type="button" className={`chip${sel.surpriseAttack ? ` on ${color}` : ''}`} aria-pressed={sel.surpriseAttack}
               onClick={() => patch(side, {surpriseAttack: !sel.surpriseAttack})}>
