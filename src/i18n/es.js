@@ -83,7 +83,7 @@ export default {
   'equip.nanoscreen': 'Nanopantalla',
   'equip.msv': 'VMS{level}',
   'weapon.withMod': '{name} ({mod})',
-  'cc.improvised': 'Improvisada',
+  'cc.improvised': 'Improvisado',
   'cc.loadoutOrCcAttack': 'equipo / Ataque CC',
   'cc.alliesInContact_one': '{count} aliado en contacto',
   'cc.alliesInContact_other': '{count} aliados en contacto',
