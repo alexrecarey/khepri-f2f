@@ -1,5 +1,3 @@
-import {searchKey} from '../lib/searchKey.js';
-
 // Spanish unit names for the picker and cards. The Spanish Army data has no
 // short unit name: `isc` stays English and `name` is the full formal title
 // ("SANTA ORDEN MILITAR DE CABALLEROS TEUTONES"). Its loadout names are the
@@ -44,6 +42,18 @@ export function spanishShort(unitName, loadouts) {
 export const BY_UNIT_NAME = new Set(['Antipode Assault Pack', 'Bakunin Überfallkommando', 'Puppetactica Company']);
 const OWN_NAME_MAX = 28;
 
+// The words every loadout name starts with, role tags left out and cased
+// for reading ("HAC TAO", "HAC TAO HACKER" -> "Hac Tao"); null if none.
+export function sharedLoadoutName(loadouts) {
+  const split = loadouts.map((n) => n.replace(/\s+/g, ' ').trim()).filter(Boolean).map((n) => n.split(' '));
+  if (split.length === 0) return null;
+  const common = [];
+  for (let i = 0; i < split[0].length && split.every((w) => w[i] === split[0][i]); i++) common.push(split[0][i]);
+  let short = common.join(' ');
+  while (TAGS.test(short)) short = short.replace(TAGS, '');
+  return short ? readableCase(short.replace(/_/g, ' ')) : null;
+}
+
 function shortFromLoadouts(loadouts, fallback) {
   const names = loadouts.map((n) => n.replace(/\s+/g, ' ').trim()).filter(Boolean);
   if (names.length === 0) return fallback ? readableCase(fallback) : null;
@@ -59,19 +69,4 @@ function shortFromLoadouts(loadouts, fallback) {
   }
   while (TAGS.test(short)) short = short.replace(TAGS, '');
   return readableCase(short.replace(/_/g, ' '));
-}
-
-// The one word that tells the unit apart, for narrow columns (the ledger's
-// source). English uses the short name's first word ("Fennec" for Fennec
-// Fusiliers); where the Spanish name keeps that word it's the same ("Hac
-// Tao", "Gorgos"), and where it's translated the Spanish order puts the
-// telling word last ("Caballero Teutón", "Caballero de Montesa").
-const NOT_A_TAG = /^(v\d+|mk[\w.-]*|[ivx]+|\d+)$/i;
-export function spanishTag(short, enShort) {
-  const parts = (short ?? '').split(' ').filter(Boolean);
-  if (parts.length <= 1) return short;
-  const enFirst = searchKey((enShort ?? '').split(' ')[0]);
-  const same = parts.find((p) => searchKey(p) === enFirst);
-  if (same) return same;
-  return [...parts].reverse().find((p) => /\p{L}/u.test(p) && !NOT_A_TAG.test(p)) ?? parts[parts.length - 1];
 }

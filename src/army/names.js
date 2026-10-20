@@ -1,13 +1,16 @@
 // Display names shared by the search index, the picker, the side cards and
 // saved rolls.
 import {words} from '../search/text.js';
+import {sharedLoadoutName} from './shortNames.js';
 
 // "Hexas, Strategic Security Division" -> "Hexas": what players call it.
 export const shortIsc = (isc) => (isc ?? '').split(',')[0].trim();
 
-// One word for narrow columns: "Fennec" for Fennec Fusiliers. Names in
-// other languages carry their own (`tag`; Spanish puts it last).
-export const unitTag = (unit) => unit?.tag ?? shortIsc(unit?.isc).split(' ')[0];
+// The trooper's name for narrow columns (the ledger's source), in any
+// language: the chosen loadout's name, which says who is rolling, even inside
+// one unit (Überfallkommando: the Chimera or a Pupnik). Role tags (FTO, Lt)
+// are dropped: "Hac Tao", "Fennec", "Caballero Teutón", "Chandra-1".
+export const unitTag = (unit, option) => sharedLoadoutName([option?.name ?? '']) ?? shortIsc(unit?.isc);
 
 // The loadout's own name when it says something the unit name doesn't
 // ("BIPANDRA", "Hacker"), else null. Army names most loadouts after the unit

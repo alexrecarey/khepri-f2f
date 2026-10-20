@@ -10,14 +10,11 @@
 
 import {splitNames} from '../src/army/localize.js';
 import {SKILL} from '../src/army/ids.js';
-import {shortIsc} from '../src/army/names.js';
-import {BY_UNIT_NAME, spanishShort, spanishTag} from '../src/army/shortNames.js';
+import {BY_UNIT_NAME, spanishShort} from '../src/army/shortNames.js';
 import {clean, compactUpgrades, resolvers} from './army-compact.mjs';
 
-// The unit's short name for players of each language, and its one-word tag;
-// English uses the ISC and its first word (src/army/names.js).
+// The unit's short name for players of each language; English uses the ISC.
 const SHORT = {es: spanishShort};
-const TAG = {es: spanishTag};
 
 // Weapon rows are listed in a different order per language (sorted by the
 // translated mode name), so rows are paired by what they do; the number of
@@ -91,8 +88,7 @@ export function localNames(lang, army, {enMetadata, enFiles, metadata, files}) {
     const own = notPeripheral.length > 0 ? notPeripheral : Object.entries(groups);
     const loadouts = BY_UNIT_NAME.has(unit.isc) ? [] : own.flatMap(([, g]) => Object.values(g.options));
     const isc = SHORT[lang]?.(name, loadouts) ?? clean(u.isc);
-    const tag = TAG[lang]?.(isc, shortIsc(unit.isc));
-    const out = {isc, ...(tag ? {tag} : {}), name, code: unit.isc, groups};
+    const out = {isc, name, code: unit.isc, groups};
     if (enUnit.upgrades) {
       const up = compactUpgrades(u.spectables, {skill: r.skillName, equip: r.equipName, weapon: r.weaponName, extra: r.extraName}, statLabels);
       out.upgrades = {chart: (up?.chart ?? []).map((i) => i.label), ball: (up?.ball ?? []).map((i) => i.label)};
