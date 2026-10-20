@@ -285,9 +285,10 @@ async function main() {
   for (const lang of LANGUAGES) {
     const files = new Map();
     for (const id of wanted) files.set(id, await get(`units/${lang}/${id}`));
-    const {names, problems: langProblems} = localNames(lang, data, {
+    const {names, problems: langProblems, warnings} = localNames(lang, data, {
       enMetadata: metadata, enFiles: factionFiles, metadata: await get(`infinity/${lang}/metadata`), files,
     });
+    if (warnings.length > 0) console.warn(`${lang} names, kept in English for now:\n  - ${warnings.join('\n  - ')}`);
     if (langProblems.length > 0) {
       console.error(`\n${langProblems.length} problem(s) with the ${lang} names; nothing written:`);
       for (const p of langProblems) console.error(`  - ${p}`);
