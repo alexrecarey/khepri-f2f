@@ -2,7 +2,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {groupLoadouts, loadoutCharts, loadoutTag, mainWeapon, orderLoadouts, reachGroup, statLine, unitDetail, weaponChart} from './loadouts.js';
+import {groupLoadouts, loadoutCharts, loadoutTag, mainWeapon, orderLoadouts, profileGroups, reachGroup, statLine, unitDetail, weaponChart} from './loadouts.js';
+import {createSearch} from '../../search/search.js';
 import {lieutenantTwins} from '../../search/buildIndex.js';
 import {SKILL} from '../../army/ids.js';
 
@@ -70,4 +71,22 @@ test('Lieutenant: twins of a plain loadout are dropped, the skill is never a tag
   const group = unit.byFaction[101].groups.find((g) => g.options.some((o) => (o.skills ?? []).some((s) => s.name === 'Lieutenant')));
   const option = group.options.find((o) => (o.skills ?? []).some((s) => s.name === 'Lieutenant'));
   assert.ok(!(loadoutTag(army, {unitId: unit.id, armyFactionId: 101, groupId: group.id, optionId: option.id}) ?? '').includes('Lieutenant'));
+});
+
+test('a unit with several profile groups: one section each, shared kit once, rows keep what differs', () => {
+  const searcher = createSearch(JSON.parse(readFileSync(new URL('../../search/index.json', import.meta.url), 'utf8')));
+  const morat = army.units.find((u) => u.slug === 'morat-team-ops');
+  const groups = profileGroups(army, searcher.unitRows(morat.id));
+  assert.deepEqual(groups.map((g) => [g.name, g.type, g.items.length]),
+    [['Treitak Spec-Ops', 'MI', 6], ['Treitak Heavy Spec-Ops', 'HI', 4], ['Asklad Creatures', 'LI', 2]]);
+  const [treitak, heavy, asklad] = groups;
+  assert.deepEqual(treitak.shared, ['Chain-colt', 'D-Charges', 'Heavy Pistol', 'CC Weapon']);
+  assert.deepEqual(treitak.items[0].own, ['AP Heavy Machine Gun']);
+  assert.ok(heavy.items.some(({own}) => own.join() === 'AP Red Fury'));
+  // Each group has its own stats: the Heavy's BTS isn't the Treitak-1's.
+  assert.notDeepEqual(heavy.stats, treitak.stats);
+  assert.deepEqual(asklad.shared, ['Heavy Flamethrower', 'AP CC Weapon']);
+  // A unit with one profile group keeps today's page.
+  const fusiliers = army.units.find((u) => u.slug === 'fusiliers');
+  assert.equal(profileGroups(army, searcher.unitRows(fusiliers.id)), null);
 });

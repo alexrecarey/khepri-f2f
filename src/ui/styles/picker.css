@@ -26,6 +26,17 @@
 .line-btn.loadout { gap: 12px; font-size: 14px; }
 .line-btn.loadout .tag { color: var(--text-3); }
 .line-btn.loadout .r { font-family: var(--font-mono); }
+.pgroup { display: flex; flex-direction: column; padding-top: 6px; }
+.pgroup + .pgroup { border-top: 1px solid var(--surface-3); margin-top: 6px; padding-top: 14px; }
+.pgroup-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; padding: 0 12px; }
+.pgroup-head h2 { margin: 0; font-size: 17px; font-weight: 600; }
+.pgroup-head span { font-size: var(--fs-small); color: var(--muted); white-space: nowrap; }
+/* The desk picker's stat strip (.dp-stats): each label over its value. */
+.pgroup-stats { display: flex; justify-content: space-between; margin: 8px 4px 6px; padding: 7px 10px; border-radius: 10px; background: var(--bg); }
+.pgroup-stats span { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.pgroup-stats small { font-size: 11px; color: var(--muted); }
+.pgroup-stats b { font-family: var(--font-display); font-size: 15px; font-weight: 700; }
+.pgroup-kit { font-size: var(--fs-small); color: var(--faint); padding: 0 12px 4px; line-height: 1.45; }
 .stats { padding: 12px 16px; font-family: var(--font-mono); font-size: 13px; color: var(--text-3); border-bottom: 1px solid var(--line); }
 .empty { padding: 18px 8px; color: var(--text-2); font-size: 15px; }
 

@@ -15,7 +15,8 @@ import {RowCrest} from '../Crest.jsx';
 import LoadFailed from '../LoadFailed.jsx';
 import {Page} from '../Sheet.jsx';
 import {TYPE_ORDER, quickSearches, typeName} from './constants.js';
-import {groupLoadouts, loadoutTag, orderLoadouts, statLine} from './loadouts.js';
+import {groupLoadouts, loadoutTag, orderLoadouts, profileGroups, statLine} from './loadouts.js';
+import ProfileGroup from './ProfileGroup.jsx';
 import {factionNameOf, useRecentIds} from './useRecentIds.js';
 import {useT} from '../i18n.jsx';
 
@@ -148,6 +149,14 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
 
   if (top?.view === 'unit') {
     const rows = searcher.unitRows(top.unitId, scope);
+    const pgroups = army ? profileGroups(army, rows) : null;
+    if (pgroups) {
+      return (
+        <Page title={top.name} subtitle={`${factionName(scope)} · ${t('picker.profiles', {count: pgroups.length})} · ${t('picker.loadoutCount', {count: rows.length})}`} onBack={pop}>
+          {pgroups.map((g) => <ProfileGroup key={g.key} g={g} onPick={pick} color={color} army={army} />)}
+        </Page>
+      );
+    }
     const stats = statLine(army, top.unitId, rows[0]?.armyFactionId);
     const groups = army ? groupLoadouts(army, orderLoadouts(army, rows)) : [{key: 'all', name: null, items: rows}];
     return (
