@@ -20,6 +20,7 @@ import {woundStates} from '../rules/woundStates.js';
 import {rootFaction} from '../search/buildIndex.js';
 import {ROLE} from './schema.js';
 import {crestOf} from '../army/crests.js';
+import {tEn} from '../i18n/index.js';
 
 export const vanillaOf = (army, factionId) => (factionId == null || !army ? null : rootFaction(army.factions, factionId));
 
@@ -37,7 +38,7 @@ export function effectiveWeaponKey(army, sel, side) {
 // their order for the side's role:
 //   [{key, id, name, w, modes?, labels?}]  modes / labels only for a weapon
 //   with several fire modes (labels: modeLabels).
-function weaponGroups(list, role) {
+function weaponGroups(list, role, t) {
   const groups = [];
   for (const w of list) {
     const same = w.mode && !w.pseudo ? groups.find((g) => g.id === w.id && g.name === w.name) : null;
@@ -51,7 +52,7 @@ function weaponGroups(list, role) {
   for (const g of groups) {
     if (!g.modes) continue;
     g.modes = orderModes(g.modes, role, sortWeapons);
-    g.labels = modeLabels(g.modes);
+    g.labels = modeLabels(g.modes, t);
   }
   return groups;
 }
@@ -66,7 +67,7 @@ function bandMod(resolved, to) {
 
 // What a side card shows besides the selection: weapon buttons, which chips
 // apply, the trooper's names.
-function sideView(army, sel, side) {
+function sideView(army, sel, side, t) {
   const effective = {...sel, weaponKey: effectiveWeaponKey(army, sel, side)};
   const resolved = resolveSelection(army, effective);
   const weapons = resolved?.option ? trooperWeapons(resolved.option, army.weapons, resolved.traits) : [];
@@ -78,7 +79,7 @@ function sideView(army, sel, side) {
   return {
     sel: effective, resolved, weapons, ccWeapons, pseudo,
     // CC weapons are weapons like any other, after the BS ones.
-    groups: weaponGroups([...weapons, ...ccWeapons, ...pseudo], ROLE[side]),
+    groups: weaponGroups([...weapons, ...ccWeapons, ...pseudo], ROLE[side], t),
     // No Cover: cover does nothing for it, so no Cover chip.
     noCover: hasSkill(resolved?.traits, SKILL.NO_COVER),
     // Surprise Attack's MOD, offered only on the active side.
@@ -107,15 +108,16 @@ const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], ccWeapons: 
 // The reactive's own distance, or null while both share rangeCm.
 const rangeCmB = (matchup) => matchup.rangeCmB ?? null;
 
-export function matchupView(army, matchup) {
+// t: the language of every label and note (src/i18n), with the army's terms.
+export function matchupView(army, matchup, t = tEn) {
   const zones = {smoke: Boolean(matchup.smoke), whiteNoise: Boolean(matchup.whiteNoise)};
   if (!army) {
     return {ready: false, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones, A: EMPTY_VIEW_SIDE(matchup.A), B: EMPTY_VIEW_SIDE(matchup.B),
       derived: null, params: null, ledger: null, bands: RANGE_BANDS.map((b) => ({to: b.to})),
       hasSelection: Boolean(matchup.A.unitId || matchup.B.unitId), complete: false, targets: null};
   }
-  const A = sideView(army, matchup.A, 'A');
-  const B = sideView(army, matchup.B, 'B');
+  const A = sideView(army, matchup.A, 'A', t);
+  const B = sideView(army, matchup.B, 'B', t);
   // A side CC attacking may count allies in contact, as many as fit around
   // the other side's base.
   for (const [x, y] of [[A, B], [B, A]]) {
@@ -127,13 +129,13 @@ export function matchupView(army, matchup) {
       x.groups = x.groups.filter((g) => g.w.pseudo !== 'reset');
     }
   }
-  const derived = deriveInputs({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones});
+  const derived = deriveInputs({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones, t});
   const hasSelection = Boolean(matchup.A.unitId || matchup.B.unitId);
   // Both sides fully chosen (unit through weapon) and the matchup is valid.
   const complete = Boolean(A.resolved?.weapon && B.resolved?.weapon && derived?.ok);
   const params = derived?.ok ? fullParams(derived.inputs) : null;
   const ledger = complete ? {
-    ledger: buildLedger({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), inputs: params, zones}),
+    ledger: buildLedger({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), inputs: params, zones, t}),
     names: {A: shortIsc(A.resolved.unit.isc), B: shortIsc(B.resolved.unit.isc)},
     // As the side cards name them: "Squalos Mk-II · CRABBOT" for a Peripheral.
     labels: {A: [A.short, A.loadout].filter(Boolean).join(' · '), B: [B.short, B.loadout].filter(Boolean).join(' · ')},
@@ -145,13 +147,13 @@ export function matchupView(army, matchup) {
   // states (and the other way round).
   // A Jammer's failed save is Isolated, a Flash Pulse's Stunned, not a wound.
   const statesOf = (target, shock, attacker) => (target?.profile
-    ? woundStates(target.profile, target.traits, {shock, state: stateCaused(attacker?.weapon?.row)}) : null);
+    ? woundStates(target.profile, target.traits, {shock, state: stateCaused(attacker?.weapon?.row)}, t) : null);
   const targets = complete
     ? {active: statesOf(B.resolved, params.shockA, A.resolved), reactive: statesOf(A.resolved, params.shockB, B.resolved)} : null;
   // Each band's Range MOD per side, for the range selector's stripes.
   const bands = RANGE_BANDS.map((b) => ({to: b.to, A: bandMod(A.resolved, b.to), B: bandMod(B.resolved, b.to)}));
   // What Smoke / White Noise do to each side, for the range selector.
-  const vis = visibility(A.resolved, B.resolved, zones);
+  const vis = visibility(A.resolved, B.resolved, zones, t);
   // Both in close combat: the distance plays no part.
   const rangeUnused = isCcAttack(A.resolved) && isCcAttack(B.resolved);
   return {ready: true, rangeUnused, A, B, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones, vis, derived, params, ledger, bands, hasSelection, complete, targets};

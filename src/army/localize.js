@@ -71,8 +71,11 @@ export function splitNames(army) {
   return {core: {...army, factions, units}, names};
 }
 
-// {core, names} -> the army.json shape, names in the names file's language.
-export function withNames(core, names) {
+// {core, names} -> the army.json shape, names in the names file's language
+// (`lang`). `terms`: the names file's display maps for the English tokens
+// the rules read (extras, weapon modes, unit types, stats), null in English;
+// src/i18n's t.term reads them.
+export function withNames(core, names, lang = 'en') {
   const ref = (table) => (r) => ({...r, name: table[r.id] ?? String(r.id)});
   const withRefNames = (x) => {
     const out = {...x};
@@ -110,5 +113,6 @@ export function withNames(core, names) {
     const name = names.weapons[id];
     return name && name !== row.name ? {...row, name, en: row.name} : row;
   })]));
-  return {...core, factions, units, weapons};
+  const terms = names.extras ? {extras: names.extras, modes: names.modes, types: names.types, stats: names.stats} : null;
+  return {...core, factions, units, weapons, lang, terms};
 }

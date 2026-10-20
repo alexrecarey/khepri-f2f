@@ -10,12 +10,13 @@ import {
   neurocineticsAroBurst, opposingMods, resetSuccessValue,
 } from './modifiers.js';
 import {rangeModFor} from './ranges.js';
-import {ZONE_NAME, visibility} from './visibility.js';
+import {visibility, zoneName} from './visibility.js';
 import {
   calcAmmo, hasImmunity, hasNoEffect, immunityAgainst, immunityFor, immunityNote, noEffectBy, saveHalving, shockApplies, vulnerabilityTo,
 } from './saves.js';
 import {isSpecOps} from './trooper.js';
 import {ccAttackMods, ccBurst, ccSd, isCcAttack} from './closeCombat.js';
+import {tEn} from '../i18n/index.js';
 
 // The Immunities the rules here read, and Immunities to States the calculator
 // doesn't model (E/M's IMM-B and Isolated, Possession): recognized, and
@@ -39,37 +40,32 @@ function unsupportedTraits(side) {
   return found;
 }
 
-function approximationWarnings(label, side, target) {
-  const warnings = [];
+function approximationWarnings(s, side, target, say) {
   const row = side?.weapon?.row;
   if (row && hasNoEffect(target?.traits, row)) {
-    warnings.push(`${label}: ${row.name} has no effect on a target with ${noEffectBy(target.traits, row)}; its hits cause no damage`);
+    say(s, 'warning.noEffect', {weapon: row.name, by: noEffectBy(target.traits, row, say.t)});
   } else if (row && stateCaused(row)) {
     // Not a warning: the results say Isolated / Stunned (rules/woundStates.js).
   } else if (row && isNonLethal(row)) {
-    warnings.push(`${label}: ${row.name} is non-lethal; results shown as wounds`);
+    say(s, 'warning.nonLethal', {weapon: row.name});
   }
-  for (const name of side?.unsupportedUpgradeWeapons ?? []) {
-    warnings.push(`${label}: ${name} (upgrade) not supported by the calculator`);
-  }
-  return warnings;
+  for (const name of side?.unsupportedUpgradeWeapons ?? []) say(s, 'warning.upgradeWeapon', {weapon: name});
 }
 
 const signed = (n) => `${n > 0 ? '+' : ''}${n}`;
 
 // The MODs x puts on y's Face to Face Roll (modifiers.js opposingMods), with
 // a note for each one y ignores.
-function opposingMod(x, y, xActive, yLabel, notes) {
+function opposingMod(x, y, xActive, ySide, say) {
   let total = 0;
-  for (const m of opposingMods(x, y, xActive)) {
-    if (m.ignoredBy) notes.push(`${yLabel}: ${m.ignoredBy}; the opponent's ${m.label} has no effect`);
+  for (const m of opposingMods(x, y, xActive, say.t)) {
+    if (m.ignoredBy) say(ySide, 'note.ignoresMod', {by: m.ignoredBy, mod: m.label});
     else total += m.value;
   }
   return total;
 }
 
-function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0, visMod = 0) {
-  const label = side === 'A' ? 'Active' : 'Reactive';
+function attackInputs(x, y, rangeCm, side, say, opposing = 0, visMod = 0) {
   const {row, mods} = x.weapon;
   let rangeMod = rangeModFor(row, rangeCm, x.traits);
   // Out of range: the attack still happens but always fails. A success value
@@ -87,7 +83,7 @@ function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0, visMod =
   // Every MOD counts toward the cap, Fireteam +1 BS included (Alex, 2026-10-10).
   const modSum = bonus.bs + rangeMod + mim + albedo + cover + firewall + mods.sv + opposing + visMod;
   const modTotal = capMods(modSum);
-  if (!outOfRange && modTotal !== modSum) notes.push(`${label}: MODs add up to ${signed(modSum)}, capped at ${signed(modTotal)}`);
+  if (!outOfRange && modTotal !== modSum) say(side, 'note.modCap', {sum: signed(modSum), cap: signed(modTotal)});
   const sv = outOfRange
     ? 0
     : clamp(LIMITS.successValue, attackStat(x.profile, row) + modTotal);
@@ -98,13 +94,13 @@ function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0, visMod =
   // Neurocinetics: B 1 in the Active Turn, Burst MODs included (wiki).
   if (side === 'A' && hasSkill(x.traits, SKILL.NEUROCINETICS)) {
     burst = 1;
-    notes.push(`${label}: Neurocinetics; Burst reduced to 1 in the Active Turn`);
+    say(side, 'note.neurocinetics');
   }
   return {
     [`successValue${side}`]: sv,
     [`burst${side}`]: clamp(LIMITS.burst, burst),
     [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, bonus.sd),
-    ...hitInputs(x, y, side, notes),
+    ...hitInputs(x, y, side, say),
   };
 }
 
@@ -113,24 +109,23 @@ const total = (lines) => lines.reduce((t, l) => t + l.value, 0);
 // A CC Attack (closeCombat.js): CC plus its own MODs and the opponent's,
 // capped; no range, cover, Mimetism or Smoke. Burst and Special Dice from
 // the weapon and Martial Arts.
-function ccAttackInputs(x, y, side, notes, opposing = 0) {
-  const label = side === 'A' ? 'Active' : 'Reactive';
+function ccAttackInputs(x, y, side, say, opposing = 0) {
   const modSum = total(ccAttackMods(x, side === 'A')) + opposing;
   const modTotal = capMods(modSum);
-  if (modTotal !== modSum) notes.push(`${label}: MODs add up to ${signed(modSum)}, capped at ${signed(modTotal)}`);
+  if (modTotal !== modSum) say(side, 'note.modCap', {sum: signed(modSum), cap: signed(modTotal)});
   return {
     [`successValue${side}`]: clamp(LIMITS.successValue, attackStat(x.profile, x.weapon.row) + modTotal),
     [`burst${side}`]: clamp(LIMITS.burst, total(ccBurst(x, side === 'A', y))),
     [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, total(ccSd(x))),
     [`template${side}`]: false,
-    ...hitInputs(x, y, side, notes),
+    ...hitInputs(x, y, side, say),
   };
 }
 
 // What x's hits do to y: PS, ammunition, Continuous Damage, Shock, with the
 // notes on Immunity and Vulnerability. The same for a shot and a CC Attack.
-function hitInputs(x, y, side, notes) {
-  const label = side === 'A' ? 'Active' : 'Reactive';
+function hitInputs(x, y, side, say) {
+  const {t} = say;
   const {row, mods} = x.weapon;
   const noEffect = hasNoEffect(y?.traits, row);
   const immunity = immunityAgainst(y?.traits, row);
@@ -142,18 +137,18 @@ function hitInputs(x, y, side, notes) {
     [`cont${side}`]: !immunity && !contImmune && hasContinuousDamage(row, mods),
     [`shock${side}`]: shockApplies(row, y),
   };
-  if (out[`shock${side}`]) notes.push(`${label}: Shock against VITA 1; a failed save is Dead (no Unconscious, NWI or Dogged)`);
+  if (out[`shock${side}`]) say(side, 'note.shock');
   const state = stateCaused(row);
-  if (state && !noEffect) notes.push(`${label}: ${row.name}; a failed save leaves the target ${state}, not wounded`);
+  if (state && !noEffect) say(side, 'note.stateCaused', {weapon: row.name, state: t(`state.${state.toLowerCase()}`)});
   // State-only weapons get a warning instead (no effect), or play as always (Stunned).
   if (!immunity && contImmune && hasContinuousDamage(row, mods)) {
-    notes.push(`${label}: target has Immunity (Continuous Damage); Continuous Damage ignored`);
+    say(side, 'note.contImmune');
   }
-  const note = immunity && causesWounds(row) && immunityNote(immunity, row, mods);
-  if (note) notes.push(`${label}: ${note}`);
+  const note = immunity && causesWounds(row) && immunityNote(immunity, row, mods, t);
+  if (note) say(side, 'note.text', {text: note});
   const vulnerable = vulnerabilityTo(y?.traits, row);
   const lost = vulnerable && immunityFor(y.traits, row);
-  if (lost) notes.push(`${label}: target has Vulnerability (${vulnerable}); Immunity (${lost}) does not apply`);
+  if (lost) say(side, 'note.vulnerability', {vulnerable: t.term('extras', vulnerable), immunity: t.term('extras', lost)});
   return out;
 }
 
@@ -187,11 +182,9 @@ function resetInputs(x, side, opposing = 0) {
 
 // A Dodge or Reset that can't evade the attack it faces (modifiers.js
 // evades) isn't rolled against it: the attack is a Normal Roll.
-function evadeInputs(x, side, opposing, incoming, label, notes) {
+function evadeInputs(x, side, opposing, incoming, say) {
   if (!evades(x, incoming)) {
-    notes.push(x.weapon.pseudo === 'reset'
-      ? `${label}: Reset only evades Comms Attacks; the ${incoming.row.name} is rolled unopposed`
-      : `${label}: Dodge can't evade a Comms Attack (${incoming.row.name}), only Reset can; it is rolled unopposed`);
+    say(side, x.weapon.pseudo === 'reset' ? 'note.resetOnlyComms' : 'note.dodgeNotComms', {weapon: incoming.row.name});
     return noLofInputs(side);
   }
   if (x.weapon.pseudo === 'reset') return resetInputs(x, side, opposing);
@@ -239,11 +232,18 @@ function noLofInputs(side) {
 // `active` / `reactive` are results of resolveSelection() (or null).
 // rangeCm is the distance both shoot at, unless the reactive shoots at its own
 // rangeCmB (a split range: it answers from somewhere else on the table).
-export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
+// t: the language of the notes, warnings and errors (src/i18n).
+export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones, t = tEn}) {
   const rangeB = rangeCmB ?? rangeCm;
   const inputs = {};
   const errors = [];
   const notes = [];
+  const warnings = [];
+  // say(side, key, params) adds a note, "Active: ..."; side null for both.
+  const sayTo = (list) => (side, key, params) =>
+    list.push(side ? t('note.side', {side: t(side === 'A' ? 'side.active' : 'side.reactive'), text: t(key, params)}) : t(key, params));
+  const say = Object.assign(sayTo(notes), {t});
+  const warn = Object.assign(sayTo(warnings), {t});
   // A side still waiting on its weapon: nothing to report, but not ready to apply.
   let incomplete = false;
   const a = active?.profile ? active : null;
@@ -254,28 +254,28 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
   // BS Attack (-X) MODs on each side's roll.
   // Smoke / White Noise between them. A side with no line of fire doesn't
   // attack, so its skills put no MODs on the other side's roll.
-  const vis = visibility(a, b, zones);
-  const onA = vis.B.blocked ? 0 : opposingMod(b, a, false, 'Active', notes);
-  const onB = vis.A.blocked ? 0 : opposingMod(a, b, true, 'Reactive', notes);
-  for (const [s, label] of [['A', 'Active'], ['B', 'Reactive']]) {
-    if (vis[s].blocked) notes.push(`${label}: no line of fire through ${ZONE_NAME[vis[s].blocked]}; its attack can't be declared`);
+  const vis = visibility(a, b, zones, t);
+  const onA = vis.B.blocked ? 0 : opposingMod(b, a, false, 'A', say);
+  const onB = vis.A.blocked ? 0 : opposingMod(a, b, true, 'B', say);
+  for (const s of ['A', 'B']) {
+    if (vis[s].blocked) say(s, 'note.noLof', {zone: zoneName(vis[s].blocked, t)});
   }
 
   if (a) {
     if (!a.weapon) {
       incomplete = true;
     } else if (a.weapon.pseudo === 'dodge' || a.weapon.pseudo === 'reset') {
-      Object.assign(inputs, evadeInputs(a, 'A', onA, vis.B.blocked ? null : b?.weapon, 'Active', notes));
+      Object.assign(inputs, evadeInputs(a, 'A', onA, vis.B.blocked ? null : b?.weapon, say));
     } else if (a.weapon.pseudo) {
       incomplete = true; // e.g. "No ARO" carried over; the active side needs a real choice
     } else if (attackStat(a.profile, a.weapon.row) <= 0) {
-      errors.push(`Active: this profile cannot make ${isCcAttack(a) ? 'CC' : 'BS'} attacks; pick Dodge`);
+      sayTo(errors)('A', isCcAttack(a) ? 'error.noCcAttack' : 'error.noBsAttack');
     } else if (isCcAttack(a)) {
-      Object.assign(inputs, ccAttackInputs(a, b, 'A', notes, onA));
+      Object.assign(inputs, ccAttackInputs(a, b, 'A', say, onA));
     } else if (vis.A.blocked) {
       Object.assign(inputs, noLofInputs('A'));
     } else {
-      Object.assign(inputs, attackInputs(a, b, rangeCm, 'A', errors, notes, onA, vis.A.mod));
+      Object.assign(inputs, attackInputs(a, b, rangeCm, 'A', say, onA, vis.A.mod));
       inputs.templateA = aTemplate;
     }
     if (b?.weapon?.row) Object.assign(inputs, defenseInputs(a, b.weapon, 'A', a.weapon?.pseudo === 'dodge'));
@@ -286,23 +286,23 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
     if (!b.weapon) {
       incomplete = true;
     } else if (b.weapon.pseudo === 'dodge' || b.weapon.pseudo === 'reset') {
-      Object.assign(inputs, evadeInputs(b, 'B', onB, vis.A.blocked ? null : a?.weapon, 'Reactive', notes));
+      Object.assign(inputs, evadeInputs(b, 'B', onB, vis.A.blocked ? null : a?.weapon, say));
     } else if (b.weapon.pseudo === 'none') {
       inputs.burstB = 0;
       inputs.bonusBurstB = 0;
       inputs.shockB = false;
       inputs.templateB = false;
     } else if (attackStat(b.profile, b.weapon.row) <= 0) {
-      errors.push(`Reactive: this profile cannot make ${isCcAttack(b) ? 'CC' : 'BS'} attacks; pick Dodge or No ARO`);
+      sayTo(errors)('B', isCcAttack(b) ? 'error.noCcAttackAro' : 'error.noBsAttackAro');
     } else if (isCcAttack(b)) {
-      Object.assign(inputs, ccAttackInputs(b, a, 'B', notes, onB));
+      Object.assign(inputs, ccAttackInputs(b, a, 'B', say, onB));
     } else if (vis.B.blocked) {
       Object.assign(inputs, noLofInputs('B'));
     } else {
-      Object.assign(inputs, attackInputs(b, a, rangeB, 'B', errors, notes, onB, vis.B.mod));
+      Object.assign(inputs, attackInputs(b, a, rangeB, 'B', say, onB, vis.B.mod));
       inputs.templateB = bTemplate;
       // A Direct Template on either side: nothing is opposed, each attack is its own roll.
-      if ((aTemplate || bTemplate) && !vis.A.blocked && !vis.B.blocked) notes.push('Direct Template: no Face to Face Roll; each attack is rolled on its own');
+      if ((aTemplate || bTemplate) && !vis.A.blocked && !vis.B.blocked) say(null, 'note.directTemplate');
     }
     if (a?.weapon?.row) Object.assign(inputs, defenseInputs(b, a.weapon, 'B', b.weapon?.pseudo === 'dodge'));
     else if (a) Object.assign(inputs, defenseInputs(b, null, 'B'));
@@ -310,11 +310,11 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
 
   if (a || b) inputs.fixedFaceToFace = false;
   // Things the result may get wrong; shown as alerts but don't block the calculation.
-  const warnings = [];
   const unsupported = [...new Set([...unsupportedTraits(a), ...unsupportedTraits(b)])];
-  if (unsupported.length > 0) warnings.push(`Support for ${unsupported.join(', ')} not implemented yet`);
-  warnings.push(...approximationWarnings('Active', a, b), ...approximationWarnings('Reactive', b, a));
-  if (isSpecOps(a) || isSpecOps(b)) warnings.push('Spec-Ops upgrades and SpecBall not supported yet');
+  if (unsupported.length > 0) warn(null, 'warning.unsupported', {names: unsupported.join(', ')});
+  approximationWarnings('A', a, b, warn);
+  approximationWarnings('B', b, a, warn);
+  if (isSpecOps(a) || isSpecOps(b)) warn(null, 'warning.specOps');
 
   return {inputs, ok: errors.length === 0 && !incomplete && (a !== null || b !== null), errors, warnings, notes};
 }

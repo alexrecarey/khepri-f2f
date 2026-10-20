@@ -19,13 +19,15 @@ import SideCard, {EmptySlot} from './SideCard.jsx';
 import useLayout, {usesDialogs} from './useLayout.js';
 import {matchupRollSummary} from '../state/rolls.js';
 import useRollResults from './useRollResults.js';
+import {engineStatus, useT} from './i18n.jsx';
 
 export default function MatchupScreen({army, armyError, retryArmy, view, engine}) {
+  const t = useT();
   const picking = useAppState((st) => (st.ui.overlay === 'picker' ? st.ui.picker.side : null));
   const {searcher, error: searchError, retry: retrySearch} = useSearcher(true, useLanguage());
   const result = view.complete ? engine.result : null;
   // Summarized once here; the card, the panel and Save all read it.
-  const summaryOf = useCallback((s) => (view.complete ? matchupRollSummary(view, s) : null), [view]);
+  const summaryOf = useCallback((s) => (view.complete ? matchupRollSummary(view, s, t) : null), [view, t]);
   const {s, save} = useRollResults({result, targets: view.targets, summaryOf, pending: engine.pending});
 
   const layout = useLayout();
@@ -33,7 +35,7 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
     s,
     save,
     pending: engine.pending,
-    status: view.complete ? engine.status : 'Choose both troopers to see the odds',
+    status: view.complete ? engineStatus(t, engine.status) : t('results.chooseBoth'),
     diceLine: view.ledger ? {active: view.ledger.ledger.A?.dice, reactive: view.ledger.ledger.B?.dice} : null,
     ledger: view.ledger,
     params: view.params,
@@ -77,16 +79,16 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
   const range = <RangeSelector view={view} />;
   const clear = view.hasSelection && (
     <div className="setup-actions">
-      <button type="button" className="chip" onClick={() => dispatch({type: 'clearSides'})}>Clear both troopers</button>
+      <button type="button" className="chip" onClick={() => dispatch({type: 'clearSides'})}>{t('matchup.clearBoth')}</button>
       {view.params && (
-        <button type="button" className="chip" onClick={() => dispatch({type: 'openInClassic', params: view.params})}>Modify in classic</button>
+        <button type="button" className="chip" onClick={() => dispatch({type: 'openInClassic', params: view.params})}>{t('matchup.modifyInClassic')}</button>
       )}
     </div>
   );
   const error = (armyError || searchError) && (
     <>
-      {armyError && <LoadFailed what="the army data" onRetry={retryArmy} />}
-      {searchError && <LoadFailed what="the trooper list" onRetry={retrySearch} />}
+      {armyError && <LoadFailed what={t('load.armyData')} onRetry={retryArmy} />}
+      {searchError && <LoadFailed what={t('load.trooperList')} onRetry={retrySearch} />}
     </>
   );
   const mods = view.ledger && result && <Ledger {...view.ledger} />;
@@ -132,8 +134,9 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
             {setup}
             <div className="col"><ResultsPanel {...resultProps} /></div>
             <div className={`col${layout === 'wide' ? ' mods-grid' : ''}`}>{mods ?? (!view.complete && (
-              <div className="mods-wait"><span className="c-active">ACTIVE MODS</span><span className="c-reactive">REACTIVE MODS</span>
-                <span className="small">Every modifier, with where it came from, once both sides are set.</span></div>
+              <div className="mods-wait"><span className="c-active">{t('ledger.mods', {side: t('side.active')}).toLocaleUpperCase(t.lang)}</span>
+                <span className="c-reactive">{t('ledger.mods', {side: t('side.reactive')}).toLocaleUpperCase(t.lang)}</span>
+                <span className="small">{t('matchup.modsWait')}</span></div>
             ))}</div>
           </>
         )}

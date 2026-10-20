@@ -14,4 +14,4 @@ export function useRecentIds(searcher, side) {
 }
 
 // A vanilla faction's name, or 'All factions' for none.
-export const factionNameOf = (searcher, id) => searcher?.factions.find((f) => f.id === id)?.name ?? 'All factions';
+export const factionNameOf = (searcher, id, t) => searcher?.factions.find((f) => f.id === id)?.name ?? t('picker.allFactions');

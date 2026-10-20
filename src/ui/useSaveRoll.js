@@ -3,12 +3,14 @@
 import {useMemo} from 'react';
 import {currentSetup, makeRoll, setupKey} from '../state/rolls.js';
 import {dispatch, getState, useAppState} from '../state/store.js';
+import {useT} from './i18n.jsx';
 
 // summary: rolls.js matchupRollSummary / classicRollSummary, null = nothing to save yet.
 // pending: a calculation is on its way, so the numbers on screen belong to the
 // previous setup; the button stays (disabled, so nothing jumps) but saves
 // nothing until it lands.
 export default function useSaveRoll(summary, pending = false) {
+  const t = useT();
   const mode = useAppState((s) => s.mode);
   const setup = useAppState(currentSetup);
   const saved = useAppState((s) => s.lists.saved);
@@ -23,12 +25,12 @@ export default function useSaveRoll(summary, pending = false) {
         if (pending) return;
         if (existing) {
           dispatch({type: 'deleteRoll', id: existing.id});
-          dispatch({type: 'toast', text: 'Removed from saved rolls'});
+          dispatch({type: 'toast', text: t('saved.removed')});
         } else {
           dispatch({type: 'saveRoll', roll: makeRoll({mode, setup: currentSetup(getState()), summary})});
-          dispatch({type: 'toast', text: 'Saved'});
+          dispatch({type: 'toast', text: t('saved.saved')});
         }
       },
     };
-  }, [summary, pending, mode, setup, saved]);
+  }, [summary, pending, mode, setup, saved, t]);
 }

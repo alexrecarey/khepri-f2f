@@ -5,18 +5,21 @@ import {useCallback} from 'react';
 import PropTypes from 'prop-types';
 import {LIMITS} from '../engine/params.js';
 import {CLASSIC_AMMO, SAVE_LIMIT, armSave, btsSave, classicSide} from '../state/classicView.js';
-import {ROLE, SIDE_NAME} from '../state/schema.js';
+import {ROLE} from '../state/schema.js';
 import {dispatch} from '../state/store.js';
 import {D20} from './icons.jsx';
 import ResultsCard, {ResultsPanel} from './ResultsCard.jsx';
 import useLayout from './useLayout.js';
 import {classicRollSummary} from '../state/rolls.js';
 import useRollResults from './useRollResults.js';
+import {engineStatus, useT} from './i18n.jsx';
+import {sideLabel} from './SideCard.jsx';
 
 const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
 
 // Dice icons: tap the third die for burst 3; tap the lit last die to drop one.
 function DiceInput({value, max, min, onChange, color, label, zeroOption}) {
+  const t = useT();
   const fill = color === 'active' ? 'var(--active)' : 'var(--reactive)';
   const dice = [];
   for (let i = 1; i <= max; i++) dice.push(i);
@@ -35,7 +38,7 @@ function DiceInput({value, max, min, onChange, color, label, zeroOption}) {
         ))}
         {zeroOption && (
           <button type="button" className="die" style={{marginLeft: 'auto', width: 44}} aria-pressed={value === 0}
-            aria-label="Burst 0: no roll, the other side is unopposed" onClick={() => onChange(value === 0 ? 1 : 0)}>
+            aria-label={t('classic.burstZero')} onClick={() => onChange(value === 0 ? 1 : 0)}>
             <D20 fill={value === 0 ? fill : 'var(--faint)'} crossed />
           </button>
         )}
@@ -52,15 +55,16 @@ DiceInput.propTypes = {
 
 // −3 −1 [n] +1 +3: the steps that matter in Infinity (MODs come in threes).
 function Stepper({name, value, limit, onChange, color}) {
+  const t = useT();
   const step = (d) => onChange(clamp(limit, value + d));
   return (
     <div className="stepper">
       <span className="name">{name}</span>
-      <button type="button" className="s" aria-label={`${name} minus 3`} onClick={() => step(-3)}>−3</button>
-      <button type="button" className="s" aria-label={`${name} minus 1`} onClick={() => step(-1)}>−1</button>
+      <button type="button" className="s" aria-label={t('classic.minus', {name, n: 3})} onClick={() => step(-3)}>−3</button>
+      <button type="button" className="s" aria-label={t('classic.minus', {name, n: 1})} onClick={() => step(-1)}>−1</button>
       <span key={value} className={`v c-${color} bump`} aria-live="polite">{value}</span>
-      <button type="button" className="s" aria-label={`${name} plus 1`} onClick={() => step(1)}>+1</button>
-      <button type="button" className="s" aria-label={`${name} plus 3`} onClick={() => step(3)}>+3</button>
+      <button type="button" className="s" aria-label={t('classic.plus', {name, n: 1})} onClick={() => step(1)}>+1</button>
+      <button type="button" className="s" aria-label={t('classic.plus', {name, n: 3})} onClick={() => step(3)}>+3</button>
     </div>
   );
 }
@@ -71,6 +75,7 @@ Stepper.propTypes = {
 };
 
 function ClassicSide({side, params, setParam}) {
+  const t = useT();
   const color = ROLE[side];
   const v = (k) => params[`${k}${side}`];
   const set = (k) => setParam(`${k}${side}`);
@@ -84,42 +89,42 @@ function ClassicSide({side, params, setParam}) {
   );
 
   return (
-    <section className="card" aria-label={`${color} side`} style={{gap: 14}}>
-      <span className={`role ${color}`}>{SIDE_NAME[side].toUpperCase()}</span>
-      <DiceInput label="Burst" value={burst} min={side === 'B' ? 0 : 1} max={6} color={color} onChange={set('burst')}
+    <section className="card" aria-label={t('classic.side', {side: t(`side.${color}`)})} style={{gap: 14}}>
+      <span className={`role ${color}`}>{sideLabel(t, side)}</span>
+      <DiceInput label={t('classic.burst')} value={burst} min={side === 'B' ? 0 : 1} max={6} color={color} onChange={set('burst')}
         zeroOption={side === 'B'} />
-      <DiceInput label="Special dice" value={v('bonusBurst')} min={0} max={3} color={color} onChange={set('bonusBurst')} />
+      <DiceInput label={t('classic.specialDice')} value={v('bonusBurst')} min={0} max={3} color={color} onChange={set('bonusBurst')} />
       <div className="steppers">
-        {rollsDice && <Stepper name="Success Value" value={v('successValue')} limit={LIMITS.successValue} color={color} onChange={set('successValue')} />}
+        {rollsDice && <Stepper name={t('classic.successValue')} value={v('successValue')} limit={LIMITS.successValue} color={color} onChange={set('successValue')} />}
         {/* The save the opponent makes against this side: weapon PS + their ARM
             (cover included); Plasma also makes them save with BTS. */}
         {causesSaves && (
-          <Stepper name={plasma ? 'Opponent PS ARM' : 'Opponent PS'} value={armSave(params, side)}
+          <Stepper name={plasma ? t('classic.opponentPsArm') : t('classic.opponentPs')} value={armSave(params, side)}
             limit={SAVE_LIMIT.arm} color={color} onChange={(total) => dispatch({type: 'setClassicSave', side, which: 'arm', total})} />
         )}
         {causesSaves && plasma && (
-          <Stepper name="Opponent PS BTS" value={btsSave(params, side)} limit={SAVE_LIMIT.bts} color={color}
+          <Stepper name={t('classic.opponentPsBts')} value={btsSave(params, side)} limit={SAVE_LIMIT.bts} color={color}
             onChange={(total) => dispatch({type: 'setClassicSave', side, which: 'bts', total})} />
         )}
       </div>
       <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
-        <span className="label">Ammunition</span>
+        <span className="label">{t('classic.ammunition')}</span>
         <div className="row-wrap">
           {CLASSIC_AMMO.map(([key, name]) => (
             <button type="button" key={key} className={`btn solid${ammo === key ? ` on ${color}` : ''}`} aria-pressed={ammo === key}
-              onClick={() => set('ammo')(key)}>{name}</button>
+              onClick={() => set('ammo')(key)}>{t(name)}</button>
           ))}
           <button type="button" className={`btn solid${v('cont') ? ` on ${color}` : ''}`} aria-pressed={v('cont')}
-            onClick={() => set('cont')(!v('cont'))} title="Continuous Damage">CONT</button>
+            onClick={() => set('cont')(!v('cont'))} title={t('trait.continuousDamage')}>{t('tag.contUpper')}</button>
         </div>
       </div>
       <div className="row-wrap">
-        {toggle('critImmune', 'Immunity (Critical)')}
-        {toggle('template', 'Direct Template')}
+        {toggle('critImmune', t('classic.critImmune'))}
+        {toggle('template', t('classic.directTemplate'))}
         {side === 'B' && (
           <button type="button" className={`chip solid${params.fixedFaceToFace ? ` on ${color}` : ''}`} aria-pressed={params.fixedFaceToFace}
             onClick={() => setParam('fixedFaceToFace')(!params.fixedFaceToFace)}>
-            {params.fixedFaceToFace ? 'Fixed value die (AC2) ✓' : 'Fixed value die (AC2)'}
+            {params.fixedFaceToFace ? `${t('classic.fixedDie')} ✓` : t('classic.fixedDie')}
           </button>
         )}
       </div>
@@ -132,7 +137,9 @@ ClassicSide.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, params: P
 const setParam = (key) => (value) => dispatch({type: 'setClassic', key, value});
 
 export default function ClassicScreen({params, engine}) {
-  const summaryOf = useCallback((s) => classicRollSummary(params, s), [params]);
+  const t = useT();
+  const summaryOf = useCallback((s) => classicRollSummary(params, s, t), [params, t]);
+  const status = engineStatus(t, engine.status);
   const {s, save} = useRollResults({result: engine.result, summaryOf, pending: engine.pending});
   const layout = useLayout();
   if (layout === 'phone') {
@@ -142,7 +149,7 @@ export default function ClassicScreen({params, engine}) {
           <ClassicSide side="A" params={params} setParam={setParam} />
           <ClassicSide side="B" params={params} setParam={setParam} />
         </main>
-        <ResultsCard s={s} status={engine.status} pending={engine.pending} classic save={save} params={params} />
+        <ResultsCard s={s} status={status} pending={engine.pending} classic save={save} params={params} />
       </>
     );
   }
@@ -152,7 +159,7 @@ export default function ClassicScreen({params, engine}) {
     <main className={`workbench classic ${layout}`}>
       <ClassicSide side="A" params={params} setParam={setParam} />
       <ClassicSide side="B" params={params} setParam={setParam} />
-      <ResultsPanel s={s} status={engine.status} pending={engine.pending} classic save={save} params={params} />
+      <ResultsPanel s={s} status={status} pending={engine.pending} classic save={save} params={params} />
     </main>
   );
 }

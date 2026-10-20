@@ -9,10 +9,12 @@ import {dispatch, getState, useAppState} from '../../state/store.js';
 import {listItems, matchedCount} from './deskList.js';
 import {orderLoadouts, unitDetail} from './loadouts.js';
 import {factionNameOf, useRecentIds} from './useRecentIds.js';
+import {useT} from '../i18n.jsx';
 
 export const setCursor = (cursor) => dispatch({type: 'pickerCursor', cursor});
 
 export default function useDeskPicker({searcher, army}) {
+  const t = useT();
   const picker = useAppState((s) => s.ui.picker);
   const sides = useAppState((s) => s.matchup);
   const {side, query, scope, stack} = picker;
@@ -23,7 +25,7 @@ export default function useDeskPicker({searcher, army}) {
   const top = stack.at(-1) ?? null;
   const typing = query.trim().length > 0;
 
-  const factionName = (id) => factionNameOf(searcher, id);
+  const factionName = (id) => factionNameOf(searcher, id, t);
   const recentIds = useRecentIds(searcher, side);
 
   // Every match in every faction, for the chip counts and "in other factions".
@@ -34,8 +36,8 @@ export default function useDeskPicker({searcher, army}) {
   const browse = useMemo(() => (searcher && !typing ? searcher.browse({factionId: scope, recentIds}) : null), [searcher, typing, scope, recentIds]);
 
   // The left list (empty until the searcher has loaded).
-  const items = useMemo(() => listItems({searcher, typing, scope, top, all, scoped, browse, factionName}),
-    [searcher, typing, scoped, all, browse, top, scope]); // eslint-disable-line react-hooks/exhaustive-deps
+  const items = useMemo(() => listItems({searcher, typing, scope, top, all, scoped, browse, factionName, t}),
+    [searcher, typing, scoped, all, browse, top, scope, t]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const rows = items.filter((x) => x.kind !== 'head');
   const matched = matchedCount({typing, scope, all, scoped});
@@ -71,7 +73,7 @@ export default function useDeskPicker({searcher, army}) {
   // two Enters fill both; once it is set, the default goes back to the
   // calculator and moving on is the secondary (Shift+Enter).
   const otherSet = sides[otherSide]?.unitId != null;
-  const otherName = ROLE[otherSide];
+  const otherName = t(`side.${ROLE[otherSide]}`).toLocaleLowerCase(t.lang);
 
   // Chips: All, then the factions, by hits while typing.
   const chips = useMemo(() => {

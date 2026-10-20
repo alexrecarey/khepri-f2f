@@ -5,6 +5,7 @@ import {EQUIP, SKILL} from '../army/ids.js';
 import {equipExtra, hasEquip, hasSkill, skillExtra, skillExtras} from '../army/traits.js';
 import {attackAttribute, isCommsAttack, isImpactTemplate, isTemplate, parseWeaponMods} from '../army/weapons.js';
 import {ccOpposingMods, isCcAttack, naturalBornWarrior} from './closeCombat.js';
+import {tEn} from '../i18n/index.js';
 
 // A Success Value below 1 is an automatic failure (no roll can pass or crit):
 // it is clamped to 0, which the engine treats exactly that way. The same
@@ -64,8 +65,8 @@ export function firewallMod(traits) {
 
 const hasMsv = (traits) => hasEquip(traits, EQUIP.MSV1) || hasEquip(traits, EQUIP.MSV2) || hasEquip(traits, EQUIP.MSV3);
 // The attacker's Multispectral Visor as players write it, or null.
-export const msvName = (traits) => (hasEquip(traits, EQUIP.MSV3) ? 'MSV3' : hasEquip(traits, EQUIP.MSV2) ? 'MSV2'
-  : hasEquip(traits, EQUIP.MSV1) ? 'MSV1' : null);
+const msvLevel = (traits) => (hasEquip(traits, EQUIP.MSV3) ? 3 : hasEquip(traits, EQUIP.MSV2) ? 2 : hasEquip(traits, EQUIP.MSV1) ? 1 : null);
+export const msvName = (traits, t = tEn) => (msvLevel(traits) ? t('equip.msv', {level: msvLevel(traits)}) : null);
 
 // A bracketed negative MOD (Mimetism (-6), Albedo (-3)); -3 when the data
 // gives none.
@@ -245,7 +246,7 @@ export function evades(x, incoming) {
 //   negative MODs apply to its Dodge.
 // - y answers x's CC Attack with its own and has Natural Born Warrior: none
 //   of x's negative MODs apply either.
-export function opposingMods(x, y, xActive) {
+export function opposingMods(x, y, xActive, t = tEn) {
   if (!rollsDice(x) || !rollsDice(y)) return [];
   // A Dodge or Reset that can't evade this attack isn't rolled against it.
   if (x.weapon.pseudo && !evades(x, y.weapon)) return [];
@@ -253,22 +254,22 @@ export function opposingMods(x, y, xActive) {
   if (x.weapon.pseudo === 'reset') return [];
   if (x.weapon.pseudo === 'dodge') {
     const mod = y.weapon.pseudo ? 0 : dodgeExtras(x.traits).opponentMod;
-    return mod ? [{value: mod, label: `Dodge (${mod})`, ignoredBy: null}] : [];
+    return mod ? [{value: mod, label: t('skill.dodgeMod', {mod}), ignoredBy: null}] : [];
   }
-  const sixth = y.weapon.pseudo === 'dodge' && hasSixthSense(y) ? 'Sixth Sense (Dodge)' : null;
-  const nbw = naturalBornWarrior(x, y) ? 'Natural Born Warrior' : null;
+  const sixth = y.weapon.pseudo === 'dodge' && hasSixthSense(y) ? t('skill.sixthSenseDodge') : null;
+  const nbw = naturalBornWarrior(x, y) ? t('skill.naturalBornWarrior') : null;
   const out = [];
   if (isCcAttack(x)) {
-    for (const m of ccOpposingMods(x)) out.push({...m, ignoredBy: nbw ?? sixth});
+    for (const m of ccOpposingMods(x, t)) out.push({...m, ignoredBy: nbw ?? sixth});
   } else {
     const bs = bsAttackMod(x.traits);
-    if (bs) out.push({value: bs, label: `BS Attack (${bs})`, ignoredBy: hasSkill(y.traits, SKILL.WARHORSE) ? 'Warhorse' : sixth});
+    if (bs) out.push({value: bs, label: t('skill.bsAttackMod', {mod: bs}), ignoredBy: hasSkill(y.traits, SKILL.WARHORSE) ? t('skill.warhorse') : sixth});
   }
   const surprise = xActive && x.surpriseAttack ? surpriseAttackMod(x.traits) : 0;
   if (surprise) {
-    const ignoredBy = nbw ?? (hasSkill(y.traits, SKILL.COMBAT_INSTINCT) ? 'Combat Instinct'
-      : hasEquip(y.traits, EQUIP.MSV3) ? 'MSV3' : sixth);
-    out.push({value: surprise, label: `Surprise Attack (${surprise})`, ignoredBy});
+    const ignoredBy = nbw ?? (hasSkill(y.traits, SKILL.COMBAT_INSTINCT) ? t('skill.combatInstinct')
+      : hasEquip(y.traits, EQUIP.MSV3) ? t('equip.msv', {level: 3}) : sixth);
+    out.push({value: surprise, label: t('skill.surpriseAttackMod', {mod: surprise}), ignoredBy});
   }
   return out;
 }

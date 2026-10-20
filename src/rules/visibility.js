@@ -18,9 +18,11 @@ import {hasEquip, hasSkill} from '../army/traits.js';
 import {needsLof} from '../army/weapons.js';
 import {isCcAttack} from './closeCombat.js';
 import {hasSixthSense, msvName} from './modifiers.js';
+import {tEn} from '../i18n/index.js';
 
 export const ZONES = ['smoke', 'whiteNoise'];
-export const ZONE_NAME = {smoke: 'Smoke', whiteNoise: 'White Noise'};
+// A zone's name, in t's language.
+export const zoneName = (zone, t = tEn) => t(`zone.${zone}`);
 // Poor Visibility Zone, and MSV1 shot at through Smoke.
 export const POOR_VISIBILITY_MOD = -6;
 export const MSV1_SMOKE_MOD = -3;
@@ -47,8 +49,8 @@ function zoneOn(zone, traits) {
 }
 
 // Why x ignores a zone that is on, for the ledger's struck line.
-function ignoredBy(zone, traits) {
-  return zone === 'smoke' ? msvName(traits) : 'no MSV';
+function ignoredBy(zone, traits, t) {
+  return zone === 'smoke' ? msvName(traits, t) : t('zone.noMsv');
 }
 
 // The zones that are on, from {smoke, whiteNoise}.
@@ -61,7 +63,7 @@ export const zonesOn = (zones) => ZONES.filter((z) => zones?.[z]);
 //   mod       the MOD that counts, 0 without one
 // A side that can't see through a zone may still shoot back when the other
 // side attacks it AND can see. So if either side is blocked, nobody shoots.
-export function visibility(a, b, zones) {
+export function visibility(a, b, zones, t = tEn) {
   const on = zonesOn(zones);
   const empty = {blocked: null, lines: [], mod: 0};
   if (!on.length || !a || !b) return {A: empty, B: empty};
@@ -74,13 +76,13 @@ export function visibility(a, b, zones) {
   const side = (x, can, attacked) => {
     if (!attacks(x)) return empty;
     if (!can) return {blocked: fx(x).find(({fx: f}) => f && !f.sees).zone, lines: [], mod: 0};
-    const sixth = attacked && hasSixthSense(x) ? 'Sixth Sense' : null;
+    const sixth = attacked && hasSixthSense(x) ? t('skill.sixthSense') : null;
     const lines = fx(x).map(({zone, fx: f}) => {
-      const name = ZONE_NAME[zone];
-      if (!f) return {zone, value: 0, label: name, ignoredBy: ignoredBy(zone, x.traits)};
-      if (f.sees && !attacked) return {zone, value: f.notAttacked, label: `${name}, Zero Visibility`, ignoredBy: null};
+      const name = zoneName(zone, t);
+      if (!f) return {zone, value: 0, label: name, ignoredBy: ignoredBy(zone, x.traits, t)};
+      if (f.sees && !attacked) return {zone, value: f.notAttacked, label: t('zone.zeroVisibility', {zone: name}), ignoredBy: null};
       const value = f.sees ? f.attacked : POOR_VISIBILITY_MOD;
-      return {zone, value, label: `${name}, Poor Visibility`, ignoredBy: sixth};
+      return {zone, value, label: t('zone.poorVisibility', {zone: name}), ignoredBy: sixth};
     });
     const live = lines.filter((l) => !l.ignoredBy && l.value);
     return {blocked: null, lines, mod: live.length ? Math.min(...live.map((l) => l.value)) : 0};

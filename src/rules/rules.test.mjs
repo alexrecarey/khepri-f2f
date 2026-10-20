@@ -12,7 +12,7 @@ import {buildLedger} from './ledger.js';
 import {deriveInputs} from './matchup.js';
 import {attackStat, dodgeSuccessValue, mimetismMod, surpriseAttackMod} from './modifiers.js';
 import {rangeModFor} from './ranges.js';
-import {pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
+import {pseudoName, pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
 
 const RIFLE_RANGES = [{to: 40, mod: 3}, {to: 80, mod: -3}, {to: 120, mod: -6}];
 // Weapon rows as the Army API gives them, normalized like the pipeline does.
@@ -420,7 +420,7 @@ test('Immunity (ARM) protects whichever side has it', () => {
 test('Immunity (ARM) is listed as used, with a note of what it ignored', () => {
   const dog = immune('ARM');
   const r = shotAt(dog, 12, '12:');
-  assert.deepEqual(r.notes, ['Active: target has Immunity (ARM); AP+Exp treated as N']);
+  assert.deepEqual(r.notes, ['Active: target has Immunity (ARM); AP+EXP treated as N']);
   assert.deepEqual(r.warnings, []);
   assert.deepEqual(shotAt(dog, 13, '13:').notes, ['Active: target has Immunity (ARM); ARM=0 ignored']);
   assert.deepEqual(shotAt(dog, 1, '1:', {extra: ['AP', 'Continuous Damage']}).notes,
@@ -1607,7 +1607,7 @@ test('White Noise and Albedo stack; with Smoke and White Noise nobody sees', () 
 test('Bangbomb (+X) is its own Dodge choice: +X, but not against Template Weapons', () => {
   const bandit = profile({ph: 13, equip: [{id: 246, name: 'Bangbomb', extra: ['+4']}]});
   const choices = pseudoWeapons(effectiveTraits(bandit, combi), 'B');
-  assert.deepEqual(choices.map((w) => w.label), ['Dodge', 'Bangbomb', 'Reset', 'No ARO (unopposed)']);
+  assert.deepEqual(choices.map((w) => pseudoName(w)), ['Dodge', 'Bangbomb', 'Reset', 'No ARO']);
   assert.equal(pseudoWeapons({skills: [], equip: []}).some((w) => w.bangbomb), false);
   const dodgeVs = (weapons, key, pick = 'bangbomb') =>
     derive({active: side(profile(), option(weapons), key), reactive: side(bandit, combi, pick), rangeCm: 20}).inputs.successValueB;

@@ -14,7 +14,7 @@ const NAMES = {
   es: () => import('../army/names.es.json'),
 };
 const loaders = Object.fromEntries(Object.entries(NAMES).map(([lang, load]) =>
-  [lang, lazyOnce(() => Promise.all([loadCore(), load()]).then(([core, names]) => withNames(core, names.default)))]));
+  [lang, lazyOnce(() => Promise.all([loadCore(), load()]).then(([core, names]) => withNames(core, names.default, lang)))]));
 
 export const loadArmy = (lang) => (loaders[lang] ?? loaders.en)();
 

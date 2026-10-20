@@ -8,9 +8,11 @@ import {paramsKey} from './params.js';
 // Each request carries an id and only the reply to the newest one counts:
 // an older reply arriving late would show (and let you save) the odds of a
 // setup that is no longer on screen.
+//
+// `status` is a message for the screen, as a src/i18n key and its params.
 export default function useEngine(params) {
   const [result, setResult] = useState(null);
-  const [status, setStatus] = useState('Loading the dice engine');
+  const [status, setStatus] = useState({key: 'engine.loading'});
   // A calculation is on its way: the old numbers stay up, shimmering.
   const [pending, setPending] = useState(params != null);
   const workerRef = useRef(null);
@@ -23,7 +25,7 @@ export default function useEngine(params) {
       if (command === 'status') {
         if (value === 'error') {
           setPending(false);
-          setStatus(`Could not start the dice engine: ${msg.data.description}`);
+          setStatus({key: 'engine.startFailed', params: {error: msg.data.description}});
         }
         return;
       }
@@ -31,14 +33,14 @@ export default function useEngine(params) {
       setPending(false);
       if (command === 'result') {
         setResult(value);
-        setStatus(`Done! Took ${msg.data.elapsed}ms to calculate all ${msg.data.totalRolls.toLocaleString()} possible rolls.`);
+        setStatus({key: 'engine.done', params: {ms: msg.data.elapsed, rolls: msg.data.totalRolls}});
       } else if (command === 'error') {
-        setStatus(`Calculation failed: ${value}`);
+        setStatus({key: 'engine.failed', params: {error: value}});
       }
     };
     worker.onerror = (error) => {
       setPending(false);
-      setStatus(`Worker error: ${error.message}`);
+      setStatus({key: 'engine.workerError', params: {error: error.message}});
     };
     worker.postMessage({command: 'init'});
     workerRef.current = worker;

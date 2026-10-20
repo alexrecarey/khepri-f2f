@@ -12,17 +12,20 @@ import PropTypes from 'prop-types';
 import {unitById} from '../../army/lookup.js';
 import {shortIsc} from '../../army/names.js';
 import {pickerSide} from '../../state/actions.js';
-import {ROLE, SIDE_NAME} from '../../state/schema.js';
+import {ROLE} from '../../state/schema.js';
 import {dispatch, getState} from '../../state/store.js';
 import DeskDetail from './DeskDetail.jsx';
 import DeskList from './DeskList.jsx';
 import deskKeyHandler from './deskKeys.js';
 import useDeskPicker from './useDeskPicker.js';
 import useDialogFocus from '../useDialogFocus.js';
+import {useT} from '../i18n.jsx';
+import {sideLabel} from '../SideCard.jsx';
 
 const back = () => dispatch({type: 'back'});
 
 export default function DeskPicker({searcher, army, loadError}) {
+  const t = useT();
   const m = useDeskPicker({searcher, army});
   const {side, color, query, scope, sides, all, chips, current, at, pane, lat, loadouts} = m;
   // The highlighted option, in whichever pane has the arrow keys.
@@ -36,30 +39,30 @@ export default function DeskPicker({searcher, army, loadError}) {
   return (
     <>
       <div className="desk-scrim" onClick={back} />
-      <div ref={dialogRef} className="desk-picker" role="dialog" aria-modal="true" aria-label={`${color} trooper`}>
+      <div ref={dialogRef} className="desk-picker" role="dialog" aria-modal="true" aria-label={t('side.trooper', {side: t(`side.${color}`)})}>
         <div className="dp-top">
-          <span className="dp-sides" role="group" aria-label="Side">
+          <span className="dp-sides" role="group" aria-label={t('picker.side')}>
             {['A', 'B'].map((s) => (
               <button type="button" key={s} className={`${s === side ? `on ${ROLE[s]}` : ''}`} aria-pressed={s === side}
                 onClick={() => s !== side && dispatch(pickerSide(army, getState(), s))}>
-                {SIDE_NAME[s].toUpperCase()}
+                {sideLabel(t, s)}
                 {s !== side && sides[s]?.unitId != null && <span className={`dp-set c-${ROLE[s]}`}> · {shortIsc(unitById(army, sides[s].unitId)?.isc)} ✓</span>}
               </button>
             ))}
           </span>
           <label className={`dp-search ${color}`}>
             <span aria-hidden="true">⌕</span>
-            <span className="vh">Search troopers</span>
-            <input ref={inputRef} value={query} placeholder="Search troopers and weapons…" autoComplete="off" spellCheck={false}
+            <span className="vh">{t('picker.search')}</span>
+            <input ref={inputRef} value={query} placeholder={t('picker.placeholderDesk')} autoComplete="off" spellCheck={false}
               onChange={(e) => dispatch({type: 'pickerQuery', query: e.target.value})} onKeyDown={onKey}
               role="combobox" aria-expanded="true" aria-autocomplete="list" aria-haspopup="listbox"
               aria-activedescendant={active} aria-controls={active?.startsWith('dp-lo-') ? 'dp-loadouts' : 'dp-list'} />
           </label>
-          <span className="dp-keys">{query === '' && <><kbd>Tab</kbd> side </>}<kbd>esc</kbd></span>
+          <span className="dp-keys">{query === '' && <><kbd>Tab</kbd> {t('picker.sideKey')} </>}<kbd>esc</kbd></span>
         </div>
-        <div className="dp-chips" role="group" aria-label="Faction">
+        <div className="dp-chips" role="group" aria-label={t('picker.faction')}>
           <button type="button" className={`chip${scope == null ? ' on-plain' : ''}`} onClick={() => dispatch({type: 'pickerScope', scope: null})}>
-            All {all && <small>{all.units.length}</small>}
+            {t('picker.all')} {all && <small>{all.units.length}</small>}
           </button>
           {chips.map((f) => (
             <button type="button" key={f.id} className={`chip${scope === f.id ? ' on-plain' : ''}`} onClick={() => dispatch({type: 'pickerScope', scope: f.id})}>

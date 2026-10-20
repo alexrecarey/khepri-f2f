@@ -9,14 +9,16 @@ import {RANGE_BANDS} from '../rules/ranges.js';
 import {dispatch} from '../state/store.js';
 import {bandColor, signedMod} from './bands.js';
 import {SplitIcon} from './icons.jsx';
+import {useT} from './i18n.jsx';
 
-const ROLE = {A: 'Active', B: 'Reactive'};
+const ROLE = {A: 'side.active', B: 'side.reactive'};
 
 function Pick({side, i, on, mod, open}) {
+  const t = useT();
   const b = RANGE_BANDS[i];
   return (
     <button type="button" className={`scale-pick ${side}${on ? ' on' : ''}`} aria-pressed={on}
-      aria-label={`${ROLE[side]} ${b.label}: ${signedMod(mod)}`}
+      aria-label={`${t(ROLE[side])} ${b.label}: ${signedMod(mod)}`}
       onClick={() => dispatch({type: 'setRange', side, rangeCm: b.to, open: true})}>
       <span className="track"><span className="stripe" style={{background: open ? bandColor(mod) : 'transparent'}} /></span>
     </button>
@@ -27,15 +29,16 @@ Pick.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, i: PropTypes.num
 
 // selA / selB: each side's band index.
 export default function RangeScale({bands, open, selA, selB}) {
+  const t = useT();
   return (
-    <div className="scale" role="group" aria-label="Range per side">
+    <div className="scale" role="group" aria-label={t('range.perSide')}>
       {RANGE_BANDS.map((b, i) => {
         const on = i === selA || i === selB;
         return (
           <div className="scale-col" key={b.to}>
             <Pick side="A" i={i} on={i === selA} mod={bands[i].A} open={open} />
             {/* Keyboard users pick on the tracks, which open it too. */}
-            <button type="button" className={`dist${on ? ' on' : ''}`} tabIndex={-1} aria-label={`${b.label}; open range`}
+            <button type="button" className={`dist${on ? ' on' : ''}`} tabIndex={-1} aria-label={`${b.label}; ${t('range.open')}`}
               onClick={() => dispatch({type: 'setRangeOpen', open: true})}>{on ? `${b.inches}"` : b.inches}</button>
             <Pick side="B" i={i} on={i === selB} mod={bands[i].B} open={open} />
           </div>
@@ -49,10 +52,11 @@ RangeScale.propTypes = {bands: PropTypes.array.isRequired, open: PropTypes.bool,
 
 // Next to Smoke / White Noise: split the range so each side picks its own.
 export function SplitChip({split, open}) {
+  const t = useT();
   return (
     <button type="button" className={`range-chip${split ? ' on' : ''}`} aria-pressed={split} tabIndex={open ? 0 : -1}
       onClick={() => dispatch({type: 'setRangeSplit', on: !split})}>
-      <SplitIcon />Split range
+      <SplitIcon />{t('range.split')}
     </button>
   );
 }

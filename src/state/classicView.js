@@ -5,8 +5,10 @@ import {other} from './schema.js';
 
 const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
 
-// Ammunition buttons, in order: [calculator ammo, label].
-export const CLASSIC_AMMO = [['N', 'N'], ['DA', 'DA'], ['EXP', 'EXP'], ['T2', 'T2'], ['PLASMA', 'PLASMA'], ['DODGE', 'Dodge']];
+// Ammunition buttons, in order: [calculator ammo, its label's src/i18n key].
+export const CLASSIC_AMMO = [['N', 'ammo.N'], ['DA', 'ammo.DA'], ['EXP', 'ammo.EXP'], ['T2', 'ammo.T2'], ['PLASMA', 'classic.plasma'],
+  ['DODGE', 'pseudo.dodge']];
+export const classicAmmoKey = (ammo) => CLASSIC_AMMO.find(([key]) => key === ammo)?.[1] ?? null;
 
 // The highest Opponent PS the steppers reach: weapon PS + ARM (or BTS) limits.
 export const SAVE_LIMIT = {arm: [0, LIMITS.damage[1] + LIMITS.arm[1]], bts: [0, LIMITS.damage[1] + LIMITS.bts[1]]};

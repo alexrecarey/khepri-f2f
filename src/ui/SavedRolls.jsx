@@ -13,16 +13,18 @@ import {TrashIcon} from './icons.jsx';
 import {Page} from './Sheet.jsx';
 import useLayout, {usesDialogs} from './useLayout.js';
 import useSwipeToDelete from './useSwipeToDelete.js';
+import {useT} from './i18n.jsx';
 
 const back = () => dispatch({type: 'back'});
 const loadRoll = (id) => dispatch({type: 'loadRoll', id});
-const deleteRoll = (id) => {
+const deleteRoll = (id, t) => {
   dispatch({type: 'deleteRoll', id});
-  dispatch({type: 'toast', text: 'Roll deleted'});
+  dispatch({type: 'toast', text: t('saved.deleted')});
 };
 
 // What a roll says: Matchup, the crest row; Classic, both dice lines.
 function RollBody({roll, size}) {
+  const t = useT();
   const s = roll.summary;
   if (roll.mode !== MODES.matchup) {
     return (
@@ -39,7 +41,7 @@ function RollBody({roll, size}) {
       <CrestPair row={r} size={size} />
       <span className="roll-text">
         <span className="roll-who">
-          <span className="c-active">{r.au}</span> <span className="roll-weapon">{r.aw}</span> <span className="roll-vs">vs</span>{' '}
+          <span className="c-active">{r.au}</span> <span className="roll-weapon">{r.aw}</span> <span className="roll-vs">{t('roll.vs')}</span>{' '}
           <span className="c-reactive">{r.ru}</span> <span className="roll-weapon">{r.rw}</span>
         </span>
         {r.setup && <span className="roll-setup">{r.setup}</span>}
@@ -50,17 +52,18 @@ function RollBody({roll, size}) {
 
 RollBody.propTypes = {roll: PropTypes.object.isRequired, size: PropTypes.number};
 
-const rollLabel = (s) => `${s.a} against ${s.r}${s.setup ? `, ${s.setup}` : ''}. Load this roll`;
+const rollLabel = (s, t) => t('saved.rollLabel', {a: s.a, r: s.r, setup: s.setup ? `, ${s.setup}` : ''});
 
 // One saved roll on the phone page; swipe it left to show Delete.
 function RollCard({roll, swiped}) {
+  const t = useT();
   const {cardRef, handlers} = useSwipeToDelete(roll.id, swiped, () => loadRoll(roll.id));
   return (
     <div className={`roll-wrap ${roll.mode}`}>
-      <button type="button" className="roll-delete" tabIndex={swiped ? 0 : -1} onClick={() => deleteRoll(roll.id)}>Delete</button>
+      <button type="button" className="roll-delete" tabIndex={swiped ? 0 : -1} onClick={() => deleteRoll(roll.id, t)}>{t('saved.delete')}</button>
       <button type="button" ref={cardRef} className="roll" {...handlers}
-        onKeyDown={(e) => { if (e.key === 'Delete' || e.key === 'Backspace') deleteRoll(roll.id); }}
-        aria-label={rollLabel(roll.summary)}>
+        onKeyDown={(e) => { if (e.key === 'Delete' || e.key === 'Backspace') deleteRoll(roll.id, t); }}
+        aria-label={rollLabel(roll.summary, t)}>
         <RollBody roll={roll} size={36} />
       </button>
     </div>
@@ -71,13 +74,14 @@ RollCard.propTypes = {roll: PropTypes.object.isRequired, swiped: PropTypes.bool}
 
 // The list for the open tab, and the Matchup | Classic switch.
 function useSavedList() {
+  const t = useT();
   const saved = useAppState((s) => s.lists.saved);
   const mode = useAppState((s) => s.mode);
   const tab = useAppState((s) => s.ui.savedTab) ?? mode;
   const count = (m) => saved.filter((r) => r.mode === m).length;
   const tabs = (
-    <div className="segs" role="group" aria-label="Which calculator">
-      {[[MODES.matchup, 'Matchup'], [MODES.basic, 'Classic']].map(([m, name]) => (
+    <div className="segs" role="group" aria-label={t('saved.whichCalculator')}>
+      {[[MODES.matchup, t('mode.matchup')], [MODES.basic, t('mode.classic')]].map(([m, name]) => (
         <button key={m} type="button" className={`seg${tab === m ? ' on' : ''}`} aria-pressed={tab === m}
           onClick={() => dispatch({type: 'setSavedTab', tab: m})}>{name} · {count(m)}</button>
       ))}
@@ -86,19 +90,18 @@ function useSavedList() {
   return {saved, list: saved.filter((r) => r.mode === tab), tabs};
 }
 
-const EMPTY = 'Nothing saved yet. Open the results and tap Save to keep a roll here.';
-
 function SavedPhone() {
+  const t = useT();
   const {saved, list, tabs} = useSavedList();
   const swiped = useAppState((s) => s.ui.swiped);
   return (
-    <Page title="Saved rolls" className="from-menu" onBack={back} action={<span className="note" style={{paddingRight: 12, fontSize: 13}}>{saved.length}</span>}>
+    <Page title={t('menu.savedRolls')} className="from-menu" onBack={back} action={<span className="note" style={{paddingRight: 12, fontSize: 13}}>{saved.length}</span>}>
       {tabs}
       <div className="roll-list">
         {list.map((r) => <RollCard key={r.id} roll={r} swiped={swiped === r.id} />)}
         {list.length > 0
-          ? <span className="note roll-hint">Tap to load the whole setup · swipe left to delete</span>
-          : <span className="empty">{EMPTY}</span>}
+          ? <span className="note roll-hint">{t('saved.hintPhone')}</span>
+          : <span className="empty">{t('saved.empty')}</span>}
       </div>
     </Page>
   );
@@ -114,25 +117,26 @@ function moveFocus(e) {
 }
 
 function SavedDialog() {
+  const t = useT();
   const {list, tabs} = useSavedList();
   return (
-    <DeskDialog title="Saved rolls" size="saved" head={tabs}>
+    <DeskDialog title={t('menu.savedRolls')} size="saved" head={tabs}>
       <div className="sd-list" onKeyDown={moveFocus}>
         {list.map((r) => (
           <div key={r.id} className={`drow ${r.mode}`}>
-            <button type="button" className="drow-load" aria-label={rollLabel(r.summary)} onClick={() => loadRoll(r.id)}
-              onKeyDown={(e) => { if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteRoll(r.id); } }}>
+            <button type="button" className="drow-load" aria-label={rollLabel(r.summary, t)} onClick={() => loadRoll(r.id)}
+              onKeyDown={(e) => { if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteRoll(r.id, t); } }}>
               <RollBody roll={r} size={40} />
-              <kbd className="drow-enter" aria-hidden="true">↵ load</kbd>
+              <kbd className="drow-enter" aria-hidden="true">↵ {t('saved.load')}</kbd>
             </button>
-            <button type="button" className="icon-btn drow-delete" aria-label="Delete this roll" onClick={() => deleteRoll(r.id)}><TrashIcon /></button>
+            <button type="button" className="icon-btn drow-delete" aria-label={t('saved.deleteThis')} onClick={() => deleteRoll(r.id, t)}><TrashIcon /></button>
           </div>
         ))}
-        {list.length === 0 && <span className="empty">{EMPTY}</span>}
+        {list.length === 0 && <span className="empty">{t('saved.empty')}</span>}
       </div>
       <div className="sd-foot">
-        <span>Click a roll to load the whole setup</span>
-        <span><kbd>↑</kbd> <kbd>↓</kbd> move · <kbd>↵</kbd> load · <kbd>Del</kbd> delete · <kbd>esc</kbd> close</span>
+        <span>{t('saved.hintDesk')}</span>
+        <span><kbd>↑</kbd> <kbd>↓</kbd> {t('keys.move')} · <kbd>↵</kbd> {t('saved.load')} · <kbd>Del</kbd> {t('keys.delete')} · <kbd>esc</kbd> {t('keys.close')}</span>
       </div>
     </DeskDialog>
   );

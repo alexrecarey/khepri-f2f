@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import {BackIcon} from './icons.jsx';
 import useDialogFocus from './useDialogFocus.js';
 import useVisualViewport from './useVisualViewport.js';
+import {useT} from './i18n.jsx';
 
 function useEscape(onClose) {
   useEffect(() => {
@@ -40,6 +41,7 @@ Sheet.propTypes = {
 // `closeLabel` ("Cancel"): the page is the first of its stack, so it closes
 // with a text button on the right instead of a back arrow.
 export function Page({title, subtitle, onBack, children, footer, action, closeLabel, label, className = ''}) {
+  const t = useT();
   useEscape(onBack);
   useVisualViewport();
   const ref = useRef(null);
@@ -47,7 +49,7 @@ export function Page({title, subtitle, onBack, children, footer, action, closeLa
   return (
     <div ref={ref} className={`page ${className}`} role="dialog" aria-modal="true" aria-label={label ?? (typeof title === 'string' ? title : undefined)}>
       <div className="page-head" style={closeLabel ? {paddingLeft: 16} : undefined}>
-        {!closeLabel && <button type="button" className="icon-btn" aria-label="Back" onClick={onBack}><BackIcon /></button>}
+        {!closeLabel && <button type="button" className="icon-btn" aria-label={t('keys.back')} onClick={onBack}><BackIcon /></button>}
         <div style={{display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0}}>
           <span className="page-title">{title}</span>
           {subtitle && <span className="note">{subtitle}</span>}
