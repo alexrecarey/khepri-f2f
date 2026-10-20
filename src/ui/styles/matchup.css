@@ -133,3 +133,6 @@
 .zone-marks.on { color: var(--text); }
 
 .range.unused .bands, .range.unused .scale { opacity: .35; }
+
+/* Clear both troopers + Modify in classic, centred under the setup. */
+.setup-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-self: center; justify-self: center; }
