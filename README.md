@@ -40,6 +40,8 @@ src/share/     the share card a matchup link unfurls into (card.js): worked out 
                a zone rule (scripts/cloudflare/) sends only link-preview bots there
 src/search/    trooper search: build-time index (index.json) and the typo-tolerant
                matcher; `yarn search-eval` scores it (docs/plans/search.md)
+src/i18n/      the app's copy per language (en.js, es.js) and t(); the rules
+               word their notes and ledger lines with it too (docs/i18n.md)
 src/data/      loads the army data chunk; src/lib/ small shared helpers
 src/ui/        the app's screens: shell, Matchup, Classic, trooper picker,
                results card and sheet (design: docs/design-canvas/mobile-ux-redesign);
@@ -78,7 +80,8 @@ read the English data; names are display. The app ships the army as a
 language-neutral core plus the names of the player's language
 (`src/army/localize.js`; the English names are split out of army.json at
 build time), and one search index per language (`src/search/index*.json`).
-The language follows the browser unless picked in Settings.
+The language follows the browser unless picked in Settings, and so does the
+rest of the copy (`src/i18n`, docs/i18n.md).
 
 # Contributing
 
