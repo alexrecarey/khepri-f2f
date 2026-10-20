@@ -52,14 +52,17 @@ export function immunityAgainst(targetTraits, row) {
 // success still cancels the target's Dodge or shot), its hits just cause no
 // Saving Rolls (ammo NONE).
 // Immunity (Isolated) leaves nothing of a weapon whose only effect is Isolated
-// (Jammer) either.
+// (Jammer) either, and nor does Warhorse, which makes its user immune to
+// Isolated (Alex, 2026-10-20).
 export const hasNoEffect = (targetTraits, row) => Boolean(noEffectBy(targetTraits, row));
 
-// The Immunity that leaves this attack without effect, or null.
+// What leaves this attack without effect, as the warning names it
+// ("Immunity (BTS)", "Warhorse"), or null.
 export function noEffectBy(targetTraits, row) {
-  if (isolates(row) && hasImmunity(targetTraits, 'Isolated', row)) return 'Isolated';
+  if (isolates(row) && hasImmunity(targetTraits, 'Isolated', row)) return 'Immunity (Isolated)';
+  if (isolates(row) && hasSkill(targetTraits, SKILL.WARHORSE)) return 'Warhorse';
   const immunity = immunityAgainst(targetTraits, row);
-  return immunity && !causesWounds(row) && !causesStunned(row) ? immunity : null;
+  return immunity && !causesWounds(row) && !causesStunned(row) ? `Immunity (${immunity})` : null;
 }
 
 // What the Immunity takes away from this attack, for the matchup note.
