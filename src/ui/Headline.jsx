@@ -5,7 +5,8 @@
 import {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch} from '../state/store.js';
-import {HEADLINES, HEADLINE_NAMES} from './headline.js';
+import {HEADLINES} from './headline.js';
+import {useT} from './i18n.jsx';
 import SlideNumber from './SlideNumber.jsx';
 import WpoRow from './WpoRow.jsx';
 
@@ -46,6 +47,7 @@ Num.propTypes = {
 // Where you are among the three. buttons: each dot picks its headline (the
 // panel); otherwise they are a picture only, as the card is one button.
 function Dots({choice, buttons}) {
+  const t = useT();
   if (!buttons) {
     return (
       <span className="hl-dots" aria-hidden="true">
@@ -54,9 +56,9 @@ function Dots({choice, buttons}) {
     );
   }
   return (
-    <span className="hl-dots buttons" role="group" aria-label="Big number">
+    <span className="hl-dots buttons" role="group" aria-label={t('headline.bigNumber')}>
       {HEADLINES.map((c) => (
-        <button key={c} type="button" aria-pressed={c === choice} aria-label={HEADLINE_NAMES[c]} title={HEADLINE_NAMES[c]}
+        <button key={c} type="button" aria-pressed={c === choice} aria-label={t(`headline.${c}`)} title={t(`headline.${c}`)}
           onClick={() => setHeadline(c)}><i className={c === choice ? 'on' : undefined} /></button>
       ))}
     </span>

@@ -7,12 +7,14 @@ import PropTypes from 'prop-types';
 import {dispatch} from '../state/store.js';
 import {CloseIcon} from './icons.jsx';
 import useDialogFocus from './useDialogFocus.js';
+import {useT} from './i18n.jsx';
 
 const back = () => dispatch({type: 'back'});
 
 // size: 'saved' | 'settings' | 'about', the dialog's width (chrome.css).
 // head: what sits between the title and the close button (the saved tabs).
 export default function DeskDialog({title, size, head, children}) {
+  const t = useT();
   const ref = useRef(null);
   useDialogFocus(ref);
   useEffect(() => {
@@ -27,7 +29,7 @@ export default function DeskDialog({title, size, head, children}) {
         <div className="dd-head">
           <span className="page-title">{title}</span>
           {head}
-          <button type="button" className="icon-btn" aria-label="Close" onClick={back}><CloseIcon /></button>
+          <button type="button" className="icon-btn" aria-label={t('keys.closeCap')} onClick={back}><CloseIcon /></button>
         </div>
         {children}
       </div>

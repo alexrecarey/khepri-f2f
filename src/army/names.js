@@ -18,16 +18,26 @@ export function extraLoadoutName(loadout, unitName) {
 
 // Short weapon names for buttons, the way players say them ("HMG",
 // "Missile L."), so a card's weapons fit on fewer rows. The full name stays
-// in the button's title and in the results.
-const SHORT_WEAPON = [
-  [/Heavy Machine Gun/, 'HMG'],
-  [/Submachine Gun/, 'SMG'],
-  [/Hyper-Rapid Magnetic Cannon/, 'HMC'],
-  [/Portable Autocannon/, 'Autocannon'],
-  [/(Missile|Grenade|Rocket) Launcher/, '$1 L.'],
-  [/MULTI (Sniper|Marksman) Rifle/, 'MULTI $1'],
-];
+// in the button's title and in the results. Per language, for the names in
+// that language's names file. Spanish follows the Army's own short forms
+// ("F. Precisión" in its extras); its launchers are one word already
+// ("Lanzamisiles").
+const SHORT_WEAPON = {
+  en: [
+    [/Heavy Machine Gun/, 'HMG'],
+    [/Submachine Gun/, 'SMG'],
+    [/Hyper-Rapid Magnetic Cannon/, 'HMC'],
+    [/Portable Autocannon/, 'Autocannon'],
+    [/(Missile|Grenade|Rocket) Launcher/, '$1 L.'],
+    [/MULTI (Sniper|Marksman) Rifle/, 'MULTI $1'],
+  ],
+  es: [
+    [/^Fusil de (Francotirador|Precisión)/, 'F. $1'],
+    [/^Cañ[oó]n Magnético Hiperrápido/, 'CMH'],
+    [/^Cañ[oó]n Portátil Automático/, 'Autocañón'],
+  ],
+};
 
-export function shortWeaponName(name) {
-  return SHORT_WEAPON.reduce((n, [re, to]) => n.replace(re, to), name ?? '');
+export function shortWeaponName(name, lang = 'en') {
+  return (SHORT_WEAPON[lang] ?? SHORT_WEAPON.en).reduce((n, [re, to]) => n.replace(re, to), name ?? '');
 }

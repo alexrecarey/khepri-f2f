@@ -7,12 +7,8 @@ import {isLieutenant} from '../../army/traits.js';
 import {isNonLethal} from '../../army/weapons.js';
 import {RANGE_BANDS} from '../../rules/ranges.js';
 
-export const REACH_GROUPS = [
-  ['long', 'Long range'],
-  ['mid', 'Mid range'],
-  ['close', 'Close'],
-  ['other', 'No ranged weapon'],
-];
+// Their names are src/i18n's reach.<key>.
+export const REACH_GROUPS = ['long', 'mid', 'close', 'other'];
 
 // Support kit doesn't say what a loadout is for: a Flash Pulse or a Disco
 // Baller reaches far but doesn't make a Combi Rifle loadout a long-range one.
@@ -44,12 +40,13 @@ export function reachGroup(army, weaponIds) {
 
 // Loadout hits -> [{key, name, items}] in REACH_GROUPS order, empty groups left out.
 export function groupLoadouts(army, hits) {
-  const by = new Map(REACH_GROUPS.map(([k]) => [k, []]));
+  const by = new Map(REACH_GROUPS.map((k) => [k, []]));
   for (const h of hits) by.get(reachGroup(army, h.weaponIds)).push(h);
-  return REACH_GROUPS.map(([key, name]) => ({key, name, items: by.get(key)})).filter((g) => g.items.length);
+  return REACH_GROUPS.map((key) => ({key, items: by.get(key)})).filter((g) => g.items.length);
 }
 
-// [['CC', 13], ['BS', 12], ...] for a unit's first profile in a faction.
+// [['CC', 13], ['BS', 12], ...] for a unit's first profile in a faction; the
+// names are English tokens, shown as src/i18n's stat.<name lower-cased>.
 export function statLine(army, unitId, armyFactionId) {
   const unit = unitById(army, unitId);
   if (!unit) return null;
@@ -145,7 +142,8 @@ function buildUnitDetail(army, unitId, armyFactionId) {
     crest: crestOf(unit, p),
     stats: [['MOV', (p.move ?? []).map((m) => Math.round(m / 2.5)).join('-')], ['CC', p.cc], ['BS', p.bs], ['PH', p.ph],
       ['WIP', p.wip], ['ARM', p.arm], ['BTS', p.bts], [p.str ? 'STR' : 'W', p.w], ['S', p.s]],
-    skills: (p.skills ?? []).map((sk) => (sk.extra?.length ? `${sk.name} (${sk.extra.join(', ')})` : sk.name)),
+    // The skills as the army lists them; army/traits.js traitLabel words them.
+    skills: p.skills ?? [],
   }));
   return {unit, profiles};
 }

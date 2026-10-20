@@ -4,11 +4,12 @@
 // with the matchup's numbers and headline (worker/preview.js).
 import {dispatch} from '../state/store.js';
 
-export async function shareLink() {
+// t: the toast's language (src/i18n).
+export async function shareLink(t) {
   try {
     await navigator.clipboard.writeText(window.location.href);
-    dispatch({type: 'toast', text: 'Link copied'});
+    dispatch({type: 'toast', text: t('share.copied')});
   } catch {
-    dispatch({type: 'toast', text: 'Could not copy the link'});
+    dispatch({type: 'toast', text: t('share.failed')});
   }
 }

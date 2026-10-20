@@ -7,8 +7,9 @@ import {AUTO, LANGUAGES, browserLanguages, languageChoice, resolveLanguage} from
 import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, GearIcon, InfoIcon} from './icons.jsx';
 import {MODES} from '../state/modes.js';
-import {HEADLINES, HEADLINE_HINTS, HEADLINE_NAMES, headlineChoice} from './headline.js';
+import {HEADLINES, headlineChoice} from './headline.js';
 import {Page, Sheet} from './Sheet.jsx';
+import {Rich, useT} from './i18n.jsx';
 
 /* global __APP_VERSION__, __ARMY_DATE__ */
 export const VERSION = typeof __APP_VERSION__ === 'undefined' ? 'dev' : __APP_VERSION__;
@@ -18,35 +19,36 @@ const back = () => dispatch({type: 'back'});
 const open = (overlay) => dispatch({type: 'openOverlay', overlay});
 
 export function Menu() {
+  const t = useT();
   const mode = useAppState((s) => s.mode);
   const savedCount = useAppState((s) => s.lists.saved.length);
   const item = (m, text) => (
     <button type="button" className="menu-item" onClick={() => dispatch({type: 'setMode', mode: m})} aria-pressed={mode === m}>
       <span className="dot" style={{color: mode === m ? 'var(--active)' : 'var(--faint)'}}>{mode === m ? '●' : '○'}</span>
       <span style={{flexGrow: 1, color: mode === m ? 'var(--text)' : 'var(--text-2)'}}>{text}</span>
-      {mode === m && <span className="note">opens next time</span>}
+      {mode === m && <span className="note">{t('menu.opensNextTime')}</span>}
     </button>
   );
   return (
-    <Sheet onClose={back} label="Menu">
-      <nav aria-label="App menu" style={{display: 'flex', flexDirection: 'column', margin: '-8px -8px 0'}}>
+    <Sheet onClose={back} label={t('menu.menu')}>
+      <nav aria-label={t('menu.appMenu')} style={{display: 'flex', flexDirection: 'column', margin: '-8px -8px 0'}}>
         <button type="button" className="menu-item" onClick={() => open('saved')}>
-          <span className="menu-ic"><BookmarkIcon /></span><span style={{flexGrow: 1}}>Saved rolls</span>
+          <span className="menu-ic"><BookmarkIcon /></span><span style={{flexGrow: 1}}>{t('menu.savedRolls')}</span>
           <span className="note" style={{fontSize: 14}}>{savedCount || ''}</span>
         </button>
         <div className="menu-sep" />
-        <span className="label" style={{padding: '10px 14px 4px'}}>Calculator</span>
-        {item(MODES.matchup, 'Matchup')}
-        {item(MODES.basic, 'Classic — type the numbers')}
+        <span className="label" style={{padding: '10px 14px 4px'}}>{t('menu.calculator')}</span>
+        {item(MODES.matchup, t('mode.matchup'))}
+        {item(MODES.basic, t('menu.classicLong'))}
         <div className="menu-sep" />
         <button type="button" className="menu-item" onClick={() => open('settings')}>
-          <span className="menu-ic"><GearIcon /></span><span>Settings</span>
+          <span className="menu-ic"><GearIcon /></span><span>{t('settings.title')}</span>
         </button>
         <button type="button" className="menu-item" onClick={() => open('about')}>
-          <span className="menu-ic"><InfoIcon /></span><span>About</span>
+          <span className="menu-ic"><InfoIcon /></span><span>{t('about.title')}</span>
         </button>
         <span className="note" style={{padding: '12px 14px 0', color: 'var(--faint)'}}>
-          {ARMY_DATE ? `Army data ${ARMY_DATE} · ` : ''}v{VERSION}
+          {ARMY_DATE ? `${t('about.armyData')} ${ARMY_DATE} · ` : ''}v{VERSION}
         </span>
       </nav>
     </Sheet>
@@ -54,22 +56,23 @@ export function Menu() {
 }
 
 // Settings shared by the phone page and the desktop dialog (DeskMenu.jsx).
-const confirmThen = (text, action, done) => () => {
-  if (window.confirm(text)) { dispatch(action); dispatch({type: 'toast', text: done}); }
+const confirmThen = (ask, action, done) => (t) => () => {
+  if (window.confirm(t(ask))) { dispatch(action); dispatch({type: 'toast', text: t(done)}); }
 };
-export const clearRecents = confirmThen('Clear recent troopers and factions?', {type: 'clearRecents'}, 'Recents cleared');
-export const clearSaved = confirmThen('Delete every saved roll? This cannot be undone.', {type: 'clearSaved'}, 'Saved rolls deleted');
+export const clearRecents = confirmThen('settings.clearRecentsAsk', {type: 'clearRecents'}, 'settings.recentsCleared');
+export const clearSaved = confirmThen('settings.deleteSavedAsk', {type: 'clearSaved'}, 'settings.savedDeleted');
 export const setHeadline = (value) => dispatch({type: 'setPref', key: 'headline', value});
 
 // The faction each side's picker starts on: "Last used" or a vanilla army.
 export function StartFaction({side, label, factions, className}) {
+  const t = useT();
   const start = useAppState((s) => s.prefs.startFaction) ?? {};
   const set = (value) => dispatch({type: 'setPref', key: 'startFaction', value: {...start, [side]: value === '' ? null : Number(value)}});
   return (
     <label className="setting">
       <span>{label}</span>
       <select className={className} value={start[side] ?? ''} onChange={(e) => set(e.target.value)}>
-        <option value="">Last used</option>
+        <option value="">{t('settings.lastUsed')}</option>
         {factions.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
       </select>
     </label>
@@ -80,52 +83,53 @@ StartFaction.propTypes = {side: PropTypes.string.isRequired, label: PropTypes.st
 
 // Automatic follows the browser; the option says which language that is.
 export function LanguageSetting() {
+  const t = useT();
   const choice = useAppState((s) => languageChoice(s.prefs));
   const detected = LANGUAGES[resolveLanguage(AUTO, browserLanguages())];
   const set = (value) => dispatch({type: 'setPref', key: 'language', value: value === AUTO ? null : value});
   return (
     <>
       <label className="setting">
-        <span>App language</span>
+        <span>{t('settings.appLanguage')}</span>
         <select value={choice} onChange={(e) => set(e.target.value)}>
-          <option value={AUTO}>Automatic ({detected})</option>
+          <option value={AUTO}>{t('settings.automatic', {language: detected})}</option>
           {Object.entries(LANGUAGES).map(([code, name]) => <option key={code} value={code}>{name}</option>)}
         </select>
       </label>
-      <span className="note">Unit, weapon and faction names follow it; the rest of the app is still in English.</span>
     </>
   );
 }
 
 export function SettingsPage({factions}) {
+  const t = useT();
   const prefs = useAppState((s) => s.prefs);
   return (
-    <Page title="Settings" className="from-menu" onBack={back}>
-      <div className="list-head" id="headline-head">Results card</div>
+    <Page title={t('settings.title')} className="from-menu" onBack={back}>
+      <div className="list-head" id="headline-head">{t('settings.resultsCard')}</div>
       <div role="radiogroup" aria-labelledby="headline-head">
         {HEADLINES.map((c) => (
           <label key={c} className="setting radio">
             <input type="radio" name="headline" value={c} checked={headlineChoice(prefs) === c}
               onChange={() => setHeadline(c)} />
-            <span className="radio-text"><span>{HEADLINE_NAMES[c]}</span><span className="note">{HEADLINE_HINTS[c]}</span></span>
+            <span className="radio-text"><span>{t(`headline.${c}`)}</span><span className="note">{t(`headline.${c}Hint`)}</span></span>
           </label>
         ))}
       </div>
-      <span className="note" style={{padding: '0 12px'}}>The big number on the results card; swipe the card sideways to change it there. The others are one swipe up.</span>
-      <div className="list-head">Starting factions</div>
-      <StartFaction side="A" label="Active side" factions={factions} />
-      <StartFaction side="B" label="Reactive side" factions={factions} />
-      <div className="list-head">Language</div>
+      <span className="note" style={{padding: '0 12px'}}>{t('settings.headlineNotePhone')}</span>
+      <div className="list-head">{t('settings.startingFactions')}</div>
+      <StartFaction side="A" label={t('settings.activeSide')} factions={factions} />
+      <StartFaction side="B" label={t('settings.reactiveSide')} factions={factions} />
+      <div className="list-head">{t('settings.language')}</div>
       <div className="lang-page"><LanguageSetting /></div>
-      <div className="list-head">Your data</div>
-      <button type="button" className="line-btn" onClick={clearRecents}>
-        <span>Clear recent troopers</span>
+      <div className="list-head">{t('settings.yourData')}</div>
+      <button type="button" className="line-btn" onClick={clearRecents(t)}>
+        <span>{t('settings.clearRecents')}</span>
       </button>
       <button type="button" className="line-btn" style={{color: 'var(--danger)'}}
-        onClick={clearSaved}>
-        <span>Delete all saved rolls</span>
+        onClick={clearSaved(t)}>
+        <span>{t('settings.deleteSaved')}</span>
       </button>
-      <span className="note" style={{padding: '4px 12px'}}>Saved rolls live only on this device.</span>
+      <span className="note" style={{padding: '4px 12px'}}>{t('settings.savedOnDevice')}</span>
     </Page>
   );
 }
@@ -133,45 +137,53 @@ export function SettingsPage({factions}) {
 SettingsPage.propTypes = {factions: PropTypes.array.isRequired};
 
 // About text shared by the phone page and the desktop dialog.
-export const MADE_BY = 'Made with ❤️ for the Infinity community by Khepri and Bebop.';
-export const AboutIntro = () => (
-  <>
-    <p>Face-to-face odds for Infinity N5. Odds are exact: every possible roll is counted, not simulated.</p>
-    <p>{MADE_BY}</p>
-  </>
-);
-export const AboutLinks = () => (
-  <>
-    <p>
-      <a href="https://github.com/alexrecarey/khepri-f2f">Source on GitHub</a>
-      {' · '}Powered by <a href="https://github.com/HighDiceRoller/icepool">icepool</a> by <a href="https://github.com/HighDiceRoller">HighDiceRoller</a>
-    </p>
-    {/* The classic calculator is the pre-Matchup app, frozen on branch n5classic. */}
-    <p>
-      Hate this new version? Go back to the <a href="https://n5classic.infinitythecalculator.com">Classic N5 calculator</a>!
-      {' · '}<a href="https://n4.infinitythecalculator.com">N4 calculator</a>
-    </p>
-  </>
-);
+const link = (href) => (text) => <a href={href}>{text}</a>;
+export function AboutIntro() {
+  const t = useT();
+  return (
+    <>
+      <p>{t('about.intro')}</p>
+      <p>{t('about.madeBy')}</p>
+    </>
+  );
+}
+export function AboutLinks() {
+  const t = useT();
+  return (
+    <>
+      <p>
+        <Rich text={t('about.source')} tags={{a: link('https://github.com/alexrecarey/khepri-f2f')}} />
+        {' · '}
+        <Rich text={t('about.poweredBy')} tags={{a: link('https://github.com/HighDiceRoller/icepool'), b: link('https://github.com/HighDiceRoller')}} />
+      </p>
+      {/* The classic calculator is the pre-Matchup app, frozen on branch n5classic. */}
+      <p>
+        <Rich text={t('about.classic')} tags={{a: link('https://n5classic.infinitythecalculator.com')}} />
+        {' · '}<a href="https://n4.infinitythecalculator.com">{t('about.n4')}</a>
+      </p>
+    </>
+  );
+}
 export const CONTACT_EMAIL = 'khepri@infinitythecalculator.com';
-export const AboutContact = () => (
-  <p>Bugs? Suggestions? Let me know at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
-);
-export const TRADEMARK = 'Infinity the Calculator is a fan made project with no affiliation to Corvus Belli. Thank you CB for being super supportive of fan projects like this one!';
+export function AboutContact() {
+  const t = useT();
+  return <p><Rich text={t('about.contact', {email: CONTACT_EMAIL})} tags={{a: link(`mailto:${CONTACT_EMAIL}`)}} /></p>;
+}
 
 export function AboutPage() {
+  const t = useT();
   return (
-    <Page title="About" className="from-menu" onBack={back}>
+    <Page title={t('about.title')} className="from-menu" onBack={back}>
       <div className="about">
         <span className="about-title">Infinity the Calculator</span>
         <AboutIntro />
         <AboutContact />
         <AboutLinks />
-        <p>{TRADEMARK}</p>
+        <p>{t('about.trademark')}</p>
         <p className="small-print">
-          Army data: Corvus Belli&apos;s Infinity Army{ARMY_DATE ? ` · ${ARMY_DATE}` : ''} (unofficial snapshot)<br />
-          Rules: N5<br />
-          App: v{VERSION}
+          {t('about.armyDataSnapshot', {date: ARMY_DATE ? ` · ${ARMY_DATE}` : ''})}<br />
+          {t('about.rules')}: N5<br />
+          {t('about.app')}: v{VERSION}
         </p>
       </div>
     </Page>

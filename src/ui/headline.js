@@ -5,11 +5,11 @@
 // leaves the card.
 import {HEADLINES} from '../state/headlines.js';
 import {pct} from './results.js';
+import {tEn} from '../i18n/index.js';
 
 // The choice itself lives in state (it is in the address too).
+// Their names and hints are src/i18n's headline.<choice> / headline.<choice>Hint.
 export {HEADLINES, headlineChoice} from '../state/headlines.js';
-export const HEADLINE_NAMES = {wpo: 'Wounds per order', win: 'Wins face to face', wound: 'At least one wound'};
-export const HEADLINE_HINTS = {wpo: 'Average wounds this order causes', win: 'Chance to win the roll', wound: 'Chance the target takes a wound'};
 
 // step +1 / -1, wrapping round: the swipe goes on past the last one.
 export const nextHeadline = (choice, step) =>
@@ -25,8 +25,8 @@ export const wpoText = (n) => (n == null ? '—' : n.toFixed(2));
 // ledger's sides ({A, B}, rules/ledger.js), to tell a Reset from a Dodge.
 // A side whose hits cause a State instead of wounds (Jammer: Isolated, Flash
 // Pulse: Stunned) shows the chance of that State in place of wounds per order
-// and at least one wound.
-export function headline(s, choice, params = null, sides = null) {
+// and at least one wound. t: the labels' language (src/i18n).
+export function headline(s, choice, params = null, sides = null, t = tEn) {
   const roles = ['active', 'reactive'];
   const wpo = s.unopposed ? {active: s.attacks.active.wpo, reactive: s.attacks.reactive.wpo} : s.wpo;
   const wounded = s.unopposed
@@ -36,8 +36,8 @@ export function headline(s, choice, params = null, sides = null) {
   const kind = fallback ? 'wound' : choice;
   const per = (f) => Object.fromEntries(roles.map((side) => [side, f(side)]));
   const letter = (side) => (side === 'active' ? 'A' : 'B');
-  const evading = (side) => (sides?.[letter(side)]?.kind === 'reset' ? 'resets'
-    : params?.[`ammo${letter(side)}`] === 'DODGE' ? 'dodges' : null);
+  const evading = (side) => (sides?.[letter(side)]?.kind === 'reset' ? t('headline.resets')
+    : params?.[`ammo${letter(side)}`] === 'DODGE' ? t('headline.dodges') : null);
   // The State's name, or null for a side that wounds.
   const stateOf = (side) => (s.states?.[side]?.length === 1 && s.states[side][0].state ? s.states[side][0].label : null);
   const value = per((side) => (kind === 'win' ? s.win[side] : stateOf(side) || kind === 'wound' ? wounded[side] : wpo[side]));
@@ -47,11 +47,11 @@ export function headline(s, choice, params = null, sides = null) {
     fallback,
     value,
     text: per((side) => (kind === 'wpo' && !stateOf(side) ? wpoText(value[side]) : pct(value[side]))),
-    label: per((side) => (kind === 'win' ? evading(side) ?? 'wins face to face'
-      : stateOf(side) ?? (kind === 'wpo' ? 'wounds / order' : 'at least one wound'))),
+    label: per((side) => (kind === 'win' ? evading(side) ?? t('headline.winsLabel')
+      : stateOf(side) ?? (kind === 'wpo' ? t('headline.wpoLabel') : t('headline.woundLabel')))),
     // The line under the bar: [left, right].
     small: kind === 'wpo'
-      ? [`${pct(wounded.active)} ${stateOf('active') ?? 'at least one wound'}`, pct(wounded.reactive)]
-      : [`${fallback ? 'Not face to face · ' : ''}${smallWpo('active')} ${stateOf('active') ?? 'wounds / order'}`, smallWpo('reactive')],
+      ? [`${pct(wounded.active)} ${stateOf('active') ?? t('headline.woundLabel')}`, pct(wounded.reactive)]
+      : [`${fallback ? `${t('headline.notFaceToFace')} · ` : ''}${smallWpo('active')} ${stateOf('active') ?? t('headline.wpoLabel')}`, smallWpo('reactive')],
   };
 }

@@ -20,18 +20,20 @@ import {Breakdown, ClassicBody, WoundBar} from './ResultsDetail.jsx';
 import {UnopposedCardBody, UnopposedSheetBody} from './Unopposed.jsx';
 import WpoRow from './WpoRow.jsx';
 import {StateBar, StateList, useStatesUi} from './WoundStates.jsx';
+import {useT} from './i18n.jsx';
 
 // Save and Share on the sheet's handle row. `save` = {saved, pending, toggle}
 // or null while there is nothing to save; pending, Save is disabled.
 // onShare: copies the link (ui/share.js).
 function SheetActions({save, onShare}) {
+  const t = useT();
   return (
     <>
       {save && (
-        <button type="button" className="icon-btn sm" aria-pressed={save.saved} aria-label={save.saved ? 'Saved; remove from saved rolls' : 'Save this roll'}
+        <button type="button" className="icon-btn sm" aria-pressed={save.saved} aria-label={save.saved ? t('results.unsave') : t('results.save')}
           disabled={save.pending} onClick={save.toggle} style={{color: save.saved ? 'var(--active)' : undefined}}><BookmarkIcon filled={save.saved} /></button>
       )}
-      <button type="button" className="icon-btn sm" aria-label="Share a link to this roll" onClick={onShare}><ShareIcon /></button>
+      <button type="button" className="icon-btn sm" aria-label={t('results.share')} onClick={() => onShare(t)}><ShareIcon /></button>
     </>
   );
 }
@@ -42,13 +44,14 @@ SheetActions.propTypes = {save: PropTypes.object, onShare: PropTypes.func.isRequ
 // a few seconds) the two dice roll at each other, bump and bounce back: the
 // face to face roll, before the maths. After that, recalculations shimmer.
 function EngineLoading({label}) {
+  const t = useT();
   return (
     <div className="engine-loading" role="status" aria-label={label}>
       <div className="clash">
         <span className="die-a"><D20 fill="var(--active)" /></span>
         <span className="die-b"><D20 fill="var(--reactive)" /></span>
       </div>
-      <span className="small">Icepool engine getting ready to roll…</span>
+      <span className="small">{t('results.engineLoading')}</span>
     </div>
   );
 }
@@ -59,12 +62,13 @@ EngineLoading.propTypes = {label: PropTypes.string};
 // die, or Ready in its own colour once that side is chosen. Nothing moves;
 // the empty slots above are what should catch the eye.
 const waitingFor = (picked) => (picked && !(picked.A && picked.B) ? picked : null);
-const waitMessage = (picked) => (!picked.A && !picked.B ? 'Choose both troopers to see the odds'
-  : !picked.A ? 'Choose the active trooper' : 'Choose the reactive trooper');
+const waitMessage = (picked, t) => t(!picked.A && !picked.B ? 'results.chooseBoth'
+  : !picked.A ? 'results.chooseActive' : 'results.chooseReactive');
 
 function SideWait({side, ready, size = ''}) {
+  const t = useT();
   return ready
-    ? <span className={`big ${size} c-${side} ready`}>Ready</span>
+    ? <span className={`big ${size} c-${side} ready`}>{t('results.ready')}</span>
     : <span className={`wait-die ${size}`}><D20 fill={`var(--${side})`} /></span>;
 }
 
@@ -76,9 +80,10 @@ function WaitRow({picked, size}) {
 
 // Who wins the Face to Face Roll, as one thin bar.
 function F2FBar({s, className = '', style}) {
+  const t = useT();
   return (
     <div className={`bar${className ? ` ${className}` : ''}`} style={style} role="img"
-      aria-label={`Face to face: active wins ${pct(s.win.active)}, nobody ${pct(s.win.none)}, reactive wins ${pct(s.win.reactive)}`}>
+      aria-label={t('results.f2fBar', {active: pct(s.win.active), none: pct(s.win.none), reactive: pct(s.win.reactive)})}>
       <span className="seg-a2" style={{width: `${100 * s.win.active}%`}} />
       <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
       <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`}} />
@@ -93,6 +98,7 @@ WaitRow.propTypes = {picked: PropTypes.object.isRequired, size: PropTypes.string
 // Desktop and tablet: the whole results panel in outline, so its shape is
 // there before the numbers are.
 function WaitPanel({picked}) {
+  const t = useT();
   const rows = (side, labels) => labels.map((l) => (
     <div key={`${side}${l}`} className="skel-row"><span>{l}</span><span className="skel" /><span>—%</span></div>
   ));
@@ -102,11 +108,13 @@ function WaitPanel({picked}) {
       <div className="skel" style={{height: 4}} />
       <div className="skel" style={{height: 40}} />
       <div className="skel-list">
-        <span className="label c-active">Active wins · —%</span>{rows('a', ['1+ wounds', '2+ wounds', '3+ wounds', 'all saved'])}
-        <span className="label">Nobody wins · —%</span>{rows('n', ['both fail'])}
-        <span className="label c-reactive">Reactive wins · —%</span>{rows('r', ['1+ wounds', '2+ wounds', 'all saved'])}
+        <span className="label c-active">{t('results.sideWins', {side: t('side.active')})} · —%</span>
+        {rows('a', [t('results.atLeast', {count: 1}), t('results.atLeast', {count: 2}), t('results.atLeast', {count: 3}), t('results.allSaved')])}
+        <span className="label">{t('results.nobodyWins')} · —%</span>{rows('n', [t('results.bothFail')])}
+        <span className="label c-reactive">{t('results.sideWins', {side: t('side.reactive')})} · —%</span>
+        {rows('r', [t('results.atLeast', {count: 1}), t('results.atLeast', {count: 2}), t('results.allSaved')])}
       </div>
-      <span className="empty">{waitMessage(picked)}</span>
+      <span className="empty">{waitMessage(picked, t)}</span>
     </>
   );
 }
@@ -120,13 +128,14 @@ WaitPanel.propTypes = {picked: PropTypes.object.isRequired};
 // bars are bigger and both bars show; app.css grows them with --open as the
 // sheet is dragged.
 function SheetTop({s, h, choice, classic, pending, status, picked, ui}) {
+  const t = useT();
   const wait = waitingFor(picked);
   if (wait) {
     return (
       <>
         <WaitRow picked={wait} />
         <div className="bar rs-wbar" style={{background: 'var(--none)'}} />
-        <div className="split"><span>{waitMessage(wait)}</span></div>
+        <div className="split"><span>{waitMessage(wait, t)}</span></div>
       </>
     );
   }
@@ -153,9 +162,10 @@ SheetTop.propTypes = {s: PropTypes.object, h: PropTypes.object, choice: PropType
 // finger) or tap the top to open, outside to close (useSheetGestures.js).
 // Swipe the top sideways (or arrow keys on it) for the next headline.
 export default function ResultsCard({s, status, diceLine, classic, ledger, save, pending, picked, params}) {
+  const t = useT();
   const ui = useStatesUi();
   const choice = useAppState((st) => headlineChoice(st.prefs));
-  const h = s ? headline(s, choice, params, ledger?.ledger) : null;
+  const h = s ? headline(s, choice, params, ledger?.ledger, t) : null;
   const swipe = (step) => setHeadline(nextHeadline(choice, step));
   const open = useAppState((st) => st.ui.overlay === 'results') && Boolean(s);
   const setOpen = (o) => dispatch(o ? {type: 'openOverlay', overlay: 'results'} : {type: 'back'});
@@ -174,7 +184,7 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
   return (
     <>
       <div className={`rscrim${open ? ' open' : ''}`} ref={g.scrimRef} onClick={() => setOpen(false)} />
-      <section className={`rsheet${open ? ' open' : ''}${classic ? ' classic' : ''}${h?.kind === 'win' ? ' hl-win' : ''}`} ref={g.sheetRef} aria-label="Results"
+      <section className={`rsheet${open ? ' open' : ''}${classic ? ' classic' : ''}${h?.kind === 'win' ? ' hl-win' : ''}`} ref={g.sheetRef} aria-label={t('results.title')}
         {...(open ? {role: 'dialog', 'aria-modal': true} : {})}>
         <div className="rs-head"><span /><span className="handle" /><span className="sheet-actions">{open && <SheetActions save={save} onShare={shareLink} />}</span></div>
         {/* Closed, the top is the card: a button that opens the sheet, its
@@ -189,12 +199,12 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
           },
         })}>
           <SheetTop s={s} h={h} choice={choice} classic={classic} pending={pending} status={status} picked={picked} ui={open ? ui : null} />
-          {!open && <span className="vh">Show full results. Left and right arrows change the big number.</span>}
+          {!open && <span className="vh">{t('results.openHint')}</span>}
         </div>
         {/* Below the top: only there for screen readers and keys while open. */}
         <div className="rs-rest" {...(open ? {} : {inert: '', 'aria-hidden': true})}>
           {s && (s.unopposed
-            ? <UnopposedSheetBody s={s} names={ledger?.names ?? {A: 'Active', B: 'Reactive'}} diceLine={diceLine} />
+            ? <UnopposedSheetBody s={s} names={ledger?.names ?? {A: t('side.active'), B: t('side.reactive')}} diceLine={diceLine} />
             : classic ? <ClassicBody s={s} woundBar={false} />
               : s.states ? <><StateBar s={s} ui={ui} glyphs="only" /><StateList s={s} ui={ui} /></> : <Breakdown s={s} />)}
           {s && ledger && !s.unopposed && <FaceToFaceChart params={params} names={ledger.labels} />}
@@ -209,12 +219,13 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
 
 // What the results say, wherever they are shown.
 function ResultsBody({s, classic, ledger, diceLine, pending, ui, params}) {
+  const t = useT();
   const choice = useAppState((st) => headlineChoice(st.prefs));
-  if (s.unopposed) return <UnopposedSheetBody s={s} names={ledger?.names ?? {A: 'Active', B: 'Reactive'}} diceLine={diceLine} />;
+  if (s.unopposed) return <UnopposedSheetBody s={s} names={ledger?.names ?? {A: t('side.active'), B: t('side.reactive')}} diceLine={diceLine} />;
   if (classic) return <ClassicBody s={s} />;
   return (
     <>
-      <Headline h={headline(s, choice, params, ledger?.ledger)} choice={choice} size="xl" pending={pending} buttons />
+      <Headline h={headline(s, choice, params, ledger?.ledger, t)} choice={choice} size="xl" pending={pending} buttons />
       <F2FBar s={s} style={{height: 4, borderRadius: 2}} />
       {s.states ? (
         <>
@@ -240,13 +251,14 @@ ResultsBody.propTypes = {
 // Tablet and desktop: the results in their own column, always open. The mods
 // go in another column (MatchupScreen).
 export function ResultsPanel({s, status, diceLine, classic, ledger, save, pending, picked, params}) {
+  const t = useT();
   const ui = useStatesUi();
   const choice = useAppState((st) => headlineChoice(st.prefs));
-  const h = s ? headline(s, choice, params, ledger?.ledger) : null;
+  const h = s ? headline(s, choice, params, ledger?.ledger, t) : null;
   const wait = waitingFor(picked);
   return (
-    <section className="results-panel" aria-label="Results">
-      <div className="panel-head"><span className="label">Results</span><span className="sheet-actions"><SheetActions save={save} onShare={shareLink} /></span></div>
+    <section className="results-panel" aria-label={t('results.title')}>
+      <div className="panel-head"><span className="label">{t('results.title')}</span><span className="sheet-actions"><SheetActions save={save} onShare={shareLink} /></span></div>
       {wait ? <WaitPanel picked={wait} />
         : s ? <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} pending={pending} ui={ui} params={params} />
         : pending ? <EngineLoading label={status} /> : <span className="empty">{status}</span>}

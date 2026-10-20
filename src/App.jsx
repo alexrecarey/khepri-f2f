@@ -6,6 +6,8 @@ import useEngine from "./engine/useEngine.js";
 import {useArmy} from "./data/army.js";
 import {dispatch, useAppState} from "./state/store.js";
 import {useLanguage} from "./state/language.js";
+import {useTranslator} from "./state/useTranslator.js";
+import {TProvider, useT} from "./ui/i18n.jsx";
 import useMatchupView from "./state/useMatchupView.js";
 import ClassicScreen from "./ui/ClassicScreen.jsx";
 import MatchupScreen from "./ui/MatchupScreen.jsx";
@@ -27,9 +29,13 @@ function App() {
   const layout = useLayout();
 
   const lang = useLanguage();
-  useEffect(() => { document.documentElement.lang = lang; }, [lang]);
+  const {t: base, ready} = useTranslator(lang);
+  useEffect(() => { document.documentElement.lang = base.lang; }, [base.lang]);
   const {army, error: armyError, retry: retryArmy} = useArmy(matchupMode, lang);
-  const view = useMatchupView(army);
+  // The army's own translations of the tokens the rules read (+1B, BS Mode),
+  // once the army is in the same language as the copy.
+  const t = useMemo(() => base.withTerms(army?.lang === base.lang ? army.terms : null), [base, army]);
+  const view = useMatchupView(army, t);
 
   // Shock is Matchup-only (it depends on the target's VITA); the classic
   // calculator has no input for it, so it never counts there. An incomplete
@@ -47,13 +53,17 @@ function App() {
   }), [matchupMode, view.complete, view.targets, engine.result, engineParams]);
   const dialogs = usesDialogs(layout);
 
+  // A first visit in another language waits for its copy (a small chunk)
+  // rather than flash English.
+  if (!ready) return null;
   return (
+    <TProvider value={t}>
     <div className={`app ${layout}`}>
       <header className="app-header">
-        <span className="wordmark">INFINITY THE CALCULATOR{!matchupMode && layout === 'phone' && <small> · CLASSIC</small>}</span>
+        <span className="wordmark">INFINITY THE CALCULATOR{!matchupMode && layout === 'phone' && <small> · {t('mode.classic').toLocaleUpperCase(t.lang)}</small>}</span>
         {layout !== 'phone' && (
-          <span className="mode-switch" role="group" aria-label="Calculator">
-            {[[MODES.matchup, 'Matchup'], [MODES.basic, 'Classic']].map(([m, name]) => (
+          <span className="mode-switch" role="group" aria-label={t('menu.calculator')}>
+            {[[MODES.matchup, t('mode.matchup')], [MODES.basic, t('mode.classic')]].map(([m, name]) => (
               <button type="button" key={m} className={mode === m ? 'on' : ''} aria-pressed={mode === m}
                 onClick={() => dispatch({type: 'setMode', mode: m})}>{name}</button>
             ))}
@@ -61,7 +71,7 @@ function App() {
         )}
         {dialogs
           ? <HeaderButtons />
-          : <button type="button" className="icon-btn" aria-label="Menu" onClick={() => dispatch({type: 'openOverlay', overlay: 'menu'})}><MoreIcon /></button>}
+          : <button type="button" className="icon-btn" aria-label={t('menu.menu')} onClick={() => dispatch({type: 'openOverlay', overlay: 'menu'})}><MoreIcon /></button>}
       </header>
       {matchupMode
         ? <MatchupScreen army={army} armyError={armyError} retryArmy={retryArmy} view={view} engine={engine} />
@@ -69,6 +79,7 @@ function App() {
       <Overlays dialogs={dialogs} results={results} />
       <Toast />
     </div>
+    </TProvider>
   )
 }
 

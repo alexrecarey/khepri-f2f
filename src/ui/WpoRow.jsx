@@ -3,10 +3,11 @@
 // headline, headline.js). The numbers themselves (a sliding value, a waiting
 // die) are the caller's; middle sits between them (the headline dots).
 import PropTypes from 'prop-types';
+import {useT} from './i18n.jsx';
 
-const WPO = {active: 'wounds / order', reactive: 'wounds / order'};
-
-export default function WpoRow({active, reactive, labels = WPO, middle = null}) {
+export default function WpoRow({active, reactive, labels: given = null, middle = null}) {
+  const t = useT();
+  const labels = given ?? {active: t('headline.wpoLabel'), reactive: t('headline.wpoLabel')};
   return (
     <div className="wpo-row">
       <div className="wpo">{active}<span className="small">{labels.active}</span></div>

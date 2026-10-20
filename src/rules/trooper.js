@@ -7,6 +7,7 @@ import {effectiveTraits, hasSkill, skillExtras} from '../army/traits.js';
 import {ammoTypes, bsWeapons, ccWeapons, hasAmmo, hasShockAmmo, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
 import {ccAttackSkill} from './closeCombat.js';
 import {bangbombValue, fireteamMax, fireteamSize} from './modifiers.js';
+import {tEn} from '../i18n/index.js';
 
 // What the trooper's BS Attack skill (profile, loadout or upgrade) does to
 // every weapon it makes a BS Attack with, templates and grenades included:
@@ -67,15 +68,15 @@ export function trooperCcWeapons(option, weapons, traits) {
 // Reset: every trooper has it; the card shows it only against a Comms Attack
 // (state/matchupView.js).
 export function pseudoWeapons(traits, side = 'B') {
-  const list = [{key: 'dodge', pseudo: 'dodge', label: 'Dodge'}];
-  if (bangbombValue(traits)) list.push({key: 'bangbomb', pseudo: 'dodge', bangbomb: true, label: 'Bangbomb'});
-  list.push({key: 'reset', pseudo: 'reset', label: 'Reset'});
-  if (side === 'B') list.push({key: 'none', pseudo: 'none', label: 'No ARO (unopposed)'});
+  const list = [{key: 'dodge', pseudo: 'dodge'}];
+  if (bangbombValue(traits)) list.push({key: 'bangbomb', pseudo: 'dodge', bangbomb: true});
+  list.push({key: 'reset', pseudo: 'reset'});
+  if (side === 'B') list.push({key: 'none', pseudo: 'none'});
   return list;
 }
 
-// Short name of a choice that is not a weapon.
-export const pseudoName = (w) => (w.pseudo === 'dodge' ? (w.bangbomb ? 'Bangbomb' : 'Dodge') : w.pseudo === 'reset' ? 'Reset' : 'No ARO');
+// Name of a choice that is not a weapon: "Dodge", "Bangbomb", "Reset", "No ARO".
+export const pseudoName = (w, t = tEn) => t(`pseudo.${w.bangbomb ? 'bangbomb' : w.pseudo}`);
 
 // Resolves a picker selection (ids) against the army data. The returned
 // profile has the loadout's stat overrides and any Team-Ops upgrades applied;

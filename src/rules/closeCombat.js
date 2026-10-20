@@ -8,6 +8,7 @@
 // them up and the ledger lists them, so a rule lives only in this file.
 import {SKILL} from '../army/ids.js';
 import {hasSkill, skillExtras} from '../army/traits.js';
+import {tEn} from '../i18n/index.js';
 
 // Martial Arts chart (N5). Levels are not cumulative: each row is the whole
 // bonus. `attack` is the user's own CC MOD, `opponent` the MOD on the
@@ -26,7 +27,7 @@ export const MARTIAL_ARTS = [
 export function martialArts(traits) {
   return [...MARTIAL_ARTS].reverse().find((m) => hasSkill(traits, m.id)) ?? null;
 }
-const maName = (ma) => `Martial Arts L${ma.level}`;
+const maName = (ma, t) => t('skill.martialArts', {level: ma.level});
 
 // Close Combat With Multiple Troopers: the trooper attacking gets +1 B for
 // each ally (trooper or Peripheral) in Silhouette contact with the target,
@@ -83,35 +84,35 @@ export const isCcAttack = (x) => Boolean(x?.weapon?.cc);
 
 // MODs to x's own CC Attack roll (before the opponent's). `active`: x is
 // the active side (Berserk).
-export function ccAttackMods(x, active) {
+export function ccAttackMods(x, active, t = tEn) {
   const {row} = x.weapon;
   const lines = [];
   if (usesBerserk(x, active)) {
     const mod = berserkMod(x.traits);
-    lines.push({value: mod, label: mod ? `Berserk (+${mod})` : 'Berserk'});
+    lines.push({value: mod, label: mod ? t('skill.berserkMod', {mod: `+${mod}`}) : t('skill.berserk')});
   }
   const ma = martialArts(x.traits);
-  if (ma?.attack) lines.push({value: ma.attack, label: maName(ma)});
+  if (ma?.attack) lines.push({value: ma.attack, label: maName(ma, t)});
   const skill = ccAttackSkill(x.traits);
-  if (skill.mod) lines.push({value: skill.mod, label: `CC Attack (+${skill.mod})`});
+  if (skill.mod) lines.push({value: skill.mod, label: t('skill.ccAttackMod', {mod: `+${skill.mod}`})});
   for (const p of row.props ?? []) {
     const m = /^CC Attack \(\+(\d+)\)$/.exec(p);
-    if (m) lines.push({value: Number(m[1]), label: `${row.name} (+${m[1]})`});
+    if (m) lines.push({value: Number(m[1]), label: t('weapon.withMod', {name: row.name, mod: `+${m[1]}`})});
   }
-  if ((row.props ?? []).includes('Improvised')) lines.push({value: IMPROVISED_MOD, label: 'Improvised'});
+  if ((row.props ?? []).includes('Improvised')) lines.push({value: IMPROVISED_MOD, label: t('cc.improvised')});
   return lines;
 }
 
 // MODs x's CC Attack puts on its opponent's Face to Face Roll: Martial Arts,
 // CC Attack (-X) and the weapon's own (-X) (PARA CC Weapon (-6)).
-export function ccOpposingMods(x) {
+export function ccOpposingMods(x, t = tEn) {
   const lines = [];
   const ma = martialArts(x.traits);
-  if (ma?.opponent) lines.push({value: ma.opponent, label: maName(ma)});
+  if (ma?.opponent) lines.push({value: ma.opponent, label: maName(ma, t)});
   const skill = ccAttackSkill(x.traits);
-  if (skill.opponent) lines.push({value: skill.opponent, label: `CC Attack (${skill.opponent})`});
+  if (skill.opponent) lines.push({value: skill.opponent, label: t('skill.ccAttackMod', {mod: skill.opponent})});
   const weapon = x.weapon.mods?.opponent ?? 0;
-  if (weapon) lines.push({value: weapon, label: `${x.weapon.name} (${weapon})`});
+  if (weapon) lines.push({value: weapon, label: t('weapon.withMod', {name: x.weapon.name, mod: weapon})});
   return lines;
 }
 
@@ -123,29 +124,30 @@ export const naturalBornWarrior = (x, y) =>
 
 // x's CC Burst against y, as lines: the weapon's B, then the loadout's and
 // the CC Attack skill's +B in the Active Turn only (in ARO the Burst is 1),
-// Martial Arts' +1 B and the allies in contact in both turns.
-export function ccBurst(x, active, y) {
+// Martial Arts' +1 B and the allies in contact in both turns. The ARO line
+// is the rules' own (aro: true), not x's.
+export function ccBurst(x, active, y, t = tEn) {
   const {row, mods} = x.weapon;
   const lines = [{value: row.burst ?? 1, label: x.weapon.name}];
   const extra = (mods?.burst ?? 0) + ccAttackSkill(x.traits).burst;
-  if (extra) lines.push({value: extra, label: 'loadout / CC Attack'});
+  if (extra) lines.push({value: extra, label: t('cc.loadoutOrCcAttack')});
   if (!active) {
     const base = lines.reduce((t, l) => t + l.value, 0);
-    if (base !== 1) lines.push({value: 1 - base, label: 'ARO: one die'});
+    if (base !== 1) lines.push({value: 1 - base, label: t('ledger.aroOneDie'), aro: true});
   }
   const ma = martialArts(x.traits);
-  if (ma?.burst) lines.push({value: ma.burst, label: maName(ma)});
+  if (ma?.burst) lines.push({value: ma.burst, label: maName(ma, t)});
   const allies = ccAllies(x, y);
-  if (allies) lines.push({value: allies, label: `${allies} ${allies === 1 ? 'ally' : 'allies'} in contact`});
+  if (allies) lines.push({value: allies, label: t('cc.alliesInContact', {count: allies})});
   return lines;
 }
 
 // x's Special Dice in CC: Martial Arts L3 / L5 (both turns). Fireteam
 // bonuses are for BS Attacks only.
-export function ccSd(x) {
+export function ccSd(x, t = tEn) {
   const ma = martialArts(x.traits);
   const lines = [];
-  if (ma?.sd) lines.push({value: ma.sd, label: maName(ma)});
-  if (x.weapon.mods?.sd) lines.push({value: x.weapon.mods.sd, label: 'loadout'});
+  if (ma?.sd) lines.push({value: ma.sd, label: maName(ma, t)});
+  if (x.weapon.mods?.sd) lines.push({value: x.weapon.mods.sd, label: t('ledger.loadout')});
   return lines;
 }

@@ -3,6 +3,7 @@
 // Classic ladders.
 import PropTypes from 'prop-types';
 import {pct, shows} from './results.js';
+import {useT} from './i18n.jsx';
 
 const wpo = (n) => (n == null ? '—' : n.toFixed(2));
 
@@ -38,11 +39,12 @@ WoundBar.propTypes = {summary: PropTypes.object.isRequired, height: PropTypes.nu
 // each side's wounds per order and its at-least ladder, nobody wounded between.
 // woundBar false: the phone sheet already shows the wound bar at its top.
 export function ClassicBody({s, woundBar = true}) {
+  const t = useT();
   const ladder = (side, cls, name) => (
     <div className="ladder">
-      <div className={`ladder-h c-${side}`}><b>{wpo(s.wpo[side])}</b><span>{name} wounds / order</span></div>
+      <div className={`ladder-h c-${side}`}><b>{wpo(s.wpo[side])}</b><span>{t('classic.sideWpo', {side: name})}</span></div>
       {s.atLeast[side].map((p, i) => (shows(p) ? (
-        <div key={i} className="ladder-r"><i className={`${cls}${i + 1}`} /><span>{i + 1} or more wounds</span><span className="p">{pct(p)}</span></div>
+        <div key={i} className="ladder-r"><i className={`${cls}${i + 1}`} /><span>{t('classic.orMore', {count: i + 1})}</span><span className="p">{pct(p)}</span></div>
       ) : null))}
     </div>
   );
@@ -50,28 +52,29 @@ export function ClassicBody({s, woundBar = true}) {
   return (
     <>
       <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
-        <span className="label">Face to face</span>
+        <span className="label">{t('results.faceToFace')}</span>
         <div className="bar labelled" style={{height: 28, borderRadius: 7}}>
           <span className="seg-a2" style={{width: `${100 * s.win.active}%`, color: 'var(--active-ink)'}}>{big(s.win.active) ? pct(s.win.active) : ''}</span>
           <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
           <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`, color: 'var(--reactive-ink)'}}>{big(s.win.reactive) ? pct(s.win.reactive) : ''}</span>
         </div>
-        <div className="split"><span>Active wins</span><span>{pct(s.win.none)} nobody</span><span>Reactive wins</span></div>
+        <div className="split"><span>{t('results.sideWins', {side: t('side.active')})}</span><span>{t('classic.nobody', {p: pct(s.win.none)})}</span>
+          <span>{t('results.sideWins', {side: t('side.reactive')})}</span></div>
       </div>
       {woundBar && (
         <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
-          <span className="label">Wounds</span>
+          <span className="label">{t('classic.wounds')}</span>
           <WoundBar summary={s} height={28} labels />
         </div>
       )}
-      {ladder('active', 'seg-a', 'Active')}
+      {ladder('active', 'seg-a', t('side.active'))}
       <div className="ladder">
-        <div className="label">Nobody wounded</div>
-        <div className="ladder-r"><i className="seg-none edged" /><span>Neither side causes a wound</span><span className="p">{pct(s.bar[3].chance)}</span></div>
-        {shows(s.saved.active) && <div className="ladder-r sub"><span>Active wins, every hit saved</span><span className="p">{pct(s.saved.active)}</span></div>}
-        {shows(s.saved.reactive) && <div className="ladder-r sub"><span>Reactive wins, every hit saved</span><span className="p">{pct(s.saved.reactive)}</span></div>}
+        <div className="label">{t('results.nobodyWounded')}</div>
+        <div className="ladder-r"><i className="seg-none edged" /><span>{t('classic.neither')}</span><span className="p">{pct(s.bar[3].chance)}</span></div>
+        {shows(s.saved.active) && <div className="ladder-r sub"><span>{t('classic.winsAllSaved', {side: t('side.active')})}</span><span className="p">{pct(s.saved.active)}</span></div>}
+        {shows(s.saved.reactive) && <div className="ladder-r sub"><span>{t('classic.winsAllSaved', {side: t('side.reactive')})}</span><span className="p">{pct(s.saved.reactive)}</span></div>}
       </div>
-      {ladder('reactive', 'seg-r', 'Reactive')}
+      {ladder('reactive', 'seg-r', t('side.reactive'))}
     </>
   );
 }
@@ -82,6 +85,7 @@ ClassicBody.propTypes = {s: PropTypes.object.isRequired, woundBar: PropTypes.boo
 // (cumulative, so the rows overlap) and every hit saved. Anything that never
 // happens is left out.
 export function Breakdown({s}) {
+  const t = useT();
   // Bars share one track, so 100% fills it.
   const row = (k, chance, cls) => (shows(chance) ? (
     <div className="row" key={`${cls}-${k}`}>
@@ -91,19 +95,19 @@ export function Breakdown({s}) {
     </div>
   ) : null);
   const ladder = (side, cls) => [
-    ...s.atLeast[side].map((p, i) => row(`${i + 1}+ wounds`, p, `${cls}${i + 1}`)),
-    row('all saved', s.saved[side], 'seg-none'),
+    ...s.atLeast[side].map((p, i) => row(t('results.atLeast', {count: i + 1}), p, `${cls}${i + 1}`)),
+    row(t('results.allSaved'), s.saved[side], 'seg-none'),
   ];
   const head = (text, cls, first) => <div className={`label ${cls}`} style={{padding: first ? '0 0 4px' : '14px 0 6px'}}>{text}</div>;
   return (
     <div className="breakdown">
-      {shows(s.win.active) && head(`Active wins the roll · ${pct(s.win.active)}`, 'c-active', true)}
+      {shows(s.win.active) && head(`${t('results.sideWinsRoll', {side: t('side.active')})} · ${pct(s.win.active)}`, 'c-active', true)}
       {shows(s.win.active) && ladder('active', 'seg-a')}
-      {shows(s.win.none) && head(`Nobody wins · ${pct(s.win.none)}`, '', !shows(s.win.active))}
-      {row('both fail', s.win.none, 'seg-none n')}
-      {shows(s.win.reactive) && head(`Reactive wins the roll · ${pct(s.win.reactive)}`, 'c-reactive', false)}
+      {shows(s.win.none) && head(`${t('results.nobodyWins')} · ${pct(s.win.none)}`, '', !shows(s.win.active))}
+      {row(t('results.bothFail'), s.win.none, 'seg-none n')}
+      {shows(s.win.reactive) && head(`${t('results.sideWinsRoll', {side: t('side.reactive')})} · ${pct(s.win.reactive)}`, 'c-reactive', false)}
       {shows(s.win.reactive) && ladder('reactive', 'seg-r')}
-      <span className="note" style={{paddingTop: 8}}>1+ / 2+ / 3+ = at least that many wounds, so they overlap</span>
+      <span className="note" style={{paddingTop: 8}}>{t('results.overlapNote')}</span>
     </div>
   );
 }

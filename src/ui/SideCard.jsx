@@ -2,13 +2,17 @@
 // situation chips), or the empty slot that asks for one.
 import PropTypes from 'prop-types';
 import {FIRETEAM_MIN} from '../rules/modifiers.js';
-import {ROLE, SIDE_NAME} from '../state/schema.js';
+import {ROLE} from '../state/schema.js';
 import {dispatch} from '../state/store.js';
 import {CountChip, PickChip} from './Chips.jsx';
 import {CardCrest} from './Crest.jsx';
 import {SiteMark} from './icons.jsx';
 import Plasma from './Plasma.jsx';
 import WeaponButtons from './WeaponButtons.jsx';
+import {Rich, useT} from './i18n.jsx';
+
+// "ACTIVE" / "REACTIVE" over a card, in t's language.
+export const sideLabel = (t, side) => t(`side.${ROLE[side]}`).toLocaleUpperCase(t.lang);
 
 const patch = (side, p) => dispatch({type: 'patchSide', side, patch: p});
 
@@ -17,23 +21,24 @@ const patch = (side, p) => dispatch({type: 'patchSide', side, patch: p});
 // behind it draws the eye to what is still missing. Tapping anywhere on the
 // card opens the search (the button covers the card, app.css).
 export function EmptySlot({side, recents, onOpenPicker, onPick, hint}) {
+  const t = useT();
   const color = ROLE[side];
   return (
-    <section className={`card slot ${color}`} data-side={side} aria-label={`${color} trooper`}>
+    <section className={`card slot ${color}`} data-side={side} aria-label={t('side.trooper', {side: t(`side.${color}`)})}>
       <Plasma cssVar={`--${color}`} seed={side === 'A' ? 0 : 40} />
       <button type="button" className="slot-open" onClick={onOpenPicker}>
         <span className="slot-die"><SiteMark fill={`var(--${color})`} /></span>
-        <span className={`role ${color}`}>{SIDE_NAME[side].toUpperCase()}</span>
-        <span className="slot-title">Choose a trooper</span>
+        <span className={`role ${color}`}>{sideLabel(t, side)}</span>
+        <span className="slot-title">{t('side.choose')}</span>
       </button>
       {recents.length > 0 && (
-        <div className="slot-chips" role="group" aria-label="Recent troopers">
+        <div className="slot-chips" role="group" aria-label={t('side.recent')}>
           {recents.map((h) => (
             <button type="button" key={h.rowId} className="chip" onClick={() => onPick(h)}>{h.unit}</button>
           ))}
         </div>
       )}
-      {hint && <span className="slot-hint">or press <kbd>{side === 'A' ? 'A' : 'R'}</kbd> to search</span>}
+      {hint && <span className="slot-hint"><Rich text={t('side.pressKey', {key: side === 'A' ? 'A' : 'R'})} tags={{kbd: (k) => <kbd>{k}</kbd>}} /></span>}
     </section>
   );
 }
@@ -44,19 +49,20 @@ EmptySlot.propTypes = {
 };
 
 export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
+  const t = useT();
   const color = ROLE[side];
   const {sel, resolved, groups, cc, ccAlliesMax, noCover, surprise, berserk, teamOps, faction, crest, short, loadout} = view[side];
   const unit = resolved?.unit;
   const option = resolved?.option;
 
   return (
-    <section className="card" data-side={side} aria-label={`${color} trooper`}>
+    <section className="card" data-side={side} aria-label={t('side.trooper', {side: t(`side.${color}`)})}>
       <CardCrest slug={crest} />
       <button type="button" className="unit-btn" onClick={onOpenPicker}>
-        <span className={`role ${color}`}>{SIDE_NAME[side].toUpperCase()}</span>
+        <span className={`role ${color}`}>{sideLabel(t, side)}</span>
         {unit
           ? <span className="unit-name">{short}{loadout ? ` · ${loadout}` : ''} <span className="faction">{faction} ›</span></span>
-          : <span className="unit-empty">Choose a trooper ›</span>}
+          : <span className="unit-empty">{t('side.choose')} ›</span>}
       </button>
       {option && <WeaponButtons side={side} groups={groups} selected={sel.weaponKey} color={color} />}
       {unit && (
@@ -65,13 +71,13 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
           {!noCover && (
             <button type="button" className={`chip${sel.inCover && !resolved.sapper ? ` on ${color}` : ''}`} aria-pressed={sel.inCover && !resolved.sapper}
               onClick={() => patch(side, {inCover: !(sel.inCover && !resolved.sapper), sapper: false})}>
-              {sel.inCover && !resolved.sapper ? 'Cover ✓' : '+ Cover'}
+              {sel.inCover && !resolved.sapper ? `${t('chip.cover')} ✓` : `+ ${t('chip.cover')}`}
             </button>
           )}
           {resolved.canSapper && (
             <button type="button" className={`chip${resolved.sapper ? ` on ${color}` : ''}`} aria-pressed={resolved.sapper}
               onClick={() => patch(side, {sapper: !resolved.sapper, inCover: false})}>
-              {resolved.sapper ? 'Sapper ✓' : '+ Sapper'}
+              {resolved.sapper ? `${t('chip.sapper')} ✓` : `+ ${t('chip.sapper')}`}
             </button>
           )}
           {/* Team-Ops: one pick from the unit's chart and one TacBall item;
@@ -86,28 +92,28 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
             </>
           )}
           {/* Fireteams only: the size of the team, 1 = none. */}
-          <CountChip side={side} chip="ftSize" label="Fireteam" value={resolved.ftSize} min={FIRETEAM_MIN} max={resolved.ftMax} none={1} color={color} />
+          <CountChip side={side} chip="ftSize" label={t('chip.fireteam')} value={resolved.ftSize} min={FIRETEAM_MIN} max={resolved.ftMax} none={1} color={color} />
           {/* CC Attack: allies in contact with the target, +1 B each. */}
           {cc && (
-            <CountChip side={side} chip="ccAllies" label="Allies" value={Math.min(resolved.ccAllies, ccAlliesMax)} min={1} max={ccAlliesMax}
+            <CountChip side={side} chip="ccAllies" label={t('chip.allies')} value={Math.min(resolved.ccAllies, ccAlliesMax)} min={1} max={ccAlliesMax}
               none={0} color={color} />
           )}
           {berserk && (
             <button type="button" className={`chip${sel.berserk ? ` on ${color}` : ''}`} aria-pressed={sel.berserk}
               onClick={() => patch(side, {berserk: !sel.berserk})}>
-              {sel.berserk ? `Berserk${berserk.mod ? ` (+${berserk.mod})` : ''} ✓` : '+ Berserk'}
+              {sel.berserk ? `${berserk.mod ? t('skill.berserkMod', {mod: `+${berserk.mod}`}) : t('skill.berserk')} ✓` : `+ ${t('skill.berserk')}`}
             </button>
           )}
           {surprise !== 0 && (
             <button type="button" className={`chip${sel.surpriseAttack ? ` on ${color}` : ''}`} aria-pressed={sel.surpriseAttack}
               onClick={() => patch(side, {surpriseAttack: !sel.surpriseAttack})}>
-              {sel.surpriseAttack ? `Surprise attack (${surprise}) ✓` : '+ Surprise attack'}
+              {sel.surpriseAttack ? `${t('chip.surpriseAttackMod', {mod: surprise})} ✓` : `+ ${t('roll.surpriseAttack')}`}
             </button>
           )}
         </div>
       )}
       {resolved?.unsupportedUpgradeWeapons?.length > 0 && (
-        <span className="note">Not rolled: {resolved.unsupportedUpgradeWeapons.join(', ')}</span>
+        <span className="note">{t('side.notRolled', {weapons: resolved.unsupportedUpgradeWeapons.join(', ')})}</span>
       )}
     </section>
   );

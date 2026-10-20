@@ -8,6 +8,7 @@ import {bandColor, signedMod as signed} from './bands.js';
 import RangeScale, {SplitChip} from './RangeScale.jsx';
 import {ZoneChips, ZoneMarks, zoneText} from './RangeZones.jsx';
 import {weaponText} from './WeaponButtons.jsx';
+import {useT} from './i18n.jsx';
 
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
@@ -35,11 +36,11 @@ function flipSwap(run) {
 }
 
 // "Missile Launcher (Hit)", "Dodge": what the footer's Range MOD belongs to.
-const weaponName = (side) => {
+const weaponName = (side, t) => {
   const w = side.resolved?.weapon;
   if (!w) return '—';
-  if (w.pseudo) return pseudoName(w);
-  return weaponText(w);
+  if (w.pseudo) return pseudoName(w, t);
+  return weaponText(w, t);
 };
 
 const bandIndex = (cm) => Math.max(0, RANGE_BANDS.findIndex((b) => b.to === cm));
@@ -54,6 +55,7 @@ const span = (i) => `${i ? RANGE_BANDS[i - 1].inches : 0}–${RANGE_BANDS[i].inc
 // distance; Split range gives each its own (RangeScale), as when the reactive
 // answers from somewhere else.
 export default function RangeSelector({view}) {
+  const t = useT();
   const open = useAppState((st) => st.ui.rangeOpen);
   const rangeCm = useAppState((st) => st.matchup.rangeCm);
   const rangeCmB = useAppState((st) => st.matchup.rangeCmB ?? null);
@@ -77,13 +79,13 @@ export default function RangeSelector({view}) {
   // Open, a tap anywhere outside the selector closes it (the scrim).
   return (
     <>
-    {open && <button type="button" className="range-scrim" aria-label="Close range" onClick={() => setOpen(false)} />}
+    {open && <button type="button" className="range-scrim" aria-label={t('range.close')} onClick={() => setOpen(false)} />}
     {/* Both sides in close combat: the distance changes nothing, so it dims. */}
     <div className={`range${open ? ' open' : ''}${view.rangeUnused ? ' unused' : ''}`}
-      title={view.rangeUnused ? 'Close combat: range has no effect' : undefined}>
+      title={view.rangeUnused ? t('range.unused') : undefined}>
       <div className="collapse" style={{maxHeight: open ? 48 : 0, opacity: open ? 1 : 0}} aria-hidden={!open}>
         <div className="range-head">
-          <span className="label">Range</span>
+          <span className="label">{t('range.title')}</span>
           <button type="button" className="range-close" onClick={() => setOpen(false)} tabIndex={open ? 0 : -1}>
             {split ? <><span className="c-active">{span(selected)}</span> <span className="c-reactive">{span(selB)}</span></> : span(selected)} ⌃
           </button>
@@ -91,12 +93,12 @@ export default function RangeSelector({view}) {
       </div>
       <div className="range-row">
         {split ? <RangeScale bands={view.bands} open={open} selA={selected} selB={selB} /> : (
-        <div className="bands" role="group" aria-label="Range">
+        <div className="bands" role="group" aria-label={t('range.title')}>
           {/* The selected band's highlight glides to the tapped band. */}
           <span className="band-pill" aria-hidden="true" style={{left: `calc(${selected} * 100% / ${RANGE_BANDS.length})`, width: `calc(100% / ${RANGE_BANDS.length})`}} />
           {RANGE_BANDS.map((b, i) => (
             <button type="button" key={b.to} className={`band${i === selected ? ' on' : ''}`} aria-pressed={i === selected}
-              aria-label={`${b.label}: active ${signed(view.bands[i].A)}, reactive ${signed(view.bands[i].B)}`}
+              aria-label={t('range.band', {band: b.label, active: signed(view.bands[i].A), reactive: signed(view.bands[i].B)})}
               onClick={() => dispatch({type: 'setRange', rangeCm: b.to, open: true})}>
               <span className="stripe" style={{background: open ? bandColor(view.bands[i].A) : 'transparent'}} />
               <span className="dist">{i === selected ? `${b.inches}"` : b.inches}</span>
@@ -106,13 +108,13 @@ export default function RangeSelector({view}) {
         </div>
         )}
         <ZoneMarks zones={view.zones} open={open} />
-        <button type="button" className="icon-btn swap" aria-label="Swap active and reactive" onClick={() => flipSwap(() => dispatch({type: 'swapSides'}))}>⇅</button>
+        <button type="button" className="icon-btn swap" aria-label={t('range.swap')} onClick={() => flipSwap(() => dispatch({type: 'swapSides'}))}>⇅</button>
       </div>
       <div className="collapse" style={{maxHeight: open ? 104 : 0, opacity: open ? 1 : 0}} aria-hidden={!open}>
         <div className="range-foot">
           <div className="mods">
-            <span className="c-active">{weaponName(view.A)} <b>{signed(modA)}</b><small>{vis && zoneText(vis.A)}</small></span>
-            <span className="c-reactive">{weaponName(view.B)} <b>{signed(modB)}</b><small>{vis && zoneText(vis.B)}</small></span>
+            <span className="c-active">{weaponName(view.A, t)} <b>{signed(modA)}</b><small>{vis && zoneText(vis.A, t)}</small></span>
+            <span className="c-reactive">{weaponName(view.B, t)} <b>{signed(modB)}</b><small>{vis && zoneText(vis.B, t)}</small></span>
           </div>
           <div className="key">
             <span><i style={{background: 'var(--band-plus)'}} />+3</span>

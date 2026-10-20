@@ -2,6 +2,7 @@
 // (ui.edit names which), a pick or × closes it.
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
+import {useT} from './i18n.jsx';
 
 const patch = (side, p) => dispatch({type: 'patchSide', side, patch: p});
 
@@ -15,6 +16,7 @@ function useEditing(side, chip) {
 // tapped, one button per value from `min` to `max` and × for none (`none`).
 // Hidden when nothing above `none` is possible.
 export function CountChip({side, chip, label, value, min, max, none, color}) {
+  const t = useT();
   const [editing, setEditing] = useEditing(side, chip);
   const set = (n) => { patch(side, {[chip]: n}); setEditing(false); };
   if (max < min) return null;
@@ -27,7 +29,7 @@ export function CountChip({side, chip, label, value, min, max, none, color}) {
         {values.map((n) => (
           <button type="button" key={n} className={`n${n === value ? ' on' : ''}`} onClick={() => set(n)}>{n}</button>
         ))}
-        <button type="button" className="n" aria-label={`No ${label.toLowerCase()}`} onClick={() => set(none)}>×</button>
+        <button type="button" className="n" aria-label={t('chip.none', {label})} onClick={() => set(none)}>×</button>
       </span>
     );
   }
@@ -46,6 +48,7 @@ CountChip.propTypes = {
 // "Team-Ops: BS+1"; tapped, one button per option and × for none. `value` is
 // the picked index or null; onPick gets the same. Hidden with no options.
 export function PickChip({side, chip, label, options, value, onPick, color}) {
+  const t = useT();
   const [editing, setEditing] = useEditing(side, chip);
   const pick = (i) => { onPick(i); setEditing(false); };
   if (options.length === 0) return null;
@@ -57,7 +60,7 @@ export function PickChip({side, chip, label, options, value, onPick, color}) {
         {options.map((o, i) => (
           <button type="button" key={i} className={`opt${i === value ? ' on' : ''}`} aria-pressed={i === value} onClick={() => pick(i)}>{o}</button>
         ))}
-        <button type="button" className="n" aria-label={`No ${label}`} onClick={() => pick(null)}>×</button>
+        <button type="button" className="n" aria-label={t('chip.none', {label})} onClick={() => pick(null)}>×</button>
       </span>
     );
   }

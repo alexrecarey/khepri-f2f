@@ -11,6 +11,7 @@ import {useState, useSyncExternalStore} from 'react';
 import PropTypes from 'prop-types';
 import {StateGlyph} from './icons.jsx';
 import {pct, shows} from './results.js';
+import {useT} from './i18n.jsx';
 
 const ORDERS = 3;
 const overOrders = (p) => 1 - (1 - p) ** ORDERS;
@@ -64,6 +65,7 @@ const dimRow = (cur, side, index) => {
 // glyph row: the phone sheet draws the bar in its top and the glyphs below).
 // ui null: a plain bar (the closed phone card, where a tap opens the sheet).
 export function StateBar({s, ui, glyphs = false, className = '', style}) {
+  const t = useT();
   const cur = useUiState(ui);
   const segs = s.stateBar.filter((b) => shows(b.chance));
   let x = 0;
@@ -74,9 +76,9 @@ export function StateBar({s, ui, glyphs = false, className = '', style}) {
     x += 100 * b.chance;
   }
   const tip = (b) => {
-    if (b.side === 'none') return `Nobody wounded · ${pct(b.chance)}`;
+    if (b.side === 'none') return `${t('results.nobodyWounded')} · ${pct(b.chance)}`;
     const st = s.states[b.side][b.index];
-    return `${st.label} · exactly ${pct(st.exactly)} · at least ${pct(st.atLeast)}`;
+    return t('results.stateTip', {state: st.label, exactly: pct(st.exactly), atLeast: pct(st.atLeast)});
   };
   const hov = (b) => (ui && b.side !== 'none' ? {
     onMouseEnter: () => ui.setHover({kind: 'seg', side: b.side, index: b.index}),
@@ -85,7 +87,7 @@ export function StateBar({s, ui, glyphs = false, className = '', style}) {
   } : {});
   return (
     <>
-      {glyphs !== 'only' && <div className={`bar sbar ${className}`} style={style} role="img" aria-label="Wounds by state">
+      {glyphs !== 'only' && <div className={`bar sbar ${className}`} style={style} role="img" aria-label={t('results.woundsByState')}>
         {segs.map((b) => (
           <span key={`${b.side}${b.key}`} className={`sseg${b.side === 'none' ? ' seg-none' : ''}${dimSeg(cur, b) ? ' dim' : ''}`}
             style={{width: `${100 * b.chance}%`, background: b.shade ?? undefined}} title={tip(b)} {...hov(b)} />
@@ -105,6 +107,7 @@ export function StateBar({s, ui, glyphs = false, className = '', style}) {
 StateBar.propTypes = {s: PropTypes.object.isRequired, ui: PropTypes.object, glyphs: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]), className: PropTypes.string, style: PropTypes.object};
 
 function StateRow({st, side, ui, cur}) {
+  const t = useT();
   const id = `${side}:${st.key}`;
   const segHover = cur.hover?.kind === 'seg' && cur.hover.side === side && cur.hover.index === st.index;
   const rowHover = cur.hover?.kind === 'row' && cur.hover.side === side && cur.hover.index === st.index;
@@ -117,11 +120,11 @@ function StateRow({st, side, ui, cur}) {
       onFocus={() => ui.setHover({kind: 'row', side, index: st.index})} onBlur={() => ui.setHover(null)}
       onClick={() => ui.setOpen(cur.open === id ? null : id)}>
       <span className={`c-${side}`}><StateGlyph glyph={st.glyph} /></span>
-      <span className={`k${st.key === 'dead' ? ' dead' : ''}`}>{st.label}{st.shock && <span className="stag">Shock</span>}</span>
+      <span className={`k${st.key === 'dead' ? ' dead' : ''}`}>{st.label}{st.shock && <span className="stag">{t('ammo.SHOCK')}</span>}</span>
       <span className="track"><span className="b" style={{width: `max(2px, ${100 * st.atLeast}%)`, background: st.shade}} /></span>
       <span className="ex">{pct(st.exactly)}</span>
       <span className="p">{pct(st.atLeast)}</span>
-      {more && <span className="more">{pct(st.atLeast)} this order · {pct(overOrders(st.atLeast))} over {ORDERS} orders</span>}
+      {more && <span className="more">{t('results.overOrders', {now: pct(st.atLeast), over: pct(overOrders(st.atLeast)), orders: ORDERS})}</span>}
     </div>
   );
 }
@@ -129,20 +132,21 @@ function StateRow({st, side, ui, cur}) {
 StateRow.propTypes = {st: PropTypes.object.isRequired, side: PropTypes.string.isRequired, ui: PropTypes.object.isRequired, cur: PropTypes.object.isRequired};
 
 export function StateList({s, ui}) {
+  const t = useT();
   const cur = useUiState(ui);
   const head = (side, text) => (
     <button type="button" className={`shead${cur.focus && cur.focus !== side ? ' dim' : ''}`} aria-pressed={cur.focus === side}
       onClick={() => ui.setFocus(cur.focus === side ? null : side)}>
-      <span className={`t c-${side}`}>{text}</span><span className="lab">Exactly</span><span className="lab">At least</span>
+      <span className={`t c-${side}`}>{text}</span><span className="lab">{t('results.exactly')}</span><span className="lab">{t('results.atLeastHead')}</span>
     </button>
   );
   const rows = (side) => s.states[side].filter((st) => shows(st.atLeast)).map((st) => <StateRow key={st.key} st={st} side={side} ui={ui} cur={cur} />);
   return (
     <div className="slist">
-      {shows(s.win.active) && head('active', `Active wins · ${pct(s.win.active)}`)}
+      {shows(s.win.active) && head('active', `${t('results.sideWins', {side: t('side.active')})} · ${pct(s.win.active)}`)}
       {shows(s.win.active) && rows('active')}
-      {shows(s.win.none) && <div className={`shead static${cur.focus ? ' dim' : ''}`}><span className="t">Nobody wins · {pct(s.win.none)}</span></div>}
-      {shows(s.win.reactive) && head('reactive', `Reactive wins · ${pct(s.win.reactive)}`)}
+      {shows(s.win.none) && <div className={`shead static${cur.focus ? ' dim' : ''}`}><span className="t">{t('results.nobodyWins')} · {pct(s.win.none)}</span></div>}
+      {shows(s.win.reactive) && head('reactive', `${t('results.sideWins', {side: t('side.reactive')})} · ${pct(s.win.reactive)}`)}
       {shows(s.win.reactive) && rows('reactive')}
     </div>
   );

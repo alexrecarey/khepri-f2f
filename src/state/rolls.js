@@ -15,9 +15,11 @@ import {RANGE_BANDS} from '../rules/ranges.js';
 import {shortIsc, shortWeaponName} from '../army/names.js';
 import {DEFAULT_PARAMS} from '../engine/params.js';
 import {MODES} from './modes.js';
-import {ZONES, ZONE_NAME} from '../rules/visibility.js';
+import {classicAmmoKey} from './classicView.js';
+import {ZONES, zoneName} from '../rules/visibility.js';
 import {pseudoName} from '../rules/trooper.js';
 import {DEFAULT_RANGE_CM, EMPTY_SIDE, NO_ZONES} from './schema.js';
+import {tEn} from '../i18n/index.js';
 
 const pct0 = (p) => `${Math.round(100 * p)}%`;
 const shortUnit = (unit) => shortIsc(unit.isc);
@@ -52,53 +54,54 @@ function chances(s) {
   return {ap: pct0(s.win.active), rp: pct0(s.win.reactive)};
 }
 
-function weaponShort(w) {
+function weaponShort(w, t) {
   if (!w) return '';
-  if (w.pseudo) return pseudoName(w);
+  if (w.pseudo) return pseudoName(w, t);
   // A CC Mode says so: "Kobra Pistol (CC)", not the same as its shot.
-  return `${shortWeaponName(w.name)}${w.cc && w.mode ? ' (CC)' : ''}`;
+  return `${shortWeaponName(w.name, t.lang)}${w.cc && w.mode ? ` (${t('abbr.CC')})` : ''}`;
 }
 
 // What a side's situation says, for the saved-rolls line and the share card.
 // A sapper's cover is its Foxhole, so it never says Cover as well.
 const inFoxhole = (x) => Boolean(x.resolved.sapper);
 const inCover = (x) => x.sel.inCover && !x.resolved.sapper;
-const fireteam = (x) => (x.resolved.ftSize > 1 ? `Fireteam ${x.resolved.ftSize}` : null);
+const fireteam = (x, t) => (x.resolved.ftSize > 1 ? t('ledger.fireteam', {size: x.resolved.ftSize}) : null);
 const surprise = (x, role) => role === 'A' && x.sel.surpriseAttack;
 const berserk = (x, role) => usesBerserk(x.resolved, role === 'A');
 // Allies in contact, as the CC Attack counts them (closeCombat.js ccAllies).
-const allies = (x, y) => {
+const allies = (x, y, t) => {
   const n = x.cc ? ccAllies(x.resolved, y.resolved) : 0;
-  return n ? `${n} ${n === 1 ? 'ally' : 'allies'}` : null;
+  return n ? t('roll.allies', {count: n}) : null;
 };
 // Team-Ops picks by their chart labels: "Team-Ops: BS+1", "TacBall: Jammer".
 const teamOps = (x) => {
-  const t = x.teamOps;
-  if (!t) return [];
+  const ops = x.teamOps;
+  if (!ops) return [];
   const at = (list, i) => (i != null ? list[i] : null);
-  return [at(t.chart, x.sel.upgrade) && `Team-Ops: ${at(t.chart, x.sel.upgrade)}`, at(t.ball, x.sel.ball) && `TacBall: ${at(t.ball, x.sel.ball)}`];
+  return [at(ops.chart, x.sel.upgrade) && `Team-Ops: ${at(ops.chart, x.sel.upgrade)}`, at(ops.ball, x.sel.ball) && `TacBall: ${at(ops.ball, x.sel.ball)}`];
 };
 const bandAt = (cm) => RANGE_BANDS.find((b) => b.to === cm)?.label ?? null;
 // '24-32"', or each side's when the range is split: '24-32" / 32-40"';
 // 'Close combat' when both are in CC (no range plays a part).
-const rangeText = (view) => {
-  if (view.rangeUnused) return 'Close combat';
+const rangeText = (view, t) => {
+  if (view.rangeUnused) return t('roll.closeCombat');
   return view.rangeCmB == null ? bandAt(view.rangeCm) : `${bandAt(view.rangeCm)} / ${bandAt(view.rangeCmB)}`;
 };
 // Smoke / White Noise between them, by name.
-const zoneNames = (view) => ZONES.filter((z) => view.zones?.[z]).map((z) => ZONE_NAME[z]);
+const zoneNames = (view, t) => ZONES.filter((z) => view.zones?.[z]).map((z) => zoneName(z, t));
 
-// view: matchupView(); s: results.js summarize()
-export function matchupRollSummary(view, s) {
+// view: matchupView(); s: results.js summarize(). The summary is saved as
+// text, in the language it was saved in.
+export function matchupRollSummary(view, s, t = tEn) {
   const {A, B} = view;
-  const bits = [rangeText(view), ...zoneNames(view)];
-  if (inFoxhole(A) || inFoxhole(B)) bits.push('Foxhole');
-  if (inCover(A) || inCover(B)) bits.push('Cover');
-  for (const x of [A, B]) bits.push(fireteam(x), ...teamOps(x));
-  bits.push(allies(A, B), allies(B, A));
-  if (surprise(A, 'A')) bits.push('Surprise attack');
-  if (berserk(A, 'A')) bits.push('Berserk');
-  const [au, aw, ru, rw] = [shortUnit(A.resolved.unit), weaponShort(A.resolved.weapon), shortUnit(B.resolved.unit), weaponShort(B.resolved.weapon)];
+  const bits = [rangeText(view, t), ...zoneNames(view, t)];
+  if (inFoxhole(A) || inFoxhole(B)) bits.push(t('skill.foxhole'));
+  if (inCover(A) || inCover(B)) bits.push(t('roll.cover'));
+  for (const x of [A, B]) bits.push(fireteam(x, t), ...teamOps(x));
+  bits.push(allies(A, B, t), allies(B, A, t));
+  if (surprise(A, 'A')) bits.push(t('roll.surpriseAttack'));
+  if (berserk(A, 'A')) bits.push(t('skill.berserk'));
+  const [au, aw, ru, rw] = [shortUnit(A.resolved.unit), weaponShort(A.resolved.weapon, t), shortUnit(B.resolved.unit), weaponShort(B.resolved.weapon, t)];
   return {
     a: `${au} · ${aw}`,
     r: `${ru} · ${rw}`,
@@ -114,32 +117,32 @@ export function matchupRollSummary(view, s) {
 
 // The share card for a complete matchup (src/share/card.js): who rolls, with
 // what and how, plus the headline the sender sees. h: ui/headline.js headline().
-export function matchupShareCard(view, h) {
+export function matchupShareCard(view, h, t = tEn) {
   const side = (role, key) => {
     const x = view[role];
-    const situation = [inFoxhole(x) && 'Foxhole', inCover(x) && 'Cover', fireteam(x), allies(x, view[role === 'A' ? 'B' : 'A']),
-      surprise(x, role) && 'Surprise attack', berserk(x, role) && 'Berserk', ...teamOps(x)];
+    const situation = [inFoxhole(x) && t('skill.foxhole'), inCover(x) && t('roll.cover'), fireteam(x, t), allies(x, view[role === 'A' ? 'B' : 'A'], t),
+      surprise(x, role) && t('roll.surpriseAttack'), berserk(x, role) && t('skill.berserk'), ...teamOps(x)];
     return {
       n: h.text[key], l: h.label[key],
-      u: shortUnit(x.resolved.unit), w: weaponShort(x.resolved.weapon), s: situation.filter(Boolean).join(', '),
+      u: shortUnit(x.resolved.unit), w: weaponShort(x.resolved.weapon, t), s: situation.filter(Boolean).join(', '),
       c: x.crest ?? '',
     };
   };
-  return {k: h.kind, nf: h.fallback, x: [rangeText(view), ...zoneNames(view)].filter(Boolean).join(' · '), a: side('A', 'active'), b: side('B', 'reactive')};
+  return {k: h.kind, nf: h.fallback, x: [rangeText(view, t), ...zoneNames(view, t)].filter(Boolean).join(' · '), a: side('A', 'active'), b: side('B', 'reactive')};
 }
 
-const classicDice = (p, side) => {
+const classicDice = (p, side, t) => {
   const sd = p[`bonusBurst${side}`];
-  return `B${p[`burst${side}`]}${sd ? `+${sd}` : ''} SV${p[`successValue${side}`]} PS${p[`damage${side}`]}`;
+  return `${t('abbr.B')}${p[`burst${side}`]}${sd ? `+${sd}` : ''} ${t('abbr.SV')}${p[`successValue${side}`]} ${t('abbr.PS')}${p[`damage${side}`]}`;
 };
 
-export function classicRollSummary(params, s) {
+export function classicRollSummary(params, s, t = tEn) {
   return {
-    a: 'Active',
-    r: 'Reactive',
-    ad: classicDice(params, 'A'),
-    rd: classicDice(params, 'B'),
-    setup: [params.ammoA, params.ammoB].join(' vs '),
+    a: t('side.active'),
+    r: t('side.reactive'),
+    ad: classicDice(params, 'A', t),
+    rd: classicDice(params, 'B', t),
+    setup: [params.ammoA, params.ammoB].map((a) => (classicAmmoKey(a) ? t(classicAmmoKey(a)) : a)).join(` ${t('roll.vs')} `),
     ...chances(s),
   };
 }

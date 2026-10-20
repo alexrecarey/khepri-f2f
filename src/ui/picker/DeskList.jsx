@@ -7,7 +7,8 @@ import {words} from '../../search/text.js';
 import {crestForRow} from '../../army/crests.js';
 import {RowCrest} from '../Crest.jsx';
 import LoadFailed from '../LoadFailed.jsx';
-import {TYPE_NAMES} from './constants.js';
+import {typeName} from './constants.js';
+import {useT} from '../i18n.jsx';
 import {unitDetail} from './loadouts.js';
 import {setCursor} from './useDeskPicker.js';
 
@@ -25,16 +26,17 @@ function Highlight({text, query}) {
 
 Highlight.propTypes = {text: PropTypes.string.isRequired, query: PropTypes.string.isRequired};
 
-const REASON = {[TIER.TYPO1]: 'close match', [TIER.SOUND]: 'sounds like', [TIER.TYPO2]: 'close match'};
+const REASON = {[TIER.TYPO1]: 'picker.closeMatch', [TIER.SOUND]: 'picker.soundsLike', [TIER.TYPO2]: 'picker.closeMatch'};
 
 // "BS12 ARM1 W1" for a unit's first profile.
-function shortStats(detail) {
+function shortStats(detail, t) {
   const st = Object.fromEntries(detail?.profiles[0]?.stats ?? []);
-  return detail ? `BS${st.BS} ARM${st.ARM} ${st.STR != null ? 'STR' : 'W'}${st.STR ?? st.W}` : '';
+  return detail ? `${t('stat.bs')}${st.BS} ${t('stat.arm')}${st.ARM} ${t(st.STR != null ? 'stat.str' : 'stat.w')}${st.STR ?? st.W}` : '';
 }
 
 // m: useDeskPicker(); loadError: retry for a search index that failed.
 export default function DeskList({m, loadError}) {
+  const t = useT();
   const {searcher, army, typing, query, items, rows, current, at, factionName, pick, matched} = m;
   // The arrow keys move the highlight; keep it in view.
   useEffect(() => {
@@ -42,11 +44,11 @@ export default function DeskList({m, loadError}) {
   }, [current != null, at]); // eslint-disable-line react-hooks/exhaustive-deps
   let i = -1;
   return (
-    <div className="dp-list" id="dp-list" role="listbox" aria-label="Troopers">
+    <div className="dp-list" id="dp-list" role="listbox" aria-label={t('picker.troopers')}>
       {!searcher && (loadError
-        ? <LoadFailed what="the trooper list" onRetry={loadError} className="empty" />
-        : <span className="empty">Loading units…</span>)}
-      {searcher && typing && rows.length === 0 && <span className="empty">Nothing matches “{query}”</span>}
+        ? <LoadFailed what={t('load.trooperList')} onRetry={loadError} className="empty" />
+        : <span className="empty">{t('picker.loading')}</span>)}
+      {searcher && typing && rows.length === 0 && <span className="empty">{t('picker.nothingMatches', {query})}</span>}
       {items.map((x, k) => {
         if (x.kind === 'head') return <span key={`h${k}`} className="dp-head">{x.text}</span>;
         i += 1;
@@ -59,27 +61,27 @@ export default function DeskList({m, loadError}) {
             <div key={`r${x.hit.rowId}`} id={`dp-row-${idx}`} role="option" aria-selected={on} className={`dp-row${on ? ' on' : ''}`}
               onClick={select} onDoubleClick={() => pick(x.hit)}>
               <RowCrest slug={crestForRow(army, x.hit)} />
-              <span className="t">{x.hit.unit} · {x.hit.weapon}</span><span className="s">{shortStats(d)}</span>
+              <span className="t">{x.hit.unit} · {x.hit.weapon}</span><span className="s">{shortStats(d, t)}</span>
               <span className="sub">{factionName(x.hit.factionId)}</span>
             </div>
           );
         }
         const d = unitDetail(army, x.u.unitId, null);
-        const reason = REASON[x.u.tier];
+        const reason = REASON[x.u.tier] && t(REASON[x.u.tier]);
         return (
           <div key={`u${x.u.unitId}${x.away ? 'x' : ''}`} id={`dp-row-${idx}`} role="option" aria-selected={on}
             className={`dp-row${on ? ' on' : ''}`} onClick={select} onDoubleClick={() => (x.u.best ? pick(x.u.best) : select())}>
             <RowCrest slug={d?.profiles[0]?.crest} />
             <span className="t"><Highlight text={x.u.short} query={query} />{x.away ? ` · ${factionName(x.factionId)}` : ''}</span>
-            <span className="s">{shortStats(d)}</span>
-            <span className="sub">{TYPE_NAMES[x.u.type] ?? x.u.type ?? ''}{reason && <span className="reason"> · {reason}</span>}</span>
+            <span className="s">{shortStats(d, t)}</span>
+            <span className="sub">{typeName(t, x.u.type)}{reason && <span className="reason"> · {reason}</span>}</span>
           </div>
         );
       })}
       {typing && matched > rows.length && (
-        <span className="dp-hint">Showing {rows.length} of {matched} · keep typing to narrow it down</span>
+        <span className="dp-hint">{t('picker.showing', {shown: rows.length, matched})}</span>
       )}
-      {rows.length > 0 && <span className="dp-hint"><kbd>↑↓</kbd> move <kbd>→</kbd> into loadouts <kbd>↵</kbd> pick</span>}
+      {rows.length > 0 && <span className="dp-hint"><kbd>↑↓</kbd> {t('keys.move')} <kbd>→</kbd> {t('keys.intoLoadouts')} <kbd>↵</kbd> {t('keys.pick')}</span>}
     </div>
   );
 }
