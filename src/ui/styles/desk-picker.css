@@ -48,6 +48,11 @@ b.hl { color: var(--text); background: #2e4a40; border-radius: 3px; padding: 0 1
 .dp-stats b { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
 .dp-skills { font-size: var(--fs-small); color: var(--faint); line-height: 1.5; }
 .dp-loadouts { display: flex; flex-direction: column; gap: 2px; }
+/* A unit with several profile groups: a section per group (DeskDetail ProfileSections). */
+.dp-group { display: flex; flex-direction: column; gap: 8px; }
+.dp-group + .dp-group { border-top: 1px solid var(--surface-3); padding-top: 16px; }
+.dp-group-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.dp-group-head h3 { margin: 0; font-size: 17px; font-weight: 600; }
 .dp-loadout { padding: 8px 12px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; }
 .dp-loadout:hover { background: var(--hover); }
 .dp-loadout.on.active { background: var(--active-tint); box-shadow: inset 3px 0 var(--active); }
