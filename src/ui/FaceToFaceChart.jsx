@@ -43,7 +43,7 @@ export default function FaceToFaceChart({params, names}) {
   return (
     <section className="f2f-break" aria-label="Face to face breakdown">
       <span className="label">Face to face breakdown</span>
-      <p className="f2f-lead">Chance of obtaining the best die. The higher best die wins the roll, equal cancel.</p>
+      <p className="f2f-lead">Chance of obtaining the best die. The higher best die wins the roll, equal cancel. The bright part of the bar is when that best die wins.</p>
       <div className="f2f-chart" role="img" aria-label={summary} style={{'--cols': b.readings.length}}>
         <span className="f2f-name c-active">{names.A} · {dice(b.active.dice)}</span>
         <Bars side="active" best={b.active.best} scale={scale} />
