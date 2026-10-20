@@ -18,6 +18,7 @@ correct them before merging.
 | ARO | ORA | wiki |
 | No ARO | Sin ORA | **check** |
 | Active / Reactive (side) | Activo / Reactivo; Turno Activo / Reactivo | wiki |
+| Active trooper (picker title, aria) | Tropa (Activo); could be "Tropa activa / reactiva" (needs a key per side) | **check** |
 | Critical | Crítico | wiki |
 | MOD | MOD | wiki |
 | Line of Fire (LoF) | LDT ("Sin LDT") | wiki |
@@ -50,10 +51,10 @@ correct them before merging.
 | Immunity / Vulnerability | Inmunidad / Vulnerabilidad | Army |
 | Nanoscreen | Nanopantalla | Army |
 | Albedo, Firewall, Bangbomb, Fireteam, Team-Ops, TacBall | unchanged | Army |
-| Continuous Damage | Daño Continuo (the Army writes "Contínuo") | **check** spelling |
+| Continuous Damage | Daño Continuo; the Army writes "Daño Contínuo", which shows where its own extras are used, so one note can have both | **check** spelling |
 | Direct / Impact Template | Plantilla Directa / Plantilla Terminal | wiki |
 | Blast / Hit Mode | Modo Expansivo / Modo Impacto; "Expansiva" after the ammo in a dice line | Army; **check** |
-| Improvised | Improvisada | **check** |
+| Improvised | Improvisado | Army |
 | Non-lethal | No Letal | Army |
 | Stun ammunition | Aturdidora | Army |
 | Unconscious / Dead | Inconsciente / Muerto | wiki |
@@ -84,3 +85,18 @@ word ("Lanzamisiles", "Lanzagranadas"), so those stay as they are.
 
 The "+DE" quick search types "+SD": "de" is in almost every Spanish name, so
 the index marks Special Dice as "sd" in every language.
+
+## Known gaps and open questions
+
+- A loadout's Viral ammo builds the weapon name as "Viral <name>"
+  (`withAmmoExtra`), so Spanish reads "Viral Fusil Combi"; the Army writes
+  "Fusil Combi Viral".
+- Weapon properties have no Spanish table yet, so a Spanish Immunity note
+  can say "Bioweapon (DA+SHOCK)". `scripts/army-names.mjs` already pairs the
+  weapon rows; adding a `props` map there would fix it.
+- Numbers keep the decimal point (56.8%); only the roll count uses Spanish
+  grouping (64.000.000). Decimal comma ("56,8 %") or not?
+- The unit type abbreviations (`army.terms.types`: IL, IM, IP, BAT) come with
+  the army, but no screen shows type abbreviations today.
+- Attributes are in the copy (`stat.*`), not read from the army: the Classic
+  screen has no army loaded. A test pins them to `names.es.json`.
