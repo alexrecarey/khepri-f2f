@@ -10,8 +10,9 @@ import {matchupView} from '../src/state/matchupView.js';
 import {matchupShareCard} from '../src/state/rolls.js';
 import {NO_ZONES} from '../src/state/schema.js';
 import {stateFromUrl} from '../src/state/url.js';
-import {HEADLINES, headline} from '../src/ui/headline.js';
-import {HEADLINE_PARAM, LINK_HEADLINE} from '../src/share/card.js';
+import {headline} from '../src/ui/headline.js';
+import {LINK_HEADLINE} from '../src/share/card.js';
+import {HEADLINES, HEADLINE_PARAM} from '../src/state/headlines.js';
 import {summarize} from '../src/ui/results.js';
 
 // The card for search ("?mode=..") given the army data and the engine's
@@ -22,7 +23,7 @@ export function cardFromSetup(search, army, engine) {
   const view = matchupView(army, {...NO_ZONES, ...matchup});
   if (!view.complete) return null;
   const s = summarize(calculate(view.params, engine), view.targets);
-  // The sender's headline when the Share button put it in, else the default.
+  // The headline the sender saw (the address carries it), else the default.
   const asked = new URLSearchParams(search).get(HEADLINE_PARAM);
   const choice = HEADLINES.includes(asked) ? asked : LINK_HEADLINE;
   return s && matchupShareCard(view, headline(s, choice, view.params, view.ledger?.ledger));

@@ -18,11 +18,8 @@
 //            c: 'squalos-mk-ii-1-1'}}  unit crest slug (src/army/crests.js) or ''
 
 export const CARD_PARAM = 'card';
-// The headline a link's card shows (ui/headline.js HEADLINES): the Share
-// button adds the sender's pick; a link without one (copied from the address
-// bar) shows LINK_HEADLINE. The app itself ignores it: the receiver keeps
-// their own setting.
-export const HEADLINE_PARAM = 'headline';
+// The headline for a link from before the address carried one
+// (state/headlines.js HEADLINE_PARAM).
 export const LINK_HEADLINE = 'wound';
 export const SHARE_PATH = '/s';
 const KINDS = ['wpo', 'win', 'wound'];

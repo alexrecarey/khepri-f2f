@@ -158,6 +158,14 @@ test('matchup state round-trips through the URL', () => {
   assert.deepEqual(back.matchup, s.matchup);
 });
 
+test('a Matchup address carries the headline the player sees; opening one keeps their own', () => {
+  const s = run(initialState(), {type: 'setSide', side: 'A', sel: fennec});
+  assert.equal(new URLSearchParams(urlFromState(s)).get('headline'), 'wpo');
+  const win = run(s, {type: 'setPref', key: 'headline', value: 'win'});
+  assert.equal(new URLSearchParams(urlFromState(win)).get('headline'), 'win');
+  assert.equal(stateFromUrl(urlFromState(win)).prefs, undefined);
+});
+
 test('classic state round-trips through the URL, defaults left out', () => {
   const s = run(initialState(), {type: 'setMode', mode: 'basic'},
     {type: 'setClassic', key: 'burstA', value: 5}, {type: 'setClassic', key: 'ammoB', value: 'EXP'});

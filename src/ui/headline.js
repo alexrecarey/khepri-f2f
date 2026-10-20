@@ -3,14 +3,13 @@
 // to Face Roll, or the chance to cause at least one wound. The small line
 // under the bar carries what the headline gave up, so wounds per order never
 // leaves the card.
+import {HEADLINES} from '../state/headlines.js';
 import {pct} from './results.js';
 
-export const HEADLINES = ['wpo', 'win', 'wound'];
+// The choice itself lives in state (it is in the address too).
+export {HEADLINES, headlineChoice} from '../state/headlines.js';
 export const HEADLINE_NAMES = {wpo: 'Wounds per order', win: 'Wins face to face', wound: 'At least one wound'};
 export const HEADLINE_HINTS = {wpo: 'Average wounds this order causes', win: 'Chance to win the roll', wound: 'Chance the target takes a wound'};
-
-// The stored pref, or the default for anything missing or unknown.
-export const headlineChoice = (prefs) => (HEADLINES.includes(prefs?.headline) ? prefs.headline : 'wpo');
 
 // step +1 / -1, wrapping round: the swipe goes on past the last one.
 export const nextHeadline = (choice, step) =>
