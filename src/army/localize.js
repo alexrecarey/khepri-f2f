@@ -99,7 +99,7 @@ export function withNames(core, names, lang = 'en') {
       }),
     }]));
     // `code`: the English ISC, kept in other languages for search.
-    const out = {...unit, isc: n.isc, name: n.name, ...(n.code ? {code: n.code, tag: n.tag} : {}), byFaction};
+    const out = {...unit, isc: n.isc, name: n.name, ...(n.code ? {code: n.code} : {}), byFaction};
     if (unit.upgrades) {
       const items = (list, labels) => list.map(({attrs}, i) => ({
         label: labels[i],

@@ -11,8 +11,8 @@ const COLOR = {A: 'var(--active)', B: 'var(--reactive)'};
 const signed = (v, first) => (typeof v !== 'number' || first || v === 0 ? `${v}` : `${v > 0 ? '+' : '−'}${Math.abs(v)}`);
 
 // lines: the section's lines; base: the source of the starting line ("profile",
-// the weapon) when no side caused it. tags: each side's unit in one word, as
-// the narrow source column fits it ("Fennec", "Teutón"; src/army/names.js).
+// the weapon) when no side caused it. tags: each side's trooper as the
+// narrow source column names it ("Fennec", "Hac Tao"; src/army/names.js).
 function Section({title, lines, total, abbr, base, tags}) {
   const t = useT();
   // Keyed by what the line is, so a line struck or added on a change keeps
