@@ -1,12 +1,15 @@
 // The shareable slices of the state document <-> the URL query string. The
 // address bar always shows the current setup, so copying it is a share link.
-//   Matchup:  ?mode=matchup&unitA=..&weaponA=..&range=..  (matchup/matchupParams.js)
+//   Matchup:  ?mode=matchup&unitA=..&weaponA=..&range=..&headline=wpo  (matchup/matchupParams.js;
+//             headline: the card's big number, for the link's preview (headlines.js),
+//             once a trooper is picked
 //   Classic:  ?mode=basic&burstA=4&successValueA=14&psA=12..  (engine/params.js; defaults left out)
 // Classic links carry the save each side forces as one number, the way the
 // Classic screen shows it: psA = A's weapon PS + B's ARM, psBtsA = PS + B's
 // BTS (Plasma only). Older links with damageA / armB / btsB still load.
 import {DEFAULT_PARAMS, PARAM_KEYS, parseParams} from '../engine/params.js';
 import {decodeMatchup, encodeMatchup} from '../matchup/matchupParams.js';
+import {HEADLINE_PARAM, headlineChoice} from './headlines.js';
 import {MODES} from './modes.js';
 import {armSave, btsSave, classicSave} from './classicView.js';
 import {DEFAULT_RANGE_CM, EMPTY_SIDE} from './schema.js';
@@ -64,6 +67,8 @@ export function urlFromState(state) {
     const {A, B, rangeCm, rangeCmB, smoke, whiteNoise} = state.matchup;
     const enc = encodeMatchup({selA: A, selB: B, ftSize: {A: A.ftSize, B: B.ftSize}, rangeCm, rangeCmB, zones: {smoke, whiteNoise}});
     for (const [k, v] of Object.entries(enc)) q.set(k, v);
+    // Only a link with troopers has a card to show it on.
+    if (Object.keys(enc).length) q.set(HEADLINE_PARAM, headlineChoice(state.prefs));
   } else {
     const c = state.classic;
     for (const k of PARAM_KEYS) {
