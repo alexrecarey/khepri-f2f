@@ -1,15 +1,20 @@
 // The search scoreboard: how often typo'd unit names still find the right
 // unit. Run after any change to the matcher, aliases or thresholds:
-//   yarn search-eval            summary
-//   yarn search-eval --misses   plus every query that missed the top 5
+//   yarn search-eval              summary
+//   yarn search-eval --misses     plus every query that missed the top 5
+//   yarn search-eval --lang es    the Spanish index and its hard cases
 import {readFileSync} from 'node:fs';
+import {splitNames, withNames} from '../src/army/localize.js';
 import {buildIndex} from '../src/search/buildIndex.js';
 import {createSearch} from '../src/search/search.js';
 import {buildCorpus} from '../src/search/eval/corpus.js';
 import {score} from '../src/search/eval/score.js';
 
-const army = JSON.parse(readFileSync(new URL('../src/army/army.json', import.meta.url), 'utf8'));
-const hard = JSON.parse(readFileSync(new URL('../src/search/eval/hard-cases.json', import.meta.url), 'utf8'));
+const read = (path) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
+const lang = process.argv.includes('--lang') ? process.argv[process.argv.indexOf('--lang') + 1] : 'en';
+const english = read('../src/army/army.json');
+const army = lang === 'en' ? english : withNames(splitNames(english).core, read(`../src/army/names.${lang}.json`), lang);
+const hard = read(`../src/search/eval/hard-cases${lang === 'en' ? '' : `.${lang}`}.json`);
 const index = buildIndex(army);
 const searcher = createSearch(index);
 

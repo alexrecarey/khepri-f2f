@@ -78,6 +78,10 @@ export function createSearch(index) {
         // Skills are many and shared: no typo or sounds-like matches there,
         // or a misspelt unit name would pull in every trooper with a skill.
         if (field === FIELD.SKILL && tier > TIER.PREFIX) continue;
+        // Weapon names are long and share their first word ("Fusil Combi",
+        // "Fusil Breaker"): two typos away, a unit's name ("fusilero") would
+        // pull in every trooper carrying one. One typo is still forgiven.
+        if ((field === FIELD.WEAPON || field === FIELD.ALIAS) && tier >= TIER.SOUND) continue;
         // A prefix of the unit's name (10) beats an exact weapon word (12):
         // "mine" means Minescorp before it means every unit carrying mines.
         const cost = TIER_COST[tier] * 10 + FIELD_COST[field] * 6;
