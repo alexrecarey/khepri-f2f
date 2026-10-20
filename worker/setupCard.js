@@ -10,11 +10,9 @@ import {matchupView} from '../src/state/matchupView.js';
 import {matchupShareCard} from '../src/state/rolls.js';
 import {NO_ZONES} from '../src/state/schema.js';
 import {stateFromUrl} from '../src/state/url.js';
-import {headline} from '../src/ui/headline.js';
+import {HEADLINES, headline} from '../src/ui/headline.js';
+import {HEADLINE_PARAM, LINK_HEADLINE} from '../src/share/card.js';
 import {summarize} from '../src/ui/results.js';
-
-// A link has no headline choice (that's the sender's setting): the default.
-export const SETUP_HEADLINE = 'wpo';
 
 // The card for search ("?mode=..") given the army data and the engine's
 // calculate, or null when it isn't a complete matchup.
@@ -24,6 +22,9 @@ export function cardFromSetup(search, army, engine) {
   const view = matchupView(army, {...NO_ZONES, ...matchup});
   if (!view.complete) return null;
   const s = summarize(calculate(view.params, engine), view.targets);
-  return s && matchupShareCard(view, headline(s, SETUP_HEADLINE, view.params, view.ledger?.ledger));
+  // The sender's headline when the Share button put it in, else the default.
+  const asked = new URLSearchParams(search).get(HEADLINE_PARAM);
+  const choice = HEADLINES.includes(asked) ? asked : LINK_HEADLINE;
+  return s && matchupShareCard(view, headline(s, choice, view.params, view.ledger?.ledger));
 }
 

@@ -22,7 +22,7 @@ import {StateBar, StateList, useStatesUi} from './WoundStates.jsx';
 
 // Save and Share on the sheet's handle row. `save` = {saved, pending, toggle}
 // or null while there is nothing to save; pending, Save is disabled.
-// onShare: copies the link.
+// onShare: copies the link (ui/share.js).
 function SheetActions({save, onShare}) {
   return (
     <>
@@ -175,7 +175,7 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
       <div className={`rscrim${open ? ' open' : ''}`} ref={g.scrimRef} onClick={() => setOpen(false)} />
       <section className={`rsheet${open ? ' open' : ''}${classic ? ' classic' : ''}${h?.kind === 'win' ? ' hl-win' : ''}`} ref={g.sheetRef} aria-label="Results"
         {...(open ? {role: 'dialog', 'aria-modal': true} : {})}>
-        <div className="rs-head"><span /><span className="handle" /><span className="sheet-actions">{open && <SheetActions save={save} onShare={shareLink} />}</span></div>
+        <div className="rs-head"><span /><span className="handle" /><span className="sheet-actions">{open && <SheetActions save={save} onShare={() => shareLink(choice)} />}</span></div>
         {/* Closed, the top is the card: a button that opens the sheet, its
             numbers still read out. Open, it holds the state bar's own
             controls, so it is no longer a button (no nested controls). The
@@ -243,7 +243,7 @@ export function ResultsPanel({s, status, diceLine, classic, ledger, save, pendin
   const wait = waitingFor(picked);
   return (
     <section className="results-panel" aria-label="Results">
-      <div className="panel-head"><span className="label">Results</span><span className="sheet-actions"><SheetActions save={save} onShare={shareLink} /></span></div>
+      <div className="panel-head"><span className="label">Results</span><span className="sheet-actions"><SheetActions save={save} onShare={() => shareLink(choice)} /></span></div>
       {wait ? <WaitPanel picked={wait} />
         : s ? <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} pending={pending} ui={ui} params={params} />
         : pending ? <EngineLoading label={status} /> : <span className="empty">{status}</span>}

@@ -14,11 +14,24 @@ const FINAL = '?mode=matchup&unitA=1651&factionA=101&groupA=1&optionA=2&weaponA=
   + '&unitB=1803&factionB=101&groupB=1&optionB=3&weaponB=58%3ABlast+Mode&coverB=1&ftB=5&range=80';
 
 test('a matchup link gets the card the app shows for it', () => {
-  assert.deepEqual(cardFromSetup(FINAL, army, runEngine), {
+  assert.deepEqual(cardFromSetup(`${FINAL}&headline=wpo`, army, runEngine), {
     k: 'wpo', nf: false, x: '24-32"',
     a: {n: '0.81', l: 'wounds / order', u: 'Squalos Mk-II', w: 'HMG', s: '', c: 'squalos-mk-ii-1-1'},
     b: {n: '0.46', l: 'wounds / order', u: 'Fennec Fusiliers', w: 'Missile L.', s: 'Cover, Fireteam 5', c: 'fennec-fusiliers-1-1'},
   });
+});
+
+test('a link without a headline (or a made-up one) shows at least one wound', () => {
+  for (const q of [FINAL, `${FINAL}&headline=junk`]) {
+    const card = cardFromSetup(q, army, runEngine);
+    assert.equal(card.k, 'wound');
+    assert.deepEqual([card.a.n, card.a.l, card.b.n], ['47.7%', 'at least one wound', '28.6%']);
+  }
+});
+
+test('the Share button\'s headline is the one the card shows', () => {
+  const card = cardFromSetup(`${FINAL}&headline=win`, army, runEngine);
+  assert.deepEqual([card.k, card.a.n, card.a.l, card.b.n], ['win', '56.8%', 'wins face to face', '35.6%']);
 });
 
 test('a split range shows both bands', () => {
