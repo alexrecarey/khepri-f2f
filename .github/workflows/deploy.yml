@@ -4,8 +4,9 @@ name: deploy
 # version at https://pr-<n>-khepri-f2f.alex-985.workers.dev, reported as the
 # commit status "cloudflare/preview" (scripts/preview-url.sh waits for it).
 # Needs the repo secrets CLOUDFLARE_API_TOKEN (Workers Scripts Edit, Workers
-# R2 Storage Edit, Account Settings Read) and CLOUDFLARE_ACCOUNT_ID; PRs from
-# forks get no secrets, so no preview.
+# R2 Storage Edit, Account Settings Read; Zone Read and Zone Transform Rules
+# Edit for the link-preview rule) and CLOUDFLARE_ACCOUNT_ID; PRs from forks
+# get no secrets, so no preview.
 on:
   push:
     branches: [main]
@@ -55,6 +56,13 @@ jobs:
       - name: Deploy production
         if: github.event_name == 'push'
         run: npx --yes "$WRANGLER" deploy --message "${GITHUB_SHA::7}"
+
+      # The zone rule that sends link-preview bots asking for / to /s
+      # (scripts/cloudflare/preview-rule.mjs). Usually "already up to date".
+      - name: Link-preview rule
+        if: github.event_name == 'push'
+        continue-on-error: true
+        run: node scripts/cloudflare/preview-rule.mjs
 
       - name: Upload preview version
         if: github.event_name == 'pull_request'

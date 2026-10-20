@@ -1,11 +1,20 @@
 // Link previews (Discord, WhatsApp...). index.html carries the site's own
-// tags, so any link unfurls. The Share button's links go to /s with their
-// share card (?card=, src/share/card.js): /s is the app's own page with the
-// site's tags swapped for the card's (its words, canvas ShareText T1, and its
-// image), so people land straight in the app, no redirect, and the app moves
-// its address to /?<setup> itself. Images live under /og/.
-import {CARD_PARAM, decodeCard, previewDescription, previewTitle} from '../src/share/card.js';
+// tags, so any link unfurls. Two kinds of link get their own card:
+//   /?<setup>      the app's address, as copied from the address bar or the
+//                  Share button: a rewrite rule on the zone sends only
+//                  link-preview bots to /s with the same query
+//                  (scripts/cloudflare/), and setupCard.js works the card
+//                  out from the setup, so / stays a static file for people.
+//   /s?card=..     older Share links, carrying their card (src/share/card.js).
+// /s is the app's own page with the site's tags swapped for the card's (its
+// words, canvas ShareText T1, and its image), so anyone landing there is in
+// the app, which moves its address to /?<setup> itself. Images live under
+// /og/, drawn from the card in their URL.
+import {CARD_PARAM, decodeCard, encodeCard, previewDescription, previewTitle} from '../src/share/card.js';
+import {initSync, calculate as runEngine} from '../src/engine/wasm/icepool_wasm.js';
+import engineWasm from '../src/engine/wasm/icepool_wasm_bg.wasm';
 import {CARD_H, CARD_W, renderCard, renderDefault} from './card.js';
+import {cardFromSetup} from './setupCard.js';
 
 // Bump when the image changes: the apps cache previews by image URL.
 const IMAGE_PATH = '/og/v1/';
@@ -19,13 +28,16 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 // Which side the stripe goes to: the bigger headline number (ties go active).
 const leader = (card) => (parseFloat(card.b.n) > parseFloat(card.a.n) ? REACTIVE : ACTIVE);
 
-function cardTags(card, url) {
-  const image = `${url.origin}${IMAGE_PATH}card.png?${CARD_PARAM}=${encodeURIComponent(url.searchParams.get(CARD_PARAM))}`;
+// link: the address the preview stands for (og:url, where a click goes).
+function cardTags(card, url, link) {
+  // The card's numbers are in the image URL, so it never goes stale: new
+  // army data makes a new card, and so a new URL.
+  const image = `${url.origin}${IMAGE_PATH}card.png?${CARD_PARAM}=${encodeCard(card)}`;
   const title = previewTitle(card);
   return [
     ['property', 'og:site_name', 'Infinity the Calculator'],
     ['property', 'og:type', 'website'],
-    ['property', 'og:url', url.href],
+    ['property', 'og:url', link],
     ['property', 'og:title', title],
     ['property', 'og:description', previewDescription(card)],
     ['property', 'og:image', image],
@@ -39,18 +51,40 @@ function cardTags(card, url) {
   ].map(([attr, key, value]) => `<meta ${attr}="${key}" content="${esc(value)}">`).join('\n');
 }
 
+// The army data (a Text module, wrangler.jsonc) is parsed once per isolate,
+// on the first preview, not for every crest.
+let army = null;
+async function armyData() {
+  army ??= JSON.parse((await import('../src/army/army.json')).default);
+  return army;
+}
+
+// The card for a /?<setup> address, or null for anything that isn't one;
+// the engine refusing a setup included: the site's own preview then.
+async function setupCard(search) {
+  try {
+    initSync({module: engineWasm});
+    return cardFromSetup(search, await armyData(), runEngine);
+  } catch (e) {
+    console.error('setup card failed', search, e);
+    return null;
+  }
+}
+
 // /s: the app's page, with the card's tags in place of the site's; as built
-// when the link has no (valid) card.
+// when the link has no card.
 export async function sharePage(request, env, url) {
   const page = await env.ASSETS.fetch(new Request(new URL('/', url), request));
-  const card = decodeCard(url.searchParams.get(CARD_PARAM));
+  const sent = url.searchParams.get(CARD_PARAM);
+  const card = sent ? decodeCard(sent) : await setupCard(url.search);
   if (!card) return page;
+  const link = sent ? url.href : `${url.origin}/${url.search}`;
   const isSiteTag = (el) => /^(og:|twitter:)/.test(el.getAttribute('property') ?? el.getAttribute('name') ?? '')
     || el.getAttribute('name') === 'theme-color';
   return new HTMLRewriter()
     .on('meta', {element(el) { if (isSiteTag(el)) el.remove(); }})
     .on('title', {element(el) { el.setInnerContent(`${previewTitle(card)} · Infinity the Calculator`); }})
-    .on('head', {element(el) { el.append(cardTags(card, url), {html: true}); }})
+    .on('head', {element(el) { el.append(cardTags(card, url, link), {html: true}); }})
     .transform(page);
 }
 

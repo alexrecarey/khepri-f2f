@@ -1,17 +1,13 @@
-// The share card: what a shared Matchup link unfurls into on Discord and
-// WhatsApp (design: canvas Final, "Share card"). The app can't hand the
-// numbers to anyone else (the dice run in the browser), so the Share button
-// packs what the card shows into the link itself (?card=, base64url JSON)
-// and points it at /s, the share path: the only page the Worker touches
-// (worker/preview.js), so / stays a plain static file. /s is the app itself
-// with the card's preview tags; the app's first URL sync turns the address
-// into /?<setup> and drops the card (state/sync.js).
-//
-// The Worker only displays these strings; every number and label is worked
-// out in the app (headline.js), so a link shows what its sender saw.
+// The share card: what a Matchup link unfurls into on Discord and WhatsApp
+// (design: canvas Final, "Share card"). The Worker works it out from the
+// app's address (state/rolls.js matchupShareCard, via worker/setupCard.js)
+// and puts it in the card image's URL (?card=, base64url JSON), so the image
+// is drawn from these strings alone. Older Share links went to /s with their
+// card too (/s?<setup>&card=..); those still unfurl the same way, and the
+// app's first URL sync turns the address into /?<setup> (state/sync.js).
 // Anyone can hand-write a card; it only ever changes a preview.
 //
-//   {k: 'wpo' | 'win' | 'wound',  the sender's headline choice
+//   {k: 'wpo' | 'win' | 'wound',  which headline it shows
 //    nf: true,                    not face to face (headline fell back)
 //    x: '16-24"',                 range band
 //    a / b: {n: '0.81',           headline number
@@ -32,15 +28,6 @@ const fromB64url = (s) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g
 
 export function encodeCard(card) {
   return toB64url(new TextEncoder().encode(JSON.stringify(card)));
-}
-
-// The share link for the app address href (which holds the setup) and its card.
-export function shareUrl(href, card) {
-  const url = new URL(href);
-  url.pathname = SHARE_PATH;
-  url.hash = '';
-  url.searchParams.set(CARD_PARAM, encodeCard(card));
-  return url.href;
 }
 
 // Hand-written links get the same treatment as real ones: anything missing,

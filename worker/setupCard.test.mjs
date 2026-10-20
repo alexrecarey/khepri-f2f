@@ -1,0 +1,33 @@
+// Run with: yarn test:js
+// A pasted app address unfurls with what the app shows for it.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {initSync, calculate as runEngine} from '../src/engine/wasm/icepool_wasm.js';
+import {cardFromSetup} from './setupCard.js';
+
+initSync({module: readFileSync(new URL('../src/engine/wasm/icepool_wasm_bg.wasm', import.meta.url))});
+const army = JSON.parse(readFileSync(new URL('../src/army/army.json', import.meta.url), 'utf8'));
+
+// The Final results board (src/ui/fixtures/FinalResults.json) as its link.
+const FINAL = '?mode=matchup&unitA=1651&factionA=101&groupA=1&optionA=2&weaponA=2%3A'
+  + '&unitB=1803&factionB=101&groupB=1&optionB=3&weaponB=58%3ABlast+Mode&coverB=1&ftB=5&range=80';
+
+test('a matchup link gets the card the app shows for it', () => {
+  assert.deepEqual(cardFromSetup(FINAL, army, runEngine), {
+    k: 'wpo', nf: false, x: '24-32"',
+    a: {n: '0.81', l: 'wounds / order', u: 'Squalos Mk-II', w: 'HMG', s: '', c: 'squalos-mk-ii-1-1'},
+    b: {n: '0.46', l: 'wounds / order', u: 'Fennec Fusiliers', w: 'Missile L.', s: 'Cover, Fireteam 5', c: 'fennec-fusiliers-1-1'},
+  });
+});
+
+test('a split range shows both bands', () => {
+  assert.equal(cardFromSetup(`${FINAL}&rangeB=100`, army, runEngine).x, '24-32" / 32-40"');
+});
+
+test('anything that is not a complete matchup has no card', () => {
+  assert.equal(cardFromSetup('', army, runEngine), null);
+  assert.equal(cardFromSetup('?mode=basic&burstA=4', army, runEngine), null);
+  assert.equal(cardFromSetup('?mode=matchup&unitA=1651&factionA=101', army, runEngine), null);
+  assert.equal(cardFromSetup('?mode=matchup&unitA=999999&unitB=1', army, runEngine), null);
+});
