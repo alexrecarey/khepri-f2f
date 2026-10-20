@@ -3,7 +3,7 @@ import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
 import {
   ammoTypes, bioweaponAmmo, bioweaponProp, causesStunned, causesWounds, hasAmmo, hasContinuousDamage, hasShockAmmo,
-  isPlasma, isolates, saveAttribute,
+  isCommsAttack, isPlasma, isolates, saveAttribute,
 } from '../army/weapons.js';
 
 // Vulnerability (wiki): no Immunity against the bracketed weapon, e.g. any
@@ -16,12 +16,19 @@ export function vulnerabilityTo(targetTraits, row) {
     .find((e) => name.includes(e.toLowerCase())) ?? null;
 }
 
+// Against a Comms Attack only an Immunity to a State works: Immunity
+// (Isolated), Immunity (IMM-B). ARM, BTS, Enhanced, Critical, AP and the
+// rest do nothing (Alex, 2026-10-20).
+const COMMS_IMMUNITIES = ['Isolated', 'IMM-B'];
+
 export const hasImmunity = (targetTraits, kind, row) =>
-  hasSkill(targetTraits, SKILL.IMMUNITY, kind) && !vulnerabilityTo(targetTraits, row);
+  hasSkill(targetTraits, SKILL.IMMUNITY, kind) && !vulnerabilityTo(targetTraits, row)
+  && (!isCommsAttack(row) || COMMS_IMMUNITIES.includes(kind));
 
 // The Immunity that covers this weapon's Saving Roll, ignoring Vulnerability.
+// None against a Comms Attack.
 export function immunityFor(targetTraits, row) {
-  if (!row) return null;
+  if (!row || isCommsAttack(row)) return null;
   if (hasSkill(targetTraits, SKILL.IMMUNITY, 'Enhanced')) return 'Enhanced';
   const attr = saveAttribute(row);
   return hasSkill(targetTraits, SKILL.IMMUNITY, attr) ? attr : null;
