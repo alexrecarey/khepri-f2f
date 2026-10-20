@@ -22,28 +22,35 @@ export const wpoText = (n) => (n == null ? '—' : n.toFixed(2));
 // not face to face (Direct Template vs a shot) has nobody to win, so "wins
 // face to face" falls back to at least one wound there and says so (fallback).
 // A Dodging side's win means it dodged: no wounds either way, so it says that.
-// params: the engine params, for who is dodging; may be null.
-export function headline(s, choice, params = null) {
-  const sides = ['active', 'reactive'];
+// params: the engine params, for who is dodging; may be null. sides: the
+// ledger's sides ({A, B}, rules/ledger.js), to tell a Reset from a Dodge.
+// A side whose hits only Isolate (Jammer) shows the chance of Isolated in
+// place of wounds per order and at least one wound.
+export function headline(s, choice, params = null, sides = null) {
+  const roles = ['active', 'reactive'];
   const wpo = s.unopposed ? {active: s.attacks.active.wpo, reactive: s.attacks.reactive.wpo} : s.wpo;
   const wounded = s.unopposed
     ? {active: s.attacks.active.wounded, reactive: s.attacks.reactive.wounded}
     : {active: s.atLeast.active[0], reactive: s.atLeast.reactive[0]};
   const fallback = choice === 'win' && Boolean(s.unopposed);
   const kind = fallback ? 'wound' : choice;
-  const per = (f) => Object.fromEntries(sides.map((side) => [side, f(side)]));
-  const dodging = (side) => params?.[`ammo${side === 'active' ? 'A' : 'B'}`] === 'DODGE';
-  const value = per((side) => (kind === 'wpo' ? wpo[side] : kind === 'win' ? s.win[side] : wounded[side]));
+  const per = (f) => Object.fromEntries(roles.map((side) => [side, f(side)]));
+  const letter = (side) => (side === 'active' ? 'A' : 'B');
+  const evading = (side) => (sides?.[letter(side)]?.kind === 'reset' ? 'resets'
+    : params?.[`ammo${letter(side)}`] === 'DODGE' ? 'dodges' : null);
+  const isolates = (side) => Boolean(s.states?.[side]?.[0]?.state && s.states[side].length === 1);
+  const value = per((side) => (kind === 'win' ? s.win[side] : isolates(side) || kind === 'wound' ? wounded[side] : wpo[side]));
+  const smallWpo = (side) => (isolates(side) ? pct(wounded[side]) : wpoText(wpo[side]));
   return {
     kind,
     fallback,
     value,
-    text: per((side) => (kind === 'wpo' ? wpoText(value[side]) : pct(value[side]))),
-    label: per((side) => (kind === 'wpo' ? 'wounds / order'
-      : kind === 'win' ? (dodging(side) ? 'dodges' : 'wins face to face') : 'at least one wound')),
+    text: per((side) => (kind === 'wpo' && !isolates(side) ? wpoText(value[side]) : pct(value[side]))),
+    label: per((side) => (kind === 'win' ? evading(side) ?? 'wins face to face'
+      : isolates(side) ? 'Isolated' : kind === 'wpo' ? 'wounds / order' : 'at least one wound')),
     // The line under the bar: [left, right].
     small: kind === 'wpo'
-      ? [`${pct(wounded.active)} at least one wound`, pct(wounded.reactive)]
-      : [`${fallback ? 'Not face to face · ' : ''}${wpoText(wpo.active)} wounds / order`, wpoText(wpo.reactive)],
+      ? [`${pct(wounded.active)} ${isolates('active') ? 'Isolated' : 'at least one wound'}`, pct(wounded.reactive)]
+      : [`${fallback ? 'Not face to face · ' : ''}${smallWpo('active')} ${isolates('active') ? 'Isolated' : 'wounds / order'}`, smallWpo('reactive')],
   };
 }

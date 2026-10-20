@@ -84,9 +84,10 @@ export function reduce(state, action) {
     // band (0-8"): whoever shoots at a trooper charging into CC almost always
     // does so from there (Alex, 2026-10-19). The CC side has no range, so a
     // split range closes on both. Any other pick drops Berserk (a CC Attack).
+    // A Zone of Control weapon (Jammer) reaches 8", so it closes the range too.
     case 'pickWeapon': {
       const next = setSide(state, action.side, {...matchup[action.side], weaponKey: action.key, ...(!action.cc && {berserk: false})});
-      if (!action.cc) return next;
+      if (!action.cc && !action.zoc) return next;
       const close = RANGE_BANDS[0].to;
       return {...next, matchup: {...next.matchup, rangeCm: close, ...(matchup.rangeCmB != null && {rangeCmB: close})}};
     }

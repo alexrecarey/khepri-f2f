@@ -5,7 +5,7 @@
 import {SKILL} from '../army/ids.js';
 import {extraLoadoutName, shortIsc} from '../army/names.js';
 import {hasSkill} from '../army/traits.js';
-import {isTemplate} from '../army/weapons.js';
+import {isCommsAttack, isTemplate, isolates} from '../army/weapons.js';
 import {fullParams} from '../engine/params.js';
 import {defaultWeapon, sortWeapons} from '../rules/defaultWeapon.js';
 import {buildLedger} from '../rules/ledger.js';
@@ -121,6 +121,11 @@ export function matchupView(army, matchup) {
   for (const [x, y] of [[A, B], [B, A]]) {
     x.cc = isCcAttack(x.resolved);
     x.ccAlliesMax = x.cc ? ccAlliesMax(y.resolved) : 0;
+    // Reset is a button only against a Comms Attack (or once picked).
+    if (!isCommsAttack(y.resolved?.weapon?.row) && x.sel.weaponKey !== 'reset') {
+      x.pseudo = x.pseudo.filter((w) => w.pseudo !== 'reset');
+      x.groups = x.groups.filter((g) => g.w.pseudo !== 'reset');
+    }
   }
   const derived = deriveInputs({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones});
   const hasSelection = Boolean(matchup.A.unitId || matchup.B.unitId);
@@ -136,8 +141,11 @@ export function matchupView(army, matchup) {
   // The states each side's hits push its target through. The active side's
   // results are what it does to the reactive trooper, so they follow B's
   // states (and the other way round).
-  const statesOf = (target, shock) => (target?.profile ? woundStates(target.profile, target.traits, {shock}) : null);
-  const targets = complete ? {active: statesOf(B.resolved, params.shockA), reactive: statesOf(A.resolved, params.shockB)} : null;
+  // A Jammer's failed save is Isolated, not a wound.
+  const statesOf = (target, shock, attacker) => (target?.profile
+    ? woundStates(target.profile, target.traits, {shock, isolated: isolates(attacker?.weapon?.row)}) : null);
+  const targets = complete
+    ? {active: statesOf(B.resolved, params.shockA, A.resolved), reactive: statesOf(A.resolved, params.shockB, B.resolved)} : null;
   // Each band's Range MOD per side, for the range selector's stripes.
   const bands = RANGE_BANDS.map((b) => ({to: b.to, A: bandMod(A.resolved, b.to), B: bandMod(B.resolved, b.to)}));
   // What Smoke / White Noise do to each side, for the range selector.

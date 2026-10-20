@@ -9,7 +9,7 @@ import {dispatch} from '../state/store.js';
 const modeText = (w) => (w.mode ? ` (${w.mode.replace(/ Mode$/i, '')})` : '');
 export const weaponText = (w) => `${shortWeaponName(w.name)}${modeText(w)}`;
 const weaponTitle = (w) => `${w.name}${modeText(w)}`;
-const pick = (side, w) => dispatch({type: 'pickWeapon', side, key: w.key, cc: Boolean(w.cc)});
+const pick = (side, w) => dispatch({type: 'pickWeapon', side, key: w.key, cc: Boolean(w.cc), zoc: Boolean(w.zoc)});
 
 export default function WeaponButtons({side, groups, selected, color}) {
   return (

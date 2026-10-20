@@ -121,3 +121,21 @@ test('Team-Ops picks: a weapon joins the weapon list, a stat shows in the ledger
   assert.equal(v.A.resolved.profile.bs, plain.A.resolved.profile.bs + 1);
   assert.deepEqual(v.ledger.ledger.A.sv.lines[0], {value: plain.A.resolved.profile.bs + 1, label: 'BS (Team-Ops: BS+1)', by: null});
 });
+
+test('a Team-Ops Jammer: Reset shows against it, and its target can only be Isolated', () => {
+  const u = army.units.find((x) => x.slug === 'confessor-team-ops');
+  const f = u.inFactions[0];
+  const g = u.byFaction[f].groups.find((x) => /Heavy/i.test(x.isc));
+  const A = {...EMPTY_SIDE, unitId: u.id, factionId: f, groupId: g.id, optionId: g.options[0].id, ball: u.upgrades.ball.findIndex((i) => i.label === 'Jammer')};
+  const plain = matchupView(army, {A, B: chaksa, rangeCm: 20});
+  assert.ok(!plain.B.groups.some((x) => x.w?.pseudo === 'reset'), 'no Reset against a shot');
+  const jam = plain.A.weapons.find((w) => w.name === 'Jammer');
+  assert.ok(jam, 'the Jammer is a weapon button');
+  const v = matchupView(army, {A: {...A, weaponKey: jam.key}, B: chaksa, rangeCm: 20});
+  assert.ok(v.B.groups.some((x) => x.w?.pseudo === 'reset'));
+  assert.deepEqual(v.targets.active.map((t) => t.label), ['Isolated']);
+  assert.ok(!v.ledger.notes.some((n) => n.includes('Not rolled')));
+  const reset = matchupView(army, {A: {...A, weaponKey: jam.key}, B: {...chaksa, weaponKey: 'reset'}, rangeCm: 20});
+  assert.equal(reset.ledger.ledger.B.kind, 'reset');
+  assert.equal(reset.params.successValueB, reset.B.resolved.profile.wip);
+});

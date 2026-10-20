@@ -64,15 +64,18 @@ export function trooperCcWeapons(option, weapons, traits) {
 // Dodge is valid for both sides; "No ARO" only makes sense for the reactive one.
 // Bangbomb is a second Dodge, for the player to pick when its LoF/ZoC
 // restriction holds.
+// Reset: every trooper has it; the card shows it only against a Comms Attack
+// (state/matchupView.js).
 export function pseudoWeapons(traits, side = 'B') {
   const list = [{key: 'dodge', pseudo: 'dodge', label: 'Dodge'}];
   if (bangbombValue(traits)) list.push({key: 'bangbomb', pseudo: 'dodge', bangbomb: true, label: 'Bangbomb'});
+  list.push({key: 'reset', pseudo: 'reset', label: 'Reset'});
   if (side === 'B') list.push({key: 'none', pseudo: 'none', label: 'No ARO (unopposed)'});
   return list;
 }
 
 // Short name of a choice that is not a weapon.
-export const pseudoName = (w) => (w.pseudo === 'dodge' ? (w.bangbomb ? 'Bangbomb' : 'Dodge') : 'No ARO');
+export const pseudoName = (w) => (w.pseudo === 'dodge' ? (w.bangbomb ? 'Bangbomb' : 'Dodge') : w.pseudo === 'reset' ? 'Reset' : 'No ARO');
 
 // Resolves a picker selection (ids) against the army data. The returned
 // profile has the loadout's stat overrides and any Team-Ops upgrades applied;

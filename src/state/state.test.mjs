@@ -471,6 +471,11 @@ test('picking a CC weapon moves the range to the closest band, a split range too
   assert.deepEqual([split.rangeCm, split.rangeCmB], [20, 20]);
 });
 
+test('picking a Zone of Control weapon (Jammer) closes the range too', () => {
+  const s = run(initialState(), {type: 'setRange', rangeCm: 80}, {type: 'pickWeapon', side: 'B', key: '87:', cc: false, zoc: true});
+  assert.deepEqual([s.matchup.B.weaponKey, s.matchup.rangeCm], ['87:', 20]);
+});
+
 test('Berserk stays with the active side: swapping drops it', () => {
   const s = run(initialState(), {type: 'patchSide', side: 'A', patch: {unitId: 1, berserk: true}}, {type: 'swapSides'});
   assert.equal(s.matchup.B.berserk, false);

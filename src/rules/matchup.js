@@ -3,15 +3,16 @@
 // notes and warnings to show next to it.
 import {SKILL} from '../army/ids.js';
 import {hasEquip, hasSkill} from '../army/traits.js';
-import {causesWounds, hasContinuousDamage, isNonLethal, isTemplate, weaponPS} from '../army/weapons.js';
+import {causesWounds, hasContinuousDamage, isCommsAttack, isNonLethal, isTemplate, isolates, needsLof, weaponPS} from '../army/weapons.js';
 import {
-  COVER_SAVE_MOD, LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, capMods, clamp, coverBsMod, dodgeExtras,
-  bangbombMod, dodgeSuccessValue, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, neurocineticsAroBurst, opposingMods,
+  COVER_SAVE_MOD, FIREWALL_SAVE_MOD, LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, capMods, clamp, coverBsMod, dodgeExtras,
+  bangbombMod, dodgeSuccessValue, evades, fireteamBonuses, firewallMod, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod,
+  neurocineticsAroBurst, opposingMods, resetSuccessValue,
 } from './modifiers.js';
 import {rangeModFor} from './ranges.js';
 import {ZONE_NAME, visibility} from './visibility.js';
 import {
-  calcAmmo, hasImmunity, hasNoEffect, immunityAgainst, immunityFor, immunityNote, saveHalving, shockApplies, vulnerabilityTo,
+  calcAmmo, hasImmunity, hasNoEffect, immunityAgainst, immunityFor, immunityNote, noEffectBy, saveHalving, shockApplies, vulnerabilityTo,
 } from './saves.js';
 import {isSpecOps} from './trooper.js';
 import {ccAttackMods, ccBurst, ccSd, isCcAttack} from './closeCombat.js';
@@ -40,7 +41,9 @@ function approximationWarnings(label, side, target) {
   const warnings = [];
   const row = side?.weapon?.row;
   if (row && hasNoEffect(target?.traits, row)) {
-    warnings.push(`${label}: ${row.name} has no effect on a target with Immunity (${immunityAgainst(target.traits, row)}); its hits cause no damage`);
+    warnings.push(`${label}: ${row.name} has no effect on a target with Immunity (${noEffectBy(target.traits, row)}); its hits cause no damage`);
+  } else if (row && isolates(row)) {
+    // Not a warning: the results say Isolated (rules/woundStates.js).
   } else if (row && isNonLethal(row)) {
     warnings.push(`${label}: ${row.name} is non-lethal; results shown as wounds`);
   }
@@ -71,12 +74,16 @@ function attackInputs(x, y, rangeCm, side, errors, notes, opposing = 0, visMod =
   // of 0 misses on every roll, with no crit.
   const outOfRange = rangeMod === null;
   if (outOfRange) rangeMod = 0;
-  const mim = y ? mimetismMod(y.traits, x.traits) : 0;
-  const albedo = y ? albedoMod(y.traits, x.traits) : 0;
-  const cover = y ? coverBsMod(y, x.traits) : 0;
+  // Mimetism and Albedo need LoF (a Jammer has none); a Comms Attack takes
+  // the target's Firewall in place of cover.
+  const lof = needsLof(row);
+  const mim = y && lof ? mimetismMod(y.traits, x.traits) : 0;
+  const albedo = y && lof ? albedoMod(y.traits, x.traits) : 0;
+  const cover = y ? coverBsMod(y, x.traits, row) : 0;
+  const firewall = y && isCommsAttack(row) ? firewallMod(y.traits) : 0;
   const bonus = attackBonuses(x);
   // Every MOD counts toward the cap, Fireteam +1 BS included (Alex, 2026-10-10).
-  const modSum = bonus.bs + rangeMod + mim + albedo + cover + mods.sv + opposing + visMod;
+  const modSum = bonus.bs + rangeMod + mim + albedo + cover + firewall + mods.sv + opposing + visMod;
   const modTotal = capMods(modSum);
   if (!outOfRange && modTotal !== modSum) notes.push(`${label}: MODs add up to ${signed(modSum)}, capped at ${signed(modTotal)}`);
   const sv = outOfRange
@@ -134,6 +141,7 @@ function hitInputs(x, y, side, notes) {
     [`shock${side}`]: shockApplies(row, y),
   };
   if (out[`shock${side}`]) notes.push(`${label}: Shock against VITA 1; a failed save is Dead (no Unconscious, NWI or Dogged)`);
+  if (isolates(row) && !noEffect) notes.push(`${label}: ${row.name}; a failed save leaves the target Isolated, not wounded`);
   // State-only weapons get a warning instead (no effect), or play as always (Stunned).
   if (!immunity && contImmune && hasContinuousDamage(row, mods)) {
     notes.push(`${label}: target has Immunity (Continuous Damage); Continuous Damage ignored`);
@@ -160,6 +168,33 @@ function dodgeInputs(x, side, opposing = 0, incoming = null) {
   };
 }
 
+// A Reset: one WIP roll against a Comms Attack (the opponent's BS Attack
+// (-X) and Surprise Attack included) that causes no Saving Rolls, like a Dodge.
+function resetInputs(x, side, opposing = 0) {
+  return {
+    [`ammo${side}`]: 'DODGE',
+    [`burst${side}`]: 1,
+    [`bonusBurst${side}`]: 0,
+    [`successValue${side}`]: resetSuccessValue(x.profile, opposing),
+    [`cont${side}`]: false,
+    [`shock${side}`]: false,
+    [`template${side}`]: false,
+  };
+}
+
+// A Dodge or Reset that can't evade the attack it faces (modifiers.js
+// evades) isn't rolled against it: the attack is a Normal Roll.
+function evadeInputs(x, side, opposing, incoming, label, notes) {
+  if (!evades(x, incoming)) {
+    notes.push(x.weapon.pseudo === 'reset'
+      ? `${label}: Reset only evades Comms Attacks; the ${incoming.row.name} is rolled unopposed`
+      : `${label}: Dodge can't evade a Comms Attack (${incoming.row.name}), only Reset can; it is rolled unopposed`);
+    return noLofInputs(side);
+  }
+  if (x.weapon.pseudo === 'reset') return resetInputs(x, side, opposing);
+  return {...dodgeInputs(x, side, opposing, incoming), [`template${side}`]: false};
+}
+
 // `dodging`: y Dodges this attack, so Dodge (ARM +3) adds to its ARM.
 function defenseInputs(y, incoming, side, dodging = false) {
   const p = y.profile;
@@ -176,11 +211,14 @@ function defenseInputs(y, incoming, side, dodging = false) {
   // Cover's +3 is a Saving Roll MOD, not ARM: add it after AP halving. The
   // calculator saves on d20 <= PS + ARM, so this input is where the MOD goes.
   // Cover and Nanoscreen are against BS Attacks: nothing against a CC Attack.
+  // A Comms Attack: Firewall's +3 instead, cover and Nanoscreen do nothing.
   const templateIncoming = ignoresCoverOnSaves(incoming?.row);
   const ccIncoming = Boolean(incoming?.cc);
-  const coverSave = benefitsFromCover(y) && !templateIncoming && !ccIncoming ? COVER_SAVE_MOD : 0;
-  const nanoSave = hasNanoscreen(y) && !ccIncoming ? COVER_SAVE_MOD : 0;
-  const cover = Math.max(coverSave, nanoSave);
+  const comms = isCommsAttack(incoming?.row);
+  const coverSave = benefitsFromCover(y) && !templateIncoming && !ccIncoming && !comms ? COVER_SAVE_MOD : 0;
+  const nanoSave = hasNanoscreen(y) && !ccIncoming && !comms ? COVER_SAVE_MOD : 0;
+  const firewallSave = comms && firewallMod(y.traits) ? FIREWALL_SAVE_MOD : 0;
+  const cover = Math.max(coverSave, nanoSave, firewallSave);
   return {
     [`arm${side}`]: clamp(LIMITS.arm, base + cover),
     [`bts${side}`]: clamp(LIMITS.bts, Math.max(0, p.bts ?? 0) + cover),
@@ -223,9 +261,8 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
   if (a) {
     if (!a.weapon) {
       incomplete = true;
-    } else if (a.weapon.pseudo === 'dodge') {
-      Object.assign(inputs, dodgeInputs(a, 'A', onA, vis.B.blocked ? null : b?.weapon));
-      inputs.templateA = false;
+    } else if (a.weapon.pseudo === 'dodge' || a.weapon.pseudo === 'reset') {
+      Object.assign(inputs, evadeInputs(a, 'A', onA, vis.B.blocked ? null : b?.weapon, 'Active', notes));
     } else if (a.weapon.pseudo) {
       incomplete = true; // e.g. "No ARO" carried over; the active side needs a real choice
     } else if (attackStat(a.profile, a.weapon.row) <= 0) {
@@ -245,9 +282,8 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
   if (b) {
     if (!b.weapon) {
       incomplete = true;
-    } else if (b.weapon.pseudo === 'dodge') {
-      Object.assign(inputs, dodgeInputs(b, 'B', onB, vis.A.blocked ? null : a?.weapon));
-      inputs.templateB = false;
+    } else if (b.weapon.pseudo === 'dodge' || b.weapon.pseudo === 'reset') {
+      Object.assign(inputs, evadeInputs(b, 'B', onB, vis.A.blocked ? null : a?.weapon, 'Reactive', notes));
     } else if (b.weapon.pseudo === 'none') {
       inputs.burstB = 0;
       inputs.bonusBurstB = 0;

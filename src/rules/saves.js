@@ -3,7 +3,7 @@ import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
 import {
   ammoTypes, bioweaponAmmo, bioweaponProp, causesStunned, causesWounds, hasAmmo, hasContinuousDamage, hasShockAmmo,
-  isPlasma, saveAttribute,
+  isPlasma, isolates, saveAttribute,
 } from '../army/weapons.js';
 
 // Vulnerability (wiki): no Immunity against the bracketed weapon, e.g. any
@@ -44,10 +44,16 @@ export function immunityAgainst(targetTraits, row) {
 // Such an attack is still a BS Attack against the target: rolled, opposed (a
 // success still cancels the target's Dodge or shot), its hits just cause no
 // Saving Rolls (ammo NONE).
-export const hasNoEffect = (targetTraits, row) =>
-  Boolean(immunityAgainst(targetTraits, row))
-  && !causesWounds(row)
-  && !causesStunned(row);
+// Immunity (Isolated) leaves nothing of a weapon whose only effect is Isolated
+// (Jammer) either.
+export const hasNoEffect = (targetTraits, row) => Boolean(noEffectBy(targetTraits, row));
+
+// The Immunity that leaves this attack without effect, or null.
+export function noEffectBy(targetTraits, row) {
+  if (isolates(row) && hasImmunity(targetTraits, 'Isolated', row)) return 'Isolated';
+  const immunity = immunityAgainst(targetTraits, row);
+  return immunity && !causesWounds(row) && !causesStunned(row) ? immunity : null;
+}
 
 // What the Immunity takes away from this attack, for the matchup note.
 export function immunityNote(immunity, row, mods) {

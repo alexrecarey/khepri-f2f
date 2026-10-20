@@ -43,6 +43,7 @@ const W = weaponTable({
   17: [{name: 'Flash Pulse', mode: null, ammo: 'Stun', burst: 1, dmg: 7, saving: 'BTS', saves: '1', props: ['BS Weapon (WIP)', 'State: Stunned', 'Non-lethal'], ranges: RIFLE_RANGES}],
   19: [{name: 'Light Rocket Launcher', mode: 'Blast Mode', ammo: 'N', burst: 2, dmg: 6, saving: 'ARM', saves: '1', props: ['Continous Damage', 'Impact Template (Circular)'], ranges: RIFLE_RANGES}],
   20: [{name: 'Boarding Pistol', mode: 'Blast Mode', ammo: 'N', burst: 1, dmg: 7, saving: 'ARM', saves: '1', props: ['Intuitive Attack', 'Direct Template (Small Teardrop)'], ranges: null}],
+  21: [{name: 'Jammer', mode: null, ammo: 'N', burst: 1, dmg: 7, saving: 'BTS', saves: '1', props: ['BS Weapon (WIP)', 'Comms. Attack', 'Intuitive Attack', 'Disposable (2)', 'State: Isolated', 'Non-lethal', 'No LoF', 'Zone of Control'], ranges: null}],
   18: [{name: 'Sepsitor', mode: null, ammo: null, burst: 1, dmg: 4, saving: 'BTS', saves: '1', props: ['Intuitive Attack', 'Disposable (2)', 'State: Sepsitorized', 'Direct Template (Large Teardrop)', '[*]'], ranges: null}],
 });
 
@@ -293,8 +294,8 @@ test('active Dodge: PH roll, no damage, reactive still shoots', () => {
   assert.equal(r.inputs.successValueB, 15);   // 12 + 3 range, dodger not in cover
   assert.equal(r.inputs.burstB, 1);
   assert.equal(r.inputs.armA, 2);
-  assert.deepEqual(pseudoWeapons(effectiveTraits(dodger, combi), 'A').map((w) => w.key), ['dodge']);
-  assert.deepEqual(pseudoWeapons(effectiveTraits(dodger, combi), 'B').map((w) => w.key), ['dodge', 'none']);
+  assert.deepEqual(pseudoWeapons(effectiveTraits(dodger, combi), 'A').map((w) => w.key), ['dodge', 'reset']);
+  assert.deepEqual(pseudoWeapons(effectiveTraits(dodger, combi), 'B').map((w) => w.key), ['dodge', 'reset', 'none']);
   // Dodging an ARO template: the template's hits are the reactive side's.
   const vsTemplate = derive({active: side(dodger, combi, 'dodge'), reactive: side(profile(), option([{id: 3, name: 'Heavy Flamethrower'}]), '3:'), rangeCm: 20});
   assert.equal(vsTemplate.ok, true);
@@ -1606,7 +1607,7 @@ test('White Noise and Albedo stack; with Smoke and White Noise nobody sees', () 
 test('Bangbomb (+X) is its own Dodge choice: +X, but not against Template Weapons', () => {
   const bandit = profile({ph: 13, equip: [{id: 246, name: 'Bangbomb', extra: ['+4']}]});
   const choices = pseudoWeapons(effectiveTraits(bandit, combi), 'B');
-  assert.deepEqual(choices.map((w) => w.label), ['Dodge', 'Bangbomb', 'No ARO (unopposed)']);
+  assert.deepEqual(choices.map((w) => w.label), ['Dodge', 'Bangbomb', 'Reset', 'No ARO (unopposed)']);
   assert.equal(pseudoWeapons({skills: [], equip: []}).some((w) => w.bangbomb), false);
   const dodgeVs = (weapons, key, pick = 'bangbomb') =>
     derive({active: side(profile(), option(weapons), key), reactive: side(bandit, combi, pick), rangeCm: 20}).inputs.successValueB;
@@ -1622,4 +1623,79 @@ test('Bangbomb (+X) is its own Dodge choice: +X, but not against Template Weapon
   // Bangbomb in the Active Turn against a shot.
   const r = derive({active: side(bandit, combi, 'bangbomb'), reactive: side(profile(), combi, '1:'), rangeCm: 20});
   assert.equal(r.inputs.successValueA, 17);
+});
+
+// Comms Attacks (Alex, 2026-10-20): the Jammer rolls WIP within ZoC; Reset
+// opposes it, Dodge can't; a failed BTS save is Isolated.
+const jammer = option([{id: 21, name: 'Jammer'}, {id: 1, name: 'Combi Rifle'}]);
+const hacker = (over = {}) => profile({wip: 13, ...over});
+
+test('Jammer: a WIP roll within Zone of Control (8"), out of range beyond', () => {
+  const x = side(hacker(), jammer, '21:');
+  assert.ok(x.weapon, 'the Jammer is a weapon choice');
+  const at = (rangeCm) => derive({active: x, reactive: side(profile(), combi, '1:'), rangeCm}).inputs;
+  assert.equal(at(20).successValueA, 13);
+  assert.equal(at(20).burstA, 1);
+  assert.equal(at(40).successValueA, 0);
+  assert.equal(rangeModFor(x.weapon.row, 20), 0);
+  assert.equal(rangeModFor(x.weapon.row, 21), null);
+  // Not the default: it isolates, it doesn't wound.
+  assert.equal(defaultWeapon(trooperWeapons(jammer, W, x.traits), 'active').name, 'Combi Rifle');
+  assert.equal(defaultWeapon(trooperWeapons(jammer, W, x.traits), 'reactive').name, 'Combi Rifle');
+});
+
+test('Comms Attack vs Reset: Face to Face, WIP against WIP, no saves for the Reset', () => {
+  const r = derive({active: side(hacker(), jammer, '21:'), reactive: side(profile({wip: 14}), combi, 'reset'), rangeCm: 20});
+  assert.equal(r.ok, true, r.errors.join('; '));
+  assert.equal(r.inputs.successValueB, 14);
+  assert.equal(r.inputs.burstB, 1);
+  assert.equal(r.inputs.ammoB, 'DODGE');
+  assert.equal(r.inputs.successValueA, 13);
+  // BS Attack (-3) still goes on the Reset (a Face to Face Roll).
+  const bsAtk = hacker({skills: [{id: 201, name: 'BS Attack', extra: ['-3']}]});
+  assert.equal(derive({active: side(bsAtk, jammer, '21:'), reactive: side(profile({wip: 14}), combi, 'reset'), rangeCm: 20}).inputs.successValueB, 11);
+});
+
+test('Dodge can\'t evade a Comms Attack; Reset evades nothing else', () => {
+  const dodging = derive({active: side(hacker(), jammer, '21:'), reactive: side(profile(), combi, 'dodge'), rangeCm: 20});
+  assert.equal(dodging.inputs.burstB, 0);
+  assert.ok(dodging.notes.some((n) => n.includes('Dodge can\'t evade a Comms Attack')), dodging.notes.join(' | '));
+  const resetting = derive({active: side(hacker(), combi, '1:'), reactive: side(profile(), combi, 'reset'), rangeCm: 20});
+  assert.equal(resetting.inputs.burstB, 0);
+  assert.ok(resetting.notes.some((n) => n.includes('Reset only evades Comms Attacks')), resetting.notes.join(' | '));
+  const l = buildLedger({active: side(hacker(), combi, '1:'), reactive: side(profile(), combi, 'reset'), rangeCm: 20, inputs: resetting.inputs});
+  assert.deepEqual([l.B.kind, l.B.dice], ['none', 'Reset: not rolled']);
+  // Shooting back at the Jammer is still a Face to Face Roll.
+  assert.equal(derive({active: side(hacker(), jammer, '21:'), reactive: side(profile(), combi, '1:'), rangeCm: 20}).inputs.burstB, 1);
+});
+
+test('Comms Attack: no cover, Nanoscreen or Mimetism; Firewall takes their place', () => {
+  const hidden = profile({bts: 3, skills: [{id: 28, name: 'Mimetism', extra: ['-6']}], equip: [{id: 108, name: 'Nanoscreen'}]});
+  const r = derive({active: side(hacker(), jammer, '21:'), reactive: side(hidden, combi, '1:', true), rangeCm: 20});
+  assert.equal(r.inputs.successValueA, 13);
+  assert.equal(r.inputs.armB, 3);
+  const walled = profile({bts: 3, equip: [{id: 169, name: 'TinBot: Firewall', extra: ['-6']}]});
+  const f = derive({active: side(hacker(), jammer, '21:'), reactive: side(walled, combi, '1:', true), rangeCm: 20});
+  assert.equal(f.inputs.successValueA, 7);
+  assert.equal(f.inputs.armB, 6);
+  // A Hacking Device's upgrade counts too; against a shot, Firewall does nothing.
+  const device = profile({equip: [{id: 100, name: 'Hacking Device', extra: ['UPGRADE: Firewall (-3)']}]});
+  assert.equal(derive({active: side(hacker(), jammer, '21:'), reactive: side(device, combi, '1:'), rangeCm: 20}).inputs.successValueA, 10);
+  assert.equal(derive({active: side(hacker(), combi, '1:'), reactive: side(device, combi, '1:'), rangeCm: 20}).inputs.successValueA, 15);
+});
+
+test('Comms Attack: needs no LoF, so Smoke and White Noise don\'t stop it', () => {
+  const r = derive({active: side(hacker(), jammer, '21:'), reactive: side(profile(), combi, 'reset'), rangeCm: 20, zones: {smoke: true, whiteNoise: true}});
+  assert.equal(r.inputs.burstA, 1);
+  assert.equal(r.inputs.successValueA, 13);
+});
+
+test('Jammer: a failed save is Isolated; Immunity (Isolated) or (BTS) leaves it without effect', () => {
+  const r = derive({active: side(hacker(), jammer, '21:'), reactive: side(profile(), combi, '1:'), rangeCm: 20});
+  assert.ok(r.notes.some((n) => n.includes('Isolated, not wounded')), r.notes.join(' | '));
+  assert.ok(!r.warnings.some((w) => w.includes('non-lethal')), r.warnings.join(' | '));
+  const immune = profile({skills: [{id: 162, name: 'Immunity', extra: ['Isolated']}]});
+  const i = derive({active: side(hacker(), jammer, '21:'), reactive: side(immune, combi, '1:'), rangeCm: 20});
+  assert.equal(i.inputs.ammoA, 'NONE');
+  assert.ok(i.warnings.some((w) => w.includes('Immunity (Isolated)')), i.warnings.join(' | '));
 });

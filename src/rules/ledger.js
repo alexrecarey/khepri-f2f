@@ -19,17 +19,18 @@ import {SKILL} from '../army/ids.js';
 import {upgradeRaising} from '../army/loadouts.js';
 import {hasSkill} from '../army/traits.js';
 import {
-  ammoName, ammoTypes, attackAttribute, bioweaponParts, hasContinuousDamage, isImpactTemplate, isPlasma, isTemplate, weaponPS,
+  ammoName, ammoTypes, attackAttribute, bioweaponParts, hasContinuousDamage, isCommsAttack, isImpactTemplate, isPlasma, isTemplate, needsLof,
+  weaponPS,
 } from '../army/weapons.js';
 import {AMMO} from '../engine/calculate.js';
 import {
-  COVER_BS_MOD, COVER_SAVE_MOD, LIMITS, MOD_CAP, albedoMod, albedoValue, attackBonuses, attackStat, benefitsFromCover, capMods,
-  bangbombMod, bangbombValue, cancelsBangbomb, coverBsMod, dodgeExtras, fireteamBonuses, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod, neurocineticsAroBurst, mimetismValue, msvName,
-  opposingMods,
+  COVER_BS_MOD, COVER_SAVE_MOD, FIREWALL_SAVE_MOD, LIMITS, MOD_CAP, albedoMod, albedoValue, attackBonuses, attackStat, benefitsFromCover, capMods,
+  bangbombMod, bangbombValue, cancelsBangbomb, coverBsMod, dodgeExtras, evades, fireteamBonuses, firewallMod, hasNanoscreen, ignoresCoverOnSaves,
+  keepsAroBurst, mimetismMod, neurocineticsAroBurst, mimetismValue, msvName, opposingMods,
 } from './modifiers.js';
 import {RANGE_BANDS, rangeModFor} from './ranges.js';
 import {hasImmunity, immunityAgainst, saveHalving} from './saves.js';
-import {bsAttackWeaponMods} from './trooper.js';
+import {bsAttackWeaponMods, pseudoName} from './trooper.js';
 import {ccAttackMods, ccAttackSkill, ccBurst, ccSd, isCcAttack} from './closeCombat.js';
 import {ZONE_NAME, visibility} from './visibility.js';
 
@@ -75,24 +76,31 @@ function attackSv(x, y, s, rangeCm, total, vis) {
   if (rangeMod) lines.push(line(rangeMod, rangeLabel(rangeCm), s));
   if (mods.sv) lines.push(line(mods.sv, 'loadout', s));
   if (y) {
-    // Mimetism, with what the attacker's MSV cancels shown struck.
+    // Mimetism, with what the attacker's MSV cancels shown struck. Mimetism
+    // and Albedo need LoF: struck against a Jammer.
+    const lof = needsLof(row);
     const full = mimetismValue(y.traits);
-    if (full) {
+    if (full && !lof) lines.push(line(full, `Mimetism (${full})`, t, 'No LoF'));
+    else if (full) {
       const applied = mimetismMod(y.traits, x.traits);
       const name = `Mimetism (${full})${y.traits.skills.find((k) => k.id === SKILL.MIMETISM)?.foxhole ? ', Foxhole' : ''}`;
       if (applied) lines.push(line(applied, `${name}${applied !== full ? `, ${msvName(x.traits)}` : ''}`, t));
       else lines.push(line(full, name, t, msvName(x.traits) ?? 'cancelled'));
     }
-    const albedo = albedoMod(y.traits, x.traits);
+    const albedo = lof ? albedoMod(y.traits, x.traits) : 0;
     if (albedo) lines.push(line(albedo, 'Albedo', t));
-    else if (albedoValue(y.traits)) lines.push(line(albedoValue(y.traits), 'Albedo', t, 'only vs MSV or Marksmanship'));
-    const cover = coverBsMod(y, x.traits);
+    else if (albedoValue(y.traits)) lines.push(line(albedoValue(y.traits), 'Albedo', t, lof ? 'only vs MSV or Marksmanship' : 'No LoF'));
+    const comms = isCommsAttack(row);
+    const cover = coverBsMod(y, x.traits, row);
     const coverName = benefitsFromCover(y) ? (y.sapper ? 'Foxhole cover' : 'cover') : 'Nanoscreen';
     if (cover) lines.push(line(cover, coverName, t));
     else if (benefitsFromCover(y) || hasNanoscreen(y)) {
-      const why = hasSkill(x.traits, SKILL.MARKSMANSHIP) ? 'Marksmanship' : 'Limited Cover';
+      const why = comms ? 'Comms Attack' : hasSkill(x.traits, SKILL.MARKSMANSHIP) ? 'Marksmanship' : 'Limited Cover';
       lines.push(line(COVER_BS_MOD, coverName, t, why));
     }
+    // Firewall: a Comms Attack's cover.
+    const firewall = comms ? firewallMod(y.traits) : 0;
+    if (firewall) lines.push(line(firewall, `Firewall (${firewall})`, t));
     // Smoke / White Noise: x's own sight, so x's colour.
     for (const v of vis.lines) lines.push(line(v.value, v.label, s, v.ignoredBy));
     lines.push(...opposingLines(y, x, t, t === 'A'));
@@ -128,6 +136,15 @@ function dodgeSv(x, y, s, total, yBlocked) {
     lines.push(line(v, `Bangbomb (+${v})`, s, 'Template'));
   }
   if (y && !yBlocked) lines.push(...opposingLines(y, x, t, t === 'A'));
+  clampSv(lines);
+  return {lines: reconcile(lines, total), total};
+}
+
+// A Reset's Success Value: WIP, with the attacker's MODs on it.
+function resetSv(x, y, s, total) {
+  const t = other(s);
+  const lines = [line(x.profile.wip ?? 0, statLabel(x, 'wip'), null)];
+  if (y) lines.push(...opposingLines(y, x, t, t === 'A'));
   clampSv(lines);
   return {lines: reconcile(lines, total), total};
 }
@@ -232,9 +249,12 @@ function saveLines(x, y, s, inputs) {
     // Halving 0 or 1 changes nothing: no line.
     if (halved !== base) lines.push(line(halved - base, `${attr} halved${h.ap ? ' (AP)' : ''}`, s, h.halves ? null : 'Immunity (AP)'));
   }
+  const comms = isCommsAttack(row);
+  if (comms && firewallMod(y.traits)) lines.push(line(FIREWALL_SAVE_MOD, 'Firewall', t));
   if (benefitsFromCover(y) || hasNanoscreen(y)) {
     const name = benefitsFromCover(y) ? (y.sapper ? 'Foxhole cover' : 'cover') : 'Nanoscreen';
     if (isCcAttack(x)) lines.push(line(COVER_SAVE_MOD, name, t, 'close combat'));
+    else if (comms) lines.push(line(COVER_SAVE_MOD, name, t, 'Comms Attack'));
     else if (ignoresCoverOnSaves(row) && !hasNanoscreen(y)) lines.push(line(COVER_SAVE_MOD, name, t, 'template'));
     else lines.push(line(COVER_SAVE_MOD, name, t));
   }
@@ -326,6 +346,16 @@ function sideLedger(x, y, s, rangeCm, inputs, vis) {
   const w = x.weapon;
   if (w.pseudo === 'none') return {kind: 'none', dice: 'No ARO'};
   if (vis[s].blocked) return {kind: 'none', dice: `No LoF (${ZONE_NAME[vis[s].blocked]})`};
+  // A Dodge can't evade a Comms Attack, a Reset evades nothing else.
+  const incoming = vis[other(s)].blocked ? null : y?.weapon;
+  if (w.pseudo && !evades(x, incoming)) {
+    const reason = w.pseudo === 'reset' ? 'Reset only evades Comms Attacks.' : 'Dodge can\'t evade a Comms Attack; Reset can.';
+    return {kind: 'none', dice: `${pseudoName(w)}: not rolled`, reason};
+  }
+  if (w.pseudo === 'reset') {
+    const sv = resetSv(x, y, s, inputs[`successValue${s}`]);
+    return {kind: 'reset', dice: `Reset SV${sv.total}`, sv};
+  }
   if (w.pseudo === 'dodge') {
     const sv = dodgeSv(x, y, s, inputs[`successValue${s}`], Boolean(vis[other(s)].blocked));
     const sd = sdLines(x, s, inputs, true);
