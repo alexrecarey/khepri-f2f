@@ -16,7 +16,9 @@ export const QUICK = {
   },
   es: {
     A: [['Ametralladora', 'ametralladora'], ['Spitfire', 'spitfire'], ['Red Fury', 'red fury']],
-    B: [['+DE', '+DE'], ['Neurocinética', 'neurocinetica'], ['Reacción Total', 'reaccion total'],
+    // "+DE" (Dado Especial) would search for "de", in every Spanish name;
+    // the index marks Special Dice as "sd" in every language.
+    B: [['+DE', '+SD'], ['Neurocinética', 'neurocinetica'], ['Reacción Total', 'reaccion total'],
       ['Lanzamisiles', 'lanzamisiles'], ['Lanzacohetes Pesado', 'lanzacohetes pesado'], ['F. Francotirador', 'francotirador']],
   },
 };

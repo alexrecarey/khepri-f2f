@@ -1,0 +1,22 @@
+[
+  {"query": "fusilero", "expect": "fusilero", "note": "two typos from Fusil Combi: no longer every unit carrying one"},
+  {"query": "fusileros", "expect": "fennec", "note": "the Army's plural, in Fennec's full name (Fusileros Fennec)"},
+  {"query": "fusilro", "expect": "fusilero", "note": "dropped letter"},
+  {"query": "fusiliers", "expect": "fennec", "note": "the English name still works"},
+  {"query": "teuton", "expect": "caballero teuton", "note": "accent left off"},
+  {"query": "teutones", "expect": "caballero teuton", "note": "plural, as the unit's full name has it"},
+  {"query": "caballero teutn", "expect": "caballero teuton"},
+  {"query": "sepulcro", "expect": "caballero del santo sepulcro", "note": "a word in the middle of the name"},
+  {"query": "guardia suiza", "expect": "guardia suizo", "note": "feminine form of the name"},
+  {"query": "swiss guard", "expect": "guardia suizo", "note": "English ISC"},
+  {"query": "nokk", "expect": "nokk", "note": "ø typed as o"},
+  {"query": "zhanshi yisheng", "expect": "zhanshi yisheng", "note": "tone marks"},
+  {"query": "alguaciles", "expect": "alguacil", "note": "plural"},
+  {"query": "ilota", "expect": "miliciano ilota"},
+  {"query": "moderadores", "expect": "moderador", "note": "plural"},
+  {"query": "sargento de orden", "expect": "sargentos de orden", "note": "singular of a plural name"},
+  {"query": "fus ml", "expect": "fusilero", "note": "English weapon shorthand in Spanish"},
+  {"query": "fusilero lanzamisiles", "expect": "fusilero", "note": "unit and Spanish weapon"},
+  {"query": "mecaingeniero", "expect": "meca ingeniero", "note": "dropped hyphen"},
+  {"query": "corresponsal de guerra", "expect": "warcor", "note": "the Spanish full name of an English short one"}
+]

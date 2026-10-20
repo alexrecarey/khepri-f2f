@@ -9,6 +9,7 @@ import {createSearch, TIER} from './search.js';
 import {prefixDistance, soundKey, words, indexWords} from './text.js';
 import {buildCorpus} from './eval/corpus.js';
 import {score} from './eval/score.js';
+import {splitNames, withNames} from '../army/localize.js';
 
 const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 const hard = JSON.parse(readFileSync(new URL('./eval/hard-cases.json', import.meta.url), 'utf8'));
@@ -110,6 +111,28 @@ test('scoreboard: generated typos and hard cases', () => {
   assert.ok(typo.all.top1 / typo.all.n >= 0.95, `top1 ${typo.all.top1}/${typo.all.n}`);
   const h = score(searcher, hard.map((c) => ({...c, kind: 'hard'})));
   assert.deepEqual(h.misses, [], 'hand-written hard cases all in the top 5');
+});
+
+// Spanish: the same floors over the Spanish names, and its own hard cases.
+const read = (path) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
+const esIndex = buildIndex(withNames(splitNames(army).core, read('../army/names.es.json'), 'es'));
+const esSearcher = createSearch(esIndex);
+
+test('scoreboard in Spanish: generated typos and hard cases', () => {
+  const typo = score(esSearcher, buildCorpus(esIndex.units));
+  assert.equal(typo.all.found, typo.all.n, 'every generated query finds its unit');
+  assert.ok(typo.all.top5 / typo.all.n >= 0.99, `top5 ${typo.all.top5}/${typo.all.n}`);
+  assert.ok(typo.all.top1 / typo.all.n >= 0.95, `top1 ${typo.all.top1}/${typo.all.n}`);
+  const h = score(esSearcher, read('./eval/hard-cases.es.json').map((c) => ({...c, kind: 'hard'})));
+  assert.deepEqual(h.misses, [], 'hand-written hard cases all in the top 5');
+});
+
+// A unit's name two typos from a weapon's ("fusilero" / "Fusil Combi") once
+// listed every unit carrying the weapon.
+test('a unit name doesn\'t match weapons two typos away', () => {
+  const r = esSearcher.search({query: 'fusilero', factionId: null});
+  assert.equal(r.units[0].short, 'Fusilero');
+  assert.ok(r.units.length <= 5, `${r.units.length} units`);
 });
 
 test('speed: typing stays well under a frame', () => {
