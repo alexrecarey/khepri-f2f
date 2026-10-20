@@ -436,6 +436,8 @@ export default {
   'picker.troopers': 'Troopers',
   'picker.profile': 'Profile',
   'picker.loadouts': 'Loadouts',
+  'picker.loadoutCount_one': '{count} loadout',
+  'picker.loadoutCount_other': '{count} loadouts',
   'picker.use': 'Use',
   'picker.useAndChange': 'Use and change {side}',
   'picker.useAndChoose': 'Use and choose {side}',

@@ -140,11 +140,53 @@ function buildUnitDetail(army, unitId, armyFactionId) {
     name: p.name,
     type: p.type,
     crest: crestOf(unit, p),
-    // MOV in cm, as the army has it; the pane shows it in the language's unit.
-    stats: [['MOV', p.move ?? []], ['CC', p.cc], ['BS', p.bs], ['PH', p.ph],
-      ['WIP', p.wip], ['ARM', p.arm], ['BTS', p.bts], [p.str ? 'STR' : 'W', p.w], ['S', p.s]],
+    stats: profileStats(p),
     // The skills as the army lists them; army/traits.js traitLabel words them.
     skills: p.skills ?? [],
   }));
   return {unit, profiles};
+}
+
+// A profile's stats as [name, value] pairs, the names English tokens (src/i18n
+// stat.<name lower-cased>). MOV in cm, as the army has it: the picker shows it
+// in the language's unit.
+export function profileStats(p) {
+  return [['MOV', p.move ?? []], ['CC', p.cc], ['BS', p.bs], ['PH', p.ph],
+    ['WIP', p.wip], ['ARM', p.arm], ['BTS', p.bts], [p.str ? 'STR' : 'W', p.w], ['S', p.s]];
+}
+
+// A unit with several profile groups (Team-Ops: MI, HI and a remote or
+// creature) by group, in the army's order, or null for a unit with one:
+//   [{key, name, type, stats, shared, items: [{hit, own}]}]
+// shared: the weapons every loadout in the group carries (shown once under
+// its stats); own: the rest, what sets a loadout apart (its main gun when it
+// has nothing else). A group of one loadout shares nothing.
+export function profileGroups(army, hits) {
+  const unit = hits.length ? unitById(army, hits[0].unitId) : null;
+  if (!unit) return null;
+  const ids = [...new Set(hits.map((h) => h.groupId))];
+  if (ids.length < 2) return null;
+  // The army's order (Team-Ops: MI, HI, then the remote or creature), not the
+  // cheapest-first order the rows arrive in.
+  const order = (unit.byFaction[hits[0].armyFactionId]?.groups ?? []).map((g) => g.id);
+  ids.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  return ids.map((id) => {
+    const items = orderLoadouts(army, hits.filter((h) => h.groupId === id));
+    const group = unit.byFaction[items[0].armyFactionId]?.groups.find((g) => g.id === id);
+    const profile = group?.profiles[0];
+    const shared = items.length < 2 ? []
+      : items[0].weapons.filter((w) => items.every((h) => h.weapons.includes(w)));
+    return {
+      key: id,
+      name: group?.isc ?? '',
+      type: profile?.type ?? null,
+      stats: profile ? profileStats(profile) : [],
+      shared,
+      items: items.map((hit) => {
+        const own = hit.weapons.filter((w) => !shared.includes(w));
+        const main = army.weapons[mainWeapon(army, hit.weaponIds)]?.[0]?.name ?? hit.weapons[0];
+        return {hit, own: own.length ? own : [main].filter(Boolean)};
+      }),
+    };
+  });
 }

@@ -436,6 +436,8 @@ export default {
   'picker.troopers': 'Tropas',
   'picker.profile': 'Perfil',
   'picker.loadouts': 'Equipos',
+  'picker.loadoutCount_one': '{count} equipo',
+  'picker.loadoutCount_other': '{count} equipos',
   'picker.use': 'Usar',
   'picker.useAndChange': 'Usar y cambiar el {side}',
   'picker.useAndChoose': 'Usar y elegir el {side}',
