@@ -1,11 +1,13 @@
 // The app's language: the one picked in Settings, else the first of the
 // browser's languages the app has, else English. It decides which names
-// file the army data and the search index load (src/army/localize.js).
+// file the army data and the search index load (src/army/localize.js),
+// and the app's copy (src/i18n).
 import {useAppState} from './store.js';
 
 // A new language is listed here and in scripts/fetch-army.mjs (LANGUAGES),
-// src/data/army.js (NAMES) and src/ui/picker/useTrooperSearch.js (INDEXES):
-// dynamic imports need their file names written out.
+// src/data/army.js (NAMES), src/ui/picker/useTrooperSearch.js (INDEXES) and
+// src/i18n/index.js (LOADERS, its copy): dynamic imports need their file
+// names written out.
 export const LANGUAGES = {en: 'English', es: 'Español'};
 export const AUTO = 'auto';
 
