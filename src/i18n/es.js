@@ -306,7 +306,7 @@ export default {
   'results.openHint': 'Ver todos los resultados. Las flechas izquierda y derecha cambian el número grande.',
   'results.stateTip': '{state} · exactamente {exactly} · al menos {atLeast}',
   'results.woundsByState': 'Heridas por estado',
-  'results.exactly': 'Exactamente',
+  'results.exactly': 'Exacto',
   'results.atLeastHead': 'Al menos',
   'results.overOrders': '{now} en esta orden · {over} en {orders} órdenes',
   'results.faceToFace': 'Tirada Enfrentada',
