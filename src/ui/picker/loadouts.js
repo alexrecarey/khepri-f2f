@@ -181,10 +181,13 @@ export function profileGroups(army, hits) {
       name: group?.isc ?? '',
       type: profile?.type ?? null,
       stats: profile ? profileStats(profile) : [],
+      // As the army lists them; army/traits.js traitLabel words them.
+      skills: profile?.skills ?? [],
       shared,
       items: items.map((hit) => {
         const own = hit.weapons.filter((w) => !shared.includes(w));
-        const main = army.weapons[mainWeapon(army, hit.weaponIds)]?.[0]?.name ?? hit.weapons[0];
+        // A peripheral with no weapon (Cutters' Crabbot) is named by its loadout.
+        const main = army.weapons[mainWeapon(army, hit.weaponIds)]?.[0]?.name ?? hit.weapons[0] ?? hit.loadout;
         return {hit, own: own.length ? own : [main].filter(Boolean)};
       }),
     };

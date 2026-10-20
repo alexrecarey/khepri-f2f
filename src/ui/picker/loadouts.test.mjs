@@ -86,6 +86,10 @@ test('a unit with several profile groups: one section each, shared kit once, row
   // Each group has its own stats: the Heavy's BTS isn't the Treitak-1's.
   assert.notDeepEqual(heavy.stats, treitak.stats);
   assert.deepEqual(asklad.shared, ['Heavy Flamethrower', 'AP CC Weapon']);
+  // A TAG and its peripheral: the Crabbot carries no weapon, so its row is its loadout's name.
+  const cutters = profileGroups(army, searcher.unitRows(army.units.find((u) => u.slug === 'cutters-varuna-naval-chasseurs').id));
+  assert.deepEqual(cutters.map((g) => g.type), ['TAG', 'REM']);
+  assert.deepEqual(cutters[1].items.map(({own}) => own), [['CRABBOT']]);
   // A unit with one profile group keeps today's page.
   const fusiliers = army.units.find((u) => u.slug === 'fusiliers');
   assert.equal(profileGroups(army, searcher.unitRows(fusiliers.id)), null);

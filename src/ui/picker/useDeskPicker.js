@@ -7,7 +7,7 @@ import {pickTrooper} from '../../state/actions.js';
 import {ROLE, other} from '../../state/schema.js';
 import {dispatch, getState, useAppState} from '../../state/store.js';
 import {listItems, matchedCount} from './deskList.js';
-import {orderLoadouts, unitDetail} from './loadouts.js';
+import {orderLoadouts, profileGroups, unitDetail} from './loadouts.js';
 import {factionNameOf, useRecentIds} from './useRecentIds.js';
 import {useT} from '../i18n.jsx';
 
@@ -50,7 +50,13 @@ export default function useDeskPicker({searcher, army}) {
   // The unit in the right pane and its loadouts in scope.
   const unitId = current?.kind === 'unit' ? current.u.unitId : current?.kind === 'recent' ? current.hit.unitId : null;
   const factionId = current?.kind === 'unit' ? current.factionId : current?.kind === 'recent' ? current.hit.factionId : null;
-  const loadouts = useMemo(() => (searcher && unitId != null ? orderLoadouts(army, searcher.unitRows(unitId, factionId)) : []), [searcher, army, unitId, factionId]);
+  const unitRows = useMemo(() => (searcher && unitId != null ? searcher.unitRows(unitId, factionId) : []), [searcher, unitId, factionId]);
+  // A unit with several profile groups (Team-Ops, a TAG and its peripheral):
+  // the pane shows a section per group, and the arrow keys walk the loadouts
+  // in that order.
+  const pgroups = useMemo(() => (army ? profileGroups(army, unitRows) : null), [army, unitRows]);
+  const loadouts = useMemo(() => (pgroups ? pgroups.flatMap((g) => g.items.map((x) => x.hit)) : orderLoadouts(army, unitRows)),
+    [army, unitRows, pgroups]);
   const detail = useMemo(() => (unitId != null ? unitDetail(army, unitId, loadouts[0]?.armyFactionId) : null), [army, unitId, loadouts]);
   const profile = detail?.profiles.find((p) => p.id === picker.profileId) ?? detail?.profiles[0] ?? null;
   const lat = Math.min(lcursor, Math.max(0, loadouts.length - 1));
@@ -60,7 +66,9 @@ export default function useDeskPicker({searcher, army}) {
 
   // The hit Enter picks: the highlighted loadout in the loadouts pane; on a
   // unit row, the loadout the query matched ("fus ml"), else its first.
-  const withProfile = (hit) => (profile && detail.profiles.length > 1 ? {...hit, profileId: profile.id} : hit);
+  // The profile tabs belong to the first group; with sections each hit
+  // already names its own group.
+  const withProfile = (hit) => (profile && detail.profiles.length > 1 && !pgroups ? {...hit, profileId: profile.id} : hit);
   const hitFor = () => {
     if (pane === 'loadouts' && loadouts[lat]) return withProfile(loadouts[lat]);
     if (current?.kind === 'recent') return current.hit;
@@ -88,7 +96,7 @@ export default function useDeskPicker({searcher, army}) {
 
   return {
     searcher, army, sides, side, color, query, scope, pane, typing, browsing, factionName, matched,
-    all, browse, items, rows, at, current, unitId, factionId, loadouts, detail, profile, lat, best, bestAt,
+    all, browse, items, rows, at, current, unitId, factionId, loadouts, pgroups, detail, profile, lat, best, bestAt,
     withProfile, hitFor, pick, otherSide, otherSet, otherName, chips,
   };
 }
