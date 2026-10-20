@@ -31,8 +31,8 @@ correct them before merging.
 | Reset | Reset | **check** |
 | Cover (Partial Cover) | Cobertura (Cobertura Parcial) | wiki |
 | Limited Cover / No Cover | Cobertura Limitada / Sin Cobertura | Army |
-| Foxhole | Pozo de Tirador | wiki |
-| Sapper | Zapador | Army |
+| Foxhole (the state: ledger lines) | Pozo de Tirador | wiki |
+| Sapper (the skill: the chip, and the saved-roll / share summary of that chip) | Zapador | Army, Alex |
 | Smoke | Humo | wiki |
 | White Noise | Ruido Blanco | wiki |
 | Zero Visibility / Poor Visibility | Visibilidad Nula / Mala Visibilidad | wiki |
@@ -63,7 +63,7 @@ correct them before merging.
 | Wound(s) | herida(s) | **check** (N5 English says VITA wounds) |
 | Order | orden | wiki |
 | loadout | equipo | **check** (players also say "perfil") |
-| Matchup (the calculator mode) | Enfrentamiento | **check** |
+| Matchup (the calculator mode) | Enfrentada | Alex |
 | Classic | Clásica | **check** |
 
 ## Distances
