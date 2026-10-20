@@ -2,7 +2,7 @@
 // address bar always shows the current setup, so copying it is a share link.
 //   Matchup:  ?mode=matchup&unitA=..&weaponA=..&range=..&headline=wpo  (matchup/matchupParams.js;
 //             headline: the card's big number, for the link's preview (headlines.js),
-//             once a trooper is picked
+//             once a trooper is picked)
 //   Classic:  ?mode=basic&burstA=4&successValueA=14&psA=12..  (engine/params.js; defaults left out)
 // Classic links carry the save each side forces as one number, the way the
 // Classic screen shows it: psA = A's weapon PS + B's ARM, psBtsA = PS + B's
