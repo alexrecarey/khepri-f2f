@@ -72,6 +72,14 @@ list to look at: teach the rules about it, or mark it as known. Raw downloads
 are kept in `.cache/army`, so `yarn fetch-army --offline` rebuilds after a
 code change without hitting the API.
 
+It also downloads the Spanish files and writes `src/army/names.es.json`: the
+same ids with Spanish names (`scripts/army-names.mjs`). The rules only ever
+read the English data; names are display. The app ships the army as a
+language-neutral core plus the names of the player's language
+(`src/army/localize.js`; the English names are split out of army.json at
+build time), and one search index per language (`src/search/index*.json`).
+The language follows the browser unless picked in Settings.
+
 # Contributing
 
 Pull requests and contributions are welcome, but I do have a vision for this

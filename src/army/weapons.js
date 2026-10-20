@@ -149,7 +149,8 @@ function withAmmoExtra(row, mods) {
   if (!mods?.ammo) return row;
   if (mods.ammo === 'Viral') {
     const props = (row.props ?? []).filter((p) => !p.startsWith('Bioweapon ('));
-    return {...row, name: `Viral ${row.name}`, save: {attr: 'BTS'}, props: ['Bioweapon (DA+SHOCK)', ...props]};
+    return {...row, name: `Viral ${row.name}`, ...(row.en ? {en: `Viral ${row.en}`} : {}), save: {attr: 'BTS'},
+      props: ['Bioweapon (DA+SHOCK)', ...props]};
   }
   return {...row, ammo: [...ammoTypes(row), mods.ammo]};
 }

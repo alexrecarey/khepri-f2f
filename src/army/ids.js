@@ -23,6 +23,8 @@ const SKILLS = {
   DOGGED: [85, 'Dogged'],
   NWI: [86, 'No Wound Incapacitation'],
   REMOTE_PRESENCE: [235, 'Remote Presence'],
+  LIEUTENANT: [119, 'Lieutenant'],
+  PERIPHERAL: [243, 'Peripheral'],
   MARTIAL_ARTS_L1: [19, 'Martial Arts L1'],
   MARTIAL_ARTS_L2: [20, 'Martial Arts L2'],
   MARTIAL_ARTS_L3: [21, 'Martial Arts L3'],

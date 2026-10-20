@@ -54,9 +54,10 @@ export const KIND_ALIASES = [
   {type: 'REM', skill: 61, words: ['tr', 'bot', 'bots', 'trbot', 'trbots']}, // Total Reaction
 ];
 
-// Skills players search for by name (reactive picks): skill id -> its name,
-// whose words go on every loadout with it, from the profile or the loadout.
-export const SEARCHABLE_SKILLS = {
-  61: 'Total Reaction',
-  109: 'Neurocinetics',
-};
+// Skills players search for by name (reactive picks): their ids. The skill's
+// name, in the index's language, goes on every loadout with it, from the
+// profile or the loadout.
+export const SEARCHABLE_SKILLS = [
+  61, // Total Reaction
+  109, // Neurocinetics
+];

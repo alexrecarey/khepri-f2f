@@ -1,3 +1,5 @@
+import {SKILL} from './ids.js';
+
 // Skills and equipment of a trooper: the profile's plus the loadout's.
 // A trait is {id, name, extra?: [...]}, as in the Army data.
 
@@ -22,4 +24,4 @@ export const traitLabel = (t) => (t.extra?.length ? `${t.name} (${t.extra.join('
 
 // Lieutenant (any level): changes nothing on the table, so the picker and the
 // index leave it out when telling loadouts apart.
-export const isLieutenant = (skill) => /^Lieutenant/.test(skill?.name ?? '');
+export const isLieutenant = (skill) => skill?.id === SKILL.LIEUTENANT;

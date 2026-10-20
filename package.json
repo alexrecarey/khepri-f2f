@@ -8,7 +8,7 @@
     "dev:named": "portless",
     "build": "vite build",
     "check-build": "node scripts/check-build.mjs",
-    "check-search-index": "node scripts/build-search-index.mjs && git diff --exit-code src/search/index.json",
+    "check-search-index": "node scripts/build-search-index.mjs && git diff --exit-code src/search/ && test -z \"$(git status --porcelain src/search/)\"",
     "preview": "vite preview",
     "fetch-army": "node --no-warnings scripts/fetch-army.mjs && node scripts/build-search-index.mjs && node scripts/crests/sync.mjs",
     "crests": "node scripts/crests/sync.mjs",

@@ -1,10 +1,11 @@
-import {useMemo} from 'react'
+import {useEffect, useMemo} from 'react'
 import PropTypes from 'prop-types'
 
 import './ui/app.css'
 import useEngine from "./engine/useEngine.js";
 import {useArmy} from "./data/army.js";
 import {dispatch, useAppState} from "./state/store.js";
+import {useLanguage} from "./state/language.js";
 import useMatchupView from "./state/useMatchupView.js";
 import ClassicScreen from "./ui/ClassicScreen.jsx";
 import MatchupScreen from "./ui/MatchupScreen.jsx";
@@ -25,7 +26,9 @@ function App() {
   const matchupMode = mode === MODES.matchup;
   const layout = useLayout();
 
-  const {army, error: armyError, retry: retryArmy} = useArmy(matchupMode);
+  const lang = useLanguage();
+  useEffect(() => { document.documentElement.lang = lang; }, [lang]);
+  const {army, error: armyError, retry: retryArmy} = useArmy(matchupMode, lang);
   const view = useMatchupView(army);
 
   // Shock is Matchup-only (it depends on the target's VITA); the classic
@@ -75,7 +78,7 @@ function App() {
 function Overlays({dialogs, results}) {
   const overlay = useAppState((s) => s.ui.overlay);
   // Settings lists the factions; the search index has them without the army data.
-  const {searcher} = useSearcher(overlay === 'settings');
+  const {searcher} = useSearcher(overlay === 'settings', useLanguage());
   const factions = searcher?.factions ?? [];
   if (overlay === 'menu') return <Menu />;
   if (overlay === 'saved') return <SavedRolls />;
