@@ -48,6 +48,10 @@ test('Spanish names cover every unit, loadout and weapon', () => {
   }
   assert.equal(es.units.find((u) => u.id === 30).isc, 'Caballero Teutón');
   assert.equal(es.units.find((u) => u.id === 30).code, 'Teutonic Knights');
+  // Its Chaksa Peripherals don't name Gorgos Squad.
+  const gorgos = es.units.find((u) => u.code === 'Gorgos Squad');
+  assert.equal(gorgos.isc, 'Gorgos');
+  assert.equal(gorgos.tag, 'Gorgos');
 });
 
 // Every ledger line's number, side and struck state, without the words.

@@ -14,7 +14,7 @@
   {"query": "alguaciles", "expect": "alguacil", "note": "plural"},
   {"query": "ilota", "expect": "miliciano ilota"},
   {"query": "moderadores", "expect": "moderador", "note": "plural"},
-  {"query": "sargento de orden", "expect": "sargentos de orden", "note": "singular of a plural name"},
+  {"query": "sargento de orden", "expect": "sargento", "note": "singular of a plural name"},
   {"query": "fus ml", "expect": "fusilero", "note": "English weapon shorthand in Spanish"},
   {"query": "fusilero lanzamisiles", "expect": "fusilero", "note": "unit and Spanish weapon"},
   {"query": "mecaingeniero", "expect": "meca ingeniero", "note": "dropped hyphen"},

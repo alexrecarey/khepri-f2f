@@ -9,11 +9,15 @@
 // stats) are here for the screens that show them.
 
 import {splitNames} from '../src/army/localize.js';
-import {spanishShort} from '../src/army/shortNames.js';
+import {SKILL} from '../src/army/ids.js';
+import {shortIsc} from '../src/army/names.js';
+import {BY_UNIT_NAME, spanishShort, spanishTag} from '../src/army/shortNames.js';
 import {clean, compactUpgrades, resolvers} from './army-compact.mjs';
 
-// The unit's short name for players of each language; English uses the ISC.
+// The unit's short name for players of each language, and its one-word tag;
+// English uses the ISC and its first word (src/army/names.js).
 const SHORT = {es: spanishShort};
+const TAG = {es: spanishTag};
 
 // Weapon rows are listed in a different order per language (sorted by the
 // translated mode name), so rows are paired by what they do; the number of
@@ -68,6 +72,8 @@ export function localNames(lang, army, {enMetadata, enFiles, metadata, files}) {
       continue;
     }
     const groups = {};
+    const peripheralGroups = new Set(Object.values(unit.byFaction).flatMap((e) => e.groups)
+      .filter((g) => g.profiles[0]?.skills.some((s) => s.id === SKILL.PERIPHERAL)).map((g) => String(g.id)));
     for (const [gid, g] of Object.entries(enUnit.groups)) {
       const rgs = copies.flatMap((c) => c.profileGroups.filter((x) => String(x.id) === gid));
       const rg = rgs[0];
@@ -79,8 +85,14 @@ export function localNames(lang, army, {enMetadata, enFiles, metadata, files}) {
       groups[gid] = {isc: clean(rg?.isc) ?? g.isc, profiles: byId('profiles', g.profiles, 'profile'), options: byId('options', g.options, 'loadout')};
     }
     const name = clean(u.name);
-    const loadouts = Object.values(groups).flatMap((g) => Object.values(g.options));
-    const out = {isc: SHORT[lang]?.(name, loadouts) ?? clean(u.isc), name, code: unit.isc, groups};
+    // Peripherals (Gorgos Squad's Chaksa) don't name the unit, unless the
+    // unit is only Peripherals (Palbots, Slave Drones).
+    const notPeripheral = Object.entries(groups).filter(([gid]) => !peripheralGroups.has(gid));
+    const own = notPeripheral.length > 0 ? notPeripheral : Object.entries(groups);
+    const loadouts = BY_UNIT_NAME.has(unit.isc) ? [] : own.flatMap(([, g]) => Object.values(g.options));
+    const isc = SHORT[lang]?.(name, loadouts) ?? clean(u.isc);
+    const tag = TAG[lang]?.(isc, shortIsc(unit.isc));
+    const out = {isc, ...(tag ? {tag} : {}), name, code: unit.isc, groups};
     if (enUnit.upgrades) {
       const up = compactUpgrades(u.spectables, {skill: r.skillName, equip: r.equipName, weapon: r.weaponName, extra: r.extraName}, statLabels);
       out.upgrades = {chart: (up?.chart ?? []).map((i) => i.label), ball: (up?.ball ?? []).map((i) => i.label)};

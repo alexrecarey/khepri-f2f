@@ -5,6 +5,10 @@ import {words} from '../search/text.js';
 // "Hexas, Strategic Security Division" -> "Hexas": what players call it.
 export const shortIsc = (isc) => (isc ?? '').split(',')[0].trim();
 
+// One word for narrow columns: "Fennec" for Fennec Fusiliers. Names in
+// other languages carry their own (`tag`; Spanish puts it last).
+export const unitTag = (unit) => unit?.tag ?? shortIsc(unit?.isc).split(' ')[0];
+
 // The loadout's own name when it says something the unit name doesn't
 // ("BIPANDRA", "Hacker"), else null. Army names most loadouts after the unit
 // in capitals ("FENNEC" for Fennec Fusiliers, "FUSILIER" for Fusiliers), which
