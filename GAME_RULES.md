@@ -105,6 +105,10 @@ Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Wa
 - NWI and Dogged rename the Unconscious step; those troopers keep fighting.
 - Only Unconscious (first) and Dead take a trooper out of the fight.
 - Shock: a 1 VITA target goes straight to Dead (no Unconscious, NWI or Dogged). STR, VITA 2+ and Shock-immune troopers are immune.
+- Weapons that cause a State instead of wounds show one result, that State, for one failed save or more:
+  - Stunned: Stun Ammunition (Flash Pulse, Stun Pistol). Immunity never stops it (Non-Lethal and State: Stunned always apply); with Immunity (BTS) the hit is Normal Ammunition, one save per hit.
+  - Isolated: Jammer. Immunity (Isolated) and Warhorse stop it.
+  - Cybermines (Stunned, or Immobilized-B for hackable troopers) are Deployables, which the app doesn't offer.
 
 ## Not modelled yet
 - ⋯ More situations: Low Visibility Zone, other Poor Visibility Zones (not Smoke / White Noise), Saturation Zone, Engaged (need rulings). Prone changes nothing to the roll.

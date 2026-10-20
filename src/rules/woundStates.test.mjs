@@ -37,5 +37,11 @@ test('Shock against VITA 1: straight to Dead', () => {
 });
 
 test('a weapon that only Isolates (Jammer): one state, Isolated, whatever the VITA', () => {
-  assert.deepEqual(labels(3, skills(SKILL.NWI), {isolated: true}), ['Isolated']);
+  assert.deepEqual(labels(3, skills(SKILL.NWI), {state: 'Isolated'}), ['Isolated']);
+});
+
+test('a Stun weapon (Flash Pulse): one state, Stunned, however many saves fail', () => {
+  const [st] = woundStates({w: 2}, skills(), {state: 'Stunned'});
+  assert.deepEqual(st, {key: 'stunned', label: 'Stunned', wounds: 1, glyph: null, outOfFight: true, state: true});
+  assert.deepEqual(labels(1, skills(), {shock: true, state: 'Stunned'}), ['Stunned']);
 });

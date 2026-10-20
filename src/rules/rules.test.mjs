@@ -541,8 +541,8 @@ test('Immunity (BTS): Flash Pulse still stuns, as a Face to Face Roll', () => {
   assert.equal(flash.inputs.damageA, 7);
   assert.equal(flash.inputs.ammoA, 'N');
   assert.equal(flash.inputs.armB, 6);
-  assert.deepEqual(flash.warnings, ['Active: Flash Pulse is non-lethal; results shown as wounds']);
-  assert.deepEqual(flash.notes, []);
+  assert.deepEqual(flash.warnings, []);
+  assert.deepEqual(flash.notes, ['Active: Flash Pulse; a failed save leaves the target Stunned, not wounded']);
 });
 
 test('Vulnerability (Viral): no Immunity against Viral weapons', () => {

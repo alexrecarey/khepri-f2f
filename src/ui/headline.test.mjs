@@ -61,6 +61,8 @@ test('a side whose hits only Isolate shows the chance of Isolated, and a Reset "
   assert.deepEqual([w.text.reactive, w.label.reactive], ['0.46', 'wounds / order']);
   assert.deepEqual(w.small, ['47.7% Isolated', '28.6%']);
   assert.equal(headline(iso, 'wound').label.active, 'Isolated');
+  const stun = {...s, states: {active: [{key: 'stunned', label: 'Stunned', state: true}], reactive: [{key: 'unc'}, {key: 'dead'}]}};
+  assert.deepEqual(headline(stun, 'wpo').small, ['47.7% Stunned', '28.6%']);
   const r = headline(s, 'win', {ammoA: 'N', ammoB: 'DODGE'}, {A: {kind: 'attack'}, B: {kind: 'reset'}});
   assert.equal(r.label.reactive, 'resets');
   assert.equal(headline(s, 'win', {ammoA: 'N', ammoB: 'DODGE'}).label.reactive, 'dodges');

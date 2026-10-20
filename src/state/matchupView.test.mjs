@@ -122,6 +122,17 @@ test('Team-Ops picks: a weapon joins the weapon list, a stat shows in the ledger
   assert.deepEqual(v.ledger.ledger.A.sv.lines[0], {value: plain.A.resolved.profile.bs + 1, label: 'BS (Team-Ops: BS+1)', by: null});
 });
 
+test('a Stun Pistol: its target can only be Stunned, however many wounds it has', () => {
+  const magistrate = {...EMPTY_SIDE, unitId: army.units.find((x) => x.slug === 'bca-magistrates').id, factionId: 101, groupId: 1, optionId: 1};
+  const plain = matchupView(army, {A: magistrate, B: chaksa, rangeCm: 20});
+  const stun = plain.A.weapons.find((w) => w.name === 'Stun Pistol');
+  assert.ok(stun, 'the Stun Pistol is a weapon button');
+  const v = matchupView(army, {A: {...magistrate, weaponKey: stun.key}, B: chaksa, rangeCm: 20});
+  assert.deepEqual(v.targets.active.map((t) => t.label), ['Stunned']);
+  assert.notDeepEqual(v.targets.reactive.map((t) => t.label), ['Stunned']);
+  assert.ok(v.ledger.notes.includes('Active: Stun Pistol; a failed save leaves the target Stunned, not wounded'));
+});
+
 test('a Team-Ops Jammer: Reset shows against it, and its target can only be Isolated', () => {
   const u = army.units.find((x) => x.slug === 'confessor-team-ops');
   const f = u.inFactions[0];

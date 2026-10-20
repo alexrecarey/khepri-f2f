@@ -5,7 +5,7 @@
 import {SKILL} from '../army/ids.js';
 import {extraLoadoutName, shortIsc} from '../army/names.js';
 import {hasSkill} from '../army/traits.js';
-import {isCommsAttack, isTemplate, isolates} from '../army/weapons.js';
+import {isCommsAttack, isTemplate, stateCaused} from '../army/weapons.js';
 import {fullParams} from '../engine/params.js';
 import {defaultWeapon, sortWeapons} from '../rules/defaultWeapon.js';
 import {buildLedger} from '../rules/ledger.js';
@@ -143,9 +143,9 @@ export function matchupView(army, matchup) {
   // The states each side's hits push its target through. The active side's
   // results are what it does to the reactive trooper, so they follow B's
   // states (and the other way round).
-  // A Jammer's failed save is Isolated, not a wound.
+  // A Jammer's failed save is Isolated, a Flash Pulse's Stunned, not a wound.
   const statesOf = (target, shock, attacker) => (target?.profile
-    ? woundStates(target.profile, target.traits, {shock, isolated: isolates(attacker?.weapon?.row)}) : null);
+    ? woundStates(target.profile, target.traits, {shock, state: stateCaused(attacker?.weapon?.row)}) : null);
   const targets = complete
     ? {active: statesOf(B.resolved, params.shockA, A.resolved), reactive: statesOf(A.resolved, params.shockB, B.resolved)} : null;
   // Each band's Range MOD per side, for the range selector's stripes.
