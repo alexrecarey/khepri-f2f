@@ -16,6 +16,7 @@
 //   save is the Saving Roll the OTHER side makes against this side's hits:
 //   weapon PS + target ARM (or BTS), on d20 <= total.
 import {SKILL} from '../army/ids.js';
+import {upgradeRaising} from '../army/loadouts.js';
 import {hasSkill} from '../army/traits.js';
 import {
   ammoName, ammoTypes, attackAttribute, bioweaponParts, hasContinuousDamage, isImpactTemplate, isPlasma, isTemplate, weaponPS,
@@ -50,6 +51,12 @@ function reconcile(lines, total) {
 const opposingLines = (y, x, ySide, yActive) => opposingMods(y, x, yActive)
   .map((m) => line(m.value, m.label, ySide, m.ignoredBy));
 
+// An Attribute's name, and the Team-Ops upgrade that raised it: "BS (Team-Ops: BS+1)".
+function statLabel(x, attr) {
+  const u = upgradeRaising(x.upgrades, attr.toLowerCase());
+  return u ? `${attr.toUpperCase()} (Team-Ops: ${u.label})` : attr.toUpperCase();
+}
+
 function rangeLabel(rangeCm) {
   const i = RANGE_BANDS.findIndex((b) => rangeCm <= b.to);
   const band = RANGE_BANDS[i];
@@ -60,7 +67,7 @@ function attackSv(x, y, s, rangeCm, total, vis) {
   const t = other(s);
   const {row, mods} = x.weapon;
   const attr = attackAttribute(row);
-  const lines = [line(attackStat(x.profile, row), attr.toUpperCase(), null)];
+  const lines = [line(attackStat(x.profile, row), statLabel(x, attr), null)];
   const ft = fireteamBonuses(x.ftSize);
   if (ft.bs) lines.push(line(ft.bs, `Fireteam ${x.ftSize}`, s));
   const rangeMod = rangeModFor(row, rangeCm, x.traits);
@@ -110,7 +117,7 @@ function clampSv(lines) {
 function dodgeSv(x, y, s, total, yBlocked) {
   const t = other(s);
   const d = dodgeExtras(x.traits);
-  const lines = [d.ph !== null ? line(d.ph, `Dodge (PH=${d.ph})`, s) : line(x.profile.ph ?? 0, 'PH', null)];
+  const lines = [d.ph !== null ? line(d.ph, `Dodge (PH=${d.ph})`, s) : line(x.profile.ph ?? 0, statLabel(x, 'ph'), null)];
   if (d.mod) lines.push(line(d.mod, `Dodge (+${d.mod})`, s));
   const ft = fireteamBonuses(x.ftSize).dodge;
   if (ft) lines.push(line(ft, `Fireteam ${x.ftSize}`, s));
@@ -129,7 +136,7 @@ function dodgeSv(x, y, s, total, yBlocked) {
 // (closeCombat.js). No range, cover, Mimetism or Smoke.
 function ccSv(x, y, s, total) {
   const t = other(s);
-  const lines = [line(attackStat(x.profile, x.weapon.row), 'CC', null)];
+  const lines = [line(attackStat(x.profile, x.weapon.row), statLabel(x, 'cc'), null)];
   for (const m of ccAttackMods(x, s === 'A')) lines.push(line(m.value, m.label, s));
   if (y) lines.push(...opposingLines(y, x, t, t === 'A'));
   const modSum = sum(live(lines).slice(1));
@@ -202,13 +209,13 @@ function saveLines(x, y, s, inputs) {
   let base = attr === 'BTS' ? p.bts ?? 0 : attr === 'PH' ? p.ph ?? 0 : (p.arm ?? 0);
   if (attr === 'PH') {
     // PARA: the target rolls PH at the weapon's MOD, no PS.
-    lines.push(line(base, 'PH', t));
+    lines.push(line(base, statLabel(y, 'PH'), t));
     if (save.mod) lines.push(line(save.mod, row.name, s));
   } else if (attr === 'ARM' && save.armZero && !immune) {
-    lines.push(line(base, 'ARM', t, `${row.name}: ARM = 0`));
+    lines.push(line(base, statLabel(y, 'ARM'), t, `${row.name}: ARM = 0`));
     base = 0;
   } else {
-    lines.push(line(base, attr, t));
+    lines.push(line(base, statLabel(y, attr), t));
   }
   // ARM = 0 wins over the Dodge's extra ARM (Alex, 2026-10-10).
   if (attr === 'ARM' && dodging && dodgeExtras(y.traits).arm) {

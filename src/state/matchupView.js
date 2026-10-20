@@ -86,6 +86,10 @@ function sideView(army, sel, side) {
     // Berserk's MOD, offered only on the active side (a Long Skill) while it
     // has a CC weapon picked; null otherwise.
     berserk: side === 'A' && isCcAttack(resolved) && hasBerserk(resolved.traits) ? {mod: berserkMod(resolved.traits)} : null,
+    // Team-Ops: the chart and TacBall options, by label, for their chips.
+    teamOps: resolved?.teamOps
+      ? {chart: (unit.upgrades.chart ?? []).map((u) => u.label), ball: (unit.upgrades.ball ?? []).map((u) => u.label)}
+      : null,
     faction: unit ? army.factions[vanillaOf(army, resolved.factionId)]?.name ?? null : null,
     // The vanilla faction id (its crest stands in for a missing unit crest)
     // and the unit crest's slug (src/army/crests.js).
@@ -96,7 +100,7 @@ function sideView(army, sel, side) {
   };
 }
 
-const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], ccWeapons: [], pseudo: [], groups: [], cc: false, ccAlliesMax: 0, noCover: false, surprise: 0, berserk: null,
+const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], ccWeapons: [], pseudo: [], groups: [], cc: false, ccAlliesMax: 0, noCover: false, surprise: 0, berserk: null, teamOps: null,
   faction: null, vanilla: null, crest: null, short: null, loadout: null});
 
 

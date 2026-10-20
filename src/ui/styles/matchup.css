@@ -58,6 +58,11 @@
 .chip-group .n { all: unset; box-sizing: border-box; cursor: pointer; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 999px; color: var(--text-3); }
 .chip-group.active .n.on { background: var(--active); color: var(--active-ink); font-weight: 600; }
 .chip-group.reactive .n.on { background: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
+.chip-group.list { flex-wrap: wrap; border-radius: 18px; padding: 4px 4px 4px 12px; max-width: 100%; }
+.chip-group .opt { all: unset; box-sizing: border-box; cursor: pointer; padding: 6px 10px; border-radius: 999px; color: var(--text-2); }
+.chip-group .opt:focus-visible, .chip-group .n:focus-visible { outline: 2px solid var(--text-2); outline-offset: 1px; }
+.chip-group.active .opt.on { background: var(--active); color: var(--active-ink); font-weight: 600; }
+.chip-group.reactive .opt.on { background: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
 .note { font-size: var(--fs-small); color: var(--muted); }
 .link-btn { all: unset; cursor: pointer; color: var(--text-2); text-decoration: underline; }
 

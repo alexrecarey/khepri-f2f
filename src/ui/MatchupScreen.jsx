@@ -4,7 +4,7 @@
 // out and turns taps into actions.
 import {useCallback, useEffect, useMemo} from 'react';
 import PropTypes from 'prop-types';
-import {openPicker, pickTrooper} from '../state/actions.js';
+import {openPicker, pickTrooper, setUpgrade} from '../state/actions.js';
 import {recentsFor} from '../state/schema.js';
 import {dispatch, getState, useAppState} from '../state/store.js';
 import TrooperPicker from './picker/TrooperPicker.jsx';
@@ -69,7 +69,8 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
     return () => window.removeEventListener('keydown', onKey);
   }, [wide, picking, army]);
   const sideBox = (side) => (picked[side]
-    ? <SideCard side={side} view={view} onOpenPicker={openSide(side)} />
+    ? <SideCard side={side} view={view} onOpenPicker={openSide(side)}
+      onUpgrade={(pick) => dispatch(setUpgrade(army, getState(), side, pick))} />
     : <EmptySlot side={side} recents={recentHits[side]} hint={wide} onOpenPicker={openSide(side)}
       onPick={(hit) => dispatch(pickTrooper(army, side, hit, {state: getState()}))} />);
   const cardA = sideBox('A');

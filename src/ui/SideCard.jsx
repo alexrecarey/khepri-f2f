@@ -3,45 +3,14 @@
 import PropTypes from 'prop-types';
 import {FIRETEAM_MIN} from '../rules/modifiers.js';
 import {ROLE, SIDE_NAME} from '../state/schema.js';
-import {dispatch, useAppState} from '../state/store.js';
+import {dispatch} from '../state/store.js';
+import {CountChip, PickChip} from './Chips.jsx';
 import {CardCrest} from './Crest.jsx';
 import {SiteMark} from './icons.jsx';
 import Plasma from './Plasma.jsx';
 import WeaponButtons from './WeaponButtons.jsx';
 
 const patch = (side, p) => dispatch({type: 'patchSide', side, patch: p});
-
-// A number the player sets with a chip: closed, "+ Fireteam" or "Fireteam 3";
-// tapped, one button per value from `min` to `max` and × for none (`none`).
-// Hidden when nothing above `none` is possible.
-function CountChip({side, chip, label, value, min, max, none, color}) {
-  const editing = useAppState((st) => st.ui.edit?.side === side && st.ui.edit.chip === chip);
-  const setEditing = (on) => dispatch({type: 'setEdit', edit: on ? {side, chip} : null});
-  const set = (n) => { patch(side, {[chip]: n}); setEditing(false); };
-  if (max < min) return null;
-  if (editing) {
-    const values = [];
-    for (let n = min; n <= max; n++) values.push(n);
-    return (
-      <span className={`chip-group ${color}`}>
-        <span className="chip-label">{label}</span>
-        {values.map((n) => (
-          <button type="button" key={n} className={`n${n === value ? ' on' : ''}`} onClick={() => set(n)}>{n}</button>
-        ))}
-        <button type="button" className="n" aria-label={`No ${label.toLowerCase()}`} onClick={() => set(none)}>×</button>
-      </span>
-    );
-  }
-  return value >= min
-    ? <button type="button" className={`chip on ${color}`} onClick={() => setEditing(true)}>{label} {value}</button>
-    : <button type="button" className="chip" onClick={() => setEditing(true)}>+ {label}</button>;
-}
-
-CountChip.propTypes = {
-  side: PropTypes.oneOf(['A', 'B']).isRequired, chip: PropTypes.string.isRequired, label: PropTypes.string.isRequired,
-  value: PropTypes.number.isRequired, min: PropTypes.number.isRequired, max: PropTypes.number.isRequired,
-  none: PropTypes.number.isRequired, color: PropTypes.string.isRequired,
-};
 
 // A side with no trooper yet: a tall slot with the site mark, one call to
 // action and the latest recent picks as one-tap chips. A slow plasma tint
@@ -74,9 +43,9 @@ EmptySlot.propTypes = {
   onOpenPicker: PropTypes.func.isRequired, onPick: PropTypes.func.isRequired, hint: PropTypes.bool,
 };
 
-export default function SideCard({side, view, onOpenPicker}) {
+export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
   const color = ROLE[side];
-  const {sel, resolved, groups, cc, ccAlliesMax, noCover, surprise, berserk, faction, crest, short, loadout} = view[side];
+  const {sel, resolved, groups, cc, ccAlliesMax, noCover, surprise, berserk, teamOps, faction, crest, short, loadout} = view[side];
   const unit = resolved?.unit;
   const option = resolved?.option;
 
@@ -104,6 +73,17 @@ export default function SideCard({side, view, onOpenPicker}) {
               onClick={() => patch(side, {sapper: !resolved.sapper, inCover: false})}>
               {resolved.sapper ? 'Sapper ✓' : '+ Sapper'}
             </button>
+          )}
+          {/* Team-Ops: one pick from the unit's chart and one TacBall item;
+              a weapon joins the weapon buttons, a skill or equipment shows
+              on the chip. */}
+          {teamOps && (
+            <>
+              <PickChip side={side} chip="upgrade" label="Team-Ops" options={teamOps.chart} value={sel.upgrade} color={color}
+                onPick={(i) => onUpgrade({upgrade: i})} />
+              <PickChip side={side} chip="ball" label="TacBall" options={teamOps.ball} value={sel.ball} color={color}
+                onPick={(i) => onUpgrade({ball: i})} />
+            </>
           )}
           {/* Fireteams only: the size of the team, 1 = none. */}
           <CountChip side={side} chip="ftSize" label="Fireteam" value={resolved.ftSize} min={FIRETEAM_MIN} max={resolved.ftMax} none={1} color={color} />
@@ -133,4 +113,7 @@ export default function SideCard({side, view, onOpenPicker}) {
   );
 }
 
-SideCard.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, view: PropTypes.object.isRequired, onOpenPicker: PropTypes.func.isRequired};
+SideCard.propTypes = {
+  side: PropTypes.oneOf(['A', 'B']).isRequired, view: PropTypes.object.isRequired, onOpenPicker: PropTypes.func.isRequired,
+  onUpgrade: PropTypes.func.isRequired,
+};
