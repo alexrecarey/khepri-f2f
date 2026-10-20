@@ -7,8 +7,9 @@
 // straight to Dead (shockApplies decides; the engine result then counts the
 // failed save as one extra wound).
 //
-// A weapon whose failed save only Isolates (Jammer): one state, Isolated, for
-// one failed save or more (the engine counts each as a wound).
+// A weapon whose failed save causes a State instead of wounds (Jammer:
+// Isolated, Flash Pulse: Stunned): that one state, for one failed save or
+// more (the engine counts each as a wound).
 //
 // Each state: {key, label, wounds, glyph, outOfFight, shock?, state?}. `wounds` is how
 // many wounds reach it; the last state (Dead) covers that many or more.
@@ -19,8 +20,8 @@ import {hasSkill} from '../army/traits.js';
 
 const plural = (n) => `${n} wound${n === 1 ? '' : 's'}`;
 
-export function woundStates(profile, traits, {shock = false, isolated = false} = {}) {
-  if (isolated) return [{key: 'isolated', label: 'Isolated', wounds: 1, glyph: null, outOfFight: true, state: true}];
+export function woundStates(profile, traits, {shock = false, state = null} = {}) {
+  if (state) return [{key: state.toLowerCase(), label: state, wounds: 1, glyph: null, outOfFight: true, state: true}];
   if (shock) return [{key: 'dead', label: 'Dead', wounds: 1, glyph: 'dead', outOfFight: true, shock: true}];
   const n = Math.max(1, profile?.w ?? 1);
   const states = [];

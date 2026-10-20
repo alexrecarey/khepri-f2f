@@ -3,7 +3,7 @@
 // notes and warnings to show next to it.
 import {SKILL} from '../army/ids.js';
 import {hasEquip, hasSkill} from '../army/traits.js';
-import {causesWounds, hasContinuousDamage, isCommsAttack, isNonLethal, isTemplate, isolates, needsLof, weaponPS} from '../army/weapons.js';
+import {causesWounds, hasContinuousDamage, isCommsAttack, isNonLethal, isTemplate, needsLof, stateCaused, weaponPS} from '../army/weapons.js';
 import {
   COVER_SAVE_MOD, FIREWALL_SAVE_MOD, LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, capMods, clamp, coverBsMod, dodgeExtras,
   bangbombMod, dodgeSuccessValue, evades, fireteamBonuses, firewallMod, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod,
@@ -44,8 +44,8 @@ function approximationWarnings(label, side, target) {
   const row = side?.weapon?.row;
   if (row && hasNoEffect(target?.traits, row)) {
     warnings.push(`${label}: ${row.name} has no effect on a target with ${noEffectBy(target.traits, row)}; its hits cause no damage`);
-  } else if (row && isolates(row)) {
-    // Not a warning: the results say Isolated (rules/woundStates.js).
+  } else if (row && stateCaused(row)) {
+    // Not a warning: the results say Isolated / Stunned (rules/woundStates.js).
   } else if (row && isNonLethal(row)) {
     warnings.push(`${label}: ${row.name} is non-lethal; results shown as wounds`);
   }
@@ -143,7 +143,8 @@ function hitInputs(x, y, side, notes) {
     [`shock${side}`]: shockApplies(row, y),
   };
   if (out[`shock${side}`]) notes.push(`${label}: Shock against VITA 1; a failed save is Dead (no Unconscious, NWI or Dogged)`);
-  if (isolates(row) && !noEffect) notes.push(`${label}: ${row.name}; a failed save leaves the target Isolated, not wounded`);
+  const state = stateCaused(row);
+  if (state && !noEffect) notes.push(`${label}: ${row.name}; a failed save leaves the target ${state}, not wounded`);
   // State-only weapons get a warning instead (no effect), or play as always (Stunned).
   if (!immunity && contImmune && hasContinuousDamage(row, mods)) {
     notes.push(`${label}: target has Immunity (Continuous Damage); Continuous Damage ignored`);

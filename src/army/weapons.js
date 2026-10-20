@@ -92,6 +92,13 @@ export const isolates = (row) => isNonLethal(row) && (row?.props ?? []).includes
 
 export const causesStunned = (row) => (row?.props ?? []).some((p) => p.startsWith('State: Stunned'));
 
+// A failed save leaves the target Stunned instead of wounded (Flash Pulse,
+// Stun Pistol): how many saves fail doesn't matter.
+export const stuns = (row) => isNonLethal(row) && causesStunned(row);
+
+// The State a failed save causes in place of wounds, or null.
+export const stateCaused = (row) => (isolates(row) ? 'Isolated' : stuns(row) ? 'Stunned' : null);
+
 // "Bioweapon (DA+SHOCK)" or null.
 export const bioweaponProp = (row) => (row?.props ?? []).find((p) => p.startsWith('Bioweapon (')) ?? null;
 
