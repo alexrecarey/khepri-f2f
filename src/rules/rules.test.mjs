@@ -1690,7 +1690,7 @@ test('Comms Attack: needs no LoF, so Smoke and White Noise don\'t stop it', () =
   assert.equal(r.inputs.successValueA, 13);
 });
 
-test('Jammer: a failed save is Isolated; Immunity (Isolated) or (BTS) leaves it without effect', () => {
+test('Jammer: a failed save is Isolated; only Immunity (Isolated) stops it, not (BTS) or (Critical)', () => {
   const r = derive({active: side(hacker(), jammer, '21:'), reactive: side(profile(), combi, '1:'), rangeCm: 20});
   assert.ok(r.notes.some((n) => n.includes('Isolated, not wounded')), r.notes.join(' | '));
   assert.ok(!r.warnings.some((w) => w.includes('non-lethal')), r.warnings.join(' | '));
@@ -1698,4 +1698,13 @@ test('Jammer: a failed save is Isolated; Immunity (Isolated) or (BTS) leaves it 
   const i = derive({active: side(hacker(), jammer, '21:'), reactive: side(immune, combi, '1:'), rangeCm: 20});
   assert.equal(i.inputs.ammoA, 'NONE');
   assert.ok(i.warnings.some((w) => w.includes('Immunity (Isolated)')), i.warnings.join(' | '));
+  // Against a Comms Attack no other Immunity works (Alex, 2026-10-20).
+  const tough = profile({bts: 3, skills: [{id: 162, name: 'Immunity', extra: ['BTS', 'Critical', 'Enhanced']}]});
+  const t = derive({active: side(hacker(), jammer, '21:'), reactive: side(tough, combi, '1:'), rangeCm: 20});
+  assert.equal(t.inputs.ammoA, 'N');
+  assert.equal(t.inputs.critImmuneB, false);
+  assert.equal(t.inputs.armB, 3);
+  assert.ok(!t.warnings.some((w) => w.includes('Immunity')), t.warnings.join(' | '));
+  // A shot still meets them.
+  assert.equal(derive({active: side(hacker(), combi, '1:'), reactive: side(tough, combi, '1:'), rangeCm: 20}).inputs.critImmuneB, true);
 });
