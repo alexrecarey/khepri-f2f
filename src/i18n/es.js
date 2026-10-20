@@ -284,7 +284,7 @@ export default {
   'range.band': '{band}: activo {active}, reactivo {reactive}',
   'range.perSide': 'Distancia de cada bando',
   'range.swap': 'Intercambiar activo y reactivo',
-  'range.split': 'Distancias separadas',
+  'range.split': 'Separar',
   'range.noLof': 'sin LDT',
   'range.between': 'Entre las tropas',
   'range.zoneBetween': '{zone} entre ellas',
