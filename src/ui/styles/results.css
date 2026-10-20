@@ -16,10 +16,12 @@
 .mods-sec { display: flex; flex-direction: column; }
 .mods-h { font-size: 13px; font-weight: 700; letter-spacing: .02em; color: var(--muted); padding-bottom: 6px; }
 .mods-rows { font-family: var(--font-mono); font-size: 15px; }
-.mods-row, .mods-total { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 2px 0; color: var(--text); }
+/* The source column takes at most 38% and wraps a long trooper name
+   ("Caballero Motorizado de Montesa") so the label keeps its room. */
+.mods-row, .mods-total { display: grid; grid-template-columns: 44px minmax(0, 1fr) fit-content(38%); gap: 10px; align-items: baseline; padding: 2px 0; color: var(--text); }
 .mods-row .v, .mods-total .v { text-align: right; }
 .mods-row .l { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.mods-row .s { color: var(--muted); text-align: right; white-space: nowrap; font-size: 13px; }
+.mods-row .s { color: var(--muted); text-align: right; font-size: 13px; }
 .mods-row.struck { color: var(--faint); }
 .mods-row.struck .v, .mods-row.struck .l { background: linear-gradient(currentColor, currentColor) no-repeat 0 55% / 100% 1.5px; animation: strike .4s .15s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes strike { from { background-size: 0 1.5px; } to { background-size: 100% 1.5px; } }
