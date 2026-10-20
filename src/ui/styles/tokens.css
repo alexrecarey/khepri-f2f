@@ -34,6 +34,9 @@
   --reactive-ink: #2a0f1d;
   --reactive-1: #a8457a;
   --reactive-2: #d06fa0;
+  /* Face to face breakdown: the part of a best-die bar that doesn't win. */
+  --active-dim: #2c4d41;
+  --reactive-dim: #4a3640;
   --none: #2e2e2e;
   --danger: #f08a7a;
   --danger-line: #4a2a26;    /* outline of a destructive button */

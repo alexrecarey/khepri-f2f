@@ -48,3 +48,8 @@
 /* Resting, the space under the card's top shows nothing of what's below. */
 .rsheet:not(.open):not(.dragging):not(.settling) .rs-rest { visibility: hidden; transition: visibility 0s linear .32s; }
 .rs-rest > * { flex-shrink: 0; }
+/* In the sheet the mods aren't cards: full width like the sections above,
+   a rule between the two sides. */
+.rsheet .ledger { gap: 16px; }
+.rsheet .mods-card { padding: 0; background: none; border-radius: 0; }
+.rsheet .mods-card + .mods-card { border-top: 1px solid var(--line); padding-top: 16px; }

@@ -135,6 +135,8 @@ export function matchupView(army, matchup) {
   const ledger = complete ? {
     ledger: buildLedger({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), inputs: params, zones}),
     names: {A: shortIsc(A.resolved.unit.isc), B: shortIsc(B.resolved.unit.isc)},
+    // As the side cards name them: "Squalos Mk-II · CRABBOT" for a Peripheral.
+    labels: {A: [A.short, A.loadout].filter(Boolean).join(' · '), B: [B.short, B.loadout].filter(Boolean).join(' · ')},
     weapons: {A: A.resolved.weapon?.name, B: B.resolved.weapon?.name},
     notes: [...derived.warnings, ...derived.notes],
   } : null;
