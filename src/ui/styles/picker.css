@@ -26,6 +26,8 @@
 .line-btn.loadout { gap: 12px; font-size: 14px; }
 .line-btn.loadout .tag { color: var(--text-3); }
 .line-btn.loadout .r { font-family: var(--font-mono); }
+.unit-page .page-head { position: relative; isolation: isolate; }
+.unit-page .page-head .card-crest img { top: -38px; right: -30px; width: 150px; height: 150px; opacity: .35; }
 .pgroup { display: flex; flex-direction: column; padding-top: 6px; }
 .pgroup + .pgroup { border-top: 1px solid var(--surface-3); margin-top: 6px; padding-top: 14px; }
 .pgroup-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; padding: 0 12px; }

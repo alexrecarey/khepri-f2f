@@ -11,7 +11,7 @@ import {dispatch, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
 import {crestForRow} from '../../army/crests.js';
 import {extraLoadoutName} from '../../army/names.js';
-import {RowCrest} from '../Crest.jsx';
+import {CardCrest, RowCrest} from '../Crest.jsx';
 import LoadFailed from '../LoadFailed.jsx';
 import {Page} from '../Sheet.jsx';
 import {TYPE_ORDER, quickSearches, typeName} from './constants.js';
@@ -150,9 +150,14 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
   if (top?.view === 'unit') {
     const rows = searcher.unitRows(top.unitId, scope);
     const pgroups = army ? profileGroups(army, rows) : null;
+    // The unit's crest behind the header, cut by its corner, like the side
+    // cards (canvas, "Header crest B"): its first profile's, not the
+    // cheapest loadout's (a Team-Ops' Asklad).
+    const crest = <CardCrest slug={army ? crestForRow(army, pgroups?.[0].items[0].hit ?? rows[0]) : null} />;
     if (pgroups) {
       return (
-        <Page title={top.name} subtitle={`${factionName(scope)} · ${t('picker.profiles', {count: pgroups.length})} · ${t('picker.loadoutCount', {count: rows.length})}`} onBack={pop}>
+        <Page title={top.name} subtitle={`${factionName(scope)} · ${t('picker.profiles', {count: pgroups.length})} · ${t('picker.loadoutCount', {count: rows.length})}`}
+          onBack={pop} action={crest} className="unit-page">
           {pgroups.map((g) => <ProfileGroup key={g.key} g={g} onPick={pick} color={color} army={army} />)}
         </Page>
       );
@@ -160,7 +165,8 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
     const stats = statLine(army, top.unitId, rows[0]?.armyFactionId);
     const groups = army ? groupLoadouts(army, orderLoadouts(army, rows)) : [{key: 'all', name: null, items: rows}];
     return (
-      <Page title={top.name} subtitle={`${factionName(scope)} · ${t('picker.profiles', {count: rows.length})}`} onBack={pop}>
+      <Page title={top.name} subtitle={`${factionName(scope)} · ${t('picker.profiles', {count: rows.length})}`} onBack={pop}
+        action={crest} className="unit-page">
         {stats && (
           <div className="stat-line">{stats.map(([k, v]) => <span key={k}><b>{t(`stat.${k.toLowerCase()}`)}</b> {v}</span>)}</div>
         )}
