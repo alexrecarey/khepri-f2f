@@ -113,6 +113,8 @@ export function resolveSelection(army, sel) {
   const ftMax = fireteamMax(unit, baseOption);
   return {
     unit, factionId, groups, group, profile, option, traits, weapon,
+    // Team-Ops trooper: it may pick from unit.upgrades (chart and TacBall).
+    teamOps: teamOps && Boolean(unit.upgrades),
     upgrades, unsupportedUpgradeWeapons,
     inCover: Boolean(sel.inCover) || sapper,
     canSapper,

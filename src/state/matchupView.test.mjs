@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {pickTrooper} from './actions.js';
+import {pickTrooper, setUpgrade} from './actions.js';
 import {matchupView} from './matchupView.js';
 import {reduce} from './reduce.js';
 import {EMPTY_SIDE, initialState} from './schema.js';
@@ -90,4 +90,34 @@ test('CC weapons are in the weapon list; a CC Mode joins its weapon as a BS / CC
   assert.ok(v.A.groups.some((x) => x.w.cc && !x.modes));
   // The default stays a shot.
   assert.equal(v.A.resolved.weapon.cc, undefined);
+});
+
+test('Team-Ops chips: the chart and TacBall options show for Team-Ops troopers only', () => {
+  const v = matchupView(army, {A: corax, B: chaksa, rangeCm: 40});
+  assert.ok(v.A.teamOps.chart.includes('BS+1'));
+  assert.ok(v.A.teamOps.ball.includes('Plasma Carbine'));
+  assert.equal(v.B.teamOps, null);
+});
+
+test('Team-Ops picks: a weapon joins the weapon list, a stat shows in the ledger, dropping it resets the weapon', () => {
+  const at = (A) => matchupView(army, {A, B: chaksa, rangeCm: 40});
+  const t = at(corax).A.teamOps;
+  const plain = at(corax);
+  assert.ok(!plain.A.weapons.some((w) => w.name === 'Plasma Carbine'));
+
+  let s = {...initialState(), matchup: {...initialState().matchup, A: corax, B: chaksa}};
+  s = reduce(s, setUpgrade(army, s, 'A', {ball: t.ball.indexOf('Plasma Carbine')}));
+  const plasma = at(s.matchup.A).A.weapons.find((w) => w.name === 'Plasma Carbine');
+  assert.ok(plasma);
+  s = reduce(s, {type: 'pickWeapon', side: 'A', key: plasma.key});
+  assert.equal(at(s.matchup.A).A.resolved.weapon.name, 'Plasma Carbine');
+  // The TacBall pick goes: so does its weapon, back to the default.
+  s = reduce(s, setUpgrade(army, s, 'A', {ball: null}));
+  assert.equal(s.matchup.A.weaponKey, null);
+  assert.equal(at(s.matchup.A).A.resolved.weapon.key, plain.A.resolved.weapon.key);
+
+  s = reduce(s, setUpgrade(army, s, 'A', {upgrade: t.chart.indexOf('BS+1')}));
+  const v = at(s.matchup.A);
+  assert.equal(v.A.resolved.profile.bs, plain.A.resolved.profile.bs + 1);
+  assert.deepEqual(v.ledger.ledger.A.sv.lines[0], {value: plain.A.resolved.profile.bs + 1, label: 'BS (Team-Ops: BS+1)', by: null});
 });

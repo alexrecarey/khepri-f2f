@@ -71,6 +71,13 @@ const allies = (x, y) => {
   const n = x.cc ? ccAllies(x.resolved, y.resolved) : 0;
   return n ? `${n} ${n === 1 ? 'ally' : 'allies'}` : null;
 };
+// Team-Ops picks by their chart labels: "Team-Ops: BS+1", "TacBall: Jammer".
+const teamOps = (x) => {
+  const t = x.teamOps;
+  if (!t) return [];
+  const at = (list, i) => (i != null ? list[i] : null);
+  return [at(t.chart, x.sel.upgrade) && `Team-Ops: ${at(t.chart, x.sel.upgrade)}`, at(t.ball, x.sel.ball) && `TacBall: ${at(t.ball, x.sel.ball)}`];
+};
 const bandAt = (cm) => RANGE_BANDS.find((b) => b.to === cm)?.label ?? null;
 // '24-32"', or each side's when the range is split: '24-32" / 32-40"';
 // 'Close combat' when both are in CC (no range plays a part).
@@ -87,7 +94,7 @@ export function matchupRollSummary(view, s) {
   const bits = [rangeText(view), ...zoneNames(view)];
   if (inFoxhole(A) || inFoxhole(B)) bits.push('Foxhole');
   if (inCover(A) || inCover(B)) bits.push('Cover');
-  for (const x of [A, B]) bits.push(fireteam(x));
+  for (const x of [A, B]) bits.push(fireteam(x), ...teamOps(x));
   bits.push(allies(A, B), allies(B, A));
   if (surprise(A, 'A')) bits.push('Surprise attack');
   if (berserk(A, 'A')) bits.push('Berserk');
@@ -111,7 +118,7 @@ export function matchupShareCard(view, h) {
   const side = (role, key) => {
     const x = view[role];
     const situation = [inFoxhole(x) && 'Foxhole', inCover(x) && 'Cover', fireteam(x), allies(x, view[role === 'A' ? 'B' : 'A']),
-      surprise(x, role) && 'Surprise attack', berserk(x, role) && 'Berserk'];
+      surprise(x, role) && 'Surprise attack', berserk(x, role) && 'Berserk', ...teamOps(x)];
     return {
       n: h.text[key], l: h.label[key],
       u: shortUnit(x.resolved.unit), w: weaponShort(x.resolved.weapon), s: situation.filter(Boolean).join(', '),

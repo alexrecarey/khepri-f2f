@@ -31,3 +31,8 @@ export function applyUpgrades(profile, option, items) {
   const opt = option && weapons.length > 0 ? {...option, weapons: [...(option.weapons ?? []), ...weapons]} : option;
   return {profile: p, option: opt};
 }
+
+// The picked upgrade that raises `stat` ('bs', 'arm'...), for the ledger to
+// say why the Attribute is higher than the profile's; null if none.
+export const upgradeRaising = (upgrades, stat) =>
+  (upgrades ?? []).find((u) => u.attrs?.some((a) => a.type === 'stat' && a.stat === stat)) ?? null;

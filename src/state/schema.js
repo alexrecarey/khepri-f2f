@@ -62,7 +62,8 @@ export const MAX_RECENT_FACTIONS = 3;
 // picker:  {side: 'A'|'B', query, scope: factionId|null, stack: [view]} while
 //          overlay is 'picker'; a view is {view: 'factions'} | {view: 'type', type}
 //          | {view: 'unit', unitId, name}
-// edit:    {side, chip: 'ftSize' | 'ccAllies'} while a chip shows its inline editor
+// edit:    {side, chip: 'ftSize' | 'ccAllies' | 'upgrade' | 'ball'} while a chip
+//          shows its inline editor
 // savedTab: which list Saved rolls shows, 'matchup' | 'basic'
 // swiped:  id of the saved roll swiped open to show its Delete button
 // toast:   {text} for a moment after Save, Share or Delete

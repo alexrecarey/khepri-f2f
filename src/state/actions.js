@@ -2,6 +2,7 @@
 // work out the payload first and return a plain action to dispatch.
 import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
+import {hasBerserk} from '../rules/closeCombat.js';
 import {resolveSelection, trooperWeapons} from '../rules/trooper.js';
 import {vanillaOf} from './matchupView.js';
 import {EMPTY_SIDE, other} from './schema.js';
@@ -60,3 +61,15 @@ export const openPicker = (army, state, side) => ({type: 'openPicker', side, sco
 
 // Desktop picker: switch sides, each with its own scope.
 export const pickerSide = (army, state, side) => ({type: 'pickerSide', side, scope: scopeFor(army, state, side)});
+
+// A Team-Ops chart or TacBall pick ({upgrade} or {ball}: an index, or null).
+// Dropping an upgrade can take away the weapon in use (it falls back to the
+// default) or the Berserk it gave.
+export function setUpgrade(army, state, side, pick) {
+  const sel = {...state.matchup[side], ...pick};
+  const r = resolveSelection(army, sel);
+  const patch = {...pick};
+  if (sel.weaponKey && !r?.weapon) patch.weaponKey = null;
+  if (sel.berserk && !hasBerserk(r?.traits)) patch.berserk = false;
+  return {type: 'patchSide', side, patch};
+}
