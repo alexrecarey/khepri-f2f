@@ -379,8 +379,6 @@ export default {
   // Saved rolls
   'roll.vs': 'contra',
   'roll.cover': 'Cobertura',
-  // The Sapper chip's choice, named as the chip is (the ledger names the state).
-  'roll.foxhole': 'Zapador',
   'roll.closeCombat': 'Cuerpo a cuerpo',
   'roll.surpriseAttack': 'Ataque Sorpresa',
   'roll.allies_one': '{count} aliado',
