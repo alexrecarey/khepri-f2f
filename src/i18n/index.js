@@ -46,6 +46,14 @@ export function translator(messages = en, lang = SOURCE_LANGUAGE, terms = null) 
     return map?.[token] ?? token;
   };
   t.withTerms = (next) => translator(messages, lang, next);
+  // Distances. State and URLs hold centimetres; each language shows its own
+  // unit (dist.cmPerUnit): English inches, 2.5 cm each as Infinity plays
+  // them, Spanish centimetres. t.distance: the number, in that unit.
+  const cmPer = Number(pick('dist.cmPerUnit'));
+  t.distance = (cm) => Math.round((10 * cm) / cmPer) / 10;
+  // Text the Army data writes in inches ('+2"', 'MOV 6-4"'), in t's unit.
+  t.inchText = (text) => (cmPer === 2.5 ? text : String(text).replace(/(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?"/g,
+    (all, a, b) => t('dist.value', {n: [a, b].filter(Boolean).map((x) => t.distance(Number(x) * 2.5)).join('-')})));
   return t;
 }
 

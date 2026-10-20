@@ -140,7 +140,8 @@ function buildUnitDetail(army, unitId, armyFactionId) {
     name: p.name,
     type: p.type,
     crest: crestOf(unit, p),
-    stats: [['MOV', (p.move ?? []).map((m) => Math.round(m / 2.5)).join('-')], ['CC', p.cc], ['BS', p.bs], ['PH', p.ph],
+    // MOV in cm, as the army has it; the pane shows it in the language's unit.
+    stats: [['MOV', p.move ?? []], ['CC', p.cc], ['BS', p.bs], ['PH', p.ph],
       ['WIP', p.wip], ['ARM', p.arm], ['BTS', p.bts], [p.str ? 'STR' : 'W', p.w], ['S', p.s]],
     // The skills as the army lists them; army/traits.js traitLabel words them.
     skills: p.skills ?? [],

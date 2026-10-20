@@ -68,7 +68,7 @@ function UnitPane({m}) {
         )}
       </div>
       <div className="dp-stats">
-        {profile.stats.map(([k, v]) => <span key={k}><small>{t(`stat.${k.toLowerCase()}`)}</small><b>{v}</b></span>)}
+        {profile.stats.map(([k, v]) => <span key={k}><small>{t(`stat.${k.toLowerCase()}`)}</small><b>{k === 'MOV' ? v.map((cm) => t.distance(cm)).join('-') : v}</b></span>)}
       </div>
       {profile.skills.length > 0 && <div className="dp-skills">{profile.skills.map((sk) => traitLabel(sk, t)).join(' · ')}</div>}
       <span className="dp-head" style={{padding: 0}}>{t('picker.loadouts')}</span>

@@ -53,3 +53,14 @@ test('t.term reads the army\'s display maps, or keeps the English token', () => 
   assert.equal(t.term('modes', 'CC Mode', 17), 'Arma CC');
   assert.equal(t.term('modes', 'CC Mode', 147), 'CC Mode');
 });
+
+test('distances: English in inches, Spanish in centimetres', () => {
+  const t = translator(es, 'es');
+  assert.equal(tEn.distance(80), 32);
+  assert.equal(t.distance(80), 80);
+  assert.equal(tEn('dist.value', {n: tEn.distance(240)}), '96"');
+  assert.equal(t('dist.value', {n: t.distance(240)}), '240 cm');
+  assert.equal(tEn.inchText('MOV 6-4", Dodge (+3)'), 'MOV 6-4", Dodge (+3)');
+  assert.equal(t.inchText('MOV 6-4", Dodge (+3)'), 'MOV 15-10 cm, Dodge (+3)');
+  assert.equal(t.inchText('+2"'), '+5 cm');
+});

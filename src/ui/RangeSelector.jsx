@@ -1,7 +1,7 @@
 // The shared distance between the two side cards, and the swap button.
 import {useEffect} from 'react';
 import PropTypes from 'prop-types';
-import {RANGE_BANDS} from '../rules/ranges.js';
+import {RANGE_BANDS, bandFrom, bandLabel} from '../rules/ranges.js';
 import {pseudoName} from '../rules/trooper.js';
 import {dispatch, useAppState} from '../state/store.js';
 import {bandColor, signedMod as signed} from './bands.js';
@@ -44,8 +44,8 @@ const weaponName = (side, t) => {
 };
 
 const bandIndex = (cm) => Math.max(0, RANGE_BANDS.findIndex((b) => b.to === cm));
-// "24–32"" for a band index.
-const span = (i) => `${i ? RANGE_BANDS[i - 1].inches : 0}–${RANGE_BANDS[i].inches}"`;
+// "24–32"" ("60–80 cm") for a band index.
+const span = (i, t) => t('dist.value', {n: `${t.distance(bandFrom(i))}–${t.distance(RANGE_BANDS[i].to)}`});
 
 // The distance. Closed: one slim row of bands. Tapping a band picks it
 // straight away and opens the selector, which adds a header above and a
@@ -87,7 +87,7 @@ export default function RangeSelector({view}) {
         <div className="range-head">
           <span className="label">{t('range.title')}</span>
           <button type="button" className="range-close" onClick={() => setOpen(false)} tabIndex={open ? 0 : -1}>
-            {split ? <><span className="c-active">{span(selected)}</span> <span className="c-reactive">{span(selB)}</span></> : span(selected)} ⌃
+            {split ? <><span className="c-active">{span(selected, t)}</span> <span className="c-reactive">{span(selB, t)}</span></> : span(selected, t)} ⌃
           </button>
         </div>
       </div>
@@ -98,10 +98,10 @@ export default function RangeSelector({view}) {
           <span className="band-pill" aria-hidden="true" style={{left: `calc(${selected} * 100% / ${RANGE_BANDS.length})`, width: `calc(100% / ${RANGE_BANDS.length})`}} />
           {RANGE_BANDS.map((b, i) => (
             <button type="button" key={b.to} className={`band${i === selected ? ' on' : ''}`} aria-pressed={i === selected}
-              aria-label={t('range.band', {band: b.label, active: signed(view.bands[i].A), reactive: signed(view.bands[i].B)})}
+              aria-label={t('range.band', {band: bandLabel(i, t), active: signed(view.bands[i].A), reactive: signed(view.bands[i].B)})}
               onClick={() => dispatch({type: 'setRange', rangeCm: b.to, open: true})}>
               <span className="stripe" style={{background: open ? bandColor(view.bands[i].A) : 'transparent'}} />
-              <span className="dist">{i === selected ? `${b.inches}"` : b.inches}</span>
+              <span className="dist">{i === selected ? t('dist.picked', {n: t.distance(b.to)}) : t.distance(b.to)}</span>
               <span className="stripe" style={{background: open ? bandColor(view.bands[i].B) : 'transparent'}} />
             </button>
           ))}

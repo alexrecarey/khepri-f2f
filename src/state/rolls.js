@@ -11,7 +11,7 @@
 //   ca / cr            unit crest slugs (src/army/crests.js)
 //   fa / fr            vanilla faction ids, whose crest stands in
 import {ccAllies, usesBerserk} from '../rules/closeCombat.js';
-import {RANGE_BANDS} from '../rules/ranges.js';
+import {RANGE_BANDS, bandLabel} from '../rules/ranges.js';
 import {shortIsc, shortWeaponName} from '../army/names.js';
 import {DEFAULT_PARAMS} from '../engine/params.js';
 import {MODES} from './modes.js';
@@ -80,12 +80,15 @@ const teamOps = (x) => {
   const at = (list, i) => (i != null ? list[i] : null);
   return [at(ops.chart, x.sel.upgrade) && `Team-Ops: ${at(ops.chart, x.sel.upgrade)}`, at(ops.ball, x.sel.ball) && `TacBall: ${at(ops.ball, x.sel.ball)}`];
 };
-const bandAt = (cm) => RANGE_BANDS.find((b) => b.to === cm)?.label ?? null;
+const bandAt = (cm, t) => {
+  const i = RANGE_BANDS.findIndex((b) => b.to === cm);
+  return i < 0 ? null : bandLabel(i, t);
+};
 // '24-32"', or each side's when the range is split: '24-32" / 32-40"';
 // 'Close combat' when both are in CC (no range plays a part).
 const rangeText = (view, t) => {
   if (view.rangeUnused) return t('roll.closeCombat');
-  return view.rangeCmB == null ? bandAt(view.rangeCm) : `${bandAt(view.rangeCm)} / ${bandAt(view.rangeCmB)}`;
+  return view.rangeCmB == null ? bandAt(view.rangeCm, t) : `${bandAt(view.rangeCm, t)} / ${bandAt(view.rangeCmB, t)}`;
 };
 // Smoke / White Noise between them, by name.
 const zoneNames = (view, t) => ZONES.filter((z) => view.zones?.[z]).map((z) => zoneName(z, t));

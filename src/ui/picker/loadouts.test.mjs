@@ -47,7 +47,7 @@ test('weapon charts: bands per range column, main gun first', () => {
   assert.equal(charts[0].name, 'Combi Rifle');
   const d = unitDetail(army, 1803, 101);
   assert.equal(d.profiles[0].stats[0][0], 'MOV');
-  assert.equal(d.profiles[0].stats[0][1], '4-4');
+  assert.deepEqual(d.profiles[0].stats[0][1], [10, 10]); // cm; the pane shows 4-4 (inches) or 10-10 (cm)
 });
 
 test('Swiss Guard: SWC loadouts first (longer reach first), main gun is the farthest-reaching weapon', async () => {

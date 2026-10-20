@@ -36,6 +36,13 @@ export default {
   'typeName.WB': 'Warbands',
   'typeName.VH': 'Vehículos',
 
+  // Distances (src/i18n/index.js t.distance): centimetres
+  'dist.cmPerUnit': '1',
+  'dist.value': '{n} cm',
+  'dist.band': '{from}-{to} cm',
+  // "240 cm" doesn't fit a band on a phone: the number alone, the pill marks it.
+  'dist.picked': '{n}',
+
   // Ammunition, as players write it
   'ammo.N': 'N',
   'ammo.DA': 'DA',
@@ -109,7 +116,7 @@ export default {
   // "How the dice were built" (rules/ledger.js)
   'ledger.otherRules': 'otras reglas',
   'ledger.teamOpsStat': '{stat} (Team-Ops: {upgrade})',
-  'ledger.range': 'distancia {from}–{to}"',
+  'ledger.range': 'distancia {from}–{to} cm',
   'ledger.fireteam': 'Fireteam {size}',
   'ledger.outOfRange': 'fuera de alcance',
   'ledger.outOfRangeNote': 'fuera de alcance: falla siempre',

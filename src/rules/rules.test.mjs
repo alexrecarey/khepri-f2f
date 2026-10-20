@@ -1712,3 +1712,12 @@ test('Jammer: a failed save is Isolated; only Immunity (Isolated) stops it, not 
   // A shot still meets them.
   assert.equal(derive({active: side(hacker(), combi, '1:'), reactive: side(tough, combi, '1:'), rangeCm: 20}).inputs.critImmuneB, true);
 });
+
+test('range bands are labelled in the language\'s unit', async () => {
+  const {bandLabel} = await import('./ranges.js');
+  const {translator} = await import('../i18n/index.js');
+  const {default: es} = await import('../i18n/es.js');
+  assert.equal(bandLabel(3), '24-32"');
+  assert.equal(bandLabel(3, translator(es, 'es')), '60-80 cm');
+  assert.equal(bandLabel(0, translator(es, 'es')), '0-20 cm');
+});
