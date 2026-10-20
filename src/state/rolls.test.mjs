@@ -49,7 +49,8 @@ test('Smoke is part of the saved setup line and the share card', () => {
 test('Team-Ops picks go in the saved line and on the share card', () => {
   const v = matchupView(army, {A: {...corax, upgrade: 1, ball: 1}, B: chaksa, rangeCm: 40});
   const pick = `Team-Ops: ${v.A.teamOps.chart[1]}, TacBall: ${v.A.teamOps.ball[1]}`;
-  assert.match(matchupRollSummary(v, null).setup, new RegExp(pick.replace(', ', ' · ').replace(/[()+]/g, '\\$&')));
+  const {setup} = matchupRollSummary(v, null);
+  assert.ok(setup.includes(pick.replace(', ', ' · ')), setup);
   const h = {kind: 'win', fallback: false, text: {active: '', reactive: ''}, label: {active: '', reactive: ''}};
   assert.equal(matchupShareCard(v, h).a.s, pick);
 });
