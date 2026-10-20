@@ -8,13 +8,12 @@ import {shortWeaponName} from '../army/names.js';
 import {useT} from './i18n.jsx';
 
 const COLOR = {A: 'var(--active)', B: 'var(--reactive)'};
-// The source column is narrow: "Fennec" for Fennec Fusiliers.
-const firstWord = (name) => (name ?? '').split(' ')[0];
 const signed = (v, first) => (typeof v !== 'number' || first || v === 0 ? `${v}` : `${v > 0 ? '+' : '−'}${Math.abs(v)}`);
 
 // lines: the section's lines; base: the source of the starting line ("profile",
-// the weapon) when no side caused it.
-function Section({title, lines, total, abbr, base, names}) {
+// the weapon) when no side caused it. tags: each side's unit in one word, as
+// the narrow source column fits it ("Fennec", "Teutón"; src/army/names.js).
+function Section({title, lines, total, abbr, base, tags}) {
   const t = useT();
   // Keyed by what the line is, so a line struck or added on a change keeps
   // its own row (and its strike animation) instead of its neighbour's.
@@ -29,7 +28,7 @@ function Section({title, lines, total, abbr, base, names}) {
       <span className="mods-h">{title}</span>
       <div className="mods-rows">
         {lines.map((l, i) => {
-          const source = l.struck ? l.struck : l.source ?? (l.by ? firstWord(names[l.by]) : i === 0 ? base : t('ledger.rule'));
+          const source = l.struck ? l.struck : l.source ?? (l.by ? tags[l.by] : i === 0 ? base : t('ledger.rule'));
           return (
             <div key={keyOf(l)} className={l.struck ? 'mods-row struck' : 'mods-row'} style={{color: l.struck ? undefined : COLOR[l.by]}}>
               <span className="v">{signed(l.value, i === 0)}</span>
@@ -46,13 +45,13 @@ function Section({title, lines, total, abbr, base, names}) {
 
 Section.propTypes = {
   title: PropTypes.string.isRequired, lines: PropTypes.array.isRequired, total: PropTypes.node.isRequired,
-  abbr: PropTypes.string.isRequired, base: PropTypes.string.isRequired, names: PropTypes.object.isRequired,
+  abbr: PropTypes.string.isRequired, base: PropTypes.string.isRequired, tags: PropTypes.object.isRequired,
 };
 
 // A Dodge rolls PH, a Reset WIP; anything else shows its Success Value.
 const EVADE_ABBR = {dodge: 'stat.ph', reset: 'stat.wip'};
 
-export function SideMods({side, l, names, weapon}) {
+export function SideMods({side, l, tags, weapon}) {
   const t = useT();
   const color = side === 'A' ? 'active' : 'reactive';
   const upper = (text) => text.toLocaleUpperCase(t.lang);
@@ -65,18 +64,18 @@ export function SideMods({side, l, names, weapon}) {
       {l.kind === 'none' && <span className="note">{l.reason ?? t('ledger.noAro')}</span>}
       {l.sv && (
         <Section title={svTitle} lines={l.sv.lines} total={l.sv.total}
-          abbr={t(EVADE_ABBR[l.kind] ?? 'abbr.SV')} base={t('ledger.profile')} names={names} />
+          abbr={t(EVADE_ABBR[l.kind] ?? 'abbr.SV')} base={t('ledger.profile')} tags={tags} />
       )}
       {l.kind === 'template' && (
         <div className="mods-sec"><span className="mods-h">{upper(t('ledger.successValue'))}</span><span className="note">{t('ledger.templateHits')}</span></div>
       )}
-      {l.save && <Section title={upper(t('ledger.saveTitle'))} lines={l.save.lines} total={l.save.total} abbr={t('abbr.PS')} base={weaponName} names={names} />}
+      {l.save && <Section title={upper(t('ledger.saveTitle'))} lines={l.save.lines} total={l.save.total} abbr={t('abbr.PS')} base={weaponName} tags={tags} />}
       {l.burst && (
-        <Section title={upper(t('ledger.burstTitle'))} lines={[...l.burst.lines, ...sd]} abbr={t('abbr.B')} base={t('ledger.weapon')} names={names}
+        <Section title={upper(t('ledger.burstTitle'))} lines={[...l.burst.lines, ...sd]} abbr={t('abbr.B')} base={t('ledger.weapon')} tags={tags}
           total={`${l.burst.total}${l.sd?.total ? `+${l.sd.total}` : ''}`} />
       )}
       {/* Ammo names don't fit the value column: the total goes in the label's. */}
-      {l.ammo && <Section title={upper(t('ledger.ammoTitle'))} lines={l.ammo.lines} total="" abbr={l.ammo.total} base={weaponName} names={names} />}
+      {l.ammo && <Section title={upper(t('ledger.ammoTitle'))} lines={l.ammo.lines} total="" abbr={l.ammo.total} base={weaponName} tags={tags} />}
       {l.save && l.note && <span className="note">{l.note}</span>}
       {l.sv?.note && <span className="note">{l.sv.note}</span>}
       {/* The dice it all adds up to (B4 SV15 PS7) come last, read after the sums. */}
@@ -85,16 +84,16 @@ export function SideMods({side, l, names, weapon}) {
   );
 }
 
-SideMods.propTypes = {side: PropTypes.string.isRequired, l: PropTypes.object.isRequired, names: PropTypes.object.isRequired, weapon: PropTypes.string};
+SideMods.propTypes = {side: PropTypes.string.isRequired, l: PropTypes.object.isRequired, tags: PropTypes.object.isRequired, weapon: PropTypes.string};
 
-export default function Ledger({ledger, names, notes, weapons = {}}) {
+export default function Ledger({ledger, tags, notes, weapons = {}}) {
   return (
     <div className="ledger">
-      {ledger.A && <SideMods side="A" l={ledger.A} names={names} weapon={weapons.A} />}
-      {ledger.B && <SideMods side="B" l={ledger.B} names={names} weapon={weapons.B} />}
+      {ledger.A && <SideMods side="A" l={ledger.A} tags={tags} weapon={weapons.A} />}
+      {ledger.B && <SideMods side="B" l={ledger.B} tags={tags} weapon={weapons.B} />}
       {notes.map((n) => <span key={n} className="note">{n}</span>)}
     </div>
   );
 }
 
-Ledger.propTypes = {ledger: PropTypes.object.isRequired, names: PropTypes.object.isRequired, notes: PropTypes.array.isRequired, weapons: PropTypes.object};
+Ledger.propTypes = {ledger: PropTypes.object.isRequired, tags: PropTypes.object.isRequired, notes: PropTypes.array.isRequired, weapons: PropTypes.object};

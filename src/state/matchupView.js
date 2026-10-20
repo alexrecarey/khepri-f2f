@@ -3,7 +3,7 @@
 // weapon list, the calculator inputs, and "How the dice were built".
 // Pure; useMatchupView.js memoises it for React.
 import {SKILL} from '../army/ids.js';
-import {extraLoadoutName, shortIsc} from '../army/names.js';
+import {extraLoadoutName, shortIsc, unitTag} from '../army/names.js';
 import {hasSkill} from '../army/traits.js';
 import {isCommsAttack, isTemplate, stateCaused} from '../army/weapons.js';
 import {fullParams} from '../engine/params.js';
@@ -137,6 +137,7 @@ export function matchupView(army, matchup, t = tEn) {
   const ledger = complete ? {
     ledger: buildLedger({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), inputs: params, zones, t}),
     names: {A: shortIsc(A.resolved.unit.isc), B: shortIsc(B.resolved.unit.isc)},
+    tags: {A: unitTag(A.resolved.unit), B: unitTag(B.resolved.unit)},
     // As the side cards name them: "Squalos Mk-II · CRABBOT" for a Peripheral.
     labels: {A: [A.short, A.loadout].filter(Boolean).join(' · '), B: [B.short, B.loadout].filter(Boolean).join(' · ')},
     weapons: {A: A.resolved.weapon?.name, B: B.resolved.weapon?.name},
