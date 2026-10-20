@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Why W4 — one line on the card</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:#121212;color:#e8e6e1}
+a{color:#5fc4a0}a:hover{color:#8fe0c2}
+</style>
+</helmet>
+<div style="width:390px;height:844px;background:#0a0a0a;display:flex;flex-direction:column;overflow:hidden">
+<header style="display:flex;align-items:center;padding:6px 8px 0 16px;height:48px"><span style="font-family:'Chakra Petch',sans-serif;font-size:13px;font-weight:600;letter-spacing:.14em;color:#6b6861;flex-grow:1">INFINITY THE CALCULATOR</span><span style="width:44px;height:44px;display:grid;place-items:center;color:#9a978f"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="4" cy="10" r="1.8"></circle><circle cx="10" cy="10" r="1.8"></circle><circle cx="16" cy="10" r="1.8"></circle></svg></span></header>
+<div style="padding:4px 16px 0;display:flex;flex-direction:column;gap:10px;flex-grow:1">
+<section style="padding:14px;border-radius:14px;background:#1c1c1c;display:flex;flex-direction:column;gap:10px">
+<button style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px"><span style="font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.1em;color:#5fc4a0">ACTIVE</span><span style="font-size:18px;font-weight:600">Miyamoto Mushashi <span style="font-size:13px;font-weight:400;color:#8a877f">JSA ›</span></span></button>
+<div style="display:flex;gap:6px;flex-wrap:wrap"><button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #333;color:#c9c6bf;font-size:14px">Chain Rifle</button><button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #333;color:#c9c6bf;font-size:14px">Tactical Bow</button><button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #333;color:#c9c6bf;font-size:14px">Pistol</button><button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;background:#5fc4a0;color:#0f1f19;font-weight:600;font-size:14px">EXP CCW</button></div>
+</section>
+<div style="display:flex;justify-content:center;padding:6px;font-size:13px;color:#8a877f">Close combat · no range</div>
+<section style="padding:14px;border-radius:14px;background:#1c1c1c;display:flex;flex-direction:column;gap:10px">
+<button style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px"><span style="font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.1em;color:#e59bc0">REACTIVE</span><span style="font-size:18px;font-weight:600">Crabbot <span style="font-size:13px;font-weight:400;color:#8a877f">PanOceania ›</span></span></button>
+<div style="display:flex;gap:6px;flex-wrap:wrap"><button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;background:#e59bc0;color:#2a0f1d;font-weight:600;font-size:14px">Dodge</button><button style="all:unset;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #333;color:#c9c6bf;font-size:14px">No ARO</button></div>
+</section>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin:0 8px;padding:8px 16px 24px;border-radius:20px 20px 0 0;background:#1f1f1f">
+<span style="align-self:center;width:40px;height:5px;border-radius:3px;background:#444"></span>
+<div style="display:flex;justify-content:space-between;align-items:flex-end"><div style="display:flex;flex-direction:column"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#5fc4a0;line-height:1">5.52</span><span style="font-size:12px;color:#9a978f">wounds / order</span></div><div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-family:'Chakra Petch',sans-serif;font-size:34px;font-weight:700;color:#6b6861;line-height:1">—</span><span style="font-size:12px;color:#9a978f">dodging</span></div></div>
+<div style="display:flex;height:6px;border-radius:3px;overflow:hidden"><span style="width:95%;background:#1f6b52"></span><span style="width:5%;background:#2e2e2e"></span></div>
+<button style="all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border-radius:10px;background:#2a2a2a;font-size:14px">
+<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#9a978f" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="8"></circle><path d="M10 9v5M10 6.2v.1"></path></svg>
+<span style="flex-grow:1">The Crabbot's only out: a <b>10</b>, its Critical</span><span style="font-family:'IBM Plex Mono',monospace;color:#e59bc0">5.0%</span><span style="color:#9a978f">›</span></button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 844}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>
