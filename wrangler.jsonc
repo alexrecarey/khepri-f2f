@@ -12,15 +12,17 @@
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
     // Only these reach the Worker; everything else is a static file. /s and
-    // /og/* for shared links' previews (worker/preview.js).
+    // /og/* for link previews (worker/preview.js); link-preview bots asking
+    // for / are rewritten to /s on the zone (scripts/cloudflare/).
     "run_worker_first": ["/s", "/s/", "/og/*", "/crests/*"]
   },
   "r2_buckets": [
     // scripts/crests/config.mjs CREST_BUCKET
     {"binding": "CRESTS", "bucket_name": "khepri-crests"}
   ],
-  // The share card's fonts (worker/card.js) are bundled as bytes.
-  "rules": [{"type": "Data", "globs": ["**/*.ttf"]}],
+  // The share card's fonts (worker/card.js) are bundled as bytes; the army
+  // data as text, parsed only when a preview needs it (worker/preview.js).
+  "rules": [{"type": "Data", "globs": ["**/*.ttf"]}, {"type": "Text", "globs": ["**/army.json"]}],
   "workers_dev": true,
   "preview_urls": true,
   "observability": {"enabled": true}

@@ -1,0 +1,19 @@
+{
+  "zone": "infinitythecalculator.com",
+  "description": "khepri-f2f: link-preview bots asking for / get /s (worker/preview.js)",
+  "path": "/s",
+  "bots": [
+    "Discordbot",
+    "WhatsApp",
+    "facebookexternalhit",
+    "Facebot",
+    "Twitterbot",
+    "Slackbot",
+    "TelegramBot",
+    "LinkedInBot",
+    "SkypeUriPreview",
+    "redditbot",
+    "Mastodon",
+    "Bluesky"
+  ]
+}

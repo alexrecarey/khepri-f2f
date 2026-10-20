@@ -9,7 +9,7 @@ are in README.md ("How it's put together").
 ## Commands
 
 - Node 24 LTS (`.nvmrc`, Volta pin); `yarn` installs (yarn 3.3.0, zero-install cache in `.yarn/cache`)
-- `yarn test` — JS tests (`node --test src/`, including the WASM engine against
+- `yarn test` — JS tests (`node --test` over src/ and worker/, including the WASM engine against
   engine.golden.json) + engine tests (pytest via uv: f2f.py and the golden file)
 - `yarn test:js` / `yarn test:engine` — one side only
 - `yarn build` — production build (CI runs this too)
@@ -50,7 +50,12 @@ crests` keeps R2 in step with army.json (`scripts/crests/sync.mjs`; needs
 domain on that Worker; `www` 301s to the apex (a redirect rule on the
 Cloudflare zone). `n4.infinitythecalculator.com` is the frozen N4 edition: the separate static
 Worker `khepri-f2f-n4`, deployed by hand from branch `n4` (`cloudflare/`).
-DNS is on Cloudflare; nothing is on Netlify any more.
+DNS is on Cloudflare; nothing is on Netlify any more. Link previews: a URL
+rewrite rule on the zone sends link-preview bots asking for `/?<setup>` to
+`/s`, where the Worker works out the matchup's card
+(`scripts/cloudflare/preview-rule.mjs`, applied by the deploy workflow on
+main; it doesn't exist on workers.dev previews, so test those at
+`/s?<setup>`).
 
 ## Claude cloud sessions
 

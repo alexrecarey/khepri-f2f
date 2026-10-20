@@ -16,7 +16,7 @@ import Ledger from './Ledger.jsx';
 import RangeSelector from './RangeSelector.jsx';
 import SideCard, {EmptySlot} from './SideCard.jsx';
 import useLayout, {usesDialogs} from './useLayout.js';
-import {matchupRollSummary, matchupShareCard} from '../state/rolls.js';
+import {matchupRollSummary} from '../state/rolls.js';
 import useRollResults from './useRollResults.js';
 
 export default function MatchupScreen({army, armyError, retryArmy, view, engine}) {
@@ -26,7 +26,6 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
   // Summarized once here; the card, the panel and Save all read it.
   const summaryOf = useCallback((s) => (view.complete ? matchupRollSummary(view, s) : null), [view]);
   const {s, save} = useRollResults({result, targets: view.targets, summaryOf, pending: engine.pending});
-  const shareCard = useCallback((h) => (view.complete ? matchupShareCard(view, h) : null), [view]);
 
   const layout = useLayout();
   const resultProps = {
@@ -37,7 +36,6 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
     diceLine: view.ledger ? {active: view.ledger.ledger.A?.dice, reactive: view.ledger.ledger.B?.dice} : null,
     ledger: view.ledger,
     params: view.params,
-    shareCard,
   };
   const openSide = (side) => () => dispatch(openPicker(army, getState(), side));
   const picked = {A: view.A.resolved?.unit != null, B: view.B.resolved?.unit != null};
