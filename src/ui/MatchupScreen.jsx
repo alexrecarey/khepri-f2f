@@ -77,7 +77,7 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
   const cardB = sideBox('B');
   const range = <RangeSelector view={view} />;
   const clear = view.hasSelection && (
-    <div style={{display: 'flex', gap: 8, flexWrap: 'wrap', alignSelf: 'center', justifySelf: 'center', justifyContent: 'center'}}>
+    <div className="setup-actions">
       <button type="button" className="chip" onClick={() => dispatch({type: 'clearSides'})}>Clear both troopers</button>
       {view.params && (
         <button type="button" className="chip" onClick={() => dispatch({type: 'openInClassic', params: view.params})}>Modify in classic</button>
