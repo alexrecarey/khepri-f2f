@@ -35,3 +35,7 @@ test('Shock against VITA 1: straight to Dead', () => {
   assert.deepEqual(labels(1, skills(SKILL.DOGGED), {shock: true}), ['Dead']);
   assert.equal(woundStates({w: 1}, skills(), {shock: true})[0].shock, true);
 });
+
+test('a weapon that only Isolates (Jammer): one state, Isolated, whatever the VITA', () => {
+  assert.deepEqual(labels(3, skills(SKILL.NWI), {isolated: true}), ['Isolated']);
+});

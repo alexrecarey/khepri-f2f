@@ -158,7 +158,7 @@ SheetTop.propTypes = {s: PropTypes.object, h: PropTypes.object, choice: PropType
 export default function ResultsCard({s, status, diceLine, classic, ledger, save, pending, picked, params, shareCard}) {
   const ui = useStatesUi();
   const choice = useAppState((st) => headlineChoice(st.prefs));
-  const h = s ? headline(s, choice, params) : null;
+  const h = s ? headline(s, choice, params, ledger?.ledger) : null;
   const swipe = (step) => setHeadline(nextHeadline(choice, step));
   const open = useAppState((st) => st.ui.overlay === 'results') && Boolean(s);
   const setOpen = (o) => dispatch(o ? {type: 'openOverlay', overlay: 'results'} : {type: 'back'});
@@ -216,7 +216,7 @@ function ResultsBody({s, classic, ledger, diceLine, pending, ui, params}) {
   if (classic) return <ClassicBody s={s} />;
   return (
     <>
-      <Headline h={headline(s, choice, params)} choice={choice} size="xl" pending={pending} buttons />
+      <Headline h={headline(s, choice, params, ledger?.ledger)} choice={choice} size="xl" pending={pending} buttons />
       <F2FBar s={s} style={{height: 4, borderRadius: 2}} />
       {s.states ? (
         <>
@@ -243,7 +243,7 @@ ResultsBody.propTypes = {
 export function ResultsPanel({s, status, diceLine, classic, ledger, save, pending, picked, params, shareCard}) {
   const ui = useStatesUi();
   const choice = useAppState((st) => headlineChoice(st.prefs));
-  const h = s ? headline(s, choice, params) : null;
+  const h = s ? headline(s, choice, params, ledger?.ledger) : null;
   const wait = waitingFor(picked);
   return (
     <section className="results-panel" aria-label="Results">

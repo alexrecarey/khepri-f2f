@@ -41,6 +41,7 @@ const EQUIPS = {
   X_VISOR: [117, 'X Visor'],
   ALBEDO: [183, 'Albedo'],
   BANGBOMB: [246, 'Bangbomb'],
+  TINBOT_FIREWALL: [169, 'TinBot: Firewall'],
 };
 
 const ids = (table) => Object.fromEntries(Object.entries(table).map(([k, [id]]) => [k, id]));

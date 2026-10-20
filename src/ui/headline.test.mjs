@@ -53,3 +53,15 @@ test('not face to face: wins face to face falls back to at least one wound', () 
   assert.deepEqual(h.small, ['Not face to face · 1.20 wounds / order', '0.50']);
   assert.deepEqual(headline(unopposed, 'wpo').text, {active: '1.20', reactive: '0.50'});
 });
+
+test('a side whose hits only Isolate shows the chance of Isolated, and a Reset "resets"', () => {
+  const iso = {...s, states: {active: [{key: 'isolated', label: 'Isolated', state: true}], reactive: [{key: 'unc'}, {key: 'dead'}]}};
+  const w = headline(iso, 'wpo');
+  assert.deepEqual([w.text.active, w.label.active], ['47.7%', 'Isolated']);
+  assert.deepEqual([w.text.reactive, w.label.reactive], ['0.46', 'wounds / order']);
+  assert.deepEqual(w.small, ['47.7% Isolated', '28.6%']);
+  assert.equal(headline(iso, 'wound').label.active, 'Isolated');
+  const r = headline(s, 'win', {ammoA: 'N', ammoB: 'DODGE'}, {A: {kind: 'attack'}, B: {kind: 'reset'}});
+  assert.equal(r.label.reactive, 'resets');
+  assert.equal(headline(s, 'win', {ammoA: 'N', ammoB: 'DODGE'}).label.reactive, 'dodges');
+});

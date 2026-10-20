@@ -1,5 +1,5 @@
 // The weapon picked once a loadout is chosen.
-import {bioweaponProp, isImpactTemplate, isPlasma} from '../army/weapons.js';
+import {bioweaponProp, isCommsAttack, isImpactTemplate, isPlasma} from '../army/weapons.js';
 import {RANGE_BANDS} from './ranges.js';
 import {orderModes} from './weaponModes.js';
 
@@ -28,12 +28,15 @@ function bestRangeBand({row}) {
 }
 
 // Sort keys per role, lower wins, ties keep menu order. Neither depends on the
-// shared range, so changing it never swaps the weapon. Active: highest burst,
-// then Impact Template (Circular), then ammo. Reactive: a +SD weapon, then the
-// farthest best range band, then Impact Template (Circular), then ammo.
+// shared range, so changing it never swaps the weapon. A Comms Attack (Jammer)
+// only when there's nothing else: it isolates, it doesn't wound. Then active:
+// highest burst, then Impact Template (Circular), then ammo. Reactive: a +SD
+// weapon, then the farthest best range band, then Impact Template
+// (Circular), then ammo.
+const comms = ({row}) => (isCommsAttack(row) ? 1 : 0);
 const DEFAULT_WEAPON_KEYS = {
-  active: (w) => [-((w.row.burst ?? 1) + w.mods.burst), impactTemplate(w) ? 0 : 1, ammoRank(w)],
-  reactive: (w) => [w.mods.sd > 0 ? 0 : 1, -bestRangeBand(w), impactTemplate(w) ? 0 : 1, ammoRank(w)],
+  active: (w) => [comms(w), -((w.row.burst ?? 1) + w.mods.burst), impactTemplate(w) ? 0 : 1, ammoRank(w)],
+  reactive: (w) => [comms(w), w.mods.sd > 0 ? 0 : 1, -bestRangeBand(w), impactTemplate(w) ? 0 : 1, ammoRank(w)],
 };
 
 // The list sorted best first for the role by the keys above.

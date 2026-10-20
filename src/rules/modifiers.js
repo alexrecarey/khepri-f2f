@@ -3,7 +3,7 @@
 import {LIMITS} from '../engine/params.js';
 import {EQUIP, SKILL} from '../army/ids.js';
 import {equipExtra, hasEquip, hasSkill, skillExtra, skillExtras} from '../army/traits.js';
-import {attackAttribute, isImpactTemplate, isTemplate, parseWeaponMods} from '../army/weapons.js';
+import {attackAttribute, isCommsAttack, isImpactTemplate, isTemplate, parseWeaponMods} from '../army/weapons.js';
 import {ccOpposingMods, isCcAttack, naturalBornWarrior} from './closeCombat.js';
 
 // A Success Value below 1 is an automatic failure (no roll can pass or crit):
@@ -36,13 +36,30 @@ export const hasNanoscreen = (side) => hasEquip(side?.traits, EQUIP.NANOSCREEN);
 // - No Cover: neither (benefitsFromCover). Nanoscreen still works.
 // - Marksmanship (attacker): ignores the -3 from cover and from Nanoscreen,
 //   not the target's +3 to its saves.
+// - A Comms Attack (`row`): neither cover nor Nanoscreen does anything
+//   (Firewall is its cover).
 export const COVER_BS_MOD = -3;
 // Cover's (or Nanoscreen's) MOD to the target's Saving Rolls.
 export const COVER_SAVE_MOD = 3;
-export function coverBsMod(target, attackerTraits) {
-  if (hasSkill(attackerTraits, SKILL.MARKSMANSHIP)) return 0;
+export function coverBsMod(target, attackerTraits, row = null) {
+  if (hasSkill(attackerTraits, SKILL.MARKSMANSHIP) || isCommsAttack(row)) return 0;
   const cover = benefitsFromCover(target) && !hasSkill(target?.traits, SKILL.LIMITED_COVER);
   return cover || hasNanoscreen(target) ? COVER_BS_MOD : 0;
+}
+
+// Firewall (wiki): a Comms Attack against the trooper takes the bracketed
+// MOD (-3 / -6), and the trooper gets +3 to its Saving Rolls against it, like
+// cover against a BS Attack. It comes from a Hacking Device's upgrade
+// ("UPGRADE: Firewall (-3)", "Firewall -6") or a TinBot: Firewall (-3). Only
+// one applies: the player takes the best. 0 without one.
+export const FIREWALL_SAVE_MOD = 3;
+const FIREWALL_EXTRA = /\bFirewall \(?(-\d+)\)?/;
+export function firewallMod(traits) {
+  const mods = [...(traits?.skills ?? []), ...(traits?.equip ?? [])].flatMap((t) => {
+    if (t.id === EQUIP.TINBOT_FIREWALL) return (t.extra ?? []).map(Number).filter((n) => n < 0);
+    return (t.extra ?? []).map((e) => FIREWALL_EXTRA.exec(e)).filter(Boolean).map((m) => Number(m[1]));
+  });
+  return mods.length > 0 ? Math.min(...mods) : 0;
 }
 
 const hasMsv = (traits) => hasEquip(traits, EQUIP.MSV1) || hasEquip(traits, EQUIP.MSV2) || hasEquip(traits, EQUIP.MSV3);
@@ -142,6 +159,12 @@ export function dodgeSuccessValue(profile, traits, mod = 0) {
   return clamp(LIMITS.successValue, sv + capMods(dodge.mod + mod));
 }
 
+// Reset Success Value: WIP plus `mod` (the opponent's BS Attack (-X),
+// Surprise Attack), capped at +/-12. No Fireteam bonus: that is Dodge's.
+export function resetSuccessValue(profile, mod = 0) {
+  return clamp(LIMITS.successValue, (profile?.wip ?? 0) + capMods(mod));
+}
+
 // Bangbomb (+X): the X, 0 without the equipment.
 export function bangbombValue(traits) {
   const m = /^\+(\d+)$/.exec(equipExtra(traits, EQUIP.BANGBOMB) ?? '');
@@ -190,8 +213,19 @@ export function attackStat(profile, row) {
 export function rollsDice(x) {
   const w = x?.weapon;
   if (!w) return false;
-  if (w.pseudo) return w.pseudo === 'dodge';
+  if (w.pseudo) return w.pseudo === 'dodge' || w.pseudo === 'reset';
   return !isTemplate(w.row) && attackStat(x.profile, w.row) > 0;
+}
+
+// Does x's Dodge or Reset evade the attack `incoming` (the other side's
+// weapon)? Dodge evades anything but a Comms Attack; Reset only Comms Attacks
+// (wiki, Reset). Against no attack either one just rolls. An attack evades
+// nothing: it is opposed when both attack.
+export function evades(x, incoming) {
+  const p = x?.weapon?.pseudo;
+  if (p !== 'dodge' && p !== 'reset') return false;
+  if (!incoming?.row || incoming.pseudo) return true;
+  return (p === 'reset') === isCommsAttack(incoming.row);
 }
 
 // The MODs x's skills put on y's Face to Face Roll, one entry each:
@@ -213,6 +247,10 @@ export function rollsDice(x) {
 //   of x's negative MODs apply either.
 export function opposingMods(x, y, xActive) {
   if (!rollsDice(x) || !rollsDice(y)) return [];
+  // A Dodge or Reset that can't evade this attack isn't rolled against it.
+  if (x.weapon.pseudo && !evades(x, y.weapon)) return [];
+  if (y.weapon.pseudo && !evades(y, x.weapon)) return [];
+  if (x.weapon.pseudo === 'reset') return [];
   if (x.weapon.pseudo === 'dodge') {
     const mod = y.weapon.pseudo ? 0 : dodgeExtras(x.traits).opponentMod;
     return mod ? [{value: mod, label: `Dodge (${mod})`, ignoredBy: null}] : [];

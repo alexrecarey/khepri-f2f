@@ -48,6 +48,10 @@ Section.propTypes = {
   abbr: PropTypes.string.isRequired, base: PropTypes.string.isRequired, names: PropTypes.object.isRequired,
 };
 
+// A Dodge rolls PH, a Reset WIP; anything else shows its Success Value.
+const EVADE_TITLE = {dodge: 'DODGE', reset: 'RESET'};
+const EVADE_ABBR = {dodge: 'PH', reset: 'WIP'};
+
 export function SideMods({side, l, names, weapon}) {
   const color = side === 'A' ? 'active' : 'reactive';
   const weaponName = shortWeaponName(weapon ?? 'weapon');
@@ -55,10 +59,10 @@ export function SideMods({side, l, names, weapon}) {
   return (
     <section className="mods-card" aria-label={`${color} mods`}>
       <div className={`mods-top c-${color}`}>{SIDE_NAME[side].toUpperCase()} MODS</div>
-      {l.kind === 'none' && <span className="note">No ARO: does not roll.</span>}
+      {l.kind === 'none' && <span className="note">{l.reason ?? 'No ARO: does not roll.'}</span>}
       {l.sv && (
-        <Section title={l.kind === 'dodge' ? 'DODGE' : 'SUCCESS VALUE'} lines={l.sv.lines} total={l.sv.total}
-          abbr={l.kind === 'dodge' ? 'PH' : 'SV'} base="profile" names={names} />
+        <Section title={EVADE_TITLE[l.kind] ?? 'SUCCESS VALUE'} lines={l.sv.lines} total={l.sv.total}
+          abbr={EVADE_ABBR[l.kind] ?? 'SV'} base="profile" names={names} />
       )}
       {l.kind === 'template' && (
         <div className="mods-sec"><span className="mods-h">SUCCESS VALUE</span><span className="note">Direct Template: hits automatically</span></div>

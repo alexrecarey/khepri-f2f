@@ -4,7 +4,9 @@
 // null, `save` / `saveRolls` describe the Saving Roll. Weapon properties are
 // the Army's strings, read only through the helpers below.
 
-const EXCLUDED_PROPS = new Set(['CC', 'CC Attack (+3)', 'Deployable', 'Perimeter', 'Comms. Attack', 'Technical Weapon', 'Targetless']);
+// Comms Attacks are rolled (the Jammer); the Technical Weapons among them
+// (Tohaa programs) are not modelled yet.
+const EXCLUDED_PROPS = new Set(['CC', 'CC Attack (+3)', 'Deployable', 'Perimeter', 'Technical Weapon', 'Targetless']);
 
 export const isTemplate = (row) => (row?.props ?? []).some((p) => p.startsWith('Direct Template'));
 
@@ -18,11 +20,22 @@ export const isImpactTemplate = (row) => (row?.props ?? []).some((p) => p.starts
 export const isCcWeapon = (row) => (row?.props ?? []).some((p) => p === 'CC' || p.startsWith('CC Attack ('))
   && (row.save?.attr === 'ARM' || row.save?.attr === 'BTS' || row.save?.attr === 'PH');
 
+// Comms Attack (wiki, Labels): evaded with Reset, not Dodge; Partial Cover
+// has no effect on it.
+export const isCommsAttack = (row) => (row?.props ?? []).includes('Comms. Attack');
+
+// Weapons that need no LoF (Jammer): Mimetism, Albedo, Smoke and White Noise
+// don't touch them.
+export const needsLof = (row) => !(row?.props ?? []).includes('No LoF');
+
+// Weapons that reach the user's Zone of Control (8") instead of range bands.
+export const inZoneOfControl = (row) => (row?.props ?? []).includes('Zone of Control');
+
 export function isBsAttackWeapon(row) {
   if (!row || typeof row.dmg !== 'number') return false;
   if (row.save?.attr !== 'ARM' && row.save?.attr !== 'BTS') return false;
   if ((row.props ?? []).some((p) => EXCLUDED_PROPS.has(p))) return false;
-  return Boolean(row.ranges) || isTemplate(row);
+  return Boolean(row.ranges) || isTemplate(row) || inZoneOfControl(row);
 }
 
 // Weapons with the BS Weapon (PH) / (WIP) trait roll against that attribute
@@ -73,6 +86,9 @@ export const hasContinuousDamage = (row, mods) => Boolean(mods?.cont) || (row?.p
 export const causesWounds = (row) => row.ammo != null && !isNonLethal(row);
 
 export const isNonLethal = (row) => (row?.props ?? []).includes('Non-lethal');
+
+// A failed save leaves the target Isolated instead of wounded (Jammer).
+export const isolates = (row) => isNonLethal(row) && (row?.props ?? []).includes('State: Isolated');
 
 export const causesStunned = (row) => (row?.props ?? []).some((p) => p.startsWith('State: Stunned'));
 
@@ -172,7 +188,8 @@ function loadoutWeapons(option, weapons, keep, cc) {
       const row = withAmmoExtra(base, mods);
       const key = `${w.id}:${row.mode ?? ''}`;
       if (out.some((x) => x.key === key)) continue;
-      out.push({key, id: w.id, name: row.name, mode: row.mode, row, mods, label: weaponLabel(row, mods), ...(cc && {cc: true})});
+      out.push({key, id: w.id, name: row.name, mode: row.mode, row, mods, label: weaponLabel(row, mods), ...(cc && {cc: true}),
+        ...(inZoneOfControl(row) && {zoc: true})});
     }
   }
   return out;

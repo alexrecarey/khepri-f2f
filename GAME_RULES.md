@@ -51,6 +51,17 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - Sapper: the trooper may be in a Foxhole (chip): Partial Cover (−3 / +3 like cover) and Mimetism (−3), which doesn't stack with its own Mimetism. One or the other: Foxhole or cover.
 - A trooper starts in cover when picked, unless cover can't help it (No Cover); a Sapper starts in its Foxhole.
 
+## Comms Attacks
+Alex, 2026-10-20: Comms Attacks are opposed by Reset; the Jammer's success causes Isolated, after a BTS save. The rest from the wiki (Comms Attack label, Reset, Firewall, Mimetism, Nanoscreen). Code: `src/army/weapons.js` (isCommsAttack, needsLof, inZoneOfControl, isolates), `src/rules/modifiers.js` (evades, firewallMod).
+- The Jammer is a weapon choice: BS Weapon (WIP), so it rolls WIP with the BS MODs (Fireteam +1 BS and +1 SD included). It reaches the user's Zone of Control (8", the first band) with no Range MOD; beyond that it is out of range. Picking it moves the range to 0–8".
+- Reset (a button against a Comms Attack): a WIP roll, Face to Face against the Comms Attack, causing no saves. The attacker's BS Attack (−X) and Surprise Attack go on it. No Fireteam bonus.
+- Dodge can't evade a Comms Attack: it isn't rolled and the attack is a Normal Roll. Reset evades nothing else: against a shot it isn't rolled. Shooting back at the Jammer user is a Face to Face Roll as usual.
+- No LoF: Mimetism, Albedo, Smoke and White Noise don't touch it. Partial Cover and Nanoscreen do nothing against a Comms Attack (neither the −3 nor the +3 save).
+- Firewall is its cover: −X to the attacker (Hacking Device "UPGRADE: Firewall (−3)", "Firewall −6", TinBot: Firewall (−3) / (−6); the best one counts) and +3 to the target's saves.
+- A failed save is Isolated, not a wound: the results show Isolated. Immunity (Isolated) leaves it without effect, and so does Immunity (BTS) (the State is the weapon's Trait).
+- The Jammer is never the default weapon.
+- Not modelled: the Technical Weapons (Tohaa PT: Endgame, Eraser, Mirrorball), the Cybermine (a Deployable), Isolated's −9 to Reset.
+
 ## Close combat
 Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Warrior, Weapon Chart). Code: `src/rules/closeCombat.js`.
 - Picking a CC weapon (in the weapon list with the others; a CC Mode is a mode of its weapon: Vorpal, Kobra Pistol) makes that side a CC Attack: it rolls CC against the other side's Face to Face Roll. The other side may answer in CC, Dodge, or shoot (it isn't Engaged yet when the attacker charges in; Alex, 2026-10-19).
