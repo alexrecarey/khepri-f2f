@@ -138,6 +138,16 @@ test('setMode closes every overlay and ignores unknown modes', () => {
   assert.equal(run(s, {type: 'setMode', mode: 'other'}).mode, 'basic');
 });
 
+test('openInClassic copies the matchup roll into classic and keeps the matchup', () => {
+  const params = {...DEFAULT_PARAMS, burstA: 4, successValueA: 15, damageA: 13, armB: 3, ammoB: 'DODGE'};
+  const before = run(initialState(), {type: 'setRange', rangeCm: 40}, {type: 'openOverlay', overlay: 'menu'});
+  const s = run(before, {type: 'openInClassic', params: {burstA: 4, successValueA: 15, damageA: 13, armB: 3, ammoB: 'DODGE'}});
+  assert.equal(s.mode, 'basic');
+  assert.deepEqual(s.classic, params);
+  assert.deepEqual(s.matchup, before.matchup);
+  assert.equal(s.ui.overlay, null);
+});
+
 test('matchup state round-trips through the URL', () => {
   const s = run(initialState(),
     {type: 'setSide', side: 'A', sel: {...fennec, ftSize: 3, surpriseAttack: true}},

@@ -5,6 +5,7 @@
 import {FIRETEAM_MAX, fireteamSize} from '../rules/modifiers.js';
 import {RANGE_BANDS} from '../rules/ranges.js';
 import {MODES} from './modes.js';
+import {fullParams} from '../engine/params.js';
 import {classicSave} from './classicView.js';
 import {normalizeSetup, setupKey} from './rolls.js';
 import {EMPTY_SIDE, EMPTY_UI, MAX_RECENT_FACTIONS, MAX_RECENTS, initialState, other} from './schema.js';
@@ -134,6 +135,10 @@ export function reduce(state, action) {
     // --- classic calculator
     case 'setClassic':
       return {...state, classic: {...state.classic, [action.key]: action.value}};
+    // A matchup's Face to Face Roll copied into the classic calculator, every
+    // number worked out, so the player can tweak it by hand. The matchup stays.
+    case 'openInClassic':
+      return {...state, mode: MODES.basic, classic: fullParams(action.params), ui: {...EMPTY_UI}};
     case 'setClassicSave':
       return {...state, classic: classicSave(state.classic, action.side, action.which, action.total)};
 
