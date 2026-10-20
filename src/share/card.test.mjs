@@ -1,7 +1,7 @@
 // Run with: yarn test:js
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {decodeCard, encodeCard, numbersLine, previewDescription, previewTitle, shareText, shareUrl} from './card.js';
+import {decodeCard, encodeCard, numbersLine, previewDescription, previewTitle, shareUrl} from './card.js';
 
 const side = (n, u, w, s, c) => ({n, l: 'wounds / order', u, w, s, c});
 const card = {k: 'wpo', nf: false, x: '16-24"', a: side('0.81', 'Squalos Mk-II', 'HMG', 'Surprise attack', 'squalos-mk-ii-1-1'),
@@ -25,7 +25,6 @@ test('the preview words (T1): names in the title, the numbers first', () => {
   assert.equal(previewTitle(card), 'Squalos Mk-II vs Zhanshi Gongchéng');
   assert.equal(previewDescription(card),
     '0.81 vs 0.46 wounds / order · 16-24" · HMG, Surprise attack vs Missile L., Cover, Fireteam 5');
-  assert.equal(shareText(card), 'Squalos Mk-II HMG vs Zhanshi Gongchéng Missile L.: 0.81 vs 0.46 wounds / order');
 });
 
 test('each number keeps its own label when the sides differ (one is dodging)', () => {

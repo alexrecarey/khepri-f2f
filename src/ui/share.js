@@ -1,29 +1,20 @@
 // Share the current setup: the address bar always holds it (state/url.js).
-// The phone's share sheet where there is one, else copy the link.
+// The button copies the link, nothing else: the system share sheet (Safari
+// on the Mac) has no way to just copy it, and the link alone unfurls.
 // A Matchup link goes out as a share link (/s, src/share/card.js) carrying
 // its share card, so it unfurls on Discord and WhatsApp with the sender's
-// numbers, and the share sheet gets a line of text to go with it.
+// numbers.
 import {dispatch} from '../state/store.js';
-import {numbersLine, shareText, shareUrl} from '../share/card.js';
+import {shareUrl} from '../share/card.js';
 
-// card: matchupShareCard(), or null (Classic); h: ui/headline.js headline().
-export function shareContent(href, card, h) {
-  if (card) return {url: shareUrl(href, card), text: shareText(card)};
-  const sides = h && {a: {n: h.text.active, l: h.label.active}, b: {n: h.text.reactive, l: h.label.reactive}};
-  return {url: href, text: sides ? `Active vs Reactive: ${numbersLine(sides)}` : ''};
-}
+// card: matchupShareCard(), or null (Classic).
+const shareHref = (href, card) => (card ? shareUrl(href, card) : href);
 
-export async function shareLink(card = null, h = null) {
-  const {url, text} = shareContent(window.location.href, card, h);
+export async function shareLink(card = null) {
   try {
-    if (navigator.share) {
-      await navigator.share({title: 'Infinity the Calculator', text, url});
-      return;
-    }
-    await navigator.clipboard.writeText(url);
+    await navigator.clipboard.writeText(shareHref(window.location.href, card));
     dispatch({type: 'toast', text: 'Link copied'});
-  } catch (e) {
-    // The person closed the share sheet: nothing to say.
-    if (e?.name !== 'AbortError') dispatch({type: 'toast', text: 'Could not share the link'});
+  } catch {
+    dispatch({type: 'toast', text: 'Could not copy the link'});
   }
 }

@@ -39,7 +39,7 @@ SheetActions.propTypes = {save: PropTypes.object, onShare: PropTypes.func.isRequ
 
 // The link with its share card, for the headline this player sees (h).
 // shareCard(h): MatchupScreen's matchupShareCard; missing in Classic.
-const shareWith = (shareCard, h) => () => shareLink(h && shareCard ? shareCard(h) : null, h);
+const shareWith = (shareCard, h) => () => shareLink(h && shareCard ? shareCard(h) : null);
 
 // Until the first result shows up (the dice engine loading on a first visit,
 // a few seconds) the two dice roll at each other, bump and bounce back: the
