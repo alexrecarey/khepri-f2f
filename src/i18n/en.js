@@ -379,6 +379,8 @@ export default {
   // Saved rolls
   'roll.vs': 'vs',
   'roll.cover': 'Cover',
+  // The Sapper chip's choice, named as the chip is (the ledger names the state).
+  'roll.foxhole': 'Foxhole',
   'roll.closeCombat': 'Close combat',
   'roll.surpriseAttack': 'Surprise attack',
   'roll.allies_one': '{count} ally',

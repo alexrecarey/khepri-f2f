@@ -98,7 +98,7 @@ const zoneNames = (view, t) => ZONES.filter((z) => view.zones?.[z]).map((z) => z
 export function matchupRollSummary(view, s, t = tEn) {
   const {A, B} = view;
   const bits = [rangeText(view, t), ...zoneNames(view, t)];
-  if (inFoxhole(A) || inFoxhole(B)) bits.push(t('skill.foxhole'));
+  if (inFoxhole(A) || inFoxhole(B)) bits.push(t('roll.foxhole'));
   if (inCover(A) || inCover(B)) bits.push(t('roll.cover'));
   for (const x of [A, B]) bits.push(fireteam(x, t), ...teamOps(x));
   bits.push(allies(A, B, t), allies(B, A, t));
@@ -123,7 +123,7 @@ export function matchupRollSummary(view, s, t = tEn) {
 export function matchupShareCard(view, h, t = tEn) {
   const side = (role, key) => {
     const x = view[role];
-    const situation = [inFoxhole(x) && t('skill.foxhole'), inCover(x) && t('roll.cover'), fireteam(x, t), allies(x, view[role === 'A' ? 'B' : 'A'], t),
+    const situation = [inFoxhole(x) && t('roll.foxhole'), inCover(x) && t('roll.cover'), fireteam(x, t), allies(x, view[role === 'A' ? 'B' : 'A'], t),
       surprise(x, role) && t('roll.surpriseAttack'), berserk(x, role) && t('skill.berserk'), ...teamOps(x)];
     return {
       n: h.text[key], l: h.label[key],

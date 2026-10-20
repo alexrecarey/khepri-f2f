@@ -185,7 +185,7 @@ export default {
   'error.noCcAttackAro': 'este perfil no puede hacer ataques CC; elige Esquivar o Sin ORA',
 
   // App chrome
-  'mode.matchup': 'Enfrentamiento',
+  'mode.matchup': 'Enfrentada',
   'mode.classic': 'Clásica',
   'menu.menu': 'Menú',
   'menu.appMenu': 'Menú de la app',
@@ -379,6 +379,8 @@ export default {
   // Saved rolls
   'roll.vs': 'contra',
   'roll.cover': 'Cobertura',
+  // The Sapper chip's choice, named as the chip is (the ledger names the state).
+  'roll.foxhole': 'Zapador',
   'roll.closeCombat': 'Cuerpo a cuerpo',
   'roll.surpriseAttack': 'Ataque Sorpresa',
   'roll.allies_one': '{count} aliado',
