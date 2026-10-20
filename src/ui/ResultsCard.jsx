@@ -13,6 +13,7 @@ import {headline, headlineChoice, nextHeadline} from './headline.js';
 import {shareLink} from './share.js';
 import useDialogFocus from './useDialogFocus.js';
 import useSheetGestures from './useSheetGestures.js';
+import FaceToFaceChart from './FaceToFaceChart.jsx';
 import Ledger from './Ledger.jsx';
 import {pct} from './results.js';
 import {Breakdown, ClassicBody, WoundBar} from './ResultsDetail.jsx';
@@ -200,6 +201,7 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
             ? <UnopposedSheetBody s={s} names={ledger?.names ?? {A: 'Active', B: 'Reactive'}} diceLine={diceLine} />
             : classic ? <ClassicBody s={s} woundBar={false} />
               : s.states ? <><StateBar s={s} ui={ui} glyphs="only" /><StateList s={s} ui={ui} /></> : <Breakdown s={s} />)}
+          {s && ledger && !s.unopposed && <FaceToFaceChart params={params} names={ledger.labels} />}
           {s && ledger && !s.unopposed && <div className="mods-sep" />}
           {s && ledger && <Ledger {...ledger} />}
           {s && status && <span className="status">{status}</span>}
@@ -229,6 +231,7 @@ function ResultsBody({s, classic, ledger, diceLine, pending, ui, params}) {
           <Breakdown s={s} />
         </>
       )}
+      {ledger && <FaceToFaceChart params={params} names={ledger.labels} />}
     </>
   );
 }
