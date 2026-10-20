@@ -20,7 +20,9 @@ import {ccAttackMods, ccBurst, ccSd, isCcAttack} from './closeCombat.js';
 // The Immunities the rules here read, and Immunities to States the calculator
 // doesn't model (E/M's IMM-B and Isolated, Possession): recognized, and
 // correctly change nothing here, since a hit is scored the same and only the
-// State afterwards differs (Warhorse's immunity to Isolated is the same case).
+// State afterwards differs. A weapon that only Isolates (Jammer) is the
+// exception: Immunity (Isolated) or Warhorse leaves it without effect
+// (saves.js noEffectBy).
 // scripts/army-validate.mjs fails on any other Immunity in the army data.
 export const MODELED_IMMUNITIES = ['AP', 'ARM', 'BTS', 'Continuous Damage', 'Critical', 'Enhanced', 'Shock'];
 export const STATE_IMMUNITIES = ['IMM-B', 'Isolated', 'POS'];
@@ -41,7 +43,7 @@ function approximationWarnings(label, side, target) {
   const warnings = [];
   const row = side?.weapon?.row;
   if (row && hasNoEffect(target?.traits, row)) {
-    warnings.push(`${label}: ${row.name} has no effect on a target with Immunity (${noEffectBy(target.traits, row)}); its hits cause no damage`);
+    warnings.push(`${label}: ${row.name} has no effect on a target with ${noEffectBy(target.traits, row)}; its hits cause no damage`);
   } else if (row && isolates(row)) {
     // Not a warning: the results say Isolated (rules/woundStates.js).
   } else if (row && isNonLethal(row)) {

@@ -1698,6 +1698,10 @@ test('Jammer: a failed save is Isolated; only Immunity (Isolated) stops it, not 
   const i = derive({active: side(hacker(), jammer, '21:'), reactive: side(immune, combi, '1:'), rangeCm: 20});
   assert.equal(i.inputs.ammoA, 'NONE');
   assert.ok(i.warnings.some((w) => w.includes('Immunity (Isolated)')), i.warnings.join(' | '));
+  // Warhorse makes its user immune to Isolated, so to the Jammer (Alex, 2026-10-20).
+  const horse = derive({active: side(hacker(), jammer, '21:'), reactive: side(profile({skills: [{id: 267, name: 'Warhorse'}]}), combi, '1:'), rangeCm: 20});
+  assert.equal(horse.inputs.ammoA, 'NONE');
+  assert.ok(horse.warnings.some((w) => w.includes('no effect on a target with Warhorse')), horse.warnings.join(' | '));
   // Against a Comms Attack no other Immunity works (Alex, 2026-10-20).
   const tough = profile({bts: 3, skills: [{id: 162, name: 'Immunity', extra: ['BTS', 'Critical', 'Enhanced']}]});
   const t = derive({active: side(hacker(), jammer, '21:'), reactive: side(tough, combi, '1:'), rangeCm: 20});

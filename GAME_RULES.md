@@ -59,7 +59,7 @@ Alex, 2026-10-20: Comms Attacks are opposed by Reset; the Jammer's success cause
 - No LoF: Mimetism, Albedo, Smoke and White Noise don't touch it. Partial Cover and Nanoscreen do nothing against a Comms Attack (neither the −3 nor the +3 save).
 - Firewall is its cover: −X to the attacker (Hacking Device "UPGRADE: Firewall (−3)", "Firewall −6", TinBot: Firewall (−3) / (−6); the best one counts) and +3 to the target's saves.
 - A failed save is Isolated, not a wound: the results show Isolated.
-- Immunities don't work against Comms Attacks, except an Immunity to a State: Immunity (Isolated) leaves the Jammer without effect, Immunity (IMM-B) would stop an Immobilized one (Alex, 2026-10-20). Immunity (BTS), (Enhanced), (Critical), (AP)… do nothing against them.
+- Immunities don't work against Comms Attacks, except an Immunity to a State: Immunity (Isolated) leaves the Jammer without effect, and so does Warhorse, which makes its user immune to Isolated (Alex, 2026-10-20); Immunity (IMM-B) would stop an Immobilized one (Alex, 2026-10-20). Immunity (BTS), (Enhanced), (Critical), (AP)… do nothing against them.
 - The Jammer is never the default weapon.
 - Not modelled: the Technical Weapons (Tohaa PT: Endgame, Eraser, Mirrorball), the Cybermine (a Deployable), Isolated's −9 to Reset.
 
