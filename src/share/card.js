@@ -86,7 +86,3 @@ export const footerLine = (card) => [card.x, card.nf && 'Not face to face'].filt
 export const previewTitle = (card) => `${card.a.u} vs ${card.b.u}`;
 export const previewDescription = (card) =>
   [numbersLine(card), footerLine(card), `${detailLine(card.a, ', ')} vs ${detailLine(card.b, ', ')}`].filter(Boolean).join(' · ');
-
-// The line the Share button sends with the link (WhatsApp shows it above the
-// preview): "Squalos Mk-II HMG vs Zhanshi Missile L.: 0.81 vs 0.46 wounds / order".
-export const shareText = (card) => `${card.a.u} ${card.a.w} vs ${card.b.u} ${card.b.w}: ${numbersLine(card)}`;
