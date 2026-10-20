@@ -21,9 +21,10 @@ export const skillExtras = (traits, id) =>
   (traits?.skills ?? []).filter((s) => s.id === id).flatMap((s) => s.extra ?? []);
 
 // "Name (extra, extra)" as the Army list shows it; the extras in t's
-// language (the army's own translation: "+1B" -> "+1R").
+// language (the army's own translation: "+1B" -> "+1R") and distance unit
+// (Dodge (+2") -> Esquivar (+5 cm)).
 export const traitLabel = (trait, t = tEn) =>
-  (trait.extra?.length ? `${trait.name} (${trait.extra.map((e) => t.term('extras', e)).join(', ')})` : trait.name);
+  (trait.extra?.length ? `${trait.name} (${trait.extra.map((e) => t.inchText(t.term('extras', e))).join(', ')})` : trait.name);
 
 // Lieutenant (any level): changes nothing on the table, so the picker and the
 // index leave it out when telling loadouts apart.

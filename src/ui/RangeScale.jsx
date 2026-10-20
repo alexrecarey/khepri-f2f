@@ -5,7 +5,7 @@
 // distances still show. A tap on a distance only opens the selector: it
 // belongs to both sides, so it can't pick for either.
 import PropTypes from 'prop-types';
-import {RANGE_BANDS} from '../rules/ranges.js';
+import {RANGE_BANDS, bandLabel} from '../rules/ranges.js';
 import {dispatch} from '../state/store.js';
 import {bandColor, signedMod} from './bands.js';
 import {SplitIcon} from './icons.jsx';
@@ -18,7 +18,7 @@ function Pick({side, i, on, mod, open}) {
   const b = RANGE_BANDS[i];
   return (
     <button type="button" className={`scale-pick ${side}${on ? ' on' : ''}`} aria-pressed={on}
-      aria-label={`${t(ROLE[side])} ${b.label}: ${signedMod(mod)}`}
+      aria-label={`${t(ROLE[side])} ${bandLabel(i, t)}: ${signedMod(mod)}`}
       onClick={() => dispatch({type: 'setRange', side, rangeCm: b.to, open: true})}>
       <span className="track"><span className="stripe" style={{background: open ? bandColor(mod) : 'transparent'}} /></span>
     </button>
@@ -38,8 +38,8 @@ export default function RangeScale({bands, open, selA, selB}) {
           <div className="scale-col" key={b.to}>
             <Pick side="A" i={i} on={i === selA} mod={bands[i].A} open={open} />
             {/* Keyboard users pick on the tracks, which open it too. */}
-            <button type="button" className={`dist${on ? ' on' : ''}`} tabIndex={-1} aria-label={`${b.label}; ${t('range.open')}`}
-              onClick={() => dispatch({type: 'setRangeOpen', open: true})}>{on ? `${b.inches}"` : b.inches}</button>
+            <button type="button" className={`dist${on ? ' on' : ''}`} tabIndex={-1} aria-label={`${bandLabel(i, t)}; ${t('range.open')}`}
+              onClick={() => dispatch({type: 'setRangeOpen', open: true})}>{on ? t('dist.picked', {n: t.distance(b.to)}) : t.distance(b.to)}</button>
             <Pick side="B" i={i} on={i === selB} mod={bands[i].B} open={open} />
           </div>
         );

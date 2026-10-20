@@ -89,7 +89,7 @@ function sideView(army, sel, side, t) {
     berserk: side === 'A' && isCcAttack(resolved) && hasBerserk(resolved.traits) ? {mod: berserkMod(resolved.traits)} : null,
     // Team-Ops: the chart and TacBall options, by label, for their chips.
     teamOps: resolved?.teamOps
-      ? {chart: (unit.upgrades.chart ?? []).map((u) => u.label), ball: (unit.upgrades.ball ?? []).map((u) => u.label)}
+      ? {chart: (unit.upgrades.chart ?? []).map((u) => t.inchText(u.label)), ball: (unit.upgrades.ball ?? []).map((u) => t.inchText(u.label))}
       : null,
     faction: unit ? army.factions[vanillaOf(army, resolved.factionId)]?.name ?? null : null,
     // The vanilla faction id (its crest stands in for a missing unit crest)

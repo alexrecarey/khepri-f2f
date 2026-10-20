@@ -36,6 +36,13 @@ export default {
   'typeName.WB': 'Warbands',
   'typeName.VH': 'Vehicles',
 
+  // Distances (src/i18n/index.js t.distance): inches, 2.5 cm each
+  'dist.cmPerUnit': '2.5',
+  'dist.value': '{n}"',
+  'dist.band': '{from}-{to}"',
+  // The picked distance on the range bar: 32".
+  'dist.picked': '{n}"',
+
   // Ammunition, as players write it
   'ammo.N': 'N',
   'ammo.DA': 'DA',

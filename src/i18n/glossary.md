@@ -66,6 +66,16 @@ correct them before merging.
 | Matchup (the calculator mode) | Enfrentamiento | **check** |
 | Classic | Clásica | **check** |
 
+## Distances
+
+Spanish shows centimetres, English inches (Alex, 2026-10-20: the unit
+follows the language, no setting). State and URLs keep cm. Range bands
+20 / 40 / 60 / 80 / 100 / 120 / 240; the picked band on the bar shows the
+number alone ("240 cm" wraps on a phone), the open selector's header and the
+ledger say "cm". Army extras written in inches (Dodge (+2"), Team-Ops
+"MOV 6-4"") are shown in cm (+5 cm, MOV 15-10 cm), and so is MOV in the
+desktop picker.
+
 ## Short weapon names
 
 Buttons shorten the Spanish names the way the Army does in its own extras

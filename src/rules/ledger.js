@@ -28,7 +28,7 @@ import {
   bangbombMod, bangbombValue, cancelsBangbomb, coverBsMod, dodgeExtras, evades, fireteamBonuses, firewallMod, hasNanoscreen, ignoresCoverOnSaves,
   keepsAroBurst, mimetismMod, neurocineticsAroBurst, mimetismValue, msvName, opposingMods,
 } from './modifiers.js';
-import {RANGE_BANDS, rangeModFor} from './ranges.js';
+import {RANGE_BANDS, bandFrom, rangeModFor} from './ranges.js';
 import {hasImmunity, immunityAgainst, saveHalving} from './saves.js';
 import {bsAttackWeaponMods, pseudoName} from './trooper.js';
 import {ccAttackMods, ccAttackSkill, ccBurst, ccSd, isCcAttack} from './closeCombat.js';
@@ -62,8 +62,7 @@ function statLabel(x, attr, t) {
 
 function rangeLabel(rangeCm, t) {
   const i = RANGE_BANDS.findIndex((b) => rangeCm <= b.to);
-  const band = RANGE_BANDS[i];
-  return t('ledger.range', {from: i ? RANGE_BANDS[i - 1].inches : 0, to: band.inches});
+  return t('ledger.range', {from: t.distance(bandFrom(i)), to: t.distance(RANGE_BANDS[i].to)});
 }
 
 // "Mimetism (-6)", "Mimetism (-3), Foxhole": the target's Mimetism as the ledger names it.
