@@ -31,8 +31,8 @@ correct them before merging.
 | Reset | Reset | **check** |
 | Cover (Partial Cover) | Cobertura (Cobertura Parcial) | wiki |
 | Limited Cover / No Cover | Cobertura Limitada / Sin Cobertura | Army |
-| Foxhole (the state: ledger lines) | Pozo de Tirador | wiki |
-| Sapper (the skill: the chip, and the saved-roll / share summary of that chip) | Zapador | Army, Alex |
+| Foxhole (the state: ledger lines, saved-roll summary, share card) | Pozo de Tirador | wiki, Alex |
+| Sapper (the skill: the chip only) | Zapador | Army, Alex |
 | Smoke | Humo | wiki |
 | White Noise | Ruido Blanco | wiki |
 | Zero Visibility / Poor Visibility | Visibilidad Nula / Mala Visibilidad | wiki |
