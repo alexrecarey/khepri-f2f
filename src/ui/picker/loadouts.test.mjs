@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {groupLoadouts, loadoutCharts, loadoutTag, mainWeapon, orderLoadouts, reachGroup, statLine, unitDetail, weaponChart} from './loadouts.js';
 import {lieutenantTwins} from '../../search/buildIndex.js';
+import {SKILL} from '../../army/ids.js';
 
 const army = JSON.parse(readFileSync(new URL('../../army/army.json', import.meta.url), 'utf8'));
 const idOf = (name) => Number(Object.keys(army.weapons).find((id) => army.weapons[id][0].name === name));
@@ -61,9 +62,9 @@ test('Swiss Guard: SWC loadouts first (longer reach first), main gun is the fart
 });
 
 test('Lieutenant: twins of a plain loadout are dropped, the skill is never a tag', () => {
-  const lt = {id: 2, weapons: [{id: 1}], skills: [{name: 'Lieutenant'}], equip: []};
+  const lt = {id: 2, weapons: [{id: 1}], skills: [{id: SKILL.LIEUTENANT, name: 'Lieutenant'}], equip: []};
   const plain = {id: 1, weapons: [{id: 1}], skills: [], equip: []};
-  const other = {id: 3, weapons: [{id: 2}], skills: [{name: 'Lieutenant'}, {name: 'Hacker'}], equip: []};
+  const other = {id: 3, weapons: [{id: 2}], skills: [{id: SKILL.LIEUTENANT, name: 'Lieutenant'}, {id: 0, name: 'Hacker'}], equip: []};
   assert.deepEqual([...lieutenantTwins([plain, lt, other])], [2]);
   const unit = army.units.find((u) => u.byFaction[101]?.groups.some((g) => g.options.some((o) => (o.skills ?? []).some((s) => s.name === 'Lieutenant'))));
   const group = unit.byFaction[101].groups.find((g) => g.options.some((o) => (o.skills ?? []).some((s) => s.name === 'Lieutenant')));

@@ -10,6 +10,7 @@ import {dispatch, getState, useAppState} from '../state/store.js';
 import TrooperPicker from './picker/TrooperPicker.jsx';
 import DeskPicker from './picker/DeskPicker.jsx';
 import {useSearcher} from './picker/useTrooperSearch.js';
+import {useLanguage} from '../state/language.js';
 import LoadFailed from './LoadFailed.jsx';
 import ResultsCard, {ResultsPanel} from './ResultsCard.jsx';
 import Ledger from './Ledger.jsx';
@@ -21,7 +22,7 @@ import useRollResults from './useRollResults.js';
 
 export default function MatchupScreen({army, armyError, retryArmy, view, engine}) {
   const picking = useAppState((st) => (st.ui.overlay === 'picker' ? st.ui.picker.side : null));
-  const {searcher, error: searchError, retry: retrySearch} = useSearcher(true);
+  const {searcher, error: searchError, retry: retrySearch} = useSearcher(true, useLanguage());
   const result = view.complete ? engine.result : null;
   // Summarized once here; the card, the panel and Save all read it.
   const summaryOf = useCallback((s) => (view.complete ? matchupRollSummary(view, s) : null), [view]);

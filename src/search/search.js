@@ -1,6 +1,7 @@
 // The trooper search behind the picker. createSearch(index) builds the word
 // list once; search() then runs on every keystroke, so it only scans that word
 // list (under 2,000 distinct words) and never the rows themselves.
+import {SKILL} from '../army/ids.js';
 import {FIELD} from './buildIndex.js';
 import {prefixDistance, soundKey, typoBudget, words} from './text.js';
 
@@ -14,7 +15,7 @@ export function createSearch(index) {
   const rows = index.rows;
   const unitById = new Map(index.units.map((u) => [u.id, u]));
   // Peripherals (Crabbots, Auxbots...) ride in their controller's unit entry (see matchRows).
-  const peripheralSkill = index.skills.findIndex((sk) => sk.name === 'Peripheral');
+  const peripheralSkill = index.skills.findIndex((sk) => sk.id === SKILL.PERIPHERAL);
   const isPeripheral = (row) => row.skills.includes(peripheralSkill);
   const factionName = new Map(index.factions.map((f) => [f.id, f.name]));
 

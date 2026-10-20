@@ -28,9 +28,11 @@
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {UnknownValue, fixName, normalizeWeaponRow, statOverrides} from '../src/army/normalize.js';
+import {UnknownValue, normalizeWeaponRow, statOverrides} from '../src/army/normalize.js';
 import {validateArmy} from './army-validate.mjs';
 import {fireteamLimits} from '../src/army/fireteams.js';
+import {clean, compactUpgrades, int, resolvers} from './army-compact.mjs';
+import {localNames} from './army-names.mjs';
 
 const API = 'https://api.corvusbelli.com/army';
 const HEADERS = {Origin: 'https://infinityuniverse.com', Accept: 'application/json'};
@@ -52,6 +54,9 @@ const DEFAULT_FACTIONS = [
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'src', 'army', 'army.json');
 const CACHE = path.join(ROOT, '.cache', 'army');
+// Languages besides English whose names are written next to army.json
+// (src/army/names.<lang>.json; see src/army/localize.js).
+const LANGUAGES = ['es'];
 
 const args = process.argv.slice(2);
 const offline = args.includes('--offline');
@@ -88,13 +93,6 @@ function hoistCrests(unit) {
   if (!unit.crest) delete unit.crest;
 }
 
-const clean = (s) => (typeof s === 'string' ? fixName(s.replace(/\s+/g, ' ').trim()) || null : null);
-const int = (s) => {
-  if (s === null || s === undefined || s === '') return null;
-  const n = Number(s);
-  return Number.isFinite(n) ? n : null;
-};
-
 const unresolved = new Set();
 
 // Values normalize.js doesn't recognise; reported with the validation problems.
@@ -108,20 +106,6 @@ function normalizing(where, fn, fallback) {
     return fallback;
   }
 }
-function makeResolver(label, ...tables) {
-  const map = new Map();
-  for (const table of tables) {
-    for (const row of table ?? []) {
-      if (!map.has(row.id)) map.set(row.id, clean(row.name) ?? String(row.id));
-    }
-  }
-  return (id) => {
-    if (map.has(id)) return map.get(id);
-    unresolved.add(`${label}:${id}`);
-    return String(id);
-  };
-}
-
 function compactWeapons(rows, ammoName) {
   const table = {};
   for (const w of rows) {
@@ -159,43 +143,6 @@ function refs(list, resolve, extraName) {
     });
 }
 
-// Spec-Ops / Team-Ops upgrade charts (`spectables`): `table` is the Spec-Ops or
-// Team-Ops chart, `specball` the SpecBall / TacBall chart. Each item is a few
-// attrs: a stat change ({stat, q}; MOV is move0/move1 in cm and replaces MOV,
-// the rest are deltas) or a skill / equip / weapon to add.
-const STAT_LABELS = {cc: 'CC', bs: 'BS', ph: 'PH', wip: 'WIP', arm: 'ARM', bts: 'BTS', w: 'W', s: 'S'};
-const inches = (cm) => (cm % 2.5 === 0 ? cm / 2.5 : `${cm}cm`);
-
-function upgradeLabel(attrs) {
-  const parts = [];
-  const move = attrs.filter((a) => a.type === 'stat' && a.stat.startsWith('move')).map((a) => inches(a.q));
-  if (move.length > 0) parts.push(`MOV ${move.join('-')}"`);
-  for (const a of attrs) {
-    if (a.type === 'stat' && !a.stat.startsWith('move')) parts.push(`${STAT_LABELS[a.stat] ?? a.stat.toUpperCase()}+${a.q}`);
-    else if (a.type !== 'stat') parts.push(a.extra ? `${a.name} (${a.extra.join(', ')})` : a.name);
-  }
-  return parts.join(', ');
-}
-
-function compactUpgrades(spectables, names) {
-  if (!spectables) return null;
-  const item = (it) => {
-    const attrs = (it.attrs ?? []).map((a) => {
-      if (a.type === 'stat') return {type: 'stat', stat: a.stat, q: a.q};
-      const resolve = names[a.type];
-      if (!resolve) return null;
-      const out = {type: a.type, id: a.id, name: resolve(a.id)};
-      const extra = (a.extra ?? []).map(names.extra).filter(Boolean);
-      if (extra.length > 0) out.extra = extra;
-      return out;
-    }).filter(Boolean);
-    return {label: upgradeLabel(attrs), attrs};
-  };
-  const chart = (spectables.table?.items ?? []).map(item);
-  const ball = (spectables.specball?.items ?? []).map(item);
-  return chart.length > 0 || ball.length > 0 ? {chart, ball} : null;
-}
-
 async function main() {
   const metadata = await get('infinity/en/metadata');
   const factionFiles = new Map();
@@ -207,26 +154,8 @@ async function main() {
     factionFiles.set(id, file);
   }
   const files = [...factionFiles.values()];
-  const filterTables = (key) => files.map((f) => f.filters?.[key]);
 
-  const skillName = makeResolver('skill', metadata.skills, ...filterTables('skills'));
-  const equipName = makeResolver('equip', metadata.equips, ...filterTables('equip'));
-  // DISTANCE extras are centimetres (e.g. Dodge "+5"); show them in inches so
-  // they are not mistaken for attribute MODs.
-  const extraRows = filterTables('extras').flat().filter(Boolean).map((e) => {
-    const name = clean(e.name);
-    if (e.type !== 'DISTANCE') return {id: e.id, name};
-    const cm = Number(name);
-    const inches = Number.isFinite(cm) && cm % 2.5 === 0 ? `${cm > 0 ? '+' : ''}${cm / 2.5}"` : `${name}cm`;
-    return {id: e.id, name: inches};
-  });
-  const extraName = makeResolver('extra', extraRows);
-  const ammoName = makeResolver('ammo', metadata.ammunitions, ...filterTables('ammunition'));
-  const typeName = makeResolver('type', ...filterTables('type'));
-  const categoryName = makeResolver('category', ...filterTables('category'));
-  const weaponRows = metadata.weapons.filter((w) => w.type === 'WEAPON');
-  const weaponName = makeResolver('weapon', weaponRows, ...filterTables('weapons'));
-
+  const {skillName, equipName, extraName, ammoName, typeName, categoryName, weaponName} = resolvers(metadata, files, unresolved);
   const weapons = compactWeapons(metadata.weapons, ammoName);
   const metaFactions = new Map(metadata.factions.map((f) => [f.id, f]));
 
@@ -292,6 +221,9 @@ async function main() {
             skills,
             equip: refs(o.equip, equipName, extraName),
             ...(overrides ? {statOverrides: overrides} : {}),
+            // FTO loadouts reach bigger fireteams (src/army/fireteams.js); a
+            // flag, so the rules don't read the loadout's name.
+            ...(/\bFTO\b/.test(o.name ?? '') ? {fto: true} : {}),
           };
         }),
       }));
@@ -348,9 +280,30 @@ async function main() {
     process.exit(1);
   }
 
+  // The other languages' names, checked against this army before anything is written.
+  const local = {};
+  for (const lang of LANGUAGES) {
+    const files = new Map();
+    for (const id of wanted) files.set(id, await get(`units/${lang}/${id}`));
+    const {names, problems: langProblems} = localNames(lang, data, {
+      enMetadata: metadata, enFiles: factionFiles, metadata: await get(`infinity/${lang}/metadata`), files,
+    });
+    if (langProblems.length > 0) {
+      console.error(`\n${langProblems.length} problem(s) with the ${lang} names; nothing written:`);
+      for (const p of langProblems) console.error(`  - ${p}`);
+      process.exit(1);
+    }
+    local[lang] = names;
+  }
+
   await mkdir(path.dirname(OUT), {recursive: true});
   await writeFile(OUT, JSON.stringify(data, null, 1) + '\n');
   console.log(`Wrote ${path.relative(ROOT, OUT)}: ${data.units.length} units, ${Object.keys(weapons).length} weapons`);
+  for (const [lang, names] of Object.entries(local)) {
+    const file = path.join(ROOT, 'src', 'army', `names.${lang}.json`);
+    await writeFile(file, JSON.stringify(names) + '\n');
+    console.log(`Wrote ${path.relative(ROOT, file)}`);
+  }
 }
 
 main().catch((err) => {

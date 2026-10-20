@@ -106,7 +106,7 @@ export const FIRETEAM_MAX = 5;
 export function fireteamMax(unit, option) {
   const ft = unit?.fireteam;
   if (!ft) return 1;
-  const n = /\bFTO\b/.test(option?.name ?? '') ? ft.fto : ft.all;
+  const n = option?.fto ? ft.fto : ft.all;
   return n >= FIRETEAM_MIN ? n : 1;
 }
 

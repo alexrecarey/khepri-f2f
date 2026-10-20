@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-11T21:44:37.800Z",
+ "generatedAt": "2026-10-20T17:27:09.523Z",
  "source": "https://api.corvusbelli.com/army (Corvus Belli, Infinity Army). Unofficial snapshot.",
  "factions": {
   "101": {
@@ -2031,7 +2031,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -2102,7 +2103,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -2173,7 +2175,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -2244,7 +2247,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -2315,7 +2319,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -2386,7 +2391,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -2457,7 +2463,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -5796,7 +5803,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -6005,7 +6013,8 @@
            "name": "Minelayer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -6153,7 +6162,8 @@
            "name": "Minelayer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -6301,7 +6311,8 @@
            "name": "Minelayer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -6449,7 +6460,8 @@
            "name": "Minelayer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -6597,7 +6609,8 @@
            "name": "Minelayer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -6742,7 +6755,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -12876,7 +12890,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -12905,7 +12920,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -12930,7 +12946,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -13128,7 +13145,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -13157,7 +13175,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -13182,7 +13201,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -13851,7 +13871,8 @@
            "name": "Specialist Operative"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 7,
@@ -13889,7 +13910,8 @@
            "name": "Specialist Operative"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -14008,7 +14030,8 @@
            "name": "Specialist Operative"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 7,
@@ -14046,7 +14069,8 @@
            "name": "Specialist Operative"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 8,
@@ -14088,7 +14112,8 @@
            "name": "Strategos L1"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -18744,7 +18769,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -18866,7 +18892,8 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 8,
@@ -18978,7 +19005,8 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 11,
@@ -19416,7 +19444,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -19538,7 +19567,8 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 8,
@@ -19650,7 +19680,8 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 11,
@@ -20088,7 +20119,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -20210,7 +20242,8 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 8,
@@ -20322,7 +20355,8 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 11,
@@ -31446,7 +31480,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -31479,7 +31514,8 @@
            ]
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -31691,7 +31727,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -31724,7 +31761,8 @@
            ]
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -34497,7 +34535,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -34751,7 +34790,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -35005,7 +35045,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -35259,7 +35300,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -35511,7 +35553,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -35763,7 +35806,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -36020,7 +36064,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -36277,7 +36322,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -36534,7 +36580,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -36733,7 +36780,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -36932,7 +36980,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -38540,7 +38589,8 @@
            "id": 100,
            "name": "Hacking Device"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 2,
@@ -38575,7 +38625,8 @@
            "name": "Forward Observer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -38606,7 +38657,8 @@
            "name": "Neurocinetics"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -38759,7 +38811,8 @@
            "id": 100,
            "name": "Hacking Device"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 2,
@@ -38794,7 +38847,8 @@
            "name": "Forward Observer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -38825,7 +38879,8 @@
            "name": "Neurocinetics"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -39170,7 +39225,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -39206,7 +39262,8 @@
            "id": 237,
            "name": "GizmoKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -39409,7 +39466,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -39445,7 +39503,8 @@
            "id": 237,
            "name": "GizmoKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -39648,7 +39707,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -39684,7 +39744,8 @@
            "id": 237,
            "name": "GizmoKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -39887,7 +39948,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -39923,7 +39985,8 @@
            "id": 237,
            "name": "GizmoKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -44020,7 +44083,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -44104,7 +44168,8 @@
            "name": "Lieutenant"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -44197,7 +44262,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -44281,7 +44347,8 @@
            "name": "Lieutenant"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -44319,7 +44386,8 @@
            ]
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -50760,7 +50828,8 @@
            "id": 91,
            "name": "Baggage"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -51405,7 +51474,8 @@
            "id": 117,
            "name": "X Visor"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -54978,7 +55048,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -55075,7 +55146,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -55172,7 +55244,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -55269,7 +55342,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -55366,7 +55440,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -55463,7 +55538,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -55560,7 +55636,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -55657,7 +55734,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -55754,7 +55832,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -55851,7 +55930,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -63474,7 +63554,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 8,
@@ -63500,7 +63581,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 9,
@@ -63543,7 +63625,8 @@
             "UPGRADE: Carbonite"
            ]
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       },
@@ -64237,7 +64320,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 8,
@@ -64263,7 +64347,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 9,
@@ -64306,7 +64391,8 @@
             "UPGRADE: Carbonite"
            ]
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       },
@@ -73372,7 +73458,8 @@
            "name": "Hacker"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -78774,7 +78861,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       },
@@ -84877,7 +84965,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -85064,7 +85153,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -85251,7 +85341,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -85438,7 +85529,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -85625,7 +85717,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -85812,7 +85905,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -85941,7 +86035,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -86094,7 +86189,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -86958,7 +87054,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -86990,7 +87087,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -87022,7 +87120,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       },
@@ -94722,7 +94821,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -94763,7 +94863,8 @@
             "-6"
            ]
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -94924,7 +95025,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -94965,7 +95067,8 @@
             "-6"
            ]
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -95126,7 +95229,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -95167,7 +95271,8 @@
             "-6"
            ]
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -95328,7 +95433,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -95369,7 +95475,8 @@
             "-6"
            ]
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -95530,7 +95637,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -95571,7 +95679,8 @@
             "-6"
            ]
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -97145,7 +97254,8 @@
            "name": "Super-Jump"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -97411,7 +97521,8 @@
            "name": "Super-Jump"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -97677,7 +97788,8 @@
            "name": "Super-Jump"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -97943,7 +98055,8 @@
            "name": "Super-Jump"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -98209,7 +98322,8 @@
            "name": "Super-Jump"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -98475,7 +98589,8 @@
            "name": "Super-Jump"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -98741,7 +98856,8 @@
            "name": "Super-Jump"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -99007,7 +99123,8 @@
            "name": "Super-Jump"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -107817,7 +107934,8 @@
            "id": 237,
            "name": "GizmoKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 4,
@@ -107860,7 +107978,8 @@
             "UPGRADE: Firewall (-6)"
            ]
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 5,
@@ -107902,7 +108021,8 @@
            "name": "Minelayer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -114233,7 +114353,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -114259,7 +114380,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -114422,7 +114544,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -114448,7 +114571,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -114611,7 +114735,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -114637,7 +114762,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -125943,7 +126069,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -125986,7 +126113,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -126092,7 +126220,8 @@
            "name": "Lieutenant"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -126139,7 +126268,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -126241,7 +126371,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -126284,7 +126415,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -126390,7 +126522,8 @@
            "name": "Lieutenant"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -126437,7 +126570,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -127570,7 +127704,8 @@
            "id": 24,
            "name": "Holomask"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -133243,7 +133378,8 @@
            "name": "Sensor"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -133270,7 +133406,8 @@
            "name": "Sensor"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -133301,7 +133438,8 @@
            "name": "Sensor"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -133538,7 +133676,8 @@
            "name": "Sensor"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -133565,7 +133704,8 @@
            "name": "Sensor"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -133596,7 +133736,8 @@
            "name": "Sensor"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -137298,7 +137439,8 @@
            "name": "Minelayer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -137347,7 +137489,8 @@
            "name": "Minelayer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -137384,7 +137527,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -137417,7 +137561,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -137551,7 +137696,8 @@
            "name": "Minelayer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -137600,7 +137746,8 @@
            "name": "Minelayer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -137637,7 +137784,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -137670,7 +137818,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -137804,7 +137953,8 @@
            "name": "Minelayer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -137853,7 +138003,8 @@
            "name": "Minelayer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -137890,7 +138041,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -137923,7 +138075,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -144903,7 +145056,8 @@
            "id": 238,
            "name": "Deactivator"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 2,
@@ -147775,7 +147929,8 @@
            "id": 117,
            "name": "X Visor"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -147812,7 +147967,8 @@
            "id": 117,
            "name": "X Visor"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 4,
@@ -147850,7 +148006,8 @@
            "id": 117,
            "name": "X Visor"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -148007,7 +148164,8 @@
            "id": 117,
            "name": "X Visor"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -148044,7 +148202,8 @@
            "id": 117,
            "name": "X Visor"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 4,
@@ -148082,7 +148241,8 @@
            "id": 117,
            "name": "X Visor"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -148239,7 +148399,8 @@
            "id": 117,
            "name": "X Visor"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -148276,7 +148437,8 @@
            "id": 117,
            "name": "X Visor"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 4,
@@ -148314,7 +148476,8 @@
            "id": 117,
            "name": "X Visor"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -159765,7 +159928,8 @@
            "id": 117,
            "name": "X Visor"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 2,
@@ -159863,7 +160027,8 @@
            "id": 117,
            "name": "X Visor"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -161082,7 +161247,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -161115,7 +161281,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -161144,7 +161311,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -161186,7 +161354,8 @@
            "name": "Specialist Operative"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -161457,7 +161626,8 @@
            "name": "Number 2"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       },
@@ -161655,7 +161825,8 @@
            "name": "Number 2"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       },
@@ -168916,7 +169087,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -168954,7 +169126,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -168992,7 +169165,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -169131,7 +169305,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -169169,7 +169344,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -169207,7 +169383,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -177685,7 +177862,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -177719,7 +177897,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -177873,7 +178052,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -177907,7 +178087,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -178061,7 +178242,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -178095,7 +178277,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -181836,7 +182019,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -182203,7 +182387,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -183443,7 +183628,8 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -183468,7 +183654,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -183500,7 +183687,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 7,
@@ -183538,7 +183726,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 8,
@@ -183579,7 +183768,8 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 9,
@@ -183650,7 +183840,8 @@
            "name": "Lieutenant"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -183738,7 +183929,8 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -183763,7 +183955,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -183795,7 +183988,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 7,
@@ -183833,7 +184027,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 8,
@@ -183874,7 +184069,8 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 9,
@@ -183945,7 +184141,8 @@
            "name": "Lieutenant"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -184150,7 +184347,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 6,
@@ -184374,7 +184572,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 6,
@@ -184598,7 +184797,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 6,
@@ -184760,7 +184960,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -184806,7 +185007,8 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -184957,7 +185159,8 @@
            "name": "Lieutenant"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -185007,7 +185210,8 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -185115,7 +185319,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -185161,7 +185366,8 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -185312,7 +185518,8 @@
            "name": "Lieutenant"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -185362,7 +185569,8 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -185936,7 +186144,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -185966,7 +186175,8 @@
          "equip": [],
          "statOverrides": {
           "bs": 12
-         }
+         },
+         "fto": true
         },
         {
          "id": 3,
@@ -186040,7 +186250,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -186105,7 +186316,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -186135,7 +186347,8 @@
          "equip": [],
          "statOverrides": {
           "bs": 12
-         }
+         },
+         "fto": true
         },
         {
          "id": 3,
@@ -186209,7 +186422,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -186535,7 +186749,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -186567,7 +186782,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -186596,7 +186812,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -186621,7 +186838,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -186650,7 +186868,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -186827,7 +187046,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -186859,7 +187079,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -186888,7 +187109,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -186913,7 +187135,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -186942,7 +187165,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -188343,7 +188567,8 @@
            "id": 111,
            "name": "Deployable Repeater"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 2,
@@ -188379,7 +188604,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -188412,7 +188638,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -188530,7 +188757,8 @@
            "id": 111,
            "name": "Deployable Repeater"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 2,
@@ -188566,7 +188794,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -188599,7 +188828,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -194079,7 +194309,8 @@
            "name": "Paramedic"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -194277,7 +194508,8 @@
            "name": "Paramedic"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -194475,7 +194707,8 @@
            "name": "Paramedic"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -194673,7 +194906,8 @@
            "name": "Paramedic"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -196263,7 +196497,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -196293,7 +196528,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -196328,7 +196564,8 @@
            "name": "Chain of Command"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -196470,7 +196707,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -196500,7 +196738,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -196535,7 +196774,8 @@
            "name": "Chain of Command"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -196677,7 +196917,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -196707,7 +196948,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -196742,7 +196984,8 @@
            "name": "Chain of Command"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -202140,7 +202383,8 @@
            "id": 108,
            "name": "Nanoscreen"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -212553,7 +212797,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -212581,7 +212826,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -212616,7 +212862,8 @@
            "id": 100,
            "name": "Hacking Device"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -212722,7 +212969,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -212750,7 +212998,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -212785,7 +213034,8 @@
            "id": 100,
            "name": "Hacking Device"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -212891,7 +213141,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -212919,7 +213170,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -212954,7 +213206,8 @@
            "id": 100,
            "name": "Hacking Device"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -214571,7 +214824,8 @@
            "name": "Booty"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -214598,7 +214852,8 @@
            "name": "Booty"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -215878,7 +216133,8 @@
            "name": "Regular"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -240895,7 +241151,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -240924,7 +241181,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -241076,7 +241334,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -241105,7 +241364,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -247245,7 +247505,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -247276,7 +247537,8 @@
            "name": "Forward Observer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -252807,7 +253069,8 @@
            "id": 248,
            "name": "Tinbot (Repeater)"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -252886,7 +253149,8 @@
            "id": 248,
            "name": "Tinbot (Repeater)"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       },
@@ -253150,7 +253414,8 @@
            "id": 248,
            "name": "Tinbot (Repeater)"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 5,
@@ -253196,7 +253461,8 @@
            "id": 248,
            "name": "Tinbot (Repeater)"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       },
@@ -253460,7 +253726,8 @@
            "id": 248,
            "name": "Tinbot (Repeater)"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -253539,7 +253806,8 @@
            "id": 248,
            "name": "Tinbot (Repeater)"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       },
@@ -253803,7 +254071,8 @@
            "id": 248,
            "name": "Tinbot (Repeater)"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -253882,7 +254151,8 @@
            "id": 248,
            "name": "Tinbot (Repeater)"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       },
@@ -254146,7 +254416,8 @@
            "id": 248,
            "name": "Tinbot (Repeater)"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -254225,7 +254496,8 @@
            "id": 248,
            "name": "Tinbot (Repeater)"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       },
@@ -256187,7 +256459,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -256209,7 +256482,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -256249,7 +256523,8 @@
            "id": 100,
            "name": "Hacking Device"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 14,
@@ -257219,7 +257494,8 @@
            ]
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -257256,7 +257532,8 @@
            ]
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -257613,7 +257890,8 @@
             "-3"
            ]
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -261304,7 +261582,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 4,
@@ -261345,7 +261624,8 @@
            ]
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -261390,7 +261670,8 @@
            "name": "Chain of Command"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -261433,7 +261714,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -269791,7 +270073,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -269911,7 +270194,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -270031,7 +270315,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -270151,7 +270436,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -270271,7 +270557,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -270908,7 +271195,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -270937,7 +271225,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -270978,7 +271267,8 @@
            ]
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -271019,7 +271309,8 @@
            ]
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -271444,7 +271735,8 @@
            "name": "Regular"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -271616,7 +271908,8 @@
            "name": "Regular"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -277261,7 +277554,8 @@
            "name": "Paramedic"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -277564,7 +277858,8 @@
            "name": "Paramedic"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -280954,7 +281249,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -281023,7 +281319,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -281141,7 +281438,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -281210,7 +281508,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -288118,7 +288417,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -293171,7 +293471,8 @@
             "UPGRADE: Trinity (SR-2)"
            ]
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       },
@@ -293339,7 +293640,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -293539,7 +293841,8 @@
             "UPGRADE: Trinity (SR-2)"
            ]
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       },
@@ -293707,7 +294010,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -306866,7 +307170,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -306894,7 +307199,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -306993,7 +307299,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -307021,7 +307328,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -312133,7 +312441,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -312230,7 +312539,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -312327,7 +312637,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -312424,7 +312735,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -314032,7 +314344,8 @@
            ]
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -314077,7 +314390,8 @@
            "name": "Number 2"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -316840,7 +317154,8 @@
            "name": "Super-Jump"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -317034,7 +317349,8 @@
            "name": "Super-Jump"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -317228,7 +317544,8 @@
            "name": "Super-Jump"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -317422,7 +317739,8 @@
            "name": "Super-Jump"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -317616,7 +317934,8 @@
            "name": "Super-Jump"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -318149,7 +318468,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -318177,7 +318497,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -318290,7 +318611,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -318318,7 +318640,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -324441,7 +324764,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -324482,7 +324806,8 @@
            ]
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -324523,7 +324848,8 @@
            "name": "Forward Observer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -324717,7 +325043,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -324758,7 +325085,8 @@
            ]
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -324799,7 +325127,8 @@
            "name": "Forward Observer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -325446,7 +325775,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -331021,7 +331351,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -331054,7 +331385,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -331095,7 +331427,8 @@
            "name": "Strategic Deployment"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -331362,7 +331695,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -331395,7 +331729,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -331436,7 +331771,8 @@
            "name": "Strategic Deployment"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -331703,7 +332039,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -331736,7 +332073,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -331777,7 +332115,8 @@
            "name": "Strategic Deployment"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -334335,7 +334674,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -336809,7 +337149,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -336839,7 +337180,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -336869,7 +337211,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -336906,7 +337249,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 8,
@@ -337054,7 +337398,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 11,
@@ -337089,7 +337434,8 @@
            "id": 114,
            "name": "Multispectral Visor L1"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -337192,7 +337538,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -337222,7 +337569,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -337252,7 +337600,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -337289,7 +337638,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 8,
@@ -337437,7 +337787,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 11,
@@ -337472,7 +337823,8 @@
            "id": 114,
            "name": "Multispectral Visor L1"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -340040,7 +340392,8 @@
            "id": 24,
            "name": "Holomask"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -340075,7 +340428,8 @@
            "id": 24,
            "name": "Holomask"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 4,
@@ -340114,7 +340468,8 @@
            "id": 24,
            "name": "Holomask"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 6,
@@ -340146,7 +340501,8 @@
            "id": 145,
            "name": "Killer Hacking Device"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 8,
@@ -340330,7 +340686,8 @@
            "id": 24,
            "name": "Holomask"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -340365,7 +340722,8 @@
            "id": 24,
            "name": "Holomask"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 4,
@@ -340404,7 +340762,8 @@
            "id": 24,
            "name": "Holomask"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 6,
@@ -340436,7 +340795,8 @@
            "id": 145,
            "name": "Killer Hacking Device"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 8,
@@ -350331,7 +350691,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -350491,7 +350852,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -350520,7 +350882,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -350695,7 +351058,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -350724,7 +351088,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -350814,7 +351179,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -350843,7 +351209,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -351018,7 +351385,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -351047,7 +351415,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -353122,7 +353491,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -353155,7 +353525,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -353197,7 +353568,8 @@
            "name": "Chain of Command"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -353248,7 +353620,8 @@
            "id": 101,
            "name": "Hacking Device Plus"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 7,
@@ -353343,7 +353716,8 @@
            "name": "Lieutenant"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -353538,7 +353912,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -353571,7 +353946,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 5,
@@ -353613,7 +353989,8 @@
            "name": "Chain of Command"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -353664,7 +354041,8 @@
            "id": 101,
            "name": "Hacking Device Plus"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 7,
@@ -353759,7 +354137,8 @@
            "name": "Lieutenant"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 9,
@@ -353797,7 +354176,8 @@
            "name": "Lieutenant"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 10,
@@ -360522,7 +360902,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -360554,7 +360935,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -360581,7 +360963,8 @@
            "id": 114,
            "name": "Multispectral Visor L1"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 4,
@@ -360700,7 +361083,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -360732,7 +361116,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -360759,7 +361144,8 @@
            "id": 114,
            "name": "Multispectral Visor L1"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 4,
@@ -360878,7 +361264,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -360910,7 +361297,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -360937,7 +361325,8 @@
            "id": 114,
            "name": "Multispectral Visor L1"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 4,
@@ -364043,7 +364432,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -364090,7 +364480,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -364207,7 +364598,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -364254,7 +364646,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -364371,7 +364764,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -364418,7 +364812,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -364535,7 +364930,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 6,
@@ -364582,7 +364978,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -374676,7 +375073,8 @@
            ]
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -377355,7 +377753,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -377394,7 +377793,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -377629,7 +378029,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -377668,7 +378069,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 3,
@@ -377883,7 +378285,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -377943,7 +378346,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -378052,7 +378456,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -378112,7 +378517,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -379132,7 +379538,8 @@
            "id": 63,
            "name": "Repeater"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -379291,7 +379698,8 @@
            "id": 63,
            "name": "Repeater"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -379450,7 +379858,8 @@
            "id": 63,
            "name": "Repeater"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -379609,7 +380018,8 @@
            "id": 63,
            "name": "Repeater"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -379775,7 +380185,8 @@
            "id": 63,
            "name": "Repeater"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -379934,7 +380345,8 @@
            "id": 63,
            "name": "Repeater"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -380093,7 +380505,8 @@
            "id": 63,
            "name": "Repeater"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -380252,7 +380665,8 @@
            "id": 63,
            "name": "Repeater"
           }
-         ]
+         ],
+         "fto": true
         }
        ]
       }
@@ -389579,7 +389993,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -389886,7 +390301,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -390055,7 +390471,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       }
@@ -395418,7 +395835,8 @@
            "name": "Hacker"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -395452,7 +395870,8 @@
            "name": "Hacker"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -395590,7 +396009,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       },
@@ -395800,7 +396220,8 @@
            "name": "Hacker"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -395834,7 +396255,8 @@
            "name": "Hacker"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 3,
@@ -395972,7 +396394,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         }
        ]
       },
@@ -397366,7 +397789,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 2,
@@ -397396,7 +397820,8 @@
           }
          ],
          "skills": [],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 4,
@@ -397431,7 +397856,8 @@
            "name": "Forward Observer"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 7,
@@ -397467,7 +397893,8 @@
            "id": 106,
            "name": "MediKit"
           }
-         ]
+         ],
+         "fto": true
         },
         {
          "id": 9,
@@ -397494,7 +397921,8 @@
            "name": "NCO"
           }
          ],
-         "equip": []
+         "equip": [],
+         "fto": true
         },
         {
          "id": 10,

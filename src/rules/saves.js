@@ -8,8 +8,9 @@ import {
 
 // Vulnerability (wiki): no Immunity against the bracketed weapon, e.g. any
 // weapon with "Viral" in its name. Returns the bracketed name, or null.
+// Matched on the English name (`en` when the names are in another language).
 export function vulnerabilityTo(targetTraits, row) {
-  const name = (row?.name ?? '').toLowerCase();
+  const name = (row?.en ?? row?.name ?? '').toLowerCase();
   return (targetTraits?.skills ?? [])
     .filter((s) => s.id === SKILL.VULNERABILITY)
     .flatMap((s) => s.extra ?? [])

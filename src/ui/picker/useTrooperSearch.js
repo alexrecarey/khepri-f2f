@@ -6,22 +6,30 @@ import {useCallback, useEffect, useState} from 'react';
 import {lazyOnce} from '../../lib/lazyOnce.js';
 import {createSearch} from '../../search/search.js';
 
-const loadSearcher = lazyOnce(() => import('../../search/index.json').then((m) => createSearch(m.default)));
+// One index per language: unit, weapon and skill names are searched in the
+// app's language (src/state/language.js).
+const INDEXES = {
+  en: () => import('../../search/index.json'),
+  es: () => import('../../search/index.es.json'),
+};
+const searchers = Object.fromEntries(Object.entries(INDEXES).map(([lang, load]) =>
+  [lang, lazyOnce(() => load().then((m) => createSearch(m.default)))]));
+const loadSearcher = (lang) => (searchers[lang] ?? searchers.en)();
 
 // {searcher, error, retry}: searcher is null until loaded; after a failure,
 // error is set and retry() loads it again.
-export function useSearcher(enabled) {
+export function useSearcher(enabled, lang) {
   const [state, setState] = useState({searcher: null, error: null});
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     if (!enabled) return undefined;
     let live = true;
-    loadSearcher().then(
+    loadSearcher(lang).then(
       (searcher) => live && setState({searcher, error: null}),
       (error) => live && setState({searcher: null, error}),
     );
     return () => { live = false; };
-  }, [enabled, attempt]);
+  }, [enabled, lang, attempt]);
   const retry = useCallback(() => {
     setState({searcher: null, error: null});
     setAttempt((n) => n + 1);

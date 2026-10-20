@@ -38,7 +38,7 @@ export function buildIndex(army) {
   const units = [];
   // Weapon id -> {name, words}: stored once, rows refer to weapons by id.
   const weapons = {};
-  // Skills the same way: [{name, words}], rows refer to them by position.
+  // Skills the same way: [{id, name, words}], rows refer to them by position.
   const skills = [];
   const skillIds = new Map();
   for (const unit of army.units) {
@@ -51,6 +51,8 @@ export function buildIndex(army) {
     add(UNIT_ALIASES[unit.isc] ?? [], FIELD.SHORT);
     add(indexWords(unit.isc), FIELD.NAME);
     add(indexWords(unit.name), FIELD.NAME);
+    // In another language, the English ISC too: players know units by it.
+    if (unit.code) add(indexWords(unit.code), FIELD.NAME);
 
     // The same loadout reached through several sectorials of one vanilla is
     // one row; `factions` remembers which real faction to load it from.
@@ -68,9 +70,9 @@ export function buildIndex(army) {
             option.weapons.map((w) => w.id).join('.')].join('|');
           let row = byKey.get(key);
           if (!row) {
-            row = makeRow(rows.length, unit, short, group, profile, option, unitWords, weapons, (name) => {
-              if (!skillIds.has(name)) skillIds.set(name, skills.push({name, words: indexWords(name)}) - 1);
-              return skillIds.get(name);
+            row = makeRow(rows.length, army, unit, short, group, profile, option, unitWords, weapons, ({id, name}) => {
+              if (!skillIds.has(id)) skillIds.set(id, skills.push({id, name, words: indexWords(name)}) - 1);
+              return skillIds.get(id);
             });
             byKey.set(key, row);
             rows.push(row);
@@ -99,17 +101,20 @@ export function lieutenantTwins(options) {
   return new Set(options.filter((o) => (o.skills ?? []).some(isLieutenant) && plain.has(kit(o))).map((o) => o.id));
 }
 
-function weaponWords(name) {
+// enName: the weapon's English name when the index is in another language;
+// the aliases are players' shorthand for the English names ("hmg"), which
+// they use in any language.
+function weaponWords(name, enName = name) {
   const out = new Map();
   for (const w of indexWords(name)) out.set(w, FIELD.WEAPON);
   const init = initials(name);
   if (init && !out.has(init)) out.set(init, FIELD.ALIAS);
-  for (const a of WEAPON_ALIASES[name] ?? []) if (!out.has(a)) out.set(a, FIELD.ALIAS);
+  for (const a of WEAPON_ALIASES[enName] ?? []) if (!out.has(a)) out.set(a, FIELD.ALIAS);
   return [...out];
 }
 
-function makeRow(id, unit, short, group, profile, option, unitWords, weapons, skillId) {
-  for (const w of option.weapons) weapons[w.id] ??= {name: w.name, words: weaponWords(w.name)};
+function makeRow(id, army, unit, short, group, profile, option, unitWords, weapons, skillId) {
+  for (const w of option.weapons) weapons[w.id] ??= {name: w.name, words: weaponWords(w.name, army.weapons[w.id]?.[0]?.en)};
   // Loadout names are mostly the unit's name in capitals; keep only the words
   // they add ("BIPANDRA", "Hacker").
   const loadoutWords = indexWords(option.name).filter((w) => !unitWords.has(w));
@@ -120,8 +125,9 @@ function makeRow(id, unit, short, group, profile, option, unitWords, weapons, sk
   for (const k of KIND_ALIASES) {
     if (profile?.type === k.type && skillIds.has(k.skill)) k.words.forEach(addWord);
   }
-  for (const [id, name] of Object.entries(SEARCHABLE_SKILLS)) {
-    if (skillIds.has(Number(id))) indexWords(name).forEach(addWord);
+  // Searchable skills by the name the data gives them, in its language.
+  for (const s of [...(profile?.skills ?? []), ...(option.skills ?? [])]) {
+    if (SEARCHABLE_SKILLS.includes(s.id)) indexWords(s.name).forEach(addWord);
   }
   // "+SD": a weapon or the BS Attack skill with Special Dice (reactive picks).
   const sd = (extra) => (extra ?? []).some((e) => /^\+\d+SD$/.test(e));
@@ -129,7 +135,7 @@ function makeRow(id, unit, short, group, profile, option, unitWords, weapons, sk
   if (option.weapons.some((w) => sd(w.extra)) || skills.some((k) => k.id === 201 && sd(k.extra))) addWord('sd');
   // Every skill of the profile and loadout ("mimetism", "sixth sense"):
   // a weak field, found exactly or by prefix only (search.js).
-  const skillList = [...new Set(skillNamesOf(profile, option))].map(skillId);
+  const skillList = [...new Map(skillsOf(profile, option).map((s) => [s.id, s])).values()].map(skillId);
   return {
     id,
     unitId: unit.id,
@@ -149,7 +155,7 @@ function makeRow(id, unit, short, group, profile, option, unitWords, weapons, sk
   };
 }
 
-const skillNamesOf = (profile, option) => [...(profile?.skills ?? []), ...(option.skills ?? [])].map((s) => s.name);
+const skillsOf = (profile, option) => [...(profile?.skills ?? []), ...(option.skills ?? [])];
 
 // For tests and the eval harness: the folded short name of a unit.
 export const foldedShort = (isc) => words(shortIsc(isc)).join(' ');

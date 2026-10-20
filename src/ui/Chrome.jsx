@@ -3,6 +3,7 @@
 // overlay, so Back closes it.
 import {useEffect} from 'react';
 import PropTypes from 'prop-types';
+import {AUTO, LANGUAGES, browserLanguages, languageChoice, resolveLanguage} from '../state/language.js';
 import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, GearIcon, InfoIcon} from './icons.jsx';
 import {MODES} from '../state/modes.js';
@@ -77,14 +78,21 @@ export function StartFaction({side, label, factions, className}) {
 
 StartFaction.propTypes = {side: PropTypes.string.isRequired, label: PropTypes.string.isRequired, factions: PropTypes.array.isRequired, className: PropTypes.string};
 
+// Automatic follows the browser; the option says which language that is.
 export function LanguageSetting() {
+  const choice = useAppState((s) => languageChoice(s.prefs));
+  const detected = LANGUAGES[resolveLanguage(AUTO, browserLanguages())];
+  const set = (value) => dispatch({type: 'setPref', key: 'language', value: value === AUTO ? null : value});
   return (
     <>
       <label className="setting">
         <span>App language</span>
-        <select value="en" onChange={() => {}} disabled><option value="en">English</option></select>
+        <select value={choice} onChange={(e) => set(e.target.value)}>
+          <option value={AUTO}>Automatic ({detected})</option>
+          {Object.entries(LANGUAGES).map(([code, name]) => <option key={code} value={code}>{name}</option>)}
+        </select>
       </label>
-      <span className="note">More languages are on the way.</span>
+      <span className="note">Unit, weapon and faction names follow it; the rest of the app is still in English.</span>
     </>
   );
 }
