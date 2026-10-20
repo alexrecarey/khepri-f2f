@@ -21,23 +21,27 @@ const SHORT = {es: spanishShort};
 // Mine's BS and CC Modes).
 const rowKey = (w) => JSON.stringify([w.burst, w.damage, w.distance, w.ammunition, (w.properties ?? []).length]);
 
-// {names, problems}: problems are anything that doesn't line up with
-// army.json (a missing id, a version mismatch, rows that don't pair).
+// {names, problems, warnings}. Problems stop fetch-army: the files don't line
+// up with army.json (a unit or weapon row missing). Warnings don't: a newer
+// English release than the translation, or a name not translated yet, which
+// keeps its English name so English updates are never held back.
 export function localNames(lang, army, {enMetadata, enFiles, metadata, files}) {
   const problems = [];
+  const warnings = [];
   const {names: en} = splitNames(army);
   const unresolved = new Set();
   const r = resolvers(metadata, [...files.values()], unresolved);
 
   for (const [fid, file] of files) {
     const version = enFiles.get(fid)?.version;
-    if (file.version !== version) problems.push(`${lang} faction ${fid} is version ${file.version}, English is ${version}`);
+    if (file.version !== version) warnings.push(`${lang} faction ${fid} is version ${file.version}, English is ${version}`);
   }
 
   const table = (enTable, resolve, label) => Object.fromEntries(Object.keys(enTable).map((id) => {
     const name = resolve(Number(id));
-    if (name === String(id)) problems.push(`${lang} has no ${label} ${id} (${enTable[id]})`);
-    return [id, name];
+    if (name !== String(id)) return [id, name];
+    warnings.push(`${lang} has no ${label} ${id}; kept "${enTable[id]}"`);
+    return [id, enTable[id]];
   }));
   const factionName = new Map(metadata.factions.map((f) => [String(f.id), clean(f.name)]));
   const names = {
@@ -59,7 +63,8 @@ export function localNames(lang, army, {enMetadata, enFiles, metadata, files}) {
     const u = copies[0];
     const enUnit = en.units[unit.id];
     if (!u) {
-      problems.push(`${lang} has no unit ${unit.id} (${unit.isc})`);
+      warnings.push(`${lang} has no unit ${unit.id}; kept the English names`);
+      names.units[unit.id] = enUnit;
       continue;
     }
     const groups = {};
@@ -68,7 +73,7 @@ export function localNames(lang, army, {enMetadata, enFiles, metadata, files}) {
       const rg = rgs[0];
       const byId = (key, ids, what) => Object.fromEntries(Object.keys(ids).map((id) => {
         const name = clean(rgs.flatMap((x) => x[key] ?? []).find((x) => String(x.id) === id)?.name);
-        if (!name) problems.push(`${lang} has no ${what} ${unit.isc} ${gid}:${id}`);
+        if (!name) warnings.push(`${lang} has no ${what} ${unit.isc} ${gid}:${id}; kept "${ids[id]}"`);
         return [id, name ?? ids[id]];
       }));
       groups[gid] = {isc: clean(rg?.isc) ?? g.isc, profiles: byId('profiles', g.profiles, 'profile'), options: byId('options', g.options, 'loadout')};
@@ -114,11 +119,10 @@ export function localNames(lang, army, {enMetadata, enFiles, metadata, files}) {
   const modePairs = new Map();
   for (const [key, w] of rows(enMetadata)) {
     const lw = local.get(key);
-    if (!lw) problems.push(`${lang} weapon ${w.id} ${w.name} (${w.mode ?? 'one mode'}) has no matching row`);
+    if (!lw) warnings.push(`${lang} weapon ${w.id} ${w.name} (${w.mode ?? 'one mode'}) has no matching row; its mode stays in English`);
     else if (w.mode) modePairs.set(w.id, [...(modePairs.get(w.id) ?? []), [clean(w.mode), clean(lw.mode)]]);
   }
   names.modes = Object.fromEntries([...modePairs].map(([id, pairs]) => [id, changed(pairs, `weapon ${id} mode`)]));
 
-  if (unresolved.size > 0) problems.push(`${lang} names that don't resolve: ${[...unresolved].join(', ')}`);
-  return {names, problems};
+  return {names, problems, warnings};
 }

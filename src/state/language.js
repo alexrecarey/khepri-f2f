@@ -3,6 +3,9 @@
 // file the army data and the search index load (src/army/localize.js).
 import {useAppState} from './store.js';
 
+// A new language is listed here and in scripts/fetch-army.mjs (LANGUAGES),
+// src/data/army.js (NAMES) and src/ui/picker/useTrooperSearch.js (INDEXES):
+// dynamic imports need their file names written out.
 export const LANGUAGES = {en: 'English', es: 'Español'};
 export const AUTO = 'auto';
 
