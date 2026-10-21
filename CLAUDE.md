@@ -1,8 +1,9 @@
 # khepri-f2f
 
 Infinity N5 face-to-face dice calculator. Static React/Vite app; the dice run
-in a web worker on khepri's engine compiled to WebAssembly (src/engine/wasm/,
-from icepool-rs). src/engine/f2f.py (Python icepool) is its reference: the
+in a web worker on khepri's engine compiled to WebAssembly (engine-rs/, Rust on
+the icepool-rs crate, built by `yarn build:engine` into src/engine/wasm/, which is
+committed). src/engine/f2f.py (Python icepool) is its reference: the
 WASM must match engine.golden.json, which golden.py writes from f2f.py. Layout and dependency rules
 are in README.md ("How it's put together").
 
@@ -13,6 +14,8 @@ are in README.md ("How it's put together").
   engine.golden.json) + engine tests (pytest via uv: f2f.py and the golden file)
 - `yarn test:js` / `yarn test:engine` — one side only
 - `yarn build` — production build (CI runs this too)
+- `yarn build:engine` — rebuild src/engine/wasm/ from engine-rs/ (rustup + wasm-pack); commit the output.
+  Only needed when engine-rs/ changes; a test fails if it changed without a rebuild
 - `yarn dev` — dev server
 
 ## Code quality rules

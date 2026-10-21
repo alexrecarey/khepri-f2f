@@ -11,8 +11,8 @@
 // the app, which moves its address to /?<setup> itself. Images live under
 // /og/, drawn from the card in their URL.
 import {CARD_PARAM, decodeCard, encodeCard, previewDescription, previewTitle} from '../src/share/card.js';
-import {initSync, calculate as runEngine} from '../src/engine/wasm/icepool_wasm.js';
-import engineWasm from '../src/engine/wasm/icepool_wasm_bg.wasm';
+import {initSync, calculate as runEngine} from '../src/engine/wasm/khepri_engine.js';
+import engineWasm from '../src/engine/wasm/khepri_engine_bg.wasm';
 import {CARD_H, CARD_W, renderCard, renderDefault} from './card.js';
 import {cardFromSetup} from './setupCard.js';
 

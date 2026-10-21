@@ -29,8 +29,11 @@ src/rules/     N5 rules: ranges, MODs, saves and Immunity, default weapon,
                that explains them ("How the dice were built")
 src/engine/    the dice: params.js (the calculator params every mode builds),
                calculate.js (calculator params -> engine input -> result rows),
-               the WASM engine (wasm/) and the worker that runs it, f2f.py
-               (Python icepool) as its reference (golden.py, engine.golden.json)
+               the WASM engine (wasm/, built from engine-rs/) and the worker that
+               runs it, f2f.py (Python icepool) as its reference (golden.py,
+               engine.golden.json)
+engine-rs/     the engine's Rust source (f2f.py on icepool-rs); `yarn build:engine`
+               builds it into src/engine/wasm/ (engine-rs/README.md)
 src/state/     the state document: schema, pure reducer, store, URL / history /
                storage sync, and matchupView (what the Matchup screen shows)
 src/matchup/   share-link params for a matchup (matchupParams.js)

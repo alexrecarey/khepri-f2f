@@ -52,3 +52,6 @@ __pycache__/
 
 # wrangler dev/deploy state
 .wrangler/
+
+# Rust build output (engine-rs/; the WASM it builds is committed in src/engine/wasm/)
+engine-rs/target/
