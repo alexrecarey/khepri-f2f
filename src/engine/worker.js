@@ -1,5 +1,5 @@
 // Runs the dice engine off the main thread: khepri's Face to Face engine
-// compiled to WebAssembly (src/engine/wasm/, see its README), a drop-in for
+// compiled to WebAssembly (src/engine/wasm/, built from engine-rs/), a drop-in for
 // f2f.py's calculate(). A module worker: calculate.js turns the calculator
 // params into engine input and the engine's output into result rows.
 //
@@ -14,8 +14,8 @@
 // Only the newest calculation runs: one that arrives while another is running
 // (or while the engine loads) replaces any still waiting, so tapping a stepper
 // five times runs the first and the last, not all five.
-import init, {calculate as runEngine} from './wasm/icepool_wasm.js';
-import wasmUrl from './wasm/icepool_wasm_bg.wasm?url';
+import init, {calculate as runEngine} from './wasm/khepri_engine.js';
+import wasmUrl from './wasm/khepri_engine_bg.wasm?url';
 import {calculate} from './calculate.js';
 import {latestOnly} from './latestOnly.js';
 

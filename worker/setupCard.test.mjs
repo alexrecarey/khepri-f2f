@@ -3,10 +3,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {initSync, calculate as runEngine} from '../src/engine/wasm/icepool_wasm.js';
+import {initSync, calculate as runEngine} from '../src/engine/wasm/khepri_engine.js';
 import {cardFromSetup} from './setupCard.js';
 
-initSync({module: readFileSync(new URL('../src/engine/wasm/icepool_wasm_bg.wasm', import.meta.url))});
+initSync({module: readFileSync(new URL('../src/engine/wasm/khepri_engine_bg.wasm', import.meta.url))});
 const army = JSON.parse(readFileSync(new URL('../src/army/army.json', import.meta.url), 'utf8'));
 
 // The Final results board (src/ui/fixtures/FinalResults.json) as its link.

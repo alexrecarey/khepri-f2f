@@ -1,0 +1,27 @@
+[package]
+name = "khepri-engine"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "khepri-f2f's Face to Face dice engine (f2f.py) on icepool-rs, built to WebAssembly"
+publish = false
+
+[lib]
+# cdylib for wasm-pack; rlib so `cargo test` can run tests/ natively.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# The dice library, pinned to one commit: bump `rev`, run scripts/build-engine.sh, commit the new WASM.
+# To try an unpushed icepool-rs change, build against a checkout without committing it:
+#   cargo --config 'patch."https://github.com/alexrecarey/icepool-rs".icepool-core.path="../../icepool-rs/crates/icepool-core"' ...
+icepool-core = { git = "https://github.com/alexrecarey/icepool-rs", rev = "04b46a8108fef1cfff223c7d24b5efaa50508987" }
+# The engine input and `calculate`'s output are JSON. arbitrary_precision: exact big integers in `rolls`.
+serde_json = { version = "1", features = ["arbitrary_precision"] }
+# The core's big integers: `rolls` and the quantities behind each `chance`.
+dashu-int = "0.6"
+rustc-hash = "2"
+# Only wasm-bindgen itself: the few JS globals `calculate` needs (JSON, BigInt, Reflect) are declared in src/wasm.rs.
+wasm-bindgen = "0.2"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-O3"]

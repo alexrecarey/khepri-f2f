@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "fetch-army": "node --no-warnings scripts/fetch-army.mjs && node scripts/build-search-index.mjs && node scripts/crests/sync.mjs",
     "crests": "node scripts/crests/sync.mjs",
+    "build:engine": "bash scripts/build-engine.sh",
     "test": "yarn test:js && yarn test:engine",
     "test:js": "node --test $(find src worker -name '*.test.mjs')",
     "test:engine": "uv run --python 3.12 --with icepool==2.2.2 --with pytest pytest -q src/engine",

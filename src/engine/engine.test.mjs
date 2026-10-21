@@ -4,9 +4,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {initSync, calculate} from './wasm/icepool_wasm.js';
+import {initSync, calculate} from './wasm/khepri_engine.js';
 
-initSync({module: readFileSync(new URL('./wasm/icepool_wasm_bg.wasm', import.meta.url))});
+initSync({module: readFileSync(new URL('./wasm/khepri_engine_bg.wasm', import.meta.url))});
 const golden = JSON.parse(readFileSync(new URL('./engine.golden.json', import.meta.url), 'utf8'));
 
 test('the WASM engine matches f2f.py on every reference input', () => {
