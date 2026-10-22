@@ -149,6 +149,17 @@ export const fireteamSize = (size, max) => (max >= FIRETEAM_MIN ? Math.min(size 
 // Immobilized / Isolated exceptions are States the calculator doesn't model).
 export const hasSixthSense = (side) => hasSkill(side?.traits, SKILL.SIXTH_SENSE) || fireteamBonuses(side?.ftSize).sixthSense;
 
+// Does the side's pick get anything from its Fireteam? Its bonuses are for a
+// BS Attack that is rolled (+1 SD, +1 BS; Sixth Sense against Poor
+// Visibility) and a Dodge (+1, Sixth Sense). Not a Hacking Program or Reset
+// (WIP rolls, Alex 2026-10-22), a CC Attack, a Direct Template or No ARO.
+export function fireteamHelps(x) {
+  const w = x?.weapon;
+  if (!w) return false;
+  if (w.pseudo) return w.pseudo === 'dodge';
+  return !w.cc && !isTemplate(w.row) && !isHackingProgram(w.row);
+}
+
 export function fireteamBonuses(size = 0) {
   return {
     sd: size >= 2 ? 1 : 0,

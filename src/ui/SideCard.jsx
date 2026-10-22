@@ -52,7 +52,7 @@ EmptySlot.propTypes = {
 export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
   const t = useT();
   const color = ROLE[side];
-  const {sel, resolved, groups, cc, ccAlliesMax, noCover, hacked, targetedChip, hackedChip, immAChip, surprise, berserk, teamOps, faction, crest, short,
+  const {sel, resolved, groups, cc, ccAlliesMax, noCover, hacked, fireteamChip, targetedChip, hackedChip, immAChip, surprise, berserk, teamOps, faction, crest, short,
     loadout} = view[side];
   const unit = resolved?.unit;
   const option = resolved?.option;
@@ -69,7 +69,8 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
       {option && <WeaponButtons side={side} groups={groups} selected={sel.weaponKey} color={color} />}
       {unit && (
         <div className="row-wrap">
-          {/* Hacked: Firewall (-3 / -6) in place of cover, which does nothing
+          {/* Cover first, whenever it is there (Alex, 2026-10-22). Hacked:
+              Firewall (-3 / -6) in its place, as cover does nothing
               against a Comms Attack. Starts on the trooper's own, which
               can't be switched off. */}
           {hacked && (
@@ -77,15 +78,6 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
               value={FIREWALL_CHIPS.includes(resolved.firewall) ? FIREWALL_CHIPS.indexOf(resolved.firewall) : null} color={color}
               required={firewallMod(resolved.traits) !== 0} onPick={(i) => patch(side, {firewall: i == null ? 0 : FIREWALL_CHIPS[i]})} />
           )}
-          {/* What the pick allows: Targeted for a shot or program, Hacked
-              (-3 to -12) for a Reset, IMM-A for a Dodge. */}
-          {targetedChip && <ToggleChip side={side} field="targeted" on={sel.targeted} label={t('chip.targeted')} color={color} />}
-          {hackedChip && (
-            <PickChip side={side} chip="hackedReset" label={t('chip.hacked')} options={HACKED_RESET_MODS.map(String)}
-              value={HACKED_RESET_MODS.includes(sel.hackedReset) ? HACKED_RESET_MODS.indexOf(sel.hackedReset) : null} color={color}
-              onPick={(i) => patch(side, {hackedReset: i == null ? 0 : HACKED_RESET_MODS[i]})} />
-          )}
-          {immAChip && <ToggleChip side={side} field="immA" on={sel.immA} label={t('chip.immA')} color={color} />}
           {/* Cover or, for Sapper, the Foxhole (its own cover): one or the other. */}
           {!hacked && !noCover && (
             <button type="button" className={`chip${sel.inCover && !resolved.sapper ? ` on ${color}` : ''}`} aria-pressed={sel.inCover && !resolved.sapper}
@@ -99,6 +91,15 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
               {resolved.sapper ? `${t('chip.sapper')} ✓` : `+ ${t('chip.sapper')}`}
             </button>
           )}
+          {/* What the pick allows: Targeted for a shot or program, Hacked
+              (-3 to -12) for a Reset, IMM-A for a Dodge. */}
+          {targetedChip && <ToggleChip side={side} field="targeted" on={sel.targeted} label={t('chip.targeted')} color={color} />}
+          {hackedChip && (
+            <PickChip side={side} chip="hackedReset" label={t('chip.hacked')} options={HACKED_RESET_MODS.map(String)}
+              value={HACKED_RESET_MODS.includes(sel.hackedReset) ? HACKED_RESET_MODS.indexOf(sel.hackedReset) : null} color={color}
+              onPick={(i) => patch(side, {hackedReset: i == null ? 0 : HACKED_RESET_MODS[i]})} />
+          )}
+          {immAChip && <ToggleChip side={side} field="immA" on={sel.immA} label={t('chip.immA')} color={color} />}
           {/* Team-Ops: one pick from the unit's chart and one TacBall item;
               a weapon joins the weapon buttons, a skill or equipment shows
               on the chip. */}
@@ -110,8 +111,11 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
                 onPick={(i) => onUpgrade({ball: i})} />
             </>
           )}
-          {/* Fireteams only: the size of the team, 1 = none. */}
-          <CountChip side={side} chip="ftSize" label={t('chip.fireteam')} value={resolved.ftSize} min={FIRETEAM_MIN} max={resolved.ftMax} none={1} color={color} />
+          {/* Fireteams only, while the pick gets a bonus: the size of the team, 1 = none. */}
+          {fireteamChip && (
+            <CountChip side={side} chip="ftSize" label={t('chip.fireteam')} value={resolved.ftSize} min={FIRETEAM_MIN} max={resolved.ftMax} none={1}
+              color={color} />
+          )}
           {/* CC Attack: allies in contact with the target, +1 B each. */}
           {cc && (
             <CountChip side={side} chip="ccAllies" label={t('chip.allies')} value={Math.min(resolved.ccAllies, ccAlliesMax)} min={1} max={ccAlliesMax}
