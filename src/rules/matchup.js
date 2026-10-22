@@ -8,7 +8,7 @@ import {causesWounds, hasContinuousDamage, isCommsAttack, isNonLethal, isTemplat
 import {
   COVER_SAVE_MOD, FIREWALL_SAVE_MOD, LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, capMods, clamp, coverBsMod, dodgeExtras,
   bangbombMod, dodgeSuccessValue, evades, fireteamBonuses, firewallOf, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod,
-  hackedResetMod, immADodgeMod, neurocineticsAroBurst, opposingMods, programSvMods, reaches, resetSuccessValue, targetedMod,
+  hackedResetMod, immADodgeMod, neurocineticsAroBurst, opposingMods, programSvMods, reaches, resetSuccessValue, targetedMod, targetedResetMod,
 } from './modifiers.js';
 import {rangeModFor} from './ranges.js';
 import {visibility, zoneName} from './visibility.js';
@@ -85,7 +85,7 @@ function attackInputs(x, y, rangeCm, side, say, opposing = 0, visMod = 0) {
   const program = total(programSvMods(x, y, say.t));
   const bonus = attackBonuses(x);
   // Every MOD counts toward the cap, Fireteam +1 BS included (Alex, 2026-10-10).
-  const modSum = bonus.bs + rangeMod + mim + albedo + cover + firewall + program + targetedMod(x) + mods.sv + opposing + visMod;
+  const modSum = bonus.bs + rangeMod + mim + albedo + cover + firewall + program + targetedMod(x, y) + mods.sv + opposing + visMod;
   const modTotal = capMods(modSum);
   if (!outOfRange && modTotal !== modSum) say(side, 'note.modCap', {sum: signed(modSum), cap: signed(modTotal)});
   const sv = outOfRange
@@ -171,14 +171,14 @@ function dodgeInputs(x, side, opposing = 0, incoming = null) {
 }
 
 // A Reset: one WIP roll against a Comms Attack (the opponent's BS Attack
-// (-X), Surprise Attack and the Hacked chip included) that causes no Saving
+// (-X), Surprise Attack, Targeted and the Hacked chip included) that causes no Saving
 // Rolls, like a Dodge. Zero Pain: two WIP rolls, in either turn.
 function resetInputs(x, side, opposing = 0) {
   return {
     [`ammo${side}`]: 'DODGE',
     [`burst${side}`]: x.weapon.zeroPain ? ZERO_PAIN.burst : 1,
     [`bonusBurst${side}`]: 0,
-    [`successValue${side}`]: resetSuccessValue(x.profile, hackedResetMod(x) + opposing),
+    [`successValue${side}`]: resetSuccessValue(x.profile, targetedResetMod(x) + hackedResetMod(x) + opposing),
     [`cont${side}`]: false,
     [`shock${side}`]: false,
     [`template${side}`]: false,

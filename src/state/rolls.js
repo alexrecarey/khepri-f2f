@@ -11,7 +11,7 @@
 //   ca / cr            unit crest slugs (src/army/crests.js)
 //   fa / fr            vanilla faction ids, whose crest stands in
 import {ccAllies, usesBerserk} from '../rules/closeCombat.js';
-import {hackedResetMod, immADodgeMod, targetedMod} from '../rules/modifiers.js';
+import {hackedResetMod, immADodgeMod} from '../rules/modifiers.js';
 import {RANGE_BANDS, bandLabel} from '../rules/ranges.js';
 import {shortIsc, shortWeaponName} from '../army/names.js';
 import {DEFAULT_PARAMS} from '../engine/params.js';
@@ -70,7 +70,7 @@ const inCover = (x) => x.sel.inCover && !x.resolved.sapper && !x.hacked;
 const firewall = (x, t) => (x.hacked && x.resolved.firewall ? t('roll.firewall', {mod: x.resolved.firewall}) : null);
 // The situation chips on the side's own roll, while its pick uses them.
 const ownChips = (x, t) => [
-  targetedMod(x.resolved) && t('chip.targeted'),
+  x.targetedChip && x.resolved.targeted && t('chip.targeted'),
   hackedResetMod(x.resolved) && `${t('chip.hacked')} (${hackedResetMod(x.resolved)})`,
   immADodgeMod(x.resolved) && t('chip.immA'),
 ];

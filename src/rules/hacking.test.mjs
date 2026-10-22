@@ -206,14 +206,21 @@ test('the Firewall chip starts on the trooper\'s own Firewall, which can\'t be s
   assert.equal(resolveSelection(army, {...none, firewall: 0}).firewall, 0);
 });
 
-test('Targeted: +3 to a shot or a program against the target; nothing on a Dodge', () => {
-  const hi = profile({type: 'HI'});
-  const shot = derive({active: side(profile(), '1:', {targeted: true}), reactive: side(hi, 'dodge'), rangeCm: 40});
+test('Targeted (the side\'s State): +3 to a shot or program against it, -3 to its Reset; not CC, Dodge or Zero Pain', () => {
+  const hi = profile({type: 'HI', wip: 13});
+  const shot = derive({active: side(profile(), '1:'), reactive: side(hi, 'dodge', {targeted: true}), rangeCm: 40});
   assert.equal(shot.inputs.successValueA, 12 + 3 + 3);   // BS, Range +3, Targeted
-  const program = derive({active: side(hacker(), 'hack:carbonite', {targeted: true}), reactive: side(hi, 'reset'), rangeCm: 40});
+  assert.equal(shot.inputs.successValueB, 12);           // its own Dodge: nothing
+  const program = derive({active: side(hacker(), 'hack:carbonite'), reactive: side(hi, 'reset', {targeted: true}), rangeCm: 40});
   assert.equal(program.inputs.successValueA, 13 + 3);
-  const dodge = derive({active: side(profile(), '1:'), reactive: side(hi, 'dodge', {targeted: true}), rangeCm: 40});
-  assert.equal(dodge.inputs.successValueB, 12);
+  assert.equal(program.inputs.successValueB, 13 - 3);    // its Reset
+  assert.ok(program.ledger.B.sv.lines.some((l) => l.label === 'Targeted' && l.value === -3));
+  // The active side Targeted: the reactive's shot back gets +3.
+  const back = derive({active: side(profile(), '1:', {targeted: true}), reactive: side(profile(), '1:'), rangeCm: 40});
+  assert.equal(back.inputs.successValueB, 12 + 3 + 3);
+  const zp = profile({type: 'HI', wip: 13, skills: [{...HACKER, extra: ['Zero Pain']}], equip: [HD]});
+  const zeroPain = derive({active: side(hacker(), 'hack:carbonite'), reactive: side(zp, 'zeroPain', {targeted: true}), rangeCm: 40});
+  assert.equal(zeroPain.inputs.successValueB, 13);
 });
 
 test('Hacked: -3 to -12 on a Reset only, within the MOD cap', () => {

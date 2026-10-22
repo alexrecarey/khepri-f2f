@@ -200,18 +200,25 @@ export function dodgeSuccessValue(profile, traits, mod = 0) {
   return clamp(LIMITS.successValue, sv + capMods(dodge.mod + mod));
 }
 
-// Situation chips a side's own roll takes (Alex, 2026-10-22):
-// - Targeted: the other trooper is Targeted (Spotlight, a Forward Observer...),
-//   +3 to a BS Attack or a Hacking Program against it. Not to a CC Attack or
-//   a Direct Template (no roll).
+// Situation chips on a side (Alex, 2026-10-22):
+// - Targeted: the side is in Targeted State (Spotlight, a Forward Observer...).
+//   A BS Attack or Comms Attack against it gets +3 (not a CC Attack, nor a
+//   Direct Template: no roll), and its own Reset -3 (wiki, Targeted State).
 // - Hacked: -3 to -12 to the side's Reset, from the States earlier programs
 //   left it in (Spotlight, Carbonite, Oblivion, in any mix): one chip, not
 //   one per State.
 // - IMM-A: Immobilized-A, -6 to the side's Dodge.
 export const TARGETED_MOD = 3;
+export const TARGETED_RESET_MOD = -3;
 export const HACKED_RESET_MODS = [-3, -6, -9, -12];
 export const IMM_A_DODGE_MOD = -6;
-export const targetedMod = (x) => (x?.targeted && x.weapon?.row && !x.weapon.cc && !isTemplate(x.weapon.row) ? TARGETED_MOD : 0);
+// Does x's pick gain from its target being Targeted? A rolled BS Attack or
+// Comms Attack (a Hacking Program, the Jammer).
+export const targetedHelps = (x) => Boolean(x?.weapon?.row) && !x.weapon.cc && !isTemplate(x.weapon.row);
+// x attacking y: +3 when y is Targeted.
+export const targetedMod = (x, y) => (y?.targeted && targetedHelps(x) ? TARGETED_MOD : 0);
+// x's own Reset while Targeted (Zero Pain is a program, not a Reset roll).
+export const targetedResetMod = (x) => (x?.targeted && x.weapon?.pseudo === 'reset' && !x.weapon.zeroPain ? TARGETED_RESET_MOD : 0);
 export const hackedResetMod = (x) => (x?.weapon?.pseudo === 'reset' && HACKED_RESET_MODS.includes(x.hackedReset) ? x.hackedReset : 0);
 export const immADodgeMod = (x) => (x?.weapon?.pseudo === 'dodge' && x.immA ? IMM_A_DODGE_MOD : 0);
 

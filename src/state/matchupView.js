@@ -11,7 +11,7 @@ import {fullParams} from '../engine/params.js';
 import {defaultWeapon, sortWeapons} from '../rules/defaultWeapon.js';
 import {buildLedger} from '../rules/ledger.js';
 import {deriveInputs} from '../rules/matchup.js';
-import {fireteamHelps, surpriseAttackMod, targetedMod} from '../rules/modifiers.js';
+import {fireteamHelps, surpriseAttackMod, targetedHelps} from '../rules/modifiers.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {visibility} from '../rules/visibility.js';
 import {berserkMod, ccAlliesMax, hasBerserk, isCcAttack} from '../rules/closeCombat.js';
@@ -85,9 +85,8 @@ function sideView(army, sel, side, t) {
     groups: weaponGroups([...weapons, ...ccWeapons, ...programs, ...pseudo], ROLE[side], t),
     // No Cover: cover does nothing for it, so no Cover chip.
     noCover: hasSkill(resolved?.traits, SKILL.NO_COVER),
-    // Situation chips that follow the pick: Targeted for a shot or program
-    // that is rolled, Hacked for a Reset, IMM-A for a Dodge.
-    targetedChip: targetedMod({...resolved, targeted: true}) > 0,
+    // Situation chips that follow the pick: Hacked for a Reset, IMM-A for a
+    // Dodge (Targeted follows both sides' picks: matchupView).
     // Fireteam, only while the pick gets a bonus from it.
     fireteamChip: fireteamHelps(resolved),
     hackedChip: resolved?.weapon?.pseudo === 'reset',
@@ -133,6 +132,9 @@ export function matchupView(army, matchup, t = tEn) {
   // the other side's base.
   for (const [x, y] of [[A, B], [B, A]]) {
     x.cc = isCcAttack(x.resolved);
+    // Targeted: while the other side's shot or program gains from it, or this
+    // side Resets (-3 to it).
+    x.targetedChip = targetedHelps(y.resolved) || (x.resolved?.weapon?.pseudo === 'reset' && !x.resolved.weapon.zeroPain);
     x.ccAlliesMax = x.cc ? ccAlliesMax(y.resolved) : 0;
     // Reset and Zero Pain are buttons only against a Comms Attack (or once picked).
     x.hacked = isCommsAttack(y.resolved?.weapon?.row);
