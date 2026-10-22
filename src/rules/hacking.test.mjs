@@ -10,6 +10,7 @@ import {buildLedger} from './ledger.js';
 import {deriveInputs} from './matchup.js';
 import {rangeModFor} from './ranges.js';
 import {readFileSync} from 'node:fs';
+import {fireteamHelps} from './modifiers.js';
 import {pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
 import {hasNoEffect} from './saves.js';
 import {woundStates} from './woundStates.js';
@@ -235,4 +236,13 @@ test('IMM-A: -6 to a Dodge only', () => {
   assert.ok(r.ledger.B.sv.lines.some((l) => l.label === 'IMM-A' && l.value === -6));
   const shot = derive({active: side(profile(), '1:'), reactive: side(profile(), '1:', {immA: true}), rangeCm: 40});
   assert.equal(shot.inputs.successValueB, 12 + 3);
+});
+
+test('the Fireteam only helps a rolled BS Attack or a Dodge, not a program or a Reset', () => {
+  assert.equal(fireteamHelps(side(hacker(), '1:')), true);
+  assert.equal(fireteamHelps(side(hacker(), 'dodge')), true);
+  assert.equal(fireteamHelps(side(hacker(), 'hack:carbonite')), false);
+  assert.equal(fireteamHelps(side(hacker(), 'reset')), false);
+  assert.equal(fireteamHelps(side(profile({skills: [{...HACKER, extra: ['Zero Pain']}]}), 'zeroPain')), false);
+  assert.equal(fireteamHelps(side(hacker(), 'none')), false);
 });

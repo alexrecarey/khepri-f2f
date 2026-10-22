@@ -74,7 +74,8 @@ const ownChips = (x, t) => [
   hackedResetMod(x.resolved) && `${t('chip.hacked')} (${hackedResetMod(x.resolved)})`,
   immADodgeMod(x.resolved) && t('chip.immA'),
 ];
-const fireteam = (x, t) => (x.resolved.ftSize > 1 ? t('ledger.fireteam', {size: x.resolved.ftSize}) : null);
+// Only while it gives the pick a bonus (the chip is hidden otherwise).
+const fireteam = (x, t) => (x.fireteamChip && x.resolved.ftSize > 1 ? t('ledger.fireteam', {size: x.resolved.ftSize}) : null);
 const surprise = (x, role) => role === 'A' && x.sel.surpriseAttack;
 const berserk = (x, role) => usesBerserk(x.resolved, role === 'A');
 // Allies in contact, as the CC Attack counts them (closeCombat.js ccAllies).

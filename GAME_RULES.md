@@ -112,7 +112,7 @@ Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Wa
 - Two differently named entries of one Army unit (Scarface, Cordelia Turner) are different units for purity.
 - FTO entries ("BLADE FTO", comment "FTO …") apply only to the unit's FTO loadouts: Yan Huo FTO can join, plain Yan Huo can't.
 - Wildcards join their army's other teams as an extra member, counting only as what their comment names.
-- The app shows the Fireteam chip only when the limit is 2+, with sizes up to it. A kept size above a new trooper's limit drops to it.
+- The app shows the Fireteam chip only when the limit is 2+, with sizes up to it, and only while the side's pick gets a bonus from it: a rolled BS Attack or a Dodge. Not a Hacking Program or Reset (WIP rolls, no Fireteam bonus; Alex, 2026-10-22), a CC Attack, a Direct Template or No ARO. A kept size above a new trooper's limit drops to it.
 
 ## Team-Ops (ITS Season 18 Extra)
 - Each Team-Ops trooper picks one option from its unit's Team-Ops Chart (Team-Ops chip) and, after Request TacBall, may hold one TacBall item (TacBall chip). Both charts come from the Army data (`unit.upgrades`).
