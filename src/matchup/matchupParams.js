@@ -5,10 +5,11 @@
 import {CC_ALLIES_MAX} from '../rules/closeCombat.js';
 import {FIRETEAM_MAX, FIRETEAM_MIN} from '../rules/modifiers.js';
 import {RANGE_BANDS} from '../rules/ranges.js';
+import {FIREWALL_CHIPS} from '../rules/trooper.js';
 
 const EMPTY = {
   unitId: null, factionId: null, groupId: null, profileId: null, optionId: null,
-  weaponKey: null, inCover: false, sapper: false, surpriseAttack: false, upgrade: null, ball: null, ccAllies: 0, berserk: false,
+  weaponKey: null, inCover: false, firewall: 0, sapper: false, surpriseAttack: false, upgrade: null, ball: null, ccAllies: 0, berserk: false,
 };
 
 // param name -> selection field, and how to read it back
@@ -32,6 +33,7 @@ export function encodeMatchup({selA, selB, ftSize, rangeCm, rangeCmB, zones}) {
       if (sel[field] !== null && sel[field] !== undefined) out[`${param}${side}`] = String(sel[field]);
     }
     if (sel.inCover) out[`cover${side}`] = '1';
+    if (FIREWALL_CHIPS.includes(sel.firewall)) out[`firewall${side}`] = String(-sel.firewall);
     if (sel.sapper) out[`sapper${side}`] = '1';
     if (sel.surpriseAttack) out[`surprise${side}`] = '1';
     if (sel.berserk) out[`berserk${side}`] = '1';
@@ -62,6 +64,8 @@ export function decodeMatchup(params) {
       sel[field] = v;
     }
     sel.inCover = get(`cover${s}`) === '1';
+    const firewall = -Number(get(`firewall${s}`));
+    sel.firewall = FIREWALL_CHIPS.includes(firewall) ? firewall : 0;
     sel.sapper = get(`sapper${s}`) === '1';
     sel.surpriseAttack = get(`surprise${s}`) === '1';
     sel.berserk = get(`berserk${s}`) === '1';

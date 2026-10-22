@@ -26,6 +26,8 @@ export const EMPTY_SIDE = {
   optionId: null,
   weaponKey: null,
   inCover: false,
+  // The Firewall chip against a Comms Attack: -3, -6, or 0 for none.
+  firewall: 0,
   // In a Foxhole (units with Sapper): cover and Mimetism (-3); replaces inCover.
   sapper: false,
   // Use Surprise Attack (active side, units with the skill).

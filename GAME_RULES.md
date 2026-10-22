@@ -63,6 +63,22 @@ Alex, 2026-10-20: Comms Attacks are opposed by Reset; the Jammer's success cause
 - The Jammer is never the default weapon.
 - Not modelled: the Technical Weapons (Tohaa PT: Endgame, Eraser, Mirrorball), the Cybermine (a Deployable), Isolated's −9 to Reset.
 
+## Hacking Programs
+Alex, 2026-10-22; the rest from the wiki (Hacking, Hacking Device, Hacking Programs Chart, Firewall, ECM, Zero Pain). Code: `src/army/hacking.js` (the chart, devices, upgrades, targets), `src/rules/modifiers.js` (firewallOf, ecmHackerMod, programSvMods, reaches).
+- Programs rolled: Carbonite, Oblivion, Spotlight, Total Control (Hacking Device, Hacking Device Plus), Trinity (Killer Hacking Device), each a weapon choice. Extra programs come from an UPGRADE on the device ("UPGRADE: Trinity", "UPGRADES: Carbonite, Firewall (−3)") or are listed on the Hacker skill ("Hacker (Carbonite, Spotlight)"). Supportware (Fairy Dust, Assisted Fire, Enhanced Reaction, Controlled Jump), Cybermask and White Noise roll nothing face to face: not offered.
+- A program is a Comms Attack: a WIP roll with its Attack MOD (Trinity +3), Burst in the Active Turn, B1 in ARO (Total Reaction and Neurocinetics are for BS Attacks). BTS save against its PS: DA two saves (Carbonite, Total Control), AP halves BTS (Oblivion, Spotlight), a Critical adds one.
+- Results: Carbonite Immobilized-B, Oblivion Isolated, Spotlight Targeted, Total Control Possessed (one State, like the Jammer); Trinity a Wound per failed save. Immunity (IMM-B) stops Carbonite, Immunity (Isolated) or Warhorse Oblivion, Immunity (POS) Total Control.
+- Upgrade MODs, on one program ("Trinity (AP)") or on every program (a device's "+1B", "PS=6", "UPGRADE: SR-1"): +1B, +1SD, PS=X, AP, SR−X (−X to the target's Saving Rolls), (−X) (a MOD to the opponent's Face to Face Roll).
+- Range: the Hacking Area (ZoC plus Repeaters). A program never takes a Range MOD and is never out of range; picking one doesn't move the range (Alex).
+- No Fireteam bonus and no BS Attack skill on a program: it is no BS Attack (Alex). The opponent's BS Attack (−X) doesn't touch it either; its Surprise Attack does.
+- No LoF: Mimetism, Albedo, cover, Smoke and White Noise don't touch it.
+- Targets: Carbonite and Oblivion need a TAG, HI, REM, VH or a Hacker; Total Control a TAG; Trinity a Hacker; Spotlight anyone. Against anything else the program stays in the list but isn't rolled ("can't target this trooper"), so the other side's roll is a Normal Roll (Alex). No trooper in the Army data has Non-Hackable.
+- Face to Face (Alex): a program against a shot or against another program is opposed; against Reset or Zero Pain opposed; against a Dodge not (the Dodge isn't rolled, the program is a Normal Roll). Reset or Zero Pain against a shot isn't rolled.
+- Zero Pain (Hacker skill or UPGRADE): a better Reset, two WIP rolls in either turn, −3 to the Comms Attack. Shown, like Reset, only against a Comms Attack.
+- Firewall against a Comms Attack (the Jammer too): the target's Cover chip gives way to Firewall −3 and Firewall −6 chips (one at a time). Only one Firewall counts: the best of the chip and the trooper's own (Hacking Device or Hacker UPGRADE, TinBot). It also gives +3 to the Saving Roll.
+- ECM: Hacker (−X): −X to a Hacking Program against its owner, on top of Firewall. Not against the Jammer (not a Hacker's program).
+- Not modelled: Repeaters' reach is assumed, Targeted's bonus to a later program, a Possessed TAG's Total Control back to Normal.
+
 ## Close combat
 Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Warrior, Weapon Chart). Code: `src/rules/closeCombat.js`.
 - Picking a CC weapon (in the weapon list with the others; a CC Mode is a mode of its weapon: Vorpal, Kobra Pistol) makes that side a CC Attack: it rolls CC against the other side's Face to Face Roll. The other side may answer in CC, Dodge, or shoot (it isn't Engaged yet when the attacker charges in; Alex, 2026-10-19).

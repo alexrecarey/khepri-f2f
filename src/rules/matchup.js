@@ -1,13 +1,14 @@
 // Matchup -> calculator params: applies the N5 rules to two resolved troopers
 // (rules/trooper.js resolveSelection) and returns the engine input with the
 // notes and warnings to show next to it.
+import {ZERO_PAIN, isHackingProgram} from '../army/hacking.js';
 import {SKILL} from '../army/ids.js';
 import {hasEquip, hasSkill} from '../army/traits.js';
 import {causesWounds, hasContinuousDamage, isCommsAttack, isNonLethal, isTemplate, needsLof, stateCaused, weaponPS} from '../army/weapons.js';
 import {
   COVER_SAVE_MOD, FIREWALL_SAVE_MOD, LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, capMods, clamp, coverBsMod, dodgeExtras,
-  bangbombMod, dodgeSuccessValue, evades, fireteamBonuses, firewallMod, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod,
-  neurocineticsAroBurst, opposingMods, resetSuccessValue,
+  bangbombMod, dodgeSuccessValue, evades, fireteamBonuses, firewallOf, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod,
+  neurocineticsAroBurst, opposingMods, programSvMods, reaches, resetSuccessValue,
 } from './modifiers.js';
 import {rangeModFor} from './ranges.js';
 import {visibility, zoneName} from './visibility.js';
@@ -65,6 +66,8 @@ function opposingMod(x, y, xActive, ySide, say) {
   return total;
 }
 
+const total = (lines) => lines.reduce((t, l) => t + l.value, 0);
+
 function attackInputs(x, y, rangeCm, side, say, opposing = 0, visMod = 0) {
   const {row, mods} = x.weapon;
   let rangeMod = rangeModFor(row, rangeCm, x.traits);
@@ -72,27 +75,30 @@ function attackInputs(x, y, rangeCm, side, say, opposing = 0, visMod = 0) {
   // of 0 misses on every roll, with no crit.
   const outOfRange = rangeMod === null;
   if (outOfRange) rangeMod = 0;
-  // Mimetism and Albedo need LoF (a Jammer has none); a Comms Attack takes
-  // the target's Firewall in place of cover.
+  // Mimetism and Albedo need LoF (a Jammer or a program has none); a Comms
+  // Attack takes the target's Firewall in place of cover.
   const lof = needsLof(row);
   const mim = y && lof ? mimetismMod(y.traits, x.traits) : 0;
   const albedo = y && lof ? albedoMod(y.traits, x.traits) : 0;
   const cover = y ? coverBsMod(y, x.traits, row) : 0;
-  const firewall = y && isCommsAttack(row) ? firewallMod(y.traits) : 0;
+  const firewall = y && isCommsAttack(row) ? firewallOf(y) : 0;
+  const program = total(programSvMods(x, y, say.t));
   const bonus = attackBonuses(x);
   // Every MOD counts toward the cap, Fireteam +1 BS included (Alex, 2026-10-10).
-  const modSum = bonus.bs + rangeMod + mim + albedo + cover + firewall + mods.sv + opposing + visMod;
+  const modSum = bonus.bs + rangeMod + mim + albedo + cover + firewall + program + mods.sv + opposing + visMod;
   const modTotal = capMods(modSum);
   if (!outOfRange && modTotal !== modSum) say(side, 'note.modCap', {sum: signed(modSum), cap: signed(modTotal)});
   const sv = outOfRange
     ? 0
     : clamp(LIMITS.successValue, attackStat(x.profile, row) + modTotal);
 
+  // Neurocinetics is for BS Attacks: a program keeps its Burst.
+  const neuro = !isHackingProgram(row);
   let burst = (row.burst ?? 1) + bonus.burst;
   if (side === 'B' && !keepsAroBurst(x)) burst = 1;
-  if (side === 'B') burst += neurocineticsAroBurst(x.traits);
+  if (side === 'B' && neuro) burst += neurocineticsAroBurst(x.traits);
   // Neurocinetics: B 1 in the Active Turn, Burst MODs included (wiki).
-  if (side === 'A' && hasSkill(x.traits, SKILL.NEUROCINETICS)) {
+  if (side === 'A' && neuro && hasSkill(x.traits, SKILL.NEUROCINETICS)) {
     burst = 1;
     say(side, 'note.neurocinetics');
   }
@@ -103,8 +109,6 @@ function attackInputs(x, y, rangeCm, side, say, opposing = 0, visMod = 0) {
     ...hitInputs(x, y, side, say),
   };
 }
-
-const total = (lines) => lines.reduce((t, l) => t + l.value, 0);
 
 // A CC Attack (closeCombat.js): CC plus its own MODs and the opponent's,
 // capped; no range, cover, Mimetism or Smoke. Burst and Special Dice from
@@ -168,10 +172,11 @@ function dodgeInputs(x, side, opposing = 0, incoming = null) {
 
 // A Reset: one WIP roll against a Comms Attack (the opponent's BS Attack
 // (-X) and Surprise Attack included) that causes no Saving Rolls, like a Dodge.
+// Zero Pain: two WIP rolls, in either turn.
 function resetInputs(x, side, opposing = 0) {
   return {
     [`ammo${side}`]: 'DODGE',
-    [`burst${side}`]: 1,
+    [`burst${side}`]: x.weapon.zeroPain ? ZERO_PAIN.burst : 1,
     [`bonusBurst${side}`]: 0,
     [`successValue${side}`]: resetSuccessValue(x.profile, opposing),
     [`cont${side}`]: false,
@@ -213,7 +218,7 @@ function defenseInputs(y, incoming, side, dodging = false) {
   const comms = isCommsAttack(incoming?.row);
   const coverSave = benefitsFromCover(y) && !templateIncoming && !ccIncoming && !comms ? COVER_SAVE_MOD : 0;
   const nanoSave = hasNanoscreen(y) && !ccIncoming && !comms ? COVER_SAVE_MOD : 0;
-  const firewallSave = comms && firewallMod(y.traits) ? FIREWALL_SAVE_MOD : 0;
+  const firewallSave = comms && firewallOf(y) ? FIREWALL_SAVE_MOD : 0;
   const cover = Math.max(coverSave, nanoSave, firewallSave);
   return {
     [`arm${side}`]: clamp(LIMITS.arm, base + cover),
@@ -222,8 +227,8 @@ function defenseInputs(y, incoming, side, dodging = false) {
   };
 }
 
-// No LoF through Smoke / White Noise: the side's attack never happens, so it
-// rolls nothing (like No ARO).
+// No LoF through Smoke / White Noise, or a program the target isn't a valid
+// target for: the side's attack never happens, so it rolls nothing (like No ARO).
 function noLofInputs(side) {
   return {[`burst${side}`]: 0, [`bonusBurst${side}`]: 0, [`shock${side}`]: false, [`template${side}`]: false};
 }
@@ -274,6 +279,9 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones, t = tE
       Object.assign(inputs, ccAttackInputs(a, b, 'A', say, onA));
     } else if (vis.A.blocked) {
       Object.assign(inputs, noLofInputs('A'));
+    } else if (b && !reaches(a, b)) {
+      say('A', 'note.cantTarget', {program: a.weapon.row.name});
+      Object.assign(inputs, noLofInputs('A'));
     } else {
       Object.assign(inputs, attackInputs(a, b, rangeCm, 'A', say, onA, vis.A.mod));
       inputs.templateA = aTemplate;
@@ -297,6 +305,9 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones, t = tE
     } else if (isCcAttack(b)) {
       Object.assign(inputs, ccAttackInputs(b, a, 'B', say, onB));
     } else if (vis.B.blocked) {
+      Object.assign(inputs, noLofInputs('B'));
+    } else if (a && !reaches(b, a)) {
+      say('B', 'note.cantTarget', {program: b.weapon.row.name});
       Object.assign(inputs, noLofInputs('B'));
     } else {
       Object.assign(inputs, attackInputs(b, a, rangeB, 'B', say, onB, vis.B.mod));

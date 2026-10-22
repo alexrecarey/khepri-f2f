@@ -3,6 +3,7 @@
 import {LIMITS} from '../engine/params.js';
 import {EQUIP, SKILL} from '../army/ids.js';
 import {equipExtra, hasEquip, hasSkill, skillExtra, skillExtras} from '../army/traits.js';
+import {ZERO_PAIN, canTarget, isHackingProgram} from '../army/hacking.js';
 import {attackAttribute, isCommsAttack, isImpactTemplate, isTemplate, parseWeaponMods} from '../army/weapons.js';
 import {ccOpposingMods, isCcAttack, naturalBornWarrior} from './closeCombat.js';
 import {tEn} from '../i18n/index.js';
@@ -62,6 +63,35 @@ export function firewallMod(traits) {
   });
   return mods.length > 0 ? Math.min(...mods) : 0;
 }
+
+// The Firewall a side benefits from: its own (firewallMod), or the one the
+// player gives it with the Firewall chip (-3 / -6, say from a Fairy Dust or
+// another trooper's program), the best of the two (Alex, 2026-10-22).
+export const firewallOf = (side) => Math.min(firewallMod(side?.traits), side?.firewall ?? 0);
+
+// ECM: Hacker (-X): an enemy Hacking Program against the trooper takes -X.
+export function ecmHackerMod(traits) {
+  const mod = Number(equipExtra(traits, EQUIP.ECM_HACKER));
+  return Number.isFinite(mod) && mod < 0 ? mod : 0;
+}
+
+// The MODs on x's Hacking Program roll that no other attack has, one line
+// each ({value, label, target}): the program's Attack MOD (Trinity +3) and
+// the target's ECM: Hacker (`target`: the target's). Firewall is every Comms
+// Attack's (firewallOf).
+export function programSvMods(x, y, t = tEn) {
+  const row = x?.weapon?.row;
+  if (!isHackingProgram(row)) return [];
+  const out = [];
+  if (row.hack.attack) out.push({value: row.hack.attack, label: row.name, target: false});
+  const ecm = y ? ecmHackerMod(y.traits) : 0;
+  if (ecm) out.push({value: ecm, label: t('equip.ecmHacker', {mod: ecm}), target: true});
+  return out;
+}
+
+// Does x's attack reach y? A Hacking Program only hits its Target types
+// (army/hacking.js canTarget); anything else does.
+export const reaches = (x, y) => !isHackingProgram(x?.weapon?.row) || canTarget(x.weapon.row, y);
 
 const hasMsv = (traits) => hasEquip(traits, EQUIP.MSV1) || hasEquip(traits, EQUIP.MSV2) || hasEquip(traits, EQUIP.MSV3);
 // The attacker's Multispectral Visor as players write it, or null.
@@ -248,10 +278,15 @@ export function evades(x, incoming) {
 //   of x's negative MODs apply either.
 export function opposingMods(x, y, xActive, t = tEn) {
   if (!rollsDice(x) || !rollsDice(y)) return [];
+  // A program that can't target the other trooper isn't rolled.
+  if (!reaches(x, y) || !reaches(y, x)) return [];
   // A Dodge or Reset that can't evade this attack isn't rolled against it.
   if (x.weapon.pseudo && !evades(x, y.weapon)) return [];
   if (y.weapon.pseudo && !evades(y, x.weapon)) return [];
-  if (x.weapon.pseudo === 'reset') return [];
+  // Zero Pain: -3 to the Comms Attack it evades.
+  if (x.weapon.pseudo === 'reset') {
+    return x.weapon.zeroPain ? [{value: ZERO_PAIN.opponent, label: t('pseudo.zeroPainMod', {mod: ZERO_PAIN.opponent}), ignoredBy: null}] : [];
+  }
   if (x.weapon.pseudo === 'dodge') {
     const mod = y.weapon.pseudo ? 0 : dodgeExtras(x.traits).opponentMod;
     return mod ? [{value: mod, label: t('skill.dodgeMod', {mod}), ignoredBy: null}] : [];
@@ -261,6 +296,10 @@ export function opposingMods(x, y, xActive, t = tEn) {
   const out = [];
   if (isCcAttack(x)) {
     for (const m of ccOpposingMods(x, t)) out.push({...m, ignoredBy: nbw ?? sixth});
+  } else if (isHackingProgram(x.weapon.row)) {
+    // A program's (or its upgrade's) Opp. MOD, Trinity (-3). BS Attack (-X) is for shots.
+    const opp = x.weapon.mods.opponent ?? 0;
+    if (opp) out.push({value: opp, label: t('ledger.programMod', {program: x.weapon.row.name, mod: opp}), ignoredBy: sixth});
   } else {
     const bs = bsAttackMod(x.traits);
     if (bs) out.push({value: bs, label: t('skill.bsAttackMod', {mod: bs}), ignoredBy: hasSkill(y.traits, SKILL.WARHORSE) ? t('skill.warhorse') : sixth});
@@ -274,8 +313,10 @@ export function opposingMods(x, y, xActive, t = tEn) {
   return out;
 }
 
-// Only Total Reaction / Neurocinetics keep their full burst in ARO.
-export const keepsAroBurst = (x) => hasSkill(x.traits, SKILL.TOTAL_REACTION) || hasSkill(x.traits, SKILL.NEUROCINETICS);
+// Only Total Reaction / Neurocinetics keep their full burst in ARO, and only
+// for a BS Attack: a Hacking Program is B 1 in ARO.
+export const keepsAroBurst = (x) => !isHackingProgram(x.weapon?.row)
+  && (hasSkill(x.traits, SKILL.TOTAL_REACTION) || hasSkill(x.traits, SKILL.NEUROCINETICS));
 
 // Neurocinetics (+1B): the extra Burst counts in the Reactive Turn only (the
 // Active Turn is B 1 regardless). Yan Huo, Sunduqbut.
@@ -288,9 +329,12 @@ export const neurocineticsAroBurst = (traits) =>
 // Burst, SD and BS bonuses on a BS Attack, summed over the weapon's loadout
 // extras, the profile's BS Attack (+1SD / +1B) skill and the Fireteam.
 // Templates keep their burst bonuses but don't roll, so get no SD or BS.
+// A Hacking Program is no BS Attack: only its own upgrades (+1B, +1SD), no
+// BS Attack skill or Fireteam bonus (Alex, 2026-10-22).
 export function attackBonuses(x) {
   const row = x.weapon?.row;
   if (!row) return {burst: 0, sd: 0, bs: 0, skillBurst: 0};
+  if (isHackingProgram(row)) return {burst: x.weapon.mods.burst, sd: x.weapon.mods.sd, bs: 0, skillBurst: 0};
   const skillMods = parseWeaponMods(
     skillExtras(x.traits, SKILL.BS_ATTACK).filter((e) => /^\+\d+(B|SD)$/.test(e)),
   );

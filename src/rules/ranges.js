@@ -1,5 +1,6 @@
 // Range bands and Range MODs.
 import {EQUIP} from '../army/ids.js';
+import {isHackingProgram} from '../army/hacking.js';
 import {hasEquip} from '../army/traits.js';
 import {inZoneOfControl, isTemplate} from '../army/weapons.js';
 import {tEn} from '../i18n/index.js';
@@ -20,9 +21,11 @@ export const ZOC_CM = RANGE_BANDS[0].to;
 
 // BS MOD of a weapon at the chosen distance; null when out of range.
 // X Visor (shooter's traits) turns a -3 Range MOD into 0 and a -6 into -3.
-// A Zone of Control weapon (Jammer) has no Range MOD inside it.
+// A Zone of Control weapon (Jammer) has no Range MOD inside it. A Hacking
+// Program reaches the Hacking Area (ZoC and Repeaters): never a Range MOD,
+// never out of range (Alex, 2026-10-22).
 export function rangeModFor(row, distanceCm, traits) {
-  if (isTemplate(row)) return 0;
+  if (isTemplate(row) || isHackingProgram(row)) return 0;
   if (inZoneOfControl(row)) return distanceCm <= ZOC_CM ? 0 : null;
   if (!row?.ranges) return null;
   const band = row.ranges.find((b) => distanceCm <= b.to);

@@ -44,9 +44,9 @@ test('side cards: weapon groups, names, faction and the chips that apply', () =>
   for (const s of ['A', 'B']) {
     const side = v[s];
     assert.ok(side.groups.length > 0);
-    // Every weapon, CC weapon and pseudo-weapon (Dodge...) is in exactly one group.
+    // Every weapon, CC weapon, program and pseudo-weapon (Dodge...) is in exactly one group.
     const keys = side.groups.flatMap((g) => (g.modes ? g.modes.map((w) => w.key) : [g.w.key]));
-    assert.deepEqual([...keys].sort(), [...side.weapons, ...side.ccWeapons, ...side.pseudo].map((w) => w.key).sort());
+    assert.deepEqual([...keys].sort(), [...side.weapons, ...side.ccWeapons, ...side.programs, ...side.pseudo].map((w) => w.key).sort());
     assert.equal(side.short, side.resolved.unit.isc.split(',')[0].trim());
     assert.ok(side.faction);
   }

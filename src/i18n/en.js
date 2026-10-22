@@ -62,6 +62,8 @@ export default {
   'pseudo.dodge': 'Dodge',
   'pseudo.bangbomb': 'Bangbomb',
   'pseudo.reset': 'Reset',
+  'pseudo.zeroPain': 'Zero Pain',
+  'pseudo.zeroPainMod': 'Zero Pain ({mod})',
   'pseudo.none': 'No ARO',
 
   // Skills and equipment, as the ledger and the notes name them
@@ -87,6 +89,7 @@ export default {
   'equip.bangbombMod': 'Bangbomb ({mod})',
   'equip.firewall': 'Firewall',
   'equip.firewallMod': 'Firewall ({mod})',
+  'equip.ecmHacker': 'ECM: Hacker ({mod})',
   'equip.nanoscreen': 'Nanoscreen',
   'equip.msv': 'MSV{level}',
   'weapon.withMod': '{name} ({mod})',
@@ -112,6 +115,9 @@ export default {
   'state.dead': 'Dead',
   'state.isolated': 'Isolated',
   'state.stunned': 'Stunned',
+  'state.immobilized-b': 'Immobilized-B',
+  'state.targeted': 'Targeted',
+  'state.possessed': 'Possessed',
 
   // "How the dice were built" (rules/ledger.js)
   'ledger.otherRules': 'other rules',
@@ -154,6 +160,8 @@ export default {
   'ledger.noEffect': 'no effect',
   'ledger.noLofZone': 'No LoF ({zone})',
   'ledger.notRolled': '{choice}: not rolled',
+  'ledger.cantTarget': '{program} can\'t target this trooper.',
+  'ledger.programMod': '{program} ({mod})',
   'ledger.resetOnlyComms': 'Reset only evades Comms Attacks.',
   'ledger.dodgeNotComms': 'Dodge can\'t evade a Comms Attack; Reset can.',
 
@@ -165,6 +173,7 @@ export default {
   'note.neurocinetics': 'Neurocinetics; Burst reduced to 1 in the Active Turn',
   'note.shock': 'Shock against VITA 1; a failed save is Dead (no Unconscious, NWI or Dogged)',
   'note.stateCaused': '{weapon}; a failed save leaves the target {state}, not wounded',
+  'note.cantTarget': '{program} can\'t target this trooper; it isn\'t rolled',
   'note.contImmune': 'target has Immunity (Continuous Damage); Continuous Damage ignored',
   'note.vulnerability': 'target has Vulnerability ({vulnerable}); Immunity ({immunity}) does not apply',
   'note.resetOnlyComms': 'Reset only evades Comms Attacks; the {weapon} is rolled unopposed',
@@ -267,6 +276,7 @@ export default {
   'side.weapon': 'Weapon',
   'side.notRolled': 'Not rolled: {weapons}',
   'chip.cover': 'Cover',
+  'chip.firewall': 'Firewall {mod}',
   'chip.sapper': 'Sapper',
   'chip.fireteam': 'Fireteam',
   'chip.allies': 'Allies',
@@ -379,6 +389,7 @@ export default {
   // Saved rolls
   'roll.vs': 'vs',
   'roll.cover': 'Cover',
+  'roll.firewall': 'Firewall {mod}',
   'roll.closeCombat': 'Close combat',
   'roll.surpriseAttack': 'Surprise attack',
   'roll.allies_one': '{count} ally',

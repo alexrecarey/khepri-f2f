@@ -40,13 +40,13 @@ export function isBsAttackWeapon(row) {
 }
 
 // Weapons with the BS Weapon (PH) / (WIP) trait roll against that attribute
-// instead of BS (e.g. Grenades, Flash Pulse).
+// instead of BS (e.g. Grenades, Flash Pulse). Hacking Programs roll WIP.
 // CC weapons roll against CC.
 export function attackAttribute(row) {
   const props = row?.props ?? [];
   if (isCcWeapon(row)) return 'cc';
   if (props.includes('BS Weapon (PH)')) return 'ph';
-  if (props.includes('BS Weapon (WIP)')) return 'wip';
+  if (props.includes('BS Weapon (WIP)') || props.includes('Hacking Program')) return 'wip';
   return 'bs';
 }
 
@@ -97,8 +97,9 @@ export const causesStunned = (row) => (row?.props ?? []).some((p) => p.startsWit
 // Stun Pistol): how many saves fail doesn't matter.
 export const stuns = (row) => isNonLethal(row) && causesStunned(row);
 
-// The State a failed save causes in place of wounds, or null.
-export const stateCaused = (row) => (isolates(row) ? 'Isolated' : stuns(row) ? 'Stunned' : null);
+// The State a failed save causes in place of wounds, or null. A Hacking
+// Program names its own (army/hacking.js): Immobilized-B, Targeted, Possessed.
+export const stateCaused = (row) => (row?.hack ? row.hack.state : isolates(row) ? 'Isolated' : stuns(row) ? 'Stunned' : null);
 
 // "Bioweapon (DA+SHOCK)" or null.
 export const bioweaponProp = (row) => (row?.props ?? []).find((p) => p.startsWith('Bioweapon (')) ?? null;

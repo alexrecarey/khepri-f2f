@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {FIRETEAM_MIN} from '../rules/modifiers.js';
 import {ROLE} from '../state/schema.js';
 import {dispatch} from '../state/store.js';
-import {CountChip, PickChip} from './Chips.jsx';
+import {CountChip, FirewallChips, PickChip} from './Chips.jsx';
 import {CardCrest} from './Crest.jsx';
 import {SiteMark} from './icons.jsx';
 import Plasma from './Plasma.jsx';
@@ -51,7 +51,7 @@ EmptySlot.propTypes = {
 export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
   const t = useT();
   const color = ROLE[side];
-  const {sel, resolved, groups, cc, ccAlliesMax, noCover, surprise, berserk, teamOps, faction, crest, short, loadout} = view[side];
+  const {sel, resolved, groups, cc, ccAlliesMax, noCover, hacked, surprise, berserk, teamOps, faction, crest, short, loadout} = view[side];
   const unit = resolved?.unit;
   const option = resolved?.option;
 
@@ -67,14 +67,16 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
       {option && <WeaponButtons side={side} groups={groups} selected={sel.weaponKey} color={color} />}
       {unit && (
         <div className="row-wrap">
+          {/* Hacked: Firewall in place of cover, which does nothing against a Comms Attack. */}
+          {hacked && <FirewallChips side={side} value={resolved.firewall} color={color} />}
           {/* Cover or, for Sapper, the Foxhole (its own cover): one or the other. */}
-          {!noCover && (
+          {!hacked && !noCover && (
             <button type="button" className={`chip${sel.inCover && !resolved.sapper ? ` on ${color}` : ''}`} aria-pressed={sel.inCover && !resolved.sapper}
               onClick={() => patch(side, {inCover: !(sel.inCover && !resolved.sapper), sapper: false})}>
               {sel.inCover && !resolved.sapper ? `${t('chip.cover')} ✓` : `+ ${t('chip.cover')}`}
             </button>
           )}
-          {resolved.canSapper && (
+          {!hacked && resolved.canSapper && (
             <button type="button" className={`chip${resolved.sapper ? ` on ${color}` : ''}`} aria-pressed={resolved.sapper}
               onClick={() => patch(side, {sapper: !resolved.sapper, inCover: false})}>
               {resolved.sapper ? `${t('chip.sapper')} ✓` : `+ ${t('chip.sapper')}`}
