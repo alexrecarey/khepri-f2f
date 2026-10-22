@@ -62,6 +62,8 @@ export default {
   'pseudo.dodge': 'Esquivar',
   'pseudo.bangbomb': 'Bangbomb',
   'pseudo.reset': 'Reset',
+  'pseudo.zeroPain': 'Zero Pain',
+  'pseudo.zeroPainMod': 'Zero Pain ({mod})',
   'pseudo.none': 'Sin ORA',
 
   // Skills and equipment, as the ledger and the notes name them
@@ -87,6 +89,7 @@ export default {
   'equip.bangbombMod': 'Bangbomb ({mod})',
   'equip.firewall': 'Firewall',
   'equip.firewallMod': 'Firewall ({mod})',
+  'equip.ecmHacker': 'ECM: Hacker ({mod})',
   'equip.nanoscreen': 'Nanopantalla',
   'equip.msv': 'VMS{level}',
   'weapon.withMod': '{name} ({mod})',
@@ -112,6 +115,9 @@ export default {
   'state.dead': 'Muerto',
   'state.isolated': 'Aislado',
   'state.stunned': 'Aturdido',
+  'state.immobilized-b': 'Inmovilizado-B',
+  'state.targeted': 'Marcado',
+  'state.possessed': 'Poseído',
 
   // "How the dice were built" (rules/ledger.js)
   'ledger.otherRules': 'otras reglas',
@@ -154,6 +160,8 @@ export default {
   'ledger.noEffect': 'sin efecto',
   'ledger.noLofZone': 'Sin LDT ({zone})',
   'ledger.notRolled': '{choice}: no tira',
+  'ledger.cantTarget': '{program} no puede tener como objetivo a esta tropa.',
+  'ledger.programMod': '{program} ({mod})',
   'ledger.resetOnlyComms': 'Reset solo evita Ataques de Comunicaciones.',
   'ledger.dodgeNotComms': 'Esquivar no evita un Ataque de Comunicaciones; Reset sí.',
 
@@ -165,6 +173,7 @@ export default {
   'note.neurocinetics': 'Neurocinética; Ráfaga 1 en el Turno Activo',
   'note.shock': 'Shock contra VITA 1; una salvación fallada es Muerto (sin Inconsciente, SIH ni Tenaz)',
   'note.stateCaused': '{weapon}; una salvación fallada deja al objetivo {state}, no herido',
+  'note.cantTarget': '{program} no puede tener como objetivo a esta tropa; no tira',
   'note.contImmune': 'el objetivo tiene Inmunidad (Daño Continuo); se ignora el Daño Continuo',
   'note.vulnerability': 'el objetivo tiene Vulnerabilidad ({vulnerable}); la Inmunidad ({immunity}) no se aplica',
   'note.resetOnlyComms': 'Reset solo evita Ataques de Comunicaciones; {weapon} se tira sin oposición',
@@ -267,6 +276,7 @@ export default {
   'side.weapon': 'Arma',
   'side.notRolled': 'No se tira: {weapons}',
   'chip.cover': 'Cobertura',
+  'chip.firewall': 'Firewall {mod}',
   'chip.sapper': 'Zapador',
   'chip.fireteam': 'Fireteam',
   'chip.allies': 'Aliados',
@@ -379,6 +389,7 @@ export default {
   // Saved rolls
   'roll.vs': 'contra',
   'roll.cover': 'Cobertura',
+  'roll.firewall': 'Firewall {mod}',
   'roll.closeCombat': 'Cuerpo a cuerpo',
   'roll.surpriseAttack': 'Ataque Sorpresa',
   'roll.allies_one': '{count} aliado',

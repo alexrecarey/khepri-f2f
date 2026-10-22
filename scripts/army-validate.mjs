@@ -6,6 +6,7 @@
 
 import {EXPECTED_NAMES, SKILL, EQUIP} from '../src/army/ids.js';
 import {isBsAttackWeapon, isCcWeapon, unreadWeaponExtras} from '../src/army/weapons.js';
+import {unreadHackingExtras} from '../src/army/hacking.js';
 import {MODELED_IMMUNITIES, STATE_IMMUNITIES} from '../src/rules/matchup.js';
 
 // Ammunition names. The rules read AP, T2, Shock (and N); the default-weapon
@@ -96,6 +97,13 @@ export function validateArmy(army) {
       if (!(army.weapons[w.id] ?? []).some((r) => isBsAttackWeapon(r) || isCcWeapon(r))) continue;
       for (const e of unreadWeaponExtras(w.extra)) once(`weapon extra "${e}" on ${w.name} (${h.where})`);
     }
+    // Hacking Devices and the Hacker skill: every program, upgrade and MOD read
+    // (src/army/hacking.js).
+    const hacking = [
+      ...(h.equip ?? []).filter((e) => [EQUIP.HACKING_DEVICE, EQUIP.HACKING_DEVICE_PLUS, EQUIP.KILLER_HACKING_DEVICE, EQUIP.EVO_HACKING_DEVICE].includes(e.id)),
+      ...(h.skills ?? []).filter((x) => x.id === SKILL.HACKER),
+    ];
+    for (const x of hacking) for (const e of unreadHackingExtras(x.extra)) once(`${x.name} (${e}) (${h.where})`);
     // Bracketed values of the traits the rules read.
     for (const t of TRAIT_EXTRAS) {
       for (const x of (t.kind === 'skill' ? h.skills : h.equip) ?? []) {

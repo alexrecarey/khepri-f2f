@@ -4,7 +4,7 @@ import {hasSkill} from '../army/traits.js';
 import {tEn} from '../i18n/index.js';
 import {
   ammoName, ammoTypes, bioweaponAmmo, bioweaponProp, causesStunned, causesWounds, hasAmmo, hasContinuousDamage, hasShockAmmo,
-  isCommsAttack, isPlasma, isolates, saveAttribute,
+  isCommsAttack, isPlasma, saveAttribute, stateCaused,
 } from '../army/weapons.js';
 
 // Vulnerability (wiki): no Immunity against the bracketed weapon, e.g. any
@@ -19,9 +19,12 @@ export function vulnerabilityTo(targetTraits, row) {
 }
 
 // Against a Comms Attack only an Immunity to a State works: Immunity
-// (Isolated), Immunity (IMM-B). ARM, BTS, Enhanced, Critical, AP and the
-// rest do nothing (Alex, 2026-10-20).
-const COMMS_IMMUNITIES = ['Isolated', 'IMM-B'];
+// (Isolated), Immunity (IMM-B), Immunity (POS). ARM, BTS, Enhanced, Critical,
+// AP and the rest do nothing (Alex, 2026-10-20).
+const COMMS_IMMUNITIES = ['Isolated', 'IMM-B', 'POS'];
+// The Immunity that stops each State a Comms Attack causes, as the Army
+// writes it.
+const STATE_IMMUNITY = {'Isolated': 'Isolated', 'Immobilized-B': 'IMM-B', 'Possessed': 'POS'};
 
 export const hasImmunity = (targetTraits, kind, row) =>
   hasSkill(targetTraits, SKILL.IMMUNITY, kind) && !vulnerabilityTo(targetTraits, row)
@@ -54,16 +57,19 @@ export function immunityAgainst(targetTraits, row) {
 // success still cancels the target's Dodge or shot), its hits just cause no
 // Saving Rolls (ammo NONE).
 // Immunity (Isolated) leaves nothing of a weapon whose only effect is Isolated
-// (Jammer) either, and nor does Warhorse, which makes its user immune to
-// Isolated (Alex, 2026-10-20).
+// (Jammer, Oblivion) either, and nor does Warhorse, which makes its user immune
+// to Isolated (Alex, 2026-10-20). Likewise Immunity (IMM-B) against Carbonite
+// and Immunity (POS) against Total Control.
 export const hasNoEffect = (targetTraits, row) => Boolean(noEffectBy(targetTraits, row));
 
 // What leaves this attack without effect, as the warning names it
 // ("Immunity (BTS)", "Warhorse"), or null.
 export function noEffectBy(targetTraits, row, t = tEn) {
   const immune = (what) => t('skill.immunity', {what: t.term('extras', what)});
-  if (isolates(row) && hasImmunity(targetTraits, 'Isolated', row)) return immune('Isolated');
-  if (isolates(row) && hasSkill(targetTraits, SKILL.WARHORSE)) return t('skill.warhorse');
+  const state = isCommsAttack(row) ? stateCaused(row) : null;
+  const stopping = STATE_IMMUNITY[state];
+  if (stopping && hasImmunity(targetTraits, stopping, row)) return immune(stopping);
+  if (state === 'Isolated' && hasSkill(targetTraits, SKILL.WARHORSE)) return t('skill.warhorse');
   const immunity = immunityAgainst(targetTraits, row);
   return immunity && !causesWounds(row) && !causesStunned(row) ? immune(immunity) : null;
 }

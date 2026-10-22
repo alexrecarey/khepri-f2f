@@ -62,9 +62,11 @@ function weaponShort(w, t) {
 }
 
 // What a side's situation says, for the saved-rolls line and the share card.
-// A sapper's cover is its Foxhole, so it never says Cover as well.
-const inFoxhole = (x) => Boolean(x.resolved.sapper);
-const inCover = (x) => x.sel.inCover && !x.resolved.sapper;
+// A sapper's cover is its Foxhole, so it never says Cover as well. A hacked
+// side's cover does nothing; its Firewall chip says what it has instead.
+const inFoxhole = (x) => Boolean(x.resolved.sapper) && !x.hacked;
+const inCover = (x) => x.sel.inCover && !x.resolved.sapper && !x.hacked;
+const firewall = (x, t) => (x.hacked && x.resolved.firewall ? t('roll.firewall', {mod: x.resolved.firewall}) : null);
 const fireteam = (x, t) => (x.resolved.ftSize > 1 ? t('ledger.fireteam', {size: x.resolved.ftSize}) : null);
 const surprise = (x, role) => role === 'A' && x.sel.surpriseAttack;
 const berserk = (x, role) => usesBerserk(x.resolved, role === 'A');
@@ -100,6 +102,7 @@ export function matchupRollSummary(view, s, t = tEn) {
   const bits = [rangeText(view, t), ...zoneNames(view, t)];
   if (inFoxhole(A) || inFoxhole(B)) bits.push(t('skill.foxhole'));
   if (inCover(A) || inCover(B)) bits.push(t('roll.cover'));
+  bits.push(firewall(A, t), firewall(B, t));
   for (const x of [A, B]) bits.push(fireteam(x, t), ...teamOps(x));
   bits.push(allies(A, B, t), allies(B, A, t));
   if (surprise(A, 'A')) bits.push(t('roll.surpriseAttack'));
@@ -123,7 +126,7 @@ export function matchupRollSummary(view, s, t = tEn) {
 export function matchupShareCard(view, h, t = tEn) {
   const side = (role, key) => {
     const x = view[role];
-    const situation = [inFoxhole(x) && t('skill.foxhole'), inCover(x) && t('roll.cover'), fireteam(x, t), allies(x, view[role === 'A' ? 'B' : 'A'], t),
+    const situation = [inFoxhole(x) && t('skill.foxhole'), inCover(x) && t('roll.cover'), firewall(x, t), fireteam(x, t), allies(x, view[role === 'A' ? 'B' : 'A'], t),
       surprise(x, role) && t('roll.surpriseAttack'), berserk(x, role) && t('skill.berserk'), ...teamOps(x)];
     return {
       n: h.text[key], l: h.label[key],

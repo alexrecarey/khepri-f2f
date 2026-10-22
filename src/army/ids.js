@@ -33,6 +33,7 @@ const SKILLS = {
   NATURAL_BORN_WARRIOR: [39, 'Natural Born Warrior'],
   CC_ATTACK: [240, 'CC Attack'],
   BERSERK: [24, 'Berserk'],
+  HACKER: [1000, 'Hacker'],
 };
 
 const EQUIPS = {
@@ -44,6 +45,11 @@ const EQUIPS = {
   ALBEDO: [183, 'Albedo'],
   BANGBOMB: [246, 'Bangbomb'],
   TINBOT_FIREWALL: [169, 'TinBot: Firewall'],
+  HACKING_DEVICE: [100, 'Hacking Device'],
+  HACKING_DEVICE_PLUS: [101, 'Hacking Device Plus'],
+  KILLER_HACKING_DEVICE: [145, 'Killer Hacking Device'],
+  EVO_HACKING_DEVICE: [182, 'EVO Hacking Device'],
+  ECM_HACKER: [241, 'ECM: Hacker'],
 };
 
 const ids = (table) => Object.fromEntries(Object.entries(table).map(([k, [id]]) => [k, id]));

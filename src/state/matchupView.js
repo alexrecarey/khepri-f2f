@@ -5,6 +5,7 @@
 import {SKILL} from '../army/ids.js';
 import {extraLoadoutName, shortIsc, unitTag} from '../army/names.js';
 import {hasSkill} from '../army/traits.js';
+import {isHackingProgram, trooperPrograms} from '../army/hacking.js';
 import {isCommsAttack, isTemplate, stateCaused} from '../army/weapons.js';
 import {fullParams} from '../engine/params.js';
 import {defaultWeapon, sortWeapons} from '../rules/defaultWeapon.js';
@@ -58,10 +59,11 @@ function weaponGroups(list, role, t) {
 }
 
 // A side's Range MOD at a band: null out of range, undefined when it has no
-// range bands (nothing picked, Dodge, No ARO, Direct Template, CC Attack).
+// range bands (nothing picked, Dodge, No ARO, Direct Template, CC Attack,
+// Hacking Program).
 function bandMod(resolved, to) {
   const row = resolved?.weapon?.row;
-  if (!row || isTemplate(row) || isCcAttack(resolved)) return undefined;
+  if (!row || isTemplate(row) || isCcAttack(resolved) || isHackingProgram(row)) return undefined;
   return rangeModFor(row, to, resolved.traits);
 }
 
@@ -72,14 +74,15 @@ function sideView(army, sel, side, t) {
   const resolved = resolveSelection(army, effective);
   const weapons = resolved?.option ? trooperWeapons(resolved.option, army.weapons, resolved.traits) : [];
   const ccWeapons = resolved?.option ? trooperCcWeapons(resolved.option, army.weapons, resolved.traits) : [];
+  const programs = resolved?.option ? trooperPrograms(resolved.traits, army.lang) : [];
   const pseudo = resolved?.profile
     ? pseudoWeapons(resolved.traits, side)
     : [];
   const unit = resolved?.unit;
   return {
-    sel: effective, resolved, weapons, ccWeapons, pseudo,
-    // CC weapons are weapons like any other, after the BS ones.
-    groups: weaponGroups([...weapons, ...ccWeapons, ...pseudo], ROLE[side], t),
+    sel: effective, resolved, weapons, ccWeapons, programs, pseudo,
+    // CC weapons and Hacking Programs are weapons like any other, after the BS ones.
+    groups: weaponGroups([...weapons, ...ccWeapons, ...programs, ...pseudo], ROLE[side], t),
     // No Cover: cover does nothing for it, so no Cover chip.
     noCover: hasSkill(resolved?.traits, SKILL.NO_COVER),
     // Surprise Attack's MOD, offered only on the active side.
@@ -101,7 +104,8 @@ function sideView(army, sel, side, t) {
   };
 }
 
-const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], ccWeapons: [], pseudo: [], groups: [], cc: false, ccAlliesMax: 0, noCover: false, surprise: 0, berserk: null, teamOps: null,
+const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], ccWeapons: [], programs: [], pseudo: [], groups: [], cc: false, ccAlliesMax: 0, noCover: false,
+  hacked: false, surprise: 0, berserk: null, teamOps: null,
   faction: null, vanilla: null, crest: null, short: null, loadout: null});
 
 
@@ -123,11 +127,11 @@ export function matchupView(army, matchup, t = tEn) {
   for (const [x, y] of [[A, B], [B, A]]) {
     x.cc = isCcAttack(x.resolved);
     x.ccAlliesMax = x.cc ? ccAlliesMax(y.resolved) : 0;
-    // Reset is a button only against a Comms Attack (or once picked).
-    if (!isCommsAttack(y.resolved?.weapon?.row) && x.sel.weaponKey !== 'reset') {
-      x.pseudo = x.pseudo.filter((w) => w.pseudo !== 'reset');
-      x.groups = x.groups.filter((g) => g.w.pseudo !== 'reset');
-    }
+    // Reset and Zero Pain are buttons only against a Comms Attack (or once picked).
+    x.hacked = isCommsAttack(y.resolved?.weapon?.row);
+    const shown = (w) => w.pseudo !== 'reset' || x.hacked || x.sel.weaponKey === w.key;
+    x.pseudo = x.pseudo.filter(shown);
+    x.groups = x.groups.filter((g) => shown(g.w));
   }
   const derived = deriveInputs({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones, t});
   const hasSelection = Boolean(matchup.A.unitId || matchup.B.unitId);

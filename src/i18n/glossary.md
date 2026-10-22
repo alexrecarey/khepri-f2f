@@ -59,6 +59,9 @@ correct them before merging.
 | Stun ammunition | Aturdidora | Army |
 | Unconscious / Dead | Inconsciente / Muerto | wiki |
 | Isolated / Stunned | Aislado / Aturdido | wiki |
+| Immobilized-B / Targeted / Possessed | Inmovilizado-B / Marcado / Poseído | Army (program chart); **check** Poseído |
+| Carbonite, Total Control | Carbonita, Control Total; Oblivion, Spotlight, Trinity, Zero Pain unchanged | Army (program chart) |
+| ECM: Hacker | unchanged | Army |
 | NWI / Dogged | SIH (Sin Incapacidad por Herida) / Tenaz | Army |
 | Wound(s) | herida(s) | **check** (N5 English says VITA wounds) |
 | Order | orden | wiki |

@@ -1,5 +1,6 @@
 // One side of a matchup: the picker's selection (ids) resolved against the
 // Army data into the trooper that rolls.
+import {hasZeroPain, trooperPrograms} from '../army/hacking.js';
 import {SKILL} from '../army/ids.js';
 import {applyStatOverrides, applyUpgrades, pickedUpgrades} from '../army/loadouts.js';
 import {unitById} from '../army/lookup.js';
@@ -66,17 +67,23 @@ export function trooperCcWeapons(option, weapons, traits) {
 // Bangbomb is a second Dodge, for the player to pick when its LoF/ZoC
 // restriction holds.
 // Reset: every trooper has it; the card shows it only against a Comms Attack
-// (state/matchupView.js).
+// (state/matchupView.js). Zero Pain is a better Reset, for hackers that run it
+// (army/hacking.js): shown the same way.
 export function pseudoWeapons(traits, side = 'B') {
   const list = [{key: 'dodge', pseudo: 'dodge'}];
   if (bangbombValue(traits)) list.push({key: 'bangbomb', pseudo: 'dodge', bangbomb: true});
   list.push({key: 'reset', pseudo: 'reset'});
+  if (hasZeroPain(traits)) list.push({key: 'zeroPain', pseudo: 'reset', zeroPain: true});
   if (side === 'B') list.push({key: 'none', pseudo: 'none'});
   return list;
 }
 
-// Name of a choice that is not a weapon: "Dodge", "Bangbomb", "Reset", "No ARO".
-export const pseudoName = (w, t = tEn) => t(`pseudo.${w.bangbomb ? 'bangbomb' : w.pseudo}`);
+// Name of a choice that is not a weapon: "Dodge", "Bangbomb", "Reset", "Zero Pain", "No ARO".
+export const pseudoName = (w, t = tEn) => t(`pseudo.${w.bangbomb ? 'bangbomb' : w.zeroPain ? 'zeroPain' : w.pseudo}`);
+
+// The Firewall chip's values (the MOD to the Comms Attack); 0 is none.
+export const FIREWALL_CHIPS = [-3, -6];
+const firewallChip = (v) => (FIREWALL_CHIPS.includes(v) ? v : 0);
 
 // Resolves a picker selection (ids) against the army data. The returned
 // profile has the loadout's stat overrides and any Team-Ops upgrades applied;
@@ -111,6 +118,7 @@ export function resolveSelection(army, sel) {
   if (option && profile && sel.weaponKey) {
     weapon = trooperWeapons(option, army.weapons, traits).find((w) => w.key === sel.weaponKey)
       ?? trooperCcWeapons(option, army.weapons, traits).find((w) => w.key === sel.weaponKey)
+      ?? trooperPrograms(traits, army.lang).find((w) => w.key === sel.weaponKey)
       ?? pseudoWeapons(traits, 'B').find((w) => w.key === sel.weaponKey)
       ?? null;
   }
@@ -121,6 +129,8 @@ export function resolveSelection(army, sel) {
     teamOps: teamOps && Boolean(unit.upgrades),
     upgrades, unsupportedUpgradeWeapons,
     inCover: Boolean(sel.inCover) || sapper,
+    // The Firewall the player gives it against a Comms Attack (chip): -3, -6 or 0.
+    firewall: firewallChip(sel.firewall),
     canSapper,
     sapper,
     // The player chose to use Surprise Attack (active side only).

@@ -15,6 +15,7 @@
 //   `struck` lines were cancelled and don't count.
 //   save is the Saving Roll the OTHER side makes against this side's hits:
 //   weapon PS + target ARM (or BTS), on d20 <= total.
+import {isHackingProgram} from '../army/hacking.js';
 import {SKILL} from '../army/ids.js';
 import {upgradeRaising} from '../army/loadouts.js';
 import {hasSkill} from '../army/traits.js';
@@ -25,8 +26,8 @@ import {
 import {AMMO} from '../engine/calculate.js';
 import {
   COVER_BS_MOD, COVER_SAVE_MOD, FIREWALL_SAVE_MOD, LIMITS, MOD_CAP, albedoMod, albedoValue, attackBonuses, attackStat, benefitsFromCover, capMods,
-  bangbombMod, bangbombValue, cancelsBangbomb, coverBsMod, dodgeExtras, evades, fireteamBonuses, firewallMod, hasNanoscreen, ignoresCoverOnSaves,
-  keepsAroBurst, mimetismMod, neurocineticsAroBurst, mimetismValue, msvName, opposingMods,
+  bangbombMod, bangbombValue, cancelsBangbomb, coverBsMod, dodgeExtras, evades, fireteamBonuses, firewallOf, hasNanoscreen, ignoresCoverOnSaves,
+  keepsAroBurst, mimetismMod, neurocineticsAroBurst, mimetismValue, msvName, opposingMods, programSvMods, reaches,
 } from './modifiers.js';
 import {RANGE_BANDS, bandFrom, rangeModFor} from './ranges.js';
 import {hasImmunity, immunityAgainst, saveHalving} from './saves.js';
@@ -76,12 +77,15 @@ function attackSv(x, y, s, rangeCm, total, vis, t) {
   const {row, mods} = x.weapon;
   const attr = attackAttribute(row);
   const lines = [line(attackStat(x.profile, row), statLabel(x, attr, t), null)];
-  const ft = fireteamBonuses(x.ftSize);
-  if (ft.bs) lines.push(line(ft.bs, t('ledger.fireteam', {size: x.ftSize}), s));
+  // Fireteam +1 BS: none on a Hacking Program (attackBonuses).
+  const ftBs = attackBonuses(x).bs;
+  if (ftBs) lines.push(line(ftBs, t('ledger.fireteam', {size: x.ftSize}), s));
   const rangeMod = rangeModFor(row, rangeCm, x.traits);
   if (rangeMod === null) return {lines: [...lines, line('—', t('ledger.outOfRange'), s)], total, note: t('ledger.outOfRangeNote')};
   if (rangeMod) lines.push(line(rangeMod, rangeLabel(rangeCm, t), s));
   if (mods.sv) lines.push(line(mods.sv, t('ledger.loadout'), s));
+  // A program's Attack MOD is x's, the target's ECM: Hacker the target's.
+  for (const m of programSvMods(x, y, t)) lines.push(line(m.value, m.label, m.target ? other(s) : s));
   if (y) {
     // Mimetism, with what the attacker's MSV cancels shown struck. Mimetism
     // and Albedo need LoF: struck against a Jammer.
@@ -106,7 +110,7 @@ function attackSv(x, y, s, rangeCm, total, vis, t) {
       lines.push(line(COVER_BS_MOD, coverName, o, why));
     }
     // Firewall: a Comms Attack's cover.
-    const firewall = comms ? firewallMod(y.traits) : 0;
+    const firewall = comms ? firewallOf(y) : 0;
     if (firewall) lines.push(line(firewall, t('equip.firewallMod', {mod: firewall}), o));
     // Smoke / White Noise: x's own sight, so x's colour.
     for (const v of vis.lines) lines.push(line(v.value, v.label, s, v.ignoredBy));
@@ -192,13 +196,15 @@ function burstLines(x, y, s, inputs, t) {
   }
   const row = x.weapon.row;
   const total = inputs[`burst${s}`];
-  if (s === 'A' && hasSkill(x.traits, SKILL.NEUROCINETICS)) {
+  // Neurocinetics is for BS Attacks, not programs (matchup.js attackInputs).
+  const neuroApplies = !isHackingProgram(row);
+  if (s === 'A' && neuroApplies && hasSkill(x.traits, SKILL.NEUROCINETICS)) {
     return {lines: reconcile([line(1, t('skill.neurocinetics'), s)], total, t), total};
   }
   const lines = [line(row.burst ?? 1, x.weapon.name ?? row.name, null)];
   const b = attackBonuses(x);
   if (b.burst) lines.push(line(b.burst, t('ledger.loadoutOrBsAttack'), s));
-  const neuro = s === 'B' ? neurocineticsAroBurst(x.traits) : 0;
+  const neuro = s === 'B' && neuroApplies ? neurocineticsAroBurst(x.traits) : 0;
   if (neuro) lines.push(line(neuro, t('skill.neurocinetics'), s));
   // In ARO a trooper rolls one die, whatever its burst (Total Reaction aside).
   if (s === 'B' && !keepsAroBurst(x) && sum(lines) !== 1) lines.push(line(1 - sum(lines), t('ledger.aroOneDie'), null));
@@ -214,7 +220,7 @@ function sdLines(x, s, inputs, dodge, t) {
     const sd = dodgeExtras(x.traits).sd;
     if (sd) lines.push(line(sd, t('ledger.dodgeSd'), s));
   } else {
-    const ft = fireteamBonuses(x.ftSize).sd;
+    const ft = isHackingProgram(x.weapon.row) ? 0 : fireteamBonuses(x.ftSize).sd;
     const own = attackBonuses(x).sd - ft;
     if (own) lines.push(line(own, t('ledger.loadoutOrBsAttack'), s));
     if (ft) lines.push(line(ft, t('ledger.fireteam', {size: x.ftSize}), s));
@@ -230,7 +236,11 @@ function saveLines(x, y, s, inputs, t) {
   // The weapon's own PS, then BS Attack (SR-1 / SR-2) as its own line: it is
   // the attacker's skill, not the weapon's (MULTI HMG 5, then -1).
   const lines = [line(weaponPS(row, {...mods, psMod: 0}), t('abbr.PS'), null)];
-  if (mods?.psMod) lines.push(line(mods.psMod, t('skill.bsAttackMod', {mod: `${t('abbr.SR')}${mods.psMod}`}), s));
+  // On a program it is the program's upgrade (Trinity (SR-1)).
+  const sr = `${t('abbr.SR')}${mods?.psMod}`;
+  if (mods?.psMod) {
+    lines.push(line(mods.psMod, isHackingProgram(row) ? t('ledger.programMod', {program: row.name, mod: sr}) : t('skill.bsAttackMod', {mod: sr}), s));
+  }
   if (!y) return {lines: reconcile(lines, total, t), total};
   const save = row.save ?? {attr: 'ARM'};
   const immune = Boolean(immunityAgainst(y.traits, row));
@@ -268,7 +278,7 @@ function saveLines(x, y, s, inputs, t) {
     }
   }
   const comms = isCommsAttack(row);
-  if (comms && firewallMod(y.traits)) lines.push(line(FIREWALL_SAVE_MOD, t('equip.firewall'), o));
+  if (comms && firewallOf(y)) lines.push(line(FIREWALL_SAVE_MOD, t('equip.firewall'), o));
   if (benefitsFromCover(y) || hasNanoscreen(y)) {
     const name = coverLabel(y, t);
     if (isCcAttack(x)) lines.push(line(COVER_SAVE_MOD, name, o, t('ledger.closeCombat')));
@@ -383,8 +393,14 @@ function sideLedger(x, y, s, rangeCm, inputs, vis, t) {
     return {kind: 'none', dice: t('ledger.notRolled', {choice: pseudoName(w, t)}), reason};
   }
   if (w.pseudo === 'reset') {
+    // Zero Pain rolls two dice.
     const sv = resetSv(x, y, s, inputs[`successValue${s}`], t);
-    return {kind: 'reset', dice: `${t('pseudo.reset')} ${svText(sv.total, t)}`, sv};
+    const burst = inputs[`burst${s}`] > 1 ? ` ${t('abbr.B')}${inputs[`burst${s}`]}` : '';
+    return {kind: 'reset', dice: `${pseudoName(w, t)}${burst} ${svText(sv.total, t)}`, sv};
+  }
+  // A program its target isn't a valid target for: nothing is rolled.
+  if (y && !reaches(x, y)) {
+    return {kind: 'none', dice: t('ledger.notRolled', {choice: w.row.name}), reason: t('ledger.cantTarget', {program: w.row.name})};
   }
   if (w.pseudo === 'dodge') {
     const sv = dodgeSv(x, y, s, inputs[`successValue${s}`], Boolean(vis[other(s)].blocked), t);
