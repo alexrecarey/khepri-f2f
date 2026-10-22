@@ -32,7 +32,7 @@ export const EMPTY_SIDE = {
   // In a Foxhole (units with Sapper): cover and Mimetism (-3); replaces inCover.
   sapper: false,
   // Situation chips on the side's own roll (rules/modifiers.js): the target is
-  // Targeted (+3 to a shot or program), Hacked (-3 to -12 to a Reset, 0 for
+  // Targeted (+3 to a shot or program against it, -3 to its Reset), Hacked (-3 to -12 to a Reset, 0 for
   // none), Immobilized-A (-6 to a Dodge).
   targeted: false,
   hackedReset: 0,

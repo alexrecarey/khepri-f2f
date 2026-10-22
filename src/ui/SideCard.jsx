@@ -91,8 +91,9 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
               {resolved.sapper ? `${t('chip.sapper')} ✓` : `+ ${t('chip.sapper')}`}
             </button>
           )}
-          {/* What the pick allows: Targeted for a shot or program, Hacked
-              (-3 to -12) for a Reset, IMM-A for a Dodge. */}
+          {/* States that matter to this pick: Targeted against a shot or
+              program or on a Reset, Hacked (-3 to -12) on a Reset, IMM-A on
+              a Dodge. */}
           {targetedChip && <ToggleChip side={side} field="targeted" on={sel.targeted} label={t('chip.targeted')} color={color} />}
           {hackedChip && (
             <PickChip side={side} chip="hackedReset" label={t('chip.hacked')} options={HACKED_RESET_MODS.map(String)}
