@@ -205,8 +205,8 @@ export function dodgeSuccessValue(profile, traits, mod = 0) {
 //   A BS Attack or Comms Attack against it gets +3 (not a CC Attack, nor a
 //   Direct Template: no roll), and its own Reset -3 (wiki, Targeted State).
 // - Hacked: -3 to -12 to the side's Reset, from the States earlier programs
-//   left it in (Spotlight, Carbonite, Oblivion, in any mix): one chip, not
-//   one per State.
+//   left it in (Isolated -9, Immobilized-B -3: -12 both): one chip, not one
+//   per State. Targeted's -3 is the Targeted chip.
 // - IMM-A: Immobilized-A, -6 to the side's Dodge.
 export const TARGETED_MOD = 3;
 export const TARGETED_RESET_MOD = -3;

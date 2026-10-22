@@ -79,7 +79,7 @@ Alex, 2026-10-22; the rest from the wiki (Hacking, Hacking Device, Hacking Progr
 - ECM: Hacker (−X): −X to a Hacking Program against its owner, on top of Firewall. Not against the Jammer (not a Hacker's program).
 - Situation chips that follow the side's pick (Alex, 2026-10-22):
   - Targeted: the side is in Targeted State (Alex; wiki, Targeted State). A BS Attack or Comms Attack against it gets +3, its own Reset −3 (Zero Pain is a program, not a Reset roll). Not a CC Attack (the State names BS Attacks, Comms Attacks and Discover) nor a Direct Template (no roll). The chip shows while the other side shoots or hacks, or the side Resets.
-  - Hacked (−3, −6, −9, −12): on a Reset (Zero Pain too), the MODs the States earlier programs left it in put on it, as one total: Spotlight, Carbonite and Oblivion combine, so the chip doesn't name them.
+  - Hacked (−3, −6, −9, −12): on a Reset (Zero Pain too), the MODs the States earlier programs left it in put on it, as one total, so the chip doesn't name them: Oblivion's Isolated −9 and Carbonite's Immobilized-B −3 make −12 together (Alex, 2026-10-22). Targeted's −3 is the Targeted chip.
   - IMM-A (−6): on a Dodge, the trooper is Immobilized-A.
   - All are MODs: they count toward the ±12 cap.
 - Not modelled: Repeaters' reach is assumed, a Possessed TAG's Total Control back to Normal.
