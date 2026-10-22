@@ -9,7 +9,8 @@ import {stateCaused} from '../army/weapons.js';
 import {buildLedger} from './ledger.js';
 import {deriveInputs} from './matchup.js';
 import {rangeModFor} from './ranges.js';
-import {pseudoWeapons, trooperWeapons} from './trooper.js';
+import {readFileSync} from 'node:fs';
+import {pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
 import {hasNoEffect} from './saves.js';
 import {woundStates} from './woundStates.js';
 
@@ -31,7 +32,7 @@ function side(p, key, extra = {}) {
   const weapon = trooperWeapons(o, W, traits).find((w) => w.key === key)
     ?? trooperPrograms(traits).find((w) => w.key === key)
     ?? pseudoWeapons(traits).find((w) => w.key === key) ?? null;
-  return {profile: p, option: o, traits, weapon, inCover: false, firewall: 0, ftSize: 1, ...extra};
+  return {profile: p, option: o, traits, weapon, inCover: false, ftSize: 1, ...extra};
 }
 
 // deriveInputs, with "How the dice were built" checked against every number.
@@ -152,14 +153,15 @@ test('Face to Face: Dodge can\'t evade a program (Normal Roll); Reset is opposed
   assert.equal(shot.inputs.burstB, 0);
 });
 
-test('Firewall: the chip or the trooper\'s own, the best one; +3 to the save; ECM: Hacker on programs only', () => {
+test('Firewall: the chip, which starts on the trooper\'s own; +3 to the save; ECM: Hacker on programs only', () => {
   const tag = profile({type: 'TAG', bts: 6});
   const at = (target) => derive({active: side(hacker(), 'hack:carbonite'), reactive: target, rangeCm: 40}).inputs;
   assert.equal(at(side(tag, '1:', {firewall: -3})).successValueA, 10);
   assert.equal(at(side(tag, '1:', {firewall: -3})).armB, 6 + 3);
   const own = profile({type: 'TAG', bts: 6, equip: [{id: EQUIP.TINBOT_FIREWALL, name: 'TinBot: Firewall', extra: ['-3']}]});
-  assert.equal(at(side(own, '1:', {firewall: -6})).successValueA, 7);   // the chip's -6 is better
-  assert.equal(at(side(own, '1:')).successValueA, 10);
+  assert.equal(at(side(own, '1:', {firewall: -6})).successValueA, 7);   // the player's pick
+  assert.equal(at(side(own, '1:', {firewall: 0})).successValueA, 13);   // or none
+  assert.equal(at(side(tag, '1:')).successValueA, 13);                   // no Firewall of its own: off
   const ecm = profile({type: 'TAG', bts: 6, equip: [{id: EQUIP.ECM_HACKER, name: 'ECM: Hacker', extra: ['-3']}]});
   assert.equal(at(side(ecm, '1:', {firewall: -3})).successValueA, 7);   // ECM and Firewall add up
 });
@@ -183,4 +185,20 @@ test('upgrades reach the dice: Trinity (AP) halves BTS, (SR-1) lowers PS, (-3) g
   const r = derive({active: side(khd, 'hack:trinity'), reactive: side(target, 'reset'), rangeCm: 40});
   assert.equal(r.inputs.damageA + r.inputs.armB, 6 - 1 + 3);
   assert.equal(r.inputs.successValueB, 11);
+});
+
+test('the Firewall chip starts on the trooper\'s own Firewall, off without one', () => {
+  const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
+  const sel = (pred) => {
+    for (const u of army.units) for (const [fid, {groups}] of Object.entries(u.byFaction)) for (const g of groups) for (const o of g.options) {
+      if (pred(g.profiles[0], o)) return {unitId: u.id, factionId: Number(fid), groupId: g.id, profileId: g.profiles[0].id, optionId: o.id};
+    }
+    return null;
+  };
+  const own = sel((p, o) => o.equip.some((e) => (e.extra ?? []).includes('UPGRADE: Firewall (-3)')));
+  assert.equal(resolveSelection(army, own).firewall, -3);
+  assert.equal(resolveSelection(army, {...own, firewall: -6}).firewall, -6);
+  assert.equal(resolveSelection(army, {...own, firewall: 0}).firewall, 0);
+  const none = sel((p, o) => p.type === 'LI' && o.equip.length === 0 && !(p.equip ?? []).length);
+  assert.equal(resolveSelection(army, none).firewall, 0);
 });

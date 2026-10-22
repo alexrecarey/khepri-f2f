@@ -276,7 +276,7 @@ export default {
   'side.weapon': 'Arma',
   'side.notRolled': 'No se tira: {weapons}',
   'chip.cover': 'Cobertura',
-  'chip.firewall': 'Firewall {mod}',
+  'chip.firewall': 'Firewall',
   'chip.sapper': 'Zapador',
   'chip.fireteam': 'Fireteam',
   'chip.allies': 'Aliados',

@@ -1,7 +1,6 @@
 // Situation chips with an inline editor: tapped, a chip opens in place
 // (ui.edit names which), a pick or × closes it.
 import PropTypes from 'prop-types';
-import {FIREWALL_CHIPS} from '../rules/trooper.js';
 import {dispatch, useAppState} from '../state/store.js';
 import {useT} from './i18n.jsx';
 
@@ -74,21 +73,4 @@ PickChip.propTypes = {
   side: PropTypes.oneOf(['A', 'B']).isRequired, chip: PropTypes.string.isRequired, label: PropTypes.string.isRequired,
   options: PropTypes.arrayOf(PropTypes.string).isRequired, value: PropTypes.number, onPick: PropTypes.func.isRequired,
   color: PropTypes.string.isRequired,
-};
-
-// Against a Comms Attack: Firewall -3 and Firewall -6, one or neither (a
-// tap on the picked one drops it). Cover does nothing there, so these take
-// its place (Alex, 2026-10-22).
-export function FirewallChips({side, value, color}) {
-  const t = useT();
-  return FIREWALL_CHIPS.map((mod) => (
-    <button type="button" key={mod} className={`chip${value === mod ? ` on ${color}` : ''}`} aria-pressed={value === mod}
-      onClick={() => patch(side, {firewall: value === mod ? 0 : mod})}>
-      {value === mod ? `${t('chip.firewall', {mod})} ✓` : `+ ${t('chip.firewall', {mod})}`}
-    </button>
-  ));
-}
-
-FirewallChips.propTypes = {
-  side: PropTypes.oneOf(['A', 'B']).isRequired, value: PropTypes.number.isRequired, color: PropTypes.string.isRequired,
 };

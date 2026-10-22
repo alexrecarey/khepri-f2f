@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import {FIRETEAM_MIN} from '../rules/modifiers.js';
 import {ROLE} from '../state/schema.js';
 import {dispatch} from '../state/store.js';
-import {CountChip, FirewallChips, PickChip} from './Chips.jsx';
+import {FIREWALL_CHIPS} from '../rules/trooper.js';
+import {CountChip, PickChip} from './Chips.jsx';
 import {CardCrest} from './Crest.jsx';
 import {SiteMark} from './icons.jsx';
 import Plasma from './Plasma.jsx';
@@ -67,8 +68,13 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
       {option && <WeaponButtons side={side} groups={groups} selected={sel.weaponKey} color={color} />}
       {unit && (
         <div className="row-wrap">
-          {/* Hacked: Firewall in place of cover, which does nothing against a Comms Attack. */}
-          {hacked && <FirewallChips side={side} value={resolved.firewall} color={color} />}
+          {/* Hacked: Firewall (-3 / -6) in place of cover, which does nothing
+              against a Comms Attack. Starts on the trooper's own. */}
+          {hacked && (
+            <PickChip side={side} chip="firewall" label={t('chip.firewall')} options={FIREWALL_CHIPS.map(String)}
+              value={FIREWALL_CHIPS.includes(resolved.firewall) ? FIREWALL_CHIPS.indexOf(resolved.firewall) : null} color={color}
+              onPick={(i) => patch(side, {firewall: i == null ? 0 : FIREWALL_CHIPS[i]})} />
+          )}
           {/* Cover or, for Sapper, the Foxhole (its own cover): one or the other. */}
           {!hacked && !noCover && (
             <button type="button" className={`chip${sel.inCover && !resolved.sapper ? ` on ${color}` : ''}`} aria-pressed={sel.inCover && !resolved.sapper}
