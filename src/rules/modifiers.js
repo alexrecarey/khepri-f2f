@@ -189,6 +189,21 @@ export function dodgeSuccessValue(profile, traits, mod = 0) {
   return clamp(LIMITS.successValue, sv + capMods(dodge.mod + mod));
 }
 
+// Situation chips a side's own roll takes (Alex, 2026-10-22):
+// - Targeted: the other trooper is Targeted (Spotlight, a Forward Observer...),
+//   +3 to a BS Attack or a Hacking Program against it. Not to a CC Attack or
+//   a Direct Template (no roll).
+// - Hacked: -3 to -12 to the side's Reset, from the States earlier programs
+//   left it in (Spotlight, Carbonite, Oblivion, in any mix): one chip, not
+//   one per State.
+// - IMM-A: Immobilized-A, -6 to the side's Dodge.
+export const TARGETED_MOD = 3;
+export const HACKED_RESET_MODS = [-3, -6, -9, -12];
+export const IMM_A_DODGE_MOD = -6;
+export const targetedMod = (x) => (x?.targeted && x.weapon?.row && !x.weapon.cc && !isTemplate(x.weapon.row) ? TARGETED_MOD : 0);
+export const hackedResetMod = (x) => (x?.weapon?.pseudo === 'reset' && HACKED_RESET_MODS.includes(x.hackedReset) ? x.hackedReset : 0);
+export const immADodgeMod = (x) => (x?.weapon?.pseudo === 'dodge' && x.immA ? IMM_A_DODGE_MOD : 0);
+
 // Reset Success Value: WIP plus `mod` (the opponent's BS Attack (-X),
 // Surprise Attack), capped at +/-12. No Fireteam bonus: that is Dodge's.
 export function resetSuccessValue(profile, mod = 0) {

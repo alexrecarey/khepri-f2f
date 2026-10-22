@@ -61,7 +61,7 @@ Alex, 2026-10-20: Comms Attacks are opposed by Reset; the Jammer's success cause
 - A failed save is Isolated, not a wound: the results show Isolated.
 - Immunities don't work against Comms Attacks, except an Immunity to a State: Immunity (Isolated) leaves the Jammer without effect, and so does Warhorse, which makes its user immune to Isolated (Alex, 2026-10-20); Immunity (IMM-B) would stop an Immobilized one (Alex, 2026-10-20). Immunity (BTS), (Enhanced), (Critical), (AP)… do nothing against them.
 - The Jammer is never the default weapon.
-- Not modelled: the Technical Weapons (Tohaa PT: Endgame, Eraser, Mirrorball), the Cybermine (a Deployable), Isolated's −9 to Reset.
+- Not modelled: the Technical Weapons (Tohaa PT: Endgame, Eraser, Mirrorball), the Cybermine (a Deployable). A State's MOD to Reset (Isolated's −9...) is the Hacked chip (Hacking Programs).
 
 ## Hacking Programs
 Alex, 2026-10-22; the rest from the wiki (Hacking, Hacking Device, Hacking Programs Chart, Firewall, ECM, Zero Pain). Code: `src/army/hacking.js` (the chart, devices, upgrades, targets), `src/rules/modifiers.js` (firewallOf, ecmHackerMod, programSvMods, reaches).
@@ -75,9 +75,14 @@ Alex, 2026-10-22; the rest from the wiki (Hacking, Hacking Device, Hacking Progr
 - Targets: Carbonite and Oblivion need a TAG, HI, REM, VH or a Hacker; Total Control a TAG; Trinity a Hacker; Spotlight anyone. Against anything else the program stays in the list but isn't rolled ("can't target this trooper"), so the other side's roll is a Normal Roll (Alex). No trooper in the Army data has Non-Hackable.
 - Face to Face (Alex): a program against a shot or against another program is opposed; against Reset or Zero Pain opposed; against a Dodge not (the Dodge isn't rolled, the program is a Normal Roll). Reset or Zero Pain against a shot isn't rolled.
 - Zero Pain (Hacker skill or UPGRADE): a better Reset, two WIP rolls in either turn, −3 to the Comms Attack. Shown, like Reset, only against a Comms Attack.
-- Firewall against a Comms Attack (the Jammer too): the target's Cover chip gives way to one Firewall chip, −3 or −6 (Alex). It starts on the trooper's own Firewall (Hacking Device or Hacker UPGRADE, TinBot), off without one; the player can change it (only one Firewall counts, the player picks). It also gives +3 to the Saving Roll.
+- Firewall against a Comms Attack (the Jammer too): the target's Cover chip gives way to one Firewall chip, −3 or −6 (Alex). It starts on the trooper's own Firewall (Hacking Device or Hacker UPGRADE, TinBot), off without one. The player can pick the other value (only one Firewall counts, the player picks) but can't switch off a Firewall of the trooper's own (Alex). It also gives +3 to the Saving Roll.
 - ECM: Hacker (−X): −X to a Hacking Program against its owner, on top of Firewall. Not against the Jammer (not a Hacker's program).
-- Not modelled: Repeaters' reach is assumed, Targeted's bonus to a later program, a Possessed TAG's Total Control back to Normal.
+- Situation chips that follow the side's pick (Alex, 2026-10-22):
+  - Targeted (+3): the other trooper is Targeted, +3 to a shot or a program against it. Not on a CC Attack, a Direct Template (no roll) or a Dodge / Reset.
+  - Hacked (−3, −6, −9, −12): on a Reset (Zero Pain too), the MODs the States earlier programs left it in put on it, as one total: Spotlight, Carbonite and Oblivion combine, so the chip doesn't name them.
+  - IMM-A (−6): on a Dodge, the trooper is Immobilized-A.
+  - All are MODs: they count toward the ±12 cap.
+- Not modelled: Repeaters' reach is assumed, a Possessed TAG's Total Control back to Normal.
 
 ## Close combat
 Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Warrior, Weapon Chart). Code: `src/rules/closeCombat.js`.

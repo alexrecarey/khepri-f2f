@@ -45,9 +45,10 @@ CountChip.propTypes = {
 };
 
 // One item from a list the player picks with a chip: closed, "+ Team-Ops" or
-// "Team-Ops: BS+1"; tapped, one button per option and × for none. `value` is
-// the picked index or null; onPick gets the same. Hidden with no options.
-export function PickChip({side, chip, label, options, value, onPick, color}) {
+// "Team-Ops: BS+1"; tapped, one button per option and × for none (not when
+// `required`: a Firewall of the trooper's own). `value` is the picked index or
+// null; onPick gets the same. Hidden with no options.
+export function PickChip({side, chip, label, options, value, onPick, color, required = false}) {
   const t = useT();
   const [editing, setEditing] = useEditing(side, chip);
   const pick = (i) => { onPick(i); setEditing(false); };
@@ -60,7 +61,7 @@ export function PickChip({side, chip, label, options, value, onPick, color}) {
         {options.map((o, i) => (
           <button type="button" key={i} className={`opt${i === value ? ' on' : ''}`} aria-pressed={i === value} onClick={() => pick(i)}>{o}</button>
         ))}
-        <button type="button" className="n" aria-label={t('chip.none', {label})} onClick={() => pick(null)}>×</button>
+        {!required && <button type="button" className="n" aria-label={t('chip.none', {label})} onClick={() => pick(null)}>×</button>}
       </span>
     );
   }
@@ -72,5 +73,20 @@ export function PickChip({side, chip, label, options, value, onPick, color}) {
 PickChip.propTypes = {
   side: PropTypes.oneOf(['A', 'B']).isRequired, chip: PropTypes.string.isRequired, label: PropTypes.string.isRequired,
   options: PropTypes.arrayOf(PropTypes.string).isRequired, value: PropTypes.number, onPick: PropTypes.func.isRequired,
-  color: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired, required: PropTypes.bool,
+};
+
+// An on / off situation: "+ Targeted", tapped "Targeted ✓". `field` is the
+// side's selection field it sets.
+export function ToggleChip({side, field, on, label, color}) {
+  return (
+    <button type="button" className={`chip${on ? ` on ${color}` : ''}`} aria-pressed={on} onClick={() => patch(side, {[field]: !on})}>
+      {on ? `${label} ✓` : `+ ${label}`}
+    </button>
+  );
+}
+
+ToggleChip.propTypes = {
+  side: PropTypes.oneOf(['A', 'B']).isRequired, field: PropTypes.string.isRequired, on: PropTypes.bool.isRequired,
+  label: PropTypes.string.isRequired, color: PropTypes.string.isRequired,
 };

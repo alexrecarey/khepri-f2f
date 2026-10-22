@@ -27,7 +27,8 @@ import {AMMO} from '../engine/calculate.js';
 import {
   COVER_BS_MOD, COVER_SAVE_MOD, FIREWALL_SAVE_MOD, LIMITS, MOD_CAP, albedoMod, albedoValue, attackBonuses, attackStat, benefitsFromCover, capMods,
   bangbombMod, bangbombValue, cancelsBangbomb, coverBsMod, dodgeExtras, evades, fireteamBonuses, firewallOf, hasNanoscreen, ignoresCoverOnSaves,
-  keepsAroBurst, mimetismMod, neurocineticsAroBurst, mimetismValue, msvName, opposingMods, programSvMods, reaches,
+  hackedResetMod, immADodgeMod, keepsAroBurst, mimetismMod, neurocineticsAroBurst, mimetismValue, msvName, opposingMods, programSvMods, reaches,
+  targetedMod,
 } from './modifiers.js';
 import {RANGE_BANDS, bandFrom, rangeModFor} from './ranges.js';
 import {hasImmunity, immunityAgainst, saveHalving} from './saves.js';
@@ -86,6 +87,8 @@ function attackSv(x, y, s, rangeCm, total, vis, t) {
   if (mods.sv) lines.push(line(mods.sv, t('ledger.loadout'), s));
   // A program's Attack MOD is x's, the target's ECM: Hacker the target's.
   for (const m of programSvMods(x, y, t)) lines.push(line(m.value, m.label, m.target ? other(s) : s));
+  // Targeted is the target's State.
+  if (targetedMod(x)) lines.push(line(targetedMod(x), t('chip.targeted'), other(s)));
   if (y) {
     // Mimetism, with what the attacker's MSV cancels shown struck. Mimetism
     // and Albedo need LoF: struck against a Jammer.
@@ -155,7 +158,9 @@ function dodgeSv(x, y, s, total, yBlocked, t) {
     const v = bangbombValue(x.traits);
     lines.push(line(v, t('equip.bangbombMod', {mod: `+${v}`}), s, t('ledger.templateWeapon')));
   }
+  if (immADodgeMod(x)) lines.push(line(immADodgeMod(x), t('chip.immA'), s));
   if (y && !yBlocked) lines.push(...opposingLines(y, x, o, o === 'A', t));
+  capLine(lines, t);
   clampSv(lines, t);
   return {lines: reconcile(lines, total, t), total};
 }
@@ -164,7 +169,9 @@ function dodgeSv(x, y, s, total, yBlocked, t) {
 function resetSv(x, y, s, total, t) {
   const o = other(s);
   const lines = [line(x.profile.wip ?? 0, statLabel(x, 'wip', t), null)];
+  if (hackedResetMod(x)) lines.push(line(hackedResetMod(x), t('chip.hacked'), s));
   if (y) lines.push(...opposingLines(y, x, o, o === 'A', t));
+  capLine(lines, t);
   clampSv(lines, t);
   return {lines: reconcile(lines, total, t), total};
 }
