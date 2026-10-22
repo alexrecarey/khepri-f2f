@@ -3,13 +3,13 @@
 // them (smoke=1, wn=1) are shared, rangeB is the reactive's own distance when
 // the range is split.
 import {CC_ALLIES_MAX} from '../rules/closeCombat.js';
-import {FIRETEAM_MAX, FIRETEAM_MIN} from '../rules/modifiers.js';
+import {FIRETEAM_MAX, FIRETEAM_MIN, HACKED_RESET_MODS} from '../rules/modifiers.js';
 import {RANGE_BANDS} from '../rules/ranges.js';
 import {FIREWALL_CHIPS} from '../rules/trooper.js';
 
 const EMPTY = {
   unitId: null, factionId: null, groupId: null, profileId: null, optionId: null,
-  weaponKey: null, inCover: false, firewall: null, sapper: false, surpriseAttack: false, upgrade: null, ball: null, ccAllies: 0, berserk: false,
+  weaponKey: null, inCover: false, firewall: null, targeted: false, hackedReset: 0, immA: false, sapper: false, surpriseAttack: false, upgrade: null, ball: null, ccAllies: 0, berserk: false,
 };
 
 // param name -> selection field, and how to read it back
@@ -36,6 +36,9 @@ export function encodeMatchup({selA, selB, ftSize, rangeCm, rangeCmB, zones}) {
     // firewall=3 / 6, or 0 for none; left out for the trooper's own.
     if (sel.firewall === 0 || FIREWALL_CHIPS.includes(sel.firewall)) out[`firewall${side}`] = String(-sel.firewall);
     if (sel.sapper) out[`sapper${side}`] = '1';
+    if (sel.targeted) out[`targeted${side}`] = '1';
+    if (HACKED_RESET_MODS.includes(sel.hackedReset)) out[`hacked${side}`] = String(-sel.hackedReset);
+    if (sel.immA) out[`imma${side}`] = '1';
     if (sel.surpriseAttack) out[`surprise${side}`] = '1';
     if (sel.berserk) out[`berserk${side}`] = '1';
     if (ftSize?.[side] > 1) out[`ft${side}`] = String(ftSize[side]);
@@ -70,6 +73,10 @@ export function decodeMatchup(params) {
     const firewall = raw ? 0 - Number(raw) : null;
     sel.firewall = firewall === 0 || FIREWALL_CHIPS.includes(firewall) ? firewall : null;
     sel.sapper = get(`sapper${s}`) === '1';
+    sel.targeted = get(`targeted${s}`) === '1';
+    const hacked = -Number(get(`hacked${s}`));
+    sel.hackedReset = HACKED_RESET_MODS.includes(hacked) ? hacked : 0;
+    sel.immA = get(`imma${s}`) === '1';
     sel.surpriseAttack = get(`surprise${s}`) === '1';
     sel.berserk = get(`berserk${s}`) === '1';
     const allies = Number(get(`allies${s}`));

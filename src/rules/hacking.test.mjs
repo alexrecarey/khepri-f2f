@@ -160,7 +160,6 @@ test('Firewall: the chip, which starts on the trooper\'s own; +3 to the save; EC
   assert.equal(at(side(tag, '1:', {firewall: -3})).armB, 6 + 3);
   const own = profile({type: 'TAG', bts: 6, equip: [{id: EQUIP.TINBOT_FIREWALL, name: 'TinBot: Firewall', extra: ['-3']}]});
   assert.equal(at(side(own, '1:', {firewall: -6})).successValueA, 7);   // the player's pick
-  assert.equal(at(side(own, '1:', {firewall: 0})).successValueA, 13);   // or none
   assert.equal(at(side(tag, '1:')).successValueA, 13);                   // no Firewall of its own: off
   const ecm = profile({type: 'TAG', bts: 6, equip: [{id: EQUIP.ECM_HACKER, name: 'ECM: Hacker', extra: ['-3']}]});
   assert.equal(at(side(ecm, '1:', {firewall: -3})).successValueA, 7);   // ECM and Firewall add up
@@ -187,7 +186,7 @@ test('upgrades reach the dice: Trinity (AP) halves BTS, (SR-1) lowers PS, (-3) g
   assert.equal(r.inputs.successValueB, 11);
 });
 
-test('the Firewall chip starts on the trooper\'s own Firewall, off without one', () => {
+test('the Firewall chip starts on the trooper\'s own Firewall, which can\'t be switched off; off without one', () => {
   const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
   const sel = (pred) => {
     for (const u of army.units) for (const [fid, {groups}] of Object.entries(u.byFaction)) for (const g of groups) for (const o of g.options) {
@@ -198,7 +197,42 @@ test('the Firewall chip starts on the trooper\'s own Firewall, off without one',
   const own = sel((p, o) => o.equip.some((e) => (e.extra ?? []).includes('UPGRADE: Firewall (-3)')));
   assert.equal(resolveSelection(army, own).firewall, -3);
   assert.equal(resolveSelection(army, {...own, firewall: -6}).firewall, -6);
-  assert.equal(resolveSelection(army, {...own, firewall: 0}).firewall, 0);
+  assert.equal(resolveSelection(army, {...own, firewall: 0}).firewall, -3);
+  assert.equal(resolveSelection(army, {...own, firewall: null}).firewall, -3);
   const none = sel((p, o) => p.type === 'LI' && o.equip.length === 0 && !(p.equip ?? []).length);
   assert.equal(resolveSelection(army, none).firewall, 0);
+  assert.equal(resolveSelection(army, {...none, firewall: -6}).firewall, -6);
+  assert.equal(resolveSelection(army, {...none, firewall: 0}).firewall, 0);
+});
+
+test('Targeted: +3 to a shot or a program against the target; nothing on a Dodge', () => {
+  const hi = profile({type: 'HI'});
+  const shot = derive({active: side(profile(), '1:', {targeted: true}), reactive: side(hi, 'dodge'), rangeCm: 40});
+  assert.equal(shot.inputs.successValueA, 12 + 3 + 3);   // BS, Range +3, Targeted
+  const program = derive({active: side(hacker(), 'hack:carbonite', {targeted: true}), reactive: side(hi, 'reset'), rangeCm: 40});
+  assert.equal(program.inputs.successValueA, 13 + 3);
+  const dodge = derive({active: side(profile(), '1:'), reactive: side(hi, 'dodge', {targeted: true}), rangeCm: 40});
+  assert.equal(dodge.inputs.successValueB, 12);
+});
+
+test('Hacked: -3 to -12 on a Reset only, within the MOD cap', () => {
+  const hi = hacker(HD, {type: 'HI', wip: 13});
+  const reset = (extra, attacker = side(hacker(), 'hack:carbonite')) => derive({active: attacker, reactive: side(hi, 'reset', extra), rangeCm: 40});
+  assert.equal(reset({hackedReset: -6}).inputs.successValueB, 7);
+  // -12 and Trinity's (-3): MODs never pass -12.
+  const khd = hacker({...KHD, extra: ['UPGRADE: Trinity (-3)']});
+  const capped = reset({hackedReset: -12}, side(khd, 'hack:trinity'));
+  assert.equal(capped.inputs.successValueB, 1);
+  assert.ok(capped.ledger.B.sv.lines.some((l) => l.label.includes('MOD')), JSON.stringify(capped.ledger.B.sv.lines));
+  // Not a Reset: the chip does nothing.
+  const dodging = derive({active: side(profile(), '1:'), reactive: side(hi, 'dodge', {hackedReset: -9}), rangeCm: 40});
+  assert.equal(dodging.inputs.successValueB, 12);
+});
+
+test('IMM-A: -6 to a Dodge only', () => {
+  const r = derive({active: side(profile(), '1:'), reactive: side(profile(), 'dodge', {immA: true}), rangeCm: 40});
+  assert.equal(r.inputs.successValueB, 12 - 6);
+  assert.ok(r.ledger.B.sv.lines.some((l) => l.label === 'IMM-A' && l.value === -6));
+  const shot = derive({active: side(profile(), '1:'), reactive: side(profile(), '1:', {immA: true}), rangeCm: 40});
+  assert.equal(shot.inputs.successValueB, 12 + 3);
 });

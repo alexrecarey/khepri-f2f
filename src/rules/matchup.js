@@ -8,7 +8,7 @@ import {causesWounds, hasContinuousDamage, isCommsAttack, isNonLethal, isTemplat
 import {
   COVER_SAVE_MOD, FIREWALL_SAVE_MOD, LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, capMods, clamp, coverBsMod, dodgeExtras,
   bangbombMod, dodgeSuccessValue, evades, fireteamBonuses, firewallOf, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod,
-  neurocineticsAroBurst, opposingMods, programSvMods, reaches, resetSuccessValue,
+  hackedResetMod, immADodgeMod, neurocineticsAroBurst, opposingMods, programSvMods, reaches, resetSuccessValue, targetedMod,
 } from './modifiers.js';
 import {rangeModFor} from './ranges.js';
 import {visibility, zoneName} from './visibility.js';
@@ -85,7 +85,7 @@ function attackInputs(x, y, rangeCm, side, say, opposing = 0, visMod = 0) {
   const program = total(programSvMods(x, y, say.t));
   const bonus = attackBonuses(x);
   // Every MOD counts toward the cap, Fireteam +1 BS included (Alex, 2026-10-10).
-  const modSum = bonus.bs + rangeMod + mim + albedo + cover + firewall + program + mods.sv + opposing + visMod;
+  const modSum = bonus.bs + rangeMod + mim + albedo + cover + firewall + program + targetedMod(x) + mods.sv + opposing + visMod;
   const modTotal = capMods(modSum);
   if (!outOfRange && modTotal !== modSum) say(side, 'note.modCap', {sum: signed(modSum), cap: signed(modTotal)});
   const sv = outOfRange
@@ -156,7 +156,7 @@ function hitInputs(x, y, side, say) {
   return out;
 }
 
-// A Dodge: one PH roll (Dodge MODs, Bangbomb and the Fireteam's +1 included,
+// A Dodge: one PH roll (Dodge MODs, Bangbomb, IMM-A and the Fireteam's +1 included,
 // Dodge (+1SD) as Special Dice) that causes no Saving Rolls. `incoming`: the
 // weapon being Dodged, if any.
 function dodgeInputs(x, side, opposing = 0, incoming = null) {
@@ -164,21 +164,21 @@ function dodgeInputs(x, side, opposing = 0, incoming = null) {
     [`ammo${side}`]: 'DODGE',
     [`burst${side}`]: 1,
     [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, dodgeExtras(x.traits).sd),
-    [`successValue${side}`]: dodgeSuccessValue(x.profile, x.traits, fireteamBonuses(x.ftSize).dodge + bangbombMod(x, incoming) + opposing),
+    [`successValue${side}`]: dodgeSuccessValue(x.profile, x.traits, fireteamBonuses(x.ftSize).dodge + bangbombMod(x, incoming) + immADodgeMod(x) + opposing),
     [`cont${side}`]: false,
     [`shock${side}`]: false,
   };
 }
 
 // A Reset: one WIP roll against a Comms Attack (the opponent's BS Attack
-// (-X) and Surprise Attack included) that causes no Saving Rolls, like a Dodge.
-// Zero Pain: two WIP rolls, in either turn.
+// (-X), Surprise Attack and the Hacked chip included) that causes no Saving
+// Rolls, like a Dodge. Zero Pain: two WIP rolls, in either turn.
 function resetInputs(x, side, opposing = 0) {
   return {
     [`ammo${side}`]: 'DODGE',
     [`burst${side}`]: x.weapon.zeroPain ? ZERO_PAIN.burst : 1,
     [`bonusBurst${side}`]: 0,
-    [`successValue${side}`]: resetSuccessValue(x.profile, opposing),
+    [`successValue${side}`]: resetSuccessValue(x.profile, hackedResetMod(x) + opposing),
     [`cont${side}`]: false,
     [`shock${side}`]: false,
     [`template${side}`]: false,

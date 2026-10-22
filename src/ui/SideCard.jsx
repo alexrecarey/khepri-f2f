@@ -1,11 +1,11 @@
 // One side of the matchup: the picked trooper's card (weapon buttons and the
 // situation chips), or the empty slot that asks for one.
 import PropTypes from 'prop-types';
-import {FIRETEAM_MIN} from '../rules/modifiers.js';
+import {FIRETEAM_MIN, HACKED_RESET_MODS, firewallMod} from '../rules/modifiers.js';
 import {ROLE} from '../state/schema.js';
 import {dispatch} from '../state/store.js';
 import {FIREWALL_CHIPS} from '../rules/trooper.js';
-import {CountChip, PickChip} from './Chips.jsx';
+import {CountChip, PickChip, ToggleChip} from './Chips.jsx';
 import {CardCrest} from './Crest.jsx';
 import {SiteMark} from './icons.jsx';
 import Plasma from './Plasma.jsx';
@@ -52,7 +52,8 @@ EmptySlot.propTypes = {
 export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
   const t = useT();
   const color = ROLE[side];
-  const {sel, resolved, groups, cc, ccAlliesMax, noCover, hacked, surprise, berserk, teamOps, faction, crest, short, loadout} = view[side];
+  const {sel, resolved, groups, cc, ccAlliesMax, noCover, hacked, targetedChip, hackedChip, immAChip, surprise, berserk, teamOps, faction, crest, short,
+    loadout} = view[side];
   const unit = resolved?.unit;
   const option = resolved?.option;
 
@@ -69,12 +70,22 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
       {unit && (
         <div className="row-wrap">
           {/* Hacked: Firewall (-3 / -6) in place of cover, which does nothing
-              against a Comms Attack. Starts on the trooper's own. */}
+              against a Comms Attack. Starts on the trooper's own, which
+              can't be switched off. */}
           {hacked && (
             <PickChip side={side} chip="firewall" label={t('chip.firewall')} options={FIREWALL_CHIPS.map(String)}
               value={FIREWALL_CHIPS.includes(resolved.firewall) ? FIREWALL_CHIPS.indexOf(resolved.firewall) : null} color={color}
-              onPick={(i) => patch(side, {firewall: i == null ? 0 : FIREWALL_CHIPS[i]})} />
+              required={firewallMod(resolved.traits) !== 0} onPick={(i) => patch(side, {firewall: i == null ? 0 : FIREWALL_CHIPS[i]})} />
           )}
+          {/* What the pick allows: Targeted for a shot or program, Hacked
+              (-3 to -12) for a Reset, IMM-A for a Dodge. */}
+          {targetedChip && <ToggleChip side={side} field="targeted" on={sel.targeted} label={t('chip.targeted')} color={color} />}
+          {hackedChip && (
+            <PickChip side={side} chip="hackedReset" label={t('chip.hacked')} options={HACKED_RESET_MODS.map(String)}
+              value={HACKED_RESET_MODS.includes(sel.hackedReset) ? HACKED_RESET_MODS.indexOf(sel.hackedReset) : null} color={color}
+              onPick={(i) => patch(side, {hackedReset: i == null ? 0 : HACKED_RESET_MODS[i]})} />
+          )}
+          {immAChip && <ToggleChip side={side} field="immA" on={sel.immA} label={t('chip.immA')} color={color} />}
           {/* Cover or, for Sapper, the Foxhole (its own cover): one or the other. */}
           {!hacked && !noCover && (
             <button type="button" className={`chip${sel.inCover && !resolved.sapper ? ` on ${color}` : ''}`} aria-pressed={sel.inCover && !resolved.sapper}

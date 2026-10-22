@@ -11,6 +11,7 @@
 //   ca / cr            unit crest slugs (src/army/crests.js)
 //   fa / fr            vanilla faction ids, whose crest stands in
 import {ccAllies, usesBerserk} from '../rules/closeCombat.js';
+import {hackedResetMod, immADodgeMod, targetedMod} from '../rules/modifiers.js';
 import {RANGE_BANDS, bandLabel} from '../rules/ranges.js';
 import {shortIsc, shortWeaponName} from '../army/names.js';
 import {DEFAULT_PARAMS} from '../engine/params.js';
@@ -67,6 +68,12 @@ function weaponShort(w, t) {
 const inFoxhole = (x) => Boolean(x.resolved.sapper) && !x.hacked;
 const inCover = (x) => x.sel.inCover && !x.resolved.sapper && !x.hacked;
 const firewall = (x, t) => (x.hacked && x.resolved.firewall ? t('roll.firewall', {mod: x.resolved.firewall}) : null);
+// The situation chips on the side's own roll, while its pick uses them.
+const ownChips = (x, t) => [
+  targetedMod(x.resolved) && t('chip.targeted'),
+  hackedResetMod(x.resolved) && `${t('chip.hacked')} (${hackedResetMod(x.resolved)})`,
+  immADodgeMod(x.resolved) && t('chip.immA'),
+];
 const fireteam = (x, t) => (x.resolved.ftSize > 1 ? t('ledger.fireteam', {size: x.resolved.ftSize}) : null);
 const surprise = (x, role) => role === 'A' && x.sel.surpriseAttack;
 const berserk = (x, role) => usesBerserk(x.resolved, role === 'A');
@@ -102,7 +109,7 @@ export function matchupRollSummary(view, s, t = tEn) {
   const bits = [rangeText(view, t), ...zoneNames(view, t)];
   if (inFoxhole(A) || inFoxhole(B)) bits.push(t('skill.foxhole'));
   if (inCover(A) || inCover(B)) bits.push(t('roll.cover'));
-  bits.push(firewall(A, t), firewall(B, t));
+  bits.push(firewall(A, t), firewall(B, t), ...ownChips(A, t), ...ownChips(B, t));
   for (const x of [A, B]) bits.push(fireteam(x, t), ...teamOps(x));
   bits.push(allies(A, B, t), allies(B, A, t));
   if (surprise(A, 'A')) bits.push(t('roll.surpriseAttack'));
@@ -126,7 +133,7 @@ export function matchupRollSummary(view, s, t = tEn) {
 export function matchupShareCard(view, h, t = tEn) {
   const side = (role, key) => {
     const x = view[role];
-    const situation = [inFoxhole(x) && t('skill.foxhole'), inCover(x) && t('roll.cover'), firewall(x, t), fireteam(x, t), allies(x, view[role === 'A' ? 'B' : 'A'], t),
+    const situation = [inFoxhole(x) && t('skill.foxhole'), inCover(x) && t('roll.cover'), firewall(x, t), ...ownChips(x, t), fireteam(x, t), allies(x, view[role === 'A' ? 'B' : 'A'], t),
       surprise(x, role) && t('roll.surpriseAttack'), berserk(x, role) && t('skill.berserk'), ...teamOps(x)];
     return {
       n: h.text[key], l: h.label[key],

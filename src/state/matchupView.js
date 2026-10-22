@@ -11,7 +11,7 @@ import {fullParams} from '../engine/params.js';
 import {defaultWeapon, sortWeapons} from '../rules/defaultWeapon.js';
 import {buildLedger} from '../rules/ledger.js';
 import {deriveInputs} from '../rules/matchup.js';
-import {surpriseAttackMod} from '../rules/modifiers.js';
+import {surpriseAttackMod, targetedMod} from '../rules/modifiers.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {visibility} from '../rules/visibility.js';
 import {berserkMod, ccAlliesMax, hasBerserk, isCcAttack} from '../rules/closeCombat.js';
@@ -85,6 +85,11 @@ function sideView(army, sel, side, t) {
     groups: weaponGroups([...weapons, ...ccWeapons, ...programs, ...pseudo], ROLE[side], t),
     // No Cover: cover does nothing for it, so no Cover chip.
     noCover: hasSkill(resolved?.traits, SKILL.NO_COVER),
+    // Situation chips that follow the pick: Targeted for a shot or program
+    // that is rolled, Hacked for a Reset, IMM-A for a Dodge.
+    targetedChip: targetedMod({...resolved, targeted: true}) > 0,
+    hackedChip: resolved?.weapon?.pseudo === 'reset',
+    immAChip: resolved?.weapon?.pseudo === 'dodge',
     // Surprise Attack's MOD, offered only on the active side.
     surprise: side === 'A' ? surpriseAttackMod(resolved?.traits) : 0,
     // Berserk's MOD, offered only on the active side (a Long Skill) while it
@@ -105,7 +110,7 @@ function sideView(army, sel, side, t) {
 }
 
 const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], ccWeapons: [], programs: [], pseudo: [], groups: [], cc: false, ccAlliesMax: 0, noCover: false,
-  hacked: false, surprise: 0, berserk: null, teamOps: null,
+  hacked: false, targetedChip: false, hackedChip: false, immAChip: false, surprise: 0, berserk: null, teamOps: null,
   faction: null, vanilla: null, crest: null, short: null, loadout: null});
 
 

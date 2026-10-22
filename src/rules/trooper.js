@@ -84,8 +84,12 @@ export const pseudoName = (w, t = tEn) => t(`pseudo.${w.bangbomb ? 'bangbomb' : 
 // The Firewall chip's values (the MOD to the Comms Attack). The chip starts
 // on the trooper's own Firewall, off without one (Alex, 2026-10-22): `sel.firewall`
 // null is that default, 0 the player's "none", -3 / -6 the player's pick.
+// A Firewall of its own can't be switched off: "none" keeps it.
 export const FIREWALL_CHIPS = [-3, -6];
-const firewallChip = (v, traits) => (v == null ? firewallMod(traits) : FIREWALL_CHIPS.includes(v) ? v : 0);
+function firewallChip(v, traits) {
+  const own = firewallMod(traits);
+  return FIREWALL_CHIPS.includes(v) ? v : own;
+}
 
 // Resolves a picker selection (ids) against the army data. The returned
 // profile has the loadout's stat overrides and any Team-Ops upgrades applied;
@@ -131,6 +135,11 @@ export function resolveSelection(army, sel) {
     teamOps: teamOps && Boolean(unit.upgrades),
     upgrades, unsupportedUpgradeWeapons,
     inCover: Boolean(sel.inCover) || sapper,
+    // Situation chips on its own roll (modifiers.js targetedMod, hackedResetMod,
+    // immADodgeMod): read only while the weapon they need is picked.
+    targeted: Boolean(sel.targeted),
+    hackedReset: sel.hackedReset ?? 0,
+    immA: Boolean(sel.immA),
     // Its Firewall against a Comms Attack (the chip): -3, -6 or 0.
     firewall: firewallChip(sel.firewall, traits),
     canSapper,
