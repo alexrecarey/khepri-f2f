@@ -75,7 +75,7 @@ Alex, 2026-10-22; the rest from the wiki (Hacking, Hacking Device, Hacking Progr
 - Targets: Carbonite and Oblivion need a TAG, HI, REM, VH or a Hacker; Total Control a TAG; Trinity a Hacker; Spotlight anyone. Against anything else the program stays in the list but isn't rolled ("can't target this trooper"), so the other side's roll is a Normal Roll (Alex). No trooper in the Army data has Non-Hackable.
 - Face to Face (Alex): a program against a shot or against another program is opposed; against Reset or Zero Pain opposed; against a Dodge not (the Dodge isn't rolled, the program is a Normal Roll). Reset or Zero Pain against a shot isn't rolled.
 - Zero Pain (Hacker skill or UPGRADE): a better Reset, two WIP rolls in either turn, −3 to the Comms Attack. Shown, like Reset, only against a Comms Attack.
-- Firewall against a Comms Attack (the Jammer too): the target's Cover chip gives way to Firewall −3 and Firewall −6 chips (one at a time). Only one Firewall counts: the best of the chip and the trooper's own (Hacking Device or Hacker UPGRADE, TinBot). It also gives +3 to the Saving Roll.
+- Firewall against a Comms Attack (the Jammer too): the target's Cover chip gives way to one Firewall chip, −3 or −6 (Alex). It starts on the trooper's own Firewall (Hacking Device or Hacker UPGRADE, TinBot), off without one; the player can change it (only one Firewall counts, the player picks). It also gives +3 to the Saving Roll.
 - ECM: Hacker (−X): −X to a Hacking Program against its owner, on top of Firewall. Not against the Jammer (not a Hacker's program).
 - Not modelled: Repeaters' reach is assumed, Targeted's bonus to a later program, a Possessed TAG's Total Control back to Normal.
 

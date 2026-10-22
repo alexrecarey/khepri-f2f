@@ -64,10 +64,9 @@ export function firewallMod(traits) {
   return mods.length > 0 ? Math.min(...mods) : 0;
 }
 
-// The Firewall a side benefits from: its own (firewallMod), or the one the
-// player gives it with the Firewall chip (-3 / -6, say from a Fairy Dust or
-// another trooper's program), the best of the two (Alex, 2026-10-22).
-export const firewallOf = (side) => Math.min(firewallMod(side?.traits), side?.firewall ?? 0);
+// The Firewall a side benefits from: the Firewall chip (rules/trooper.js,
+// which starts on its own), else its own (firewallMod).
+export const firewallOf = (side) => side?.firewall ?? firewallMod(side?.traits);
 
 // ECM: Hacker (-X): an enemy Hacking Program against the trooper takes -X.
 export function ecmHackerMod(traits) {

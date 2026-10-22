@@ -9,7 +9,7 @@ import {FIREWALL_CHIPS} from '../rules/trooper.js';
 
 const EMPTY = {
   unitId: null, factionId: null, groupId: null, profileId: null, optionId: null,
-  weaponKey: null, inCover: false, firewall: 0, sapper: false, surpriseAttack: false, upgrade: null, ball: null, ccAllies: 0, berserk: false,
+  weaponKey: null, inCover: false, firewall: null, sapper: false, surpriseAttack: false, upgrade: null, ball: null, ccAllies: 0, berserk: false,
 };
 
 // param name -> selection field, and how to read it back
@@ -33,7 +33,8 @@ export function encodeMatchup({selA, selB, ftSize, rangeCm, rangeCmB, zones}) {
       if (sel[field] !== null && sel[field] !== undefined) out[`${param}${side}`] = String(sel[field]);
     }
     if (sel.inCover) out[`cover${side}`] = '1';
-    if (FIREWALL_CHIPS.includes(sel.firewall)) out[`firewall${side}`] = String(-sel.firewall);
+    // firewall=3 / 6, or 0 for none; left out for the trooper's own.
+    if (sel.firewall === 0 || FIREWALL_CHIPS.includes(sel.firewall)) out[`firewall${side}`] = String(-sel.firewall);
     if (sel.sapper) out[`sapper${side}`] = '1';
     if (sel.surpriseAttack) out[`surprise${side}`] = '1';
     if (sel.berserk) out[`berserk${side}`] = '1';
@@ -64,8 +65,10 @@ export function decodeMatchup(params) {
       sel[field] = v;
     }
     sel.inCover = get(`cover${s}`) === '1';
-    const firewall = -Number(get(`firewall${s}`));
-    sel.firewall = FIREWALL_CHIPS.includes(firewall) ? firewall : 0;
+    const raw = get(`firewall${s}`);
+    // 0 - n, not -n: "0" must read back as 0, not -0.
+    const firewall = raw ? 0 - Number(raw) : null;
+    sel.firewall = firewall === 0 || FIREWALL_CHIPS.includes(firewall) ? firewall : null;
     sel.sapper = get(`sapper${s}`) === '1';
     sel.surpriseAttack = get(`surprise${s}`) === '1';
     sel.berserk = get(`berserk${s}`) === '1';

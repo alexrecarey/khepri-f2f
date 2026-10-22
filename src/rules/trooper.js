@@ -7,7 +7,7 @@ import {unitById} from '../army/lookup.js';
 import {effectiveTraits, hasSkill, skillExtras} from '../army/traits.js';
 import {ammoTypes, bsWeapons, ccWeapons, hasAmmo, hasShockAmmo, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
 import {ccAttackSkill} from './closeCombat.js';
-import {bangbombValue, fireteamMax, fireteamSize} from './modifiers.js';
+import {bangbombValue, fireteamMax, fireteamSize, firewallMod} from './modifiers.js';
 import {tEn} from '../i18n/index.js';
 
 // What the trooper's BS Attack skill (profile, loadout or upgrade) does to
@@ -81,9 +81,11 @@ export function pseudoWeapons(traits, side = 'B') {
 // Name of a choice that is not a weapon: "Dodge", "Bangbomb", "Reset", "Zero Pain", "No ARO".
 export const pseudoName = (w, t = tEn) => t(`pseudo.${w.bangbomb ? 'bangbomb' : w.zeroPain ? 'zeroPain' : w.pseudo}`);
 
-// The Firewall chip's values (the MOD to the Comms Attack); 0 is none.
+// The Firewall chip's values (the MOD to the Comms Attack). The chip starts
+// on the trooper's own Firewall, off without one (Alex, 2026-10-22): `sel.firewall`
+// null is that default, 0 the player's "none", -3 / -6 the player's pick.
 export const FIREWALL_CHIPS = [-3, -6];
-const firewallChip = (v) => (FIREWALL_CHIPS.includes(v) ? v : 0);
+const firewallChip = (v, traits) => (v == null ? firewallMod(traits) : FIREWALL_CHIPS.includes(v) ? v : 0);
 
 // Resolves a picker selection (ids) against the army data. The returned
 // profile has the loadout's stat overrides and any Team-Ops upgrades applied;
@@ -129,8 +131,8 @@ export function resolveSelection(army, sel) {
     teamOps: teamOps && Boolean(unit.upgrades),
     upgrades, unsupportedUpgradeWeapons,
     inCover: Boolean(sel.inCover) || sapper,
-    // The Firewall the player gives it against a Comms Attack (chip): -3, -6 or 0.
-    firewall: firewallChip(sel.firewall),
+    // Its Firewall against a Comms Attack (the chip): -3, -6 or 0.
+    firewall: firewallChip(sel.firewall, traits),
     canSapper,
     sapper,
     // The player chose to use Surprise Attack (active side only).

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {decodeMatchup, encodeMatchup} from './matchupParams.js';
 
 const selA = {unitId: 42, factionId: 1102, groupId: 1, profileId: null, optionId: 3, weaponKey: '111:Hit Mode',
-  inCover: true, firewall: 0, sapper: false, surpriseAttack: true, upgrade: 2, ball: null, ccAllies: 3, berserk: true};
+  inCover: true, firewall: null, sapper: false, surpriseAttack: true, upgrade: 2, ball: null, ccAllies: 3, berserk: true};
 const selB = {unitId: 7, factionId: 107, groupId: null, profileId: 2, optionId: 1, weaponKey: 'hack:carbonite',
   inCover: false, firewall: -6, sapper: true, surpriseAttack: false, upgrade: null, ball: 0, ccAllies: 0, berserk: false};
 
@@ -19,7 +19,8 @@ test('matchup round-trips through URL params', () => {
   assert.equal(params.sapperB, '1');
   assert.equal(params.sapperA, undefined);
   assert.equal(params.firewallB, '6');
-  assert.equal(params.firewallA, undefined);
+  assert.equal(params.firewallA, undefined);           // the trooper's own Firewall
+  assert.equal(decodeMatchup(new URLSearchParams(encodeMatchup({selA: {...selA, firewall: 0}, ftSize: {}}))).A.firewall, 0);
   assert.equal(params.profileA, undefined);           // unset fields are left out
   const back = decodeMatchup(new URLSearchParams(params));
   assert.deepEqual(back.A, selA);
