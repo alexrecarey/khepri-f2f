@@ -52,13 +52,13 @@ test('result rows: active, fail, reactive by wounds, with cumulative chances', (
     {player: 'active', wounds: 0, chance: 0.25},
     {player: 'active', wounds: 1, chance: 0.15},
   ]));
-  assert.deepEqual(r.expected_wounds.map((x) => [x.id, x.player, x.wounds]),
+  assert.deepEqual(r.expectedWounds.map((x) => [x.id, x.player, x.wounds]),
     [[0, 'active', 0], [1, 'active', 1], [2, 'active', 2], [3, 'fail', 0], [4, 'reactive', 1]]);
-  assert.deepEqual(r.expected_wounds.map((x) => +x.cumulative_chance.toFixed(10)), [0.6, 0.35, 0.2, 0.3, 0.1]);
-  assert.equal(r.expected_wounds[2].raw_chance, 0.2 * 8000);
-  assert.deepEqual(r.face_to_face.map((x) => [x.player, +x.chance.toFixed(10)]),
+  assert.deepEqual(r.expectedWounds.map((x) => +x.cumulativeChance.toFixed(10)), [0.6, 0.35, 0.2, 0.3, 0.1]);
+  assert.equal(r.expectedWounds[2].rawChance, 0.2 * 8000);
+  assert.deepEqual(r.faceToFace.map((x) => [x.player, +x.chance.toFixed(10)]),
     [['active', 0.6], ['reactive', 0.1], ['fail', 0.3]]);
-  assert.equal(r.total_rolls, 8000);
+  assert.equal(r.totalRolls, 8000);
 });
 
 test('result rows: wounds over the maximum count as the maximum', () => {
@@ -66,7 +66,7 @@ test('result rows: wounds over the maximum count as the maximum', () => {
     {player: 'active', wounds: MAX_WOUNDS, chance: 0.5},
     {player: 'active', wounds: MAX_WOUNDS + 3, chance: 0.5},
   ]});
-  assert.deepEqual(r.expected_wounds.map((x) => [x.wounds, x.chance]), [[MAX_WOUNDS, 1]]);
+  assert.deepEqual(r.expectedWounds.map((x) => [x.wounds, x.chance]), [[MAX_WOUNDS, 1]]);
 });
 
 test('Shock: one extra wound once a Saving Roll fails, on the side that has it', () => {
@@ -76,7 +76,7 @@ test('Shock: one extra wound once a Saving Roll fails, on the side that has it',
     {player: 'active', wounds: 2, chance: 0.1},
     {player: 'reactive', wounds: 1, chance: 0.4},
   ];
-  const rows = (p) => calculate(p, stub(outcomes)).expected_wounds.map((x) => [x.player, x.wounds]);
+  const rows = (p) => calculate(p, stub(outcomes)).expectedWounds.map((x) => [x.player, x.wounds]);
   assert.deepEqual(rows({...P, shockA: true}), [['active', 0], ['active', 2], ['active', 3], ['reactive', 1]]);
   assert.deepEqual(rows({...P, shockB: true}), [['active', 0], ['active', 1], ['active', 2], ['reactive', 2]]);
 });
@@ -96,10 +96,10 @@ test('a Direct Template against an attack: one engine run per side, each alone',
   assert.deepEqual([runs[0].templateA, runs[0].burstB, runs[0].bonusBurstB, runs[0].fixedFaceToFace], [true, 0, 0, false]);
   // The shot alone: no template, no fixed roll.
   assert.deepEqual([runs[1].templateA, runs[1].burstA, runs[1].burstB, runs[1].bonusBurstB], [false, 0, 1, 1]);
-  assert.equal(r.total_rolls, 21);
+  assert.equal(r.totalRolls, 21);
   assert.deepEqual(Object.keys(r.unopposed), ['active', 'reactive']);
-  assert.deepEqual(r.face_to_face.map((x) => x.player), ['active', 'reactive']);
-  assert.deepEqual(r.expected_wounds.map((x) => [x.id, x.player]),
+  assert.deepEqual(r.faceToFace.map((x) => x.player), ['active', 'reactive']);
+  assert.deepEqual(r.expectedWounds.map((x) => [x.id, x.player]),
     [[0, 'active'], [1, 'active'], [2, 'reactive']]);
 });
 

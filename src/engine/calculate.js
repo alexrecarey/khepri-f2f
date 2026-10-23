@@ -81,12 +81,12 @@ function applyShock(p, outcomes) {
   return outcomes.map((o) => (shock[o.player] && o.wounds > 0 ? {...o, wounds: o.wounds + 1} : o));
 }
 
-// Engine output -> {face_to_face, expected_wounds, total_rolls}.
-//   face_to_face     [{id, player, raw_chance, chance}] for active, reactive, fail
-//   expected_wounds  [{id, player, wounds, raw_chance, chance, cumulative_chance}],
-//                    active then fail then reactive, by wounds; cumulative_chance
-//                    is that player's chance of this many wounds or more.
-// raw_chance is the chance counted in rolls (chance * total_rolls).
+// Engine output -> {faceToFace, expectedWounds, totalRolls}.
+//   faceToFace      [{id, player, rawChance, chance}] for active, reactive, fail
+//   expectedWounds  [{id, player, wounds, rawChance, chance, cumulativeChance}],
+//                   active then fail then reactive, by wounds; cumulativeChance
+//                   is that player's chance of this many wounds or more.
+// rawChance is the chance counted in rolls (chance * totalRolls).
 export function formatResult(p, {rolls, outcomes}) {
   const chances = {active: new Map(), fail: new Map(), reactive: new Map()};
   for (const o of applyShock(p, outcomes)) {
@@ -96,7 +96,7 @@ export function formatResult(p, {rolls, outcomes}) {
   const total = (m) => [...m.values()].reduce((x, y) => x + y, 0);
   const faceToFace = ['active', 'reactive', 'fail'].map((player, id) => {
     const chance = total(chances[player]);
-    return {id, player, raw_chance: chance * rolls, chance};
+    return {id, player, rawChance: chance * rolls, chance};
   });
   const expectedWounds = [];
   for (const player of ['active', 'fail', 'reactive']) {
@@ -105,12 +105,12 @@ export function formatResult(p, {rolls, outcomes}) {
       id: expectedWounds.length,
       player,
       wounds,
-      raw_chance: chance * rolls,
+      rawChance: chance * rolls,
       chance,
-      cumulative_chance: rows.slice(i).reduce((sum, [, c]) => sum + c, 0),
+      cumulativeChance: rows.slice(i).reduce((sum, [, c]) => sum + c, 0),
     }));
   }
-  return {face_to_face: faceToFace, expected_wounds: expectedWounds, total_rolls: rolls};
+  return {faceToFace, expectedWounds, totalRolls: rolls};
 }
 
 // Runs the calculator params through `runEngine` (engine input -> engine
@@ -118,19 +118,19 @@ export function formatResult(p, {rolls, outcomes}) {
 //
 // A Direct Template against an attack (isUnopposed) is two engine runs, one
 // per side. The result then holds 'unopposed': {active, reactive}, one result
-// per side, each without the other's rows; its top-level 'face_to_face' and
-// 'expected_wounds' keep only each side's own rows (no 'fail').
+// per side, each without the other's rows; its top-level 'faceToFace' and
+// 'expectedWounds' keep only each side's own rows (no 'fail').
 export function calculate(p, runEngine) {
   const run = (q) => formatResult(q, runEngine(engineInput(q)));
   if (!isUnopposed(p)) return run(p);
   const active = run(alone(p, 'A'));
   const reactive = run(alone(p, 'B'));
   const own = (r, player) => r.filter((x) => x.player === player);
-  const rows = [...own(active.expected_wounds, 'active'), ...own(reactive.expected_wounds, 'reactive')];
+  const rows = [...own(active.expectedWounds, 'active'), ...own(reactive.expectedWounds, 'reactive')];
   return {
     unopposed: {active, reactive},
-    face_to_face: [...own(active.face_to_face, 'active'), ...own(reactive.face_to_face, 'reactive')],
-    expected_wounds: rows.map((r, id) => ({...r, id})),
-    total_rolls: active.total_rolls + reactive.total_rolls,
+    faceToFace: [...own(active.faceToFace, 'active'), ...own(reactive.faceToFace, 'reactive')],
+    expectedWounds: rows.map((r, id) => ({...r, id})),
+    totalRolls: active.totalRolls + reactive.totalRolls,
   };
 }

@@ -56,7 +56,7 @@ function run({data, requestId}) {
   }
   results['parameters'] = data;
   const elapsed = Date.now() - startTime;
-  self.postMessage({command: 'result', requestId, value: results, elapsed, totalRolls: results['total_rolls']})
+  self.postMessage({command: 'result', requestId, value: results, elapsed, totalRolls: results.totalRolls})
 }
 
 // Only the newest calculation waits; see latestOnly.js.
