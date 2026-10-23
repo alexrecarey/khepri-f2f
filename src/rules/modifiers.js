@@ -189,15 +189,6 @@ export function dodgeExtras(traits) {
   return out;
 }
 
-// Dodge Success Value: PH (or the Dodge (PH=14) replacement) plus the MODs:
-// Dodge (+3), and `mod` (Fireteam +1, the opponent's BS Attack (-3)), capped
-// at +/-12.
-export function dodgeSuccessValue(profile, traits, mod = 0) {
-  const dodge = dodgeExtras(traits);
-  const sv = dodge.ph ?? profile?.ph ?? 0;
-  return clamp(LIMITS.successValue, sv + capMods(dodge.mod + mod));
-}
-
 // Situation chips on a side (Alex, 2026-10-22):
 // - Targeted: the side is in Targeted State (Spotlight, a Forward Observer...).
 //   A BS Attack or Comms Attack against it gets +3 (not a CC Attack, nor a
@@ -219,12 +210,6 @@ export const targetedMod = (x, y) => (y?.targeted && targetedHelps(x) ? TARGETED
 export const targetedResetMod = (x) => (x?.targeted && x.weapon?.kind === 'reset' && !x.weapon.zeroPain ? TARGETED_RESET_MOD : 0);
 export const hackedResetMod = (x) => (x?.weapon?.kind === 'reset' && HACKED_RESET_MODS.includes(x.hackedReset) ? x.hackedReset : 0);
 export const immADodgeMod = (x) => (x?.weapon?.kind === 'dodge' && x.immA ? IMM_A_DODGE_MOD : 0);
-
-// Reset Success Value: WIP plus `mod` (the opponent's BS Attack (-X),
-// Surprise Attack), capped at +/-12. No Fireteam bonus: that is Dodge's.
-export function resetSuccessValue(profile, mod = 0) {
-  return clamp(LIMITS.successValue, (profile?.wip ?? 0) + capMods(mod));
-}
 
 // Bangbomb (+X): the X, 0 without the equipment.
 export function bangbombValue(traits) {

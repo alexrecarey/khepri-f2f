@@ -5,10 +5,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {ammoTag, buildLedger} from './ledger.js';
-import {deriveInputs} from './matchup.js';
+import {ammoTag, buildLedger, renderDerived} from './ledger.js';
+import {deriveInputs as deriveRaw} from './matchup.js';
 import {RANGE_BANDS, rangeModFor} from './ranges.js';
 import {pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
+
+// The derivation rendered in English, as the view hands it to buildLedger.
+const deriveInputs = (o) => renderDerived(deriveRaw(o));
 
 const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 
