@@ -87,7 +87,11 @@ function applyShock(p, outcomes) {
 //                   active then fail then reactive, by wounds; cumulativeChance
 //                   is that player's chance of this many wounds or more.
 // rawChance is the chance counted in rolls (chance * totalRolls).
-export function formatResult(p, {rolls, outcomes}) {
+export function formatResult(p, {rolls: count, outcomes}) {
+  // The engine's roll count is a BigInt past 2**53 (wasm/khepri_engine.js;
+  // B6+3 EXP continuous on both sides gets there), and a BigInt in a
+  // product with a Number throws. The count is only shown and scaled by.
+  const rolls = Number(count);
   const chances = {active: new Map(), fail: new Map(), reactive: new Map()};
   for (const o of applyShock(p, outcomes)) {
     const w = Math.min(o.wounds, MAX_WOUNDS);
