@@ -32,8 +32,8 @@ const woundsPerOrder = (rows) => rows.reduce((t, r) => t + r.wounds * r.chance, 
 
 // One side's attack when nothing opposes it (sideResult = result.unopposed.x).
 function attackOnItsOwn(sideResult, player) {
-  const rows = sideResult.expected_wounds.filter((r) => r.player === player);
-  const hit = sum((sideResult.face_to_face ?? []).filter((r) => r.player === player));
+  const rows = sideResult.expectedWounds.filter((r) => r.player === player);
+  const hit = sum((sideResult.faceToFace ?? []).filter((r) => r.player === player));
   const wounds = Array.from({length: BAR_WOUNDS}, (_, i) => i + 1).map((w) => sum(rows.filter((r) => (w === BAR_WOUNDS ? r.wounds >= w : r.wounds === w))));
   const wounded = wounds.reduce((a, b) => a + b, 0);
   return {wpo: woundsPerOrder(rows), wounds, wounded, saved: Math.max(0, hit - wounded), miss: Math.max(0, 1 - hit)};
@@ -70,13 +70,13 @@ function byState(rows, states, side) {
 }
 
 export function summarize(result, targets = null) {
-  if (!result?.expected_wounds) return null;
-  const rows = result.expected_wounds;
+  if (!result?.expectedWounds) return null;
+  const rows = result.expectedWounds;
   const of = (player) => rows.filter((r) => r.player === player);
   const exactly = (player, w) => sum(of(player).filter((r) => (w === BAR_WOUNDS ? r.wounds >= w : r.wounds === w)));
   const atLeast = (player) => [1, 2, 3].map((w) => sum(of(player).filter((r) => r.wounds >= w)));
 
-  const ftf = result.face_to_face ?? [];
+  const ftf = result.faceToFace ?? [];
   const won = (player) => sum(ftf.filter((r) => r.player === player));
   const win = {active: won('active'), reactive: won('reactive')};
   win.none = Math.max(0, 1 - win.active - win.reactive);
