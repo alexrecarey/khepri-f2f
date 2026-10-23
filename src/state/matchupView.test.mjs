@@ -187,7 +187,7 @@ test('a language change renders the same core again: the rules are not re-applie
   // The core is untouched and shared: the rules' output is one object both renders read.
   assert.equal(en.params, core.params);
   assert.equal(esView.params, core.params);
-  assert.equal(en.derived.inputs, core.derived.inputs);
+  assert.equal(en.derived, core.derived, 'the view hands the core\'s derivation through untouched');
   assert.equal(typeof core.derived.notes[0], 'object', 'the core keeps descriptors');
   // Only the words differ.
   assert.notDeepEqual(esView.ledger.notes, en.ledger.notes);
