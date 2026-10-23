@@ -20,8 +20,6 @@
 .search-input { all: unset; box-sizing: border-box; padding: 14px 16px; border-radius: 12px; font-size: max(16px, 1rem); background: #141414; border: 1px solid var(--line-strong); }
 .search-input.active { border-color: var(--active); }
 .search-input.reactive { border-color: var(--reactive); }
-/* The search field's label, for screen readers only. */
-.search-label { position: absolute; left: -9999px; }
 .scope { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
 .scope > * { flex-shrink: 0; }
 .text-btn { all: unset; box-sizing: border-box; cursor: pointer; min-height: var(--tap); padding: 0 12px; display: grid; place-items: center; font-size: 15px; color: var(--text-2); border-radius: 8px; }
