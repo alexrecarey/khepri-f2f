@@ -8,7 +8,8 @@
 // struck, and its value a number (a display-only line has a string: '—',
 // '+', '').
 import {msg} from '../i18n/message.js';
-import {LIMITS, MOD_CAP, capMods} from './modifiers.js';
+import {benefitsFromCover, capMods, LIMITS, MOD_CAP} from './modifiers.js';
+import {upgradeRaising} from '../army/loadouts.js';
 
 /**
  * @param {number | string} value
@@ -47,4 +48,32 @@ export function clampSv(lines) {
   if (total < min) return line(min - total, msg('ledger.belowZero'), null);
   if (total > max) return line(max - total, msg('ledger.cappedAt', {max}), null);
   return null;
+}
+
+export const signed = (n) => `${n > 0 ? '+' : ''}${n}`;
+
+// An Attribute's name, and the Team-Ops upgrade that raised it: "BS (Team-Ops: BS+1)".
+export function statLabel(x, attr) {
+  const name = msg(`stat.${attr.toLowerCase()}`);
+  const u = upgradeRaising(x.upgrades, attr.toLowerCase());
+  return u ? msg('ledger.teamOpsStat', {stat: name, upgrade: u.label}) : name;
+}
+
+// The cover y sits in, by name: its Foxhole, cover, or its Nanoscreen.
+export const coverLabel = (y) => (benefitsFromCover(y) ? (y.sapper ? msg('ledger.foxholeCover') : msg('ledger.cover')) : msg('equip.nanoscreen'));
+
+// A Success Value from its lines: the MODs (every line after the Attribute,
+// Fireteam +1 BS included: Alex, 2026-10-10) capped at +/-12, with a note
+// when the cap bites (`noted`: an attack says so, a Dodge or Reset doesn't),
+// then the total within LIMITS (lines.js).
+export function svSection(lines, s, ctx, noted = true) {
+  const cap = capLine(lines);
+  if (cap) {
+    const mods = modSum(lines);
+    if (noted) ctx.say(s, 'note.modCap', {sum: signed(mods), cap: signed(mods + cap.value)});
+    lines.push(cap);
+  }
+  const c = clampSv(lines);
+  if (c) lines.push(c);
+  return section(lines);
 }
