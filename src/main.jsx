@@ -2,11 +2,14 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
-import {dispatch, store} from './state/store.js';
+import {bootStore, dispatch, store} from './state/store.js';
 import {browserStorage} from './state/storage.js';
 import {startSync} from './state/sync.js';
 import {DEV_TOOLS} from './devTools.js';
 import {loadFixture} from './ui/fixtures/index.js';
+
+// The first state: the defaults, what this device saved, then the URL.
+bootStore({search: window.location.search, storage: browserStorage()});
 
 // ?fixture=FinalPeek: the state a design-canvas board shows (src/ui/fixtures).
 // Dev and previews only, and never saved over the visitor's own state.
