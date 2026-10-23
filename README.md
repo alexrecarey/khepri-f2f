@@ -24,9 +24,11 @@ that is installed, a simple `yarn` command should get you running.
 
 ```
 src/army/      Army data (army.json) and how to read it: ids, traits, weapon rows, loadouts
-src/rules/     N5 rules: ranges, MODs, saves and Immunity, default weapon,
-               deriveInputs (a matchup -> calculator params) and the ledger
-               that explains them ("How the dice were built")
+src/rules/     N5 rules: ranges, MODs, saves and Immunity, default weapon;
+               deriveInputs (matchup.js: a matchup -> calculator params, each
+               number as the lines it adds up to: attack.js, evade.js, hit.js,
+               lines.js) and the ledger that lays those lines out ("How the
+               dice were built", ledger.js)
 src/engine/    the dice: params.js (the calculator params every mode builds),
                calculate.js (calculator params -> engine input -> result rows),
                the WASM engine (wasm/, built from engine-rs/) and the worker that
