@@ -1,7 +1,7 @@
 // Runs the dice engine off the main thread: khepri's Face to Face engine
-// compiled to WebAssembly (src/engine/wasm/, built from engine-rs/), a drop-in for
-// f2f.py's calculate(). A module worker: calculate.js turns the calculator
-// params into engine input and the engine's output into result rows.
+// compiled to WebAssembly (src/engine/wasm/, built from engine-rs/). A module
+// worker: calculate.js turns the calculator params into engine input and the
+// engine's output into result rows.
 //
 // Messages in:
 //   {command: 'init'}

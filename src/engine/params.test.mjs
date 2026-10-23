@@ -5,15 +5,12 @@ import {readFileSync} from 'node:fs';
 import {AMMO_KEYS, DEFAULT_PARAMS, PARAM_KEYS, fullParams, paramsKey, parseParams} from './params.js';
 import {AMMO as AMMO_RULES, ENGINE_KEYS} from './calculate.js';
 
-const f2f = readFileSync(new URL('./f2f.py', import.meta.url), 'utf8');
+const engine = readFileSync(new URL('../../engine-rs/src/engine.rs', import.meta.url), 'utf8');
 
-test('f2f.py reads exactly the engine input', () => {
-  const read = new Set([...f2f.matchAll(/p\['(\w+)'\]/g)].map((m) => m[1]));
-  // p[f'burst{s}'] reads the key for both sides.
-  for (const m of f2f.matchAll(/p\[f'(\w+)\{\w+\}'\]/g)) ['A', 'B'].forEach((s) => read.add(m[1] + s));
-  // attack() reads a list of keys for one side.
-  const keys = /keys = \[([^\]]*)\]/.exec(f2f)[1];
-  for (const m of keys.matchAll(/'(\w+)'/g)) ['A', 'B'].forEach((s) => read.add(m[1] + s));
+test('the engine reads exactly the engine input', () => {
+  // Side::from_json reads key("x") for each side; Input::from_json the shared keys by name.
+  const read = new Set([...engine.matchAll(/\bkey\("(\w+)"\)/g)].flatMap((m) => ['A', 'B'].map((s) => m[1] + s)));
+  for (const m of engine.matchAll(/_field\(p, "(\w+)"\)/g)) read.add(m[1]);
   assert.deepEqual([...read].sort(), [...ENGINE_KEYS].sort());
 });
 

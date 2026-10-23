@@ -3,15 +3,16 @@
 Infinity N5 face-to-face dice calculator. Static React/Vite app; the dice run
 in a web worker on khepri's engine compiled to WebAssembly (engine-rs/, Rust on
 the icepool-rs crate, built by `yarn build:engine` into src/engine/wasm/, which is
-committed). src/engine/f2f.py (Python icepool) is its reference: the
-WASM must match engine.golden.json, which golden.py writes from f2f.py. Layout and dependency rules
-are in README.md ("How it's put together").
+committed). There is no Python: the WASM must match engine.golden.json, the
+results of the Python engine it replaced (kept as a fixed reference), and the
+dice rules are tested in engine-rs/tests (`cargo test`). Layout and dependency
+rules are in README.md ("How it's put together").
 
 ## Commands
 
 - Node 24 LTS (`.nvmrc`, Volta pin); `yarn` installs (yarn 3.3.0, zero-install cache in `.yarn/cache`)
 - `yarn test` — JS tests (`node --test` over src/ and worker/, including the WASM engine against
-  engine.golden.json) + engine tests (pytest via uv: f2f.py and the golden file)
+  engine.golden.json) + engine tests (`cargo test` in engine-rs/; needs rustup)
 - `yarn test:js` / `yarn test:engine` — one side only
 - `yarn build` — production build (CI runs this too)
 - `yarn build:engine` — rebuild src/engine/wasm/ from engine-rs/ (rustup + wasm-pack); commit the output.
@@ -63,4 +64,4 @@ main; it doesn't exist on workers.dev previews, so test those at
 ## Claude cloud sessions
 
 `scripts/claude-cloud-setup.sh` runs on SessionStart when
-`CLAUDE_CODE_REMOTE=true` and installs yarn deps and uv/icepool (for the f2f.py reference tests).
+`CLAUDE_CODE_REMOTE=true` and installs yarn deps and the engine's Rust toolchain and crates (for `cargo test`).
