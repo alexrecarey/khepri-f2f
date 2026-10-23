@@ -10,25 +10,12 @@
 // onClose run once a drag has settled, so Back and history work as before.
 // A sideways swipe on the top is not the sheet's: it calls onSwipeX(+1 for
 // right to left, -1 for left to right) to change the headline number.
+// The numbers (thresholds, velocity, where a drag puts the sheet) are in
+// sheetGestureMath.js; this file is the DOM and the effects.
 import {useCallback, useEffect, useLayoutEffect, useRef} from 'react';
-
-const SLOP = 8;          // px before a press becomes a drag
-const FLICK = 0.4;       // px/ms that counts as a flick
-const SETTLE_MS = 330;   // the spring in app.css
-const SWIPE_X = 32;      // px sideways that change the headline
-
-// Velocity over the last moves, in px/ms (positive = down).
-function tracker() {
-  const pts = [];
-  return {
-    add(y, t) { pts.push([y, t]); if (pts.length > 5) pts.shift(); },
-    velocity() {
-      if (pts.length < 2) return 0;
-      const [[y0, t0], [y1, t1]] = [pts[0], pts.at(-1)];
-      return t1 > t0 ? (y1 - y0) / (t1 - t0) : 0;
-    },
-  };
-}
+import {
+  DRAG_CLICK_MS, SETTLE_MS, SLOP, dragY, isSideways, openFraction, restingY, settlesOpen, swipeDirection, tracker,
+} from './sheetGestureMath.js';
 
 // measureKey: changes when the top's content may change size (new numbers,
 // status); only then is the resting position measured again.
@@ -53,8 +40,7 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, onSwip
     if (!s || !top || s.style.transform) return;
     s.classList.add('measuring');
     s.style.setProperty('--open', '0');
-    const visible = top.offsetTop + top.offsetHeight + parseFloat(getComputedStyle(s).paddingBottom);
-    restY.current = Math.max(0, s.offsetHeight - visible);
+    restY.current = restingY(s.offsetHeight, top.offsetTop + top.offsetHeight, parseFloat(getComputedStyle(s).paddingBottom));
     s.style.removeProperty('--open');
     void s.offsetHeight; // apply the real --open with transitions still off
     s.classList.remove('measuring');
@@ -64,7 +50,7 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, onSwip
   // y: how far down the sheet is (0 = open, restY = resting low).
   const place = (y) => {
     const s = sheetRef.current;
-    const open01 = restY.current ? Math.max(0, Math.min(1, 1 - y / restY.current)) : 1;
+    const open01 = openFraction(y, restY.current);
     s.style.transform = `translate(-50%, ${y}px)`;
     s.style.setProperty('--open', String(open01));
     if (scrimRef.current) scrimRef.current.style.opacity = String(open01);
@@ -120,11 +106,12 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, onSwip
       d.track.add(y, t);
       // Mostly sideways before it became a drag: the headline's, never the
       // sheet's. Past SWIPE_X it changes the number, once per touch.
-      if (!d.moved && (d.sideways || (Math.abs(dx) > SLOP && Math.abs(dx) > Math.abs(dy)))) {
+      if (!d.moved && (d.sideways || isSideways(dx, dy))) {
         d.sideways = true;
         const swipeX = live.current.onSwipeX;
-        if (d.onTop && swipeX && Math.abs(dx) >= SWIPE_X) {
-          swipeX(dx < 0 ? 1 : -1);
+        const dir = swipeDirection(dx);
+        if (d.onTop && swipeX && dir) {
+          swipeX(dir);
           dragEnded.current = Date.now();
           d = null;
         }
@@ -139,7 +126,7 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, onSwip
         setDragging(true);
       }
       e?.preventDefault();
-      d.y = Math.max(0, Math.min(restY.current, d.from + dy - Math.sign(dy) * SLOP));
+      d.y = dragY(d.from, dy, restY.current);
       place(d.y);
     };
     const end = () => {
@@ -147,8 +134,7 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, onSwip
       d = null;
       if (!g?.moved) return;
       dragEnded.current = Date.now();
-      const v = g.track.velocity();
-      settle(v < -FLICK || (v <= FLICK && g.y < restY.current / 2));
+      settle(settlesOpen(g.track.velocity(), g.y, restY.current));
     };
     // A second finger ends the drag where it is (settling to the nearer
     // position); dropping it instead left the sheet stuck mid-way.
@@ -167,26 +153,12 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, onSwip
     };
     const pm = (e) => { if (e.pointerType === 'mouse' && d) move(e.clientX, e.clientY, e.timeStamp, null); };
     const pu = (e) => { if (e.pointerType === 'mouse') end(); };
-    s.addEventListener('touchstart', ts, {passive: true});
-    s.addEventListener('touchmove', tm, {passive: false});
-    s.addEventListener('touchend', end);
-    s.addEventListener('touchcancel', end);
-    s.addEventListener('pointerdown', pd);
-    s.addEventListener('pointermove', pm);
-    s.addEventListener('pointerup', pu);
-    s.addEventListener('pointercancel', pu);
-    s.addEventListener('lostpointercapture', pu);
-    return () => {
-      s.removeEventListener('touchstart', ts);
-      s.removeEventListener('touchmove', tm);
-      s.removeEventListener('touchend', end);
-      s.removeEventListener('touchcancel', end);
-      s.removeEventListener('pointerdown', pd);
-      s.removeEventListener('pointermove', pm);
-      s.removeEventListener('pointerup', pu);
-      s.removeEventListener('pointercancel', pu);
-      s.removeEventListener('lostpointercapture', pu);
-    };
+    const listeners = [
+      ['touchstart', ts, {passive: true}], ['touchmove', tm, {passive: false}], ['touchend', end], ['touchcancel', end],
+      ['pointerdown', pd], ['pointermove', pm], ['pointerup', pu], ['pointercancel', pu], ['lostpointercapture', pu],
+    ];
+    for (const [name, fn, options] of listeners) s.addEventListener(name, fn, options);
+    return () => { for (const [name, fn] of listeners) s.removeEventListener(name, fn); };
   }, []);
 
   // Re-measure when the top's content may have changed size, and on resize.
@@ -209,7 +181,7 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, onSwip
 
   // The top is the card: a tap on it opens, unless it ended a drag.
   const onTopClick = () => {
-    if (Date.now() - dragEnded.current < 350) return;
+    if (Date.now() - dragEnded.current < DRAG_CLICK_MS) return;
     const {open: isOpen, canOpen: can, onOpen: o} = live.current;
     if (!isOpen && can) o();
   };

@@ -51,7 +51,7 @@
      for it (+30), the toast floats just over it (-20), and the sheet rests
      this far up until it is measured (useSheetGestures.js --rest-y). */
   --results-card-h: 170px;
-  /* The Delete button behind a saved roll; Chrome.jsx OPEN slides this far. */
+  /* The Delete button behind a saved roll; useSwipeToDelete.js OPEN slides this far. */
   --roll-delete-w: 88px;
 
   /* The smallest type (Oct 2026: readers found 9-11px too small). Nothing goes under
