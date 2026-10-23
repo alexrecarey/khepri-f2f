@@ -2,12 +2,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {groupLoadouts, loadoutCharts, loadoutTag, mainWeapon, orderLoadouts, profileGroups, reachGroup, statLine, unitDetail, weaponChart} from './loadouts.js';
-import {createSearch} from '../../search/search.js';
-import {lieutenantTwins} from '../../search/buildIndex.js';
-import {SKILL} from '../../army/ids.js';
+import {groupLoadouts, loadoutCharts, loadoutTag, mainWeapon, orderLoadouts, profileGroups, reachGroup, statLine, unitDetail, weaponChart} from './pickerView.js';
+import {createSearch} from '../search/search.js';
+import {lieutenantTwins} from '../search/buildIndex.js';
+import {SKILL} from '../army/ids.js';
 
-const army = JSON.parse(readFileSync(new URL('../../army/army.json', import.meta.url), 'utf8'));
+const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 const idOf = (name) => Number(Object.keys(army.weapons).find((id) => army.weapons[id][0].name === name));
 
 test('loadouts group by how far their best weapon reaches', () => {
@@ -52,8 +52,8 @@ test('weapon charts: bands per range column, main gun first', () => {
 });
 
 test('Swiss Guard: SWC loadouts first (longer reach first), main gun is the farthest-reaching weapon', async () => {
-  const {createSearch: createSearcher} = await import('../../search/search.js');
-  const index = JSON.parse(readFileSync(new URL('../../search/index.json', import.meta.url), 'utf8'));
+  const {createSearch: createSearcher} = await import('../search/search.js');
+  const index = JSON.parse(readFileSync(new URL('../search/index.json', import.meta.url), 'utf8'));
   const searcher = createSearcher(index);
   const swiss = army.units.find((u) => u.isc === 'Swiss Guard');
   const hits = orderLoadouts(army, searcher.unitRows(swiss.id, 101));
@@ -74,7 +74,7 @@ test('Lieutenant: twins of a plain loadout are dropped, the skill is never a tag
 });
 
 test('a unit with several profile groups: one section each, shared kit once, rows keep what differs', () => {
-  const searcher = createSearch(JSON.parse(readFileSync(new URL('../../search/index.json', import.meta.url), 'utf8')));
+  const searcher = createSearch(JSON.parse(readFileSync(new URL('../search/index.json', import.meta.url), 'utf8')));
   const morat = army.units.find((u) => u.slug === 'morat-team-ops');
   const groups = profileGroups(army, searcher.unitRows(morat.id));
   assert.deepEqual(groups.map((g) => [g.name, g.type, g.items.length]),

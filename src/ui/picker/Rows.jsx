@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import {crestForRow} from '../../army/crests.js';
 import {extraLoadoutName} from '../../army/names.js';
 import {RowCrest} from '../Crest.jsx';
-import {loadoutTag} from './loadouts.js';
+import {loadoutTag} from '../../state/pickerView.js';
 import {useT} from '../i18n.jsx';
 
 // The loadout's weapons, the one the query matched first: several loadouts

@@ -7,7 +7,7 @@ import {pickTrooper} from '../../state/actions.js';
 import {ROLE, other} from '../../state/schema.js';
 import {dispatch, getState, useAppState} from '../../state/store.js';
 import {listItems, matchedCount} from './deskList.js';
-import {orderLoadouts, profileGroups, unitDetail} from './loadouts.js';
+import {orderLoadouts, profileGroups, unitDetail} from '../../state/pickerView.js';
 import {factionNameOf, useRecentIds} from './useRecentIds.js';
 import {useT} from '../i18n.jsx';
 

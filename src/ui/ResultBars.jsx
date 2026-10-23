@@ -2,7 +2,7 @@
 // them. Each bar owns one: the wound bar the wound list, the face to face bar
 // the best-die chart (FaceToFaceChart). Tapping a bar shows its breakdown in
 // the same place; the other bar fades.
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import PropTypes from 'prop-types';
 import {pct} from '../results/summary.js';
 import {useT} from './i18n.jsx';
@@ -23,10 +23,11 @@ export function F2FBar({s, className = ''}) {
 F2FBar.propTypes = {s: PropTypes.object.isRequired, className: PropTypes.string};
 
 // 'wounds' | 'f2f': the breakdown under the bars. Back to the wounds when
-// `reset` turns true (the phone sheet closing).
+// `reset` turns true (the phone sheet closing). Set during the render, not in
+// an effect, so the closed sheet never paints the old breakdown first.
 export function useBreakdownView(reset = false) {
   const [view, setView] = useState('wounds');
-  useEffect(() => { if (reset) setView('wounds'); }, [reset]);
+  if (reset && view !== 'wounds') setView('wounds');
   return [view, setView];
 }
 

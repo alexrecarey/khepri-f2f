@@ -9,7 +9,7 @@ import {RowCrest} from '../Crest.jsx';
 import LoadFailed from '../LoadFailed.jsx';
 import {typeName} from './constants.js';
 import {useT} from '../i18n.jsx';
-import {unitDetail} from './loadouts.js';
+import {unitDetail} from '../../state/pickerView.js';
 import {setCursor} from './useDeskPicker.js';
 
 // The typed letters, marked where a word of the name starts with them.
