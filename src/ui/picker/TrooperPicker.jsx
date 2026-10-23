@@ -82,7 +82,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
             onClick={() => setQuery(query.trim() === q ? '' : q)}>{label}</button>
         ))}
       </div>
-      <label htmlFor={`trooper-search-${side}`} className="label search-label">{t('picker.search')}</label>
+      <label htmlFor={`trooper-search-${side}`} className="label vh">{t('picker.search')}</label>
       <input
         id={`trooper-search-${side}`}
         ref={inputRef}
