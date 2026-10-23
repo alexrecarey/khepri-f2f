@@ -36,11 +36,14 @@ function side(p, key, extra = {}) {
   return {profile: p, option: o, traits, weapon, inCover: false, ftSize: 1, ...extra};
 }
 
+// What a section's live lines (not struck, a number) add up to.
+const addUp = (lines) => lines.filter((x) => !x.struck && typeof x.value === 'number').reduce((n, x) => n + x.value, 0);
+
 // deriveInputs, with "How the dice were built" checked against every number.
 function derive(args) {
   const r = deriveInputs(args);
   if (!r.ok) return r;
-  const ledger = buildLedger({...args, inputs: r.inputs});
+  const ledger = buildLedger({...args, derived: r});
   for (const s of ['A', 'B']) {
     const l = ledger[s];
     if (!l || l.kind === 'none') continue;
@@ -52,7 +55,8 @@ function derive(args) {
       if (!sec) continue;
       const where = `ledger ${s} ${k}: ${JSON.stringify(sec.lines)}`;
       assert.equal(sec.total, total, where);
-      assert.deepEqual(sec.lines.filter((x) => x.label === 'other rules'), [], where);
+      // Out of range is a '—' line with Success Value 0, not a sum.
+      if (!sec.lines.some((x) => x.value === '—')) assert.equal(addUp(sec.lines), total, where);
     }
   }
   return {...r, ledger};

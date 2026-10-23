@@ -1,7 +1,7 @@
 // Run with: yarn test:js
 // "How the dice were built" must add up: for a broad sample of real matchups,
-// every total in the ledger equals the calculator input deriveInputs produced,
-// with no unexplained "other rules" line.
+// every total in the ledger equals the calculator input deriveInputs produced
+// and is the sum of its live lines (struck and display-only lines don't count).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -37,13 +37,12 @@ function randomSide(side) {
 function checkSection(where, sec, expected) {
   if (!sec) return;
   assert.equal(sec.total, expected, `${where} total`);
-  const unexplained = sec.lines.filter((l) => l.label === 'other rules');
-  assert.deepEqual(unexplained, [], `${where}: ${JSON.stringify(sec.lines)}`);
   const sum = sec.lines.filter((l) => !l.struck && typeof l.value === 'number').reduce((a, l) => a + l.value, 0);
-  if (!sec.lines.some((l) => l.value === '—')) assert.equal(sum, sec.total, `${where} lines add up`);
+  // Out of range is a '—' line with Success Value 0, not a sum.
+  if (!sec.lines.some((l) => l.value === '—')) assert.equal(sum, sec.total, `${where} lines add up: ${JSON.stringify(sec.lines)}`);
 }
 
-test('ledger totals match deriveInputs and are fully explained', () => {
+test('ledger totals match deriveInputs and are the sum of their lines', () => {
   let checked = 0;
   for (let i = 0; i < 1500; i++) {
     const active = randomSide('A');
@@ -52,7 +51,7 @@ test('ledger totals match deriveInputs and are fully explained', () => {
     const derived = deriveInputs({active, reactive, rangeCm});
     if (!derived.ok) continue;
     const {inputs} = derived;
-    const ledger = buildLedger({active, reactive, rangeCm, inputs});
+    const ledger = buildLedger({active, reactive, derived});
     const where = (s) => `#${i} ${s} ${active.unit.isc} ${active.weapon.key} vs ${reactive.unit.isc} ${reactive.weapon.key} @${rangeCm}`;
     for (const s of ['A', 'B']) {
       const l = ledger[s];
@@ -82,7 +81,7 @@ test('dice line reads like the results: B, SV and the save value', () => {
   const active = side('Fusiliers', 'Combi Rifle');
   const reactive = side('Fusiliers', 'Combi Rifle', {inCover: true});
   const derived = deriveInputs({active, reactive, rangeCm: 40});
-  const ledger = buildLedger({active, reactive, rangeCm: 40, inputs: derived.inputs});
+  const ledger = buildLedger({active, reactive, rangeCm: 40, derived});
   assert.match(ledger.A.dice, /^B3 SV\d+ PS\d+$/);
   assert.ok(ledger.A.sv.lines.some((l) => l.label === 'cover' && l.by === 'B' && l.value === -3));
   assert.ok(ledger.A.save.lines.some((l) => l.label === 'cover' && l.by === 'B' && l.value === 3));
@@ -110,9 +109,10 @@ test('BS Attack (SR-n) is its own line under the weapon PS, from the attacker', 
   const active = pick({unitId: 12, factionId: 101, groupId: 1, optionId: 1, weaponKey: hmg.key});
   const reactive = pick({unitId: 1, factionId: 101, groupId: 1, optionId: 1, weaponKey: '33:'});
   const derived = deriveInputs({active, reactive, rangeCm: 80});
-  const save = buildLedger({active, reactive, rangeCm: 80, inputs: derived.inputs}).A.save;
-  assert.deepEqual(save.lines.slice(0, 2).map((l) => [l.value, l.label, l.by]), [[5, 'PS', null], [-1, 'BS Attack (SR-1)', 'A']]);
-  assert.equal(save.lines.some((l) => l.label === 'other rules'), false);
+  const save = buildLedger({active, reactive, rangeCm: 80, derived}).A.save;
+  // Then the target's ARM 1: AP halves it to ceil(1/2) = 1, so no halving line.
+  assert.deepEqual(save.lines.map((l) => [l.value, l.label, l.by]), [[5, 'PS', null], [-1, 'BS Attack (SR-1)', 'A'], [1, 'ARM', 'B']]);
+  assert.equal(save.total, 5);
 });
 
 test('AMMO: the weapon\'s own ammo, then each addition with its source', () => {
@@ -125,7 +125,7 @@ test('AMMO: the weapon\'s own ammo, then each addition with its source', () => {
   const target = resolveSelection(army, {unitId: 1, factionId: 101, groupId: 1, optionId: 1, weaponKey: '33:'});
   const ammo = (x) => {
     const derived = deriveInputs({active: x, reactive: target, rangeCm: 40});
-    const a = buildLedger({active: x, reactive: target, rangeCm: 40, inputs: derived.inputs}).A.ammo;
+    const a = buildLedger({active: x, reactive: target, rangeCm: 40, derived}).A.ammo;
     return {lines: a.lines.map((l) => [l.value, l.label, l.by ?? l.source ?? null]), total: a.total};
   };
   // Bashi Bazouks: BS Attack (AP) adds AP, from the trooper.
@@ -146,7 +146,7 @@ const pickSide = (sel) => resolveSelection(army, {profileId: 1, ftSize: 1, ...se
 const ledgerFor = (active, reactive, rangeCm) => {
   const derived = deriveInputs({active, reactive, rangeCm});
   assert.ok(derived.ok);
-  return {inputs: derived.inputs, ledger: buildLedger({active, reactive, rangeCm, inputs: derived.inputs})};
+  return {inputs: derived.inputs, ledger: buildLedger({active, reactive, derived})};
 };
 
 test('ARM = 0 wins over the Dodge\'s ARM +3 (struck, not added)', () => {
@@ -157,9 +157,11 @@ test('ARM = 0 wins over the Dodge\'s ARM +3 (struck, not added)', () => {
   assert.equal(inputs.armB, 0);
   const save = ledger.A.save;
   assert.equal(save.total, inputs.damageA);
-  const dodge = save.lines.find((l) => l.label.startsWith('Dodge (ARM'));
-  assert.equal(dodge.struck, 'ARM = 0');
-  assert.equal(save.lines.some((l) => l.label === 'other rules'), false);
+  // The ARM line is struck by the weapon, the Dodge's extra by ARM = 0.
+  assert.deepEqual(save.lines.slice(2), [
+    {value: 2, label: 'ARM', by: 'B', struck: 'K1 Combi Rifle: ARM = 0'},
+    {value: 3, label: 'Dodge (ARM +3)', by: 'B', struck: 'ARM = 0'},
+  ]);
 });
 
 test('Fireteam +1 BS is a MOD: it counts toward the ±12 cap', () => {
@@ -171,9 +173,10 @@ test('Fireteam +1 BS is a MOD: it counts toward the ±12 cap', () => {
   const {inputs, ledger} = ledgerFor(active, reactive, rangeCm);
   assert.equal(inputs.successValueA, active.profile.bs - 12);
   const sv = ledger.A.sv;
-  assert.ok(sv.lines.some((l) => l.label === 'Fireteam 4' && l.value === 1));
-  assert.ok(sv.lines.some((l) => l.label === 'MODs cap at ±12'));
-  assert.equal(sv.lines.some((l) => l.label === 'other rules'), false);
+  assert.ok(sv.lines.some((l) => l.label === 'Fireteam 4' && l.value === 1 && l.by === 'A'));
+  // The cap line is the rules' own: it gives back the 2 over the cap.
+  assert.deepEqual(sv.lines.at(-1), {value: 2, label: 'MODs cap at ±12', by: null});
+  assert.equal(sv.total, 0);
 });
 
 test('a split range: each side shoots at its own distance, dice and ledger alike', () => {
@@ -190,7 +193,7 @@ test('a split range: each side shoots at its own distance, dice and ledger alike
   assert.equal(split.inputs.successValueA, deriveInputs({active, reactive, rangeCm}).inputs.successValueA);
   assert.equal(split.inputs.successValueB, deriveInputs({active, reactive, rangeCm: rangeCmB}).inputs.successValueB);
   assert.notEqual(split.inputs.successValueB, deriveInputs({active, reactive, rangeCm}).inputs.successValueB);
-  const ledger = buildLedger({active, reactive, rangeCm, rangeCmB, inputs: split.inputs});
+  const ledger = buildLedger({active, reactive, rangeCm, rangeCmB, derived: split});
   assert.equal(ledger.B.sv.total, split.inputs.successValueB);
   // null (not split) is the shared distance.
   assert.deepEqual(deriveInputs({active, reactive, rangeCm, rangeCmB: null}).inputs, deriveInputs({active, reactive, rangeCm}).inputs);

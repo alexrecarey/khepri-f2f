@@ -60,7 +60,7 @@ export const zonesOn = (zones) => ZONES.filter((z) => zones?.[z]);
 //   blocked   the zone name that stops it attacking, or null
 //   lines     [{zone, value, label, ignoredBy}]: the MOD each zone puts on its
 //             attack roll; a struck line (ignoredBy) doesn't count
-//   mod       the MOD that counts, 0 without one
+//   mod       the MOD that counts (the sum of the lines that do), 0 without one
 // A side that can't see through a zone may still shoot back when the other
 // side attacks it AND can see. So if either side is blocked, nobody shoots.
 export function visibility(a, b, zones, t = tEn) {
@@ -84,8 +84,13 @@ export function visibility(a, b, zones, t = tEn) {
       const value = f.sees ? f.attacked : POOR_VISIBILITY_MOD;
       return {zone, value, label: t('zone.poorVisibility', {zone: name}), ignoredBy: sixth};
     });
+    // Zones don't stack: the worst MOD applies, the other zone's is struck by it
+    // (an MSV1 shot at in CC through Smoke and White Noise: -6, not -9).
     const live = lines.filter((l) => !l.ignoredBy && l.value);
-    return {blocked: null, lines, mod: live.length ? Math.min(...live.map((l) => l.value)) : 0};
+    const mod = live.length ? Math.min(...live.map((l) => l.value)) : 0;
+    const worst = live.find((l) => l.value === mod);
+    for (const l of live) if (l !== worst) l.ignoredBy = worst.label;
+    return {blocked: null, lines, mod};
   };
   return {A: side(a, canA, canB), B: side(b, canB, canA)};
 }

@@ -41,8 +41,8 @@ test('shooting a trooper in a Foxhole: -3 cover and -3 Mimetism, both in the led
   const open = resolveSelection(army, sapper);
   const dug = resolveSelection(army, {...sapper, sapper: true});
   assert.equal(sv(dug), sv(open) - 6);
-  const {inputs} = deriveInputs({active, reactive: dug, rangeCm: 40});
-  const labels = buildLedger({active, reactive: dug, rangeCm: 40, inputs}).A.sv.lines.map((l) => l.label);
+  const derived = deriveInputs({active, reactive: dug, rangeCm: 40});
+  const labels = buildLedger({active, reactive: dug, derived}).A.sv.lines.map((l) => l.label);
   assert.ok(labels.includes('Mimetism (-3), Foxhole'), labels.join(' | '));
   assert.ok(labels.includes('Foxhole cover'), labels.join(' | '));
 });
