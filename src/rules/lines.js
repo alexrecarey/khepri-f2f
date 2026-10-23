@@ -13,11 +13,14 @@ import {msg} from '../i18n/message.js';
 import {benefitsFromCover, capMods, LIMITS, MOD_CAP} from './modifiers.js';
 import {upgradeRaising} from '../army/loadouts.js';
 
+/** @typedef {import('../types.js').Line} Line */
+/** @typedef {import('../types.js').Message} Message */
+
 /**
  * @param {number} value
  * @param {import('../types.js').Message} label
  * @param {'A' | 'B' | null} by
- * @param {import('../types.js').Message} [struck]
+ * @param {import('../types.js').Message | null} [struck] why it was cancelled (null: it wasn't)
  * @returns {import('../types.js').Line}
  */
 export const line = (value, label, by, struck) => ({value, label, by, ...(struck ? {struck} : {})});
@@ -27,25 +30,33 @@ export const line = (value, label, by, struck) => ({value, label, by, ...(struck
  * @param {'—' | '+' | ''} text
  * @param {import('../types.js').Message} label
  * @param {'A' | 'B' | null} by
- * @param {import('../types.js').Message} [struck]
+ * @param {import('../types.js').Message | null} [struck]
  * @returns {import('../types.js').Line}
  */
 export const mark = (text, label, by, struck) => ({value: null, text, label, by, ...(struck ? {struck} : {})});
+/** @param {Line[]} lines */
 export const live = (lines) => lines.filter((l) => l.value !== null && !l.struck);
-export const sum = (lines) => live(lines).reduce((t, l) => t + l.value, 0);
+/** @param {Line[]} lines */
+export const sum = (lines) => live(lines).reduce((t, l) => t + /** @type {number} */ (l.value), 0);
 
 /**
  * A section of the ledger: its lines and what they add up to.
- * @param {import('../types.js').Line[]} lines
+ * @param {Line[]} lines
+ * @param {number | Message} [total]
  * @returns {import('../types.js').Section}
  */
 export const section = (lines, total = sum(lines)) => ({lines, total});
 
 // The MODs on a roll: every live line after the Attribute, Fireteam +1 BS
 // included (modifiers.js MOD_CAP).
+/** @param {Line[]} lines */
 export const modSum = (lines) => sum(live(lines).slice(1));
 
 // MODs over the cap: a line takes the excess off. Null when within it.
+/**
+ * @param {Line[]} lines
+ * @returns {Line | null}
+ */
 export function capLine(lines) {
   const mods = modSum(lines);
   const capped = capMods(mods);
@@ -54,6 +65,10 @@ export function capLine(lines) {
 
 // The Success Value stays within LIMITS: below 0 is 0 (the roll always fails
 // and can't crit), above the top it is capped. Null when within them.
+/**
+ * @param {Line[]} lines
+ * @returns {Line | null}
+ */
 export function clampSv(lines) {
   const [min, max] = LIMITS.successValue;
   const total = sum(lines);
@@ -62,9 +77,15 @@ export function clampSv(lines) {
   return null;
 }
 
+/** @param {number} n */
 export const signed = (n) => `${n > 0 ? '+' : ''}${n}`;
 
 // An Attribute's name, and the Team-Ops upgrade that raised it: "BS (Team-Ops: BS+1)".
+/**
+ * @param {Pick<import('../types.js').ResolvedSide, 'upgrades'>} x
+ * @param {string} attr
+ * @returns {Message}
+ */
 export function statLabel(x, attr) {
   const name = msg(`stat.${attr.toLowerCase()}`);
   const u = upgradeRaising(x.upgrades, attr.toLowerCase());
@@ -72,17 +93,23 @@ export function statLabel(x, attr) {
 }
 
 // The cover y sits in, by name: its Foxhole, cover, or its Nanoscreen.
+/** @param {import('../types.js').ResolvedSide} y */
 export const coverLabel = (y) => (benefitsFromCover(y) ? (y.sapper ? msg('ledger.foxholeCover') : msg('ledger.cover')) : msg('equip.nanoscreen'));
 
 // A Success Value from its lines: the MODs (every line after the Attribute,
 // Fireteam +1 BS included: Alex, 2026-10-10) capped at +/-12, with a note
 // when the cap bites, on a Dodge or Reset as on an attack (Alex, 2026-10-23),
 // then the total within LIMITS (lines.js).
+/**
+ * @param {Line[]} lines
+ * @param {import('../types.js').Side} s
+ * @param {import('../types.js').Ctx} ctx
+ */
 export function svSection(lines, s, ctx) {
   const cap = capLine(lines);
   if (cap) {
     const mods = modSum(lines);
-    ctx.say(s, 'note.modCap', {sum: signed(mods), cap: signed(mods + cap.value)});
+    ctx.say(s, 'note.modCap', {sum: signed(mods), cap: signed(mods + /** @type {number} */ (cap.value))});
     lines.push(cap);
   }
   const c = clampSv(lines);

@@ -16,11 +16,19 @@ const NAMES = {
 const loaders = Object.fromEntries(Object.entries(NAMES).map(([lang, load]) =>
   [lang, lazyOnce(() => Promise.all([loadCore(), load()]).then(([core, names]) => withNames(core, names.default, lang)))]));
 
+/**
+ * @param {string} lang
+ * @returns {Promise<import('../types.js').Army>}
+ */
 export const loadArmy = (lang) => (loaders[lang] ?? loaders.en)();
 
 // The army in `lang` once loaded (null until the first one is); starts
 // loading when `enabled`. While another language loads, the last one stays
 // on screen. After a failure, retry() loads it again.
+/**
+ * @param {boolean} enabled
+ * @param {string} lang
+ */
 export function useArmy(enabled, lang) {
   const {value: army, error, retry} = useLazy(loadArmy, lang, enabled);
   return {army, error, retry};

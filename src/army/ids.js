@@ -2,6 +2,7 @@
 // what the Army data calls them; scripts/fetch-army.mjs fails if an id stops
 // resolving to its name, so a renumbering in a new release can't slip through.
 
+/** @type {Record<string, [number, string]>} */
 const SKILLS = {
   MIMETISM: [28, 'Mimetism'],
   DODGE: [40, 'Dodge'],
@@ -36,6 +37,7 @@ const SKILLS = {
   HACKER: [1000, 'Hacker'],
 };
 
+/** @type {Record<string, [number, string]>} */
 const EQUIPS = {
   NANOSCREEN: [108, 'Nanoscreen'],
   MSV1: [114, 'Multispectral Visor L1'],
@@ -52,10 +54,12 @@ const EQUIPS = {
   ECM_HACKER: [241, 'ECM: Hacker'],
 };
 
+/** @param {Record<string, [number, string]>} table */
 const ids = (table) => Object.fromEntries(Object.entries(table).map(([k, [id]]) => [k, id]));
 
 export const SKILL = ids(SKILLS);
 export const EQUIP = ids(EQUIPS);
 
 // {skill: [[id, name], ...], equip: [...]} for the pipeline's check.
+/** @type {Record<'skill' | 'equip', [number, string][]>} */
 export const EXPECTED_NAMES = {skill: Object.values(SKILLS), equip: Object.values(EQUIPS)};

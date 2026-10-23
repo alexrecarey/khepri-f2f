@@ -20,15 +20,31 @@ import {lazyOnce} from '../lib/lazyOnce.js';
 export const SOURCE_LANGUAGE = 'en';
 
 // A new language is listed here and in src/state/language.js (LANGUAGES).
+/** @type {Record<string, () => Promise<Record<string, string>>>} */
 const LOADERS = {es: lazyOnce(() => import('./es.js').then((m) => m.default))};
 
+/**
+ * @param {string} text
+ * @param {Record<string, unknown>} [params]
+ */
 const fill = (text, params) => (params
   ? text.replace(/\{(\w+)\}/g, (all, name) => (params[name] === undefined ? all : String(params[name])))
   : text);
 
+/**
+ * @param {Record<string, string>} [messages] the language's copy (./en.js, ./es.js)
+ * @param {string} [lang]
+ * @param {import('../types.js').Terms | null} [terms] the army's display terms in that language
+ * @returns {import('../types.js').Translator}
+ */
 export function translator(messages = en, lang = SOURCE_LANGUAGE, terms = null) {
   const plurals = new Intl.PluralRules(lang);
+  /** @param {string} key */
   const pick = (key) => messages[key] ?? en[key];
+  /**
+   * @param {string} key
+   * @param {Record<string, unknown>} [params]
+   */
   const t = (key, params) => {
     let text;
     if (params && typeof params.count === 'number') {
@@ -38,22 +54,32 @@ export function translator(messages = en, lang = SOURCE_LANGUAGE, terms = null) 
     return text === undefined ? key : fill(text, params);
   };
   t.lang = lang;
+  /** @param {string} key */
   t.has = (key) => pick(key) !== undefined;
   // A display term from the army data, or the English token itself. `scope`
   // narrows a table by a key first (modes are per weapon id).
+  /**
+   * @param {string} table
+   * @param {string} token
+   * @param {string | number} [scope]
+   */
   t.term = (table, token, scope) => {
-    const map = scope === undefined ? terms?.[table] : terms?.[table]?.[scope];
+    // A scoped table (modes) holds tables; a plain one, text.
+    const map = /** @type {Record<string, string> | undefined} */ (scope === undefined ? terms?.[table] : terms?.[table]?.[scope]);
     return map?.[token] ?? token;
   };
+  /** @param {import('../types.js').Terms | null} next */
   t.withTerms = (next) => translator(messages, lang, next);
   // Distances. State and URLs hold centimetres; each language shows its own
   // unit (dist.cmPerUnit): English inches, 2.5 cm each as Infinity plays
   // them, Spanish centimetres. t.distance: the number, in that unit.
   const cmPer = Number(pick('dist.cmPerUnit'));
+  /** @param {number} cm */
   t.distance = (cm) => Math.round((10 * cm) / cmPer) / 10;
   // Text the Army data writes in inches ('+2"', 'MOV 6-4"'), in t's unit.
+  /** @param {string} text */
   t.inchText = (text) => (cmPer === 2.5 ? text : String(text).replace(/(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?"/g,
-    (all, a, b) => t('dist.value', {n: [a, b].filter(Boolean).map((x) => t.distance(Number(x) * 2.5)).join('-')})));
+    (all, /** @type {string} */ a, /** @type {string | undefined} */ b) => t('dist.value', {n: [a, b].filter(Boolean).map((x) => t.distance(Number(x) * 2.5)).join('-')})));
   return t;
 }
 
@@ -61,10 +87,12 @@ export function translator(messages = en, lang = SOURCE_LANGUAGE, terms = null) 
 // (the rules' tests, the Worker's link previews).
 export const tEn = translator();
 
+/** @param {string} lang */
 export async function loadTranslator(lang) {
   const load = LOADERS[lang];
   return load ? translator(await load(), lang) : tEn;
 }
 
 // The messages of a language, for the locale tests.
+/** @param {string} lang */
 export const loadMessages = (lang) => (lang === SOURCE_LANGUAGE ? Promise.resolve(en) : LOADERS[lang]());

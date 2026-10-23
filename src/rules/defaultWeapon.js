@@ -8,6 +8,10 @@ import {orderModes} from './weaponModes.js';
 // Combined ammo (AP+Exp) ranks as its best part. Loadout ammo extras (T2,
 // Viral, Shock) are already in the row (withAmmoExtra).
 const AMMO_PRECEDENCE = ['PLASMA', 'EXP', 'DA', 'VIRAL', 'T2', 'AP', 'SHOCK', 'N', 'E/M', 'STUN'];
+/** @typedef {import('../types.js').WeaponEntry} WeaponEntry */
+/** @typedef {'active' | 'reactive'} Role */
+
+/** @param {WeaponEntry} w */
 function ammoRank({row, mods}) {
   const types = (row.ammo ?? ['N']).map((a) => a.toUpperCase());
   if (isPlasma(row)) types.push('PLASMA');
@@ -17,10 +21,12 @@ function ammoRank({row, mods}) {
   return ranks.length > 0 ? Math.min(...ranks) : AMMO_PRECEDENCE.length;
 }
 
+/** @param {WeaponEntry} w */
 const impactTemplate = ({row}) => isImpactTemplate(row);
 
 // Far edge (cm) of the band with the weapon's best range MOD, the farthest one
 // if several tie. Direct Templates reach about the first band (0-8").
+/** @param {WeaponEntry} w */
 function bestRangeBand({row}) {
   if (!row.ranges?.length) return RANGE_BANDS[0].to;
   const best = Math.max(...row.ranges.map((b) => b.mod));
@@ -33,15 +39,25 @@ function bestRangeBand({row}) {
 // highest burst, then Impact Template (Circular), then ammo. Reactive: a +SD
 // weapon, then the farthest best range band, then Impact Template
 // (Circular), then ammo.
+/** @param {WeaponEntry} w */
 const comms = ({row}) => (isCommsAttack(row) ? 1 : 0);
+/** @type {Record<Role, (w: WeaponEntry) => number[]>} */
 const DEFAULT_WEAPON_KEYS = {
   active: (w) => [comms(w), -((w.row.burst ?? 1) + w.mods.burst), impactTemplate(w) ? 0 : 1, ammoRank(w)],
   reactive: (w) => [comms(w), w.mods.sd > 0 ? 0 : 1, -bestRangeBand(w), impactTemplate(w) ? 0 : 1, ammoRank(w)],
 };
 
 // The list sorted best first for the role by the keys above.
+/**
+ * @param {WeaponEntry[]} weapons
+ * @param {Role} role
+ */
 export function sortWeapons(weapons, role) {
   const key = DEFAULT_WEAPON_KEYS[role];
+  /**
+   * @param {WeaponEntry} a
+   * @param {WeaponEntry} b
+   */
   const compare = (a, b) => {
     const kb = key(b);
     return key(a).reduce((d, x, i) => d || x - kb[i], 0);
@@ -53,6 +69,11 @@ export function sortWeapons(weapons, role) {
 // The keys choose the weapon; a weapon with fire modes then starts on its
 // first mode for the role (weaponModes.js), the same one tapping its name
 // picks, e.g. Boarding Pistol on its Direct Template.
+/**
+ * @param {WeaponEntry[]} weapons
+ * @param {Role} role
+ * @returns {WeaponEntry | null}
+ */
 export function defaultWeapon(weapons, role) {
   const best = sortWeapons(weapons, role)[0] ?? null;
   if (!best?.mode) return best;

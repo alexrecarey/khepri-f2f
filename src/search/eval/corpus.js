@@ -4,6 +4,7 @@
 import {words} from '../text.js';
 
 // Small seeded generator (mulberry32): same corpus on every run.
+/** @param {number} seed */
 function rng(seed) {
   return () => {
     seed |= 0; seed = (seed + 0x6d2b79f5) | 0;
@@ -14,6 +15,7 @@ function rng(seed) {
 }
 
 // Neighbouring keys on a QWERTY phone keyboard, for fat-finger substitutions.
+/** @type {Record<string, string>} */
 const NEAR = {
   q: 'wa', w: 'qes', e: 'wrd', r: 'etf', t: 'ryg', y: 'tuh', u: 'yij', i: 'uok', o: 'ipl', p: 'ol',
   a: 'qsz', s: 'awdz', d: 'sefx', f: 'drgc', g: 'fthv', h: 'gyjb', j: 'hukn', k: 'jilm', l: 'kop',
@@ -23,6 +25,7 @@ const VOWELS = 'aeiou';
 
 // Each mutation changes one word (the longest, where typos happen) and returns
 // null when it can't apply, so short names only get the cases that fit them.
+/** @type {Record<string, (w: string, r: () => number) => string | null>} */
 const MUTATIONS = {
   exact: (w) => w,
   drop: (w, r) => (w.length > 4 ? cut(w, 1 + Math.floor(r() * (w.length - 2)), 1, '') : null),
@@ -51,9 +54,16 @@ const MUTATIONS = {
   },
 };
 
+/**
+ * @param {string} s
+ * @param {number} i
+ * @param {number} n
+ * @param {string} insert
+ */
 const cut = (s, i, n, insert) => s.slice(0, i) + insert + s.slice(i + n);
 
 // Whole-name variants that aren't single-word typos.
+/** @type {Record<string, (parts: string[]) => string | null>} */
 const NAME_VARIANTS = {
   // The first few letters of the name, as typed before the list narrows down.
   prefix: (parts) => (parts[0].length > 5 ? parts[0].slice(0, 4) : null),
@@ -64,8 +74,17 @@ const NAME_VARIANTS = {
 
 // units -> [{query, kind, expect}] where `expect` is the folded short name (two
 // units can share one, e.g. a character and their squad).
+/** A search case: what was typed, how it was mangled, the folded short name it should find.
+ * @typedef {{query: string, kind: string, expect: string, factionId?: number | null}} SearchCase */
+
+/**
+ * @param {{short: string}[]} units
+ * @param {number} [seed]
+ * @returns {SearchCase[]}
+ */
 export function buildCorpus(units, seed = 7) {
   const r = rng(seed);
+  /** @type {SearchCase[]} */
   const out = [];
   for (const unit of units) {
     const parts = words(unit.short);

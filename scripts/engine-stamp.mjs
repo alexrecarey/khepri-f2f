@@ -9,13 +9,17 @@ import {fileURLToPath} from 'node:url';
 const ROOT = fileURLToPath(new URL('../engine-rs/', import.meta.url));
 const INPUTS = ['Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', 'src'];
 
+/**
+ * @param {string} path
+ * @returns {string[]}
+ */
 function files(path) {
   try {
     return readdirSync(path, {withFileTypes: true})
       .sort((a, b) => a.name.localeCompare(b.name))
       .flatMap((e) => files(join(path, e.name)));
   } catch (e) {
-    if (e.code === 'ENOTDIR') return [path];
+    if (/** @type {NodeJS.ErrnoException} */ (e).code === 'ENOTDIR') return [path];
     throw e;
   }
 }

@@ -3,19 +3,33 @@
 // same figures.
 import {RAMP} from './ramp.js';
 
+/** @typedef {import('../types.js').WoundRow} WoundRow */
+/** @typedef {import('../types.js').Player} Player */
+/** @typedef {'active' | 'reactive'} Role */
+/** A side's target's wound states before the rolls are shared out (rules/woundStates.js).
+ * @typedef {Pick<import('../types.js').WoundState, 'key' | 'label' | 'wounds' | 'glyph' | 'outOfFight' | 'shock' | 'state'>} WoundStep */
+
 // Wounds the bars count one by one; more show as this many ("3+"). Not the
 // engine's MAX_WOUNDS (calculate.js), which caps what it calculates.
 export const BAR_WOUNDS = 3;
 
+/** @param {{chance: number}[]} rows */
 const sum = (rows) => rows.reduce((s, r) => s + r.chance, 0);
 // Expected wounds: each outcome's wounds weighted by its chance.
+/** @param {WoundRow[]} rows */
 const woundsPerOrder = (rows) => rows.reduce((t, r) => t + r.wounds * r.chance, 0);
 
 // One side's attack when nothing opposes it (sideResult = result.unopposed.x).
+/**
+ * @param {import('../types.js').EngineResult} sideResult
+ * @param {Role} player
+ * @returns {import('../types.js').AttackOnItsOwn}
+ */
 function attackOnItsOwn(sideResult, player) {
   const rows = sideResult.expectedWounds.filter((r) => r.player === player);
   const hit = sum((sideResult.faceToFace ?? []).filter((r) => r.player === player));
-  const wounds = Array.from({length: BAR_WOUNDS}, (_, i) => i + 1).map((w) => sum(rows.filter((r) => (w === BAR_WOUNDS ? r.wounds >= w : r.wounds === w))));
+  // BAR_WOUNDS entries: exactly 1, 2 and 3+.
+  const wounds = /** @type {[number, number, number]} */ (Array.from({length: BAR_WOUNDS}, (_, i) => i + 1).map((w) => sum(rows.filter((r) => (w === BAR_WOUNDS ? r.wounds >= w : r.wounds === w)))));
   const wounded = wounds.reduce((a, b) => a + b, 0);
   return {wpo: woundsPerOrder(rows), wounds, wounded, saved: Math.max(0, hit - wounded), miss: Math.max(0, 1 - hit)};
 }
@@ -25,14 +39,29 @@ function attackOnItsOwn(sideResult, player) {
 // at most, so the state seen most often (1 wound, or Unconscious on 1 VITA) is
 // not the palest; only targets with five or six states reach down to 2 and 1.
 const STEPS = 6;
+/** @param {string} c */
 const hex = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+/**
+ * @param {number} i the state's index, mildest first
+ * @param {number} n how many states
+ */
 export function shadeStep(i, n) {
   if (n <= 1) return STEPS;
   const start = n >= 6 ? 1 : n === 5 ? 2 : 3;
   return Math.round(start + (STEPS - start) * i / (n - 1));
 }
 // Text on a shade: dark ink on the light steps, near white on the deep ones.
+/**
+ * @param {Role} side
+ * @param {number} i
+ * @param {number} n
+ */
 export const shadeInk = (side, i, n) => (shadeStep(i, n) >= 5 ? 'var(--ink-on-deep)' : `var(--${side}-ink)`);
+/**
+ * @param {Role} side
+ * @param {number} i
+ * @param {number} n
+ */
 export function shade(side, i, n) {
   const [from, to] = RAMP[side].map(hex);
   const t = (shadeStep(i, n) - 1) / (STEPS - 1);
@@ -41,6 +70,12 @@ export function shade(side, i, n) {
 
 // A side's rows by its target's states: exactly n wounds for each state, n or
 // more for the last (Dead).
+/**
+ * @param {WoundRow[]} rows
+ * @param {WoundStep[]} states
+ * @param {Role} side
+ * @returns {import('../types.js').WoundState[]}
+ */
 function byState(rows, states, side) {
   return states.map((st, i) => {
     const last = i === states.length - 1;
@@ -52,21 +87,34 @@ function byState(rows, states, side) {
 
 /**
  * @param {import('../types.js').EngineResult | null | undefined} result
- * @param {{active: object[], reactive: object[]} | null} targets each side's target's wound states (rules/woundStates.js)
+ * @param {{active: WoundStep[] | null, reactive: WoundStep[] | null} | null} [targets] each side's target's wound states (rules/woundStates.js)
  * @returns {import('../types.js').Summary | null}
  */
 export function summarize(result, targets = null) {
   if (!result?.expectedWounds) return null;
   const rows = result.expectedWounds;
+  /** @param {Player} player */
   const of = (player) => rows.filter((r) => r.player === player);
+  /**
+   * @param {Player} player
+   * @param {number} w
+   */
   const exactly = (player, w) => sum(of(player).filter((r) => (w === BAR_WOUNDS ? r.wounds >= w : r.wounds === w)));
-  const atLeast = (player) => [1, 2, 3].map((w) => sum(of(player).filter((r) => r.wounds >= w)));
+  /**
+   * @param {Player} player
+   * @returns {[number, number, number]}
+   */
+  const atLeast = (player) => /** @type {[number, number, number]} */ ([1, 2, 3].map((w) => sum(of(player).filter((r) => r.wounds >= w))));
 
   const ftf = result.faceToFace ?? [];
+  /** @param {Player} player */
   const won = (player) => sum(ftf.filter((r) => r.player === player));
-  const win = {active: won('active'), reactive: won('reactive')};
+  // `none` is the remainder, set once both are known.
+  /** @type {import('../types.js').Summary['win']} */
+  const win = {active: won('active'), reactive: won('reactive'), none: 0};
   win.none = Math.max(0, 1 - win.active - win.reactive);
 
+  /** @type {import('../types.js').BarSegment[]} */
   const bar = [];
   for (let w = BAR_WOUNDS; w >= 1; w--) bar.push({side: 'active', wounds: w, chance: exactly('active', w)});
   const woundedA = sum(of('active').filter((r) => r.wounds > 0));
@@ -80,10 +128,12 @@ export function summarize(result, targets = null) {
   const states = !unopposed && targets?.active && targets?.reactive
     ? {active: byState(of('active'), targets.active, 'active'), reactive: byState(of('reactive'), targets.reactive, 'reactive')}
     : null;
+  /** @type {import('../types.js').StateBarSegment[] | null} */
   const stateBar = states && [
-    ...[...states.active].reverse().map((st) => ({side: 'active', key: st.key, index: st.index, chance: st.exactly, shade: st.shade})),
-    {side: 'none', key: 'none', index: 0, chance: bar.find((b) => b.side === 'none').chance, shade: null},
-    ...states.reactive.map((st) => ({side: 'reactive', key: st.key, index: st.index, chance: st.exactly, shade: st.shade})),
+    ...[...states.active].reverse().map((st) => ({side: /** @type {const} */ ('active'), key: st.key, index: st.index, chance: st.exactly, shade: st.shade})),
+    // The bar always has its 'none' segment (pushed above).
+    {side: /** @type {const} */ ('none'), key: 'none', index: 0, chance: /** @type {import('../types.js').BarSegment} */ (bar.find((b) => b.side === 'none')).chance, shade: null},
+    ...states.reactive.map((st) => ({side: /** @type {const} */ ('reactive'), key: st.key, index: st.index, chance: st.exactly, shade: st.shade})),
   ];
 
   return {
@@ -102,9 +152,13 @@ export function summarize(result, targets = null) {
   };
 }
 
+/**
+ * @param {import('../types.js').EngineResult} result an unopposed one
+ * @returns {Pick<Required<import('../types.js').Summary>, 'attacks' | 'joint'>}
+ */
 function unopposedParts(result) {
-  const a = attackOnItsOwn(result.unopposed.active, 'active');
-  const r = attackOnItsOwn(result.unopposed.reactive, 'reactive');
+  const a = attackOnItsOwn(/** @type {NonNullable<typeof result.unopposed>} */ (result.unopposed).active, 'active');
+  const r = attackOnItsOwn(/** @type {NonNullable<typeof result.unopposed>} */ (result.unopposed).reactive, 'reactive');
   return {
     attacks: {active: a, reactive: r},
     joint: {
@@ -116,8 +170,10 @@ function unopposedParts(result) {
   };
 }
 
+/** @param {number} p */
 export const pct = (p) => `${(100 * p).toFixed(1)}%`;
 
 // Worth a row or a bar segment: at least 0.05%, which shows as 0.1%. Float
 // remainders like 1e-17 ("misses" for a template that never misses) don't.
+/** @param {number} p */
 export const shows = (p) => p >= 0.0005;
