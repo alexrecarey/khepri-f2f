@@ -159,7 +159,9 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, onSwip
     };
     const tm = (e) => { if (d) move(e.touches[0].clientX, e.touches[0].clientY, e.timeStamp, e); };
     const pd = (e) => {
-      if (e.pointerType !== 'mouse' || !e.target.closest('.rs-top, .rs-head')) return;
+      // Not on a button (the bars, Save, Share): capturing the pointer would
+      // send its click to the sheet instead.
+      if (e.pointerType !== 'mouse' || !e.target.closest('.rs-top, .rs-head') || e.target.closest('button')) return;
       start(e.clientX, e.clientY, e.timeStamp, e.target);
       if (d) { d.armed = true; s.setPointerCapture?.(e.pointerId); }
     };

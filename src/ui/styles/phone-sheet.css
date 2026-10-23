@@ -29,15 +29,17 @@
 .rsheet.open .rs-top { cursor: default; }
 .rs-top:focus-visible { outline: 2px solid var(--text-2); outline-offset: 4px; border-radius: 8px; }
 .rsheet .big { font-size: calc(34px + 14px * var(--open)); }
-/* The face-to-face bar opens out of nothing above the wound bar. */
-.rs-f2f { height: calc(4px * var(--open)); opacity: var(--open); border-radius: 2px; margin-bottom: calc(-10px * (1 - var(--open))); }
-.rs-wbar { height: calc(6px + 34px * var(--open)); border-radius: calc(3px + 5px * var(--open)); }
-.rsheet.classic .rs-wbar { height: calc(6px + 22px * var(--open)); }
+/* The face-to-face bar opens out of nothing above the wound bar. Open, the
+   two bars are the same height (--result-bar-h): each is the switch for its
+   own breakdown below, so neither is the main one. */
+.rs-f2f { height: calc(var(--result-bar-h) * var(--open)); opacity: var(--open); border-radius: 3px; margin-bottom: calc(-10px * (1 - var(--open))); }
+.rs-wbar { height: calc(6px + (var(--result-bar-h) - 6px) * var(--open)); border-radius: 3px; }
+.rsheet.classic .rs-wbar { height: calc(6px + 22px * var(--open)); border-radius: calc(3px + 5px * var(--open)); }
 .rs-wbar .lbl { opacity: var(--open); }
 /* Headline "wins face to face": resting, the card shows the face-to-face bar
    in the wound bar's place, which folds away; open, both bars as usual. */
-.rsheet.hl-win .rs-f2f { height: calc(6px - 2px * var(--open)); opacity: 1; margin-bottom: 0; border-radius: 3px; }
-.rsheet.hl-win .rs-wbar { height: calc(40px * var(--open)); opacity: var(--open); margin-top: calc(-10px * (1 - var(--open))); }
+.rsheet.hl-win .rs-f2f { height: calc(6px + (var(--result-bar-h) - 6px) * var(--open)); opacity: 1; margin-bottom: 0; }
+.rsheet.hl-win .rs-wbar { height: calc(var(--result-bar-h) * var(--open)); opacity: var(--open); margin-top: calc(-10px * (1 - var(--open))); }
 .rsheet.hl-win.classic .rs-wbar { height: calc(28px * var(--open)); }
 /* The label inside a segment is text, not a segment: .bar span would make it
    full height and push its number to the top. */
@@ -48,6 +50,8 @@
 /* Resting, the space under the card's top shows nothing of what's below. */
 .rsheet:not(.open):not(.dragging):not(.settling) .rs-rest { visibility: hidden; transition: visibility 0s linear .32s; }
 .rs-rest > * { flex-shrink: 0; }
+/* The face to face breakdown is showing: the wound bar's glyphs fade with it. */
+.rs-rest.f2f-view .sglyphs { opacity: .4; }
 /* In the sheet the mods aren't cards: full width like the sections above,
    a rule between the two sides. */
 .rsheet .ledger { gap: 16px; }

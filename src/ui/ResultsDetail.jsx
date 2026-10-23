@@ -15,12 +15,12 @@ const segClass = (s) => (s.side === 'none' ? 'seg-none' : SEG[s.side][s.wounds])
 const topWounds = (s, side) => Math.max(0, ...s.bar.filter((b) => b.side === side && shows(b.chance)).map((b) => b.wounds));
 const woundsLabel = (w, top) => (w === top ? `${w}+` : `${w}`);
 
-// `grow`: the phone sheet's bar, sized by CSS from --open (6 px resting, 40
-// open), its labels fading in with it; else a fixed `height`.
-export function WoundBar({summary, height, labels = false, grow = false}) {
+// `grow`: the phone sheet's bar, sized by CSS from --open, its labels fading
+// in with it; else a fixed `height`, or none and `className` sizes it.
+export function WoundBar({summary, height, labels = false, grow = false, className = ''}) {
   const top = topWounds(summary, 'active');
   return (
-    <div className={`bar${grow ? ' rs-wbar' : ''}`} style={grow ? undefined : {height, borderRadius: height > 10 ? 8 : 3}}>
+    <div className={`bar${grow ? ' rs-wbar' : ''}${className ? ` ${className}` : ''}`} style={grow || !height ? undefined : {height, borderRadius: height > 10 ? 8 : 3}}>
       {summary.bar.filter((s) => shows(s.chance)).map((s) => (
         <span key={`${s.side}${s.wounds}`} className={`${segClass(s)} seg-l`} style={{width: `${100 * s.chance}%`}}>
           <span className="lbl">
@@ -33,7 +33,7 @@ export function WoundBar({summary, height, labels = false, grow = false}) {
   );
 }
 
-WoundBar.propTypes = {summary: PropTypes.object.isRequired, height: PropTypes.number, labels: PropTypes.bool, grow: PropTypes.bool};
+WoundBar.propTypes = {summary: PropTypes.object.isRequired, height: PropTypes.number, labels: PropTypes.bool, grow: PropTypes.bool, className: PropTypes.string};
 
 // Classic results: the face-to-face bar with its numbers, the wound bar, then
 // each side's wounds per order and its at-least ladder, nobody wounded between.

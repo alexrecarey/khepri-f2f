@@ -64,6 +64,8 @@
   --ink-on-deep: #ffffff;
   /* Wound-state header and rows share these columns (wound-states.css); the
      last two fit "EXACTLY" and "AT LEAST" at --fs-label on one line. */
+  /* The face to face bar and the wound bar, open: the same height. */
+  --result-bar-h: 10px;
   --srow-cols: 16px 128px minmax(0, 1fr) 58px 66px;
 
   --font-display: 'Chakra Petch', system-ui, sans-serif;

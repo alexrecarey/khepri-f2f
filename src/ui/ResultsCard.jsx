@@ -4,7 +4,7 @@
 //   ResultsPanel  tablet and desktop: the results inline, in their column
 // The top: wounds per order for each side over the shaded wound bar. Below:
 // the Face to Face bar, the labelled wound bar and the breakdown.
-import {useEffect} from 'react';
+import {useEffect, useMemo} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, D20, ShareIcon} from './icons.jsx';
@@ -15,7 +15,8 @@ import useDialogFocus from './useDialogFocus.js';
 import useSheetGestures from './useSheetGestures.js';
 import FaceToFaceChart from './FaceToFaceChart.jsx';
 import Ledger from './Ledger.jsx';
-import {pct} from './results.js';
+import {faceToFaceBreakdown} from '../rules/bestDie.js';
+import {F2FBar, PickBars, useBreakdownView} from './ResultBars.jsx';
 import {Breakdown, ClassicBody, WoundBar} from './ResultsDetail.jsx';
 import {UnopposedCardBody, UnopposedSheetBody} from './Unopposed.jsx';
 import WpoRow from './WpoRow.jsx';
@@ -78,21 +79,6 @@ function WaitRow({picked, size}) {
   return <WpoRow active={<SideWait side="active" ready={picked.A} size={size} />} reactive={<SideWait side="reactive" ready={picked.B} size={size} />} />;
 }
 
-// Who wins the Face to Face Roll, as one thin bar.
-function F2FBar({s, className = '', style}) {
-  const t = useT();
-  return (
-    <div className={`bar${className ? ` ${className}` : ''}`} style={style} role="img"
-      aria-label={t('results.f2fBar', {active: pct(s.win.active), none: pct(s.win.none), reactive: pct(s.win.reactive)})}>
-      <span className="seg-a2" style={{width: `${100 * s.win.active}%`}} />
-      <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
-      <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`}} />
-    </div>
-  );
-}
-
-F2FBar.propTypes = {s: PropTypes.object.isRequired, className: PropTypes.string, style: PropTypes.object};
-
 WaitRow.propTypes = {picked: PropTypes.object.isRequired, size: PropTypes.string};
 
 // Desktop and tablet: the whole results panel in outline, so its shape is
@@ -121,13 +107,20 @@ function WaitPanel({picked}) {
 
 WaitPanel.propTypes = {picked: PropTypes.object.isRequired};
 
+// The best-die breakdown behind the face to face bar: Matchup only (it needs
+// the troopers' names), and only for a real Face to Face Roll.
+const useBreakdown = (s, ledger, params) => useMemo(
+  () => (s && ledger && !s.unopposed ? faceToFaceBreakdown(params) : null), [s, ledger, params]);
+
 // The top of the phone sheet, which is all that shows while it rests low (the
 // results card): both sides' headline numbers (wounds per order unless the
 // player chose another, headline.js) over the shaded wound bar, or over the
 // face-to-face bar when the headline is winning it. Open, the numbers and the
 // bars are bigger and both bars show; app.css grows them with --open as the
 // sheet is dragged.
-function SheetTop({s, h, choice, classic, pending, status, picked, ui}) {
+// Open, with a chart to show (pick), each bar is the switch for its own
+// breakdown below (ResultBars).
+function SheetTop({s, h, choice, classic, pending, status, picked, ui, view, onView, pick}) {
   const t = useT();
   const wait = waitingFor(picked);
   if (wait) {
@@ -145,9 +138,10 @@ function SheetTop({s, h, choice, classic, pending, status, picked, ui}) {
     <>
       {h ? <Headline h={h} choice={choice} pending={pending} />
         : <WpoRow active={<span className="big c-active">—</span>} reactive={<span className="big c-reactive">—</span>} />}
-      {s && (!classic || h.kind === 'win') && <F2FBar s={s} className="rs-f2f" />}
-      {s?.states ? <StateBar s={s} ui={ui} className="rs-wbar" />
-        : s ? <WoundBar summary={s} grow labels /> : <div className="bar rs-wbar" style={{background: 'var(--none)'}} />}
+      <PickBars view={view} onView={onView} pick={Boolean(pick && ui)}
+        f2fBar={s && (!classic || h.kind === 'win') ? <F2FBar s={s} className="rs-f2f" /> : null}
+        woundBar={s?.states ? <StateBar s={s} ui={ui} className="rs-wbar" />
+          : s ? <WoundBar summary={s} grow labels={classic} /> : <div className="bar rs-wbar" style={{background: 'var(--none)'}} />} />
       <div className="split">
         {h ? <><span>{h.small[0]}</span><span>{h.small[1]}</span></> : <span>{status}</span>}
       </div>
@@ -155,7 +149,10 @@ function SheetTop({s, h, choice, classic, pending, status, picked, ui}) {
   );
 }
 
-SheetTop.propTypes = {s: PropTypes.object, h: PropTypes.object, choice: PropTypes.string, classic: PropTypes.bool, pending: PropTypes.bool, status: PropTypes.string, picked: PropTypes.object, ui: PropTypes.object};
+SheetTop.propTypes = {
+  s: PropTypes.object, h: PropTypes.object, choice: PropTypes.string, classic: PropTypes.bool, pending: PropTypes.bool, status: PropTypes.string,
+  picked: PropTypes.object, ui: PropTypes.object, view: PropTypes.string, onView: PropTypes.func, pick: PropTypes.bool,
+};
 
 // Phone: one sheet that rests low with only its top showing (the results
 // card) and opens to the full results. Swipe it up or down (it follows the
@@ -168,6 +165,10 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
   const h = s ? headline(s, choice, params, ledger?.ledger, t) : null;
   const swipe = (step) => setHeadline(nextHeadline(choice, step));
   const open = useAppState((st) => st.ui.overlay === 'results') && Boolean(s);
+  const b = useBreakdown(s, ledger, params);
+  // Closing the sheet goes back to the wounds.
+  const [view, setView] = useBreakdownView(!open);
+  const showF2F = view === 'f2f' && Boolean(b);
   const setOpen = (o) => dispatch(o ? {type: 'openOverlay', overlay: 'results'} : {type: 'back'});
   const g = useSheetGestures({open, canOpen: Boolean(s), onOpen: () => setOpen(true), onClose: () => setOpen(false),
     onSwipeX: s ? swipe : null, measureKey: [s?.wpo.active, s?.wpo.reactive, s?.unopposed, classic, status, h?.kind].join('|')});
@@ -198,16 +199,19 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
             if (s && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { e.preventDefault(); swipe(e.key === 'ArrowRight' ? 1 : -1); }
           },
         })}>
-          <SheetTop s={s} h={h} choice={choice} classic={classic} pending={pending} status={status} picked={picked} ui={open ? ui : null} />
+          <SheetTop s={s} h={h} choice={choice} classic={classic} pending={pending} status={status} picked={picked} ui={open ? ui : null}
+            view={view} onView={setView} pick={Boolean(b)} />
           {!open && <span className="vh">{t('results.openHint')}</span>}
         </div>
         {/* Below the top: only there for screen readers and keys while open. */}
-        <div className="rs-rest" {...(open ? {} : {inert: '', 'aria-hidden': true})}>
+        <div className={`rs-rest${showF2F ? ' f2f-view' : ''}`} {...(open ? {} : {inert: '', 'aria-hidden': true})}>
           {s && (s.unopposed
             ? <UnopposedSheetBody s={s} names={ledger?.names ?? {A: t('side.active'), B: t('side.reactive')}} diceLine={diceLine} />
             : classic ? <ClassicBody s={s} woundBar={false} />
-              : s.states ? <><StateBar s={s} ui={ui} glyphs="only" /><StateList s={s} ui={ui} /></> : <Breakdown s={s} />)}
-          {s && ledger && !s.unopposed && <FaceToFaceChart params={params} names={ledger.labels} />}
+              : <>
+                {s.states && <StateBar s={s} ui={ui} glyphs="only" />}
+                {showF2F ? <FaceToFaceChart b={b} names={ledger.labels} /> : s.states ? <StateList s={s} ui={ui} /> : <Breakdown s={s} />}
+              </>)}
           {s && ledger && !s.unopposed && <div className="mods-sep" />}
           {s && ledger && <Ledger {...ledger} />}
           {s && status && <span className="status">{status}</span>}
@@ -221,24 +225,19 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
 function ResultsBody({s, classic, ledger, diceLine, pending, ui, params}) {
   const t = useT();
   const choice = useAppState((st) => headlineChoice(st.prefs));
+  const b = useBreakdown(s, ledger, params);
+  const [view, setView] = useBreakdownView();
   if (s.unopposed) return <UnopposedSheetBody s={s} names={ledger?.names ?? {A: t('side.active'), B: t('side.reactive')}} diceLine={diceLine} />;
   if (classic) return <ClassicBody s={s} />;
+  const showF2F = view === 'f2f' && Boolean(b);
   return (
     <>
       <Headline h={headline(s, choice, params, ledger?.ledger, t)} choice={choice} size="xl" pending={pending} buttons />
-      <F2FBar s={s} style={{height: 4, borderRadius: 2}} />
-      {s.states ? (
-        <>
-          <StateBar s={s} ui={ui} glyphs style={{height: 40, borderRadius: 8}} />
-          <StateList s={s} ui={ui} />
-        </>
-      ) : (
-        <>
-          <WoundBar summary={s} height={40} labels />
-          <Breakdown s={s} />
-        </>
-      )}
-      {ledger && <FaceToFaceChart params={params} names={ledger.labels} />}
+      <div className={`res-bars${showF2F ? ' f2f-view' : ''}`}>
+        <PickBars view={view} onView={setView} pick={Boolean(b)} f2fBar={<F2FBar s={s} className="res-bar" />}
+          woundBar={s.states ? <StateBar s={s} ui={ui} glyphs className="res-bar" /> : <WoundBar summary={s} className="res-bar" />} />
+      </div>
+      {showF2F ? <FaceToFaceChart b={b} names={ledger.labels} /> : s.states ? <StateList s={s} ui={ui} /> : <Breakdown s={s} />}
     </>
   );
 }

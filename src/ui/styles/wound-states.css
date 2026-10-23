@@ -24,3 +24,5 @@
 .srow .p { font-family: var(--font-mono); text-align: right; }
 .srow .more { grid-column: 2 / -1; font-size: var(--fs-small); color: var(--text-2); padding: 2px 0 4px; }
 .stag { font-size: var(--fs-small); letter-spacing: .06em; padding: 1px 6px; border-radius: 999px; border: 1px solid currentColor; color: var(--band-minus3); margin-left: 6px; font-weight: 600; vertical-align: 1px; }
+.srow.plain { cursor: default; color: var(--text-2); }
+.srow.plain > span:first-child { color: var(--muted); }

@@ -1,4 +1,14 @@
 /* ---------- results sheet ---------- */
+/* The face to face bar and the wound bar as switches for their breakdowns
+   (ResultBars.jsx). The padding makes the 10 px bar a finger-sized target. */
+.bar-btn { all: unset; box-sizing: border-box; display: block; padding: 8px 0; margin: -8px 0; cursor: pointer; transition: opacity .2s; }
+.bar-btn:focus-visible { outline: 2px solid var(--text-2); outline-offset: 2px; border-radius: 6px; }
+.bar-btn.ring[aria-pressed="true"] .bar { outline: 1px solid var(--muted); outline-offset: 2px; }
+.bar-btn.faded { opacity: .4; }
+.res-bars { display: flex; flex-direction: column; gap: 10px; }
+.res-bar { height: var(--result-bar-h); border-radius: 3px; }
+/* The glyphs hang under the thin wound bar, not over it. */
+.res-bars .sglyphs { margin-top: 4px; }
 .breakdown { display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
 .breakdown .row { display: grid; grid-template-columns: 84px minmax(0, 1fr) 56px; align-items: center; gap: 10px; }
 .breakdown .row .k { color: var(--text-2); }
@@ -45,7 +55,9 @@
 
 /* Face to face breakdown (FaceToFaceChart.jsx): active bars grow up from the
    row of readings, reactive bars down; the bright part sits by the axis. */
-.f2f-break { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line); padding-top: 14px; }
+.f2f-break { display: flex; flex-direction: column; gap: 8px; }
+.f2f-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.f2f-head .hint { font-size: var(--fs-label); color: var(--text-3); text-align: right; }
 .f2f-lead { margin: 0; font-size: 14px; line-height: 1.45; color: var(--text); }
 .f2f-chart { --f2f-h: 84px; display: flex; flex-direction: column; gap: 4px; }
 .f2f-name { font-size: var(--fs-label); }
@@ -63,3 +75,9 @@
 .f2f-axis { border-top: 1px solid var(--handle); border-bottom: 1px solid var(--handle); padding: 3px 0; }
 .f2f-axis span { font-family: var(--font-mono); font-size: var(--fs-label); text-align: center; color: var(--faint); }
 .f2f-axis .crit { color: var(--text); font-weight: 700; }
+/* Under the chart, what each outcome's share is made of. */
+.f2f-whys { display: flex; flex-direction: column; padding-top: 6px; }
+.f2f-why { display: flex; flex-direction: column; gap: 3px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; line-height: 1.4; }
+.f2f-why > div { display: flex; justify-content: space-between; gap: 8px; }
+.f2f-why .p { font-family: var(--font-mono); }
+.f2f-why .sub { color: var(--text-2); font-size: var(--fs-small); }
