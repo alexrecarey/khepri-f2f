@@ -1,9 +1,9 @@
-//! `calculate_json` (the WASM build's entry point) against f2f.py's `calculate` itself, natively (`cargo test`).
+//! `calculate_json` (the WASM build's entry point) against the Python engine's own results, natively (`cargo test`).
 //!
-//! khepri_calculate.json holds 40 engine inputs from icepool-rs's khepri sweep generator with what
-//! `f2f.calculate` returned for each. ../../src/engine/engine.test.mjs runs the built WASM over the larger
-//! engine.golden.json. The khepri sweep checks the exact die; this checks the
-//! last step too: `rolls` exactly (it passes 2**53) and every `chance` to the bit.
+//! khepri_calculate.json holds 40 engine inputs from icepool-rs's khepri sweep generator with what the Python
+//! engine (f2f.py, since removed) returned for each. ../../src/engine/engine.test.mjs runs the built WASM over the
+//! larger engine.golden.json. The khepri sweep checks the exact die; this checks the last step too: `rolls` exactly
+//! (it passes 2**53) and every `chance` to the bit.
 use khepri_engine::engine::calculate_json;
 use serde_json::Value;
 

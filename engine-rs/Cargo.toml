@@ -3,7 +3,7 @@ name = "khepri-engine"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "khepri-f2f's Face to Face dice engine (f2f.py) on icepool-rs, built to WebAssembly"
+description = "khepri-f2f's Face to Face dice engine on icepool-rs, built to WebAssembly"
 publish = false
 
 [lib]

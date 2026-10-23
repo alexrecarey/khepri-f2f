@@ -26,8 +26,8 @@ jobs:
       - run: yarn build
       - run: yarn check-build
 
-  # The engine's own tests (engine-rs/tests), natively. Run from engine-rs/ so
-  # the runner's rustup installs the toolchain rust-toolchain.toml pins.
+  # The engine's own tests (engine-rs/tests), natively, on the Rust that
+  # rust-toolchain.toml pins (installed by name: rustup may not do it itself).
   engine:
     runs-on: ubuntu-latest
     defaults:
@@ -35,4 +35,5 @@ jobs:
         working-directory: engine-rs
     steps:
       - uses: actions/checkout@v4
+      - run: rustup toolchain install --profile minimal "$(sed -n 's/^channel = "\(.*\)"/\1/p' rust-toolchain.toml)"
       - run: cargo test --locked
