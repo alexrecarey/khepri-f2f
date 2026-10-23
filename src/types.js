@@ -150,11 +150,12 @@
 
 /**
  * One line a calculator input adds up to (rules/lines.js). Only a live line
- * counts: not struck, and its value a number (a display-only line has a
- * string: '—', '+', ''). After rules/ledger.js renderDerived, every Message
- * here is a string.
+ * counts: not struck, with a number for its value. A display-only line
+ * (lines.js mark) has value null and a `text` for the value column. After
+ * rules/ledger.js renderDerived, every Message here is a string.
  * @typedef {object} Line
- * @property {number | string} value
+ * @property {number | null} value what it adds; null: it doesn't add up
+ * @property {'—' | '+' | ''} [text] what the value column shows instead (out of range, an ammunition part, the weapon's own)
  * @property {Message} label
  * @property {'A' | 'B' | null} by whose skill, weapon or position caused it (the colour)
  * @property {Message} [struck] why it was cancelled
