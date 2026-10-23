@@ -63,7 +63,7 @@ const side = (p, o, weaponKey, inCover = false) => {
 const combi = option([{id: 1, name: 'Combi Rifle'}, {id: 8, name: 'CC Weapon'}]);
 
 // What a section's live lines (not struck, a number) add up to.
-const addUp = (lines) => lines.filter((x) => !x.struck && typeof x.value === 'number').reduce((n, x) => n + x.value, 0);
+const addUp = (lines) => lines.filter((x) => x.value !== null && !x.struck).reduce((n, x) => n + x.value, 0);
 
 // deriveInputs, plus a check that "How the dice were built" (ledger.js) adds
 // up to every number it produced: each rule case below is also a ledger case,
@@ -84,8 +84,8 @@ function derive(args) {
       if (!sec) continue;
       const where = `ledger ${s} ${k}: ${JSON.stringify(sec.lines)}`;
       assert.equal(sec.total, total, where);
-      // Out of range is a '—' line with Success Value 0, not a sum.
-      if (!sec.lines.some((x) => x.value === '—')) assert.equal(addUp(sec.lines), total, where);
+      // Out of range: Success Value 0 under a '—' mark, not the lines' sum.
+      if (!sec.lines.some((x) => x.text === '—')) assert.equal(addUp(sec.lines), total, where);
     }
   }
   return r;

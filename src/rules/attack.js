@@ -15,7 +15,7 @@ import {RANGE_BANDS, bandFrom, rangeModFor} from './ranges.js';
 import {ccAttackMods, ccBurst, ccSd} from './closeCombat.js';
 import {distance, list, msg} from '../i18n/message.js';
 import {hitInputs} from './hit.js';
-import {coverLabel, line, section, statLabel, sum, svSection} from './lines.js';
+import {coverLabel, line, mark, section, statLabel, sum, svSection} from './lines.js';
 
 function rangeLabel(rangeCm) {
   const i = RANGE_BANDS.findIndex((b) => rangeCm <= b.to);
@@ -74,7 +74,7 @@ function attackSv(x, y, rangeCm, s, ctx) {
   const rangeMod = rangeModFor(row, rangeCm, x.traits);
   // Out of range: the attack still happens but always fails. A success value
   // of 0 misses on every roll, with no crit.
-  if (rangeMod === null) return {...section([...lines, line('—', msg('ledger.outOfRange'), s)], 0), note: msg('ledger.outOfRangeNote')};
+  if (rangeMod === null) return {...section([...lines, mark('—', msg('ledger.outOfRange'), s)], 0), note: msg('ledger.outOfRangeNote')};
   if (rangeMod) lines.push(line(rangeMod, rangeLabel(rangeCm), s));
   if (mods.sv) lines.push(line(mods.sv, msg('ledger.loadout'), s));
   // A program's Attack MOD is x's, the target's ECM: Hacker the target's.
