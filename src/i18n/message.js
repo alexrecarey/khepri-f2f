@@ -3,22 +3,18 @@
 // The rules (src/rules) decide which note, warning or ledger line applies
 // and return it as a descriptor, plain data with no language in it; the
 // view (state/matchupView.js, rules/ledger.js) renders it with the player's
-// translator (./index.js). A descriptor is one of:
-//   msg(key, params)   {key, params?, fallback?}: t(key, params), each param
-//                      itself a value or a descriptor; `fallback` is shown
-//                      when the key has no message (an ammo name the copy
-//                      doesn't translate)
-//   term(table, token) {term: [table, token, scope?], strip?}: an army term
-//                      (t.term), `strip` a RegExp taken off it
-//   inch(text)         {inch}: Army text in inches, in t's unit (t.inchText)
-//   distance(cm)       {distance}: a distance in t's unit (t.distance)
-//   list(items, sep)   {list, sep}: descriptors joined by `sep`
-//   a string           already text: rendered as is, so a caller can mix
-//                      the army's own names (a weapon's) with descriptors
+// translator (./index.js). The shapes are types.js Message: one constructor
+// each below, or a string that is already text.
+
+/** @returns {import('../types.js').MessageKey} */
 export const msg = (key, params) => (params ? {key, params} : {key});
+/** @returns {import('../types.js').MessageTerm} */
 export const term = (table, token, scope) => ({term: scope === undefined ? [table, token] : [table, token, scope]});
+/** @returns {import('../types.js').MessageInch} */
 export const inch = (text) => ({inch: text});
+/** @returns {import('../types.js').MessageDistance} */
 export const distance = (cm) => ({distance: cm});
+/** @returns {import('../types.js').MessageList} */
 export const list = (items, sep = ', ') => ({list: items, sep});
 
 // "Active: ..." / "Reactive: ...": a note about one side; s null is about both.
@@ -27,8 +23,12 @@ export const side = (s, m) => (s ? msg('note.side', {side: msg(s === 'A' ? 'side
 const isDescriptor = (m) => m !== null && typeof m === 'object' && !Array.isArray(m)
   && ('key' in m || 'term' in m || 'inch' in m || 'distance' in m || 'list' in m);
 
-// The descriptor's text in t's language. Anything that isn't a descriptor
-// (a string, a number, null) comes back unchanged.
+/**
+ * The descriptor's text in t's language. Anything that isn't a descriptor
+ * (a string, a number, null) comes back unchanged.
+ * @param {any} m a Message (types.js), or anything else
+ * @returns {any} the text, or `m` as it came
+ */
 export function render(t, m) {
   if (!isDescriptor(m)) return m;
   if ('key' in m) {

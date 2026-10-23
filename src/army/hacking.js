@@ -110,9 +110,12 @@ export const unreadHackingExtras = (extra = []) => (extra ?? []).filter((e) =>
 // Can the trooper run Zero Pain?
 export const hasZeroPain = (traits) => items(traits).some((i) => i.zeroPain);
 
-// The program as a weapon row: a Comms Attack with no LoF, a WIP roll, a BTS
-// Saving Roll (halved for AP, two for DA). `hack` carries what the rules read
-// that no weapon row has. `lang`: the army's language, for the name.
+/**
+ * The program as a weapon row: a Comms Attack with no LoF, a WIP roll, a BTS
+ * Saving Roll (halved for AP, two for DA). `hack` carries what the rules read
+ * that no weapon row has. `lang`: the army's language, for the name.
+ * @returns {import('../types.js').WeaponRow}
+ */
 export function programRow(id, lang = 'en') {
   const p = PROGRAMS[id];
   const name = p.names?.[lang] ?? p.name;
@@ -126,11 +129,13 @@ export function programRow(id, lang = 'en') {
 
 export const isHackingProgram = (row) => Boolean(row?.hack);
 
-// The programs a trooper can run, one weapon entry each ({key, id, name, row,
-// mods, label}, as army/weapons.js builds them), in the chart's order: its
-// devices' programs and the ones its upgrades grant, with their MODs (a MOD
-// on the device or "UPGRADE: SR-1" goes on every program; the program's
-// opponent MOD and its upgrade's add up).
+/**
+ * The programs a trooper can run, one weapon entry each (as army/weapons.js
+ * builds them), in the chart's order: its devices' programs and the ones its
+ * upgrades grant, with their MODs (a MOD on the device or "UPGRADE: SR-1"
+ * goes on every program; the program's opponent MOD and its upgrade's add up).
+ * @returns {import('../types.js').WeaponEntry[]}
+ */
 export function trooperPrograms(traits, lang = 'en') {
   const list = items(traits);
   const granted = new Set(hackingTraits(traits).flatMap((t) => DEVICE_PROGRAMS[t.id] ?? []));

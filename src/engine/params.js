@@ -1,9 +1,10 @@
 import {clamp} from '../lib/clamp.js';
 
-// The calculator's input: one flat object of calculator params, the same in
-// Basic mode, Matchup mode, share links, saved results and the CSV export.
-// Keys end in A (active) or B (reactive), plus a flag for a fixed-value roll.
-// src/engine/calculate.js turns them into the dice engine's own, smaller input.
+// The calculator's input (types.js Params): one flat object of calculator
+// params, the same in Basic mode, Matchup mode, share links, saved results
+// and the CSV export. Keys end in A (active) or B (reactive), plus a flag for
+// a fixed-value roll. src/engine/calculate.js turns them into the dice
+// engine's own, smaller input.
 
 // Ammunition the calculator knows: the keys of AMMO in calculate.js. DODGE
 // stands for a Dodge, which wins the Face to Face Roll but causes no Saving
@@ -54,6 +55,7 @@ export const PARAMS = {
 
 export const PARAM_KEYS = Object.keys(PARAMS);
 
+/** @type {import('../types.js').Params} */
 export const DEFAULT_PARAMS = Object.fromEntries(PARAM_KEYS.map((k) => [k, PARAMS[k].default]));
 
 // One raw string (URL param) -> value, or undefined when it can't be read.
@@ -64,8 +66,11 @@ function parseValue(spec, raw) {
   return AMMO_KEYS.includes(upper) ? upper : undefined;
 }
 
-// Calculator params from URL search params; anything missing or unreadable
-// gets its default.
+/**
+ * Calculator params from URL search params; anything missing or unreadable
+ * gets its default.
+ * @returns {import('../types.js').Params}
+ */
 export function parseParams(searchParams) {
   const out = {...DEFAULT_PARAMS};
   for (const k of PARAM_KEYS) {
@@ -80,7 +85,11 @@ export function parseParams(searchParams) {
   return out;
 }
 
-// Full calculator input, defaults filled in for anything not given.
+/**
+ * Full calculator input, defaults filled in for anything not given.
+ * @param {Partial<import('../types.js').Params>} partial
+ * @returns {import('../types.js').Params}
+ */
 export function fullParams(partial) {
   const params = {};
   for (const k of PARAM_KEYS) params[k] = partial[k] !== undefined ? partial[k] : DEFAULT_PARAMS[k];

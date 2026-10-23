@@ -81,12 +81,13 @@ function applyShock(p, outcomes) {
   return outcomes.map((o) => (shock[o.player] && o.wounds > 0 ? {...o, wounds: o.wounds + 1} : o));
 }
 
-// Engine output -> {faceToFace, expectedWounds, totalRolls}.
-//   faceToFace      [{id, player, rawChance, chance}] for active, reactive, fail
-//   expectedWounds  [{id, player, wounds, rawChance, chance, cumulativeChance}],
-//                   active then fail then reactive, by wounds; cumulativeChance
-//                   is that player's chance of this many wounds or more.
-// rawChance is the chance counted in rolls (chance * totalRolls).
+/**
+ * Engine output -> the result rows: who wins the Face to Face Roll, then the
+ * wounds, active then fail then reactive. rawChance is the chance counted in
+ * rolls (chance * totalRolls).
+ * @param {import('../types.js').Params} p
+ * @returns {import('../types.js').EngineResult}
+ */
 export function formatResult(p, {rolls: count, outcomes}) {
   // The engine's roll count is a BigInt past 2**53 (wasm/khepri_engine.js;
   // B6+3 EXP continuous on both sides gets there), and a BigInt in a
@@ -117,13 +118,17 @@ export function formatResult(p, {rolls: count, outcomes}) {
   return {faceToFace, expectedWounds, totalRolls: rolls};
 }
 
-// Runs the calculator params through `runEngine` (engine input -> engine
-// output: the engine's calculate, see worker.js) and returns the result the display reads.
-//
-// A Direct Template against an attack (isUnopposed) is two engine runs, one
-// per side. The result then holds 'unopposed': {active, reactive}, one result
-// per side, each without the other's rows; its top-level 'faceToFace' and
-// 'expectedWounds' keep only each side's own rows (no 'fail').
+/**
+ * Runs the calculator params through `runEngine` (engine input -> engine
+ * output: the engine's calculate, see worker.js) and returns the result the display reads.
+ *
+ * A Direct Template against an attack (isUnopposed) is two engine runs, one
+ * per side. The result then holds 'unopposed': {active, reactive}, one result
+ * per side, each without the other's rows; its top-level 'faceToFace' and
+ * 'expectedWounds' keep only each side's own rows (no 'fail').
+ * @param {import('../types.js').Params} p
+ * @returns {import('../types.js').EngineResult}
+ */
 export function calculate(p, runEngine) {
   const run = (q) => formatResult(q, runEngine(engineInput(q)));
   if (!isUnopposed(p)) return run(p);

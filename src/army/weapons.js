@@ -12,9 +12,9 @@ const EXCLUDED_PROPS = new Set(['CC', 'CC Attack (+3)', 'Deployable', 'Perimeter
 
 export const isTemplate = (row) => (row?.props ?? []).some((p) => p.startsWith('Direct Template'));
 
-// What a weapon entry is, set once where it is built and switched on
-// everywhere else ({key, kind, ...}: bsWeapons / ccWeapons here,
-// army/hacking.js trooperPrograms, rules/trooper.js pseudoWeapons):
+// What a weapon entry is (types.js WeaponEntry / PseudoEntry), set once
+// where it is built and switched on everywhere else (bsWeapons / ccWeapons
+// here, army/hacking.js trooperPrograms, rules/trooper.js pseudoWeapons):
 //   bs        a BS Attack that is rolled (Impact Templates included: they roll)
 //   template  a Direct Template: hits without a roll
 //   cc        a CC Attack
@@ -140,7 +140,10 @@ function addWeaponMod(mods, e) {
   return true;
 }
 
-// Loadout-level weapon extras such as "+1B", "+1SD", "PS=6", "AP", "T2".
+/**
+ * Loadout-level weapon extras such as "+1B", "+1SD", "PS=6", "AP", "T2".
+ * @returns {import('../types.js').WeaponMods}
+ */
 export function parseWeaponMods(extra = []) {
   // psMod: MOD to the target's Saving Rolls, as a change to PS (BS Attack (SR-1)).
   const mods = {burst: 0, sd: 0, ps: null, psMod: 0, forceAP: false, cont: false, sv: 0, ammo: null};
@@ -224,8 +227,14 @@ function loadoutWeapons(option, weapons, keep, cc) {
   return out;
 }
 
-// BS-attack capable weapons of a loadout, one entry per firing mode.
+/**
+ * BS-attack capable weapons of a loadout, one entry per firing mode.
+ * @returns {import('../types.js').WeaponEntry[]}
+ */
 export const bsWeapons = (option, weapons) => loadoutWeapons(option, weapons, isBsAttackWeapon, false);
 
-// CC weapons of a loadout (CC Mode of a weapon with several), kind 'cc'.
+/**
+ * CC weapons of a loadout (CC Mode of a weapon with several), kind 'cc'.
+ * @returns {import('../types.js').WeaponEntry[]}
+ */
 export const ccWeapons = (option, weapons) => loadoutWeapons(option, weapons, isCcWeapon, true);

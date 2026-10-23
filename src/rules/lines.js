@@ -2,19 +2,30 @@
 // (matchup.js) computes every calculator input as lines and sums them; the
 // ledger (ledger.js) lays the same lines out.
 //
-// A line is {value, label, by: 'A' | 'B' | null, struck?: reason, source?}:
-// `by` is whose skill, weapon or position caused it (the colour), `struck`
-// why it was cancelled. `label`, `struck` and `source` are message
-// descriptors (i18n/message.js) or the army's own names; the ledger renders them. Only a live line counts: not struck, and its value a
-// number (a display-only line has a string: '—', '+', '').
+// A line (types.js Line) says whose skill, weapon or position caused it and
+// why it was cancelled, as message descriptors (i18n/message.js) or the
+// army's own names; the ledger renders them. Only a live line counts: not
+// struck, and its value a number (a display-only line has a string: '—',
+// '+', '').
 import {msg} from '../i18n/message.js';
 import {LIMITS, MOD_CAP, capMods} from './modifiers.js';
 
+/**
+ * @param {number | string} value
+ * @param {import('../types.js').Message} label
+ * @param {'A' | 'B' | null} by
+ * @param {import('../types.js').Message} [struck]
+ * @returns {import('../types.js').Line}
+ */
 export const line = (value, label, by, struck) => ({value, label, by, ...(struck ? {struck} : {})});
 export const live = (lines) => lines.filter((l) => !l.struck && typeof l.value === 'number');
 export const sum = (lines) => live(lines).reduce((t, l) => t + l.value, 0);
 
-// A section of the ledger: its lines and what they add up to.
+/**
+ * A section of the ledger: its lines and what they add up to.
+ * @param {import('../types.js').Line[]} lines
+ * @returns {import('../types.js').Section}
+ */
 export const section = (lines, total = sum(lines)) => ({lines, total});
 
 // The MODs on a roll: every live line after the Attribute, Fireteam +1 BS

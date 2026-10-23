@@ -539,26 +539,21 @@ function sideInputs(x, y, s, ctx) {
   return {inputs, incomplete, shoots, lines, ps, arm};
 }
 
-// Builds the partial calculator input object for both sides.
-// `active` / `reactive` are results of resolveSelection() (or null).
-// rangeCm is the distance both shoot at, unless the reactive shoots at its own
-// rangeCmB (a split range: it answers from somewhere else on the table).
-// Returns {inputs, ok, errors, warnings, notes, lines}. Notes, warnings and
-// errors are message descriptors (i18n/message.js), as is every label,
-// reason and note below: the view renders them in the player's language
-// (ledger.js renderDerived), so a language change re-derives nothing.
-// `lines[side]` is what the side's roll is built from, for "How the dice
-// were built" (ledger.js):
-//   kind      'attack' | 'template' | 'dodge' | 'reset' | 'none'
-//   sv        {lines, total, note?}: the Success Value (lines.js section)
-//   burst, sd {lines, total}: Burst and Special Dice (not on a Reset)
-//   save      {lines, total}: the Saving Roll the other side makes against
-//             this side's hits, weapon PS + target ARM (attacks only)
-//   ammo      {lines, total}: the ammunition and where each part comes from
-//             (attacks only; total is text, "AP+CONT")
-//   reason    kind 'none': why a Dodge, Reset or program isn't rolled
-//   blockedZone   kind 'none': the Smoke / White Noise it can't see through
-// or null while the side has nothing to roll with.
+/**
+ * Builds the partial calculator input object for both sides.
+ * `active` / `reactive` are results of resolveSelection() (or null).
+ * rangeCm is the distance both shoot at, unless the reactive shoots at its own
+ * rangeCmB (a split range: it answers from somewhere else on the table).
+ * Notes, warnings and errors are message descriptors (i18n/message.js), as
+ * is every label, reason and note in the lines: the view renders them in the
+ * player's language (ledger.js renderDerived), so a language change
+ * re-derives nothing. `lines[side]` is what the side's roll is built from,
+ * for "How the dice were built" (ledger.js), or null while the side has
+ * nothing to roll with.
+ * @param {{active: import('../types.js').ResolvedSide | null, reactive: import('../types.js').ResolvedSide | null,
+ *   rangeCm: number, rangeCmB: number | null, zones: import('../types.js').Zones}} matchup
+ * @returns {import('../types.js').Derived}
+ */
 export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
   const inputs = {};
   const errors = [];
