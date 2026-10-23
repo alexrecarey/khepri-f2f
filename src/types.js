@@ -516,7 +516,8 @@
 
 /**
  * The core in the player's language (state/matchupView.js renderMatchup):
- * every Message rendered, and the ledger built with its notes.
+ * every Message rendered, and the ledger built with its notes. `derived` is
+ * the core's own (descriptors): nothing on screen reads it directly.
  * @typedef {Omit<MatchupCore, 'ledger'> & {ledger: (LedgerHeader & {ledger: Ledger, notes: string[]}) | null}} MatchupView
  */
 

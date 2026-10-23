@@ -177,8 +177,9 @@ export function matchupCore(army, matchup) {
 }
 
 /**
- * The core in t's language: every descriptor rendered (notes, ledger lines,
- * zone lines, wound states, mode labels), the Team-Ops labels in its unit.
+ * The core in t's language: every descriptor rendered (ledger lines and
+ * notes, zone lines, wound states, mode labels), the Team-Ops labels in its
+ * unit. `derived` stays the core's: the rules' output, descriptors and all.
  * t: the player's translator (src/i18n), with the army's terms.
  * @param {import('../types.js').MatchupCore} core
  * @returns {import('../types.js').MatchupView}
@@ -193,17 +194,19 @@ export function renderMatchup(core, t = tEn) {
   });
   const A = side(core.A);
   const B = side(core.B);
-  const derived = renderDerived(core.derived, t);
+  // The derivation in t's language feeds the ledger and its notes; the view
+  // keeps the core's own `derived` (descriptors), one shape under one name.
+  const rendered = renderDerived(core.derived, t);
   const ledger = core.ledger && {
-    ledger: buildLedger({active: A.resolved, reactive: B.resolved, derived, t}),
+    ledger: buildLedger({active: A.resolved, reactive: B.resolved, derived: rendered, t}),
     ...core.ledger,
-    notes: [...derived.warnings, ...derived.notes],
+    notes: [...rendered.warnings, ...rendered.notes],
   };
   const zoneLines = (v) => ({...v, lines: v.lines.map((l) => ({...l, label: say(l.label), ignoredBy: say(l.ignoredBy)}))});
   const vis = {A: zoneLines(core.vis.A), B: zoneLines(core.vis.B)};
   const states = (list) => list && list.map((s) => ({...s, label: say(s.label)}));
   const targets = core.targets && {active: states(core.targets.active), reactive: states(core.targets.reactive)};
-  return {...core, A, B, derived, ledger, vis, targets};
+  return {...core, A, B, ledger, vis, targets};
 }
 
 /**
