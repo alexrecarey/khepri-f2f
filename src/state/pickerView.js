@@ -1,11 +1,12 @@
-// How the picker sorts one unit's loadouts and shows its stats. Needs the
+// What the trooper picker shows of one unit: how it sorts the loadouts and
+// shows their stats (pure; the picker components render it). Needs the
 // army data (weapon range bands, profile stats); without it the unit page is a
 // plain list.
-import {crestOf} from '../../army/crests.js';
-import {unitById} from '../../army/lookup.js';
-import {isLieutenant} from '../../army/traits.js';
-import {isNonLethal} from '../../army/weapons.js';
-import {RANGE_BANDS} from '../../rules/ranges.js';
+import {crestOf} from '../army/crests.js';
+import {unitById} from '../army/lookup.js';
+import {isLieutenant} from '../army/traits.js';
+import {isNonLethal} from '../army/weapons.js';
+import {RANGE_BANDS} from '../rules/ranges.js';
 
 // Their names are src/i18n's reach.<key>.
 export const REACH_GROUPS = ['long', 'mid', 'close', 'other'];

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {bandColor} from '../bands.js';
 import {ammoName} from '../../army/weapons.js';
 import {useT} from '../i18n.jsx';
-import {loadoutCharts} from './loadouts.js';
+import {loadoutCharts} from '../../state/pickerView.js';
 import {setCursor} from './useDeskPicker.js';
 
 function Stripe({bands}) {

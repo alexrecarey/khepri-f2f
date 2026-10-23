@@ -11,7 +11,7 @@ import FactionLogo from '../factionLogo.jsx';
 import {CardCrest} from '../Crest.jsx';
 import {Page} from '../Sheet.jsx';
 import {typeName} from './constants.js';
-import {groupLoadouts, orderLoadouts, profileGroups, statLine} from './loadouts.js';
+import {groupLoadouts, orderLoadouts, profileGroups, statLine} from '../../state/pickerView.js';
 import ProfileGroup from './ProfileGroup.jsx';
 import {LoadoutRow, UnitRow} from './Rows.jsx';
 

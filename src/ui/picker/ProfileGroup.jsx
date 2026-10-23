@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import {useT} from '../i18n.jsx';
 import {typeName} from './constants.js';
-import {loadoutTag} from './loadouts.js';
+import {loadoutTag} from '../../state/pickerView.js';
 
 // A unit with several profile groups (Team-Ops): one section per group, its
 // name and type over its stats (label over value, as on desktop), the kit

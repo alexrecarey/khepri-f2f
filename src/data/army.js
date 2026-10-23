@@ -4,9 +4,9 @@
 // (src/army/localize.js), so a player only downloads their own language's
 // names; the English ones are split out of army.json at build time
 // (vite.config.js).
-import {useCallback, useEffect, useState} from 'react';
 import {lazyOnce} from '../lib/lazyOnce.js';
 import {withNames} from '../army/localize.js';
+import {useLazy} from './useLazy.js';
 
 const loadCore = lazyOnce(() => import('virtual:army-core').then((m) => m.default));
 const NAMES = {
@@ -22,22 +22,6 @@ export const loadArmy = (lang) => (loaders[lang] ?? loaders.en)();
 // loading when `enabled`. While another language loads, the last one stays
 // on screen. After a failure, retry() loads it again.
 export function useArmy(enabled, lang) {
-  // armyLang: the language `army` is in; errorLang: the one that failed.
-  const [state, setState] = useState({army: null, armyLang: null, error: null, errorLang: null});
-  const [attempt, setAttempt] = useState(0);
-  const {armyLang, error, errorLang} = state;
-  useEffect(() => {
-    if (!enabled || armyLang === lang || (error && errorLang === lang)) return undefined;
-    let live = true;
-    loadArmy(lang).then(
-      (army) => live && setState({army, armyLang: lang, error: null, errorLang: null}),
-      (e) => live && setState((s) => ({...s, error: e, errorLang: lang})),
-    );
-    return () => { live = false; };
-  }, [enabled, lang, armyLang, error, errorLang, attempt]);
-  const retry = useCallback(() => {
-    setState((s) => ({...s, error: null}));
-    setAttempt((n) => n + 1);
-  }, []);
-  return {army: state.army, error: state.error, retry};
+  const {value: army, error, retry} = useLazy(loadArmy, lang, enabled);
+  return {army, error, retry};
 }

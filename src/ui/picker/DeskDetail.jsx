@@ -10,7 +10,7 @@ import {typeName} from './constants.js';
 import {traitLabel} from '../../army/traits.js';
 import {useT} from '../i18n.jsx';
 import DeskLoadout from './DeskLoadout.jsx';
-import {loadoutTag} from './loadouts.js';
+import {loadoutTag} from '../../state/pickerView.js';
 import {setCursor} from './useDeskPicker.js';
 
 // A profile's stats, each label over its value.

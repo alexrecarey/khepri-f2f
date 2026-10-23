@@ -22,7 +22,7 @@ function AttackBar({a, side, thin = false, labels = false}) {
     {key: 'saved', chance: a.saved, cls: 'seg-none', text: t('unopposed.saved')},
     {key: 'miss', chance: a.miss, cls: 'seg-miss', text: t('unopposed.miss')},
   ];
-  const segs = (side === 'active' ? [...wounds, ...rest] : [...rest.reverse(), ...[...wounds].reverse()]).filter((x) => shows(x.chance));
+  const segs = (side === 'active' ? [...wounds, ...rest] : [...[...rest].reverse(), ...[...wounds].reverse()]).filter((x) => shows(x.chance));
   return (
     <div className={`bar attack-bar${thin ? ' thin' : ''}`}>
       {segs.map((x) => (
