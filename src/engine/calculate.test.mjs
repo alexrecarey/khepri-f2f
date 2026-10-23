@@ -61,6 +61,17 @@ test('result rows: active, fail, reactive by wounds, with cumulative chances', (
   assert.equal(r.totalRolls, 8000);
 });
 
+test('a roll count past 2**53 (a BigInt from the WASM glue) still formats', () => {
+  // B6+3 EXP continuous on both sides at high PS gets there in Classic mode.
+  const big = 262144000000000000000000n;
+  const r = calculate(P, stub([{player: 'active', wounds: 1, chance: 0.5}, {player: 'fail', wounds: 0, chance: 0.5}], big));
+  assert.equal(r.totalRolls, Number(big));
+  assert.equal(r.expectedWounds[0].rawChance, 0.5 * Number(big));
+  // A Direct Template against an attack adds the two counts.
+  const r2 = calculate({...P, templateA: true}, stub([{player: 'active', wounds: 1, chance: 1}], big));
+  assert.equal(r2.totalRolls, 2 * Number(big));
+});
+
 test('result rows: wounds over the maximum count as the maximum', () => {
   const r = formatResult(P, {rolls: 1, outcomes: [
     {player: 'active', wounds: MAX_WOUNDS, chance: 0.5},
