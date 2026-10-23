@@ -1,14 +1,13 @@
 // The menu on wide screens (design canvas Final: "Desktop menu — header
 // buttons (A)"): Saved, Settings and About sit in the header and each opens a
 // centred dialog (DeskDialog.jsx); the open one's button stays pressed. The
-// phone keeps the ⋯ menu sheet and full-screen pages (Chrome.jsx).
+// phone keeps the ⋯ menu sheet and full-screen pages (Menu.jsx,
+// SettingsPage.jsx, AboutPage.jsx).
 import {useMemo} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
-import {
-  ARMY_DATE, AboutContact, AboutIntro, AboutLinks, LanguageSetting, StartFaction, VERSION,
-  clearRecents, clearSaved,
-} from './Chrome.jsx';
+import {ARMY_DATE, AboutContact, AboutIntro, AboutLinks, VERSION} from './AboutPage.jsx';
+import {LanguageSetting, StartFaction, clearRecents, clearSaved} from './SettingsPage.jsx';
 import DeskDialog from './DeskDialog.jsx';
 import {HEADLINES, headline} from '../results/headline.js';
 import {headlineChoice, setHeadline} from '../state/headlines.js';
