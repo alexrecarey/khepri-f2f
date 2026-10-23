@@ -9,7 +9,8 @@ import {CLASSIC_AMMO, SAVE_LIMIT, armSave, btsSave, classicSide} from '../state/
 import {ROLE} from '../state/schema.js';
 import {dispatch} from '../state/store.js';
 import {D20} from './icons.jsx';
-import ResultsCard, {ResultsPanel} from './ResultsCard.jsx';
+import ResultsCard from './ResultsCard.jsx';
+import ResultsPanel from './ResultsPanel.jsx';
 import useLayout from './useLayout.js';
 import {classicRollSummary} from '../state/rolls.js';
 import useRollResults from './useRollResults.js';
