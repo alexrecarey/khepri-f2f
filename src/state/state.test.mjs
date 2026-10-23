@@ -38,6 +38,16 @@ test('swapSides drops No ARO and Surprise Attack, carries fireteam and cover', (
   assert.equal(s.matchup.B.ftSize, 3);
 });
 
+test('Cover and the Foxhole are one or the other', () => {
+  const dug = run(initialState(), {type: 'setSide', side: 'A', sel: {...fennec, inCover: true}}, {type: 'setSapper', side: 'A', on: true});
+  assert.deepEqual([dug.matchup.A.sapper, dug.matchup.A.inCover], [true, false]);
+  const covered = run(dug, {type: 'setCover', side: 'A', on: true});
+  assert.deepEqual([covered.matchup.A.sapper, covered.matchup.A.inCover], [false, true]);
+  const open = run(covered, {type: 'setCover', side: 'A', on: false});
+  assert.deepEqual([open.matchup.A.sapper, open.matchup.A.inCover], [false, false]);
+  assert.equal(open.matchup.A.unitId, fennec.unitId);   // the rest of the side stays
+});
+
 test('setRange can open the selector in the same step', () => {
   const s = run(initialState(), {type: 'setRange', rangeCm: 100, open: true});
   assert.equal(s.matchup.rangeCm, 100);

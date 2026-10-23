@@ -81,6 +81,11 @@ export function reduce(state, action) {
       return setSide(state, action.side, {...EMPTY_SIDE, ...action.sel});
     case 'patchSide':
       return setSide(state, action.side, {...matchup[action.side], ...action.patch});
+    // Cover or, for Sapper, the Foxhole (its own cover): one or the other.
+    case 'setCover':
+      return setSide(state, action.side, {...matchup[action.side], inCover: Boolean(action.on), sapper: false});
+    case 'setSapper':
+      return setSide(state, action.side, {...matchup[action.side], sapper: Boolean(action.on), inCover: false});
     // A weapon button. Picking a CC weapon moves the range to the closest
     // band (0-8"): whoever shoots at a trooper charging into CC almost always
     // does so from there (Alex, 2026-10-19). The CC side has no range, so a

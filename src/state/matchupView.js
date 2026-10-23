@@ -14,10 +14,10 @@ import {fullParams} from '../engine/params.js';
 import {defaultWeapon, sortWeapons} from '../rules/defaultWeapon.js';
 import {buildLedger, renderDerived} from '../rules/ledger.js';
 import {deriveInputs} from '../rules/matchup.js';
-import {fireteamHelps, surpriseAttackMod, targetedHelps} from '../rules/modifiers.js';
+import {fireteamHelps, firewallMod, surpriseAttackMod, targetedHelps} from '../rules/modifiers.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {visibility} from '../rules/visibility.js';
-import {berserkMod, ccAlliesMax, hasBerserk, isCcAttack} from '../rules/closeCombat.js';
+import {berserkMod, ccAllies, ccAlliesMax, hasBerserk, isCcAttack} from '../rules/closeCombat.js';
 import {resolveSelection, withWeapon} from '../rules/trooper.js';
 import {modeLabels, orderModes} from '../rules/weaponModes.js';
 import {woundStates} from '../rules/woundStates.js';
@@ -93,9 +93,15 @@ function sideView(army, side, {sel, resolved}, other) {
     // A side CC attacking may count allies in contact, as many as fit around
     // the other side's base.
     ccAlliesMax: cc ? ccAlliesMax(other) : 0,
+    // The allies the CC Attack counts: the chosen number, held to what fits.
+    ccAllies: cc ? ccAllies(resolved, other) : 0,
     // No Cover: cover does nothing for it, so no Cover chip.
     noCover: hasSkill(resolved?.traits, SKILL.NO_COVER),
+    // The Cover chip is on, unless the side sits in its Foxhole (its cover).
+    coverOn: Boolean(sel.inCover) && !resolved?.sapper,
     hacked,
+    // Hacked, the trooper's own Firewall can't be switched off.
+    firewallRequired: firewallMod(resolved?.traits) !== 0,
     // Situation chips that follow the pick: Hacked for a Reset, IMM-A for a
     // Dodge. Targeted: while the other side's shot or program gains from it,
     // or this side Resets (-3 to it).
