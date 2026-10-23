@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {selectionFromHit} from './actions.js';
-import {effectiveWeaponKey} from './matchupView.js';
+import {matchupCore} from './matchupView.js';
 
 const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 // Fusiliers (PanOceania) with a Combi Rifle.
@@ -18,8 +18,9 @@ test('a pick stores the weapon the query matched, never a derived default', () =
 
 test('the default follows the side, so it changes when the trooper swaps sides', () => {
   const sel = selectionFromHit(army, hit);
-  assert.ok(effectiveWeaponKey(army, sel, 'A'));
-  assert.ok(effectiveWeaponKey(army, sel, 'B'));
+  const core = matchupCore(army, {A: sel, B: sel, rangeCm: 40});
+  assert.ok(core.A.sel.weaponKey);
+  assert.ok(core.B.sel.weaponKey);
   // Nothing pinned: a swap re-derives the default for the new role.
   assert.equal(sel.weaponKey, null);
 });

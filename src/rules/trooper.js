@@ -69,14 +69,22 @@ export function trooperCcWeapons(option, weapons, traits) {
 // Reset: every trooper has it; the card shows it only against a Comms Attack
 // (state/matchupView.js). Zero Pain is a better Reset, for hackers that run it
 // (army/hacking.js): shown the same way.
-export function pseudoWeapons(traits, side = 'B') {
+function allPseudoWeapons(traits) {
   const list = [{key: 'dodge', kind: 'dodge'}];
   if (bangbombValue(traits)) list.push({key: 'bangbomb', kind: 'dodge', bangbomb: true});
   list.push({key: 'reset', kind: 'reset'});
   if (hasZeroPain(traits)) list.push({key: 'zeroPain', kind: 'reset', zeroPain: true});
-  if (side === 'B') list.push({key: 'none', kind: 'none'});
+  list.push({key: 'none', kind: 'none'});
   return list;
 }
+const forRole = (list, side) => (side === 'B' ? list : list.filter((w) => w.kind !== 'none'));
+export const pseudoWeapons = (traits, side = 'B') => forRole(allPseudoWeapons(traits), side);
+
+// The entry `key` names in any of the lists, or null.
+const byKey = (lists, key) => lists.flatMap((l) => l).find((w) => w.key === key) ?? null;
+
+// The same resolution rolling `key` instead (a weapon in its lists).
+export const withWeapon = (r, key) => ({...r, weapon: byKey([r.weapons, r.ccWeapons, r.programs, r.pseudo], key)});
 
 // Name of a choice that is not a weapon: "Dodge", "Bangbomb", "Reset", "Zero
 // Pain", "No ARO" (a message descriptor, i18n/message.js).
@@ -94,8 +102,9 @@ function firewallChip(v, traits) {
 
 // Resolves a picker selection (ids) against the army data. The returned
 // profile has the loadout's stat overrides and any Team-Ops upgrades applied;
-// the returned option includes upgrade weapons.
-export function resolveSelection(army, sel) {
+// the returned option includes upgrade weapons. `side`: whose role the
+// choices are for ('A' active, 'B' reactive): its pseudo-weapon list.
+export function resolveSelection(army, sel, side = 'B') {
   if (!army || !sel?.unitId) return null;
   const unit = unitById(army, sel.unitId);
   if (!unit) return null;
@@ -121,17 +130,20 @@ export function resolveSelection(army, sel) {
   const canSapper = hasSkill(baseTraits, SKILL.SAPPER);
   const sapper = canSapper && Boolean(sel.sapper);
   const traits = sapper ? foxholeTraits(baseTraits) : baseTraits;
-  let weapon = null;
-  if (option && profile && sel.weaponKey) {
-    weapon = trooperWeapons(option, army.weapons, traits).find((w) => w.key === sel.weaponKey)
-      ?? trooperCcWeapons(option, army.weapons, traits).find((w) => w.key === sel.weaponKey)
-      ?? trooperPrograms(traits, army.lang).find((w) => w.key === sel.weaponKey)
-      ?? pseudoWeapons(traits, 'B').find((w) => w.key === sel.weaponKey)
-      ?? null;
-  }
+  // What the trooper can roll with, built once: the side card shows these
+  // lists and the weapon key is looked up in them. BS and CC weapons and
+  // programs need a loadout; Dodge and Reset only a profile.
+  const weapons = option ? trooperWeapons(option, army.weapons, traits) : [];
+  const ccWeapons = option ? trooperCcWeapons(option, army.weapons, traits) : [];
+  const programs = option ? trooperPrograms(traits, army.lang) : [];
+  // No ARO is looked up whichever the side (a share link may carry it), but
+  // only the reactive side is offered it.
+  const allPseudo = profile ? allPseudoWeapons(traits) : [];
+  const weapon = option && profile && sel.weaponKey ? byKey([weapons, ccWeapons, programs, allPseudo], sel.weaponKey) : null;
   const ftMax = fireteamMax(unit, baseOption);
   return {
     unit, factionId, groups, group, profile, option, traits, weapon,
+    weapons, ccWeapons, programs, pseudo: forRole(allPseudo, side),
     // Team-Ops trooper: it may pick from unit.upgrades (chart and TacBall).
     teamOps: teamOps && Boolean(unit.upgrades),
     upgrades, unsupportedUpgradeWeapons,

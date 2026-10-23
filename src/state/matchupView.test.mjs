@@ -8,6 +8,7 @@ import {translator} from '../i18n/index.js';
 import es from '../i18n/es.js';
 import {reduce} from './reduce.js';
 import {EMPTY_SIDE, initialState} from './schema.js';
+import {unitById} from '../army/lookup.js';
 
 const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 // Share-link ids: Corax-1 (Viral) and Chaksa.
@@ -30,6 +31,32 @@ test('without the army data the view is empty but keeps the selections', () => {
   assert.equal(v.ready, false);
   assert.equal(v.complete, false);
   assert.ok(v.hasSelection);
+  // The empty side is sideView's own shape, not a copy of it.
+  const full = matchupView(army, {A: corax, B: chaksa, rangeCm: 40});
+  assert.deepEqual(Object.keys(v.A), Object.keys(full.A));
+  assert.equal(v.A.sel.unitId, corax.unitId);
+  assert.deepEqual([v.A.resolved, v.A.weapons, v.A.groups, v.A.pseudo, v.A.cc, v.A.hacked], [null, [], [], [], false, false]);
+});
+
+test('matchupCore resolves each side once and its view reads that resolution\'s lists', () => {
+  // resolveSelection reaches the unit through army.units (army/lookup.js) and
+  // nothing else in the core does, so those reads count the resolutions.
+  let reads = 0;
+  const counted = new Proxy(army, {get: (t, k) => { if (k === 'units') reads++; return t[k]; }});
+  unitById(counted, corax.unitId);   // the lookup builds its map on the first read
+  reads = 0;
+  const core = matchupCore(counted, {A: corax, B: chaksa, rangeCm: 40});
+  assert.equal(reads, 2);
+  for (const x of [core.A, core.B]) {
+    assert.equal(x.weapons, x.resolved.weapons);
+    assert.equal(x.ccWeapons, x.resolved.ccWeapons);
+    assert.equal(x.programs, x.resolved.programs);
+    // The default pick is in the lists it was picked from.
+    assert.ok(x.weapons.includes(x.resolved.weapon));
+  }
+  // The reactive side alone is offered No ARO.
+  assert.ok(!core.A.pseudo.some((w) => w.kind === 'none'));
+  assert.ok(core.B.pseudo.some((w) => w.kind === 'none'));
 });
 
 test('pickTrooper preselects the weapon the query matched', () => {
