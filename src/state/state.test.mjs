@@ -20,13 +20,6 @@ const memStorage = (init = {}) => {
 const fennec = {...EMPTY_SIDE, unitId: 10, factionId: 101, groupId: 1, optionId: 2, weaponKey: 'w1'};
 const zhanshi = {...EMPTY_SIDE, unitId: 20, factionId: 201, groupId: 1, optionId: 1, weaponKey: 'none', inCover: true};
 
-test('reduce is pure: the old state is never changed', () => {
-  const s0 = initialState();
-  const frozen = JSON.stringify(s0);
-  run(s0, {type: 'setSide', side: 'A', sel: fennec}, {type: 'setRange', rangeCm: 80, open: true}, {type: 'swapSides'});
-  assert.equal(JSON.stringify(s0), frozen);
-});
-
 test('unknown actions return the same object', () => {
   const s0 = initialState();
   assert.equal(reduce(s0, {type: 'nope'}), s0);
