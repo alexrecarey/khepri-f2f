@@ -2,7 +2,7 @@
 // Matchup breakdown (who wins, then at least 1 / 2 / 3 wounds) and the
 // Classic ladders.
 import PropTypes from 'prop-types';
-import {pct, shows} from './results.js';
+import {pct, shows} from '../results/summary.js';
 import {useT} from './i18n.jsx';
 
 const wpo = (n) => (n == null ? '—' : n.toFixed(2));

@@ -3,13 +3,13 @@
 // to Face Roll, or the chance to cause at least one wound. The small line
 // under the bar carries what the headline gave up, so wounds per order never
 // leaves the card.
-import {HEADLINES} from '../state/headlines.js';
-import {pct} from './results.js';
 import {tEn} from '../i18n/index.js';
+import {pct} from './summary.js';
 
-// The choice itself lives in state (it is in the address too).
-// Their names and hints are src/i18n's headline.<choice> / headline.<choice>Hint.
-export {HEADLINES, headlineChoice} from '../state/headlines.js';
+// The choices. Their names and hints are src/i18n's headline.<choice> /
+// headline.<choice>Hint. The player's pick lives in state (state/headlines.js:
+// a pref, and part of a Matchup address too).
+export const HEADLINES = ['wpo', 'win', 'wound'];
 
 // step +1 / -1, wrapping round: the swipe goes on past the last one.
 export const nextHeadline = (choice, step) =>
@@ -17,7 +17,7 @@ export const nextHeadline = (choice, step) =>
 
 export const wpoText = (n) => (n == null ? '—' : n.toFixed(2));
 
-// What the card shows for summary s (results.js summarize). A roll that is
+// What the card shows for summary s (summary.js summarize). A roll that is
 // not face to face (Direct Template vs a shot) has nobody to win, so "wins
 // face to face" falls back to at least one wound there and says so (fallback).
 // A Dodging side's win means it dodged: no wounds either way, so it says that.

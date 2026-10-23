@@ -7,11 +7,13 @@ import {upgradeRaising} from '../army/loadouts.js';
 import {hasSkill} from '../army/traits.js';
 import {attackAttribute, causesWounds, hasContinuousDamage, isCommsAttack, isNonLethal, needsLof, stateCaused, weaponPS} from '../army/weapons.js';
 import {
-  COVER_BS_MOD, COVER_SAVE_MOD, FIREWALL_SAVE_MOD, LIMITS, albedoMod, albedoValue, attackBonuses, attackStat, benefitsFromCover, clamp, coverBsMod,
+  COVER_BS_MOD, COVER_SAVE_MOD, FIREWALL_SAVE_MOD, LIMITS, albedoMod, albedoValue, attackBonuses, attackStat, benefitsFromCover, coverBsMod,
   bangbombMod, bangbombValue, cancelsBangbomb, dodgeExtras, evades, fireteamBonuses, firewallOf, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst,
   hackedResetMod, immADodgeMod, mimetismMod, mimetismValue, msvName, neurocineticsAroBurst, opposingMods, programSvMods, reaches, targetedMod,
   targetedResetMod,
 } from './modifiers.js';
+import {clamp} from '../lib/clamp.js';
+import {other} from '../lib/side.js';
 import {capLine, clampSv, line, modSum, section, sum} from './lines.js';
 import {RANGE_BANDS, bandFrom, rangeModFor} from './ranges.js';
 import {visibility, zoneName} from './visibility.js';
@@ -418,8 +420,6 @@ function defenseInputs(y, incoming, s, dodging, ctx) {
 function noLofInputs(side) {
   return {[`burst${side}`]: 0, [`bonusBurst${side}`]: 0, [`shock${side}`]: false, [`template${side}`]: false};
 }
-
-const other = (s) => (s === 'A' ? 'B' : 'A');
 
 // One side's share of the calculator input: x's roll (an attack, a Dodge or a
 // Reset) against y, and x's Saving Roll against y's weapon. Returns the

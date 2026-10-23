@@ -1,6 +1,7 @@
 // MODs and bonuses to the roll: cover, Nanoscreen, Mimetism, Albedo, Fireteams,
 // BS Attack, ARO burst and Dodge.
 import {LIMITS} from '../engine/params.js';
+import {clamp} from '../lib/clamp.js';
 import {EQUIP, SKILL} from '../army/ids.js';
 import {equipExtra, hasEquip, hasSkill, skillExtra, skillExtras} from '../army/traits.js';
 import {ZERO_PAIN, canTarget} from '../army/hacking.js';
@@ -12,7 +13,6 @@ import {tEn} from '../i18n/index.js';
 // it is clamped to 0, which the engine treats exactly that way. The same
 // value stands for an attack out of range.
 export {LIMITS};
-export const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
 
 // "The sum total of the Modifiers applied to a Roll can never exceed +12 or
 // -12." Fireteam +1 BS is a MOD and counts; Dodge (PH=14) replaces the

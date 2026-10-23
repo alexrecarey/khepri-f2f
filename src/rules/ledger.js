@@ -19,6 +19,7 @@
 //   reason  kind 'none': why nothing is rolled
 import {ammoName, ammoTypes, bioweaponParts, hasContinuousDamage, isImpactTemplate, isPlasma, isPseudo} from '../army/weapons.js';
 import {AMMO} from '../engine/calculate.js';
+import {other} from '../lib/side.js';
 import {line} from './lines.js';
 import {hasImmunity} from './saves.js';
 import {bsAttackWeaponMods, pseudoName} from './trooper.js';
@@ -26,7 +27,6 @@ import {ccAttackSkill, isCcAttack} from './closeCombat.js';
 import {zoneName} from './visibility.js';
 import {tEn} from '../i18n/index.js';
 
-const other = (s) => (s === 'A' ? 'B' : 'A');
 // A line whose source isn't a side ("loadout"): shown as is in the source column.
 const fromSource = (l, source) => ({...l, source});
 

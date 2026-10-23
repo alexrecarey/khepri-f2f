@@ -1,6 +1,6 @@
 // The two headline numbers, active on the left and reactive on the right,
 // each over its label ("wounds / order" unless the player chose another
-// headline, headline.js). The numbers themselves (a sliding value, a waiting
+// headline, results/headline.js). The numbers themselves (a sliding value, a waiting
 // die) are the caller's; middle sits between them (the headline dots).
 import PropTypes from 'prop-types';
 import {useT} from './i18n.jsx';

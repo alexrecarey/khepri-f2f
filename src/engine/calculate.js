@@ -5,8 +5,9 @@
 // dice live here: what each ammunition does, PS + ARM (or BTS) as the save
 // value, Plasma's second Saving Roll, Immunity (Critical), Shock, and a Direct
 // Template against an attack being two separate rolls.
+import {other} from '../lib/side.js';
 
-// What a hit with each ammunition does (calculator ammo, params.js AMMO).
+// What a hit with each ammunition does (calculator ammo, params.js AMMO_KEYS).
 //   saves             Saving Rolls per hit
 //   woundsPerFailure  wounds per failed Saving Roll
 //   secondary         every Saving Roll also needs a BTS one (Plasma)
@@ -35,8 +36,6 @@ export const ENGINE_KEYS = [
 
 // Most wounds shown; more are counted as this many.
 export const MAX_WOUNDS = 25;
-
-const other = (s) => (s === 'A' ? 'B' : 'A');
 
 // Side s's attack against the other side, as the engine reads it.
 function sideInput(p, s) {

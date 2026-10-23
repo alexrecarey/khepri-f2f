@@ -18,12 +18,10 @@ import {berserkMod, ccAlliesMax, hasBerserk, isCcAttack} from '../rules/closeCom
 import {pseudoWeapons, resolveSelection, trooperCcWeapons, trooperWeapons} from '../rules/trooper.js';
 import {modeLabels, orderModes} from '../rules/weaponModes.js';
 import {woundStates} from '../rules/woundStates.js';
-import {rootFaction} from '../search/buildIndex.js';
 import {ROLE} from './schema.js';
 import {crestOf} from '../army/crests.js';
+import {vanillaOf} from '../army/factions.js';
 import {tEn} from '../i18n/index.js';
-
-export const vanillaOf = (army, factionId) => (factionId == null || !army ? null : rootFaction(army.factions, factionId));
 
 // The weapon a side rolls with: its own pick, else the default for its role.
 export function effectiveWeaponKey(army, sel, side) {

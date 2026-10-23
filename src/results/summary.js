@@ -1,5 +1,5 @@
 // Engine result -> the numbers the results card and sheet draw. Pure, so the
-// card and the sheet read the same figures.
+// card, the sheet and the Worker's share card read the same figures.
 //
 //   wpo        {active, reactive}: expected wounds per order
 //   win        {active, reactive, none}: chance each side wins the Face to Face
@@ -20,6 +20,8 @@
 //   joint      unopposed only: the two attacks are independent, so the order
 //              ends one of four ways: {both, onlyActive, onlyReactive, neither}
 //              (onlyActive = only the active side causes wounds)
+import {RAMP} from './ramp.js';
+
 // Wounds the bars count one by one; more show as this many ("3+"). Not the
 // engine's MAX_WOUNDS (calculate.js), which caps what it calculates.
 export const BAR_WOUNDS = 3;
@@ -37,14 +39,10 @@ function attackOnItsOwn(sideResult, player) {
   return {wpo: woundsPerOrder(rows), wounds, wounded, saved: Math.max(0, hit - wounded), miss: Math.max(0, 1 - hit)};
 }
 
-// One ramp per side, mildest to deepest, cut into six steps (1 lightest).
-// Dead always takes step 6. The other states spread down to step 3 at most,
-// so the state seen most often (1 wound, or Unconscious on 1 VITA) is not
-// the palest; only targets with five or six states reach down to 2 and 1.
-// The ramps are the sides' chosen tones (Alex, Oct 2026): don't darken them
-// for contrast. White text holds 4.5:1 on both deep ends; on the active step
-// 5 it is 4.36:1, the closest these tones allow.
-const RAMP = {active: ['#cdeee2', '#1f6b52'], reactive: ['#f6d9e8', '#8e3b67']};
+// Each side's ramp (ramp.js), mildest to deepest, cut into six steps (1
+// lightest). Dead always takes step 6. The other states spread down to step 3
+// at most, so the state seen most often (1 wound, or Unconscious on 1 VITA) is
+// not the palest; only targets with five or six states reach down to 2 and 1.
 const STEPS = 6;
 const hex = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
 export function shadeStep(i, n) {

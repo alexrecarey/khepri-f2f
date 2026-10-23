@@ -2,6 +2,7 @@
 // with the words it can be found by. Runs at build time
 // (scripts/build-search-index.mjs) so the app loads a small JSON file instead
 // of the whole army; tests call it directly on army.json.
+import {rootFaction} from '../army/factions.js';
 import {shortIsc} from '../army/names.js';
 import {isLieutenant} from '../army/traits.js';
 import {KIND_ALIASES, SEARCHABLE_SKILLS, UNIT_ALIASES, WEAPON_ALIASES} from './aliases.js';
@@ -10,21 +11,6 @@ import {indexWords, initials, words} from './text.js';
 // Where a word came from. Lower is a stronger match: a hit on the unit's
 // short name beats one on its weapon.
 export const FIELD = {SHORT: 0, NAME: 1, LOADOUT: 2, WEAPON: 3, ALIAS: 4, SKILL: 5};
-
-// The vanilla army a faction belongs to: follow `parent` up to a faction that
-// is its own parent, or whose parent isn't a faction. The mercenary companies
-// (Starco, Ikari...) sit under Non-Aligned Armies, whose own parent (900) is
-// not in the data, so NA2 is the eleventh "vanilla".
-export function rootFaction(factions, id) {
-  let cur = Number(id);
-  for (let i = 0; i < 5; i++) {
-    const parent = factions[cur]?.parent;
-    if (parent == null || parent === cur || !factions[parent]) return cur;
-    cur = parent;
-  }
-  return cur;
-}
-
 
 export function buildIndex(army) {
   const factions = army.factions;

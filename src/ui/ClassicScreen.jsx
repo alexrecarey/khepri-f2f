@@ -4,6 +4,7 @@
 import {useCallback} from 'react';
 import PropTypes from 'prop-types';
 import {LIMITS} from '../engine/params.js';
+import {clamp} from '../lib/clamp.js';
 import {CLASSIC_AMMO, SAVE_LIMIT, armSave, btsSave, classicSide} from '../state/classicView.js';
 import {ROLE} from '../state/schema.js';
 import {dispatch} from '../state/store.js';
@@ -14,8 +15,6 @@ import {classicRollSummary} from '../state/rolls.js';
 import useRollResults from './useRollResults.js';
 import {engineStatus, useT} from './i18n.jsx';
 import {sideLabel} from './SideCard.jsx';
-
-const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
 
 // Dice icons: tap the third die for burst 3; tap the lit last die to drop one.
 function DiceInput({value, max, min, onChange, color, label, zeroOption}) {

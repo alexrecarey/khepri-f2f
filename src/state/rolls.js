@@ -104,7 +104,7 @@ const rangeText = (view, t) => {
 // Smoke / White Noise between them, by name.
 const zoneNames = (view, t) => ZONES.filter((z) => view.zones?.[z]).map((z) => zoneName(z, t));
 
-// view: matchupView(); s: results.js summarize(). The summary is saved as
+// view: matchupView(); s: results/summary.js summarize(). The summary is saved as
 // text, in the language it was saved in.
 export function matchupRollSummary(view, s, t = tEn) {
   const {A, B} = view;
@@ -131,7 +131,7 @@ export function matchupRollSummary(view, s, t = tEn) {
 }
 
 // The share card for a complete matchup (src/share/card.js): who rolls, with
-// what and how, plus the headline the sender sees. h: ui/headline.js headline().
+// what and how, plus the headline the sender sees. h: results/headline.js headline().
 export function matchupShareCard(view, h, t = tEn) {
   const side = (role, key) => {
     const x = view[role];

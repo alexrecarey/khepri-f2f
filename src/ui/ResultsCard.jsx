@@ -9,7 +9,8 @@ import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, D20, ShareIcon} from './icons.jsx';
 import Headline, {setHeadline} from './Headline.jsx';
-import {headline, headlineChoice, nextHeadline} from './headline.js';
+import {headline, nextHeadline} from '../results/headline.js';
+import {headlineChoice} from '../state/headlines.js';
 import {shareLink} from './share.js';
 import useDialogFocus from './useDialogFocus.js';
 import useSheetGestures from './useSheetGestures.js';
@@ -114,7 +115,7 @@ const useBreakdown = (s, ledger, params) => useMemo(
 
 // The top of the phone sheet, which is all that shows while it rests low (the
 // results card): both sides' headline numbers (wounds per order unless the
-// player chose another, headline.js) over the shaded wound bar, or over the
+// player chose another, results/headline.js) over the shaded wound bar, or over the
 // face-to-face bar when the headline is winning it. Open, the numbers and the
 // bars are bigger and both bars show; app.css grows them with --open as the
 // sheet is dragged.
@@ -272,7 +273,7 @@ ResultsPanel.propTypes = {
 };
 
 ResultsCard.propTypes = {
-  // results.js summarize() of the engine's result (with the targets' wound
+  // results/summary.js summarize() of the engine's result (with the targets' wound
   // states in Matchup), or null before there is one.
   s: PropTypes.object,
   status: PropTypes.string,

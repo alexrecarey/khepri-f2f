@@ -13,7 +13,7 @@ export const STATE_VERSION = 1;
 
 // The two sides: A is the active trooper, B the reactive one.
 export const ROLE = {A: 'active', B: 'reactive'};
-export const other = (side) => (side === 'A' ? 'B' : 'A');
+export {other} from '../lib/side.js';
 
 // One side of a matchup: ids into the army data plus the situation chips.
 // weaponKey null = the default weapon for the side (rules/defaultWeapon.js),

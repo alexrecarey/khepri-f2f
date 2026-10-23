@@ -5,7 +5,7 @@
 // four ways the order can end, then each attack in detail).
 import PropTypes from 'prop-types';
 import Headline from './Headline.jsx';
-import {pct, shade, shadeInk, shows} from './results.js';
+import {pct, shade, shadeInk, shows} from '../results/summary.js';
 import {Rich, useT} from './i18n.jsx';
 
 const top = (a) => [3, 2, 1].find((w) => shows(a.wounds[w - 1])) ?? 0;

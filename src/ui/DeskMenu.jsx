@@ -10,10 +10,11 @@ import {
   clearRecents, clearSaved, setHeadline,
 } from './Chrome.jsx';
 import DeskDialog from './DeskDialog.jsx';
-import {HEADLINES, headline, headlineChoice} from './headline.js';
+import {HEADLINES, headline} from '../results/headline.js';
+import {headlineChoice} from '../state/headlines.js';
 import {useT} from './i18n.jsx';
 import {BookmarkIcon, GearIcon, InfoIcon} from './icons.jsx';
-import {summarize} from './results.js';
+import {summarize} from '../results/summary.js';
 
 // A second click on the open page's button closes it.
 const toggle = (overlay, open) => dispatch(open ? {type: 'back'} : {type: 'openOverlay', overlay});

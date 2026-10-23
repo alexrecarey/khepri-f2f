@@ -7,8 +7,11 @@ that review found. Layout and commands: README.md and CLAUDE.md.
 ## Layering
 - Dependencies point one way: `ui -> state -> rules -> army`, with
   `engine/params.js` as the contract for calculator params. `rules/`, `army/`,
-  `search/` and `engine/` never import from `ui/` or `state/`; `state/` never
-  imports from `ui/`.
+  `search/`, `engine/`, `results/`, `lib/` and `i18n/` never import from `ui/`
+  or `state/`; `state/` never imports from `ui/` or `search/`; `engine/` never
+  imports from `rules/`; nothing outside `ui/` imports from `ui/` (the Worker
+  reads `results/`, not components). `src/layering.test.mjs` fails on a
+  violation: fix it by moving code, not by exempting the import.
 - Rules logic is pure and lives in `src/rules/` (or `state/matchupView.js` /
   `state/classicView.js` for what a screen shows). Components render; they
   don't decide which MODs apply, which inputs show, or which weapon is default.

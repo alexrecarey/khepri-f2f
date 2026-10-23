@@ -252,7 +252,7 @@ export default {
   'about.rules': 'Reglas',
   'about.app': 'App',
 
-  // Headline numbers (ui/headline.js)
+  // Headline numbers (results/headline.js)
   'headline.wpo': 'Heridas por orden',
   'headline.wpoHint': 'Heridas medias que causa esta orden',
   'headline.win': 'Gana la Tirada Enfrentada',
