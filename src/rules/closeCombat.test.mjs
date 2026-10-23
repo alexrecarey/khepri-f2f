@@ -1,6 +1,6 @@
 // Close combat: CC weapons, Martial Arts, Natural Born Warrior, and what
 // shooting MODs don't do to a CC Attack. Every case also checks that "How the
-// dice were built" adds up to the same numbers.
+// dice were built" adds up to the same numbers, line by line.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {EQUIP, SKILL} from '../army/ids.js';
@@ -41,10 +41,13 @@ function trooper(key, {skills = [], weapons = LOADOUT, ...rest} = {}, over = {})
   return {profile: p, option: o, traits, weapon, inCover: false, ftSize: 1, ...over};
 }
 
+// What a section's live lines (not struck, a number) add up to.
+const addUp = (lines) => lines.filter((x) => !x.struck && typeof x.value === 'number').reduce((n, x) => n + x.value, 0);
+
 function derive(args) {
   const r = deriveInputs({rangeCm: 40, ...args});
   assert.ok(r.ok, JSON.stringify(r.errors));
-  const ledger = buildLedger({rangeCm: 40, ...args, inputs: r.inputs});
+  const ledger = buildLedger({rangeCm: 40, ...args, derived: r});
   for (const s of ['A', 'B']) {
     const l = ledger[s];
     const t = s === 'A' ? 'B' : 'A';
@@ -54,7 +57,7 @@ function derive(args) {
       if (!l[k]) continue;
       const where = `ledger ${s} ${k}: ${JSON.stringify(l[k].lines)}`;
       assert.equal(l[k].total, total, where);
-      assert.deepEqual(l[k].lines.filter((x) => x.label === 'other rules'), [], where);
+      assert.equal(addUp(l[k].lines), total, where);
     }
   }
   return {...r, ledger};

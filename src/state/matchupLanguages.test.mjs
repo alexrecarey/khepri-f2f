@@ -72,7 +72,7 @@ test('the Spanish ledger has the same lines as the English one, in Spanish', () 
         assert.equal(b.ledger.notes.length, a.ledger.notes.length);
         for (const side of ['A', 'B']) {
           const lines = ['sv', 'burst', 'sd', 'save'].flatMap((k) => b.ledger.ledger[side]?.[k]?.lines ?? []);
-          for (const l of lines) assert.doesNotMatch(String(l.label), /\b(other rules|loadout|range|cover|template)\b/, l.label);
+          for (const l of lines) assert.doesNotMatch(String(l.label), /\b(loadout|range|cover|template)\b/, l.label);
           assert.doesNotMatch(b.ledger.ledger[side]?.dice ?? '', /\bSV\d/);
         }
         compared++;

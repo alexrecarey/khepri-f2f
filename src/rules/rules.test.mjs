@@ -56,13 +56,16 @@ const side = (p, o, weaponKey, inCover = false) => {
 };
 const combi = option([{id: 1, name: 'Combi Rifle'}, {id: 8, name: 'CC Weapon'}]);
 
-// deriveInputs, plus a check that "How the dice were built" (ledger.js)
-// explains every number it produced: each rule case below is also a ledger
-// case, so a rule changed in one place and not the other fails here.
+// What a section's live lines (not struck, a number) add up to.
+const addUp = (lines) => lines.filter((x) => !x.struck && typeof x.value === 'number').reduce((n, x) => n + x.value, 0);
+
+// deriveInputs, plus a check that "How the dice were built" (ledger.js) adds
+// up to every number it produced: each rule case below is also a ledger case,
+// so a struck or display-only line that should count (or the reverse) fails here.
 function derive(args) {
   const r = deriveInputs(args);
   if (!r.ok) return r;
-  const ledger = buildLedger({...args, inputs: r.inputs});
+  const ledger = buildLedger({...args, derived: r});
   for (const s of ['A', 'B']) {
     const l = ledger[s];
     if (!l || l.kind === 'none') continue;
@@ -75,7 +78,8 @@ function derive(args) {
       if (!sec) continue;
       const where = `ledger ${s} ${k}: ${JSON.stringify(sec.lines)}`;
       assert.equal(sec.total, total, where);
-      assert.deepEqual(sec.lines.filter((x) => x.label === 'other rules'), [], where);
+      // Out of range is a '—' line with Success Value 0, not a sum.
+      if (!sec.lines.some((x) => x.value === '—')) assert.equal(addUp(sec.lines), total, where);
     }
   }
   return r;
@@ -368,6 +372,8 @@ test('loadout extras and crit immunity', () => {
 
 // --- Immunity (ARM) / (BTS) ------------------------------------------------
 const immune = (extra, over = {}) => profile({arm: 5, bts: 3, skills: [{id: 162, name: 'Immunity', extra: [extra]}], ...over});
+// A derivation without its ledger lines, to compare two weapons' numbers.
+const sansLines = ({lines, ...r}) => r;
 const shotAt = (target, id, key, {extra, inCover = false} = {}) =>
   derive({
     active: side(profile({wip: 13}), option([{id, name: 'x', ...(extra ? {extra} : {})}]), key),
@@ -622,9 +628,9 @@ test('ammo extras: T2 fires T2 ammo, treated as N by Immunity (ARM)', () => {
   const r = shotAt(immune('ARM'), 1, '1:', t2);
   assert.equal(r.inputs.ammoA, 'N');
   assert.deepEqual(r.notes, ['Active: target has Immunity (ARM); T2 treated as N']);
-  // Same as the (PS6) T2 Rifle.
+  // Same as the (PS6) T2 Rifle (the ledger lines name the weapon).
   for (const target of [profile({arm: 5}), immune('ARM'), immune('BTS')]) {
-    assert.deepEqual(shotAt(target, 1, '1:', {extra: ['T2', 'PS=6']}), shotAt(target, 10, '10:'));
+    assert.deepEqual(sansLines(shotAt(target, 1, '1:', {extra: ['T2', 'PS=6']})), sansLines(shotAt(target, 10, '10:')));
   }
 });
 
@@ -644,7 +650,7 @@ test('ammo extras: Viral plays as Bioweapon (DA+SHOCK), like the Viral Combi Rif
     chaksa: profile({bts: 5, skills: [{id: 162, name: 'Immunity', extra: ['BTS']}, {id: 220, name: 'Vulnerability', extra: ['Viral']}]}),
   };
   for (const [name, target] of Object.entries(targets)) {
-    assert.deepEqual(shotAt(target, 1, '1:', viral), shotAt(target, 4, '4:'), name);
+    assert.deepEqual(sansLines(shotAt(target, 1, '1:', viral)), sansLines(shotAt(target, 4, '4:')), name);
   }
 });
 
@@ -1540,7 +1546,7 @@ test('Neurocinetics (+1B): the extra Burst counts in the Reactive Turn only (Yan
   const args = {active: side(profile(), combi, '1:'), reactive: side(neuro, ml, '9:Hit Mode'), rangeCm: 40};
   const r = derive(args);
   assert.equal(r.inputs.burstB, 2);
-  const burst = buildLedger({...args, inputs: r.inputs}).B.burst;
+  const burst = buildLedger({...args, derived: r}).B.burst;
   assert.ok(burst.lines.some((l) => l.label === 'Neurocinetics' && l.value === 1), JSON.stringify(burst.lines));
   // Active Turn: still B 1.
   const a = derive({active: side(neuro, ml, '9:Hit Mode'), reactive: side(profile(), combi, '1:'), rangeCm: 40});
@@ -1557,7 +1563,7 @@ test('a Success Value above 30 is capped at 30, in the inputs and the ledger', (
   const args = {active: a, reactive: side(profile(), combi, '1:'), rangeCm: 20};
   const r = derive(args);
   assert.equal(r.inputs.successValueA, 30);
-  const sv = buildLedger({...args, inputs: r.inputs}).A.sv;
+  const sv = buildLedger({...args, derived: r}).A.sv;
   assert.ok(sv.lines.some((l) => l.label === 'capped at 30' && l.value === -2), JSON.stringify(sv.lines));
 });
 
@@ -1574,7 +1580,7 @@ test('Smoke: without MSV nobody can shoot through it', () => {
   assert.equal(r.inputs.burstA, 0);
   assert.equal(r.inputs.burstB, 0);
   assert.ok(r.notes.includes("Active: no line of fire through Smoke; its attack can't be declared"), r.notes.join(' | '));
-  const l = buildLedger({active: shooter(), reactive: shooter(), rangeCm: 40, inputs: r.inputs, zones: SMOKE});
+  const l = buildLedger({active: shooter(), reactive: shooter(), rangeCm: 40, derived: r, zones: SMOKE});
   assert.equal(l.A.dice, 'No LoF (Smoke)');
   // A Dodge isn't an attack: the shooter still can't see.
   assert.equal(zoneDuel(shooter(), dodger(), SMOKE).inputs.burstA, 0);
@@ -1627,7 +1633,7 @@ test('White Noise and Albedo stack; with Smoke and White Noise nobody sees', () 
   // MSV1 shot at by an Albedo trooper through White Noise: 15 - 6 - 3.
   const r = zoneDuel(shooter({equip: [msv(1)]}), shooter(albedo), WHITE_NOISE);
   assert.equal(r.inputs.successValueA, 6);
-  const l = buildLedger({active: shooter({equip: [msv(1)]}), reactive: shooter(albedo), rangeCm: 40, inputs: r.inputs, zones: WHITE_NOISE});
+  const l = buildLedger({active: shooter({equip: [msv(1)]}), reactive: shooter(albedo), rangeCm: 40, derived: r, zones: WHITE_NOISE});
   assert.deepEqual(l.A.sv.lines.filter((x) => x.value < 0).map((x) => x.label), ['Albedo', 'White Noise, Poor Visibility']);
   // Smoke blocks troopers without MSV, White Noise those with it.
   const both = {smoke: true, whiteNoise: true};
@@ -1635,6 +1641,15 @@ test('White Noise and Albedo stack; with Smoke and White Noise nobody sees', () 
     const b = zoneDuel(shooter(a), shooter(), both).inputs;
     assert.deepEqual([b.burstA, b.burstB], [0, 0]);
   }
+  // Attacked in CC (no zone between them) through both, MSV1 shoots back at
+  // the worse of the two (-6), not their sum: the Smoke line is struck by it.
+  const cc = derive({active: side(profile(), combi, '8:'), reactive: shooter({equip: [msv(1)]}), rangeCm: 40, zones: both});
+  assert.equal(cc.inputs.successValueB, 12 + 3 - 6);
+  const zoneLines = cc.lines.B.sv.lines.filter((l) => /Smoke|White Noise/.test(l.label));
+  assert.deepEqual(zoneLines, [
+    {value: -3, label: 'Smoke, Poor Visibility', by: 'B', struck: 'White Noise, Poor Visibility'},
+    {value: -6, label: 'White Noise, Poor Visibility', by: 'B'},
+  ]);
 });
 
 test('Bangbomb (+X) is its own Dodge choice: +X, but not against Template Weapons', () => {
@@ -1650,7 +1665,7 @@ test('Bangbomb (+X) is its own Dodge choice: +X, but not against Template Weapon
   assert.equal(dodgeVs([{id: 3, name: 'Heavy Flamethrower'}], '3:'), 13);
   // The ledger shows the cancelled bonus struck out.
   const vsFlamer = {active: side(profile(), option([{id: 3, name: 'Heavy Flamethrower'}]), '3:'), reactive: side(bandit, combi, 'bangbomb'), rangeCm: 20};
-  const sv = buildLedger({...vsFlamer, inputs: derive(vsFlamer).inputs}).B.sv.lines;
+  const sv = buildLedger({...vsFlamer, derived: derive(vsFlamer)}).B.sv.lines;
   assert.deepEqual(sv.find((x) => x.label === 'Bangbomb (+4)'), {value: 4, label: 'Bangbomb (+4)', by: 'B', struck: 'Template'});
   assert.equal(dodgeVs([{id: 19, name: 'Light Rocket Launcher'}], '19:Blast Mode'), 13);
   // Bangbomb in the Active Turn against a shot.
@@ -1696,7 +1711,7 @@ test('Dodge can\'t evade a Comms Attack; Reset evades nothing else', () => {
   const resetting = derive({active: side(hacker(), combi, '1:'), reactive: side(profile(), combi, 'reset'), rangeCm: 20});
   assert.equal(resetting.inputs.burstB, 0);
   assert.ok(resetting.notes.some((n) => n.includes('Reset only evades Comms Attacks')), resetting.notes.join(' | '));
-  const l = buildLedger({active: side(hacker(), combi, '1:'), reactive: side(profile(), combi, 'reset'), rangeCm: 20, inputs: resetting.inputs});
+  const l = buildLedger({active: side(hacker(), combi, '1:'), reactive: side(profile(), combi, 'reset'), rangeCm: 20, derived: resetting});
   assert.deepEqual([l.B.kind, l.B.dice], ['none', 'Reset: not rolled']);
   // Shooting back at the Jammer is still a Face to Face Roll.
   assert.equal(derive({active: side(hacker(), jammer, '21:'), reactive: side(profile(), combi, '1:'), rangeCm: 20}).inputs.burstB, 1);

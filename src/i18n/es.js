@@ -120,7 +120,6 @@ export default {
   'state.possessed': 'Poseído',
 
   // "How the dice were built" (rules/ledger.js)
-  'ledger.otherRules': 'otras reglas',
   'ledger.teamOpsStat': '{stat} (Team-Ops: {upgrade})',
   'ledger.range': 'distancia {from}–{to} cm',
   'ledger.fireteam': 'Fireteam {size}',
@@ -147,6 +146,7 @@ export default {
   'ledger.burstCap': 'R máxima {max}',
   'ledger.armZeroBy': '{weapon}: BLI = 0',
   'ledger.armZero': 'BLI = 0',
+  'ledger.notBelowZero': 'no baja de 0',
   'ledger.halved': '{stat}/2',
   'ledger.halvedAp': '{stat}/2 (AP)',
   'ledger.noEffectOnTarget': 'sin efecto contra este objetivo',
