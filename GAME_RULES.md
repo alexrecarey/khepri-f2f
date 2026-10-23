@@ -45,7 +45,7 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - BS Attack (−X): the opponent takes −X whatever it does, while the attack is rolled. Warhorse ignores it.
 - Surprise Attack (−X): the opponent takes −X on its Face to Face Roll in ARO. A player's choice (chip), active side only.
   - Combat Instinct ignores it (N5; in N4 this was part of Sixth Sense).
-  - Multispectral Visor L3 ignores it (with LoF to the attacker).
+  - Multispectral Visor L3 always ignores it against a CC Attack. Against a BS Attack or a Hacking Program it ignores it only under table conditions, so the MOD applies and the player leaves the chip off when it doesn't (Alex).
   - Biometric Visor ignores it only against Impersonation / Holoecho attackers: not modelled.
 - Sixth Sense (the skill, or a Fireteam of 5): in N5 it does **not** ignore Surprise Attack, but a trooper with it who Dodges takes no negative MODs at all, so a Surprise Attack or BS Attack against its Dodge does nothing. The struck MOD reads "Sixth Sense". (Its 360° LoF and Zero Visibility parts don't change a single roll.)
 - Sapper: the trooper may be in a Foxhole (chip): Partial Cover (−3 / +3 like cover) and Mimetism (−3), which doesn't stack with its own Mimetism. One or the other: Foxhole or cover.

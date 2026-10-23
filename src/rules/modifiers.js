@@ -303,7 +303,9 @@ export function evades(x, incoming) {
 //   go on y's roll, whatever y does (closeCombat.js ccOpposingMods).
 // - x is the active trooper, attacks (BS or CC), and uses Surprise Attack
 //   (-X) (a player toggle): y takes -X attacking or Dodging, unless y has
-//   Combat Instinct or a Multispectral Visor L3.
+//   Combat Instinct, or a Multispectral Visor L3 against a CC Attack. Against
+//   a BS Attack or a Hacking Program MSV3 only ignores it on table conditions
+//   the calculator can't see, so the player decides by leaving the chip on.
 // - y Dodges with Sixth Sense (the skill or a Fireteam of 5): none of these
 //   negative MODs apply to its Dodge.
 // - y answers x's CC Attack with its own and has Natural Born Warrior: none
@@ -339,7 +341,7 @@ export function opposingMods(x, y, xActive, t = tEn) {
   const surprise = xActive && x.surpriseAttack ? surpriseAttackMod(x.traits) : 0;
   if (surprise) {
     const ignoredBy = nbw ?? (hasSkill(y.traits, SKILL.COMBAT_INSTINCT) ? t('skill.combatInstinct')
-      : hasEquip(y.traits, EQUIP.MSV3) ? t('equip.msv', {level: 3}) : sixth);
+      : isCcAttack(x) && hasEquip(y.traits, EQUIP.MSV3) ? t('equip.msv', {level: 3}) : sixth);
     out.push({value: surprise, label: t('skill.surpriseAttackMod', {mod: surprise}), ignoredBy});
   }
   return out;

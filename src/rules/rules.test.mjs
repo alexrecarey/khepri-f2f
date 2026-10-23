@@ -213,14 +213,13 @@ test('mimetism and MSV', () => {
   assert.equal(sv(msv3, mim6), 15);
 });
 
-test('MSV3 ignores Surprise Attack; MSV1 and MSV2 do not', () => {
+// MSV3 against a shot ignores Surprise Attack only on table conditions: the
+// player leaves the chip on or off. Its CC case is in closeCombat.test.mjs.
+test('MSV3 against a shooting Surprise Attack: the -3 stands while the chip is on', () => {
   const infiltrator = profile({skills: [surprise()]});
-  const target = (level) => side(profile({equip: [msv(level)]}), combi, 'dodge');
-  const r = duel(using(side(infiltrator, combi, '1:')), target(3));
-  assert.equal(r.inputs.successValueB, 12);                    // PH 12, no -3
-  assert.ok(r.notes.includes("Reactive: MSV3; the opponent's Surprise Attack (-3) has no effect"), r.notes.join(' | '));
-  assert.equal(duel(using(side(infiltrator, combi, '1:')), target(2)).inputs.successValueB, 9);
-  assert.equal(duel(using(side(infiltrator, combi, '1:')), target(1)).inputs.successValueB, 9);
+  const msv3 = side(profile({equip: [msv(3)]}), combi, 'dodge');
+  assert.equal(duel(using(side(infiltrator, combi, '1:')), msv3).inputs.successValueB, 9);
+  assert.equal(duel(using(side(infiltrator, combi, '1:'), false), msv3).inputs.successValueB, 12);
 });
 
 test('AP halves ARM (rounding up) unless immune; cover added after', () => {

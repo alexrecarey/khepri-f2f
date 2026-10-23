@@ -3,7 +3,7 @@
 // dice were built" adds up to the same numbers.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {SKILL} from '../army/ids.js';
+import {EQUIP, SKILL} from '../army/ids.js';
 import {effectiveTraits} from '../army/traits.js';
 import {bsWeapons, ccWeapons} from '../army/weapons.js';
 import {buildLedger} from './ledger.js';
@@ -243,4 +243,14 @@ test('plain Berserk changes nothing on the roll', () => {
   const r = derive({active: x, reactive: trooper('cc')});
   assert.equal(r.inputs.successValueA, 15);
   assert.ok(r.ledger.A.sv.lines.some((l) => l.label === 'Berserk' && l.value === 0));
+});
+
+test('MSV3 always ignores a CC Surprise Attack; MSV1 and MSV2 do not', () => {
+  const infiltrator = {...trooper('cc', {skills: [skill(SKILL.SURPRISE_ATTACK, '-3')]}), surpriseAttack: true};
+  const target = (level) => trooper('cc', {equip: [{id: EQUIP[`MSV${level}`], name: `Multispectral Visor L${level}`}]});
+  const r = derive({active: infiltrator, reactive: target(3)});
+  assert.equal(r.inputs.successValueB, 15);                    // CC 15, no -3
+  assert.ok(r.notes.includes("Reactive: MSV3; the opponent's Surprise Attack (-3) has no effect"), r.notes.join(' | '));
+  assert.equal(derive({active: infiltrator, reactive: target(2)}).inputs.successValueB, 12);
+  assert.equal(derive({active: infiltrator, reactive: target(1)}).inputs.successValueB, 12);
 });
