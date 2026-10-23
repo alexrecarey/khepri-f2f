@@ -113,9 +113,11 @@ function burstLines(x, s, ctx) {
 }
 
 // A shot's Special Dice: the loadout's and BS Attack's (+1SD), the Fireteam's.
+// The Fireteam's +1 SD is a BS Attack's: a Direct Template or a program gets
+// none (attackBonuses), so no line for it and none to cancel it (Alex, 2026-10-23).
 function sdLines(x, s) {
   const lines = [];
-  const ft = x.weapon.kind === 'program' ? 0 : fireteamBonuses(x.ftSize).sd;
+  const ft = x.weapon.kind === 'bs' ? fireteamBonuses(x.ftSize).sd : 0;
   const own = attackBonuses(x).sd - ft;
   if (own) lines.push(line(own, msg('ledger.loadoutOrBsAttack'), s));
   if (ft) lines.push(line(ft, msg('ledger.fireteam', {size: x.ftSize}), s));

@@ -58,10 +58,9 @@ function opposingLines(y, x, s, ctx) {
 // other side puts on s's roll; `rangeCm`, `rangeCmB` the distances.
 // One side's share of the calculator input: x's roll (an attack, a Dodge or a
 // Reset) against y, and x's Saving Roll against y's weapon. Returns the
-// inputs, whether x still waits on its weapon, whether x shoots (rolls a
-// ranged attack, as opposed to a CC Attack, an evasion, or nothing), the
-// lines its roll is built from (null when it has none to show), its hits' PS
-// lines and its Saving Roll's lines (`ps`, `arm`: the two halves of a save).
+// inputs, whether x still waits on its weapon, the lines its roll is built
+// from (null when it has none to show), its hits' PS lines and its Saving
+// Roll's lines (`ps`, `arm`: the two halves of a save).
 function sideInputs(x, y, s, ctx) {
   const {say, fail, vis} = ctx;
   const inputs = {};
@@ -69,7 +68,6 @@ function sideInputs(x, y, s, ctx) {
   let ps = null;
   let arm = null;
   let incomplete = false;
-  let shoots = false;
   const w = x.weapon;
   const active = s === 'A';
   const roll = (r) => {
@@ -103,14 +101,13 @@ function sideInputs(x, y, s, ctx) {
     const rangeCm = active ? ctx.rangeCm : ctx.rangeCmB ?? ctx.rangeCm;
     roll(attackInputs(x, y, rangeCm, s, ctx));
     inputs[`template${s}`] = w.kind === 'template';
-    shoots = true;
   }
   if (y) {
     const d = defenseInputs(x, y.weapon?.row ? y.weapon : null, s, w?.kind === 'dodge', ctx);
     Object.assign(inputs, d.inputs);
     arm = d.lines;
   }
-  return {inputs, incomplete, shoots, lines, ps, arm};
+  return {inputs, incomplete, lines, ps, arm};
 }
 
 /**
@@ -151,7 +148,6 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
 
   // A side still waiting on its weapon: nothing to report, but not ready to apply.
   let incomplete = false;
-  const shoots = {A: false, B: false};
   const lines = {A: null, B: null};
   const ps = {};
   const arm = {};
@@ -160,7 +156,6 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
     const r = sideInputs(x[s], x[other(s)], s, ctx);
     Object.assign(inputs, r.inputs);
     incomplete ||= r.incomplete;
-    shoots[s] = r.shoots;
     lines[s] = r.lines;
     ps[s] = r.ps;
     arm[s] = r.arm;
@@ -171,10 +166,10 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
     if (ps[s]) lines[s].save = section([...ps[s], ...(arm[other(s)] ?? [])]);
   }
   // A Direct Template on either side: nothing is opposed, each attack is its
-  // own roll. Said when the reactive shoots (a Dodge against a template, or a
-  // template against No ARO, says nothing).
-  const usesTemplate = (s) => x[s]?.weapon?.kind === 'template';
-  if (shoots.B && (usesTemplate('A') || usesTemplate('B')) && !vis.A.blocked && !vis.B.blocked) ctx.say(null, 'note.directTemplate');
+  // own roll. Said whatever the other side does, a Dodge, a Reset or No ARO
+  // included (Alex, 2026-10-23); a template a zone blocks rolls nothing
+  // (lines.kind 'none'), so it says nothing.
+  if (['A', 'B'].some((s) => lines[s]?.kind === 'template')) ctx.say(null, 'note.directTemplate');
 
   if (a || b) inputs.fixedFaceToFace = false;
   // Things the result may get wrong; shown as alerts but don't block the calculation.
