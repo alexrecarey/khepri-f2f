@@ -18,6 +18,7 @@ export {other} from '../lib/side.js';
 // One side of a matchup: ids into the army data plus the situation chips.
 // weaponKey null = the default weapon for the side (rules/defaultWeapon.js),
 // worked out when the matchup is derived, never stored.
+/** @type {import('../types.js').Selection} */
 export const EMPTY_SIDE = {
   unitId: null,
   factionId: null,
@@ -66,17 +67,12 @@ export const MAX_RECENTS = 8; // per side
 export const recentsFor = (recents, side) => recents.filter((r) => r.side == null || r.side === side);
 export const MAX_RECENT_FACTIONS = 3;
 
-// overlay: null | 'menu' | 'results' | 'picker' | 'saved' | 'settings' | 'about'
-// picker:  {side: 'A'|'B', query, scope: factionId|null, stack: [view]} while
-//          overlay is 'picker'; a view is {view: 'factions'} | {view: 'type', type}
-//          | {view: 'unit', unitId, name}
-// edit:    {side, chip: 'ftSize' | 'ccAllies' | 'upgrade' | 'ball'} while a chip
-//          shows its inline editor
-// savedTab: which list Saved rolls shows, 'matchup' | 'basic'
-// swiped:  id of the saved roll swiped open to show its Delete button
-// toast:   {text} for a moment after Save, Share or Delete
+// The ephemeral slice: overlays, the picker stack, a chip's inline editor,
+// the toast (types.js UiState).
+/** @type {import('../types.js').UiState} */
 export const EMPTY_UI = {overlay: null, picker: null, rangeOpen: false, edit: null, savedTab: null, swiped: null, toast: null};
 
+/** @returns {import('../types.js').AppState} */
 export function initialState() {
   return {
     v: STATE_VERSION,

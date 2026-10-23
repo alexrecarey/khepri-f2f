@@ -1,25 +1,6 @@
-// Engine result -> the numbers the results card and sheet draw. Pure, so the
-// card, the sheet and the Worker's share card read the same figures.
-//
-//   wpo        {active, reactive}: expected wounds per order
-//   win        {active, reactive, none}: chance each side wins the Face to Face
-//              Roll (none = both fail, or a tie)
-//   bar        7 segments, left to right: active 3+ / 2 / 1, nobody wounded,
-//              reactive 1 / 2 / 3+ ({side, wounds, chance})
-//   atLeast    {active: [p1, p2, p3], reactive: [...]}: chance of 1+, 2+, 3+
-//   saved      {active, reactive}: won the roll, but every hit was saved
-//   unopposed  true when each side rolled on its own (Direct Template vs attack)
-//   attacks    unopposed only: {active, reactive}, each attack on its own:
-//              {wpo, wounds: [p1, p2, p3+] exactly, wounded, saved, miss}
-//   states     with targets only: {active, reactive}, the target's wound states
-//              (rules/woundStates.js), each with {exactly, atLeast, shade}:
-//              exactly its own share of the rolls, atLeast that state or worse
-//   stateBar   with targets only: the wound bar by state, left to right: active
-//              deepest first, nobody wounded, reactive mildest first
-//              ({side, key, index, chance, shade})
-//   joint      unopposed only: the two attacks are independent, so the order
-//              ends one of four ways: {both, onlyActive, onlyReactive, neither}
-//              (onlyActive = only the active side causes wounds)
+// Engine result -> the numbers the results card and sheet draw (types.js
+// Summary). Pure, so the card, the sheet and the Worker's share card read the
+// same figures.
 import {RAMP} from './ramp.js';
 
 // Wounds the bars count one by one; more show as this many ("3+"). Not the
@@ -69,6 +50,11 @@ function byState(rows, states, side) {
   });
 }
 
+/**
+ * @param {import('../types.js').EngineResult | null | undefined} result
+ * @param {{active: object[], reactive: object[]} | null} targets each side's target's wound states (rules/woundStates.js)
+ * @returns {import('../types.js').Summary | null}
+ */
 export function summarize(result, targets = null) {
   if (!result?.expectedWounds) return null;
   const rows = result.expectedWounds;

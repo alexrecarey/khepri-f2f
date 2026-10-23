@@ -26,6 +26,13 @@ export const wpoText = (n) => (n == null ? '—' : n.toFixed(2));
 // A side whose hits cause a State instead of wounds (Jammer: Isolated, Flash
 // Pulse: Stunned) shows the chance of that State in place of wounds per order
 // and at least one wound. t: the labels' language (src/i18n).
+/**
+ * @param {import('../types.js').Summary} s
+ * @param {import('../types.js').HeadlineChoice} choice
+ * @param {import('../types.js').Params | null} [params]
+ * @param {import('../types.js').Ledger | null} [sides]
+ * @returns {import('../types.js').Headline}
+ */
 export function headline(s, choice, params = null, sides = null, t = tEn) {
   const roles = ['active', 'reactive'];
   const wpo = s.unopposed ? {active: s.attacks.active.wpo, reactive: s.attacks.reactive.wpo} : s.wpo;

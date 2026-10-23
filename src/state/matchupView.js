@@ -73,7 +73,8 @@ function bandMod(resolved, to) {
 // What a side card shows besides the selection: weapon buttons, which chips
 // apply, the trooper's names. The side is resolveSide's result; `other` is
 // the other side's resolution, for what follows both picks. With no army (`resolved`
-// null) it is the empty side, so this is the one place that lists the fields.
+// null) it is the empty side, so this is the one place that builds the fields
+// (types.js SideView).
 // Language-free: renderMatchup words the mode labels and the Team-Ops options.
 function sideView(army, side, {sel, resolved}, other) {
   const unit = resolved?.unit;
@@ -126,8 +127,12 @@ function sideView(army, side, {sel, resolved}, other) {
 // The reactive's own distance, or null while both share rangeCm.
 const rangeCmB = (matchup) => matchup.rangeCmB ?? null;
 
-// The rules applied to the matchup, with no language in it: what
-// renderMatchup words. Memoised on (army, matchup) alone (useMatchupView.js).
+/**
+ * The rules applied to the matchup, with no language in it: what
+ * renderMatchup words. Memoised on (army, matchup) alone (useMatchupView.js).
+ * @param {import('../types.js').Matchup} matchup
+ * @returns {import('../types.js').MatchupCore}
+ */
 export function matchupCore(army, matchup) {
   const zones = {smoke: Boolean(matchup.smoke), whiteNoise: Boolean(matchup.whiteNoise)};
   const hasSelection = Boolean(matchup.A.unitId || matchup.B.unitId);
@@ -171,9 +176,13 @@ export function matchupCore(army, matchup) {
   return {ready: true, rangeUnused, A, B, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones, vis, derived, params, ledger, bands, hasSelection, complete, targets};
 }
 
-// The core in t's language: every descriptor rendered (notes, ledger lines,
-// zone lines, wound states, mode labels), the Team-Ops labels in its unit.
-// t: the player's translator (src/i18n), with the army's terms.
+/**
+ * The core in t's language: every descriptor rendered (notes, ledger lines,
+ * zone lines, wound states, mode labels), the Team-Ops labels in its unit.
+ * t: the player's translator (src/i18n), with the army's terms.
+ * @param {import('../types.js').MatchupCore} core
+ * @returns {import('../types.js').MatchupView}
+ */
 export function renderMatchup(core, t = tEn) {
   if (!core.ready) return core;
   const say = (m) => render(t, m);
@@ -197,5 +206,9 @@ export function renderMatchup(core, t = tEn) {
   return {...core, A, B, derived, ledger, vis, targets};
 }
 
-// t: the language of every label and note (src/i18n), with the army's terms.
+/**
+ * t: the language of every label and note (src/i18n), with the army's terms.
+ * @param {import('../types.js').Matchup} matchup
+ * @returns {import('../types.js').MatchupView}
+ */
 export const matchupView = (army, matchup, t = tEn) => renderMatchup(matchupCore(army, matchup), t);

@@ -78,12 +78,17 @@ function allPseudoWeapons(traits) {
   return list;
 }
 const forRole = (list, side) => (side === 'B' ? list : list.filter((w) => w.kind !== 'none'));
+/** @returns {import('../types.js').PseudoEntry[]} */
 export const pseudoWeapons = (traits, side = 'B') => forRole(allPseudoWeapons(traits), side);
 
 // The entry `key` names in any of the lists, or null.
 const byKey = (lists, key) => lists.flatMap((l) => l).find((w) => w.key === key) ?? null;
 
-// The same resolution rolling `key` instead (a weapon in its lists).
+/**
+ * The same resolution rolling `key` instead (a weapon in its lists).
+ * @param {import('../types.js').ResolvedSide} r
+ * @returns {import('../types.js').ResolvedSide}
+ */
 export const withWeapon = (r, key) => ({...r, weapon: byKey([r.weapons, r.ccWeapons, r.programs, r.pseudo], key)});
 
 // Name of a choice that is not a weapon: "Dodge", "Bangbomb", "Reset", "Zero
@@ -100,10 +105,14 @@ function firewallChip(v, traits) {
   return FIREWALL_CHIPS.includes(v) ? v : own;
 }
 
-// Resolves a picker selection (ids) against the army data. The returned
-// profile has the loadout's stat overrides and any Team-Ops upgrades applied;
-// the returned option includes upgrade weapons. `side`: whose role the
-// choices are for ('A' active, 'B' reactive): its pseudo-weapon list.
+/**
+ * Resolves a picker selection (ids) against the army data. The returned
+ * profile has the loadout's stat overrides and any Team-Ops upgrades applied;
+ * the returned option includes upgrade weapons. `side`: whose role the
+ * choices are for ('A' active, 'B' reactive): its pseudo-weapon list.
+ * @param {import('../types.js').Selection} sel
+ * @returns {import('../types.js').ResolvedSide | null}
+ */
 export function resolveSelection(army, sel, side = 'B') {
   if (!army || !sel?.unitId) return null;
   const unit = unitById(army, sel.unitId);

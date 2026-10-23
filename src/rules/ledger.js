@@ -5,21 +5,8 @@
 // lines it summed (`derived.lines`, lines.js), worded as message descriptors
 // (i18n/message.js). This file is the renderer: renderDerived puts every
 // note and line into the player's language, and buildLedger lays the lines
-// out per side and adds only display: the dice line, the ammunition lines
-// and note.
-//
-// buildLedger({active, reactive, derived}) -> {A, B}, per side:
-//   kind    'attack' | 'dodge' | 'reset' | 'template' | 'none'
-//   dice    'B4 SV14 PS9': burst (+special dice), Success Value, save value
-//   burst, sd, sv, save   {lines, total, note?}; a line is
-//                     {value, label, by: 'A' | 'B' | null, struck: reason?}
-//   `by` is whose skill, weapon or position caused the line (the colour);
-//   `struck` lines were cancelled and don't count.
-//   save is the Saving Roll the OTHER side makes against this side's hits:
-//   weapon PS + target ARM (or BTS), on d20 <= total.
-//   ammo    {lines, total}: the ammunition and where each part comes from (matchup.js)
-//   note    what the ammunition does (saves per hit, Continuous Damage...)
-//   reason  kind 'none': why nothing is rolled
+// out per side (types.js LedgerSide) and adds only display: the dice line,
+// the ammunition lines and note.
 import {ammoName, ammoTypes, bioweaponParts, hasContinuousDamage, isImpactTemplate, isPlasma, isPseudo} from '../army/weapons.js';
 import {AMMO} from '../engine/calculate.js';
 import {pseudoName} from './trooper.js';
@@ -101,10 +88,14 @@ function sideLedger(x, y, s, l, inputs, t) {
 const renderSection = (t, sec) => (sec
   ? {...sec, lines: renderLines(t, sec.lines), total: render(t, sec.total), ...(sec.note !== undefined && {note: render(t, sec.note)})} : sec);
 
-// The deriveInputs result with every descriptor rendered in t's language:
-// notes, warnings, errors, and each side's lines (label, struck, source,
-// reason, note). Rendered once per view (state/matchupView.js), before
-// buildLedger.
+/**
+ * The deriveInputs result with every descriptor rendered in t's language:
+ * notes, warnings, errors, and each side's lines (label, struck, source,
+ * reason, note). Rendered once per view (state/matchupView.js), before
+ * buildLedger.
+ * @param {import('../types.js').Derived} derived
+ * @returns {import('../types.js').Derived}
+ */
 export function renderDerived(derived, t = tEn) {
   const say = (m) => render(t, m);
   const side = (l) => (l ? {
@@ -123,8 +114,13 @@ export function renderDerived(derived, t = tEn) {
   };
 }
 
-// derived: the deriveInputs result for the same two sides, rendered with t
-// (renderDerived) by the caller. t: the language of the display text here.
+/**
+ * derived: the deriveInputs result for the same two sides, rendered with t
+ * (renderDerived) by the caller. t: the language of the display text here.
+ * @param {{active: import('../types.js').ResolvedSide | null, reactive: import('../types.js').ResolvedSide | null,
+ *   derived: import('../types.js').Derived, t?: Function}} _
+ * @returns {import('../types.js').Ledger}
+ */
 export function buildLedger({active, reactive, derived, t = tEn}) {
   const {inputs, lines} = derived;
   return {
