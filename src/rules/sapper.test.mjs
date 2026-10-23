@@ -7,6 +7,7 @@ import {readFileSync} from 'node:fs';
 import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
 import {pickTrooper} from '../state/actions.js';
+import {matchupCore} from '../state/matchupView.js';
 import {buildLedger, renderDerived} from './ledger.js';
 import {deriveInputs as deriveRaw} from './matchup.js';
 
@@ -63,4 +64,12 @@ test('a picked trooper starts in cover, or in its Foxhole with Sapper', () => {
     groups[0].options.map((o) => ({unitId: u.id, factionId: Number(fid), groupId: groups[0].id, optionId: o.id}))))
     .find((s) => hasSkill(resolveSelection(army, s)?.traits, SKILL.NO_COVER));
   assert.equal(pickTrooper(army, 'A', hit(noCover)).sel.inCover, false);
+});
+
+test('the side view: the Cover chip is off while the side sits in its Foxhole', () => {
+  const v = (A) => matchupCore(army, {A, B: fusilier, rangeCm: 40}).A;
+  assert.equal(v({...sapper, inCover: true}).coverOn, true);
+  assert.equal(v({...sapper, inCover: true, sapper: true}).coverOn, false);
+  // Without Sapper the switch does nothing, so a stray flag leaves Cover on.
+  assert.equal(matchupCore(army, {A: {...fusilier, inCover: true, sapper: true}, B: sapper, rangeCm: 40}).A.coverOn, true);
 });

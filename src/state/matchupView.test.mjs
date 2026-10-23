@@ -198,3 +198,12 @@ test('a language change renders the same core again: the rules are not re-applie
   // matchupView is the two passes composed.
   assert.deepEqual(matchupView(army, {A: corax, B: {...chaksa, inCover: true}, rangeCm: 40}), en);
 });
+
+test('the side view holds the allies in contact to what fits, as the CC Attack counts them', () => {
+  const cc = matchupCore(army, {A: corax, B: chaksa, rangeCm: 40}).A.groups.find((g) => g.w.kind === 'cc').w;
+  const v = matchupCore(army, {A: {...corax, weaponKey: cc.key, ccAllies: 99}, B: chaksa, rangeCm: 40}).A;
+  assert.ok(v.ccAlliesMax > 0);
+  assert.equal(v.ccAllies, v.ccAlliesMax);
+  // Not CC attacking: no allies count.
+  assert.equal(matchupCore(army, {A: {...corax, ccAllies: 3}, B: chaksa, rangeCm: 40}).A.ccAllies, 0);
+});

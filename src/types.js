@@ -468,8 +468,11 @@
  * @property {WeaponGroup[]} groups BS weapons, then CC weapons, programs and pseudo-weapons
  * @property {boolean} cc the side CC attacks
  * @property {number} ccAlliesMax how many allies fit around the other side's base
+ * @property {number} ccAllies the allies in contact the CC Attack counts (closeCombat.js ccAllies), 0 without one
  * @property {boolean} noCover No Cover: cover does nothing for it, so no Cover chip
+ * @property {boolean} coverOn the Cover chip is on (in cover, not in its Foxhole)
  * @property {boolean} hacked the other side's pick is a Comms Attack
+ * @property {boolean} firewallRequired the trooper has its own Firewall, which can't be switched off
  * @property {boolean} fireteamChip the pick gets a bonus from a Fireteam
  * @property {boolean} targetedChip the other side's shot or program gains from Targeted, or this side Resets
  * @property {boolean} hackedChip the pick is a Reset

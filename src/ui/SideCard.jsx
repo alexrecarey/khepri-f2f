@@ -1,7 +1,7 @@
 // One side of the matchup: the picked trooper's card (weapon buttons and the
 // situation chips), or the empty slot that asks for one.
 import PropTypes from 'prop-types';
-import {FIRETEAM_MIN, HACKED_RESET_MODS, firewallMod} from '../rules/modifiers.js';
+import {FIRETEAM_MIN, HACKED_RESET_MODS} from '../rules/modifiers.js';
 import {ROLE} from '../state/schema.js';
 import {dispatch} from '../state/store.js';
 import {FIREWALL_CHIPS} from '../rules/trooper.js';
@@ -52,8 +52,8 @@ EmptySlot.propTypes = {
 export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
   const t = useT();
   const color = ROLE[side];
-  const {sel, resolved, groups, cc, ccAlliesMax, noCover, hacked, fireteamChip, targetedChip, hackedChip, immAChip, surprise, berserk, teamOps, faction, crest, short,
-    loadout} = view[side];
+  const {sel, resolved, groups, cc, ccAllies, ccAlliesMax, noCover, coverOn, hacked, firewallRequired, fireteamChip, targetedChip, hackedChip, immAChip, surprise,
+    berserk, teamOps, faction, crest, short, loadout} = view[side];
   const unit = resolved?.unit;
   const option = resolved?.option;
 
@@ -76,18 +76,18 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
           {hacked && (
             <PickChip side={side} chip="firewall" label={t('chip.firewall')} options={FIREWALL_CHIPS.map(String)}
               value={FIREWALL_CHIPS.includes(resolved.firewall) ? FIREWALL_CHIPS.indexOf(resolved.firewall) : null} color={color}
-              required={firewallMod(resolved.traits) !== 0} onPick={(i) => patch(side, {firewall: i == null ? 0 : FIREWALL_CHIPS[i]})} />
+              required={firewallRequired} onPick={(i) => patch(side, {firewall: i == null ? 0 : FIREWALL_CHIPS[i]})} />
           )}
           {/* Cover or, for Sapper, the Foxhole (its own cover): one or the other. */}
           {!hacked && !noCover && (
-            <button type="button" className={`chip${sel.inCover && !resolved.sapper ? ` on ${color}` : ''}`} aria-pressed={sel.inCover && !resolved.sapper}
-              onClick={() => patch(side, {inCover: !(sel.inCover && !resolved.sapper), sapper: false})}>
-              {sel.inCover && !resolved.sapper ? `${t('chip.cover')} ✓` : `+ ${t('chip.cover')}`}
+            <button type="button" className={`chip${coverOn ? ` on ${color}` : ''}`} aria-pressed={coverOn}
+              onClick={() => dispatch({type: 'setCover', side, on: !coverOn})}>
+              {coverOn ? `${t('chip.cover')} ✓` : `+ ${t('chip.cover')}`}
             </button>
           )}
           {!hacked && resolved.canSapper && (
             <button type="button" className={`chip${resolved.sapper ? ` on ${color}` : ''}`} aria-pressed={resolved.sapper}
-              onClick={() => patch(side, {sapper: !resolved.sapper, inCover: false})}>
+              onClick={() => dispatch({type: 'setSapper', side, on: !resolved.sapper})}>
               {resolved.sapper ? `${t('chip.sapper')} ✓` : `+ ${t('chip.sapper')}`}
             </button>
           )}
@@ -119,7 +119,7 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
           )}
           {/* CC Attack: allies in contact with the target, +1 B each. */}
           {cc && (
-            <CountChip side={side} chip="ccAllies" label={t('chip.allies')} value={Math.min(resolved.ccAllies, ccAlliesMax)} min={1} max={ccAlliesMax}
+            <CountChip side={side} chip="ccAllies" label={t('chip.allies')} value={ccAllies} min={1} max={ccAlliesMax}
               none={0} color={color} />
           )}
           {berserk && (
