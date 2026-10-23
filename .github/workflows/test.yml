@@ -26,9 +26,13 @@ jobs:
       - run: yarn build
       - run: yarn check-build
 
+  # The engine's own tests (engine-rs/tests), natively. Run from engine-rs/ so
+  # the runner's rustup installs the toolchain rust-toolchain.toml pins.
   engine:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: engine-rs
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-      - run: uv run --python 3.12 --with icepool==2.2.2 --with pytest pytest -q src/engine
+      - run: cargo test --locked
