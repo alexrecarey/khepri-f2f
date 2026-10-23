@@ -83,7 +83,8 @@ export function StateBar({s, ui, glyphs = false, className = '', style}) {
   const hov = (b) => (ui && b.side !== 'none' ? {
     onMouseEnter: () => ui.setHover({kind: 'seg', side: b.side, index: b.index}),
     onMouseLeave: () => ui.setHover(null),
-    onClick: (e) => { e.stopPropagation(); ui.setHover({kind: 'seg', side: b.side, index: b.index}); },
+    // A tap also reaches the bar's own button (ResultBars), which shows the wound list.
+    onClick: () => ui.setHover({kind: 'seg', side: b.side, index: b.index}),
   } : {});
   return (
     <>
@@ -131,6 +132,22 @@ function StateRow({st, side, ui, cur}) {
 
 StateRow.propTypes = {st: PropTypes.object.isRequired, side: PropTypes.string.isRequired, ui: PropTypes.object.isRequired, cur: PropTypes.object.isRequired};
 
+// A row that hurts nobody: grey, and nothing in the bar to point at.
+function PlainRow({glyph, label, p, dim}) {
+  if (!shows(p)) return null;
+  return (
+    <div className={`srow plain${dim ? ' dim' : ''}`}>
+      <span><StateGlyph glyph={glyph} /></span>
+      <span className="k">{label}</span>
+      <span className="track"><span className="b seg-none" style={{width: `max(2px, ${100 * p}%)`}} /></span>
+      <span className="ex">{pct(p)}</span>
+      <span className="p">{pct(p)}</span>
+    </div>
+  );
+}
+
+PlainRow.propTypes = {glyph: PropTypes.string.isRequired, label: PropTypes.string.isRequired, p: PropTypes.number.isRequired, dim: PropTypes.bool};
+
 export function StateList({s, ui}) {
   const t = useT();
   const cur = useUiState(ui);
@@ -141,13 +158,19 @@ export function StateList({s, ui}) {
     </button>
   );
   const rows = (side) => s.states[side].filter((st) => shows(st.atLeast)).map((st) => <StateRow key={st.key} st={st} side={side} ui={ui} cur={cur} />);
+  // Won, every hit saved: under the side that won, grey like nobody wounded
+  // in the bar (extra information, not always important).
+  const saves = (side) => <PlainRow glyph="save" label={t('results.savesAll')} p={s.saved[side]} dim={Boolean(cur.focus && cur.focus !== side)} />;
   return (
     <div className="slist">
       {shows(s.win.active) && head('active', `${t('results.sideWins', {side: t('side.active')})} · ${pct(s.win.active)}`)}
       {shows(s.win.active) && rows('active')}
+      {shows(s.win.active) && saves('active')}
       {shows(s.win.none) && <div className={`shead static${cur.focus ? ' dim' : ''}`}><span className="t">{t('results.nobodyWins')} · {pct(s.win.none)}</span></div>}
+      {shows(s.win.none) && <PlainRow glyph="tie" label={t('results.bothMissOrTie')} p={s.win.none} dim={Boolean(cur.focus)} />}
       {shows(s.win.reactive) && head('reactive', `${t('results.sideWins', {side: t('side.reactive')})} · ${pct(s.win.reactive)}`)}
       {shows(s.win.reactive) && rows('reactive')}
+      {shows(s.win.reactive) && saves('reactive')}
     </div>
   );
 }

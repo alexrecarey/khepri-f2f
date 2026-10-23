@@ -79,3 +79,16 @@ export function breakdownWins(b) {
   const reactive = total(b.reactive);
   return {active, reactive, none: 1 - active - reactive};
 }
+
+// What the explainer under the chart says: how much of each side's win comes
+// from its Critical, and how the cancelled rolls split (the same number, two
+// Criticals, both miss). The three cancel parts add up to breakdownWins' none.
+export function breakdownParts(b) {
+  const at = (side, r) => b[side].best.find((x) => x.reading === r) ?? {chance: 0, wins: 0};
+  const both = (r) => at('active', r).chance * at('reactive', r).chance;
+  const numbers = b.readings.filter((r) => typeof r === 'number');
+  return {
+    critWins: {active: at('active', CRIT).wins, reactive: at('reactive', CRIT).wins},
+    cancel: {same: numbers.reduce((t, r) => t + both(r), 0), crits: both(CRIT), misses: both(MISS)},
+  };
+}

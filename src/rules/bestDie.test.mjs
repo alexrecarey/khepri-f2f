@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {CRIT, MISS, bestOf, breakdownWins, faceToFaceBreakdown, readRoll} from './bestDie.js';
+import {CRIT, MISS, bestOf, breakdownParts, breakdownWins, faceToFaceBreakdown, readRoll} from './bestDie.js';
 
 const golden = JSON.parse(readFileSync(new URL('../engine/engine.golden.json', import.meta.url), 'utf8'));
 
@@ -51,4 +51,18 @@ test('no breakdown without a Face to Face Roll', () => {
   assert.equal(faceToFaceBreakdown({...p, burstB: 0}), null);
   assert.equal(faceToFaceBreakdown({...p, templateA: true}), null);
   assert.equal(faceToFaceBreakdown({...p, fixedFaceToFace: true}), null);
+});
+
+test('Squalos B4 SV14 vs Fennec B2 SV13: the cancelled rolls split into same number, two Criticals, two misses', () => {
+  const b = faceToFaceBreakdown({successValueA: 14, burstA: 4, bonusBurstA: 0, successValueB: 13, burstB: 2, bonusBurstB: 0});
+  const {critWins, cancel} = breakdownParts(b);
+  const w = breakdownWins(b);
+  assert.ok(Math.abs(cancel.same + cancel.crits + cancel.misses - w.none) < 1e-12);
+  // Both Critical: each side's best die is its Critical.
+  assert.ok(Math.abs(cancel.crits - (1 - (19 / 20) ** 4) * (1 - (19 / 20) ** 2)) < 1e-12);
+  // Both miss: every die over the SV (6 of 20 for SV 14, 7 for SV 13).
+  assert.ok(Math.abs(cancel.misses - (6 / 20) ** 4 * (7 / 20) ** 2) < 1e-12);
+  // A Critical beats anything but a Critical.
+  assert.ok(Math.abs(critWins.active - (1 - (19 / 20) ** 4) * (19 / 20) ** 2) < 1e-12);
+  assert.ok(critWins.reactive > 0 && critWins.reactive < w.reactive);
 });

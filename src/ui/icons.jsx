@@ -64,8 +64,12 @@ export const TrashIcon = () => (
 
 // Wound state glyphs, one colour (currentColor): Unconscious (the token's
 // heartbeat), NWI (its two arrowheads), Dogged (a dog head; the token's figure
-// is lost at this size) and Dead.
+// is lost at this size) and Dead. The results list also marks the rolls that
+// hurt nobody: a shield (won, every hit saved; 90%, a full-size solid shield
+// outweighs the rows) and = (nobody wins the roll).
 const STATE_GLYPHS = {
+  save: <path fill="currentColor" transform="translate(12 12) scale(.9) translate(-12 -12)" d="M12 1.8 L20.5 5 V11.2 C20.5 16.4 17 20.4 12 22.2 C7 20.4 3.5 16.4 3.5 11.2 V5 Z" />,
+  tie: <g stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="4" y1="8.5" x2="20" y2="8.5" /><line x1="4" y1="15.5" x2="20" y2="15.5" /></g>,
   unc: <polyline fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" points="1.5,13 7,13 9,7 12.5,19 15,10 17,13 22.5,13" />,
   nwi: (
     <g fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
