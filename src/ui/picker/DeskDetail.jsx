@@ -88,7 +88,7 @@ function UnitPane({m}) {
         <>
           <Stats stats={profile.stats} />
           {profile.skills.length > 0 && <div className="dp-skills">{profile.skills.map((sk) => traitLabel(sk, t)).join(' · ')}</div>}
-          <span className="dp-head" style={{padding: 0}}>{t('picker.loadouts')}</span>
+          <span className="dp-head flush">{t('picker.loadouts')}</span>
           <div className="dp-loadouts" id="dp-loadouts" role="listbox" aria-label={t('picker.loadouts')}>
             {loadouts.map((h, i) => (
               <DeskLoadout key={h.rowId} h={h} i={i} tag={extraLoadoutName(h.loadout, h.unit) ?? loadoutTag(army, h)} on={i === lit}
@@ -99,7 +99,7 @@ function UnitPane({m}) {
       )}
       {/* Cover, Sapper and Fireteam are set on the side card after picking. */}
       <div className="dp-actions">
-        <span style={{flexGrow: 1}} />
+        <span className="spacer" />
         {otherSet ? (
           <>
             <button type="button" className="btn" onClick={() => pick(hitFor(), true)}>{t('picker.useAndChange', {side: otherName})} <kbd>⇧↵</kbd></button>
@@ -123,7 +123,7 @@ function FactionTiles({searcher}) {
   const t = useT();
   return (
     <>
-      <span className="dp-head" style={{padding: 0}}>{t('picker.browseByFaction')}</span>
+      <span className="dp-head flush">{t('picker.browseByFaction')}</span>
       <div className="dp-tiles">
         {(searcher?.factions ?? []).map((f) => (
           <button type="button" key={f.id} className="tile faction" onClick={() => dispatch({type: 'pickerScope', scope: f.id})}>
@@ -149,7 +149,7 @@ function TypeTiles({m}) {
         <span className="dp-name dp-faction"><FactionLogo id={scope} size={36} />{factionName(scope)} <span className="note">· {t('picker.sectorialsIncluded')}</span></span>
         <button type="button" className="text-btn" onClick={() => dispatch({type: 'pickerScope', scope: null})}>← {t('picker.allFactions')}</button>
       </div>
-      <span className="dp-head" style={{padding: 0}}>{t('picker.unitType')}</span>
+      <span className="dp-head flush">{t('picker.unitType')}</span>
       <div className="dp-tiles">
         {(browse?.types ?? []).map((ty) => {
           const sample = searcher.unitsOfType(ty.type, scope).slice(0, 3).map((u) => u.short).join(', ');

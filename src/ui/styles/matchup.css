@@ -73,13 +73,20 @@
 .range.open { background: var(--surface); position: relative; z-index: 16; }
 /* Open, the rest of the screen is a transparent button that closes it. */
 .range-scrim { all: unset; position: fixed; inset: 0; z-index: 15; cursor: default; }
-.range .collapse { overflow: hidden; transition: max-height .28s ease, opacity .2s ease; }
+.range .collapse { overflow: hidden; max-height: 0; opacity: 0; transition: max-height .28s ease, opacity .2s ease; }
+.range.open .collapse { opacity: 1; }
+.range.open .collapse.head { max-height: 48px; }
+.range.open .collapse.foot { max-height: 104px; }
 .range-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px 6px; }
 .range-close { all: unset; box-sizing: border-box; cursor: pointer; font-size: 15px; font-weight: 600; padding: 4px 0 4px 12px; }
 .range-row { display: flex; align-items: center; gap: 8px; }
 .range-foot { display: flex; align-items: center; gap: 10px; padding: 8px 12px 10px; font-size: var(--fs-small); color: var(--muted); }
 .range-foot .key { margin-left: auto; display: flex; gap: 8px; flex-shrink: 0; }
 .range-foot i { display: inline-block; width: 10px; height: 4px; vertical-align: middle; margin-right: 3px; }
+.range-foot .plus { background: var(--band-plus); }
+.range-foot .zero { background: var(--band-zero); }
+.range-foot .minus3 { background: var(--band-minus3); }
+.range-foot .minus6 { background: var(--band-minus6); }
 .range-foot .mods { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: 13px; }
 .range-foot .mods span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .range-foot .mods b { font-family: var(--font-mono); font-weight: 600; }

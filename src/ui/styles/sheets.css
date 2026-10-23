@@ -8,6 +8,8 @@
 .small { font-size: var(--fs-small); color: var(--text-3); }
 .bar { display: flex; overflow: hidden; }
 .bar span { display: block; height: 100%; }
+/* A bar with nothing to show yet: waiting for the second trooper or the first result. */
+.bar.blank { background: var(--none); }
 /* A bar segment that can carry a label (ResultsDetail WoundBar, Unopposed
    AttackBar); width and shade come from the result, so they stay inline. */
 .bar .seg-l { display: grid; place-items: center; font-family: var(--font-mono); font-size: var(--fs-label); font-weight: 600; color: var(--active-ink); }
@@ -43,6 +45,10 @@
 .page { position: fixed; left: 0; right: 0; top: var(--vv-top, 0px); height: var(--vv-height, 100dvh); margin: 0 auto; max-width: 480px; background: var(--page); z-index: 30; display: flex; flex-direction: column; animation: fade .15s ease; }
 .page-head { padding: 10px 8px; display: flex; align-items: center; gap: 4px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
 .page-title { font-size: 18px; font-weight: 600; }
+.page-titles { display: flex; flex-direction: column; flex-grow: 1; min-width: 0; }
+/* With a Cancel on the right instead of a back button, the title keeps the button's indent. */
+.page-head.no-back { padding-left: 16px; }
+.back-ic { font-size: 24px; line-height: 1; }
 /* While a page is open the document behind it can't scroll (useVisualViewport.js).
    If the keyboard's resize lags, the gap under the page shows page colour,
    not the screen behind. */
@@ -62,3 +68,14 @@ html.page-open, html.page-open body { overflow: hidden; overscroll-behavior: non
 .menu-item { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 10px; font-size: 16px; }
 .menu-item .dot { width: 20px; text-align: center; }
 .menu-sep { height: 1px; background: var(--line); margin: 6px 14px; }
+/* The menu's rows reach 8px into the sheet's padding on three sides. */
+.menu-nav { display: flex; flex-direction: column; margin: -8px -8px 0; }
+.menu-item .menu-text { flex-grow: 1; }
+/* The mode rows (aria-pressed): the chosen one lit, the other dimmed. */
+.menu-item[aria-pressed] .dot { color: var(--faint); }
+.menu-item[aria-pressed] .menu-text { color: var(--text-2); }
+.menu-item[aria-pressed="true"] .dot { color: var(--active); }
+.menu-item[aria-pressed="true"] .menu-text { color: var(--text); }
+.menu-count { font-size: 14px; }
+.menu-section-label { padding: 10px 14px 4px; }
+.menu-version { padding: 12px 14px 0; color: var(--faint); }

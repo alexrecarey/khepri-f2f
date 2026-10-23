@@ -29,7 +29,7 @@ function RollBody({roll, size}) {
   if (roll.mode !== MODES.matchup) {
     return (
       <span className="roll-classic">
-        <span className="roll-row" style={{fontWeight: 600}}><span className="c-active">{s.a}</span><span className="c-reactive">{s.r}</span></span>
+        <span className="roll-row main"><span className="c-active">{s.a}</span><span className="c-reactive">{s.r}</span></span>
         <span className="roll-row dice"><span className="c-active">{s.ad}</span><span className="c-reactive">{s.rd}</span></span>
         <span className="roll-row note"><span>{s.setup}</span><span><b className="c-active">{s.ap}</b> · <b className="c-reactive">{s.rp}</b></span></span>
       </span>
@@ -95,7 +95,7 @@ function SavedPhone() {
   const {saved, list, tabs} = useSavedList();
   const swiped = useAppState((s) => s.ui.swiped);
   return (
-    <Page title={t('menu.savedRolls')} className="from-menu" onBack={back} action={<span className="note" style={{paddingRight: 12, fontSize: 13}}>{saved.length}</span>}>
+    <Page title={t('menu.savedRolls')} className="from-menu" onBack={back} action={<span className="note roll-count">{saved.length}</span>}>
       {tabs}
       <div className="roll-list">
         {list.map((r) => <RollCard key={r.id} roll={r} swiped={swiped === r.id} />)}

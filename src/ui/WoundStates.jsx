@@ -64,7 +64,7 @@ const dimRow = (cur, side, index) => {
 // glyphs: false (bar only), true (bar, glyphs under it) or 'only' (just the
 // glyph row: the phone sheet draws the bar in its top and the glyphs below).
 // ui null: a plain bar (the closed phone card, where a tap opens the sheet).
-export function StateBar({s, ui, glyphs = false, className = '', style}) {
+export function StateBar({s, ui, glyphs = false, className = ''}) {
   const t = useT();
   const cur = useUiState(ui);
   const segs = s.stateBar.filter((b) => shows(b.chance));
@@ -88,7 +88,7 @@ export function StateBar({s, ui, glyphs = false, className = '', style}) {
   } : {});
   return (
     <>
-      {glyphs !== 'only' && <div className={`bar sbar ${className}`} style={style} role="img" aria-label={t('results.woundsByState')}>
+      {glyphs !== 'only' && <div className={`bar sbar ${className}`} role="img" aria-label={t('results.woundsByState')}>
         {segs.map((b) => (
           <span key={`${b.side}${b.key}`} className={`sseg${b.side === 'none' ? ' seg-none' : ''}${dimSeg(cur, b) ? ' dim' : ''}`}
             style={{width: `${100 * b.chance}%`, background: b.shade ?? undefined}} title={tip(b)} {...hov(b)} />
@@ -105,7 +105,7 @@ export function StateBar({s, ui, glyphs = false, className = '', style}) {
   );
 }
 
-StateBar.propTypes = {s: PropTypes.object.isRequired, ui: PropTypes.object, glyphs: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]), className: PropTypes.string, style: PropTypes.object};
+StateBar.propTypes = {s: PropTypes.object.isRequired, ui: PropTypes.object, glyphs: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]), className: PropTypes.string};
 
 function StateRow({st, side, ui, cur}) {
   const t = useT();

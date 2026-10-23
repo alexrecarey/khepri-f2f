@@ -1,6 +1,9 @@
 /* Results by wound state (WoundStates.jsx): clean bar, glyphs under it, rows
    with EXACTLY / AT LEAST on the side's heading line. */
 .sbar { display: flex; overflow: hidden; border-radius: 3px; }
+/* A state's glyph (icons.jsx StateGlyph); the blank keeps the glyph's width. */
+.state-glyph { display: block; flex-shrink: 0; }
+.state-glyph.blank { display: inline-block; }
 .sbar .sseg { display: block; height: 100%; transition: opacity .15s, width .35s cubic-bezier(.2,.8,.2,1); cursor: default; }
 .sbar .sseg:hover { box-shadow: inset 0 0 0 2px var(--text); }
 .sseg.dim, .sglyphs .dim, .srow.dim, .shead.dim { opacity: .25; }

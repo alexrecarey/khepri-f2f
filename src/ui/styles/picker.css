@@ -10,6 +10,9 @@
 .hit .loose { font-size: var(--fs-small); color: var(--muted); font-family: var(--font-body); }
 .line-btn { all: unset; box-sizing: border-box; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 14px 12px; font-size: 15px; border-radius: 10px; }
 .line-btn .r { color: var(--muted); font-size: 14px; }
+.line-btn.danger { color: var(--danger); }
+/* "N in another faction" rows under a search with no match here: outlined. */
+.line-btn.boxed { border: 1px solid var(--line-control); margin: 4px 0; }
 .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0 4px; }
 .tile { all: unset; box-sizing: border-box; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 16px 12px; border-radius: 10px; background: var(--surface-2); font-size: 15px; }
 .tile .r { color: var(--muted); font-size: 13px; }
@@ -17,6 +20,8 @@
 .search-input { all: unset; box-sizing: border-box; padding: 14px 16px; border-radius: 12px; font-size: max(16px, 1rem); background: #141414; border: 1px solid var(--line-strong); }
 .search-input.active { border-color: var(--active); }
 .search-input.reactive { border-color: var(--reactive); }
+/* The search field's label, for screen readers only. */
+.search-label { position: absolute; left: -9999px; }
 .scope { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
 .scope > * { flex-shrink: 0; }
 .text-btn { all: unset; box-sizing: border-box; cursor: pointer; min-height: var(--tap); padding: 0 12px; display: grid; place-items: center; font-size: 15px; color: var(--text-2); border-radius: 8px; }

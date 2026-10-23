@@ -15,6 +15,9 @@
 .breakdown .row .track { display: block; }
 .breakdown .row .b { display: block; height: 20px; border-radius: 4px; }
 .breakdown .row .p { font-family: var(--font-mono); text-align: right; }
+.breakdown .head { padding: 14px 0 6px; }
+.breakdown .head.first { padding: 0 0 4px; }
+.breakdown .overlap-note { padding-top: 8px; }
 
 /* ---------- how the dice were built ---------- */
 .ledger { display: flex; flex-direction: column; gap: 10px; }
@@ -33,6 +36,9 @@
 .mods-row .l { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mods-row .s { color: var(--muted); text-align: right; font-size: 13px; }
 .mods-row.struck { color: var(--faint); }
+/* A line caused by a side (Ledger.jsx) takes that side's colour over the row's. */
+.mods-row.c-active { color: var(--active); }
+.mods-row.c-reactive { color: var(--reactive); }
 .mods-row.struck .v, .mods-row.struck .l { background: linear-gradient(currentColor, currentColor) no-repeat 0 55% / 100% 1.5px; animation: strike .4s .15s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes strike { from { background-size: 0 1.5px; } to { background-size: 100% 1.5px; } }
 .mods-total { grid-template-columns: 44px minmax(0, 1fr); border-top: 1px solid var(--line-control); margin-top: 6px; padding-top: 8px; font-weight: 600; }
@@ -40,6 +46,9 @@
 
 /* ---------- not face to face ---------- */
 .seg-miss { background: var(--page); box-shadow: inset 0 0 0 1px var(--none); }
+/* One bar per attack: thin on the card, labelled and tall in the sheet. */
+.attack-bar { height: 28px; border-radius: 7px; }
+.attack-bar.thin { height: 6px; border-radius: 3px; }
 .explain { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text-2); }
 .tiles4 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .tile4 { padding: 12px; border-radius: 12px; background: #232323; display: flex; flex-direction: column; gap: 2px; }

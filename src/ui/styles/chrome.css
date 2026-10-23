@@ -3,6 +3,8 @@
 .sheet-actions { display: flex; justify-content: flex-end; gap: 2px; margin: -10px -8px -10px 0; }
 .icon-btn.sm { width: 40px; height: 40px; }
 .icon-btn:disabled { opacity: .4; cursor: default; }
+/* The Save button once the roll is saved. */
+.icon-btn.on { color: var(--active); }
 .menu-ic { width: 20px; display: grid; place-items: center; color: var(--text-3); }
 
 .segs { display: flex; margin: 12px 4px 0; background: var(--well); border-radius: 10px; padding: 3px; }
@@ -18,6 +20,9 @@
 .roll-row { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; }
 .roll-row.dice { font-family: var(--font-display); font-weight: 600; }
 .roll-row.note { font-size: 13px; }
+.roll-row.main { font-weight: 600; }
+/* The count in the Saved page's head. */
+.roll-count { padding-right: 12px; }
 .roll-list { display: flex; flex-direction: column; gap: 8px; padding: 12px 4px; }
 .roll-hint { text-align: center; padding: 8px; color: var(--faint); }
 .roll-classic { display: flex; flex-direction: column; gap: 6px; }
@@ -75,6 +80,8 @@
 .setting.radio { justify-content: flex-start; cursor: pointer; min-height: var(--tap); box-sizing: border-box; }
 .setting.radio input { accent-color: var(--active); width: 20px; height: 20px; margin: 0; flex-shrink: 0; }
 .radio-text { display: flex; flex-direction: column; gap: 2px; }
+.settings-note { padding: 0 12px; }
+.settings-note.foot { padding: 4px 12px; }
 .lang-page .note { padding: 0 12px; }
 
 .about { display: flex; flex-direction: column; gap: 16px; padding: 18px 12px; font-size: 15px; line-height: 1.55; color: var(--text-2); }

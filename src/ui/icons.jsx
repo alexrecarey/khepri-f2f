@@ -37,7 +37,7 @@ export const MoreIcon = () => (
   </svg>
 );
 
-export const BackIcon = () => <span aria-hidden="true" style={{fontSize: 24, lineHeight: 1}}>‹</span>;
+export const BackIcon = () => <span className="back-ic" aria-hidden="true">‹</span>;
 
 const stroke = {fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinejoin: 'round', strokeLinecap: 'round'};
 export const BookmarkIcon = ({filled = false}) => (
@@ -87,8 +87,8 @@ const STATE_GLYPHS = {
 };
 
 export function StateGlyph({glyph, size = 15}) {
-  if (!STATE_GLYPHS[glyph]) return <span style={{width: size, display: 'inline-block'}} />;
-  return <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" style={{display: 'block', flexShrink: 0}}>{STATE_GLYPHS[glyph]}</svg>;
+  if (!STATE_GLYPHS[glyph]) return <span className="state-glyph blank" style={{width: size}} />;
+  return <svg className="state-glyph" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">{STATE_GLYPHS[glyph]}</svg>;
 }
 
 StateGlyph.propTypes = {glyph: PropTypes.string, size: PropTypes.number};

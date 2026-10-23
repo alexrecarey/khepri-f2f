@@ -192,7 +192,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
             onClick={() => setQuery(query.trim() === q ? '' : q)}>{label}</button>
         ))}
       </div>
-      <label htmlFor={`trooper-search-${side}`} className="label" style={{position: 'absolute', left: -9999}}>{t('picker.search')}</label>
+      <label htmlFor={`trooper-search-${side}`} className="label search-label">{t('picker.search')}</label>
       <input
         id={`trooper-search-${side}`}
         ref={inputRef}
@@ -221,7 +221,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
             <>
               <div className="empty">{t('picker.noMatchesIn', {faction: factionName(scope), query})}</div>
               {results.elsewhere.map((o) => (
-                <button type="button" key={o.factionId} className="line-btn" style={{border: '1px solid var(--line-control)', margin: '4px 0'}}
+                <button type="button" key={o.factionId} className="line-btn boxed"
                   onClick={() => setScope(o.factionId)}>
                   <span>{t('picker.countIn', {count: o.count, faction: o.name})}</span><span className={`r c-${color}`}>{t('picker.show')} ›</span>
                 </button>

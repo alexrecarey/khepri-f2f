@@ -48,9 +48,9 @@ export function Page({title, subtitle, onBack, children, footer, action, closeLa
   useDialogFocus(ref);
   return (
     <div ref={ref} className={`page ${className}`} role="dialog" aria-modal="true" aria-label={label ?? (typeof title === 'string' ? title : undefined)}>
-      <div className="page-head" style={closeLabel ? {paddingLeft: 16} : undefined}>
+      <div className={`page-head${closeLabel ? ' no-back' : ''}`}>
         {!closeLabel && <button type="button" className="icon-btn" aria-label={t('keys.back')} onClick={onBack}><BackIcon /></button>}
-        <div style={{display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0}}>
+        <div className="page-titles">
           <span className="page-title">{title}</span>
           {subtitle && <span className="note">{subtitle}</span>}
         </div>

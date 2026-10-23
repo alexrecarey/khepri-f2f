@@ -8,10 +8,10 @@ import {pct} from '../results/summary.js';
 import {useT} from './i18n.jsx';
 
 // Who wins the Face to Face Roll, as one thin bar.
-export function F2FBar({s, className = '', style}) {
+export function F2FBar({s, className = ''}) {
   const t = useT();
   return (
-    <div className={`bar${className ? ` ${className}` : ''}`} style={style} role="img"
+    <div className={`bar${className ? ` ${className}` : ''}`} role="img"
       aria-label={t('results.f2fBar', {active: pct(s.win.active), none: pct(s.win.none), reactive: pct(s.win.reactive)})}>
       <span className="seg-a2" style={{width: `${100 * s.win.active}%`}} />
       <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
@@ -20,7 +20,7 @@ export function F2FBar({s, className = '', style}) {
   );
 }
 
-F2FBar.propTypes = {s: PropTypes.object.isRequired, className: PropTypes.string, style: PropTypes.object};
+F2FBar.propTypes = {s: PropTypes.object.isRequired, className: PropTypes.string};
 
 // 'wounds' | 'f2f': the breakdown under the bars. Back to the wounds when
 // `reset` turns true (the phone sheet closing).

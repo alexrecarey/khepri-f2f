@@ -7,7 +7,8 @@ import PropTypes from 'prop-types';
 import {shortWeaponName} from '../army/names.js';
 import {useT} from './i18n.jsx';
 
-const COLOR = {A: 'var(--active)', B: 'var(--reactive)'};
+// Lines are coloured by the side that caused them (.c-active / .c-reactive).
+const SIDE_CLASS = {A: 'c-active', B: 'c-reactive'};
 const signed = (v, first) => (typeof v !== 'number' || first || v === 0 ? `${v}` : `${v > 0 ? '+' : '−'}${Math.abs(v)}`);
 
 // lines: the section's lines; base: the source of the starting line ("profile",
@@ -30,7 +31,7 @@ function Section({title, lines, total, abbr, base, tags}) {
         {lines.map((l, i) => {
           const source = l.struck ? l.struck : l.source ?? (l.by ? tags[l.by] : i === 0 ? base : t('ledger.rule'));
           return (
-            <div key={keyOf(l)} className={l.struck ? 'mods-row struck' : 'mods-row'} style={{color: l.struck ? undefined : COLOR[l.by]}}>
+            <div key={keyOf(l)} className={l.struck ? 'mods-row struck' : `mods-row${SIDE_CLASS[l.by] ? ` ${SIDE_CLASS[l.by]}` : ''}`}>
               <span className="v">{signed(l.value, i === 0)}</span>
               <span className="l" title={l.label}>{l.label}</span>
               <span className="s">{source}</span>
