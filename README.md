@@ -68,8 +68,9 @@ imports from it (`src/layering.test.mjs` checks). Game rules live in
 final success values, bursts, save values and Saving Rolls per hit (see the top
 of engine-rs/src/engine.rs) and returns the chance of each (winner, wounds).
 
-`yarn test` runs the JS tests (`node --test`) and the engine tests (`cargo test`
-in engine-rs/, which needs [rustup](https://rustup.rs)). CI runs both on every PR.
+`yarn test` runs the type check (`yarn typecheck`: `tsc` over the JSDoc, strict),
+the JS tests (`node --test`) and the engine tests (`cargo test` in engine-rs/,
+which needs [rustup](https://rustup.rs)). CI runs all three on every PR.
 
 # Updating the Army data
 
