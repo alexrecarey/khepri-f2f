@@ -186,7 +186,6 @@ export default {
   'warning.noEffect': '{weapon} has no effect on a target with {by}; its hits cause no damage',
   'warning.nonLethal': '{weapon} is non-lethal; results shown as wounds',
   'warning.upgradeWeapon': '{weapon} (upgrade) not supported by the calculator',
-  'warning.unsupported': 'Support for {names} not implemented yet',
   'warning.specOps': 'Spec-Ops upgrades and SpecBall not supported yet',
   'error.noBsAttack': 'this profile cannot make BS attacks; pick Dodge',
   'error.noCcAttack': 'this profile cannot make CC attacks; pick Dodge',

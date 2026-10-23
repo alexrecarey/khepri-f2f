@@ -186,7 +186,6 @@ export default {
   'warning.noEffect': '{weapon} no tiene efecto contra un objetivo con {by}; sus impactos no causan daño',
   'warning.nonLethal': '{weapon} es No Letal; los resultados se muestran como heridas',
   'warning.upgradeWeapon': 'la calculadora no admite {weapon} (mejora)',
-  'warning.unsupported': '{names} aún no está implementado',
   'warning.specOps': 'las mejoras de Spec-Ops y SpecBall aún no están implementadas',
   'error.noBsAttack': 'este perfil no puede hacer ataques CD; elige Esquivar',
   'error.noCcAttack': 'este perfil no puede hacer ataques CC; elige Esquivar',

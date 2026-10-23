@@ -12,7 +12,7 @@ import {buildLedger} from './ledger.js';
 import {deriveInputs} from './matchup.js';
 import {attackStat, dodgeSuccessValue, mimetismMod, surpriseAttackMod} from './modifiers.js';
 import {rangeModFor} from './ranges.js';
-import {pseudoName, pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
+import {pseudoName, pseudoWeapons, resolveSelection, trooperCcWeapons, trooperWeapons} from './trooper.js';
 
 const RIFLE_RANGES = [{to: 40, mod: 3}, {to: 80, mod: -3}, {to: 120, mod: -6}];
 // Weapon rows as the Army API gives them, normalized like the pipeline does.
@@ -51,7 +51,7 @@ const profile = (over = {}) => ({id: 1, name: 'P', bs: 12, ph: 12, arm: 2, bts: 
 const option = (weapons, over = {}) => ({id: 1, name: 'O', points: 10, swc: '0', weapons, skills: [], equip: [], ...over});
 const side = (p, o, weaponKey, inCover = false) => {
   const traits = effectiveTraits(p, o);
-  const weapon = trooperWeapons(o, W, traits).find((w) => w.key === weaponKey) ?? pseudoWeapons(traits).find((w) => w.key === weaponKey) ?? null;
+  const weapon = [...trooperWeapons(o, W, traits), ...trooperCcWeapons(o, W, traits), ...pseudoWeapons(traits)].find((w) => w.key === weaponKey) ?? null;
   return {profile: p, option: o, traits, weapon, inCover};
 };
 const combi = option([{id: 1, name: 'Combi Rifle'}, {id: 8, name: 'CC Weapon'}]);
@@ -313,6 +313,40 @@ test('reactive burst: total reaction keeps weapon burst, "none" is unopposed', (
   const none = derive({active: side(profile(), combi, '1:'), reactive: side(profile(), hmg, 'none'), rangeCm: 40});
   assert.equal(none.inputs.burstB, 0);
   assert.equal(none.ok, true);
+});
+
+// The asymmetries between the two sides of deriveInputs (one block serves both).
+test('No ARO: the reactive rolls nothing; on the active side it leaves the setup incomplete', () => {
+  const hmg = option([{id: 7, name: 'Heavy Machine Gun'}]);
+  const none = derive({active: side(profile(), combi, '1:'), reactive: side(profile(), hmg, 'none'), rangeCm: 40});
+  assert.deepEqual([none.inputs.burstB, none.inputs.bonusBurstB, none.inputs.shockB, none.inputs.templateB], [0, 0, false, false]);
+  assert.equal(none.inputs.successValueB, undefined);
+  // The reactive still saves against the attack.
+  assert.equal(none.inputs.armB, 2);
+  const carried = deriveInputs({active: side(profile(), hmg, 'none'), reactive: side(profile(), combi, '1:'), rangeCm: 40});
+  assert.equal(carried.ok, false);
+  assert.deepEqual(carried.errors, []);
+});
+
+test('an Attribute of 0 is an error naming the roll: Attack on the active side, ARO on the reactive', () => {
+  const noCc = profile({cc: 0});
+  const noBs = profile({bs: 0});
+  const errors = (active, reactive) => deriveInputs({active, reactive, rangeCm: 40}).errors;
+  assert.deepEqual(errors(side(noCc, combi, '8:'), side(profile(), combi, '1:')), ['Active: this profile cannot make CC attacks; pick Dodge']);
+  assert.deepEqual(errors(side(profile(), combi, '1:'), side(noCc, combi, '8:')), ['Reactive: this profile cannot make CC attacks; pick Dodge or No ARO']);
+  assert.deepEqual(errors(side(noBs, combi, '1:'), side(profile(), combi, '1:')), ['Active: this profile cannot make BS attacks; pick Dodge']);
+  assert.deepEqual(errors(side(profile(), combi, '1:'), side(noBs, combi, '1:')), ['Reactive: this profile cannot make BS attacks; pick Dodge or No ARO']);
+});
+
+test('split range: the reactive shoots at rangeCmB, the active at rangeCm', () => {
+  const hmg = option([{id: 7, name: 'Heavy Machine Gun'}]);
+  const at = (rangeCm, rangeCmB) => derive({active: side(profile(), combi, '1:'), reactive: side(profile(), hmg, '7:'), rangeCm, rangeCmB}).inputs;
+  // Combi +3 at 40; HMG 0 at 40, +3 at 60.
+  assert.deepEqual([at(40).successValueA, at(40).successValueB], [15, 12]);
+  assert.deepEqual([at(40, 60).successValueA, at(40, 60).successValueB], [15, 15]);
+  assert.equal(at(40, 60).successValueB, at(60).successValueB);
+  // A null rangeCmB is no split.
+  assert.deepEqual(at(40, null), at(40));
 });
 
 test('loadout BS MOD extras: "+3" and "+3 BS" add to the attack roll', () => {
