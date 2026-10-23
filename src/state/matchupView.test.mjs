@@ -3,7 +3,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {pickTrooper, setUpgrade} from './actions.js';
-import {matchupView} from './matchupView.js';
+import {matchupCore, matchupView, renderMatchup} from './matchupView.js';
+import {translator} from '../i18n/index.js';
+import es from '../i18n/es.js';
 import {reduce} from './reduce.js';
 import {EMPTY_SIDE, initialState} from './schema.js';
 
@@ -149,4 +151,23 @@ test('a Team-Ops Jammer: Reset shows against it, and its target can only be Isol
   const reset = matchupView(army, {A: {...A, weaponKey: jam.key}, B: {...chaksa, weaponKey: 'reset'}, rangeCm: 20});
   assert.equal(reset.ledger.ledger.B.kind, 'reset');
   assert.equal(reset.params.successValueB, reset.B.resolved.profile.wip);
+});
+
+test('a language change renders the same core again: the rules are not re-applied', () => {
+  const core = matchupCore(army, {A: corax, B: {...chaksa, inCover: true}, rangeCm: 40});
+  const en = renderMatchup(core);
+  const esView = renderMatchup(core, translator(es, 'es'));
+  // The core is untouched and shared: the rules' output is one object both renders read.
+  assert.equal(en.params, core.params);
+  assert.equal(esView.params, core.params);
+  assert.equal(en.derived.inputs, core.derived.inputs);
+  assert.equal(typeof core.derived.notes[0], 'object', 'the core keeps descriptors');
+  // Only the words differ.
+  assert.notDeepEqual(esView.ledger.notes, en.ledger.notes);
+  assert.deepEqual(esView.ledger.ledger.B.sv.lines.map((l) => l.value), en.ledger.ledger.B.sv.lines.map((l) => l.value));
+  assert.notDeepEqual(esView.ledger.ledger.B.sv.lines.map((l) => l.label), en.ledger.ledger.B.sv.lines.map((l) => l.label));
+  assert.equal(typeof en.ledger.notes[0], 'string');
+  assert.equal(typeof en.targets.active[0].label, 'string');
+  // matchupView is the two passes composed.
+  assert.deepEqual(matchupView(army, {A: corax, B: {...chaksa, inCover: true}, rangeCm: 40}), en);
 });

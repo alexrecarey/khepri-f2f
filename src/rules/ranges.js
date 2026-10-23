@@ -3,7 +3,6 @@ import {EQUIP} from '../army/ids.js';
 import {isHackingProgram} from '../army/hacking.js';
 import {hasEquip} from '../army/traits.js';
 import {inZoneOfControl, isTemplate} from '../army/weapons.js';
-import {tEn} from '../i18n/index.js';
 
 // Shared distance between the two units. `to` is the upper bound in cm, which
 // matches the cumulative band limits in the Army weapon table.
@@ -13,8 +12,8 @@ export const RANGE_BANDS = [{to: 20}, {to: 40}, {to: 60}, {to: 80}, {to: 100}, {
 
 // Band i's lower bound in cm (0 for the first).
 export const bandFrom = (i) => (i ? RANGE_BANDS[i - 1].to : 0);
-// '24-32"' in English, '60-80 cm' in Spanish.
-export const bandLabel = (i, t = tEn) => t('dist.band', {from: t.distance(bandFrom(i)), to: t.distance(RANGE_BANDS[i].to)});
+// '24-32"' in English, '60-80 cm' in Spanish (t: the translator, src/i18n).
+export const bandLabel = (i, t) => t('dist.band', {from: t.distance(bandFrom(i)), to: t.distance(RANGE_BANDS[i].to)});
 
 // Zone of Control: 8" around the trooper, the first band.
 export const ZOC_CM = RANGE_BANDS[0].to;

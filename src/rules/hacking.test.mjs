@@ -6,8 +6,12 @@ import {EQUIP, SKILL} from '../army/ids.js';
 import {normalizeWeaponRow} from '../army/normalize.js';
 import {effectiveTraits} from '../army/traits.js';
 import {stateCaused} from '../army/weapons.js';
-import {buildLedger} from './ledger.js';
-import {deriveInputs} from './matchup.js';
+import {buildLedger, renderDerived} from './ledger.js';
+import {deriveInputs as deriveRaw} from './matchup.js';
+
+// The rules word their notes and lines as message descriptors; these tests
+// read them in English (ledger.js renders them).
+const deriveInputs = (o) => renderDerived(deriveRaw(o));
 import {rangeModFor} from './ranges.js';
 import {readFileSync} from 'node:fs';
 import {fireteamHelps} from './modifiers.js';
@@ -144,6 +148,10 @@ test('targets: Carbonite needs a Hackable trooper or a Hacker, Total Control a T
   assert.equal(r.inputs.burstA, 0);
   assert.equal(r.inputs.burstB, 1);
   assert.equal(r.ledger.A.kind, 'none');
+  // The reason is a descriptor naming the program; the ledger words it.
+  const raw = deriveRaw({active: side(hacker(KHD), 'hack:trinity'), reactive: side(profile(), '1:'), rangeCm: 40});
+  assert.deepEqual(raw.lines.A, {kind: 'none', reason: {key: 'ledger.cantTarget', params: {program: 'Trinity'}}});
+  assert.deepEqual(raw.notes, [{key: 'note.side', params: {side: {key: 'side.active'}, text: {key: 'note.cantTarget', params: {program: 'Trinity'}}}}]);
   assert.ok(r.notes.some((n) => n.includes('can\'t target')), r.notes.join(' | '));
 });
 

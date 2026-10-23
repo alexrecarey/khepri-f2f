@@ -81,6 +81,20 @@ test('layering: dependencies point one way (ui -> state -> rules -> army)', () =
   assert.deepEqual(violations, [], `imports that point up a layer:\n  ${violations.join('\n  ')}`);
 });
 
+// The rules word what they say as message descriptors (i18n/message.js) and
+// never translate: only ledger.js, the renderer, reads the translator, so a
+// language change re-renders without re-deriving (state/useMatchupView.js).
+test('layering: rules/ (but the ledger) never import the translator', () => {
+  const offenders = [];
+  for (const file of modules(join(ROOT, 'src', 'rules'))) {
+    if (relative(ROOT, file) === join('src', 'rules', 'ledger.js')) continue;
+    for (const spec of specifiers(readFileSync(file, 'utf8'))) {
+      if (/\/i18n\/(index|en|es)\.js$/.test(spec)) offenders.push(`${relative(ROOT, file)} imports '${spec}'`);
+    }
+  }
+  assert.deepEqual(offenders, []);
+});
+
 test('layering: specifiers() reads static, re-export and dynamic imports, not comments', () => {
   const src = [
     "import a from './a.js';",

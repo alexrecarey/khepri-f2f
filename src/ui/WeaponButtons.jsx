@@ -5,6 +5,7 @@ import {shortWeaponName} from '../army/names.js';
 import {isPseudo} from '../army/weapons.js';
 import {dispatch} from '../state/store.js';
 import {pseudoName} from '../rules/trooper.js';
+import {render} from '../i18n/message.js';
 import {useT} from './i18n.jsx';
 
 // Weapon button text: the short name and fire mode, "Missile L. (Blast)". The
@@ -40,7 +41,7 @@ export default function WeaponButtons({side, groups, selected, color}) {
         <button type="button" key={g.key} className={`btn${selected === g.w.key ? ` on ${color}` : ''}`}
           aria-pressed={selected === g.w.key} title={isPseudo(g.w) ? undefined : weaponTitle(g.w, t)}
           onClick={() => pick(side, g.w)}>
-          {isPseudo(g.w) ? pseudoName(g.w, t) : weaponText(g.w, t)}
+          {isPseudo(g.w) ? render(t, pseudoName(g.w)) : weaponText(g.w, t)}
         </button>
       )))}
     </div>

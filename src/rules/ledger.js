@@ -2,8 +2,11 @@
 // as a list of lines that add up to it, each naming the side that caused it.
 //
 // deriveInputs (matchup.js) applies the rules and returns each number as the
-// lines it summed (`derived.lines`, lines.js). This file lays them out per
-// side and adds only display: the dice line, the ammunition lines and note.
+// lines it summed (`derived.lines`, lines.js), worded as message descriptors
+// (i18n/message.js). This file is the renderer: renderDerived puts every
+// note and line into the player's language, and buildLedger lays the lines
+// out per side and adds only display: the dice line, the ammunition lines
+// and note.
 //
 // buildLedger({active, reactive, derived}) -> {A, B}, per side:
 //   kind    'attack' | 'dodge' | 'reset' | 'template' | 'none'
@@ -26,6 +29,7 @@ import {bsAttackWeaponMods, pseudoName} from './trooper.js';
 import {ccAttackSkill, isCcAttack} from './closeCombat.js';
 import {zoneName} from './visibility.js';
 import {tEn} from '../i18n/index.js';
+import {render, renderLines} from '../i18n/message.js';
 
 // A line whose source isn't a side ("loadout"): shown as is in the source column.
 const fromSource = (l, source) => ({...l, source});
@@ -128,17 +132,17 @@ function sideLedger(x, y, s, l, inputs, t) {
   if (!x?.weapon || !l) return null;
   const w = x.weapon;
   if (l.kind === 'none') {
-    if (l.blockedZone) return {kind: 'none', dice: t('ledger.noLofZone', {zone: zoneName(l.blockedZone, t)})};
+    if (l.blockedZone) return {kind: 'none', dice: t('ledger.noLofZone', {zone: render(t, zoneName(l.blockedZone))})};
     // A Dodge that can't evade a Comms Attack, a Reset that evades nothing
     // else, a program its target isn't a valid target for: nothing is rolled.
-    if (l.reason) return {kind: 'none', dice: t('ledger.notRolled', {choice: isPseudo(w) ? pseudoName(w, t) : w.row.name}), reason: l.reason};
+    if (l.reason) return {kind: 'none', dice: t('ledger.notRolled', {choice: isPseudo(w) ? render(t, pseudoName(w)) : w.row.name}), reason: l.reason};
     return {kind: 'none', dice: t('pseudo.none')};
   }
   const {sv} = l;
   if (l.kind === 'reset') {
     // Zero Pain rolls two dice.
     const burst = inputs[`burst${s}`] > 1 ? ` ${t('abbr.B')}${inputs[`burst${s}`]}` : '';
-    return {kind: 'reset', dice: `${pseudoName(w, t)}${burst} ${svText(sv.total, t)}`, sv};
+    return {kind: 'reset', dice: `${render(t, pseudoName(w))}${burst} ${svText(sv.total, t)}`, sv};
   }
   const {burst, sd, save} = l;
   if (l.kind === 'dodge') {
@@ -159,10 +163,35 @@ function sideLedger(x, y, s, l, inputs, t) {
   return {kind: 'attack', dice: `${b} ${svText(sv.total, t)} ${t('abbr.PS')}${save.total}${tag}`, burst, sd, sv, save, ammo, note};
 }
 
-// derived: the deriveInputs result for the same two sides.
+// A section ({lines, total, note?}) with its lines and note rendered.
+const renderSection = (t, sec) => (sec
+  ? {...sec, lines: renderLines(t, sec.lines), ...(sec.note !== undefined && {note: render(t, sec.note)})} : sec);
+
+// The deriveInputs result with every descriptor rendered in t's language:
+// notes, warnings, errors, and each side's lines (label, struck, source,
+// reason, note). Text already rendered passes through, so rendering twice
+// is harmless.
+export function renderDerived(derived, t = tEn) {
+  const say = (m) => render(t, m);
+  const side = (l) => (l ? {
+    ...l,
+    ...(l.reason !== undefined && {reason: say(l.reason)}),
+    ...(l.sv && {sv: renderSection(t, l.sv)}),
+    ...(l.burst && {burst: renderSection(t, l.burst)}),
+    ...(l.sd && {sd: renderSection(t, l.sd)}),
+    ...(l.save && {save: renderSection(t, l.save)}),
+  } : l);
+  return {
+    ...derived,
+    errors: derived.errors.map(say), warnings: derived.warnings.map(say), notes: derived.notes.map(say),
+    lines: {A: side(derived.lines.A), B: side(derived.lines.B)},
+  };
+}
+
+// derived: the deriveInputs result for the same two sides, rendered or not.
 // t: the language of the labels (src/i18n).
 export function buildLedger({active, reactive, derived, t = tEn}) {
-  const {inputs, lines} = derived;
+  const {inputs, lines} = renderDerived(derived, t);
   return {
     A: sideLedger(active, reactive, 'A', lines.A, inputs, t),
     B: sideLedger(reactive, active, 'B', lines.B, inputs, t),

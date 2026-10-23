@@ -47,7 +47,8 @@ src/share/     the share card a matchup link unfurls into (card.js): worked out 
 src/search/    trooper search: build-time index (index.json) and the typo-tolerant
                matcher; `yarn search-eval` scores it (docs/plans/search.md)
 src/i18n/      the app's copy per language (en.js, es.js) and t(); the rules
-               word their notes and ledger lines with it too (docs/i18n.md)
+               word their notes and ledger lines as message descriptors
+               (message.js) that the view renders with it (docs/i18n.md)
 src/data/      loads the army data chunk; src/lib/ small shared helpers (clamp,
                the other side) that more than one layer needs
 src/ui/        the app's screens: shell, Matchup, Classic, trooper picker,

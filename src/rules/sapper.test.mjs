@@ -7,8 +7,12 @@ import {readFileSync} from 'node:fs';
 import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
 import {pickTrooper} from '../state/actions.js';
-import {buildLedger} from './ledger.js';
-import {deriveInputs} from './matchup.js';
+import {buildLedger, renderDerived} from './ledger.js';
+import {deriveInputs as deriveRaw} from './matchup.js';
+
+// The rules word their notes and lines as message descriptors; these tests
+// read them in English (ledger.js renders them).
+const deriveInputs = (o) => renderDerived(deriveRaw(o));
 import {resolveSelection} from './trooper.js';
 
 const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));

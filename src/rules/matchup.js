@@ -22,7 +22,7 @@ import {
 } from './saves.js';
 import {isSpecOps} from './trooper.js';
 import {ccAttackMods, ccBurst, ccSd, isCcAttack} from './closeCombat.js';
-import {tEn} from '../i18n/index.js';
+import {distance, list, msg, side as about, term} from '../i18n/message.js';
 
 // The Immunities the rules here read, and Immunities to States the calculator
 // doesn't model (E/M's IMM-B and Isolated, Possession): recognized, and
@@ -36,13 +36,14 @@ export const STATE_IMMUNITIES = ['IMM-B', 'Isolated', 'POS'];
 
 // ctx: what one deriveInputs call shares with its helpers. `say(side, key,
 // params)` adds a note ("Active: ..."; side null for both), `warn` a warning,
-// `fail` an error; `t` is their language; `vis` the Smoke / White Noise
-// blocks (visibility.js); `opposing[s]` the MOD the other side puts on s's roll.
+// `fail` an error, each a message descriptor (i18n/message.js) the view
+// renders in the player's language; `vis` the Smoke / White Noise blocks
+// (visibility.js); `opposing[s]` the MOD the other side puts on s's roll.
 function approximationWarnings(s, side, target, ctx) {
-  const {warn, t} = ctx;
+  const {warn} = ctx;
   const row = side?.weapon?.row;
   if (row && hasNoEffect(target?.traits, row)) {
-    warn(s, 'warning.noEffect', {weapon: row.name, by: noEffectBy(target.traits, row, t)});
+    warn(s, 'warning.noEffect', {weapon: row.name, by: noEffectBy(target.traits, row)});
   } else if (row && stateCaused(row)) {
     // Not a warning: the results say Isolated / Stunned (rules/woundStates.js).
   } else if (row && isNonLethal(row)) {
@@ -59,51 +60,51 @@ const signed = (n) => `${n > 0 ? '+' : ''}${n}`;
 function opposingLines(y, x, s, ctx) {
   const o = other(s);
   if (ctx.vis[o].blocked) return [];
-  const lines = opposingMods(y, x, o === 'A', ctx.t).map((m) => line(m.value, m.label, o, m.ignoredBy));
+  const lines = opposingMods(y, x, o === 'A').map((m) => line(m.value, m.label, o, m.ignoredBy));
   for (const l of lines) if (l.struck) ctx.say(s, 'note.ignoresMod', {by: l.struck, mod: l.label});
   return lines;
 }
 
 // An Attribute's name, and the Team-Ops upgrade that raised it: "BS (Team-Ops: BS+1)".
-function statLabel(x, attr, t) {
-  const name = t(`stat.${attr.toLowerCase()}`);
+function statLabel(x, attr) {
+  const name = msg(`stat.${attr.toLowerCase()}`);
   const u = upgradeRaising(x.upgrades, attr.toLowerCase());
-  return u ? t('ledger.teamOpsStat', {stat: name, upgrade: u.label}) : name;
+  return u ? msg('ledger.teamOpsStat', {stat: name, upgrade: u.label}) : name;
 }
 
-function rangeLabel(rangeCm, t) {
+function rangeLabel(rangeCm) {
   const i = RANGE_BANDS.findIndex((b) => rangeCm <= b.to);
-  return t('ledger.range', {from: t.distance(bandFrom(i)), to: t.distance(RANGE_BANDS[i].to)});
+  return msg('ledger.range', {from: distance(bandFrom(i)), to: distance(RANGE_BANDS[i].to)});
 }
 
 // "Mimetism (-6)", "Mimetism (-3), Foxhole": the target's Mimetism as the ledger names it.
-function mimetismLabel(y, full, t) {
-  const name = t('skill.mimetismMod', {mod: full});
-  return y.traits.skills.find((k) => k.id === SKILL.MIMETISM)?.foxhole ? `${name}, ${t('skill.foxhole')}` : name;
+function mimetismLabel(y, full) {
+  const name = msg('skill.mimetismMod', {mod: full});
+  return y.traits.skills.find((k) => k.id === SKILL.MIMETISM)?.foxhole ? list([name, msg('skill.foxhole')]) : name;
 }
 
 // The cover y sits in, by name: its Foxhole, cover, or its Nanoscreen.
-const coverLabel = (y, t) => (benefitsFromCover(y) ? (y.sapper ? t('ledger.foxholeCover') : t('ledger.cover')) : t('equip.nanoscreen'));
+const coverLabel = (y) => (benefitsFromCover(y) ? (y.sapper ? msg('ledger.foxholeCover') : msg('ledger.cover')) : msg('equip.nanoscreen'));
 
 // A Success Value from its lines: the MODs (every line after the Attribute,
 // Fireteam +1 BS included: Alex, 2026-10-10) capped at +/-12, with a note
 // when the cap bites (`noted`: an attack says so, a Dodge or Reset doesn't),
 // then the total within LIMITS (lines.js).
 function svSection(lines, s, ctx, noted = true) {
-  const cap = capLine(lines, ctx.t);
+  const cap = capLine(lines);
   if (cap) {
     const mods = modSum(lines);
     if (noted) ctx.say(s, 'note.modCap', {sum: signed(mods), cap: signed(mods + cap.value)});
     lines.push(cap);
   }
-  const c = clampSv(lines, ctx.t);
+  const c = clampSv(lines);
   if (c) lines.push(c);
   return section(lines);
 }
 
 // The MODs y's position and skills put on x's shot, in y's colour: Mimetism
 // (what x's MSV cancels struck), Albedo, cover or Nanoscreen, Firewall.
-function targetSvLines(x, y, s, t) {
+function targetSvLines(x, y, s) {
   const o = other(s);
   const {row} = x.weapon;
   const lines = [];
@@ -111,51 +112,51 @@ function targetSvLines(x, y, s, t) {
   // against one. A Comms Attack takes the target's Firewall in place of cover.
   const lof = needsLof(row);
   const full = mimetismValue(y.traits);
-  if (full && !lof) lines.push(line(full, t('skill.mimetismMod', {mod: full}), o, t('ledger.noLof')));
+  if (full && !lof) lines.push(line(full, msg('skill.mimetismMod', {mod: full}), o, msg('ledger.noLof')));
   else if (full) {
     const applied = mimetismMod(y.traits, x.traits);
-    const name = mimetismLabel(y, full, t);
-    if (applied) lines.push(line(applied, `${name}${applied !== full ? `, ${msvName(x.traits, t)}` : ''}`, o));
-    else lines.push(line(full, name, o, msvName(x.traits, t) ?? t('ledger.cancelled')));
+    const name = mimetismLabel(y, full);
+    if (applied) lines.push(line(applied, applied !== full ? list([name, msvName(x.traits)]) : name, o));
+    else lines.push(line(full, name, o, msvName(x.traits) ?? msg('ledger.cancelled')));
   }
   const albedo = lof ? albedoMod(y.traits, x.traits) : 0;
-  if (albedo) lines.push(line(albedo, t('equip.albedo'), o));
-  else if (albedoValue(y.traits)) lines.push(line(albedoValue(y.traits), t('equip.albedo'), o, lof ? t('ledger.albedoOnly') : t('ledger.noLof')));
+  if (albedo) lines.push(line(albedo, msg('equip.albedo'), o));
+  else if (albedoValue(y.traits)) lines.push(line(albedoValue(y.traits), msg('equip.albedo'), o, lof ? msg('ledger.albedoOnly') : msg('ledger.noLof')));
   const comms = isCommsAttack(row);
   const cover = coverBsMod(y, x.traits, row);
-  const coverName = coverLabel(y, t);
+  const coverName = coverLabel(y);
   if (cover) lines.push(line(cover, coverName, o));
   else if (benefitsFromCover(y) || hasNanoscreen(y)) {
-    const why = comms ? t('ledger.commsAttack') : hasSkill(x.traits, SKILL.MARKSMANSHIP) ? t('skill.marksmanship') : t('skill.limitedCover');
+    const why = comms ? msg('ledger.commsAttack') : hasSkill(x.traits, SKILL.MARKSMANSHIP) ? msg('skill.marksmanship') : msg('skill.limitedCover');
     lines.push(line(COVER_BS_MOD, coverName, o, why));
   }
   // Firewall: a Comms Attack's cover.
   const firewall = comms ? firewallOf(y) : 0;
-  if (firewall) lines.push(line(firewall, t('equip.firewallMod', {mod: firewall}), o));
+  if (firewall) lines.push(line(firewall, msg('equip.firewallMod', {mod: firewall}), o));
   return lines;
 }
 
 // A shot's Success Value: the Attribute, then every MOD as a line.
 function attackSv(x, y, rangeCm, s, ctx) {
-  const {t, vis} = ctx;
+  const {vis} = ctx;
   const o = other(s);
   const {row, mods} = x.weapon;
-  const lines = [line(attackStat(x.profile, row), statLabel(x, attackAttribute(row), t), null)];
+  const lines = [line(attackStat(x.profile, row), statLabel(x, attackAttribute(row)), null)];
   // Fireteam +1 BS: none on a Hacking Program (attackBonuses).
   const ftBs = attackBonuses(x).bs;
-  if (ftBs) lines.push(line(ftBs, t('ledger.fireteam', {size: x.ftSize}), s));
+  if (ftBs) lines.push(line(ftBs, msg('ledger.fireteam', {size: x.ftSize}), s));
   const rangeMod = rangeModFor(row, rangeCm, x.traits);
   // Out of range: the attack still happens but always fails. A success value
   // of 0 misses on every roll, with no crit.
-  if (rangeMod === null) return {...section([...lines, line('—', t('ledger.outOfRange'), s)], 0), note: t('ledger.outOfRangeNote')};
-  if (rangeMod) lines.push(line(rangeMod, rangeLabel(rangeCm, t), s));
-  if (mods.sv) lines.push(line(mods.sv, t('ledger.loadout'), s));
+  if (rangeMod === null) return {...section([...lines, line('—', msg('ledger.outOfRange'), s)], 0), note: msg('ledger.outOfRangeNote')};
+  if (rangeMod) lines.push(line(rangeMod, rangeLabel(rangeCm), s));
+  if (mods.sv) lines.push(line(mods.sv, msg('ledger.loadout'), s));
   // A program's Attack MOD is x's, the target's ECM: Hacker the target's.
-  for (const m of programSvMods(x, y, t)) lines.push(line(m.value, m.label, m.target ? o : s));
+  for (const m of programSvMods(x, y)) lines.push(line(m.value, m.label, m.target ? o : s));
   // Targeted is the target's State.
-  if (targetedMod(x, y)) lines.push(line(targetedMod(x, y), t('chip.targeted'), o));
+  if (targetedMod(x, y)) lines.push(line(targetedMod(x, y), msg('chip.targeted'), o));
   if (y) {
-    lines.push(...targetSvLines(x, y, s, t));
+    lines.push(...targetSvLines(x, y, s));
     // Smoke / White Noise: x's own sight, so x's colour.
     for (const v of vis[s].lines) lines.push(line(v.value, v.label, s, v.ignoredBy));
     lines.push(...ctx.opposing[s]);
@@ -166,32 +167,32 @@ function attackSv(x, y, rangeCm, s, ctx) {
 // A shot's Burst: the weapon's, the loadout's and BS Attack's +B, and in ARO
 // one die unless Total Reaction or Neurocinetics keep it.
 function burstLines(x, s, ctx) {
-  const {say, t} = ctx;
+  const {say} = ctx;
   const {row} = x.weapon;
   // Neurocinetics is for BS Attacks: a program keeps its Burst.
   const neuro = x.weapon.kind !== 'program';
   // Neurocinetics: B 1 in the Active Turn, Burst MODs included (wiki).
   if (s === 'A' && neuro && hasSkill(x.traits, SKILL.NEUROCINETICS)) {
     say(s, 'note.neurocinetics');
-    return [line(1, t('skill.neurocinetics'), s)];
+    return [line(1, msg('skill.neurocinetics'), s)];
   }
   const lines = [line(row.burst ?? 1, x.weapon.name ?? row.name, null)];
   const b = attackBonuses(x).burst;
-  if (b) lines.push(line(b, t('ledger.loadoutOrBsAttack'), s));
+  if (b) lines.push(line(b, msg('ledger.loadoutOrBsAttack'), s));
   const aro = s === 'B' && neuro ? neurocineticsAroBurst(x.traits) : 0;
-  if (aro) lines.push(line(aro, t('skill.neurocinetics'), s));
+  if (aro) lines.push(line(aro, msg('skill.neurocinetics'), s));
   // In ARO a trooper rolls one die, whatever its burst (Total Reaction aside).
-  if (s === 'B' && !keepsAroBurst(x) && sum(lines) !== 1) lines.push(line(1 - sum(lines), t('ledger.aroOneDie'), null));
+  if (s === 'B' && !keepsAroBurst(x) && sum(lines) !== 1) lines.push(line(1 - sum(lines), msg('ledger.aroOneDie'), null));
   return lines;
 }
 
 // A shot's Special Dice: the loadout's and BS Attack's (+1SD), the Fireteam's.
-function sdLines(x, s, t) {
+function sdLines(x, s) {
   const lines = [];
   const ft = x.weapon.kind === 'program' ? 0 : fireteamBonuses(x.ftSize).sd;
   const own = attackBonuses(x).sd - ft;
-  if (own) lines.push(line(own, t('ledger.loadoutOrBsAttack'), s));
-  if (ft) lines.push(line(ft, t('ledger.fireteam', {size: x.ftSize}), s));
+  if (own) lines.push(line(own, msg('ledger.loadoutOrBsAttack'), s));
+  if (ft) lines.push(line(ft, msg('ledger.fireteam', {size: x.ftSize}), s));
   return lines;
 }
 
@@ -200,7 +201,7 @@ function sdLines(x, s, t) {
 function attackInputs(x, y, rangeCm, side, ctx) {
   const sv = attackSv(x, y, rangeCm, side, ctx);
   const burst = section(burstLines(x, side, ctx));
-  const sd = section(sdLines(x, side, ctx.t));
+  const sd = section(sdLines(x, side));
   const hit = hitInputs(x, y, side, ctx);
   const inputs = {
     [`successValue${side}`]: sv.total,
@@ -215,18 +216,17 @@ function attackInputs(x, y, rangeCm, side, ctx) {
 // capped; no range, cover, Mimetism or Smoke. Burst and Special Dice from
 // the weapon and Martial Arts.
 function ccAttackInputs(x, y, side, ctx) {
-  const {t} = ctx;
-  const lines = [line(attackStat(x.profile, x.weapon.row), statLabel(x, 'cc', t), null)];
-  for (const m of ccAttackMods(x, side === 'A', t)) lines.push(line(m.value, m.label, side));
+  const lines = [line(attackStat(x.profile, x.weapon.row), statLabel(x, 'cc'), null)];
+  for (const m of ccAttackMods(x, side === 'A')) lines.push(line(m.value, m.label, side));
   if (y) lines.push(...ctx.opposing[side]);
   const sv = svSection(lines, side, ctx);
   // The weapon's B is the weapon's, ARO is the rules', the rest are x's.
-  const bursts = ccBurst(x, side === 'A', y, t).map((l, i) => line(l.value, l.label, i === 0 || l.aro ? null : side));
+  const bursts = ccBurst(x, side === 'A', y).map((l, i) => line(l.value, l.label, i === 0 || l.aro ? null : side));
   // B over the cap (LIMITS.burst): the rest is lost.
   const over = sum(bursts) - clamp(LIMITS.burst, sum(bursts));
-  if (over > 0) bursts.push(line(-over, t('ledger.burstCap', {max: LIMITS.burst[1]}), null));
+  if (over > 0) bursts.push(line(-over, msg('ledger.burstCap', {max: LIMITS.burst[1]}), null));
   const burst = section(bursts);
-  const sd = section(ccSd(x, t).map((l) => line(l.value, l.label, side)));
+  const sd = section(ccSd(x).map((l) => line(l.value, l.label, side)));
   const hit = hitInputs(x, y, side, ctx);
   const inputs = {
     [`successValue${side}`]: sv.total,
@@ -241,12 +241,12 @@ function ccAttackInputs(x, y, side, ctx) {
 // The PS of x's hits: the weapon's own, then BS Attack (SR-1 / SR-2) as its
 // own line: it is the attacker's skill, not the weapon's (MULTI HMG 5, then
 // -1). On a program it is the program's upgrade (Trinity (SR-1)).
-function psLines(x, s, t) {
+function psLines(x, s) {
   const {row, mods} = x.weapon;
-  const lines = [line(weaponPS(row, {...mods, psMod: 0}), t('abbr.PS'), null)];
-  const sr = `${t('abbr.SR')}${mods?.psMod}`;
+  const lines = [line(weaponPS(row, {...mods, psMod: 0}), msg('abbr.PS'), null)];
+  const sr = list([msg('abbr.SR'), mods?.psMod], '');
   if (mods?.psMod) {
-    lines.push(line(mods.psMod, x.weapon.kind === 'program' ? t('ledger.programMod', {program: row.name, mod: sr}) : t('skill.bsAttackMod', {mod: sr}), s));
+    lines.push(line(mods.psMod, x.weapon.kind === 'program' ? msg('ledger.programMod', {program: row.name, mod: sr}) : msg('skill.bsAttackMod', {mod: sr}), s));
   }
   return lines;
 }
@@ -255,13 +255,13 @@ function psLines(x, s, t) {
 // notes on Immunity and Vulnerability. The same for a shot and a CC Attack.
 // Returns the inputs and the PS lines (the save section's first lines).
 function hitInputs(x, y, side, ctx) {
-  const {say, t} = ctx;
+  const {say} = ctx;
   const {row, mods} = x.weapon;
   const noEffect = hasNoEffect(y?.traits, row);
   const immunity = immunityAgainst(y?.traits, row);
   // Immunity (Continuous Damage): the Trait is ignored, the hit is not.
   const contImmune = hasImmunity(y?.traits, 'Continuous Damage', row);
-  const ps = psLines(x, side, t);
+  const ps = psLines(x, side);
   const out = {
     [`damage${side}`]: clamp(LIMITS.damage, sum(ps)),
     [`ammo${side}`]: noEffect ? 'NONE' : calcAmmo(row, y?.traits),
@@ -270,16 +270,16 @@ function hitInputs(x, y, side, ctx) {
   };
   if (out[`shock${side}`]) say(side, 'note.shock');
   const state = stateCaused(row);
-  if (state && !noEffect) say(side, 'note.stateCaused', {weapon: row.name, state: t(`state.${state.toLowerCase()}`)});
+  if (state && !noEffect) say(side, 'note.stateCaused', {weapon: row.name, state: msg(`state.${state.toLowerCase()}`)});
   // State-only weapons get a warning instead (no effect), or play as always (Stunned).
   if (!immunity && contImmune && hasContinuousDamage(row, mods)) {
     say(side, 'note.contImmune');
   }
-  const note = immunity && causesWounds(row) && immunityNote(immunity, row, mods, t);
+  const note = immunity && causesWounds(row) && immunityNote(immunity, row, mods);
   if (note) say(side, 'note.text', {text: note});
   const vulnerable = vulnerabilityTo(y?.traits, row);
   const lost = vulnerable && immunityFor(y.traits, row);
-  if (lost) say(side, 'note.vulnerability', {vulnerable: t.term('extras', vulnerable), immunity: t.term('extras', lost)});
+  if (lost) say(side, 'note.vulnerability', {vulnerable: term('extras', vulnerable), immunity: term('extras', lost)});
   return {inputs: out, ps};
 }
 
@@ -287,23 +287,22 @@ function hitInputs(x, y, side, ctx) {
 // Dodge (+1SD) as Special Dice) that causes no Saving Rolls. `incoming`: the
 // weapon being Dodged, if any (null when the attacker has no line of fire).
 function dodgeInputs(x, y, side, incoming, ctx) {
-  const {t} = ctx;
   const d = dodgeExtras(x.traits);
   // Dodge (PH=14) replaces the Attribute, so it isn't a MOD (MOD_CAP).
-  const lines = [d.ph !== null ? line(d.ph, t('ledger.dodgePh', {ph: d.ph}), side) : line(x.profile.ph ?? 0, statLabel(x, 'ph', t), null)];
-  if (d.mod) lines.push(line(d.mod, t('skill.dodgeMod', {mod: `+${d.mod}`}), side));
+  const lines = [d.ph !== null ? line(d.ph, msg('ledger.dodgePh', {ph: d.ph}), side) : line(x.profile.ph ?? 0, statLabel(x, 'ph'), null)];
+  if (d.mod) lines.push(line(d.mod, msg('skill.dodgeMod', {mod: `+${d.mod}`}), side));
   const ft = fireteamBonuses(x.ftSize).dodge;
-  if (ft) lines.push(line(ft, t('ledger.fireteam', {size: x.ftSize}), side));
+  if (ft) lines.push(line(ft, msg('ledger.fireteam', {size: x.ftSize}), side));
   const bang = bangbombMod(x, incoming);
-  if (bang) lines.push(line(bang, t('equip.bangbombMod', {mod: `+${bang}`}), side));
+  if (bang) lines.push(line(bang, msg('equip.bangbombMod', {mod: `+${bang}`}), side));
   else if (x.weapon.bangbomb && incoming?.row && cancelsBangbomb(incoming.row)) {
     const v = bangbombValue(x.traits);
-    lines.push(line(v, t('equip.bangbombMod', {mod: `+${v}`}), side, t('ledger.templateWeapon')));
+    lines.push(line(v, msg('equip.bangbombMod', {mod: `+${v}`}), side, msg('ledger.templateWeapon')));
   }
-  if (immADodgeMod(x)) lines.push(line(immADodgeMod(x), t('chip.immA'), side));
+  if (immADodgeMod(x)) lines.push(line(immADodgeMod(x), msg('chip.immA'), side));
   if (y && incoming) lines.push(...ctx.opposing[side]);
   const sv = svSection(lines, side, ctx, false);
-  const sd = section(d.sd ? [line(d.sd, t('ledger.dodgeSd'), side)] : []);
+  const sd = section(d.sd ? [line(d.sd, msg('ledger.dodgeSd'), side)] : []);
   const inputs = {
     [`ammo${side}`]: 'DODGE',
     [`burst${side}`]: 1,
@@ -320,10 +319,9 @@ function dodgeInputs(x, y, side, incoming, ctx) {
 // (-X), Surprise Attack, Targeted and the Hacked chip included) that causes no Saving
 // Rolls, like a Dodge. Zero Pain: two WIP rolls, in either turn.
 function resetInputs(x, y, side, ctx) {
-  const {t} = ctx;
-  const lines = [line(x.profile.wip ?? 0, statLabel(x, 'wip', t), null)];
-  if (targetedResetMod(x)) lines.push(line(targetedResetMod(x), t('chip.targeted'), side));
-  if (hackedResetMod(x)) lines.push(line(hackedResetMod(x), t('chip.hacked'), side));
+  const lines = [line(x.profile.wip ?? 0, statLabel(x, 'wip'), null)];
+  if (targetedResetMod(x)) lines.push(line(targetedResetMod(x), msg('chip.targeted'), side));
+  if (hackedResetMod(x)) lines.push(line(hackedResetMod(x), msg('chip.hacked'), side));
   if (y) lines.push(...ctx.opposing[side]);
   const sv = svSection(lines, side, ctx, false);
   const inputs = {
@@ -344,7 +342,7 @@ function evadeInputs(x, y, side, incoming, ctx) {
   if (!evades(x, incoming)) {
     const reset = x.weapon.kind === 'reset';
     ctx.say(side, reset ? 'note.resetOnlyComms' : 'note.dodgeNotComms', {weapon: incoming.row.name});
-    return {inputs: noLofInputs(side), lines: {kind: 'none', reason: ctx.t(reset ? 'ledger.resetOnlyComms' : 'ledger.dodgeNotComms')}};
+    return {inputs: noLofInputs(side), lines: {kind: 'none', reason: msg(reset ? 'ledger.resetOnlyComms' : 'ledger.dodgeNotComms')}};
   }
   if (x.weapon.kind === 'reset') return resetInputs(x, y, side, ctx);
   return dodgeInputs(x, y, side, incoming, ctx);
@@ -355,7 +353,6 @@ function evadeInputs(x, y, side, incoming, ctx) {
 // skill changes the save. `dodging`: y Dodges this attack, so Dodge (ARM +3)
 // adds to its ARM. Returns the inputs and the lines.
 function defenseInputs(y, incoming, s, dodging, ctx) {
-  const {t} = ctx;
   const o = other(s);
   const p = y.profile;
   const row = incoming?.row;
@@ -367,18 +364,18 @@ function defenseInputs(y, incoming, s, dodging, ctx) {
   const lines = [];
   if (attr === 'PH') {
     // PARA: a PH roll at the weapon's MOD (PH-6), with PS 0 (weaponPS).
-    lines.push(line(base, statLabel(y, 'PH', t), s));
+    lines.push(line(base, statLabel(y, 'PH'), s));
     if (save.mod) lines.push(line(save.mod, row.name, o));
   } else if (attr === 'ARM' && save.armZero && !immune) {
-    lines.push(line(base, statLabel(y, 'ARM', t), s, t('ledger.armZeroBy', {weapon: row.name})));
+    lines.push(line(base, statLabel(y, 'ARM'), s, msg('ledger.armZeroBy', {weapon: row.name})));
   } else {
-    lines.push(line(base, statLabel(y, attr, t), s));
+    lines.push(line(base, statLabel(y, attr), s));
   }
   // ARM = 0 wins over the Dodge's extra ARM (Alex, 2026-10-10).
   const extra = attr === 'ARM' && dodging ? dodgeExtras(y.traits).arm : 0;
-  if (extra) lines.push(line(extra, t('ledger.dodgeArm', {extra}), s, save.armZero && !immune ? t('ledger.armZero') : null));
+  if (extra) lines.push(line(extra, msg('ledger.dodgeArm', {extra}), s, save.armZero && !immune ? msg('ledger.armZero') : null));
   // An Attribute below 0 (a Netrod's PH at PARA's -6) saves as 0.
-  if (sum(lines) < 0) lines.push(line(-sum(lines), t('ledger.notBelowZero'), null));
+  if (sum(lines) < 0) lines.push(line(-sum(lines), msg('ledger.notBelowZero'), null));
   // AP or printed halving (saves.js saveHalving); halving 0 or 1 changes
   // nothing: no line. Immunity (AP) keeps the line, struck.
   const h = saveHalving(row, incoming?.mods, y.traits);
@@ -386,8 +383,8 @@ function defenseInputs(y, incoming, s, dodging, ctx) {
     const whole = sum(lines);
     const halved = Math.ceil(whole / 2);
     if (halved !== whole) {
-      lines.push(line(halved - whole, t(h.ap ? 'ledger.halvedAp' : 'ledger.halved', {stat: t(`stat.${attr.toLowerCase()}`)}), o,
-        h.halves ? null : t('skill.immunity', {what: 'AP'})));
+      lines.push(line(halved - whole, msg(h.ap ? 'ledger.halvedAp' : 'ledger.halved', {stat: msg(`stat.${attr.toLowerCase()}`)}), o,
+        h.halves ? null : msg('skill.immunity', {what: 'AP'})));
     }
   }
   // Cover's +3 is a Saving Roll MOD, not ARM: add it after AP halving. The
@@ -398,12 +395,12 @@ function defenseInputs(y, incoming, s, dodging, ctx) {
   const ccIncoming = incoming?.kind === 'cc';
   const comms = isCommsAttack(row);
   const mods = [];
-  if (comms && firewallOf(y)) mods.push(line(FIREWALL_SAVE_MOD, t('equip.firewall'), s));
+  if (comms && firewallOf(y)) mods.push(line(FIREWALL_SAVE_MOD, msg('equip.firewall'), s));
   if (benefitsFromCover(y) || hasNanoscreen(y)) {
-    const name = coverLabel(y, t);
-    if (ccIncoming) mods.push(line(COVER_SAVE_MOD, name, s, t('ledger.closeCombat')));
-    else if (comms) mods.push(line(COVER_SAVE_MOD, name, s, t('ledger.commsAttack')));
-    else if (ignoresCoverOnSaves(row) && !hasNanoscreen(y)) mods.push(line(COVER_SAVE_MOD, name, s, t('ledger.template')));
+    const name = coverLabel(y);
+    if (ccIncoming) mods.push(line(COVER_SAVE_MOD, name, s, msg('ledger.closeCombat')));
+    else if (comms) mods.push(line(COVER_SAVE_MOD, name, s, msg('ledger.commsAttack')));
+    else if (ignoresCoverOnSaves(row) && !hasNanoscreen(y)) mods.push(line(COVER_SAVE_MOD, name, s, msg('ledger.template')));
     else mods.push(line(COVER_SAVE_MOD, name, s));
   }
   lines.push(...mods);
@@ -462,7 +459,7 @@ function sideInputs(x, y, s, ctx) {
     roll({inputs: noLofInputs(s), lines: {kind: 'none', blockedZone: vis[s].blocked}});
   } else if (y && !reaches(x, y)) {
     say(s, 'note.cantTarget', {program: w.row.name});
-    roll({inputs: noLofInputs(s), lines: {kind: 'none', reason: ctx.t('ledger.cantTarget', {program: w.row.name})}});
+    roll({inputs: noLofInputs(s), lines: {kind: 'none', reason: msg('ledger.cantTarget', {program: w.row.name})}});
   } else {
     // Both shoot at rangeCm, unless the reactive answers from its own rangeCmB.
     const rangeCm = active ? ctx.rangeCm : ctx.rangeCmB ?? ctx.rangeCm;
@@ -482,9 +479,12 @@ function sideInputs(x, y, s, ctx) {
 // `active` / `reactive` are results of resolveSelection() (or null).
 // rangeCm is the distance both shoot at, unless the reactive shoots at its own
 // rangeCmB (a split range: it answers from somewhere else on the table).
-// t: the language of the notes, warnings and errors (src/i18n).
-// Returns {inputs, ok, errors, warnings, notes, lines}: `lines[side]` is what
-// the side's roll is built from, for "How the dice were built" (ledger.js):
+// Returns {inputs, ok, errors, warnings, notes, lines}. Notes, warnings and
+// errors are message descriptors (i18n/message.js), as is every label,
+// reason and note below: the view renders them in the player's language
+// (ledger.js renderDerived), so a language change re-derives nothing.
+// `lines[side]` is what the side's roll is built from, for "How the dice
+// were built" (ledger.js):
 //   kind      'attack' | 'template' | 'dodge' | 'reset' | 'none'
 //   sv        {lines, total, note?}: the Success Value (lines.js section)
 //   burst, sd {lines, total}: Burst and Special Dice (not on a Reset)
@@ -493,26 +493,25 @@ function sideInputs(x, y, s, ctx) {
 //   reason    kind 'none': why a Dodge, Reset or program isn't rolled
 //   blockedZone   kind 'none': the Smoke / White Noise it can't see through
 // or null while the side has nothing to roll with.
-export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones, t = tEn}) {
+export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
   const inputs = {};
   const errors = [];
   const notes = [];
   const warnings = [];
   // say(side, key, params) adds a note, "Active: ..."; side null for both.
-  const sayTo = (list) => (side, key, params) =>
-    list.push(side ? t('note.side', {side: t(side === 'A' ? 'side.active' : 'side.reactive'), text: t(key, params)}) : t(key, params));
+  const sayTo = (into) => (side, key, params) => into.push(about(side, msg(key, params)));
   const a = active?.profile ? active : null;
   const b = reactive?.profile ? reactive : null;
   const x = {A: a, B: b};
   // BS Attack (-X) MODs on each side's roll.
   // Smoke / White Noise between them. A side with no line of fire doesn't
   // attack, so its skills put no MODs on the other side's roll.
-  const vis = visibility(a, b, zones, t);
-  const ctx = {t, say: sayTo(notes), warn: sayTo(warnings), fail: sayTo(errors), vis, rangeCm, rangeCmB, opposing: {}};
+  const vis = visibility(a, b, zones);
+  const ctx = {say: sayTo(notes), warn: sayTo(warnings), fail: sayTo(errors), vis, rangeCm, rangeCmB, opposing: {}};
   ctx.opposing.A = opposingLines(b, a, 'A', ctx);
   ctx.opposing.B = opposingLines(a, b, 'B', ctx);
   for (const s of ['A', 'B']) {
-    if (vis[s].blocked) ctx.say(s, 'note.noLof', {zone: zoneName(vis[s].blocked, t)});
+    if (vis[s].blocked) ctx.say(s, 'note.noLof', {zone: zoneName(vis[s].blocked)});
   }
 
   // A side still waiting on its weapon: nothing to report, but not ready to apply.

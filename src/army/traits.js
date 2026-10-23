@@ -1,5 +1,4 @@
 import {SKILL} from './ids.js';
-import {tEn} from '../i18n/index.js';
 
 // Skills and equipment of a trooper: the profile's plus the loadout's.
 // A trait is {id, name, extra?: [...]}, as in the Army data.
@@ -22,8 +21,8 @@ export const skillExtras = (traits, id) =>
 
 // "Name (extra, extra)" as the Army list shows it; the extras in t's
 // language (the army's own translation: "+1B" -> "+1R") and distance unit
-// (Dodge (+2") -> Esquivar (+5 cm)).
-export const traitLabel = (trait, t = tEn) =>
+// (Dodge (+2") -> Esquivar (+5 cm)). t: the translator (src/i18n).
+export const traitLabel = (trait, t) =>
   (trait.extra?.length ? `${trait.name} (${trait.extra.map((e) => t.inchText(t.term('extras', e))).join(', ')})` : trait.name);
 
 // Lieutenant (any level): changes nothing on the table, so the picker and the

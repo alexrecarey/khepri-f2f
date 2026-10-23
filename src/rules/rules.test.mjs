@@ -8,8 +8,14 @@ import {effectiveTraits} from '../army/traits.js';
 import {bsWeapons, isBsAttackWeapon, parseWeaponMods} from '../army/weapons.js';
 import {searchKey} from '../lib/searchKey.js';
 import {defaultWeapon} from './defaultWeapon.js';
-import {buildLedger} from './ledger.js';
-import {deriveInputs} from './matchup.js';
+import {buildLedger, renderDerived} from './ledger.js';
+import {deriveInputs as deriveRaw} from './matchup.js';
+
+// The rules word their notes and lines as message descriptors; these tests
+// read them in English (ledger.js renders them).
+const deriveInputs = (o) => renderDerived(deriveRaw(o));
+import {tEn} from '../i18n/index.js';
+import {render} from '../i18n/message.js';
 import {attackStat, dodgeSuccessValue, mimetismMod, surpriseAttackMod} from './modifiers.js';
 import {rangeModFor} from './ranges.js';
 import {pseudoName, pseudoWeapons, resolveSelection, trooperCcWeapons, trooperWeapons} from './trooper.js';
@@ -436,6 +442,9 @@ test('Immunity (ARM) does nothing against BTS saves; Plasma still rolls ARM and 
   assert.equal(viral.inputs.ammoA, 'DA');
   assert.equal(viral.inputs.armB, 6);
   assert.deepEqual(viral.notes, ['Active: Shock against VITA 1; a failed save is Dead (no Unconscious, NWI or Dogged)']);
+  // Before rendering, the note is a descriptor: no language in the rules.
+  assert.deepEqual(deriveRaw({active: side(profile(), option([{id: 4, name: 'Viral Combi Rifle'}]), '4:'), reactive: side(dog, combi, '1:'), rangeCm: 40}).notes,
+    [{key: 'note.side', params: {side: {key: 'side.active'}, text: {key: 'note.shock'}}}]);
   // Wiki example 3.
   const plasma = shotAt(dog, 5, '5:Hit Mode');
   assert.equal(plasma.inputs.ammoA, 'PLASMA');
@@ -1199,6 +1208,10 @@ test('Warhorse ignores BS Attack (-3), however it is gained', () => {
   const r = duel(fromLoadout, side(profile({skills: [warhorse]}), combi, '1:'));
   assert.equal(r.inputs.successValueB, 15);
   assert.ok(r.notes.includes("Reactive: Warhorse; the opponent's BS Attack (-3) has no effect"), r.notes.join(' | '));
+  // The struck line and its note name the skill by key, not by its English name.
+  const raw = deriveRaw({active: fromLoadout, reactive: side(profile({skills: [warhorse]}), combi, '1:'), rangeCm: 40});
+  assert.deepEqual(raw.lines.B.sv.lines.find((l) => l.struck), {value: -3, label: {key: 'skill.bsAttackMod', params: {mod: -3}}, by: 'A', struck: {key: 'skill.warhorse'}});
+  assert.deepEqual(raw.notes[0].params.text, {key: 'note.ignoresMod', params: {by: {key: 'skill.warhorse'}, mod: {key: 'skill.bsAttackMod', params: {mod: -3}}}});
   assert.equal(duel(fromLoadout, side(profile({skills: [warhorse]}), combi, 'dodge')).inputs.successValueB, 12);
 });
 
@@ -1655,7 +1668,7 @@ test('White Noise and Albedo stack; with Smoke and White Noise nobody sees', () 
 test('Bangbomb (+X) is its own Dodge choice: +X, but not against Template Weapons', () => {
   const bandit = profile({ph: 13, equip: [{id: 246, name: 'Bangbomb', extra: ['+4']}]});
   const choices = pseudoWeapons(effectiveTraits(bandit, combi), 'B');
-  assert.deepEqual(choices.map((w) => pseudoName(w)), ['Dodge', 'Bangbomb', 'Reset', 'No ARO']);
+  assert.deepEqual(choices.map((w) => render(tEn, pseudoName(w))), ['Dodge', 'Bangbomb', 'Reset', 'No ARO']);
   assert.equal(pseudoWeapons({skills: [], equip: []}).some((w) => w.bangbomb), false);
   const dodgeVs = (weapons, key, pick = 'bangbomb') =>
     derive({active: side(profile(), option(weapons), key), reactive: side(bandit, combi, pick), rangeCm: 20}).inputs.successValueB;
@@ -1763,9 +1776,9 @@ test('Jammer: a failed save is Isolated; only Immunity (Isolated) stops it, not 
 
 test('range bands are labelled in the language\'s unit', async () => {
   const {bandLabel} = await import('./ranges.js');
-  const {translator} = await import('../i18n/index.js');
+  const {translator, tEn} = await import('../i18n/index.js');
   const {default: es} = await import('../i18n/es.js');
-  assert.equal(bandLabel(3), '24-32"');
+  assert.equal(bandLabel(3, tEn), '24-32"');
   assert.equal(bandLabel(3, translator(es, 'es')), '60-80 cm');
   assert.equal(bandLabel(0, translator(es, 'es')), '0-20 cm');
 });

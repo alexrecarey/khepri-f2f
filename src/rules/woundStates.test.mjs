@@ -2,10 +2,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SKILL} from '../army/ids.js';
+import {tEn} from '../i18n/index.js';
+import {render} from '../i18n/message.js';
 import {woundStates} from './woundStates.js';
 
 const skills = (...ids) => ({skills: ids.map((id) => ({id})), equip: []});
-const labels = (w, traits = skills(), opts) => woundStates({w}, traits, opts).map((s) => s.label);
+// Labels are message descriptors; read here in English.
+const labels = (w, traits = skills(), opts) => woundStates({w}, traits, opts).map((s) => render(tEn, s.label));
 
 test('VITA / STR n: wounds, then Unconscious, then Dead', () => {
   assert.deepEqual(labels(1), ['Unconscious', 'Dead']);
@@ -42,6 +45,6 @@ test('a weapon that only Isolates (Jammer): one state, Isolated, whatever the VI
 
 test('a Stun weapon (Flash Pulse): one state, Stunned, however many saves fail', () => {
   const [st] = woundStates({w: 2}, skills(), {state: 'Stunned'});
-  assert.deepEqual(st, {key: 'stunned', label: 'Stunned', wounds: 1, glyph: null, outOfFight: true, state: true});
+  assert.deepEqual(st, {key: 'stunned', label: {key: 'state.stunned'}, wounds: 1, glyph: null, outOfFight: true, state: true});
   assert.deepEqual(labels(1, skills(), {shock: true, state: 'Stunned'}), ['Stunned']);
 });
