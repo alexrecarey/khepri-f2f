@@ -1,7 +1,9 @@
 // Full-screen trooper picker for one side. The search box sits at the bottom,
 // by the thumb. Empty box, no faction: faction tiles, then recent picks. With
 // a faction: recent picks, unit-type tiles and its units A-Z (browsing).
-// Typing: matching recents, profiles, then units (searching). Tapping a unit or a type tile drills into its own list.
+// Typing: matching recents, profiles, then units (searching). Tapping a unit
+// or a type tile drills into its own list (PickerScreens.jsx); the rows are
+// Rows.jsx.
 // Query, faction scope and the drill-in stack are the state document's
 // ui.picker, so Back (button, Escape or the browser's) pops one screen.
 import {useEffect, useMemo, useRef} from 'react';
@@ -9,65 +11,13 @@ import PropTypes from 'prop-types';
 import {ROLE} from '../../state/schema.js';
 import {dispatch, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
-import {crestForRow} from '../../army/crests.js';
-import {extraLoadoutName} from '../../army/names.js';
-import {CardCrest, RowCrest} from '../Crest.jsx';
 import LoadFailed from '../LoadFailed.jsx';
 import {Page} from '../Sheet.jsx';
 import {TYPE_ORDER, quickSearches, typeName} from './constants.js';
-import {groupLoadouts, loadoutTag, orderLoadouts, profileGroups, statLine} from './loadouts.js';
-import ProfileGroup from './ProfileGroup.jsx';
+import {factionsScreen, typeScreen, unitScreen} from './PickerScreens.jsx';
+import {ProfileRow, UnitRow} from './Rows.jsx';
 import {factionNameOf, useRecentIds} from './useRecentIds.js';
 import {useT} from '../i18n.jsx';
-
-// The loadout's weapons, the one the query matched first: several loadouts
-// often share their main weapon and only differ further down the list.
-function weaponList(hit) {
-  const rest = hit.weapons.filter((w) => w !== hit.weapon);
-  return [hit.weapon, ...rest].filter(Boolean).join(', ');
-}
-
-function ProfileRow({hit, onPick, first, color, army}) {
-  const t = useT();
-  const extra = extraLoadoutName(hit.loadout, hit.unit) ?? loadoutTag(army, hit);
-  return (
-    <button type="button" className={`hit${first ? ' first' : ''}`} onClick={() => onPick(hit)}>
-      <RowCrest slug={crestForRow(army, hit)} />
-      <span className="t">{hit.unit}{extra && <span className="tag"> · {extra}</span>}</span>
-      <span className={`w c-${color}`}>{weaponList(hit)}</span>
-      <span className="m">{t('stat.bs')} {hit.bs ?? '—'} · {hit.swc} {t('picker.swc')} · {hit.points} {t('picker.pts')}{hit.loose && <span className="loose"> · {t('picker.closeMatch')}</span>}</span>
-    </button>
-  );
-}
-
-ProfileRow.propTypes = {
-  hit: PropTypes.object.isRequired, onPick: PropTypes.func.isRequired, first: PropTypes.bool,
-  color: PropTypes.string.isRequired, army: PropTypes.object,
-};
-
-// A loadout on its unit's page: the unit name is the page title, so just the
-// weapons (and any loadout name), with the points on the right.
-function LoadoutRow({hit, onPick, color, army}) {
-  const extra = extraLoadoutName(hit.loadout, hit.unit) ?? loadoutTag(army, hit);
-  return (
-    <button type="button" className="line-btn loadout" onClick={() => onPick(hit)}>
-      <span><span className={`c-${color}`}>{weaponList(hit)}</span>{extra && <span className="tag"> · {extra}</span>}</span>
-      <span className="r">{hit.points}</span>
-    </button>
-  );
-}
-
-LoadoutRow.propTypes = {hit: PropTypes.object.isRequired, onPick: PropTypes.func.isRequired, color: PropTypes.string.isRequired, army: PropTypes.object};
-
-function UnitRow({u, onOpen}) {
-  return (
-    <button type="button" className="line-btn" onClick={() => onOpen(u)}>
-      <span>{u.short}</span><span className="r">{u.profileCount} ›</span>
-    </button>
-  );
-}
-
-UnitRow.propTypes = {u: PropTypes.object.isRequired, onOpen: PropTypes.func.isRequired};
 
 const back = () => dispatch({type: 'back'});
 const setQuery = (query) => dispatch({type: 'pickerQuery', query});
@@ -115,70 +65,10 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
   const sideName = t(`side.${color}`);
   const title = <span className={`role ${color}`}>{t('side.trooper', {side: sideName}).toLocaleUpperCase(t.lang)}</span>;
 
-  if (top?.view === 'factions') {
-    const choose = (id) => setScope(id);
-    const factions = searcher?.factions ?? [];
-    const row = (f, key) => (
-      <button type="button" key={key} className="line-btn" onClick={() => choose(f.id)}>
-        <span className="with-logo"><FactionLogo id={f.id} size={24} />{f.name}</span>
-        <span className="r">{key.startsWith('all') ? searcher.unitCount(f.id) : ''} <span className={`c-${color}`}>{scope === f.id ? '✓' : ''}</span></span>
-      </button>
-    );
-    const recent = recentFactions.map((id) => factions.find((f) => f.id === id)).filter(Boolean);
-    return (
-      <Page title={t('picker.faction')} onBack={pop}>
-        {recent.length > 0 && <div className="list-head">{t('picker.recent')}</div>}
-        {recent.map((f) => row(f, `recent-${f.id}`))}
-        <div className="list-head">{t('picker.all')}</div>
-        <button type="button" className="line-btn" onClick={() => choose(null)}>
-          <span>{t('picker.allFactions')}</span><span className={`r c-${color}`}>{scope == null ? '✓' : ''}</span>
-        </button>
-        {factions.map((f) => row(f, `all-${f.id}`))}
-      </Page>
-    );
-  }
-
-  if (top?.view === 'type') {
-    const units = searcher.unitsOfType(top.type, scope);
-    return (
-      <Page title={typeName(t, top.type)} subtitle={`${factionName(scope)} · ${t('picker.units', {count: units.length})}`} onBack={pop}>
-        {units.map((u) => <UnitRow key={u.unitId} u={u} onOpen={openUnit} />)}
-      </Page>
-    );
-  }
-
-  if (top?.view === 'unit') {
-    const rows = searcher.unitRows(top.unitId, scope);
-    const pgroups = army ? profileGroups(army, rows) : null;
-    // The unit's crest behind the header, cut by its corner, like the side
-    // cards (canvas, "Header crest B"): its first profile's, not the
-    // cheapest loadout's (a Team-Ops' Asklad).
-    const crest = <CardCrest slug={army ? crestForRow(army, pgroups?.[0].items[0].hit ?? rows[0]) : null} />;
-    if (pgroups) {
-      return (
-        <Page title={top.name} subtitle={`${factionName(scope)} · ${t('picker.profiles', {count: pgroups.length})} · ${t('picker.loadoutCount', {count: rows.length})}`}
-          onBack={pop} action={crest} className="unit-page">
-          {pgroups.map((g) => <ProfileGroup key={g.key} g={g} onPick={pick} color={color} army={army} />)}
-        </Page>
-      );
-    }
-    const stats = statLine(army, top.unitId, rows[0]?.armyFactionId);
-    const groups = army ? groupLoadouts(army, orderLoadouts(army, rows)) : [{key: 'all', name: null, items: rows}];
-    return (
-      <Page title={top.name} subtitle={`${factionName(scope)} · ${t('picker.profiles', {count: rows.length})}`} onBack={pop}
-        action={crest} className="unit-page">
-        {stats && (
-          <div className="stat-line">{stats.map(([k, v]) => <span key={k}><b>{t(`stat.${k.toLowerCase()}`)}</b> {v}</span>)}</div>
-        )}
-        {groups.map((g) => (
-          <div key={g.key}>
-            {g.key !== 'all' && <div className="list-head">{t(`reach.${g.key}`)}</div>}
-            {g.items.map((h) => <LoadoutRow army={army} color={color} key={h.rowId} hit={h} onPick={pick} />)}
-          </div>
-        ))}
-      </Page>
-    );
-  }
+  // Drilled in: one of the screens in PickerScreens.jsx.
+  if (top?.view === 'factions') return factionsScreen({t, searcher, scope, color, recentFactions, pop, setScope});
+  if (top?.view === 'type') return typeScreen({t, searcher, scope, top, factionName, pop, openUnit});
+  if (top?.view === 'unit') return unitScreen({t, searcher, army, scope, color, top, factionName, pop, pick});
 
   const searchBar = (
     <form className="search-bar" role="search" autoComplete="off" onSubmit={onSubmit}>

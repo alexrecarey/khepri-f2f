@@ -1,117 +1,26 @@
-// Results, two ways over the same pieces:
-//   ResultsCard   phone: one sheet resting low with its top showing (the card)
-//                 that swipes or taps open to the full results
-//   ResultsPanel  tablet and desktop: the results inline, in their column
-// The top: wounds per order for each side over the shaded wound bar. Below:
-// the Face to Face bar, the labelled wound bar and the breakdown.
-import {useEffect, useMemo} from 'react';
+// Phone results: one sheet resting low with its top showing (the card) that
+// swipes or taps open to the full results. The top: wounds per order for each
+// side over the shaded wound bar. Below: the Face to Face bar, the labelled
+// wound bar and the breakdown. Tablet and desktop show the same pieces inline
+// (ResultsPanel.jsx); what both derive first is useResultsView.js.
+import {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
-import {BookmarkIcon, D20, ShareIcon} from './icons.jsx';
-import Headline, {setHeadline} from './Headline.jsx';
-import {headline, nextHeadline} from '../results/headline.js';
-import {headlineChoice} from '../state/headlines.js';
+import Headline from './Headline.jsx';
 import {shareLink} from './share.js';
 import useDialogFocus from './useDialogFocus.js';
 import useSheetGestures from './useSheetGestures.js';
+import useResultsView, {waitMessage} from './useResultsView.js';
 import FaceToFaceChart from './FaceToFaceChart.jsx';
 import Ledger from './Ledger.jsx';
-import {faceToFaceBreakdown} from '../rules/bestDie.js';
 import {F2FBar, PickBars, useBreakdownView} from './ResultBars.jsx';
+import {SheetActions} from './ResultsBody.jsx';
 import {Breakdown, ClassicBody, WoundBar} from './ResultsDetail.jsx';
+import {EngineLoading, WaitRow} from './ResultsWait.jsx';
 import {UnopposedCardBody, UnopposedSheetBody} from './Unopposed.jsx';
 import WpoRow from './WpoRow.jsx';
 import {StateBar, StateList, useStatesUi} from './WoundStates.jsx';
 import {useT} from './i18n.jsx';
-
-// Save and Share on the sheet's handle row. `save` = {saved, pending, toggle}
-// or null while there is nothing to save; pending, Save is disabled.
-// onShare: copies the link (ui/share.js).
-function SheetActions({save, onShare}) {
-  const t = useT();
-  return (
-    <>
-      {save && (
-        <button type="button" className={`icon-btn sm${save.saved ? ' on' : ''}`} aria-pressed={save.saved} aria-label={save.saved ? t('results.unsave') : t('results.save')}
-          disabled={save.pending} onClick={save.toggle}><BookmarkIcon filled={save.saved} /></button>
-      )}
-      <button type="button" className="icon-btn sm" aria-label={t('results.share')} onClick={() => onShare(t)}><ShareIcon /></button>
-    </>
-  );
-}
-
-SheetActions.propTypes = {save: PropTypes.object, onShare: PropTypes.func.isRequired};
-
-// Until the first result shows up (the dice engine loading on a first visit,
-// a few seconds) the two dice roll at each other, bump and bounce back: the
-// face to face roll, before the maths. After that, recalculations shimmer.
-function EngineLoading({label}) {
-  const t = useT();
-  return (
-    <div className="engine-loading" role="status" aria-label={label}>
-      <div className="clash">
-        <span className="die-a"><D20 fill="var(--active)" /></span>
-        <span className="die-b"><D20 fill="var(--reactive)" /></span>
-      </div>
-      <span className="small">{t('results.engineLoading')}</span>
-    </div>
-  );
-}
-
-EngineLoading.propTypes = {label: PropTypes.string};
-
-// Before both troopers are picked: each side's number is its still, dimmed
-// die, or Ready in its own colour once that side is chosen. Nothing moves;
-// the empty slots above are what should catch the eye.
-const waitingFor = (picked) => (picked && !(picked.A && picked.B) ? picked : null);
-const waitMessage = (picked, t) => t(!picked.A && !picked.B ? 'results.chooseBoth'
-  : !picked.A ? 'results.chooseActive' : 'results.chooseReactive');
-
-function SideWait({side, ready, size = ''}) {
-  const t = useT();
-  return ready
-    ? <span className={`big ${size} c-${side} ready`}>{t('results.ready')}</span>
-    : <span className={`wait-die ${size}`}><D20 fill={`var(--${side})`} /></span>;
-}
-
-SideWait.propTypes = {side: PropTypes.string.isRequired, ready: PropTypes.bool, size: PropTypes.string};
-
-function WaitRow({picked, size}) {
-  return <WpoRow active={<SideWait side="active" ready={picked.A} size={size} />} reactive={<SideWait side="reactive" ready={picked.B} size={size} />} />;
-}
-
-WaitRow.propTypes = {picked: PropTypes.object.isRequired, size: PropTypes.string};
-
-// Desktop and tablet: the whole results panel in outline, so its shape is
-// there before the numbers are.
-function WaitPanel({picked}) {
-  const t = useT();
-  const rows = (side, labels) => labels.map((l) => (
-    <div key={`${side}${l}`} className="skel-row"><span>{l}</span><span className="skel" /><span>—%</span></div>
-  ));
-  return (
-    <>
-      <WaitRow picked={picked} size="xl" />
-      <div className="skel skel-f2f" />
-      <div className="skel skel-wounds" />
-      <div className="skel-list">
-        <span className="label c-active">{t('results.sideWins', {side: t('side.active')})} · —%</span>
-        {rows('a', [t('results.atLeast', {count: 1}), t('results.atLeast', {count: 2}), t('results.atLeast', {count: 3}), t('results.allSaved')])}
-        <span className="label">{t('results.nobodyWins')} · —%</span>{rows('n', [t('results.bothFail')])}
-        <span className="label c-reactive">{t('results.sideWins', {side: t('side.reactive')})} · —%</span>
-        {rows('r', [t('results.atLeast', {count: 1}), t('results.atLeast', {count: 2}), t('results.allSaved')])}
-      </div>
-      <span className="empty">{waitMessage(picked, t)}</span>
-    </>
-  );
-}
-
-WaitPanel.propTypes = {picked: PropTypes.object.isRequired};
-
-// The best-die breakdown behind the face to face bar: Matchup only (it needs
-// the troopers' names), and only for a real Face to Face Roll.
-const useBreakdown = (s, ledger, params) => useMemo(
-  () => (s && ledger && !s.unopposed ? faceToFaceBreakdown(params) : null), [s, ledger, params]);
 
 // The top of the phone sheet, which is all that shows while it rests low (the
 // results card): both sides' headline numbers (wounds per order unless the
@@ -121,9 +30,8 @@ const useBreakdown = (s, ledger, params) => useMemo(
 // sheet is dragged.
 // Open, with a chart to show (pick), each bar is the switch for its own
 // breakdown below (ResultBars).
-function SheetTop({s, h, choice, classic, pending, status, picked, ui, view, onView, pick}) {
+function SheetTop({s, h, choice, classic, pending, status, wait, ui, view, onView, pick}) {
   const t = useT();
-  const wait = waitingFor(picked);
   if (wait) {
     return (
       <>
@@ -152,7 +60,7 @@ function SheetTop({s, h, choice, classic, pending, status, picked, ui, view, onV
 
 SheetTop.propTypes = {
   s: PropTypes.object, h: PropTypes.object, choice: PropTypes.string, classic: PropTypes.bool, pending: PropTypes.bool, status: PropTypes.string,
-  picked: PropTypes.object, ui: PropTypes.object, view: PropTypes.string, onView: PropTypes.func, pick: PropTypes.bool,
+  wait: PropTypes.object, ui: PropTypes.object, view: PropTypes.string, onView: PropTypes.func, pick: PropTypes.bool,
 };
 
 // Phone: one sheet that rests low with only its top showing (the results
@@ -162,11 +70,8 @@ SheetTop.propTypes = {
 export default function ResultsCard({s, status, diceLine, classic, ledger, save, pending, picked, params}) {
   const t = useT();
   const ui = useStatesUi();
-  const choice = useAppState((st) => headlineChoice(st.prefs));
-  const h = s ? headline(s, choice, params, ledger?.ledger, t) : null;
-  const swipe = (step) => setHeadline(nextHeadline(choice, step));
+  const {choice, h, b, wait, swipe} = useResultsView({s, ledger, params, picked});
   const open = useAppState((st) => st.ui.overlay === 'results') && Boolean(s);
-  const b = useBreakdown(s, ledger, params);
   // Closing the sheet goes back to the wounds.
   const [view, setView] = useBreakdownView(!open);
   const showF2F = view === 'f2f' && Boolean(b);
@@ -200,7 +105,7 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
             if (s && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { e.preventDefault(); swipe(e.key === 'ArrowRight' ? 1 : -1); }
           },
         })}>
-          <SheetTop s={s} h={h} choice={choice} classic={classic} pending={pending} status={status} picked={picked} ui={open ? ui : null}
+          <SheetTop s={s} h={h} choice={choice} classic={classic} pending={pending} status={status} wait={wait} ui={open ? ui : null}
             view={view} onView={setView} pick={Boolean(b)} />
           {!open && <span className="vh">{t('results.openHint')}</span>}
         </div>
@@ -222,56 +127,7 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
   );
 }
 
-// What the results say, wherever they are shown.
-function ResultsBody({s, classic, ledger, diceLine, pending, ui, params}) {
-  const t = useT();
-  const choice = useAppState((st) => headlineChoice(st.prefs));
-  const b = useBreakdown(s, ledger, params);
-  const [view, setView] = useBreakdownView();
-  if (s.unopposed) return <UnopposedSheetBody s={s} names={ledger?.names ?? {A: t('side.active'), B: t('side.reactive')}} diceLine={diceLine} />;
-  if (classic) return <ClassicBody s={s} />;
-  const showF2F = view === 'f2f' && Boolean(b);
-  return (
-    <>
-      <Headline h={headline(s, choice, params, ledger?.ledger, t)} choice={choice} size="xl" pending={pending} buttons />
-      <div className={`res-bars${showF2F ? ' f2f-view' : ''}`}>
-        <PickBars view={view} onView={setView} pick={Boolean(b)} f2fBar={<F2FBar s={s} className="res-bar" />}
-          woundBar={s.states ? <StateBar s={s} ui={ui} glyphs className="res-bar" /> : <WoundBar summary={s} className="res-bar" />} />
-      </div>
-      {showF2F ? <FaceToFaceChart b={b} names={ledger.labels} /> : s.states ? <StateList s={s} ui={ui} /> : <Breakdown s={s} />}
-    </>
-  );
-}
-
-ResultsBody.propTypes = {
-  s: PropTypes.object.isRequired, classic: PropTypes.bool, ledger: PropTypes.object, diceLine: PropTypes.object,
-  pending: PropTypes.bool, ui: PropTypes.object, params: PropTypes.object,
-};
-
-// Tablet and desktop: the results in their own column, always open. The mods
-// go in another column (MatchupScreen).
-export function ResultsPanel({s, status, diceLine, classic, ledger, save, pending, picked, params}) {
-  const t = useT();
-  const ui = useStatesUi();
-  const choice = useAppState((st) => headlineChoice(st.prefs));
-  const h = s ? headline(s, choice, params, ledger?.ledger, t) : null;
-  const wait = waitingFor(picked);
-  return (
-    <section className="results-panel" aria-label={t('results.title')}>
-      <div className="panel-head"><span className="label">{t('results.title')}</span><span className="sheet-actions"><SheetActions save={save} onShare={shareLink} /></span></div>
-      {wait ? <WaitPanel picked={wait} />
-        : s ? <ResultsBody s={s} classic={classic} ledger={ledger} diceLine={diceLine} pending={pending} ui={ui} params={params} />
-        : pending ? <EngineLoading label={status} /> : <span className="empty">{status}</span>}
-      {s && status && <span className="status">{status}</span>}
-    </section>
-  );
-}
-
-ResultsPanel.propTypes = {
-  s: PropTypes.object, status: PropTypes.string, diceLine: PropTypes.object, classic: PropTypes.bool,
-  ledger: PropTypes.object, save: PropTypes.object, pending: PropTypes.bool, picked: PropTypes.object, params: PropTypes.object,
-};
-
+// ResultsPanel takes the same props.
 ResultsCard.propTypes = {
   // results/summary.js summarize() of the engine's result (with the targets' wound
   // states in Matchup), or null before there is one.
