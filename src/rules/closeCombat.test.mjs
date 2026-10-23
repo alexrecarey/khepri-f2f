@@ -8,6 +8,8 @@ import {effectiveTraits} from '../army/traits.js';
 import {bsWeapons, ccWeapons} from '../army/weapons.js';
 import {ccAttackMods} from './closeCombat.js';
 import {buildLedger, renderDerived} from './ledger.js';
+import {tEn} from '../i18n/index.js';
+import {render} from '../i18n/message.js';
 import {deriveInputs as deriveRaw} from './matchup.js';
 
 // The rules word their notes and lines as message descriptors; these tests
@@ -225,7 +227,7 @@ test('AP, DA, EXP and AP + EXP CC Weapons: labels and what their hits do', () =>
   ];
   for (const [id, name, ammo, tag, engine, arm] of cases) {
     const x = trooper('cc', {weapons: [{id, name, extra: ['PS=5']}]});
-    assert.equal(x.weapon.label, `${name} · B1 · PS5 · ${ammo}`);
+    assert.equal(render(tEn, x.weapon.label), `${name} · B1 · PS5 · ${ammo}`);
     const {inputs, ledger} = derive({active: x, reactive: trooper('cc', {arm: 5})});
     assert.equal(ledger.A.dice, `CC B1 SV15 PS${5 + arm}${tag}`, name);
     assert.equal(inputs.ammoA, engine, name);

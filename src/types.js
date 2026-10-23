@@ -95,7 +95,7 @@
  * @property {string | null} mode the firing mode
  * @property {WeaponRow} row as fired: the loadout's ammo extra applied
  * @property {WeaponMods} mods
- * @property {string} label "Combi Rifle · B3 · PS13 · N", English, for tests and rolls
+ * @property {Message} label "Combi Rifle · B3 · PS13 · N" once rendered (army/weapons.js weaponLabel); read by tests
  * @property {true} [zoc] reaches the Zone of Control instead of range bands
  */
 

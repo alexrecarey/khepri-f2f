@@ -95,6 +95,19 @@ test('layering: rules/ (but the ledger) never import the translator', () => {
   assert.deepEqual(offenders, []);
 });
 
+// The army data's helpers word what they say the same way (weaponLabel,
+// ammoMsg): army/ reaches i18n/ only for the descriptors, never the
+// translator.
+test('layering: army/ imports only i18n/message.js from i18n/', () => {
+  const offenders = [];
+  for (const file of modules(join(ROOT, 'src', 'army'))) {
+    for (const spec of specifiers(readFileSync(file, 'utf8'))) {
+      if (/\/i18n\//.test(spec) && !/\/i18n\/message\.js$/.test(spec)) offenders.push(`${relative(ROOT, file)} imports '${spec}'`);
+    }
+  }
+  assert.deepEqual(offenders, []);
+});
+
 test('layering: specifiers() reads static, re-export and dynamic imports, not comments', () => {
   const src = [
     "import a from './a.js';",
