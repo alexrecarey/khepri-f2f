@@ -267,7 +267,20 @@ test('template weapon against a Dodge: the template and its continuous damage, t
   assert.equal(r.inputs.ammoB, 'DODGE');
   assert.equal(r.inputs.burstB, 1);
   assert.equal(r.inputs.successValueB, 16);
-  assert.deepEqual(r.notes, []);
+  assert.deepEqual(r.notes, [DIRECT_TEMPLATE_NOTE]);
+});
+
+const DIRECT_TEMPLATE_NOTE = 'Direct Template: no Face to Face Roll; each attack is rolled on its own';
+
+test('Direct Template note: said whatever the other side does (Alex, 2026-10-23)', () => {
+  const flamer = side(profile(), option([{id: 3, name: 'Heavy Flamethrower'}]), '3:');
+  // Against a Dodge, and against No ARO: the template is still its own roll.
+  assert.deepEqual(derive({active: flamer, reactive: side(profile(), combi, 'dodge'), rangeCm: 20}).notes, [DIRECT_TEMPLATE_NOTE]);
+  assert.deepEqual(derive({active: flamer, reactive: side(profile(), combi, 'none'), rangeCm: 20}).notes, [DIRECT_TEMPLATE_NOTE]);
+  // A template Smoke blocks rolls nothing, so there is nothing to say about it.
+  const smoked = derive({active: flamer, reactive: side(profile(), combi, 'dodge'), rangeCm: 20, zones: {smoke: true}});
+  assert.equal(smoked.inputs.burstA, 0);
+  assert.ok(!smoked.notes.includes(DIRECT_TEMPLATE_NOTE), smoked.notes.join(' | '));
 });
 
 test('template weapon against a shot back: two unopposed rolls, the shot a Normal Roll', () => {
@@ -568,7 +581,7 @@ test('Immunity (BTS): a Sepsitor has no effect, but is still a template to Dodge
   assert.equal(r.inputs.templateA, true);
   assert.equal(r.inputs.ammoA, 'NONE');
   assert.equal(r.inputs.ammoB, 'DODGE');
-  assert.deepEqual(r.notes, []);
+  assert.deepEqual(r.notes, [DIRECT_TEMPLATE_NOTE]);
   assert.deepEqual(r.warnings, ['Active: Sepsitor has no effect on a target with Immunity (BTS); its hits cause no damage']);
   const plain = derive({active: sepsitor(profile()), reactive: side(profile(), combi, '1:'), rangeCm: 20});
   assert.equal(plain.inputs.burstA, 1);
@@ -944,6 +957,15 @@ test('fireteam size sets cumulative bonuses', () => {
   assert.equal(t.inputs.bonusBurstA, 0);
 });
 
+test('a Direct Template in a Fireteam has no Fireteam SD line to cancel (Alex, 2026-10-23)', () => {
+  const flamer = option([{id: 3, name: 'Heavy Flamethrower'}]);
+  const r = deriveRaw({active: {...side(profile(), flamer, '3:'), ftSize: 2}, reactive: {...side(profile(), combi, '1:'), ftSize: 2}, rangeCm: 20});
+  assert.equal(r.inputs.bonusBurstA, 0);
+  assert.deepEqual(r.lines.A.sd, {lines: [], total: 0});
+  // The BS Attack facing it still gets its Fireteam's +1 SD line.
+  assert.deepEqual(r.lines.B.sd.lines.map((l) => l.value), [1]);
+});
+
 test('BS Attack skill SD / B stack with Fireteam and loadout extras', () => {
   const crux = profile({skills: [{id: 201, name: 'BS Attack', extra: ['+1SD']}]});
   const x = {...side(crux, combi, '1:'), ftSize: 2};
@@ -1232,7 +1254,10 @@ test('MODs to a roll are capped at +/-12; Fireteam +1 BS is a MOD and counts', (
   // and Surprise Attack (-3) add up to -15, capped at -12: SV 1.
   const ambusher = {...side(profile({bs: 14, skills: [{id: 201, name: 'BS Attack', extra: ['-6']}, {id: 191, name: 'Surprise Attack', extra: ['-3']}]}), combi, '1:'), surpriseAttack: true};
   const dodger = {...side(profile({ph: 13}), combi, 'dodge'), immA: true};
-  assert.equal(duel(ambusher, dodger).inputs.successValueB, 1);
+  const capped = duel(ambusher, dodger);
+  assert.equal(capped.inputs.successValueB, 1);
+  // And says so, like an attack (Alex, 2026-10-23).
+  assert.ok(capped.notes.includes('Reactive: MODs add up to -15, capped at -12'), capped.notes.join(' | '));
   // Dodge (+6) is a MOD, PH=14 isn't: 14 + 6 and the Fireteam's +1 is 21.
   const ft = {...side(profile({ph: 13, skills: [{id: 40, name: 'Dodge', extra: ['PH=14', '+6']}]}), combi, 'dodge'), ftSize: 3};
   assert.equal(duel(side(profile({bs: 14}), combi, '1:'), ft).inputs.successValueB, 21);
@@ -1725,6 +1750,13 @@ test('Comms Attack vs Reset: Face to Face, WIP against WIP, no saves for the Res
   // BS Attack (-3) still goes on the Reset (a Face to Face Roll).
   const bsAtk = hacker({skills: [{id: 201, name: 'BS Attack', extra: ['-3']}]});
   assert.equal(derive({active: side(bsAtk, jammer, '21:'), reactive: side(profile({wip: 14}), combi, 'reset'), rangeCm: 20}).inputs.successValueB, 11);
+});
+
+test('a capped Reset says so too: Hacked (-12) and Targeted (-3) (Alex, 2026-10-23)', () => {
+  const hacked = {...side(profile({wip: 13}), combi, 'reset'), hackedReset: -12, targeted: true};
+  const r = derive({active: side(hacker(), jammer, '21:'), reactive: hacked, rangeCm: 20});
+  assert.equal(r.inputs.successValueB, 1);
+  assert.ok(r.notes.includes('Reactive: MODs add up to -15, capped at -12'), r.notes.join(' | '));
 });
 
 test('Dodge can\'t evade a Comms Attack; Reset evades nothing else', () => {
