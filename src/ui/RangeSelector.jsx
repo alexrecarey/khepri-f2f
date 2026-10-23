@@ -85,7 +85,7 @@ export default function RangeSelector({view}) {
     {/* Both sides in close combat: the distance changes nothing, so it dims. */}
     <div className={`range${open ? ' open' : ''}${view.rangeUnused ? ' unused' : ''}`}
       title={view.rangeUnused ? t('range.unused') : undefined}>
-      <div className="collapse" style={{maxHeight: open ? 48 : 0, opacity: open ? 1 : 0}} aria-hidden={!open}>
+      <div className="collapse head" aria-hidden={!open}>
         <div className="range-head">
           <span className="label">{t('range.title')}</span>
           <button type="button" className="range-close" onClick={() => setOpen(false)} tabIndex={open ? 0 : -1}>
@@ -112,17 +112,17 @@ export default function RangeSelector({view}) {
         <ZoneMarks zones={view.zones} open={open} />
         <button type="button" className="icon-btn swap" aria-label={t('range.swap')} onClick={() => flipSwap(() => dispatch({type: 'swapSides'}))}>⇅</button>
       </div>
-      <div className="collapse" style={{maxHeight: open ? 104 : 0, opacity: open ? 1 : 0}} aria-hidden={!open}>
+      <div className="collapse foot" aria-hidden={!open}>
         <div className="range-foot">
           <div className="mods">
             <span className="c-active">{weaponName(view.A, t)} <b>{signed(modA)}</b><small>{vis && zoneText(vis.A, t)}</small></span>
             <span className="c-reactive">{weaponName(view.B, t)} <b>{signed(modB)}</b><small>{vis && zoneText(vis.B, t)}</small></span>
           </div>
           <div className="key">
-            <span><i style={{background: 'var(--band-plus)'}} />+3</span>
-            <span><i style={{background: 'var(--band-zero)'}} />0</span>
-            <span><i style={{background: 'var(--band-minus3)'}} />−3</span>
-            <span><i style={{background: 'var(--band-minus6)'}} />−6</span>
+            <span><i className="plus" />+3</span>
+            <span><i className="zero" />0</span>
+            <span><i className="minus3" />−3</span>
+            <span><i className="minus6" />−6</span>
           </div>
         </div>
         <div className="range-chips">

@@ -14,17 +14,17 @@ const top = (a) => [3, 2, 1].find((w) => shows(a.wounds[w - 1])) ?? 0;
 // reactive), then saved, then missed. Nothing for outcomes that can't happen.
 // 1, 2 and 3+ wounds take the face-to-face shades for three states (steps 3,
 // 5, 6), so the deepest is the most wounds here too.
-function AttackBar({a, side, height, labels = false}) {
+function AttackBar({a, side, thin = false, labels = false}) {
   const t = useT();
   const wounds = [3, 2, 1].map((w) => ({key: `w${w}`, chance: a.wounds[w - 1], bg: shade(side, w - 1, 3), ink: shadeInk(side, w - 1, 3),
     text: w === top(a) ? `${w}+` : `${w}`}));
   const rest = [
-    {key: 'saved', chance: a.saved, cls: 'seg-none', ink: 'var(--muted)', text: t('unopposed.saved')},
-    {key: 'miss', chance: a.miss, cls: 'seg-miss', ink: 'var(--muted)', text: t('unopposed.miss')},
+    {key: 'saved', chance: a.saved, cls: 'seg-none', text: t('unopposed.saved')},
+    {key: 'miss', chance: a.miss, cls: 'seg-miss', text: t('unopposed.miss')},
   ];
   const segs = (side === 'active' ? [...wounds, ...rest] : [...rest.reverse(), ...[...wounds].reverse()]).filter((x) => shows(x.chance));
   return (
-    <div className="bar" style={{height, borderRadius: height > 10 ? 7 : 3}}>
+    <div className={`bar attack-bar${thin ? ' thin' : ''}`}>
       {segs.map((x) => (
         <span key={x.key} className={x.cls ? `${x.cls} seg-l` : 'seg-l'} style={{width: `${100 * x.chance}%`, background: x.bg, color: x.ink}}>
           {labels && x.chance > 0.07 ? x.text : ''}
@@ -34,15 +34,15 @@ function AttackBar({a, side, height, labels = false}) {
   );
 }
 
-AttackBar.propTypes = {a: PropTypes.object.isRequired, side: PropTypes.string.isRequired, height: PropTypes.number.isRequired, labels: PropTypes.bool};
+AttackBar.propTypes = {a: PropTypes.object.isRequired, side: PropTypes.string.isRequired, thin: PropTypes.bool, labels: PropTypes.bool};
 
 // Card body: the two headline numbers, one thin bar per attack.
 export function UnopposedCardBody({s, h, choice}) {
   return (
     <>
       <Headline h={h} choice={choice} />
-      <AttackBar a={s.attacks.active} side="active" height={6} />
-      <AttackBar a={s.attacks.reactive} side="reactive" height={6} />
+      <AttackBar a={s.attacks.active} side="active" thin />
+      <AttackBar a={s.attacks.reactive} side="reactive" thin />
       <div className="split"><span>{h.small[0]}</span><span>{h.small[1]}</span></div>
     </>
   );
@@ -61,7 +61,7 @@ function AttackDetail({a, side, name, dice}) {
   return (
     <div className="attack">
       <div className={`ledger-top c-${side}`}><span>{t('unopposed.attack', {name})}</span><span>{dice}</span></div>
-      <AttackBar a={a} side={side} height={28} labels />
+      <AttackBar a={a} side={side} labels />
       <div className="pct-list">
         {rows.map(([k, p]) => <div key={k}><span>{k}</span><span>{pct(p)}</span></div>)}
         <div className="muted"><span>{t('headline.wpoLabel')}</span><span>{a.wpo.toFixed(2)}</span></div>

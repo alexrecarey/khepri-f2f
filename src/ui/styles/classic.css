@@ -2,6 +2,13 @@
 .dice { display: flex; gap: 2px; align-items: center; }
 .die { all: unset; box-sizing: border-box; cursor: pointer; width: 34px; height: 34px; display: grid; place-items: center; }
 .die svg { width: 30px; height: 30px; }
+/* Keyed on lit/unlit (ClassicScreen DiceInput), so the die tumbles in when it lights up. */
+.die-face { display: grid; }
+/* Burst 0, the reactive side's "no shot": apart from the row of dice, at its end. */
+.die.zero { margin-left: auto; width: 44px; }
+/* A caps label over its control: dice, ammunition, the classic results' bars. */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.classic-side { gap: 14px; }
 .stepper { display: flex; align-items: center; gap: 4px; padding: 10px 0; border-bottom: 1px solid var(--line-soft); }
 .stepper .name { font-size: 14px; flex-grow: 1; }
 .stepper .s { all: unset; box-sizing: border-box; cursor: pointer; width: 38px; height: 40px; display: grid; place-items: center; border-radius: 10px; background: var(--surface-3); font-family: var(--font-mono); font-size: 14px; color: var(--text-2); }

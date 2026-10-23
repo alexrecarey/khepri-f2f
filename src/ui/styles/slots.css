@@ -28,6 +28,9 @@
 .big.ready { font-size: 30px; }
 .big.xl.ready { font-size: 48px; }
 .skel { display: block; border-radius: 4px; background: var(--surface-2); }
+/* Stand-ins for the face to face bar and the wound bar. */
+.skel-f2f { height: 4px; }
+.skel-wounds { height: 40px; }
 .skel-list { display: flex; flex-direction: column; gap: 6px; }
 .skel-list .label { padding-top: 8px; }
 .skel-row { display: grid; grid-template-columns: 88px minmax(0, 1fr) 52px; gap: 8px; align-items: center; font-size: 14px; color: var(--text-3); }

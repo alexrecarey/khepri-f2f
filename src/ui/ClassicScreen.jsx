@@ -23,20 +23,20 @@ function DiceInput({value, max, min, onChange, color, label, zeroOption}) {
   const dice = [];
   for (let i = 1; i <= max; i++) dice.push(i);
   return (
-    <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
+    <div className="field">
       <span className="label">{label}</span>
       <div className="dice" role="group" aria-label={label}>
         {dice.map((n) => (
           <button type="button" key={n} className="die" aria-label={`${label} ${n}`} aria-pressed={n <= value}
             onClick={() => onChange(n === value ? Math.max(min, n - 1) : n)}>
             {/* Keyed on lit/unlit, so a die tumbles in when it lights up. */}
-            <span key={n <= value ? 'lit' : 'off'} className={n <= value ? 'tumble' : 'fade-in'} style={{display: 'grid'}}>
+            <span key={n <= value ? 'lit' : 'off'} className={`die-face ${n <= value ? 'tumble' : 'fade-in'}`}>
               <D20 fill={n <= value ? fill : 'var(--text)'} opacity={n <= value ? 1 : 0.25} />
             </span>
           </button>
         ))}
         {zeroOption && (
-          <button type="button" className="die" style={{marginLeft: 'auto', width: 44}} aria-pressed={value === 0}
+          <button type="button" className="die zero" aria-pressed={value === 0}
             aria-label={t('classic.burstZero')} onClick={() => onChange(value === 0 ? 1 : 0)}>
             <D20 fill={value === 0 ? fill : 'var(--faint)'} crossed />
           </button>
@@ -88,7 +88,7 @@ function ClassicSide({side, params, setParam}) {
   );
 
   return (
-    <section className="card" aria-label={t('classic.side', {side: t(`side.${color}`)})} style={{gap: 14}}>
+    <section className="card classic-side" aria-label={t('classic.side', {side: t(`side.${color}`)})}>
       <span className={`role ${color}`}>{sideLabel(t, side)}</span>
       <DiceInput label={t('classic.burst')} value={burst} min={side === 'B' ? 0 : 1} max={6} color={color} onChange={set('burst')}
         zeroOption={side === 'B'} />
@@ -106,7 +106,7 @@ function ClassicSide({side, params, setParam}) {
             onChange={(total) => dispatch({type: 'setClassicSave', side, which: 'bts', total})} />
         )}
       </div>
-      <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
+      <div className="field">
         <span className="label">{t('classic.ammunition')}</span>
         <div className="row-wrap">
           {CLASSIC_AMMO.map(([key, name]) => (

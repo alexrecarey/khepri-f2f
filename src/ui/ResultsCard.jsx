@@ -32,8 +32,8 @@ function SheetActions({save, onShare}) {
   return (
     <>
       {save && (
-        <button type="button" className="icon-btn sm" aria-pressed={save.saved} aria-label={save.saved ? t('results.unsave') : t('results.save')}
-          disabled={save.pending} onClick={save.toggle} style={{color: save.saved ? 'var(--active)' : undefined}}><BookmarkIcon filled={save.saved} /></button>
+        <button type="button" className={`icon-btn sm${save.saved ? ' on' : ''}`} aria-pressed={save.saved} aria-label={save.saved ? t('results.unsave') : t('results.save')}
+          disabled={save.pending} onClick={save.toggle}><BookmarkIcon filled={save.saved} /></button>
       )}
       <button type="button" className="icon-btn sm" aria-label={t('results.share')} onClick={() => onShare(t)}><ShareIcon /></button>
     </>
@@ -92,8 +92,8 @@ function WaitPanel({picked}) {
   return (
     <>
       <WaitRow picked={picked} size="xl" />
-      <div className="skel" style={{height: 4}} />
-      <div className="skel" style={{height: 40}} />
+      <div className="skel skel-f2f" />
+      <div className="skel skel-wounds" />
       <div className="skel-list">
         <span className="label c-active">{t('results.sideWins', {side: t('side.active')})} · —%</span>
         {rows('a', [t('results.atLeast', {count: 1}), t('results.atLeast', {count: 2}), t('results.atLeast', {count: 3}), t('results.allSaved')])}
@@ -128,7 +128,7 @@ function SheetTop({s, h, choice, classic, pending, status, picked, ui, view, onV
     return (
       <>
         <WaitRow picked={wait} />
-        <div className="bar rs-wbar" style={{background: 'var(--none)'}} />
+        <div className="bar rs-wbar blank" />
         <div className="split"><span>{waitMessage(wait, t)}</span></div>
       </>
     );
@@ -142,7 +142,7 @@ function SheetTop({s, h, choice, classic, pending, status, picked, ui, view, onV
       <PickBars view={view} onView={onView} pick={Boolean(pick && ui)}
         f2fBar={s && (!classic || h.kind === 'win') ? <F2FBar s={s} className="rs-f2f" /> : null}
         woundBar={s?.states ? <StateBar s={s} ui={ui} className="rs-wbar" />
-          : s ? <WoundBar summary={s} grow labels={classic} /> : <div className="bar rs-wbar" style={{background: 'var(--none)'}} />} />
+          : s ? <WoundBar summary={s} grow labels={classic} /> : <div className="bar rs-wbar blank" />} />
       <div className="split">
         {h ? <><span>{h.small[0]}</span><span>{h.small[1]}</span></> : <span>{status}</span>}
       </div>

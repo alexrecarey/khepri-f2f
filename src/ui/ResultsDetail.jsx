@@ -17,10 +17,10 @@ const woundsLabel = (w, top) => (w === top ? `${w}+` : `${w}`);
 
 // `grow`: the phone sheet's bar, sized by CSS from --open, its labels fading
 // in with it; else a fixed `height`, or none and `className` sizes it.
-export function WoundBar({summary, height, labels = false, grow = false, className = ''}) {
+export function WoundBar({summary, labels = false, grow = false, className = ''}) {
   const top = topWounds(summary, 'active');
   return (
-    <div className={`bar${grow ? ' rs-wbar' : ''}${className ? ` ${className}` : ''}`} style={grow || !height ? undefined : {height, borderRadius: height > 10 ? 8 : 3}}>
+    <div className={`bar${grow ? ' rs-wbar' : ''}${className ? ` ${className}` : ''}`}>
       {summary.bar.filter((s) => shows(s.chance)).map((s) => (
         <span key={`${s.side}${s.wounds}`} className={`${segClass(s)} seg-l`} style={{width: `${100 * s.chance}%`}}>
           <span className="lbl">
@@ -51,20 +51,20 @@ export function ClassicBody({s, woundBar = true}) {
   const big = (p) => p > 0.12;
   return (
     <>
-      <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
+      <div className="field">
         <span className="label">{t('results.faceToFace')}</span>
-        <div className="bar labelled" style={{height: 28, borderRadius: 7}}>
-          <span className="seg-a2" style={{width: `${100 * s.win.active}%`, color: 'var(--active-ink)'}}>{big(s.win.active) ? pct(s.win.active) : ''}</span>
+        <div className="bar labelled">
+          <span className="seg-a2" style={{width: `${100 * s.win.active}%`}}>{big(s.win.active) ? pct(s.win.active) : ''}</span>
           <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
-          <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`, color: 'var(--reactive-ink)'}}>{big(s.win.reactive) ? pct(s.win.reactive) : ''}</span>
+          <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`}}>{big(s.win.reactive) ? pct(s.win.reactive) : ''}</span>
         </div>
         <div className="split"><span>{t('results.sideWins', {side: t('side.active')})}</span><span>{t('classic.nobody', {p: pct(s.win.none)})}</span>
           <span>{t('results.sideWins', {side: t('side.reactive')})}</span></div>
       </div>
       {woundBar && (
-        <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
+        <div className="field">
           <span className="label">{t('classic.wounds')}</span>
-          <WoundBar summary={s} height={28} labels />
+          <WoundBar summary={s} className="classic-wounds" labels />
         </div>
       )}
       {ladder('active', 'seg-a', t('side.active'))}
@@ -98,7 +98,7 @@ export function Breakdown({s}) {
     ...s.atLeast[side].map((p, i) => row(t('results.atLeast', {count: i + 1}), p, `${cls}${i + 1}`)),
     row(t('results.allSaved'), s.saved[side], 'seg-none'),
   ];
-  const head = (text, cls, first) => <div className={`label ${cls}`} style={{padding: first ? '0 0 4px' : '14px 0 6px'}}>{text}</div>;
+  const head = (text, cls, first) => <div className={`label head${first ? ' first' : ''}${cls ? ` ${cls}` : ''}`}>{text}</div>;
   return (
     <div className="breakdown">
       {shows(s.win.active) && head(`${t('results.sideWinsRoll', {side: t('side.active')})} · ${pct(s.win.active)}`, 'c-active', true)}
@@ -107,7 +107,7 @@ export function Breakdown({s}) {
       {row(t('results.bothFail'), s.win.none, 'seg-none n')}
       {shows(s.win.reactive) && head(`${t('results.sideWinsRoll', {side: t('side.reactive')})} · ${pct(s.win.reactive)}`, 'c-reactive', false)}
       {shows(s.win.reactive) && ladder('reactive', 'seg-r')}
-      <span className="note" style={{paddingTop: 8}}>{t('results.overlapNote')}</span>
+      <span className="note overlap-note">{t('results.overlapNote')}</span>
     </div>
   );
 }

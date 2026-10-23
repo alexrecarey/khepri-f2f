@@ -25,20 +25,20 @@ export function Menu() {
   const savedCount = useAppState((s) => s.lists.saved.length);
   const item = (m, text) => (
     <button type="button" className="menu-item" onClick={() => dispatch({type: 'setMode', mode: m})} aria-pressed={mode === m}>
-      <span className="dot" style={{color: mode === m ? 'var(--active)' : 'var(--faint)'}}>{mode === m ? '●' : '○'}</span>
-      <span style={{flexGrow: 1, color: mode === m ? 'var(--text)' : 'var(--text-2)'}}>{text}</span>
+      <span className="dot">{mode === m ? '●' : '○'}</span>
+      <span className="menu-text">{text}</span>
       {mode === m && <span className="note">{t('menu.opensNextTime')}</span>}
     </button>
   );
   return (
     <Sheet onClose={back} label={t('menu.menu')}>
-      <nav aria-label={t('menu.appMenu')} style={{display: 'flex', flexDirection: 'column', margin: '-8px -8px 0'}}>
+      <nav className="menu-nav" aria-label={t('menu.appMenu')}>
         <button type="button" className="menu-item" onClick={() => open('saved')}>
-          <span className="menu-ic"><BookmarkIcon /></span><span style={{flexGrow: 1}}>{t('menu.savedRolls')}</span>
-          <span className="note" style={{fontSize: 14}}>{savedCount || ''}</span>
+          <span className="menu-ic"><BookmarkIcon /></span><span className="menu-text">{t('menu.savedRolls')}</span>
+          <span className="note menu-count">{savedCount || ''}</span>
         </button>
         <div className="menu-sep" />
-        <span className="label" style={{padding: '10px 14px 4px'}}>{t('menu.calculator')}</span>
+        <span className="label menu-section-label">{t('menu.calculator')}</span>
         {item(MODES.matchup, t('mode.matchup'))}
         {item(MODES.basic, t('menu.classicLong'))}
         <div className="menu-sep" />
@@ -48,7 +48,7 @@ export function Menu() {
         <button type="button" className="menu-item" onClick={() => open('about')}>
           <span className="menu-ic"><InfoIcon /></span><span>{t('about.title')}</span>
         </button>
-        <span className="note" style={{padding: '12px 14px 0', color: 'var(--faint)'}}>
+        <span className="note menu-version">
           {ARMY_DATE ? `${t('about.armyData')} ${ARMY_DATE} · ` : ''}v{VERSION}
         </span>
       </nav>
@@ -116,7 +116,7 @@ export function SettingsPage({factions}) {
           </label>
         ))}
       </div>
-      <span className="note" style={{padding: '0 12px'}}>{t('settings.headlineNotePhone')}</span>
+      <span className="note settings-note">{t('settings.headlineNotePhone')}</span>
       <div className="list-head">{t('settings.startingFactions')}</div>
       <StartFaction side="A" label={t('settings.activeSide')} factions={factions} />
       <StartFaction side="B" label={t('settings.reactiveSide')} factions={factions} />
@@ -126,11 +126,10 @@ export function SettingsPage({factions}) {
       <button type="button" className="line-btn" onClick={clearRecents(t)}>
         <span>{t('settings.clearRecents')}</span>
       </button>
-      <button type="button" className="line-btn" style={{color: 'var(--danger)'}}
-        onClick={clearSaved(t)}>
+      <button type="button" className="line-btn danger" onClick={clearSaved(t)}>
         <span>{t('settings.deleteSaved')}</span>
       </button>
-      <span className="note" style={{padding: '4px 12px'}}>{t('settings.savedOnDevice')}</span>
+      <span className="note settings-note foot">{t('settings.savedOnDevice')}</span>
     </Page>
   );
 }
