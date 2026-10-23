@@ -4,6 +4,7 @@
 // closed, so the bands never change length.
 import PropTypes from 'prop-types';
 import {ZONES, zoneName} from '../rules/visibility.js';
+import {render} from '../i18n/message.js';
 import {dispatch} from '../state/store.js';
 import {ZoneIcon} from './icons.jsx';
 import {useT} from './i18n.jsx';
@@ -15,7 +16,7 @@ const signed = (n) => `${n > 0 ? '+' : ''}${n}`;
 export function zoneText(v, t) {
   if (v.blocked) return ` · ${t('range.noLof')}`;
   return v.lines.map((l) => {
-    const name = zoneName(l.zone, t).toLocaleLowerCase(t.lang);
+    const name = render(t, zoneName(l.zone)).toLocaleLowerCase(t.lang);
     return l.ignoredBy ? ` · ${name} 0 (${l.ignoredBy})` : ` · ${name} ${signed(l.value)}`;
   }).join('');
 }
@@ -27,7 +28,7 @@ export function ZoneChips({zones, open}) {
       {ZONES.map((z) => (
         <button type="button" key={z} className={`range-chip${zones[z] ? ' on' : ''}`} aria-pressed={zones[z]} tabIndex={open ? 0 : -1}
           onClick={() => dispatch({type: 'setZone', zone: z, on: !zones[z]})}>
-          <ZoneIcon zone={z} />{zoneName(z, t)}
+          <ZoneIcon zone={z} />{render(t, zoneName(z))}
         </button>
       ))}
     </div>
@@ -41,7 +42,7 @@ ZoneChips.propTypes = {zones: PropTypes.object.isRequired, open: PropTypes.bool}
 export function ZoneMarks({zones, open}) {
   const t = useT();
   const on = ZONES.filter((z) => zones[z]);
-  const label = on.length === 1 ? t('range.zoneBetween', {zone: zoneName(on[0], t)})
+  const label = on.length === 1 ? t('range.zoneBetween', {zone: render(t, zoneName(on[0]))})
     : on.length ? t('range.bothBetween') : t('range.zones');
   return (
     <button type="button" className={`zone-marks${on.length ? ' on' : ''}`} aria-label={`${label}; ${t(open ? 'range.close' : 'range.open')}`}

@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import {isPseudo} from '../army/weapons.js';
 import {RANGE_BANDS, bandFrom, bandLabel} from '../rules/ranges.js';
 import {pseudoName} from '../rules/trooper.js';
+import {render} from '../i18n/message.js';
 import {dispatch, useAppState} from '../state/store.js';
 import {bandColor, signedMod as signed} from './bands.js';
 import RangeScale, {SplitChip} from './RangeScale.jsx';
@@ -40,7 +41,7 @@ function flipSwap(run) {
 const weaponName = (side, t) => {
   const w = side.resolved?.weapon;
   if (!w) return '—';
-  if (isPseudo(w)) return pseudoName(w, t);
+  if (isPseudo(w)) return render(t, pseudoName(w));
   return weaponText(w, t);
 };
 

@@ -8,8 +8,8 @@
 //   - DA wins over AP, AP over Shock;
 //   - Boarding Pistol always defaults to its Direct Template.
 // A weapon not listed falls back to the default-weapon keys (defaultWeapon.js).
-import {ammoName, isImpactTemplate} from '../army/weapons.js';
-import {tEn} from '../i18n/index.js';
+import {ammoMsg, isImpactTemplate} from '../army/weapons.js';
+import {list, term} from '../i18n/message.js';
 
 // 'Anti-materiel Mode', 'Anti-Material Mode', 'Antimaterial Mode' -> 'am';
 // otherwise the mode's first word: 'ap', 'shock', 'blast', 'hit', 'burst'...
@@ -53,20 +53,24 @@ export function orderModes(modes, role, fallback) {
   return [...modes].sort((a, b) => rank(a) - rank(b));
 }
 
-const ammoLabel = (w, t) => (w.row.ammo ?? ['N']).map((a) => ammoName(a, t)).join('+');
-// "Hit Mode" -> "Hit", "Modo Impacto" -> "Impacto": the mode in t's language
-// (the army's own translation), without the word for mode.
-const modeWord = (w, t) => t.term('modes', w.mode ?? '', w.id).replace(/ Mode$|^Modo /i, '');
+// The mode's ammo as the chart writes it: 'AP+DA'. Told apart in English:
+// two modes whose ammo reads the same read the same in any language.
+const ammoKey = (w) => (w.row.ammo ?? ['N']).map((a) => a.toUpperCase()).join('+');
+const ammoLabel = (w) => list((w.row.ammo ?? ['N']).map(ammoMsg), '+');
+// "Hit Mode" -> "Hit", "Modo Impacto" -> "Impacto": the mode in the player's
+// language (the army's own translation), without the word for mode.
+const modeWord = (w) => ({...term('modes', w.mode ?? '', w.id), strip: / Mode$|^Modo /i});
 
 // What each mode's button says: its ammo (DA, EXP, AP, Shock, AP+DA), so a
 // MULTI weapon reads [MULTI Rifle | AP | Shock | DA]. Where a mode is a
 // template the ammo doesn't tell them apart, so Hit / Blast stays; so does
 // the mode name if two modes would read the same, or one is a CC Mode.
-export function modeLabels(modes, t = tEn) {
+// Each label is a message descriptor (i18n/message.js).
+export function modeLabels(modes) {
   // A CC Mode next to a BS one (Vorpal, Kobra Pistol): "BS" / "CC" says
   // more than the ammo.
   const template = modes.some((w) => w.kind === 'template' || isImpactTemplate(w.row) || w.kind === 'cc');
-  const ammo = modes.map((w) => ammoLabel(w, t));
-  const clash = new Set(ammo).size < ammo.length;
-  return new Map(modes.map((w, i) => [w.key, template || clash ? modeWord(w, t) : ammo[i]]));
+  const keys = modes.map(ammoKey);
+  const clash = new Set(keys).size < keys.length;
+  return new Map(modes.map((w) => [w.key, template || clash ? modeWord(w) : ammoLabel(w)]));
 }

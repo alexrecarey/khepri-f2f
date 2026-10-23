@@ -7,7 +7,7 @@ import {equipExtra, hasEquip, hasSkill, skillExtra, skillExtras} from '../army/t
 import {ZERO_PAIN, canTarget} from '../army/hacking.js';
 import {attackAttribute, isCommsAttack, isImpactTemplate, isPseudo, isTemplate, parseWeaponMods, rolls} from '../army/weapons.js';
 import {ccOpposingMods, isCcAttack, naturalBornWarrior} from './closeCombat.js';
-import {tEn} from '../i18n/index.js';
+import {msg} from '../i18n/message.js';
 
 // A Success Value below 1 is an automatic failure (no roll can pass or crit):
 // it is clamped to 0, which the engine treats exactly that way. The same
@@ -78,13 +78,13 @@ export function ecmHackerMod(traits) {
 // each ({value, label, target}): the program's Attack MOD (Trinity +3) and
 // the target's ECM: Hacker (`target`: the target's). Firewall is every Comms
 // Attack's (firewallOf).
-export function programSvMods(x, y, t = tEn) {
+export function programSvMods(x, y) {
   if (x?.weapon?.kind !== 'program') return [];
   const {row} = x.weapon;
   const out = [];
   if (row.hack.attack) out.push({value: row.hack.attack, label: row.name, target: false});
   const ecm = y ? ecmHackerMod(y.traits) : 0;
-  if (ecm) out.push({value: ecm, label: t('equip.ecmHacker', {mod: ecm}), target: true});
+  if (ecm) out.push({value: ecm, label: msg('equip.ecmHacker', {mod: ecm}), target: true});
   return out;
 }
 
@@ -95,7 +95,7 @@ export const reaches = (x, y) => x?.weapon?.kind !== 'program' || canTarget(x.we
 const hasMsv = (traits) => hasEquip(traits, EQUIP.MSV1) || hasEquip(traits, EQUIP.MSV2) || hasEquip(traits, EQUIP.MSV3);
 // The attacker's Multispectral Visor as players write it, or null.
 const msvLevel = (traits) => (hasEquip(traits, EQUIP.MSV3) ? 3 : hasEquip(traits, EQUIP.MSV2) ? 2 : hasEquip(traits, EQUIP.MSV1) ? 1 : null);
-export const msvName = (traits, t = tEn) => (msvLevel(traits) ? t('equip.msv', {level: msvLevel(traits)}) : null);
+export const msvName = (traits) => (msvLevel(traits) ? msg('equip.msv', {level: msvLevel(traits)}) : null);
 
 // A bracketed negative MOD (Mimetism (-6), Albedo (-3)); -3 when the data
 // gives none.
@@ -308,7 +308,7 @@ export function evades(x, incoming) {
 //   negative MODs apply to its Dodge.
 // - y answers x's CC Attack with its own and has Natural Born Warrior: none
 //   of x's negative MODs apply either.
-export function opposingMods(x, y, xActive, t = tEn) {
+export function opposingMods(x, y, xActive) {
   if (!rollsDice(x) || !rollsDice(y)) return [];
   // A program that can't target the other trooper isn't rolled.
   if (!reaches(x, y) || !reaches(y, x)) return [];
@@ -317,30 +317,30 @@ export function opposingMods(x, y, xActive, t = tEn) {
   if (isPseudo(y.weapon) && !evades(y, x.weapon)) return [];
   // Zero Pain: -3 to the Comms Attack it evades.
   if (x.weapon.kind === 'reset') {
-    return x.weapon.zeroPain ? [{value: ZERO_PAIN.opponent, label: t('pseudo.zeroPainMod', {mod: ZERO_PAIN.opponent}), ignoredBy: null}] : [];
+    return x.weapon.zeroPain ? [{value: ZERO_PAIN.opponent, label: msg('pseudo.zeroPainMod', {mod: ZERO_PAIN.opponent}), ignoredBy: null}] : [];
   }
   if (x.weapon.kind === 'dodge') {
     const mod = isPseudo(y.weapon) ? 0 : dodgeExtras(x.traits).opponentMod;
-    return mod ? [{value: mod, label: t('skill.dodgeMod', {mod}), ignoredBy: null}] : [];
+    return mod ? [{value: mod, label: msg('skill.dodgeMod', {mod}), ignoredBy: null}] : [];
   }
-  const sixth = y.weapon.kind === 'dodge' && hasSixthSense(y) ? t('skill.sixthSenseDodge') : null;
-  const nbw = naturalBornWarrior(x, y) ? t('skill.naturalBornWarrior') : null;
+  const sixth = y.weapon.kind === 'dodge' && hasSixthSense(y) ? msg('skill.sixthSenseDodge') : null;
+  const nbw = naturalBornWarrior(x, y) ? msg('skill.naturalBornWarrior') : null;
   const out = [];
   if (isCcAttack(x)) {
-    for (const m of ccOpposingMods(x, t)) out.push({...m, ignoredBy: nbw ?? sixth});
+    for (const m of ccOpposingMods(x)) out.push({...m, ignoredBy: nbw ?? sixth});
   } else if (x.weapon.kind === 'program') {
     // A program's (or its upgrade's) Opp. MOD, Trinity (-3). BS Attack (-X) is for shots.
     const opp = x.weapon.mods.opponent ?? 0;
-    if (opp) out.push({value: opp, label: t('ledger.programMod', {program: x.weapon.row.name, mod: opp}), ignoredBy: sixth});
+    if (opp) out.push({value: opp, label: msg('ledger.programMod', {program: x.weapon.row.name, mod: opp}), ignoredBy: sixth});
   } else {
     const bs = bsAttackMod(x.traits);
-    if (bs) out.push({value: bs, label: t('skill.bsAttackMod', {mod: bs}), ignoredBy: hasSkill(y.traits, SKILL.WARHORSE) ? t('skill.warhorse') : sixth});
+    if (bs) out.push({value: bs, label: msg('skill.bsAttackMod', {mod: bs}), ignoredBy: hasSkill(y.traits, SKILL.WARHORSE) ? msg('skill.warhorse') : sixth});
   }
   const surprise = xActive && x.surpriseAttack ? surpriseAttackMod(x.traits) : 0;
   if (surprise) {
-    const ignoredBy = nbw ?? (hasSkill(y.traits, SKILL.COMBAT_INSTINCT) ? t('skill.combatInstinct')
-      : isCcAttack(x) && hasEquip(y.traits, EQUIP.MSV3) ? t('equip.msv', {level: 3}) : sixth);
-    out.push({value: surprise, label: t('skill.surpriseAttackMod', {mod: surprise}), ignoredBy});
+    const ignoredBy = nbw ?? (hasSkill(y.traits, SKILL.COMBAT_INSTINCT) ? msg('skill.combatInstinct')
+      : isCcAttack(x) && hasEquip(y.traits, EQUIP.MSV3) ? msg('equip.msv', {level: 3}) : sixth);
+    out.push({value: surprise, label: msg('skill.surpriseAttackMod', {mod: surprise}), ignoredBy});
   }
   return out;
 }

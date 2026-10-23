@@ -4,6 +4,7 @@
 // null, `save` / `saveRolls` describe the Saving Roll. Weapon properties are
 // the Army's strings, read only through the helpers below.
 import {tEn} from '../i18n/index.js';
+import {msg, render} from '../i18n/message.js';
 
 // Comms Attacks are rolled (the Jammer); the Technical Weapons among them
 // (Tohaa programs) are not modelled yet.
@@ -78,8 +79,10 @@ export const bioweaponAmmo = (row) => {
 export const bioweaponParts = (row) => bioweaponProp(row)?.match(/\(([^)]+)\)/)?.[1].split('+') ?? [];
 
 // Ammunition as players write it: DA, EXP, AP, T2, but Shock, Stun, Plasma
-// (src/i18n: ammo.*). Any other is shown as the data has it.
-export const ammoName = (a, t = tEn) => (t.has(`ammo.${a.toUpperCase()}`) ? t(`ammo.${a.toUpperCase()}`) : a);
+// (src/i18n: ammo.*). Any other is shown as the data has it. ammoMsg is the
+// descriptor (i18n/message.js), ammoName its text in t's language.
+export const ammoMsg = (a) => ({...msg(`ammo.${a.toUpperCase()}`), fallback: a});
+export const ammoName = (a, t) => render(t, ammoMsg(a));
 
 export const hasAmmo = (row, name) => (row?.ammo ?? []).some((a) => a.toUpperCase() === name.toUpperCase());
 
@@ -185,8 +188,9 @@ export function weaponLabel(row, mods) {
   const sd = mods.sd > 0 ? `+${mods.sd}SD` : '';
   // PARA: no PS, the target rolls PH-6.
   const dmg = row.save?.attr === 'PH' ? `PH${row.save.mod ?? ''}` : `PS${weaponPS(row, mods)}`;
-  // As players write it: "AP+EXP", not the data's "AP+Exp".
-  const ammo = ammoTypes(row, mods).map((a) => ammoName(a)).join('+') || 'N';
+  // As players write it: "AP+EXP", not the data's "AP+Exp". An English
+  // token, like the rest of the label (not shown: tests and rolls read it).
+  const ammo = ammoTypes(row, mods).map((a) => ammoName(a, tEn)).join('+') || 'N';
   return `${row.name}${modeSuffix(row.mode)} · B${burst}${sd} · ${dmg} · ${ammo}`;
 }
 

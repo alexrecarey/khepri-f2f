@@ -8,7 +8,7 @@ import {effectiveTraits, hasSkill, skillExtras} from '../army/traits.js';
 import {ammoTypes, bsWeapons, ccWeapons, hasAmmo, hasShockAmmo, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
 import {ccAttackSkill} from './closeCombat.js';
 import {bangbombValue, fireteamMax, fireteamSize, firewallMod} from './modifiers.js';
-import {tEn} from '../i18n/index.js';
+import {msg} from '../i18n/message.js';
 
 // What the trooper's BS Attack skill (profile, loadout or upgrade) does to
 // every weapon it makes a BS Attack with, templates and grenades included:
@@ -78,8 +78,9 @@ export function pseudoWeapons(traits, side = 'B') {
   return list;
 }
 
-// Name of a choice that is not a weapon: "Dodge", "Bangbomb", "Reset", "Zero Pain", "No ARO".
-export const pseudoName = (w, t = tEn) => t(`pseudo.${w.bangbomb ? 'bangbomb' : w.zeroPain ? 'zeroPain' : w.kind}`);
+// Name of a choice that is not a weapon: "Dodge", "Bangbomb", "Reset", "Zero
+// Pain", "No ARO" (a message descriptor, i18n/message.js).
+export const pseudoName = (w) => msg(`pseudo.${w.bangbomb ? 'bangbomb' : w.zeroPain ? 'zeroPain' : w.kind}`);
 
 // The Firewall chip's values (the MOD to the Comms Attack). The chip starts
 // on the trooper's own Firewall, off without one (Alex, 2026-10-22): `sel.firewall`

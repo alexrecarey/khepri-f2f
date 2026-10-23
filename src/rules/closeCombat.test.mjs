@@ -6,8 +6,13 @@ import assert from 'node:assert/strict';
 import {EQUIP, SKILL} from '../army/ids.js';
 import {effectiveTraits} from '../army/traits.js';
 import {bsWeapons, ccWeapons} from '../army/weapons.js';
-import {buildLedger} from './ledger.js';
-import {deriveInputs} from './matchup.js';
+import {ccAttackMods} from './closeCombat.js';
+import {buildLedger, renderDerived} from './ledger.js';
+import {deriveInputs as deriveRaw} from './matchup.js';
+
+// The rules word their notes and lines as message descriptors; these tests
+// read them in English (ledger.js renders them).
+const deriveInputs = (o) => renderDerived(deriveRaw(o));
 import {pseudoWeapons, trooperCcWeapons, trooperWeapons} from './trooper.js';
 
 // Rows in army.json form.
@@ -246,6 +251,8 @@ test('plain Berserk changes nothing on the roll', () => {
   const r = derive({active: x, reactive: trooper('cc')});
   assert.equal(r.inputs.successValueA, 15);
   assert.ok(r.ledger.A.sv.lines.some((l) => l.label === 'Berserk' && l.value === 0));
+  // ccAttackMods itself speaks in descriptors.
+  assert.deepEqual(ccAttackMods(x, true), [{value: 0, label: {key: 'skill.berserk'}}]);
 });
 
 test('MSV3 always ignores a CC Surprise Attack; MSV1 and MSV2 do not', () => {

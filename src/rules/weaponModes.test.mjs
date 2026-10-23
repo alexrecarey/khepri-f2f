@@ -3,6 +3,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {bsWeapons} from '../army/weapons.js';
+import {tEn} from '../i18n/index.js';
+import {render} from '../i18n/message.js';
 import {defaultWeapon, sortWeapons} from './defaultWeapon.js';
 import {MODE_ORDER, modeKey, modeLabels, orderModes} from './weaponModes.js';
 
@@ -37,7 +39,7 @@ test('the default weapon starts on the first mode: Boarding Pistol on its templa
 });
 
 test('mode buttons read the ammo, except next to a template', () => {
-  const labels = (id) => [...modeLabels(modesOf(id)).values()].sort();
+  const labels = (id) => [...modeLabels(modesOf(id)).values()].map((m) => render(tEn, m)).sort();
   assert.deepEqual(labels(36), ['AP', 'DA', 'Shock']);             // MULTI Sniper
   assert.deepEqual(labels(4), ['AP', 'EXP', 'Shock']);             // MULTI HMG: its AM mode is EXP
   assert.deepEqual(labels(30), ['AP+DA', 'EXP']);                  // Feuerbach

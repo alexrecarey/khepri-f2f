@@ -22,6 +22,7 @@ import {ZONES, zoneName} from '../rules/visibility.js';
 import {pseudoName} from '../rules/trooper.js';
 import {DEFAULT_RANGE_CM, EMPTY_SIDE, NO_ZONES} from './schema.js';
 import {tEn} from '../i18n/index.js';
+import {render} from '../i18n/message.js';
 
 const pct0 = (p) => `${Math.round(100 * p)}%`;
 const shortUnit = (unit) => shortIsc(unit.isc);
@@ -58,7 +59,7 @@ function chances(s) {
 
 function weaponShort(w, t) {
   if (!w) return '';
-  if (isPseudo(w)) return pseudoName(w, t);
+  if (isPseudo(w)) return render(t, pseudoName(w));
   // A CC Mode says so: "Kobra Pistol (CC)", not the same as its shot.
   return `${shortWeaponName(w.name, t.lang)}${w.kind === 'cc' && w.mode ? ` (${t('abbr.CC')})` : ''}`;
 }
@@ -102,7 +103,7 @@ const rangeText = (view, t) => {
   return view.rangeCmB == null ? bandAt(view.rangeCm, t) : `${bandAt(view.rangeCm, t)} / ${bandAt(view.rangeCmB, t)}`;
 };
 // Smoke / White Noise between them, by name.
-const zoneNames = (view, t) => ZONES.filter((z) => view.zones?.[z]).map((z) => zoneName(z, t));
+const zoneNames = (view, t) => ZONES.filter((z) => view.zones?.[z]).map((z) => render(t, zoneName(z)));
 
 // view: matchupView(); s: results/summary.js summarize(). The summary is saved as
 // text, in the language it was saved in.

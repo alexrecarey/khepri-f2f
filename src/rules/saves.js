@@ -1,9 +1,9 @@
 // What a hit does to its target: Ammunition, Immunity, Vulnerability, Shock.
 import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
-import {tEn} from '../i18n/index.js';
+import {list, msg, term} from '../i18n/message.js';
 import {
-  ammoName, ammoTypes, bioweaponAmmo, bioweaponProp, causesStunned, causesWounds, hasAmmo, hasContinuousDamage, hasShockAmmo,
+  ammoMsg, ammoTypes, bioweaponAmmo, bioweaponProp, causesStunned, causesWounds, hasAmmo, hasContinuousDamage, hasShockAmmo,
   isCommsAttack, isPlasma, saveAttribute, stateCaused,
 } from '../army/weapons.js';
 
@@ -64,29 +64,29 @@ export const hasNoEffect = (targetTraits, row) => Boolean(noEffectBy(targetTrait
 
 // What leaves this attack without effect, as the warning names it
 // ("Immunity (BTS)", "Warhorse"), or null.
-export function noEffectBy(targetTraits, row, t = tEn) {
-  const immune = (what) => t('skill.immunity', {what: t.term('extras', what)});
+export function noEffectBy(targetTraits, row) {
+  const immune = (what) => msg('skill.immunity', {what: term('extras', what)});
   const state = isCommsAttack(row) ? stateCaused(row) : null;
   const stopping = STATE_IMMUNITY[state];
   if (stopping && hasImmunity(targetTraits, stopping, row)) return immune(stopping);
-  if (state === 'Isolated' && hasSkill(targetTraits, SKILL.WARHORSE)) return t('skill.warhorse');
+  if (state === 'Isolated' && hasSkill(targetTraits, SKILL.WARHORSE)) return msg('skill.warhorse');
   const immunity = immunityAgainst(targetTraits, row);
   return immunity && !causesWounds(row) && !causesStunned(row) ? immune(immunity) : null;
 }
 
 // What the Immunity takes away from this attack, for the matchup note.
-export function immunityNote(immunity, row, mods, t = tEn) {
+export function immunityNote(immunity, row, mods) {
   const parts = [];
-  const ammo = ammoTypes(row, mods).map((a) => ammoName(a, t));
+  const ammo = ammoTypes(row, mods).map(ammoMsg);
   const bio = bioweaponProp(row);
-  if (bio) ammo.push(t.term('props', bio));
-  if (ammo.length > 0) parts.push(t('note.treatedAsN', {ammo: ammo.join('+')}));
+  if (bio) ammo.push(term('props', bio));
+  if (ammo.length > 0) parts.push(msg('note.treatedAsN', {ammo: list(ammo, '+')}));
   const traits = [];
-  if (row.save?.armZero) traits.push(t('save.armZero'));
-  if (hasContinuousDamage(row, mods)) traits.push(t('trait.continuousDamage'));
-  if (traits.length > 0) parts.push(t('note.ignored', {what: traits.join(', ')}));
+  if (row.save?.armZero) traits.push(msg('save.armZero'));
+  if (hasContinuousDamage(row, mods)) traits.push(msg('trait.continuousDamage'));
+  if (traits.length > 0) parts.push(msg('note.ignored', {what: list(traits)}));
   return parts.length > 0
-    ? t('note.targetImmunity', {what: t.term('extras', immunity), effect: parts.join('; ')}) : null;
+    ? msg('note.targetImmunity', {what: term('extras', immunity), effect: list(parts, '; ')}) : null;
 }
 
 // The engine's ammunition for this weapon against this target.

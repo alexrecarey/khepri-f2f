@@ -18,11 +18,11 @@ import {hasEquip, hasSkill} from '../army/traits.js';
 import {isPseudo, needsLof} from '../army/weapons.js';
 import {isCcAttack} from './closeCombat.js';
 import {hasSixthSense, msvName} from './modifiers.js';
-import {tEn} from '../i18n/index.js';
+import {msg} from '../i18n/message.js';
 
 export const ZONES = ['smoke', 'whiteNoise'];
-// A zone's name, in t's language.
-export const zoneName = (zone, t = tEn) => t(`zone.${zone}`);
+// A zone's name (a message descriptor).
+export const zoneName = (zone) => msg(`zone.${zone}`);
 // Poor Visibility Zone, and MSV1 shot at through Smoke.
 export const POOR_VISIBILITY_MOD = -6;
 export const MSV1_SMOKE_MOD = -3;
@@ -49,8 +49,8 @@ function zoneOn(zone, traits) {
 }
 
 // Why x ignores a zone that is on, for the ledger's struck line.
-function ignoredBy(zone, traits, t) {
-  return zone === 'smoke' ? msvName(traits, t) : t('zone.noMsv');
+function ignoredBy(zone, traits) {
+  return zone === 'smoke' ? msvName(traits) : msg('zone.noMsv');
 }
 
 // The zones that are on, from {smoke, whiteNoise}.
@@ -59,11 +59,12 @@ export const zonesOn = (zones) => ZONES.filter((z) => zones?.[z]);
 // Both sides' visibility through the zones: per side,
 //   blocked   the zone name that stops it attacking, or null
 //   lines     [{zone, value, label, ignoredBy}]: the MOD each zone puts on its
-//             attack roll; a struck line (ignoredBy) doesn't count
+//             attack roll; a struck line (ignoredBy) doesn't count. label and
+//             ignoredBy are message descriptors (i18n/message.js)
 //   mod       the MOD that counts (the sum of the lines that do), 0 without one
 // A side that can't see through a zone may still shoot back when the other
 // side attacks it AND can see. So if either side is blocked, nobody shoots.
-export function visibility(a, b, zones, t = tEn) {
+export function visibility(a, b, zones) {
   const on = zonesOn(zones);
   const empty = {blocked: null, lines: [], mod: 0};
   if (!on.length || !a || !b) return {A: empty, B: empty};
@@ -76,13 +77,13 @@ export function visibility(a, b, zones, t = tEn) {
   const side = (x, can, attacked) => {
     if (!attacks(x)) return empty;
     if (!can) return {blocked: fx(x).find(({fx: f}) => f && !f.sees).zone, lines: [], mod: 0};
-    const sixth = attacked && hasSixthSense(x) ? t('skill.sixthSense') : null;
+    const sixth = attacked && hasSixthSense(x) ? msg('skill.sixthSense') : null;
     const lines = fx(x).map(({zone, fx: f}) => {
-      const name = zoneName(zone, t);
-      if (!f) return {zone, value: 0, label: name, ignoredBy: ignoredBy(zone, x.traits, t)};
-      if (f.sees && !attacked) return {zone, value: f.notAttacked, label: t('zone.zeroVisibility', {zone: name}), ignoredBy: null};
+      const name = zoneName(zone);
+      if (!f) return {zone, value: 0, label: name, ignoredBy: ignoredBy(zone, x.traits)};
+      if (f.sees && !attacked) return {zone, value: f.notAttacked, label: msg('zone.zeroVisibility', {zone: name}), ignoredBy: null};
       const value = f.sees ? f.attacked : POOR_VISIBILITY_MOD;
-      return {zone, value, label: t('zone.poorVisibility', {zone: name}), ignoredBy: sixth};
+      return {zone, value, label: msg('zone.poorVisibility', {zone: name}), ignoredBy: sixth};
     });
     // Zones don't stack: the worst MOD applies, the other zone's is struck by it
     // (an MSV1 shot at in CC through Smoke and White Noise: -6, not -9).

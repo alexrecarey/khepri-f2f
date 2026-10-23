@@ -4,8 +4,10 @@
 //
 // A line is {value, label, by: 'A' | 'B' | null, struck?: reason, source?}:
 // `by` is whose skill, weapon or position caused it (the colour), `struck`
-// why it was cancelled. Only a live line counts: not struck, and its value a
+// why it was cancelled. `label`, `struck` and `source` are message
+// descriptors (i18n/message.js) or the army's own names; the ledger renders them. Only a live line counts: not struck, and its value a
 // number (a display-only line has a string: '—', '+', '').
+import {msg} from '../i18n/message.js';
 import {LIMITS, MOD_CAP, capMods} from './modifiers.js';
 
 export const line = (value, label, by, struck) => ({value, label, by, ...(struck ? {struck} : {})});
@@ -20,18 +22,18 @@ export const section = (lines, total = sum(lines)) => ({lines, total});
 export const modSum = (lines) => sum(live(lines).slice(1));
 
 // MODs over the cap: a line takes the excess off. Null when within it.
-export function capLine(lines, t) {
+export function capLine(lines) {
   const mods = modSum(lines);
   const capped = capMods(mods);
-  return capped === mods ? null : line(capped - mods, t('ledger.modCap', {cap: MOD_CAP[1]}), null);
+  return capped === mods ? null : line(capped - mods, msg('ledger.modCap', {cap: MOD_CAP[1]}), null);
 }
 
 // The Success Value stays within LIMITS: below 0 is 0 (the roll always fails
 // and can't crit), above the top it is capped. Null when within them.
-export function clampSv(lines, t) {
+export function clampSv(lines) {
   const [min, max] = LIMITS.successValue;
   const total = sum(lines);
-  if (total < min) return line(min - total, t('ledger.belowZero'), null);
-  if (total > max) return line(max - total, t('ledger.cappedAt', {max}), null);
+  if (total < min) return line(min - total, msg('ledger.belowZero'), null);
+  if (total > max) return line(max - total, msg('ledger.cappedAt', {max}), null);
   return null;
 }
