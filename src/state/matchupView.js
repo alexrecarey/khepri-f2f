@@ -9,7 +9,6 @@
 import {SKILL} from '../army/ids.js';
 import {extraLoadoutName, shortIsc, unitTag} from '../army/names.js';
 import {hasSkill} from '../army/traits.js';
-import {trooperPrograms} from '../army/hacking.js';
 import {isCommsAttack, isPseudo, stateCaused} from '../army/weapons.js';
 import {fullParams} from '../engine/params.js';
 import {defaultWeapon, sortWeapons} from '../rules/defaultWeapon.js';
@@ -19,7 +18,7 @@ import {fireteamHelps, surpriseAttackMod, targetedHelps} from '../rules/modifier
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {visibility} from '../rules/visibility.js';
 import {berserkMod, ccAlliesMax, hasBerserk, isCcAttack} from '../rules/closeCombat.js';
-import {pseudoWeapons, resolveSelection, trooperCcWeapons, trooperWeapons} from '../rules/trooper.js';
+import {resolveSelection, withWeapon} from '../rules/trooper.js';
 import {modeLabels, orderModes} from '../rules/weaponModes.js';
 import {woundStates} from '../rules/woundStates.js';
 import {ROLE} from './schema.js';
@@ -28,13 +27,14 @@ import {vanillaOf} from '../army/factions.js';
 import {tEn} from '../i18n/index.js';
 import {render} from '../i18n/message.js';
 
-// The weapon a side rolls with: its own pick, else the default for its role.
-export function effectiveWeaponKey(army, sel, side) {
-  if (sel.weaponKey) return sel.weaponKey;
-  const r = resolveSelection(army, sel);
-  if (!r?.option || !r.profile) return null;
-  const weapons = trooperWeapons(r.option, army.weapons, r.traits);
-  return defaultWeapon(weapons, ROLE[side])?.key ?? 'dodge';
+// A side resolved with the weapon it rolls: its own pick, else the default
+// for its role, picked from the lists the one resolution built. `sel` carries
+// that key (the default is derived here, never written to the document).
+function resolveSide(army, sel, side) {
+  const resolved = resolveSelection(army, sel, side);
+  if (sel.weaponKey) return {sel, resolved};
+  const key = resolved?.option && resolved.profile ? defaultWeapon(resolved.weapons, ROLE[side])?.key ?? 'dodge' : null;
+  return {sel: {...sel, weaponKey: key}, resolved: key ? withWeapon(resolved, key) : resolved};
 }
 
 // Weapon buttons in list order, a weapon's fire modes gathered into one group
@@ -71,35 +71,43 @@ function bandMod(resolved, to) {
 }
 
 // What a side card shows besides the selection: weapon buttons, which chips
-// apply, the trooper's names. Language-free: renderMatchup words the mode
-// labels and the Team-Ops options.
-function sideView(army, sel, side) {
-  const effective = {...sel, weaponKey: effectiveWeaponKey(army, sel, side)};
-  const resolved = resolveSelection(army, effective);
-  const weapons = resolved?.option ? trooperWeapons(resolved.option, army.weapons, resolved.traits) : [];
-  const ccWeapons = resolved?.option ? trooperCcWeapons(resolved.option, army.weapons, resolved.traits) : [];
-  const programs = resolved?.option ? trooperPrograms(resolved.traits, army.lang) : [];
-  const pseudo = resolved?.profile
-    ? pseudoWeapons(resolved.traits, side)
-    : [];
+// apply, the trooper's names. The side is resolveSide's result; `other` is
+// the other side's resolution, for what follows both picks. With no army (`resolved`
+// null) it is the empty side, so this is the one place that lists the fields.
+// Language-free: renderMatchup words the mode labels and the Team-Ops options.
+function sideView(army, side, {sel, resolved}, other) {
   const unit = resolved?.unit;
+  const weapons = resolved?.weapons ?? [];
+  const ccWeapons = resolved?.ccWeapons ?? [];
+  const programs = resolved?.programs ?? [];
+  const cc = isCcAttack(resolved);
+  // Reset and Zero Pain are buttons only against a Comms Attack (or once picked).
+  const hacked = isCommsAttack(other?.weapon?.row);
+  const pseudo = (resolved?.pseudo ?? []).filter((w) => w.kind !== 'reset' || hacked || sel.weaponKey === w.key);
   return {
-    sel: effective, resolved, weapons, ccWeapons, programs, pseudo,
+    sel, resolved, weapons, ccWeapons, programs, pseudo,
     // CC weapons and Hacking Programs are weapons like any other, after the BS ones.
     groups: weaponGroups([...weapons, ...ccWeapons, ...programs, ...pseudo], ROLE[side]),
+    cc,
+    // A side CC attacking may count allies in contact, as many as fit around
+    // the other side's base.
+    ccAlliesMax: cc ? ccAlliesMax(other) : 0,
     // No Cover: cover does nothing for it, so no Cover chip.
     noCover: hasSkill(resolved?.traits, SKILL.NO_COVER),
+    hacked,
     // Situation chips that follow the pick: Hacked for a Reset, IMM-A for a
-    // Dodge (Targeted follows both sides' picks: matchupView).
+    // Dodge. Targeted: while the other side's shot or program gains from it,
+    // or this side Resets (-3 to it).
     // Fireteam, only while the pick gets a bonus from it.
     fireteamChip: fireteamHelps(resolved),
+    targetedChip: targetedHelps(other) || (resolved?.weapon?.kind === 'reset' && !resolved.weapon.zeroPain),
     hackedChip: resolved?.weapon?.kind === 'reset',
     immAChip: resolved?.weapon?.kind === 'dodge',
     // Surprise Attack's MOD, offered only on the active side.
     surprise: side === 'A' ? surpriseAttackMod(resolved?.traits) : 0,
     // Berserk's MOD, offered only on the active side (a Long Skill) while it
     // has a CC weapon picked; null otherwise.
-    berserk: side === 'A' && isCcAttack(resolved) && hasBerserk(resolved.traits) ? {mod: berserkMod(resolved.traits)} : null,
+    berserk: side === 'A' && cc && hasBerserk(resolved.traits) ? {mod: berserkMod(resolved.traits)} : null,
     // Team-Ops: the chart and TacBall options, by label (the Army's, in
     // inches: renderMatchup puts them in the language's unit), for their chips.
     teamOps: resolved?.teamOps
@@ -115,11 +123,6 @@ function sideView(army, sel, side) {
   };
 }
 
-const EMPTY_VIEW_SIDE = (sel) => ({sel, resolved: null, weapons: [], ccWeapons: [], programs: [], pseudo: [], groups: [], cc: false, ccAlliesMax: 0, noCover: false,
-  hacked: false, fireteamChip: false, targetedChip: false, hackedChip: false, immAChip: false, surprise: 0, berserk: null, teamOps: null,
-  faction: null, vanilla: null, crest: null, short: null, loadout: null});
-
-
 // The reactive's own distance, or null while both share rangeCm.
 const rangeCmB = (matchup) => matchup.rangeCmB ?? null;
 
@@ -127,29 +130,18 @@ const rangeCmB = (matchup) => matchup.rangeCmB ?? null;
 // renderMatchup words. Memoised on (army, matchup) alone (useMatchupView.js).
 export function matchupCore(army, matchup) {
   const zones = {smoke: Boolean(matchup.smoke), whiteNoise: Boolean(matchup.whiteNoise)};
+  const hasSelection = Boolean(matchup.A.unitId || matchup.B.unitId);
+  // Each side resolved once; the views need both, for what follows the other
+  // side's pick.
+  const a = resolveSide(army, matchup.A, 'A');
+  const b = resolveSide(army, matchup.B, 'B');
+  const A = sideView(army, 'A', a, b.resolved);
+  const B = sideView(army, 'B', b, a.resolved);
   if (!army) {
-    return {ready: false, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones, A: EMPTY_VIEW_SIDE(matchup.A), B: EMPTY_VIEW_SIDE(matchup.B),
-      derived: null, params: null, ledger: null, bands: RANGE_BANDS.map((b) => ({to: b.to})),
-      hasSelection: Boolean(matchup.A.unitId || matchup.B.unitId), complete: false, targets: null};
-  }
-  const A = sideView(army, matchup.A, 'A');
-  const B = sideView(army, matchup.B, 'B');
-  // A side CC attacking may count allies in contact, as many as fit around
-  // the other side's base.
-  for (const [x, y] of [[A, B], [B, A]]) {
-    x.cc = isCcAttack(x.resolved);
-    // Targeted: while the other side's shot or program gains from it, or this
-    // side Resets (-3 to it).
-    x.targetedChip = targetedHelps(y.resolved) || (x.resolved?.weapon?.kind === 'reset' && !x.resolved.weapon.zeroPain);
-    x.ccAlliesMax = x.cc ? ccAlliesMax(y.resolved) : 0;
-    // Reset and Zero Pain are buttons only against a Comms Attack (or once picked).
-    x.hacked = isCommsAttack(y.resolved?.weapon?.row);
-    const shown = (w) => w.kind !== 'reset' || x.hacked || x.sel.weaponKey === w.key;
-    x.pseudo = x.pseudo.filter(shown);
-    x.groups = x.groups.filter((g) => shown(g.w));
+    return {ready: false, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones, A, B,
+      derived: null, params: null, ledger: null, bands: RANGE_BANDS.map((b) => ({to: b.to})), hasSelection, complete: false, targets: null};
   }
   const derived = deriveInputs({active: A.resolved, reactive: B.resolved, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones});
-  const hasSelection = Boolean(matchup.A.unitId || matchup.B.unitId);
   // Both sides fully chosen (unit through weapon) and the matchup is valid.
   const complete = Boolean(A.resolved?.weapon && B.resolved?.weapon && derived?.ok);
   const params = derived?.ok ? fullParams(derived.inputs) : null;
