@@ -1,7 +1,7 @@
-// What both screens do with the engine's result: summarize it once (results.js),
+// What both screens do with the engine's result: summarize it once (results/summary.js),
 // describe it for the saved-rolls list, and offer Save.
 import {useMemo} from 'react';
-import {summarize} from './results.js';
+import {summarize} from '../results/summary.js';
 import useSaveRoll from './useSaveRoll.js';
 
 // summaryOf(s): rolls.js matchupRollSummary / classicRollSummary for this

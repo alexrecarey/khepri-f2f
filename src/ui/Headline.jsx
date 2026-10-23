@@ -1,11 +1,11 @@
-// The results' big numbers: whichever headline the player chose (headline.js),
+// The results' big numbers: whichever headline the player chose (results/headline.js),
 // sliding to each new value, with dots between them for the three choices.
 // On the phone card a sideways swipe moves between them (useSheetGestures.js)
 // and the dots only show where you are; on the results panel they are buttons.
 import {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch} from '../state/store.js';
-import {HEADLINES} from './headline.js';
+import {HEADLINES} from '../results/headline.js';
 import {useT} from './i18n.jsx';
 import SlideNumber from './SlideNumber.jsx';
 import WpoRow from './WpoRow.jsx';

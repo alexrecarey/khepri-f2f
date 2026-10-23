@@ -6,7 +6,7 @@
 // the wound list would have said per outcome: who wins, and why.
 import PropTypes from 'prop-types';
 import {CRIT, MISS, breakdownParts, breakdownWins} from '../rules/bestDie.js';
-import {pct, shows} from './results.js';
+import {pct, shows} from '../results/summary.js';
 import {useT} from './i18n.jsx';
 
 const LABEL = {[MISS]: '✕', [CRIT]: 'C'};

@@ -36,6 +36,9 @@ engine-rs/     the engine's Rust source (f2f.py on icepool-rs); `yarn build:engi
                builds it into src/engine/wasm/ (engine-rs/README.md)
 src/state/     the state document: schema, pure reducer, store, URL / history /
                storage sync, and matchupView (what the Matchup screen shows)
+src/results/   the engine's result as the card shows it: summary.js (wounds per
+               order, the bars, the wound shades), headline.js (the big number);
+               pure, read by the UI and by the Worker's share card
 src/matchup/   share-link params for a matchup (matchupParams.js)
 src/share/     the share card a matchup link unfurls into (card.js): worked out by
                the Worker from the app's address (worker/setupCard.js, the same
@@ -45,14 +48,16 @@ src/search/    trooper search: build-time index (index.json) and the typo-tolera
                matcher; `yarn search-eval` scores it (docs/plans/search.md)
 src/i18n/      the app's copy per language (en.js, es.js) and t(); the rules
                word their notes and ledger lines with it too (docs/i18n.md)
-src/data/      loads the army data chunk; src/lib/ small shared helpers
+src/data/      loads the army data chunk; src/lib/ small shared helpers (clamp,
+               the other side) that more than one layer needs
 src/ui/        the app's screens: shell, Matchup, Classic, trooper picker,
                results card and sheet (design: docs/design-canvas/mobile-ux-redesign);
                styles in src/ui/styles, design tokens in tokens.css
 ```
 
 Dependencies point one way: `ui -> state -> rules -> army`, and everything that
-builds calculator params uses `engine/params.js`. Game rules live in
+builds calculator params uses `engine/params.js`. Nothing outside `src/ui/`
+imports from it (`src/layering.test.mjs` checks). Game rules live in
 `src/rules/` and `src/engine/calculate.js`; `f2f.py` only rolls dice: it gets
 final success values, bursts, save values and Saving Rolls per hit (see the top
 of the file) and returns the chance of each (winner, wounds).

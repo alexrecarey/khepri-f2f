@@ -1,3 +1,5 @@
+import {clamp} from '../lib/clamp.js';
+
 // The calculator's input: one flat object of calculator params, the same in
 // Basic mode, Matchup mode, share links, saved results and the CSV export.
 // Keys end in A (active) or B (reactive), plus a flag for a fixed-value roll.
@@ -7,7 +9,7 @@
 // stands for a Dodge, which wins the Face to Face Roll but causes no Saving
 // Rolls; NONE for an attack the target is immune to, rolled and opposed but
 // harmless.
-export const AMMO = ['N', 'DA', 'EXP', 'T2', 'PLASMA', 'DODGE', 'NONE'];
+export const AMMO_KEYS = ['N', 'DA', 'EXP', 'T2', 'PLASMA', 'DODGE', 'NONE'];
 
 // [min, max] of each numeric param, per side.
 export const LIMITS = {
@@ -54,14 +56,12 @@ export const PARAM_KEYS = Object.keys(PARAMS);
 
 export const DEFAULT_PARAMS = Object.fromEntries(PARAM_KEYS.map((k) => [k, PARAMS[k].default]));
 
-const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
-
 // One raw string (URL param) -> value, or undefined when it can't be read.
 function parseValue(spec, raw) {
   if (spec.type === 'int') return isNaN(Number(raw)) ? undefined : clamp(spec.limit, Number(raw));
   if (spec.type === 'bool') return raw.toLowerCase() === 'true';
   const upper = raw.toUpperCase();
-  return AMMO.includes(upper) ? upper : undefined;
+  return AMMO_KEYS.includes(upper) ? upper : undefined;
 }
 
 // Calculator params from URL search params; anything missing or unreadable

@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {AMMO, DEFAULT_PARAMS, PARAM_KEYS, fullParams, paramsKey, parseParams} from './params.js';
+import {AMMO_KEYS, DEFAULT_PARAMS, PARAM_KEYS, fullParams, paramsKey, parseParams} from './params.js';
 import {AMMO as AMMO_RULES, ENGINE_KEYS} from './calculate.js';
 
 const f2f = readFileSync(new URL('./f2f.py', import.meta.url), 'utf8');
@@ -18,7 +18,7 @@ test('f2f.py reads exactly the engine input', () => {
 });
 
 test('calculate.js knows exactly the calculator ammo', () => {
-  assert.deepEqual(Object.keys(AMMO_RULES).sort(), [...AMMO].sort());
+  assert.deepEqual(Object.keys(AMMO_RULES).sort(), [...AMMO_KEYS].sort());
 });
 
 test('parseParams: defaults, clamping, case and junk', () => {

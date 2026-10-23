@@ -1,7 +1,7 @@
-// Which big number the results card shows (ui/headline.js draws it): a
-// player pref, and also part of a Matchup address (url.js), so a link's
-// preview card shows what its sender saw, wherever it was copied from.
-export const HEADLINES = ['wpo', 'win', 'wound'];
+// Which big number the results card shows (results/headline.js works it
+// out): a player pref, and also part of a Matchup address (url.js), so a
+// link's preview card shows what its sender saw, wherever it was copied from.
+import {HEADLINES} from '../results/headline.js';
 
 // The stored pref, or the default for anything missing or unknown.
 export const headlineChoice = (prefs) => (HEADLINES.includes(prefs?.headline) ? prefs.headline : 'wpo');

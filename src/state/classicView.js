@@ -1,9 +1,8 @@
 // The classic calculator's rules: what each side's inputs show, and the save
 // it forces as one number. Pure; used by the reducer, the URL and the screen.
 import {LIMITS} from '../engine/params.js';
+import {clamp} from '../lib/clamp.js';
 import {other} from './schema.js';
-
-const clamp = ([min, max], n) => Math.min(max, Math.max(min, n));
 
 // Ammunition buttons, in order: [calculator ammo, its label's src/i18n key].
 export const CLASSIC_AMMO = [['N', 'ammo.N'], ['DA', 'ammo.DA'], ['EXP', 'ammo.EXP'], ['T2', 'ammo.T2'], ['PLASMA', 'classic.plasma'],

@@ -1,7 +1,8 @@
 // Run with: yarn test:js
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {headline, headlineChoice, nextHeadline} from './headline.js';
+import {headlineChoice} from '../state/headlines.js';
+import {headline, nextHeadline} from './headline.js';
 
 // The FinalPeek fixture's numbers (Squalos HMG vs Fennec Missile L.).
 const s = {

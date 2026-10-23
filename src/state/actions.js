@@ -1,10 +1,10 @@
 // Actions whose payload needs the army data. The reducer stays pure; these
 // work out the payload first and return a plain action to dispatch.
+import {vanillaOf} from '../army/factions.js';
 import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
 import {hasBerserk} from '../rules/closeCombat.js';
 import {resolveSelection, trooperWeapons} from '../rules/trooper.js';
-import {vanillaOf} from './matchupView.js';
 import {EMPTY_SIDE, other} from './schema.js';
 
 // A search hit -> a side's selection. The weapon the query matched ("fus ml")

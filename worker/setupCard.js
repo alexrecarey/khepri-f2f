@@ -10,10 +10,10 @@ import {matchupView} from '../src/state/matchupView.js';
 import {matchupShareCard} from '../src/state/rolls.js';
 import {NO_ZONES} from '../src/state/schema.js';
 import {stateFromUrl} from '../src/state/url.js';
-import {headline} from '../src/ui/headline.js';
+import {HEADLINES, headline} from '../src/results/headline.js';
 import {LINK_HEADLINE} from '../src/share/card.js';
-import {HEADLINES, HEADLINE_PARAM} from '../src/state/headlines.js';
-import {summarize} from '../src/ui/results.js';
+import {HEADLINE_PARAM} from '../src/state/headlines.js';
+import {summarize} from '../src/results/summary.js';
 
 // The card for search ("?mode=..") given the army data and the engine's
 // calculate, or null when it isn't a complete matchup.

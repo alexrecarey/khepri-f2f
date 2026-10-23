@@ -1,7 +1,7 @@
 // Run with: yarn test:js
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {shadeStep} from './results.js';
+import {shadeStep} from './summary.js';
 
 const steps = (n) => Array.from({length: n}, (_, i) => shadeStep(i, n));
 

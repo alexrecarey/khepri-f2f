@@ -4,7 +4,7 @@
 // the same place; the other bar fades.
 import {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
-import {pct} from './results.js';
+import {pct} from '../results/summary.js';
 import {useT} from './i18n.jsx';
 
 // Who wins the Face to Face Roll, as one thin bar.

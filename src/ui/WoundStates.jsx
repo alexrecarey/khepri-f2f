@@ -10,7 +10,7 @@
 import {useState, useSyncExternalStore} from 'react';
 import PropTypes from 'prop-types';
 import {StateGlyph} from './icons.jsx';
-import {pct, shows} from './results.js';
+import {pct, shows} from '../results/summary.js';
 import {useT} from './i18n.jsx';
 
 const ORDERS = 3;

@@ -252,7 +252,7 @@ export default {
   'about.rules': 'Rules',
   'about.app': 'App',
 
-  // Headline numbers (ui/headline.js)
+  // Headline numbers (results/headline.js)
   'headline.wpo': 'Wounds per order',
   'headline.wpoHint': 'Average wounds this order causes',
   'headline.win': 'Wins face to face',

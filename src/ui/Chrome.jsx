@@ -7,7 +7,8 @@ import {AUTO, LANGUAGES, browserLanguages, languageChoice, resolveLanguage} from
 import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, GearIcon, InfoIcon} from './icons.jsx';
 import {MODES} from '../state/modes.js';
-import {HEADLINES, headlineChoice} from './headline.js';
+import {HEADLINES} from '../results/headline.js';
+import {headlineChoice} from '../state/headlines.js';
 import {Page, Sheet} from './Sheet.jsx';
 import {Rich, useT} from './i18n.jsx';
 
