@@ -244,3 +244,92 @@ decision).
 - A Direct Template in a Fireteam ≥ 2 shows `−1 loadout / BS Attack` and
   `+1 Fireteam` SD lines that sum to 0.
 - The MOD-cap note isn't said for a Dodge or Reset that hits ±12.
+
+---
+
+# Round 3 (rulings and the leftovers, 2026-10-23)
+
+Alex ruled on the three parked questions and asked for the leftovers, the
+`Line` model and a type-check gate. Four steps, same ground rules; steps
+that change behaviour say exactly what the snapshot diff must show.
+
+## Step 6 — the three leftovers
+
+- `ui/Chrome.jsx` (202) and `ui/useSheetGestures.js` (218) under ~200
+  lines: `Chrome.jsx` splits by page (`Menu` + `Toast`; `SettingsPage` with
+  `StartFaction` / `LanguageSetting` / `clearRecents` / `clearSaved`;
+  `AboutPage` with `AboutIntro` / `AboutLinks` / `AboutContact` /
+  `CONTACT_EMAIL` / `VERSION` / `ARMY_DATE`) into `Menu.jsx`,
+  `SettingsPage.jsx`, `AboutPage.jsx` (keep every export name; update
+  importers, `DeskMenu.jsx` among them). `useSheetGestures.js`: the pointer
+  `tracker()` and the measurement helpers move to `sheetGestureMath.js`
+  (pure, testable); the hook keeps the effects. No behaviour change: style
+  snapshot and the interaction transcript identical.
+- `army/weapons.js` `weaponLabel` stops using `tEn`: the entry's `label`
+  becomes a Message (`list` of ammo descriptors and text), rendered where it
+  is shown (`WeaponButtons.jsx` `weaponText`/`weaponTitle`, `rolls.js`,
+  the desk picker, tests). `army/` then imports only `i18n/message.js`.
+  Ledger snapshot identical (it records groups' labels: render them in the
+  script, as it already does for `derived`).
+- `.search-label` (desk-picker.css) → the existing `.vh` class. Computed
+  values differ (clip vs. offscreen); the style snapshot diff must be that
+  one element only, and the screenshots identical.
+
+## Step 7 — the three rulings (behaviour changes)
+
+Each is a rule change: the fix, a deterministic test that fails without it,
+and a GAME_RULES.md line.
+
+- **Direct Template note, always.** `note.directTemplate` is said whenever
+  either side's pick is a Direct Template that isn't blocked by a zone,
+  whatever the other side does (shoots, Dodges, Resets, No ARO, can't
+  reach). Today it needs the reactive side to shoot. `shoots` leaves
+  `sideInputs` if nothing else reads it.
+- **No Fireteam SD line on a Direct Template.** A template gets no Special
+  Dice from its Fireteam (`attackBonuses` already gives it `sd: 0`), so
+  `sdLines` must not add the Fireteam's `+1` and the `−1 loadout / BS
+  Attack` that cancels it: the Fireteam SD line is for kind `'bs'` only.
+  The SD total is unchanged (0).
+- **MOD-cap note for every roll.** `note.modCap` is said whenever the cap
+  bites, a Dodge or Reset included; `svSection`'s `noted` flag goes.
+
+Ledger snapshot: the diff must be exactly (a) added `directTemplate` notes
+on matchups with a template where the reactive doesn't shoot, (b) removed
+`−1/+1` SD line pairs on templates in a Fireteam, (c) added `modCap` notes
+on capped Dodges/Resets; no `params` change anywhere. Count and list them
+in the report.
+
+## Step 8 — a `Line` that says what it is
+
+`Line.value` is `number | '—' | '+' | ''` and `live()` filters by `typeof`.
+New model: `value: number | null` (null: the line doesn't add up) and an
+optional `text` (`'—'`, `'+'`, `''`) for what the value column shows; `line()`
+keeps its signature for numbers, `mark(text, label, by, struck?)` builds a
+display-only line. `live()` filters `value !== null && !struck`. `Ledger.jsx`
+shows `text ?? signed(value)`. Readers of `l.value === '—'` (ledger tests,
+`attackSv`'s out-of-range line, the ammo lines) follow. Snapshot: the diff
+is exactly display-only lines gaining `value: null, text: …`; totals, labels
+and order unchanged. `types.js` `Line` updated.
+
+## Step 9 — strict type checking
+
+`yarn typecheck` = `tsc --noEmit` over `src/` and `worker/` (tests
+included), `checkJs` + `strict`, run by `yarn test` and CI. Dev
+dependencies: `typescript`, `@types/react`, `@types/react-dom`,
+`@types/node` (for the tests and scripts that import `node:*`); nothing
+else. `tsconfig.json` at the root (`allowJs`, `checkJs`, `strict`,
+`noEmit`, `module`/`moduleResolution` `nodenext` or `bundler` as Vite
+needs, `jsx: react-jsx`, `types` for Vite's `import.meta.env` and the
+`__PREVIEW__`/`__APP_VERSION__`/`__ARMY_DATE__` defines via a
+`src/env.d.ts`). The WASM glue (`src/engine/wasm/`) is generated: exclude
+it and give it a hand-written `.d.ts` next to it (`initSync`, `calculate`).
+Fix every diagnostic by making the JSDoc precise (`@param`, `@type`,
+typedefs in `types.js`, `@returns`), never by `any`, `// @ts-ignore` or
+`// @ts-expect-error` unless the value is genuinely untyped (army.json rows,
+which get a typedef of their known fields instead) — each exception gets a
+one-line reason. Expect the literal-widening cases the step-5 trial saw
+(`kind: string` vs the union, `Object.fromEntries` → `Params`, `clamp`'s
+tuple parameter, `win.none` assigned after the literal). No runtime change
+unless a diagnostic finds a real bug: then fix it with a test and say so.
+CI (`.github/workflows/*.yml`) runs `yarn test`, which now includes the
+check; confirm.
