@@ -16,7 +16,7 @@ import {deriveInputs as deriveRaw} from './matchup.js';
 const deriveInputs = (o) => renderDerived(deriveRaw(o));
 import {tEn} from '../i18n/index.js';
 import {render} from '../i18n/message.js';
-import {attackStat, dodgeSuccessValue, mimetismMod, surpriseAttackMod} from './modifiers.js';
+import {attackStat, mimetismMod, surpriseAttackMod} from './modifiers.js';
 import {rangeModFor} from './ranges.js';
 import {pseudoName, pseudoWeapons, resolveSelection, trooperCcWeapons, trooperWeapons} from './trooper.js';
 
@@ -1053,7 +1053,9 @@ test('a Success Value below 1 is an automatic failure (0), not a roll on 1', () 
   // BS 7 at 8-16" (+3), cover (-3) and Mimetism (-6) is exactly 1: still rolled.
   const one = side(profile({bs: 7}), combi, '1:');
   assert.equal(derive({active: one, reactive: target, rangeCm: 40}).inputs.successValueA, 1);
-  assert.equal(dodgeSuccessValue(profile({ph: 2}), {skills: []}, -6), 0);
+  // A Dodge too: PH 2 with Immobilized-A (-6) is 0, not -4.
+  const dodger = {...side(profile({ph: 2}), combi, 'dodge'), immA: true};
+  assert.equal(derive({active: shooter, reactive: dodger, rangeCm: 40}).inputs.successValueB, 0);
 });
 
 const bsAttackAP = {id: 201, name: 'BS Attack', extra: ['AP']};
@@ -1224,9 +1226,14 @@ test('MODs to a roll are capped at +/-12; Fireteam +1 BS is a MOD and counts', (
   // Fireteam +1 BS: -14, still capped at -12 (Alex, 2026-10-10).
   const ft4 = {...side(profile({bs: 14}), option([{id: 7, name: 'HMG'}]), '7:'), ftSize: 4};
   assert.equal(duel(ft4, side(mim6, combi, '1:', true), 20).inputs.successValueA, 2);
-  // Dodge: MODs cap at -12 and +12, Dodge (+6) included.
-  assert.equal(dodgeSuccessValue(profile({ph: 13}), {skills: []}, -15), 1);
-  assert.equal(dodgeSuccessValue(profile({ph: 13}), {skills: [{id: 40, name: 'Dodge', extra: ['+6']}]}, 9), 25);
+  // A Dodge's MODs cap at -12 too: PH 13, Immobilized-A (-6), BS Attack (-6)
+  // and Surprise Attack (-3) add up to -15, capped at -12: SV 1.
+  const ambusher = {...side(profile({bs: 14, skills: [{id: 201, name: 'BS Attack', extra: ['-6']}, {id: 191, name: 'Surprise Attack', extra: ['-3']}]}), combi, '1:'), surpriseAttack: true};
+  const dodger = {...side(profile({ph: 13}), combi, 'dodge'), immA: true};
+  assert.equal(duel(ambusher, dodger).inputs.successValueB, 1);
+  // Dodge (+6) is a MOD, PH=14 isn't: 14 + 6 and the Fireteam's +1 is 21.
+  const ft = {...side(profile({ph: 13, skills: [{id: 40, name: 'Dodge', extra: ['PH=14', '+6']}]}), combi, 'dodge'), ftSize: 3};
+  assert.equal(duel(side(profile({bs: 14}), combi, '1:'), ft).inputs.successValueB, 21);
 });
 
 test('Immunity (IMM-B / Isolated / POS) changes nothing: the calculator models no States', () => {
@@ -1242,11 +1249,12 @@ test('Immunity (IMM-B / Isolated / POS) changes nothing: the calculator models n
 const dodgeSkill = (...extra) => extra.map((e) => ({id: 40, name: 'Dodge', extra: [e]}));
 
 test('Dodge reads every bracketed value; movement ones change nothing', () => {
+  const dodgeSv = (skills) => duel(side(profile(), combi, '1:'), side(profile({ph: 10, skills}), combi, 'dodge')).inputs.successValueB;
   // Confessor-style: Dodge (+1") listed before Dodge (+3). Both read.
-  assert.equal(dodgeSuccessValue(profile({ph: 10}), {skills: dodgeSkill('+1"', '+3')}), 13);
-  assert.equal(dodgeSuccessValue(profile({ph: 10}), {skills: dodgeSkill('+2"')}), 10);
+  assert.equal(dodgeSv(dodgeSkill('+1"', '+3')), 13);
+  assert.equal(dodgeSv(dodgeSkill('+2"')), 10);
   // PH=11 and +3 together: replaced PH, then the MOD.
-  assert.equal(dodgeSuccessValue(profile({ph: 10}), {skills: dodgeSkill('PH=11', '+3')}), 14);
+  assert.equal(dodgeSv(dodgeSkill('PH=11', '+3')), 14);
 });
 
 test('Dodge (-3): the attacker takes -3 while the user Dodges; not its own Dodge', () => {

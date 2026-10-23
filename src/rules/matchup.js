@@ -5,7 +5,10 @@ import {ZERO_PAIN} from '../army/hacking.js';
 import {SKILL} from '../army/ids.js';
 import {upgradeRaising} from '../army/loadouts.js';
 import {hasSkill} from '../army/traits.js';
-import {attackAttribute, causesWounds, hasContinuousDamage, isCommsAttack, isNonLethal, needsLof, stateCaused, weaponPS} from '../army/weapons.js';
+import {
+  ammoMsg, ammoTypes, attackAttribute, bioweaponParts, causesWounds, hasContinuousDamage, isCommsAttack, isNonLethal, isPlasma, needsLof,
+  stateCaused, weaponPS,
+} from '../army/weapons.js';
 import {
   COVER_BS_MOD, COVER_SAVE_MOD, FIREWALL_SAVE_MOD, LIMITS, albedoMod, albedoValue, attackBonuses, attackStat, benefitsFromCover, coverBsMod,
   bangbombMod, bangbombValue, cancelsBangbomb, dodgeExtras, evades, fireteamBonuses, firewallOf, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst,
@@ -20,8 +23,8 @@ import {visibility, zoneName} from './visibility.js';
 import {
   calcAmmo, hasImmunity, hasNoEffect, immunityAgainst, immunityFor, immunityNote, noEffectBy, saveHalving, shockApplies, vulnerabilityTo,
 } from './saves.js';
-import {isSpecOps} from './trooper.js';
-import {ccAttackMods, ccBurst, ccSd, isCcAttack} from './closeCombat.js';
+import {bsAttackWeaponMods, isSpecOps} from './trooper.js';
+import {ccAttackMods, ccAttackSkill, ccBurst, ccSd, isCcAttack} from './closeCombat.js';
 import {distance, list, msg, side as about, term} from '../i18n/message.js';
 
 // The Immunities the rules here read, and Immunities to States the calculator
@@ -209,7 +212,7 @@ function attackInputs(x, y, rangeCm, side, ctx) {
     [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, sd.total),
     ...hit.inputs,
   };
-  return {inputs, lines: {kind: x.weapon.kind === 'template' ? 'template' : 'attack', sv, burst, sd}, ps: hit.ps};
+  return {inputs, lines: {kind: x.weapon.kind === 'template' ? 'template' : 'attack', sv, burst, sd, ammo: hit.ammo}, ps: hit.ps};
 }
 
 // A CC Attack (closeCombat.js): CC plus its own MODs and the opponent's,
@@ -235,7 +238,7 @@ function ccAttackInputs(x, y, side, ctx) {
     [`template${side}`]: false,
     ...hit.inputs,
   };
-  return {inputs, lines: {kind: 'attack', sv, burst, sd}, ps: hit.ps};
+  return {inputs, lines: {kind: 'attack', sv, burst, sd, ammo: hit.ammo}, ps: hit.ps};
 }
 
 // The PS of x's hits: the weapon's own, then BS Attack (SR-1 / SR-2) as its
@@ -251,9 +254,69 @@ function psLines(x, s) {
   return lines;
 }
 
+// The ammunition x fires with: the weapon's own first (N, EXP, AP+EXP,
+// Plasma...), then what the trooper adds, one line each with its source
+// (BS Attack (AP / T2 / Continuous Damage), the loadout's AP / T2 / Shock /
+// Viral). A target's immunity strikes the line it cancels. Lines are text
+// ('+' and a name), the total the ammo as players say it: "AP+CONT".
+// `plain` marks the N line, `cont` the Continuous Damage ones. `ammo`: the
+// calculator's ammunition for the hit (NONE: the target is immune to it).
+function ammoLines(x, s, ammo, contImmune) {
+  const o = other(s);
+  const {row, mods} = x.weapon;
+  const loadout = (l) => ({...l, source: msg('ledger.loadout')});
+  // What the trooper's skill adds: CC Attack for a CC weapon, else BS Attack.
+  const cc = isCcAttack(x) ? ccAttackSkill(x.traits) : null;
+  const bs = cc ? {ap: cc.ap, cont: cc.cont, t2: false} : bsAttackWeaponMods(x.traits);
+  const added = [];
+  // The chart's ammo, before the loadout and skills.
+  let own = ammoTypes(row).map((a) => a.toUpperCase());
+  if (mods.ammo && mods.ammo !== 'Viral') {
+    own = own.filter((a) => a !== mods.ammo.toUpperCase());
+    added.push(loadout(line('+', ammoMsg(mods.ammo), null)));
+  }
+  if (cc?.shock && own.includes('SHOCK')) {
+    own = own.filter((a) => a !== 'SHOCK');
+    added.push(line('+', msg('ammo.SHOCK'), s));
+  }
+  if (bs.t2 && own.includes('T2')) {
+    own = own.filter((a) => a !== 'T2');
+    added.push(line('+', msg('ammo.T2'), s));
+  }
+  if (mods.forceAP && !own.includes('AP')) {
+    added.push(bs.ap ? line('+', msg('ammo.AP'), s) : loadout(line('+', msg('ammo.AP'), null)));
+  }
+  const bio = mods.ammo === 'Viral' ? [] : bioweaponParts(row);
+  const contTag = msg('tag.contUpper');
+  const ownCont = (row.props ?? []).includes('Continuous Damage');
+  const base = [
+    ...(isPlasma(row) ? [msg('ammo.PLASMA')] : []),
+    ...bio.map(ammoMsg),
+    ...own.map(ammoMsg),
+    ...(ownCont ? [contTag] : []),
+  ];
+  if (mods.ammo === 'Viral') added.push(loadout(line('+', msg('ledger.viral'), null)));
+  if (mods.cont && !ownCont) {
+    const l = {...line('+', contTag, null), cont: true};
+    added.push(bs.cont ? {...l, by: s} : loadout(l));
+  }
+  // Plain N: ammoTypes lists no N, so nothing here is N.
+  const first = base.length ? {...line('', list(base, '+'), null), ...(ownCont && {cont: true})} : {...line('', msg('ammo.N'), null), plain: true};
+  // Immunity (Continuous Damage): the Trait goes, the hit stays.
+  const lines = [first, ...added].map((l) => (
+    contImmune && l.cont ? {...l, struck: msg('skill.immunity', {what: msg('trait.continuousDamage')})} : l));
+  if (ammo === 'NONE') lines.push(line('', msg('ledger.noEffectImmune'), o));
+  // N only counts when it's all there is: N with AP added is just "AP".
+  const kept = lines.filter((l) => !l.struck && l.by !== o);
+  const named = kept.filter((l) => !l.plain);
+  const total = ammo === 'NONE' ? msg('ledger.noEffect') : list((named.length ? named : kept).map((l) => l.label), '+');
+  return {lines, total};
+}
+
 // What x's hits do to y: PS, ammunition, Continuous Damage, Shock, with the
 // notes on Immunity and Vulnerability. The same for a shot and a CC Attack.
-// Returns the inputs and the PS lines (the save section's first lines).
+// Returns the inputs, the PS lines (the save section's first lines) and the
+// ammunition lines.
 function hitInputs(x, y, side, ctx) {
   const {say} = ctx;
   const {row, mods} = x.weapon;
@@ -268,6 +331,7 @@ function hitInputs(x, y, side, ctx) {
     [`cont${side}`]: !immunity && !contImmune && hasContinuousDamage(row, mods),
     [`shock${side}`]: shockApplies(row, y),
   };
+  const ammo = ammoLines(x, side, out[`ammo${side}`], contImmune);
   if (out[`shock${side}`]) say(side, 'note.shock');
   const state = stateCaused(row);
   if (state && !noEffect) say(side, 'note.stateCaused', {weapon: row.name, state: msg(`state.${state.toLowerCase()}`)});
@@ -280,7 +344,7 @@ function hitInputs(x, y, side, ctx) {
   const vulnerable = vulnerabilityTo(y?.traits, row);
   const lost = vulnerable && immunityFor(y.traits, row);
   if (lost) say(side, 'note.vulnerability', {vulnerable: term('extras', vulnerable), immunity: term('extras', lost)});
-  return {inputs: out, ps};
+  return {inputs: out, ps, ammo};
 }
 
 // A Dodge: one PH roll (Dodge MODs, Bangbomb, IMM-A and the Fireteam's +1 included,
@@ -490,6 +554,8 @@ function sideInputs(x, y, s, ctx) {
 //   burst, sd {lines, total}: Burst and Special Dice (not on a Reset)
 //   save      {lines, total}: the Saving Roll the other side makes against
 //             this side's hits, weapon PS + target ARM (attacks only)
+//   ammo      {lines, total}: the ammunition and where each part comes from
+//             (attacks only; total is text, "AP+CONT")
 //   reason    kind 'none': why a Dodge, Reset or program isn't rolled
 //   blockedZone   kind 'none': the Smoke / White Noise it can't see through
 // or null while the side has nothing to roll with.
