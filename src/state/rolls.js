@@ -14,6 +14,7 @@ import {ccAllies, usesBerserk} from '../rules/closeCombat.js';
 import {hackedResetMod, immADodgeMod} from '../rules/modifiers.js';
 import {RANGE_BANDS, bandLabel} from '../rules/ranges.js';
 import {shortIsc, shortWeaponName} from '../army/names.js';
+import {isPseudo} from '../army/weapons.js';
 import {DEFAULT_PARAMS} from '../engine/params.js';
 import {MODES} from './modes.js';
 import {classicAmmoKey} from './classicView.js';
@@ -57,9 +58,9 @@ function chances(s) {
 
 function weaponShort(w, t) {
   if (!w) return '';
-  if (w.pseudo) return pseudoName(w, t);
+  if (isPseudo(w)) return pseudoName(w, t);
   // A CC Mode says so: "Kobra Pistol (CC)", not the same as its shot.
-  return `${shortWeaponName(w.name, t.lang)}${w.cc && w.mode ? ` (${t('abbr.CC')})` : ''}`;
+  return `${shortWeaponName(w.name, t.lang)}${w.kind === 'cc' && w.mode ? ` (${t('abbr.CC')})` : ''}`;
 }
 
 // What a side's situation says, for the saved-rolls line and the share card.

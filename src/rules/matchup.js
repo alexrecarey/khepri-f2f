@@ -1,10 +1,10 @@
 // Matchup -> calculator params: applies the N5 rules to two resolved troopers
 // (rules/trooper.js resolveSelection) and returns the engine input with the
 // notes and warnings to show next to it.
-import {ZERO_PAIN, isHackingProgram} from '../army/hacking.js';
+import {ZERO_PAIN} from '../army/hacking.js';
 import {SKILL} from '../army/ids.js';
 import {hasEquip, hasSkill} from '../army/traits.js';
-import {causesWounds, hasContinuousDamage, isCommsAttack, isNonLethal, isTemplate, needsLof, stateCaused, weaponPS} from '../army/weapons.js';
+import {causesWounds, hasContinuousDamage, isCommsAttack, isNonLethal, isPseudo, needsLof, stateCaused, weaponPS} from '../army/weapons.js';
 import {
   COVER_SAVE_MOD, FIREWALL_SAVE_MOD, LIMITS, albedoMod, attackBonuses, attackStat, benefitsFromCover, capMods, clamp, coverBsMod, dodgeExtras,
   bangbombMod, dodgeSuccessValue, evades, fireteamBonuses, firewallOf, hasNanoscreen, ignoresCoverOnSaves, keepsAroBurst, mimetismMod,
@@ -93,7 +93,7 @@ function attackInputs(x, y, rangeCm, side, say, opposing = 0, visMod = 0) {
     : clamp(LIMITS.successValue, attackStat(x.profile, row) + modTotal);
 
   // Neurocinetics is for BS Attacks: a program keeps its Burst.
-  const neuro = !isHackingProgram(row);
+  const neuro = x.weapon.kind !== 'program';
   let burst = (row.burst ?? 1) + bonus.burst;
   if (side === 'B' && !keepsAroBurst(x)) burst = 1;
   if (side === 'B' && neuro) burst += neurocineticsAroBurst(x.traits);
@@ -189,10 +189,10 @@ function resetInputs(x, side, opposing = 0) {
 // evades) isn't rolled against it: the attack is a Normal Roll.
 function evadeInputs(x, side, opposing, incoming, say) {
   if (!evades(x, incoming)) {
-    say(side, x.weapon.pseudo === 'reset' ? 'note.resetOnlyComms' : 'note.dodgeNotComms', {weapon: incoming.row.name});
+    say(side, x.weapon.kind === 'reset' ? 'note.resetOnlyComms' : 'note.dodgeNotComms', {weapon: incoming.row.name});
     return noLofInputs(side);
   }
-  if (x.weapon.pseudo === 'reset') return resetInputs(x, side, opposing);
+  if (x.weapon.kind === 'reset') return resetInputs(x, side, opposing);
   return {...dodgeInputs(x, side, opposing, incoming), [`template${side}`]: false};
 }
 
@@ -214,7 +214,7 @@ function defenseInputs(y, incoming, side, dodging = false) {
   // Cover and Nanoscreen are against BS Attacks: nothing against a CC Attack.
   // A Comms Attack: Firewall's +3 instead, cover and Nanoscreen do nothing.
   const templateIncoming = ignoresCoverOnSaves(incoming?.row);
-  const ccIncoming = Boolean(incoming?.cc);
+  const ccIncoming = incoming?.kind === 'cc';
   const comms = isCommsAttack(incoming?.row);
   const coverSave = benefitsFromCover(y) && !templateIncoming && !ccIncoming && !comms ? COVER_SAVE_MOD : 0;
   const nanoSave = hasNanoscreen(y) && !ccIncoming && !comms ? COVER_SAVE_MOD : 0;
@@ -253,7 +253,7 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones, t = tE
   let incomplete = false;
   const a = active?.profile ? active : null;
   const b = reactive?.profile ? reactive : null;
-  const usesTemplate = (x) => Boolean(x?.weapon?.row && isTemplate(x.weapon.row));
+  const usesTemplate = (x) => x?.weapon?.kind === 'template';
   const aTemplate = usesTemplate(a);
   const bTemplate = usesTemplate(b);
   // BS Attack (-X) MODs on each side's roll.
@@ -269,9 +269,9 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones, t = tE
   if (a) {
     if (!a.weapon) {
       incomplete = true;
-    } else if (a.weapon.pseudo === 'dodge' || a.weapon.pseudo === 'reset') {
+    } else if (a.weapon.kind === 'dodge' || a.weapon.kind === 'reset') {
       Object.assign(inputs, evadeInputs(a, 'A', onA, vis.B.blocked ? null : b?.weapon, say));
-    } else if (a.weapon.pseudo) {
+    } else if (isPseudo(a.weapon)) {
       incomplete = true; // e.g. "No ARO" carried over; the active side needs a real choice
     } else if (attackStat(a.profile, a.weapon.row) <= 0) {
       sayTo(errors)('A', isCcAttack(a) ? 'error.noCcAttack' : 'error.noBsAttack');
@@ -286,16 +286,16 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones, t = tE
       Object.assign(inputs, attackInputs(a, b, rangeCm, 'A', say, onA, vis.A.mod));
       inputs.templateA = aTemplate;
     }
-    if (b?.weapon?.row) Object.assign(inputs, defenseInputs(a, b.weapon, 'A', a.weapon?.pseudo === 'dodge'));
+    if (b?.weapon?.row) Object.assign(inputs, defenseInputs(a, b.weapon, 'A', a.weapon?.kind === 'dodge'));
     else if (b) Object.assign(inputs, defenseInputs(a, null, 'A'));
   }
 
   if (b) {
     if (!b.weapon) {
       incomplete = true;
-    } else if (b.weapon.pseudo === 'dodge' || b.weapon.pseudo === 'reset') {
+    } else if (b.weapon.kind === 'dodge' || b.weapon.kind === 'reset') {
       Object.assign(inputs, evadeInputs(b, 'B', onB, vis.A.blocked ? null : a?.weapon, say));
-    } else if (b.weapon.pseudo === 'none') {
+    } else if (b.weapon.kind === 'none') {
       inputs.burstB = 0;
       inputs.bonusBurstB = 0;
       inputs.shockB = false;
@@ -315,7 +315,7 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones, t = tE
       // A Direct Template on either side: nothing is opposed, each attack is its own roll.
       if ((aTemplate || bTemplate) && !vis.A.blocked && !vis.B.blocked) say(null, 'note.directTemplate');
     }
-    if (a?.weapon?.row) Object.assign(inputs, defenseInputs(b, a.weapon, 'B', b.weapon?.pseudo === 'dodge'));
+    if (a?.weapon?.row) Object.assign(inputs, defenseInputs(b, a.weapon, 'B', b.weapon?.kind === 'dodge'));
     else if (a) Object.assign(inputs, defenseInputs(b, null, 'B'));
   }
 

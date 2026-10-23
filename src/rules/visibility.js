@@ -15,7 +15,7 @@
 // A No LoF attack (Jammer) ignores both zones.
 import {EQUIP, SKILL} from '../army/ids.js';
 import {hasEquip, hasSkill} from '../army/traits.js';
-import {needsLof} from '../army/weapons.js';
+import {isPseudo, needsLof} from '../army/weapons.js';
 import {isCcAttack} from './closeCombat.js';
 import {hasSixthSense, msvName} from './modifiers.js';
 import {tEn} from '../i18n/index.js';
@@ -31,7 +31,7 @@ export const ZERO_VISIBILITY_MOD = -6;
 
 // Is x's choice an attack? Any BS Attack, a Direct Template included (it
 // needs LoF too); not a Dodge or No ARO.
-const attacks = (x) => Boolean(x?.weapon?.row) && !x.weapon.pseudo;
+const attacks = (x) => Boolean(x?.weapon) && !isPseudo(x.weapon);
 
 // What one zone does to x: null (nothing), or {sees: false} (no LoF unless it
 // is attacked; then -6), or {sees: true, attacked, notAttacked} for MSV1 in

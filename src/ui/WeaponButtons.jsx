@@ -2,6 +2,7 @@
 // a weapon with several fire modes a group (name + one button per mode).
 import PropTypes from 'prop-types';
 import {shortWeaponName} from '../army/names.js';
+import {isPseudo} from '../army/weapons.js';
 import {dispatch} from '../state/store.js';
 import {pseudoName} from '../rules/trooper.js';
 import {useT} from './i18n.jsx';
@@ -12,7 +13,7 @@ import {useT} from './i18n.jsx';
 const modeText = (w, t) => (w.mode ? ` (${t.term('modes', w.mode, w.id).replace(/ Mode$|^Modo /i, '')})` : '');
 export const weaponText = (w, t) => `${shortWeaponName(w.name, t.lang)}${modeText(w, t)}`;
 const weaponTitle = (w, t) => `${w.name}${modeText(w, t)}`;
-const pick = (side, w) => dispatch({type: 'pickWeapon', side, key: w.key, cc: Boolean(w.cc), zoc: Boolean(w.zoc)});
+const pick = (side, w) => dispatch({type: 'pickWeapon', side, key: w.key, kind: w.kind, zoc: Boolean(w.zoc)});
 
 export default function WeaponButtons({side, groups, selected, color}) {
   const t = useT();
@@ -37,9 +38,9 @@ export default function WeaponButtons({side, groups, selected, color}) {
         </span>
       ) : (
         <button type="button" key={g.key} className={`btn${selected === g.w.key ? ` on ${color}` : ''}`}
-          aria-pressed={selected === g.w.key} title={g.w.pseudo ? undefined : weaponTitle(g.w, t)}
+          aria-pressed={selected === g.w.key} title={isPseudo(g.w) ? undefined : weaponTitle(g.w, t)}
           onClick={() => pick(side, g.w)}>
-          {g.w.pseudo ? pseudoName(g.w, t) : weaponText(g.w, t)}
+          {isPseudo(g.w) ? pseudoName(g.w, t) : weaponText(g.w, t)}
         </button>
       )))}
     </div>

@@ -87,9 +87,9 @@ test('CC weapons are in the weapon list; a CC Mode joins its weapon as a BS / CC
   const v = matchupView(army, {A: kobra, B: chaksa, rangeCm: 40});
   const g = v.A.groups.find((x) => x.id === 221);
   assert.deepEqual(g.modes.map((w) => g.labels.get(w.key)), ['BS', 'CC']);
-  assert.ok(v.A.groups.some((x) => x.w.cc && !x.modes));
+  assert.ok(v.A.groups.some((x) => x.w.kind === 'cc' && !x.modes));
   // The default stays a shot.
-  assert.equal(v.A.resolved.weapon.cc, undefined);
+  assert.equal(v.A.resolved.weapon.kind, 'bs');
 });
 
 test('Team-Ops chips: the chart and TacBall options show for Team-Ops troopers only', () => {
@@ -139,11 +139,11 @@ test('a Team-Ops Jammer: Reset shows against it, and its target can only be Isol
   const g = u.byFaction[f].groups.find((x) => /Heavy/i.test(x.isc));
   const A = {...EMPTY_SIDE, unitId: u.id, factionId: f, groupId: g.id, optionId: g.options[0].id, ball: u.upgrades.ball.findIndex((i) => i.label === 'Jammer')};
   const plain = matchupView(army, {A, B: chaksa, rangeCm: 20});
-  assert.ok(!plain.B.groups.some((x) => x.w?.pseudo === 'reset'), 'no Reset against a shot');
+  assert.ok(!plain.B.groups.some((x) => x.w?.kind === 'reset'), 'no Reset against a shot');
   const jam = plain.A.weapons.find((w) => w.name === 'Jammer');
   assert.ok(jam, 'the Jammer is a weapon button');
   const v = matchupView(army, {A: {...A, weaponKey: jam.key}, B: chaksa, rangeCm: 20});
-  assert.ok(v.B.groups.some((x) => x.w?.pseudo === 'reset'));
+  assert.ok(v.B.groups.some((x) => x.w?.kind === 'reset'));
   assert.deepEqual(v.targets.active.map((t) => t.label), ['Isolated']);
   assert.ok(!v.ledger.notes.some((n) => n.includes('Not rolled')));
   const reset = matchupView(army, {A: {...A, weaponKey: jam.key}, B: {...chaksa, weaponKey: 'reset'}, rangeCm: 20});

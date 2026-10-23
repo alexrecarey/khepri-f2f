@@ -11,6 +11,20 @@ const EXCLUDED_PROPS = new Set(['CC', 'CC Attack (+3)', 'Deployable', 'Perimeter
 
 export const isTemplate = (row) => (row?.props ?? []).some((p) => p.startsWith('Direct Template'));
 
+// What a weapon entry is, set once where it is built and switched on
+// everywhere else ({key, kind, ...}: bsWeapons / ccWeapons here,
+// army/hacking.js trooperPrograms, rules/trooper.js pseudoWeapons):
+//   bs        a BS Attack that is rolled (Impact Templates included: they roll)
+//   template  a Direct Template: hits without a roll
+//   cc        a CC Attack
+//   program   a Hacking Program (a Comms Attack rolled on WIP)
+//   dodge     Dodge (Bangbomb too), reset  Reset (Zero Pain too), none  No ARO
+export const WEAPON_KINDS = ['bs', 'template', 'cc', 'program', 'dodge', 'reset', 'none'];
+// A choice that is not a weapon.
+export const isPseudo = (w) => w?.kind === 'dodge' || w?.kind === 'reset' || w?.kind === 'none';
+// A choice that rolls dice: anything but a Direct Template or No ARO.
+export const rolls = (w) => w?.kind === 'bs' || w?.kind === 'cc' || w?.kind === 'program' || w?.kind === 'dodge' || w?.kind === 'reset';
+
 // Blast Mode weapons. The only Impact Template in the Army data is (Circular);
 // the pipeline stops if another shape appears (scripts/army-validate.mjs).
 export const isImpactTemplate = (row) => (row?.props ?? []).some((p) => p.startsWith('Impact Template'));
@@ -198,7 +212,8 @@ function loadoutWeapons(option, weapons, keep, cc) {
       const row = withAmmoExtra(base, mods);
       const key = `${w.id}:${row.mode ?? ''}`;
       if (out.some((x) => x.key === key)) continue;
-      out.push({key, id: w.id, name: row.name, mode: row.mode, row, mods, label: weaponLabel(row, mods), ...(cc && {cc: true}),
+      const kind = cc ? 'cc' : isTemplate(row) ? 'template' : 'bs';
+      out.push({key, kind, id: w.id, name: row.name, mode: row.mode, row, mods, label: weaponLabel(row, mods),
         ...(inZoneOfControl(row) && {zoc: true})});
     }
   }
@@ -208,5 +223,5 @@ function loadoutWeapons(option, weapons, keep, cc) {
 // BS-attack capable weapons of a loadout, one entry per firing mode.
 export const bsWeapons = (option, weapons) => loadoutWeapons(option, weapons, isBsAttackWeapon, false);
 
-// CC weapons of a loadout (CC Mode of a weapon with several), marked `cc`.
+// CC weapons of a loadout (CC Mode of a weapon with several), kind 'cc'.
 export const ccWeapons = (option, weapons) => loadoutWeapons(option, weapons, isCcWeapon, true);

@@ -8,7 +8,7 @@
 //   - DA wins over AP, AP over Shock;
 //   - Boarding Pistol always defaults to its Direct Template.
 // A weapon not listed falls back to the default-weapon keys (defaultWeapon.js).
-import {ammoName, isImpactTemplate, isTemplate} from '../army/weapons.js';
+import {ammoName, isImpactTemplate} from '../army/weapons.js';
 import {tEn} from '../i18n/index.js';
 
 // 'Anti-materiel Mode', 'Anti-Material Mode', 'Antimaterial Mode' -> 'am';
@@ -65,7 +65,7 @@ const modeWord = (w, t) => t.term('modes', w.mode ?? '', w.id).replace(/ Mode$|^
 export function modeLabels(modes, t = tEn) {
   // A CC Mode next to a BS one (Vorpal, Kobra Pistol): "BS" / "CC" says
   // more than the ammo.
-  const template = modes.some((w) => isTemplate(w.row) || isImpactTemplate(w.row) || w.cc);
+  const template = modes.some((w) => w.kind === 'template' || isImpactTemplate(w.row) || w.kind === 'cc');
   const ammo = modes.map((w) => ammoLabel(w, t));
   const clash = new Set(ammo).size < ammo.length;
   return new Map(modes.map((w, i) => [w.key, template || clash ? modeWord(w, t) : ammo[i]]));

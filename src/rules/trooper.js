@@ -70,16 +70,16 @@ export function trooperCcWeapons(option, weapons, traits) {
 // (state/matchupView.js). Zero Pain is a better Reset, for hackers that run it
 // (army/hacking.js): shown the same way.
 export function pseudoWeapons(traits, side = 'B') {
-  const list = [{key: 'dodge', pseudo: 'dodge'}];
-  if (bangbombValue(traits)) list.push({key: 'bangbomb', pseudo: 'dodge', bangbomb: true});
-  list.push({key: 'reset', pseudo: 'reset'});
-  if (hasZeroPain(traits)) list.push({key: 'zeroPain', pseudo: 'reset', zeroPain: true});
-  if (side === 'B') list.push({key: 'none', pseudo: 'none'});
+  const list = [{key: 'dodge', kind: 'dodge'}];
+  if (bangbombValue(traits)) list.push({key: 'bangbomb', kind: 'dodge', bangbomb: true});
+  list.push({key: 'reset', kind: 'reset'});
+  if (hasZeroPain(traits)) list.push({key: 'zeroPain', kind: 'reset', zeroPain: true});
+  if (side === 'B') list.push({key: 'none', kind: 'none'});
   return list;
 }
 
 // Name of a choice that is not a weapon: "Dodge", "Bangbomb", "Reset", "Zero Pain", "No ARO".
-export const pseudoName = (w, t = tEn) => t(`pseudo.${w.bangbomb ? 'bangbomb' : w.zeroPain ? 'zeroPain' : w.pseudo}`);
+export const pseudoName = (w, t = tEn) => t(`pseudo.${w.bangbomb ? 'bangbomb' : w.zeroPain ? 'zeroPain' : w.kind}`);
 
 // The Firewall chip's values (the MOD to the Comms Attack). The chip starts
 // on the trooper's own Firewall, off without one (Alex, 2026-10-22): `sel.firewall`

@@ -1,6 +1,7 @@
 // The shared distance between the two side cards, and the swap button.
 import {useEffect} from 'react';
 import PropTypes from 'prop-types';
+import {isPseudo} from '../army/weapons.js';
 import {RANGE_BANDS, bandFrom, bandLabel} from '../rules/ranges.js';
 import {pseudoName} from '../rules/trooper.js';
 import {dispatch, useAppState} from '../state/store.js';
@@ -39,7 +40,7 @@ function flipSwap(run) {
 const weaponName = (side, t) => {
   const w = side.resolved?.weapon;
   if (!w) return '—';
-  if (w.pseudo) return pseudoName(w, t);
+  if (isPseudo(w)) return pseudoName(w, t);
   return weaponText(w, t);
 };
 
