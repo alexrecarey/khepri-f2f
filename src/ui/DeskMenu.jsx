@@ -7,11 +7,11 @@ import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {
   ARMY_DATE, AboutContact, AboutIntro, AboutLinks, LanguageSetting, StartFaction, VERSION,
-  clearRecents, clearSaved, setHeadline,
+  clearRecents, clearSaved,
 } from './Chrome.jsx';
 import DeskDialog from './DeskDialog.jsx';
 import {HEADLINES, headline} from '../results/headline.js';
-import {headlineChoice} from '../state/headlines.js';
+import {headlineChoice, setHeadline} from '../state/headlines.js';
 import {useT} from './i18n.jsx';
 import {BookmarkIcon, GearIcon, InfoIcon} from './icons.jsx';
 import {summarize} from '../results/summary.js';
@@ -53,7 +53,7 @@ export function SettingsDialog({factions, results}) {
           <div className="ds-choices" role="radiogroup" aria-labelledby="ds-headline">
             {HEADLINES.map((c) => (
               <label key={c} className="ds-choice">
-                <input type="radio" name="headline" value={c} checked={choice === c} onChange={() => setHeadline(c)} />
+                <input type="radio" name="headline" value={c} checked={choice === c} onChange={() => dispatch(setHeadline(c))} />
                 <span className="radio-text"><span>{t(`headline.${c}`)}</span><span className="note">{t(`headline.${c}Hint`)}</span></span>
                 {s && <span className="val">{headline(s, c, results.params, null, t).text.active}</span>}
               </label>

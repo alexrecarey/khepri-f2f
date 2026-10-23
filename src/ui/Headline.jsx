@@ -6,11 +6,10 @@ import {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch} from '../state/store.js';
 import {HEADLINES} from '../results/headline.js';
+import {setHeadline} from '../state/headlines.js';
 import {useT} from './i18n.jsx';
 import SlideNumber from './SlideNumber.jsx';
 import WpoRow from './WpoRow.jsx';
-
-export const setHeadline = (choice) => dispatch({type: 'setPref', key: 'headline', value: choice});
 
 // The change since the last value, in the headline's own unit.
 const deltaText = (d, kind) => (kind === 'wpo' ? Math.abs(d).toFixed(2) : `${(100 * Math.abs(d)).toFixed(1)}%`);
@@ -59,7 +58,7 @@ function Dots({choice, buttons}) {
     <span className="hl-dots buttons" role="group" aria-label={t('headline.bigNumber')}>
       {HEADLINES.map((c) => (
         <button key={c} type="button" aria-pressed={c === choice} aria-label={t(`headline.${c}`)} title={t(`headline.${c}`)}
-          onClick={() => setHeadline(c)}><i className={c === choice ? 'on' : undefined} /></button>
+          onClick={() => dispatch(setHeadline(c))}><i className={c === choice ? 'on' : undefined} /></button>
       ))}
     </span>
   );

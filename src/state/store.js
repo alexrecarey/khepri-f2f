@@ -5,7 +5,7 @@ import {createStore} from '@tanstack/store';
 import {useSelector} from '@tanstack/react-store';
 import {reduce} from './reduce.js';
 import {initialState} from './schema.js';
-import {browserStorage, loadPersisted} from './storage.js';
+import {loadPersisted} from './storage.js';
 import {stateFromUrl} from './url.js';
 
 // First state: defaults, then what this device saved, then the URL (a share
@@ -25,8 +25,10 @@ export function bootState({search = '', storage = null} = {}) {
   };
 }
 
-const browser = typeof window !== 'undefined';
-export const store = createStore(browser ? bootState({search: window.location.search, storage: browserStorage()}) : initialState());
+// Starts on the defaults: importing this module reads no URL and no storage.
+// main.jsx boots it (bootStore) before the first render.
+export const store = createStore(initialState());
+export const bootStore = (from) => store.setState(() => bootState(from));
 
 export const getState = () => store.get();
 export const dispatch = (action) => store.setState((s) => reduce(s, action));

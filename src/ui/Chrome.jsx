@@ -8,7 +8,7 @@ import {dispatch, useAppState} from '../state/store.js';
 import {BookmarkIcon, GearIcon, InfoIcon} from './icons.jsx';
 import {MODES} from '../state/modes.js';
 import {HEADLINES} from '../results/headline.js';
-import {headlineChoice} from '../state/headlines.js';
+import {headlineChoice, setHeadline} from '../state/headlines.js';
 import {Page, Sheet} from './Sheet.jsx';
 import {Rich, useT} from './i18n.jsx';
 
@@ -62,7 +62,6 @@ const confirmThen = (ask, action, done) => (t) => () => {
 };
 export const clearRecents = confirmThen('settings.clearRecentsAsk', {type: 'clearRecents'}, 'settings.recentsCleared');
 export const clearSaved = confirmThen('settings.deleteSavedAsk', {type: 'clearSaved'}, 'settings.savedDeleted');
-export const setHeadline = (value) => dispatch({type: 'setPref', key: 'headline', value});
 
 // The faction each side's picker starts on: "Last used" or a vanilla army.
 export function StartFaction({side, label, factions, className}) {
@@ -111,7 +110,7 @@ export function SettingsPage({factions}) {
         {HEADLINES.map((c) => (
           <label key={c} className="setting radio">
             <input type="radio" name="headline" value={c} checked={headlineChoice(prefs) === c}
-              onChange={() => setHeadline(c)} />
+              onChange={() => dispatch(setHeadline(c))} />
             <span className="radio-text"><span>{t(`headline.${c}`)}</span><span className="note">{t(`headline.${c}Hint`)}</span></span>
           </label>
         ))}

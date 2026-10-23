@@ -3,11 +3,10 @@
 // headline, the best-die breakdown, the waiting-for state and the headline
 // swipe. One place, so the sheet and the panel can't drift apart.
 import {useMemo} from 'react';
-import {useAppState} from '../state/store.js';
-import {headlineChoice} from '../state/headlines.js';
+import {dispatch, useAppState} from '../state/store.js';
+import {headlineChoice, setHeadline} from '../state/headlines.js';
 import {headline, nextHeadline} from '../results/headline.js';
 import {faceToFaceBreakdown} from '../rules/bestDie.js';
-import {setHeadline} from './Headline.jsx';
 import {useT} from './i18n.jsx';
 
 // Before both troopers are picked: each side's number is its still, dimmed
@@ -35,6 +34,6 @@ export default function useResultsView({s, ledger, params, picked}) {
   const h = s ? headline(s, choice, params, ledger?.ledger, t) : null;
   const b = useBreakdown(s, ledger, params);
   const wait = waitingFor(picked);
-  const swipe = (step) => setHeadline(nextHeadline(choice, step));
+  const swipe = (step) => dispatch(setHeadline(nextHeadline(choice, step)));
   return {choice, h, b, wait, swipe};
 }

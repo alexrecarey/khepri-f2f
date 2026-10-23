@@ -6,5 +6,8 @@ import {HEADLINES} from '../results/headline.js';
 // The stored pref, or the default for anything missing or unknown.
 export const headlineChoice = (prefs) => (HEADLINES.includes(prefs?.headline) ? prefs.headline : 'wpo');
 
+// The action that sets it, from the Settings, the headline dots and the swipe.
+export const setHeadline = (choice) => ({type: 'setPref', key: 'headline', value: choice});
+
 // The address's key. Opening a link leaves the receiver's own pref alone.
 export const HEADLINE_PARAM = 'headline';
