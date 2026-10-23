@@ -16,7 +16,7 @@ import {calcAmmo, hasImmunity, hasNoEffect, immunityAgainst, immunityFor, immuni
 import {bsAttackWeaponMods} from './trooper.js';
 import {ccAttackSkill, isCcAttack} from './closeCombat.js';
 import {list, msg, term} from '../i18n/message.js';
-import {coverLabel, line, statLabel, sum} from './lines.js';
+import {coverLabel, line, mark, statLabel, sum} from './lines.js';
 
 // The PS of x's hits: the weapon's own, then BS Attack (SR-1 / SR-2) as its
 // own line: it is the attacker's skill, not the weapon's (MULTI HMG 5, then
@@ -34,8 +34,9 @@ export function psLines(x, s) {
 // The ammunition x fires with: the weapon's own first (N, EXP, AP+EXP,
 // Plasma...), then what the trooper adds, one line each with its source
 // (BS Attack (AP / T2 / Continuous Damage), the loadout's AP / T2 / Shock /
-// Viral). A target's immunity strikes the line it cancels. Lines are text
-// ('+' and a name), the total the ammo as players say it: "AP+CONT".
+// Viral). A target's immunity strikes the line it cancels. Lines are
+// display-only marks ('+' and a name, '' for the weapon's own), the total
+// the ammo as players say it: "AP+CONT".
 // `plain` marks the N line, `cont` the Continuous Damage ones. `ammo`: the
 // calculator's ammunition for the hit (NONE: the target is immune to it).
 export function ammoLines(x, s, ammo, contImmune) {
@@ -50,18 +51,18 @@ export function ammoLines(x, s, ammo, contImmune) {
   let own = ammoTypes(row).map((a) => a.toUpperCase());
   if (mods.ammo && mods.ammo !== 'Viral') {
     own = own.filter((a) => a !== mods.ammo.toUpperCase());
-    added.push(loadout(line('+', ammoMsg(mods.ammo), null)));
+    added.push(loadout(mark('+', ammoMsg(mods.ammo), null)));
   }
   if (cc?.shock && own.includes('SHOCK')) {
     own = own.filter((a) => a !== 'SHOCK');
-    added.push(line('+', msg('ammo.SHOCK'), s));
+    added.push(mark('+', msg('ammo.SHOCK'), s));
   }
   if (bs.t2 && own.includes('T2')) {
     own = own.filter((a) => a !== 'T2');
-    added.push(line('+', msg('ammo.T2'), s));
+    added.push(mark('+', msg('ammo.T2'), s));
   }
   if (mods.forceAP && !own.includes('AP')) {
-    added.push(bs.ap ? line('+', msg('ammo.AP'), s) : loadout(line('+', msg('ammo.AP'), null)));
+    added.push(bs.ap ? mark('+', msg('ammo.AP'), s) : loadout(mark('+', msg('ammo.AP'), null)));
   }
   const bio = mods.ammo === 'Viral' ? [] : bioweaponParts(row);
   const contTag = msg('tag.contUpper');
@@ -72,17 +73,17 @@ export function ammoLines(x, s, ammo, contImmune) {
     ...own.map(ammoMsg),
     ...(ownCont ? [contTag] : []),
   ];
-  if (mods.ammo === 'Viral') added.push(loadout(line('+', msg('ledger.viral'), null)));
+  if (mods.ammo === 'Viral') added.push(loadout(mark('+', msg('ledger.viral'), null)));
   if (mods.cont && !ownCont) {
-    const l = {...line('+', contTag, null), cont: true};
+    const l = {...mark('+', contTag, null), cont: true};
     added.push(bs.cont ? {...l, by: s} : loadout(l));
   }
   // Plain N: ammoTypes lists no N, so nothing here is N.
-  const first = base.length ? {...line('', list(base, '+'), null), ...(ownCont && {cont: true})} : {...line('', msg('ammo.N'), null), plain: true};
+  const first = base.length ? {...mark('', list(base, '+'), null), ...(ownCont && {cont: true})} : {...mark('', msg('ammo.N'), null), plain: true};
   // Immunity (Continuous Damage): the Trait goes, the hit stays.
   const lines = [first, ...added].map((l) => (
     contImmune && l.cont ? {...l, struck: msg('skill.immunity', {what: msg('trait.continuousDamage')})} : l));
-  if (ammo === 'NONE') lines.push(line('', msg('ledger.noEffectImmune'), o));
+  if (ammo === 'NONE') lines.push(mark('', msg('ledger.noEffectImmune'), o));
   // N only counts when it's all there is: N with AP added is just "AP".
   const kept = lines.filter((l) => !l.struck && l.by !== o);
   const named = kept.filter((l) => !l.plain);

@@ -40,9 +40,9 @@ function randomSide(side) {
 function checkSection(where, sec, expected) {
   if (!sec) return;
   assert.equal(sec.total, expected, `${where} total`);
-  const sum = sec.lines.filter((l) => !l.struck && typeof l.value === 'number').reduce((a, l) => a + l.value, 0);
-  // Out of range is a '—' line with Success Value 0, not a sum.
-  if (!sec.lines.some((l) => l.value === '—')) assert.equal(sum, sec.total, `${where} lines add up: ${JSON.stringify(sec.lines)}`);
+  const sum = sec.lines.filter((l) => l.value !== null && !l.struck).reduce((a, l) => a + l.value, 0);
+  // Out of range: Success Value 0 under a '—' mark, not the lines' sum.
+  if (!sec.lines.some((l) => l.text === '—')) assert.equal(sum, sec.total, `${where} lines add up: ${JSON.stringify(sec.lines)}`);
 }
 
 test('ledger totals match deriveInputs and are the sum of their lines', () => {
@@ -129,7 +129,7 @@ test('AMMO: the weapon\'s own ammo, then each addition with its source', () => {
   const ammo = (x) => {
     const derived = deriveInputs({active: x, reactive: target, rangeCm: 40});
     const a = buildLedger({active: x, reactive: target, rangeCm: 40, derived}).A.ammo;
-    return {lines: a.lines.map((l) => [l.value, l.label, l.by ?? l.source ?? null]), total: a.total};
+    return {lines: a.lines.map((l) => [l.text, l.label, l.by ?? l.source ?? null]), total: a.total};
   };
   // Bashi Bazouks: BS Attack (AP) adds AP, from the trooper.
   const bashi = ammo(side(325, 401, 1, 2));

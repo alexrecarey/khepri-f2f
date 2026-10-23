@@ -49,7 +49,7 @@ function trooper(key, {skills = [], weapons = LOADOUT, ...rest} = {}, over = {})
 }
 
 // What a section's live lines (not struck, a number) add up to.
-const addUp = (lines) => lines.filter((x) => !x.struck && typeof x.value === 'number').reduce((n, x) => n + x.value, 0);
+const addUp = (lines) => lines.filter((x) => x.value !== null && !x.struck).reduce((n, x) => n + x.value, 0);
 
 function derive(args) {
   const r = deriveInputs({rangeCm: 40, ...args});

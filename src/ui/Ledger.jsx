@@ -9,7 +9,8 @@ import {useT} from './i18n.jsx';
 
 // Lines are coloured by the side that caused them (.c-active / .c-reactive).
 const SIDE_CLASS = {A: 'c-active', B: 'c-reactive'};
-const signed = (v, first) => (typeof v !== 'number' || first || v === 0 ? `${v}` : `${v > 0 ? '+' : '−'}${Math.abs(v)}`);
+// The first line is the Attribute (no sign); a display-only line shows its text.
+const signed = (v, first) => (first || v === 0 ? `${v}` : `${v > 0 ? '+' : '−'}${Math.abs(v)}`);
 
 // lines: the section's lines; base: the source of the starting line ("profile",
 // the weapon) when no side caused it. tags: each side's trooper as the
@@ -32,7 +33,7 @@ function Section({title, lines, total, abbr, base, tags}) {
           const source = l.struck ? l.struck : l.source ?? (l.by ? tags[l.by] : i === 0 ? base : t('ledger.rule'));
           return (
             <div key={keyOf(l)} className={l.struck ? 'mods-row struck' : `mods-row${SIDE_CLASS[l.by] ? ` ${SIDE_CLASS[l.by]}` : ''}`}>
-              <span className="v">{signed(l.value, i === 0)}</span>
+              <span className="v">{l.text ?? signed(l.value, i === 0)}</span>
               <span className="l" title={l.label}>{l.label}</span>
               <span className="s">{source}</span>
             </div>

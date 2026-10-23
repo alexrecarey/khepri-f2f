@@ -5,21 +5,33 @@
 // A line (types.js Line) says whose skill, weapon or position caused it and
 // why it was cancelled, as message descriptors (i18n/message.js) or the
 // army's own names; the ledger renders them. Only a live line counts: not
-// struck, and its value a number (a display-only line has a string: '—',
-// '+', '').
+// struck, and its value a number. A display-only line (mark) has value null
+// and a `text` for the value column ('—' out of range, '+' an ammunition
+// part, '' the weapon's own ammunition): it says what it is instead of
+// being told apart by its type.
 import {msg} from '../i18n/message.js';
 import {benefitsFromCover, capMods, LIMITS, MOD_CAP} from './modifiers.js';
 import {upgradeRaising} from '../army/loadouts.js';
 
 /**
- * @param {number | string} value
+ * @param {number} value
  * @param {import('../types.js').Message} label
  * @param {'A' | 'B' | null} by
  * @param {import('../types.js').Message} [struck]
  * @returns {import('../types.js').Line}
  */
 export const line = (value, label, by, struck) => ({value, label, by, ...(struck ? {struck} : {})});
-export const live = (lines) => lines.filter((l) => !l.struck && typeof l.value === 'number');
+
+/**
+ * A display-only line: it shows `text` in the value column and adds nothing.
+ * @param {'—' | '+' | ''} text
+ * @param {import('../types.js').Message} label
+ * @param {'A' | 'B' | null} by
+ * @param {import('../types.js').Message} [struck]
+ * @returns {import('../types.js').Line}
+ */
+export const mark = (text, label, by, struck) => ({value: null, text, label, by, ...(struck ? {struck} : {})});
+export const live = (lines) => lines.filter((l) => l.value !== null && !l.struck);
 export const sum = (lines) => live(lines).reduce((t, l) => t + l.value, 0);
 
 /**
