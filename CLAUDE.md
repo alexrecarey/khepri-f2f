@@ -10,9 +10,9 @@ are in README.md ("How it's put together").
 ## Commands
 
 - Node 24 LTS (`.nvmrc`, Volta pin); `yarn` installs (yarn 3.3.0, zero-install cache in `.yarn/cache`)
-- `yarn test` — JS tests (`node --test` over src/ and worker/, including the WASM engine against
+- `yarn test` — type check + JS tests (`node --test` over src/ and worker/, including the WASM engine against
   engine.golden.json) + engine tests (pytest via uv: f2f.py and the golden file)
-- `yarn test:js` / `yarn test:engine` — one side only
+- `yarn typecheck` / `yarn test:js` / `yarn test:engine` — one part only (`typecheck` = `tsc --noEmit` over src/ and worker/, strict, JSDoc-typed; `tsconfig.json`)
 - `yarn build` — production build (CI runs this too)
 - `yarn build:engine` — rebuild src/engine/wasm/ from engine-rs/ (rustup + wasm-pack); commit the output.
   Only needed when engine-rs/ changes; a test fails if it changed without a rebuild
