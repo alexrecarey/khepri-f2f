@@ -4,6 +4,7 @@
 // (hmg, msr, gl) are generated automatically, so only add what they miss.
 // Add a line whenever someone searches for something reasonable and gets nothing.
 
+/** @type {Record<string, string[]>} */
 export const WEAPON_ALIASES = {
   'Missile Launcher': ['ml'],
   'Heavy Machine Gun': ['hmg'],
@@ -43,6 +44,7 @@ export const WEAPON_ALIASES = {
   'Nanopulser': ['nano'],
 };
 
+/** @type {Record<string, string[]>} */
 export const UNIT_ALIASES = {
   // 'Exact ISC from army.json': ['nickname'],
 };

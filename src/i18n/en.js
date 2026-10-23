@@ -1,6 +1,7 @@
 // English, the source of every other language (src/i18n/index.js). Keys are
 // flat; {name} is a placeholder; `_one` / `_other` are plural forms.
 // Game terms follow the N5 rules as Corvus Belli writes them.
+/** @type {Record<string, string>} */
 export default {
   // Sides
   'side.active': 'Active',

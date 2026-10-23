@@ -12,26 +12,44 @@ import {indexWords, initials, words} from './text.js';
 // short name beats one on its weapon.
 export const FIELD = {SHORT: 0, NAME: 1, LOADOUT: 2, WEAPON: 3, ALIAS: 4, SKILL: 5};
 
+/** @typedef {import('../types.js').IndexRow} IndexRow */
+/** @typedef {import('../types.js').TraitRef} TraitRef */
+
+/**
+ * @param {import('../types.js').Army} army
+ * @returns {import('../types.js').SearchIndex}
+ */
 export function buildIndex(army) {
   const factions = army.factions;
   // The calculator only deals in vanilla factions: a sectorial is folded into its parent.
+  /** @param {string | number} id */
   const vanillaOf = (id) => rootFaction(factions, id);
   const vanillas = Object.values(factions)
     .filter((f) => rootFaction(factions, f.id) === f.id)
     .map((f) => ({id: f.id, name: f.name}));
 
+  /** @type {IndexRow[]} */
   const rows = [];
+  /** @type {import('../types.js').IndexUnit[]} */
   const units = [];
   // Weapon id -> {name, words}: stored once, rows refer to weapons by id.
+  /** @type {import('../types.js').SearchIndex['weapons']} */
   const weapons = {};
   // Skills the same way: [{id, name, words}], rows refer to them by position.
+  /** @type {import('../types.js').SearchIndex['skills']} */
   const skills = [];
+  /** @type {Map<number, number>} */
   const skillIds = new Map();
   for (const unit of army.units) {
     const short = shortIsc(unit.isc);
+    /** @type {Map<string, number>} */
     const unitWords = new Map(); // word -> field
+    /**
+     * @param {string[]} list
+     * @param {number} field
+     */
     const add = (list, field) => {
-      for (const w of list) if (!unitWords.has(w) || unitWords.get(w) > field) unitWords.set(w, field);
+      for (const w of list) if (!unitWords.has(w) || /** @type {number} */ (unitWords.get(w)) > field) unitWords.set(w, field);
     };
     add(indexWords(short), FIELD.SHORT);
     add(UNIT_ALIASES[unit.isc] ?? [], FIELD.SHORT);
@@ -42,7 +60,9 @@ export function buildIndex(army) {
 
     // The same loadout reached through several sectorials of one vanilla is
     // one row; `factions` remembers which real faction to load it from.
+    /** @type {Map<string, IndexRow>} */
     const byKey = new Map();
+    /** @type {string | null} */
     let type = null;
     for (const [factionId, entry] of Object.entries(unit.byFaction)) {
       const vanilla = vanillaOf(factionId);
@@ -58,7 +78,7 @@ export function buildIndex(army) {
           if (!row) {
             row = makeRow(rows.length, army, unit, short, group, profile, option, unitWords, weapons, ({id, name}) => {
               if (!skillIds.has(id)) skillIds.set(id, skills.push({id, name, words: indexWords(name)}) - 1);
-              return skillIds.get(id);
+              return /** @type {number} */ (skillIds.get(id));
             });
             byKey.set(key, row);
             rows.push(row);
@@ -77,11 +97,13 @@ export function buildIndex(army) {
 // Lieutenant changes nothing on the table, so a Lieutenant loadout with the
 // same weapons, equipment and other skills as a plain one (points and SWC may
 // differ) is left out: the picker would list the same trooper twice.
+/** @param {import('../types.js').OptionRow} o */
 const kit = (o) => JSON.stringify([
   o.weapons.map((w) => w.id).sort(),
   (o.equip ?? []).map((e) => e.name).sort(),
   (o.skills ?? []).filter((s) => !isLieutenant(s)).map((s) => `${s.name}${(s.extra ?? []).join(',')}`).sort(),
 ]);
+/** @param {import('../types.js').OptionRow[]} options */
 export function lieutenantTwins(options) {
   const plain = new Set(options.filter((o) => !(o.skills ?? []).some(isLieutenant)).map(kit));
   return new Set(options.filter((o) => (o.skills ?? []).some(isLieutenant) && plain.has(kit(o))).map((o) => o.id));
@@ -90,7 +112,13 @@ export function lieutenantTwins(options) {
 // enName: the weapon's English name when the index is in another language;
 // the aliases are players' shorthand for the English names ("hmg"), which
 // they use in any language.
+/**
+ * @param {string} name
+ * @param {string} [enName]
+ * @returns {[string, number][]}
+ */
 function weaponWords(name, enName = name) {
+  /** @type {Map<string, number>} */
   const out = new Map();
   for (const w of indexWords(name)) out.set(w, FIELD.WEAPON);
   const init = initials(name);
@@ -99,6 +127,19 @@ function weaponWords(name, enName = name) {
   return [...out];
 }
 
+/**
+ * @param {number} id
+ * @param {import('../types.js').Army} army
+ * @param {import('../types.js').UnitRow} unit
+ * @param {string} short
+ * @param {import('../types.js').GroupRow} group
+ * @param {import('../types.js').ProfileRow | undefined} profile
+ * @param {import('../types.js').OptionRow} option
+ * @param {Map<string, number>} unitWords
+ * @param {import('../types.js').SearchIndex['weapons']} weapons
+ * @param {(skill: TraitRef) => number} skillId
+ * @returns {IndexRow}
+ */
 function makeRow(id, army, unit, short, group, profile, option, unitWords, weapons, skillId) {
   for (const w of option.weapons) weapons[w.id] ??= {name: w.name, words: weaponWords(w.name, army.weapons[w.id]?.[0]?.en)};
   // Loadout names are mostly the unit's name in capitals; keep only the words
@@ -107,6 +148,7 @@ function makeRow(id, army, unit, short, group, profile, option, unitWords, weapo
   // Kind nicknames ("tr bot") and searchable skills ride with the loadout
   // words: the skill can come with the loadout, not the unit (Probots, Mulebots).
   const skillIds = new Set([...(profile?.skills ?? []), ...(option.skills ?? [])].map((s) => s.id));
+  /** @param {string} w */
   const addWord = (w) => { if (!unitWords.has(w) && !loadoutWords.includes(w)) loadoutWords.push(w); };
   for (const k of KIND_ALIASES) {
     if (profile?.type === k.type && skillIds.has(k.skill)) k.words.forEach(addWord);
@@ -116,6 +158,7 @@ function makeRow(id, army, unit, short, group, profile, option, unitWords, weapo
     if (SEARCHABLE_SKILLS.includes(s.id)) indexWords(s.name).forEach(addWord);
   }
   // "+SD": a weapon or the BS Attack skill with Special Dice (reactive picks).
+  /** @param {string[] | undefined} extra */
   const sd = (extra) => (extra ?? []).some((e) => /^\+\d+SD$/.test(e));
   const skills = [...(profile?.skills ?? []), ...(option.skills ?? [])];
   if (option.weapons.some((w) => sd(w.extra)) || skills.some((k) => k.id === 201 && sd(k.extra))) addWord('sd');
@@ -141,7 +184,12 @@ function makeRow(id, army, unit, short, group, profile, option, unitWords, weapo
   };
 }
 
+/**
+ * @param {import('../types.js').ProfileRow | undefined} profile
+ * @param {import('../types.js').OptionRow} option
+ */
 const skillsOf = (profile, option) => [...(profile?.skills ?? []), ...(option.skills ?? [])];
 
 // For tests and the eval harness: the folded short name of a unit.
+/** @param {string} isc */
 export const foldedShort = (isc) => words(shortIsc(isc)).join(' ');

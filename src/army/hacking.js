@@ -19,6 +19,19 @@ const HACKABLE_OR_HACKER = [...HACKABLE_TYPES, 'Hacker'];
 // Roll. ps / burst / ammo: what a success does; the Saving Roll is BTS. state:
 // the State a failed save causes (null: a Wound each, Trinity). names: the
 // Army's own name in other languages.
+/**
+ * @typedef {object} Program
+ * @property {string} name
+ * @property {Record<string, string>} [names]
+ * @property {number} attack
+ * @property {number} opponent
+ * @property {number} ps
+ * @property {number} burst
+ * @property {string} ammo
+ * @property {string | null} state
+ * @property {string[] | null} targets
+ */
+/** @type {Record<string, Program>} */
 export const PROGRAMS = {
   carbonite: {name: 'Carbonite', names: {es: 'Carbonita'}, attack: 0, opponent: 0, ps: 7, burst: 2, ammo: 'DA',
     state: 'Immobilized-B', targets: HACKABLE_OR_HACKER},
@@ -35,6 +48,7 @@ export const ZERO_PAIN = {name: 'Zero Pain', burst: 2, opponent: -3};
 
 // What each Hacking Device runs (wiki, Hacking Device). EVO's programs are
 // all Supportware.
+/** @type {Record<number, string[]>} */
 const DEVICE_PROGRAMS = {
   [EQUIP.HACKING_DEVICE]: ['carbonite', 'spotlight', 'totalControl', 'oblivion'],
   [EQUIP.HACKING_DEVICE_PLUS]: ['carbonite', 'spotlight', 'totalControl', 'oblivion'],
@@ -51,18 +65,27 @@ const PROGRAM_BY_NAME = new Map(Object.entries(PROGRAMS).map(([id, p]) => [p.nam
 
 // The traits that carry programs and their upgrades: the Hacking Devices and
 // the Hacker skill.
+/** @param {import('../types.js').Traits | null | undefined} traits */
 const hackingTraits = (traits) => [
   ...(traits?.equip ?? []).filter((e) => e.id in DEVICE_PROGRAMS),
   ...(traits?.skills ?? []).filter((s) => s.id === SKILL.HACKER),
 ];
 
 // A program upgrade's MOD as the weapon extras write it: "+1 B" -> "+1B".
+/** @param {string} mod */
 const extraText = (mod) => mod.replace(/^\+(\d+) (B|SD)$/, '+$1$2');
 
 // Reads one MOD on a program into `mods`; false if it isn't one.
 //   +1B, +1SD, PS=6, AP   as on a weapon
 //   SR-1, SR-2            -1 / -2 to the target's Saving Rolls (the PS drops)
 //   -3                    a MOD to the opponent's Face to Face Roll
+/** A program's mods: a weapon's plus the MOD to the opponent's roll.
+ * @typedef {import('../types.js').WeaponMods & {opponent: number}} ProgramMods */
+
+/**
+ * @param {ProgramMods} mods
+ * @param {string} raw
+ */
 function addProgramMod(mods, raw) {
   const e = extraText(raw);
   let m;
@@ -73,10 +96,15 @@ function addProgramMod(mods, raw) {
   return true;
 }
 
+/**
+ * @param {ProgramMods} a
+ * @param {import('../types.js').WeaponMods} b
+ */
 function merge(a, b) {
   return {...a, burst: a.burst + b.burst, sd: a.sd + b.sd, ps: b.ps ?? a.ps, forceAP: a.forceAP || b.forceAP};
 }
 
+/** @returns {ProgramMods} */
 const NO_MODS = () => ({...parseWeaponMods([]), opponent: 0});
 
 // One extra on a device or the Hacker skill, as a list of items:
@@ -86,10 +114,16 @@ const NO_MODS = () => ({...parseWeaponMods([]), opponent: 0});
 //   "UPGRADES: Carbonite, Firewall (-3)"   several
 //   "Zero Pain", "UPGRADE: Zero Pain"      Zero Pain
 // Each item: {program, mod} | {zeroPain} | {mod} | {ignored} | {unread}.
+/** @typedef {{program?: string, mod?: string | null, zeroPain?: true, ignored?: true, unread?: string}} ExtraItem */
+/**
+ * @param {string} extra
+ * @returns {ExtraItem[]}
+ */
 function readExtra(extra) {
   const body = extra.replace(/^UPGRADES?:\s*/, '');
   return body.split(/,\s*/).map((item) => {
-    const m = /^(.+?)(?: \(([^)]+)\))?$/.exec(item.trim());
+    // The pattern matches any text: `.+?` can be the whole item.
+    const m = /** @type {RegExpExecArray} */ (/^(.+?)(?: \(([^)]+)\))?$/.exec(item.trim()));
     const [name, mod] = [m[1], m[2] ?? null];
     if (name === ZERO_PAIN.name) return {zeroPain: true};
     const program = PROGRAM_BY_NAME.get(name.toLowerCase());
@@ -100,20 +134,25 @@ function readExtra(extra) {
   });
 }
 
+/** @param {import('../types.js').Traits | null | undefined} traits */
 const items = (traits) => hackingTraits(traits).flatMap((t) => (t.extra ?? []).flatMap(readExtra));
 
 // Extras on a Hacking Device or the Hacker skill nothing here reads, for the
 // pipeline's check (scripts/army-validate.mjs).
+/** @param {string[] | null} [extra] */
 export const unreadHackingExtras = (extra = []) => (extra ?? []).filter((e) =>
   readExtra(e).some((i) => i.unread || (i.program && i.mod && !addProgramMod(NO_MODS(), i.mod))));
 
 // Can the trooper run Zero Pain?
+/** @param {import('../types.js').Traits | null | undefined} traits */
 export const hasZeroPain = (traits) => items(traits).some((i) => i.zeroPain);
 
 /**
  * The program as a weapon row: a Comms Attack with no LoF, a WIP roll, a BTS
  * Saving Roll (halved for AP, two for DA). `hack` carries what the rules read
  * that no weapon row has. `lang`: the army's language, for the name.
+ * @param {string} id a PROGRAMS key
+ * @param {string} [lang]
  * @returns {import('../types.js').WeaponRow}
  */
 export function programRow(id, lang = 'en') {
@@ -127,6 +166,7 @@ export function programRow(id, lang = 'en') {
   };
 }
 
+/** @param {import('../types.js').WeaponRow | null | undefined} row */
 export const isHackingProgram = (row) => Boolean(row?.hack);
 
 /**
@@ -134,6 +174,8 @@ export const isHackingProgram = (row) => Boolean(row?.hack);
  * builds them), in the chart's order: its devices' programs and the ones its
  * upgrades grant, with their MODs (a MOD on the device or "UPGRADE: SR-1"
  * goes on every program; the program's opponent MOD and its upgrade's add up).
+ * @param {import('../types.js').Traits | null | undefined} traits
+ * @param {string} [lang]
  * @returns {import('../types.js').WeaponEntry[]}
  */
 export function trooperPrograms(traits, lang = 'en') {
@@ -144,7 +186,7 @@ export function trooperPrograms(traits, lang = 'en') {
   return Object.keys(PROGRAMS).filter((id) => granted.has(id)).map((id) => {
     const row = programRow(id, lang);
     const mods = {...NO_MODS(), opponent: PROGRAMS[id].opponent};
-    for (const mod of [...general, ...list.filter((i) => i.program === id && i.mod).map((i) => i.mod)]) addProgramMod(mods, mod);
+    for (const mod of [...general, ...list.filter((i) => i.program === id && i.mod).map((i) => i.mod)]) addProgramMod(mods, /** @type {string} */ (mod));
     const key = `hack:${id}`;
     return {key, kind: 'program', id: key, name: row.name, mode: null, row, mods, label: weaponLabel(row, mods)};
   });
@@ -152,6 +194,10 @@ export function trooperPrograms(traits, lang = 'en') {
 
 // Can this program target `target` (a resolved side)? Its Troop Type or the
 // Hacker skill must be in the program's Target list; Spotlight hits anyone.
+/**
+ * @param {import('../types.js').WeaponRow | null | undefined} row
+ * @param {Pick<import('../types.js').ResolvedSide, 'profile' | 'traits'> | null | undefined} target
+ */
 export function canTarget(row, target) {
   const targets = row?.hack?.targets;
   if (!targets || !target?.profile) return true;

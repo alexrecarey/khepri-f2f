@@ -10,12 +10,19 @@ import {paramsKey} from './params.js';
 // setup that is no longer on screen.
 //
 // `status` is a message for the screen, as a src/i18n key and its params.
+/** Where the engine is at, as a src/i18n key and its params.
+ * @typedef {{key: string, params?: Record<string, unknown>}} EngineStatus */
+
+/**
+ * @param {import('../types.js').Params | null} params
+ * @returns {{result: import('../types.js').EngineResult | null, status: EngineStatus, pending: boolean}}
+ */
 export default function useEngine(params) {
-  const [result, setResult] = useState(null);
-  const [status, setStatus] = useState({key: 'engine.loading'});
+  const [result, setResult] = useState(/** @type {import('../types.js').EngineResult | null} */ (null));
+  const [status, setStatus] = useState(/** @type {EngineStatus} */ ({key: 'engine.loading'}));
   // A calculation is on its way: the old numbers stay up, shimmering.
   const [pending, setPending] = useState(params != null);
-  const workerRef = useRef(null);
+  const workerRef = useRef(/** @type {Worker | null} */ (null));
   const latest = useRef(0);
 
   useEffect(() => {

@@ -9,6 +9,10 @@ import {attackAttribute, isCommsAttack, isImpactTemplate, isPseudo, isTemplate, 
 import {ccOpposingMods, isCcAttack, naturalBornWarrior} from './closeCombat.js';
 import {msg} from '../i18n/message.js';
 
+/** @typedef {import('../types.js').Traits | null | undefined} MaybeTraits */
+/** @typedef {import('../types.js').ResolvedSide} ResolvedSide */
+/** @typedef {import('../types.js').WeaponRow | null | undefined} MaybeRow */
+
 // A Success Value below 1 is an automatic failure (no roll can pass or crit):
 // it is clamped to 0, which the engine treats exactly that way. The same
 // value stands for an attack out of range.
@@ -17,19 +21,24 @@ export {LIMITS};
 // "The sum total of the Modifiers applied to a Roll can never exceed +12 or
 // -12." Fireteam +1 BS is a MOD and counts; Dodge (PH=14) replaces the
 // Attribute and doesn't.
+/** @type {readonly [number, number]} */
 export const MOD_CAP = [-12, 12];
+/** @param {number} sum */
 export const capMods = (sum) => clamp(MOD_CAP, sum);
 
 // Direct and Impact (Blast mode) templates ignore cover's +3 to the Saving
 // Roll. The -3 BS MOD still applies to the attack roll.
+/** @param {MaybeRow} row */
 export const ignoresCoverOnSaves = (row) => isTemplate(row) || isImpactTemplate(row);
 
 // Units with the No Cover skill (TAGs, bikes, Redeye...) get nothing from cover.
+/** @param {ResolvedSide | null | undefined} side */
 export const benefitsFromCover = (side) => Boolean(side?.inCover) && !hasSkill(side?.traits, SKILL.NO_COVER);
 
 // Nanoscreen (wiki): -3 BS MOD on BS Attack Rolls against the user and +3 to
 // the user's Saving Rolls against BS Attacks, templates included. Treated as
 // the same MOD as cover, so the two do not stack.
+/** @param {ResolvedSide | null | undefined} side */
 export const hasNanoscreen = (side) => hasEquip(side?.traits, EQUIP.NANOSCREEN);
 
 // The BS MOD a target's cover or Nanoscreen imposes on this attacker (they
@@ -43,6 +52,11 @@ export const hasNanoscreen = (side) => hasEquip(side?.traits, EQUIP.NANOSCREEN);
 export const COVER_BS_MOD = -3;
 // Cover's (or Nanoscreen's) MOD to the target's Saving Rolls.
 export const COVER_SAVE_MOD = 3;
+/**
+ * @param {ResolvedSide | null | undefined} target
+ * @param {MaybeTraits} attackerTraits
+ * @param {MaybeRow} [row]
+ */
 export function coverBsMod(target, attackerTraits, row = null) {
   if (hasSkill(attackerTraits, SKILL.MARKSMANSHIP) || isCommsAttack(row)) return 0;
   const cover = benefitsFromCover(target) && !hasSkill(target?.traits, SKILL.LIMITED_COVER);
@@ -56,19 +70,22 @@ export function coverBsMod(target, attackerTraits, row = null) {
 // one applies: the player takes the best. 0 without one.
 export const FIREWALL_SAVE_MOD = 3;
 const FIREWALL_EXTRA = /\bFirewall \(?(-\d+)\)?/;
+/** @param {MaybeTraits} traits */
 export function firewallMod(traits) {
   const mods = [...(traits?.skills ?? []), ...(traits?.equip ?? [])].flatMap((t) => {
     if (t.id === EQUIP.TINBOT_FIREWALL) return (t.extra ?? []).map(Number).filter((n) => n < 0);
-    return (t.extra ?? []).map((e) => FIREWALL_EXTRA.exec(e)).filter(Boolean).map((m) => Number(m[1]));
+    return /** @type {RegExpExecArray[]} */ ((t.extra ?? []).map((e) => FIREWALL_EXTRA.exec(e)).filter(Boolean)).map((m) => Number(m[1]));
   });
   return mods.length > 0 ? Math.min(...mods) : 0;
 }
 
 // The Firewall a side benefits from: the Firewall chip (rules/trooper.js,
 // which starts on its own), else its own (firewallMod).
+/** @param {ResolvedSide | null | undefined} side */
 export const firewallOf = (side) => side?.firewall ?? firewallMod(side?.traits);
 
 // ECM: Hacker (-X): an enemy Hacking Program against the trooper takes -X.
+/** @param {MaybeTraits} traits */
 export function ecmHackerMod(traits) {
   const mod = Number(equipExtra(traits, EQUIP.ECM_HACKER));
   return Number.isFinite(mod) && mod < 0 ? mod : 0;
@@ -78,11 +95,18 @@ export function ecmHackerMod(traits) {
 // each ({value, label, target}): the program's Attack MOD (Trinity +3) and
 // the target's ECM: Hacker (`target`: the target's). Firewall is every Comms
 // Attack's (firewallOf).
+/**
+ * @param {ResolvedSide | null | undefined} x
+ * @param {ResolvedSide | null | undefined} y
+ * @returns {(import('../types.js').Mod & {target: boolean})[]}
+ */
 export function programSvMods(x, y) {
   if (x?.weapon?.kind !== 'program') return [];
   const {row} = x.weapon;
+  /** @type {(import('../types.js').Mod & {target: boolean})[]} */
   const out = [];
-  if (row.hack.attack) out.push({value: row.hack.attack, label: row.name, target: false});
+  // A program's row carries `hack` (army/hacking.js programRow).
+  if (/** @type {NonNullable<typeof row.hack>} */ (row.hack).attack) out.push({value: /** @type {NonNullable<typeof row.hack>} */ (row.hack).attack, label: row.name, target: false});
   const ecm = y ? ecmHackerMod(y.traits) : 0;
   if (ecm) out.push({value: ecm, label: msg('equip.ecmHacker', {mod: ecm}), target: true});
   return out;
@@ -90,26 +114,40 @@ export function programSvMods(x, y) {
 
 // Does x's attack reach y? A Hacking Program only hits its Target types
 // (army/hacking.js canTarget); anything else does.
+/**
+ * @param {ResolvedSide | null | undefined} x
+ * @param {ResolvedSide | null | undefined} y
+ */
 export const reaches = (x, y) => x?.weapon?.kind !== 'program' || canTarget(x.weapon.row, y);
 
+/** @param {MaybeTraits} traits */
 const hasMsv = (traits) => hasEquip(traits, EQUIP.MSV1) || hasEquip(traits, EQUIP.MSV2) || hasEquip(traits, EQUIP.MSV3);
 // The attacker's Multispectral Visor as players write it, or null.
+/** @param {MaybeTraits} traits */
 const msvLevel = (traits) => (hasEquip(traits, EQUIP.MSV3) ? 3 : hasEquip(traits, EQUIP.MSV2) ? 2 : hasEquip(traits, EQUIP.MSV1) ? 1 : null);
+/** @param {MaybeTraits} traits */
 export const msvName = (traits) => (msvLevel(traits) ? msg('equip.msv', {level: msvLevel(traits)}) : null);
 
 // A bracketed negative MOD (Mimetism (-6), Albedo (-3)); -3 when the data
 // gives none.
+/** @param {string | null} extra */
 const bracketMod = (extra) => {
   const mod = Number(extra);
   return Number.isFinite(mod) && mod < 0 ? mod : -3;
 };
 // The printed MOD of a target's Mimetism / Albedo, 0 without it.
+/** @param {MaybeTraits} traits */
 export const mimetismValue = (traits) => (hasSkill(traits, SKILL.MIMETISM) ? bracketMod(skillExtra(traits, SKILL.MIMETISM)) : 0);
+/** @param {MaybeTraits} traits */
 export const albedoValue = (traits) => (hasEquip(traits, EQUIP.ALBEDO) ? bracketMod(equipExtra(traits, EQUIP.ALBEDO)) : 0);
 
 // Albedo (wiki): an enemy with a Multispectral Visor or Marksmanship who
 // declares a BS Attack requiring LoF against the bearer applies the bracketed
 // MOD (-3 / -6). Not applied to CC. Other attackers are unaffected.
+/**
+ * @param {MaybeTraits} targetTraits
+ * @param {MaybeTraits} attackerTraits
+ */
 export function albedoMod(targetTraits, attackerTraits) {
   if (!hasMsv(attackerTraits) && !hasSkill(attackerTraits, SKILL.MARKSMANSHIP)) return 0;
   return albedoValue(targetTraits);
@@ -117,6 +155,10 @@ export function albedoMod(targetTraits, attackerTraits) {
 
 // Mimetism (-3) / (-6) against the attacker's Multispectral Visor:
 // MSV1 cancels 3 of it (-3 -> 0, -6 -> -3); MSV2 and MSV3 cancel it all.
+/**
+ * @param {MaybeTraits} targetTraits
+ * @param {MaybeTraits} attackerTraits
+ */
 export function mimetismMod(targetTraits, attackerTraits) {
   const value = mimetismValue(targetTraits);
   if (!value) return 0;
@@ -133,6 +175,10 @@ export const FIRETEAM_MAX = 5;
 // The largest fireteam a trooper can be in: army.json's unit.fireteam, the
 // most generous team it reaches in any army's chart (src/army/fireteams.js).
 // FTO loadouts may go further than the unit's other loadouts. 1 = none.
+/**
+ * @param {import('../types.js').UnitRow | null | undefined} unit
+ * @param {import('../types.js').OptionRow | null | undefined} option
+ */
 export function fireteamMax(unit, option) {
   const ft = unit?.fireteam;
   if (!ft) return 1;
@@ -141,23 +187,30 @@ export function fireteamMax(unit, option) {
 }
 
 // A size the trooper can actually have: above its max it drops to the max.
+/**
+ * @param {number | null | undefined} size
+ * @param {number} max
+ */
 export const fireteamSize = (size, max) => (max >= FIRETEAM_MIN ? Math.min(size ?? 1, max) : 1);
 
 // Sixth Sense, from the skill or a Fireteam of 5. In N5 it doesn't touch
 // Surprise Attack (that moved to Combat Instinct); what matters here is that a
 // trooper with it who Dodges takes no negative MODs (wiki, Sixth Sense; the
 // Immobilized / Isolated exceptions are States the calculator doesn't model).
+/** @param {ResolvedSide | null | undefined} side */
 export const hasSixthSense = (side) => hasSkill(side?.traits, SKILL.SIXTH_SENSE) || fireteamBonuses(side?.ftSize).sixthSense;
 
 // Does the side's pick get anything from its Fireteam? Its bonuses are for a
 // BS Attack that is rolled (+1 SD, +1 BS; Sixth Sense against Poor
 // Visibility) and a Dodge (+1, Sixth Sense). Not a Hacking Program or Reset
 // (WIP rolls, Alex 2026-10-22), a CC Attack, a Direct Template or No ARO.
+/** @param {ResolvedSide | null | undefined} x */
 export function fireteamHelps(x) {
   const kind = x?.weapon?.kind;
   return kind === 'bs' || kind === 'dodge';
 }
 
+/** @param {number} [size] */
 export function fireteamBonuses(size = 0) {
   return {
     sd: size >= 2 ? 1 : 0,
@@ -176,7 +229,9 @@ export function fireteamBonuses(size = 0) {
 //   +1SD     Special Dice on the Dodge Roll
 //   ARM +3   +3 ARM while Dodging
 //   +1" ...  extra movement: nothing to roll
+/** @param {MaybeTraits} traits */
 export function dodgeExtras(traits) {
+  /** @type {{ph: number | null, mod: number, opponentMod: number, sd: number, arm: number}} */
   const out = {ph: null, mod: 0, opponentMod: 0, sd: 0, arm: 0};
   for (const e of skillExtras(traits, SKILL.DODGE)) {
     let m;
@@ -203,15 +258,24 @@ export const HACKED_RESET_MODS = [-3, -6, -9, -12];
 export const IMM_A_DODGE_MOD = -6;
 // Does x's pick gain from its target being Targeted? A rolled BS Attack or
 // Comms Attack (a Hacking Program, the Jammer).
+/** @param {ResolvedSide | null | undefined} x */
 export const targetedHelps = (x) => x?.weapon?.kind === 'bs' || x?.weapon?.kind === 'program';
 // x attacking y: +3 when y is Targeted.
+/**
+ * @param {ResolvedSide | null | undefined} x
+ * @param {ResolvedSide | null | undefined} y
+ */
 export const targetedMod = (x, y) => (y?.targeted && targetedHelps(x) ? TARGETED_MOD : 0);
 // x's own Reset while Targeted (Zero Pain is a program, not a Reset roll).
+/** @param {ResolvedSide | null | undefined} x */
 export const targetedResetMod = (x) => (x?.targeted && x.weapon?.kind === 'reset' && !x.weapon.zeroPain ? TARGETED_RESET_MOD : 0);
+/** @param {ResolvedSide | null | undefined} x */
 export const hackedResetMod = (x) => (x?.weapon?.kind === 'reset' && HACKED_RESET_MODS.includes(x.hackedReset) ? x.hackedReset : 0);
+/** @param {ResolvedSide | null | undefined} x */
 export const immADodgeMod = (x) => (x?.weapon?.kind === 'dodge' && x.immA ? IMM_A_DODGE_MOD : 0);
 
 // Bangbomb (+X): the X, 0 without the equipment.
+/** @param {MaybeTraits} traits */
 export function bangbombValue(traits) {
   const m = /^\+(\d+)$/.exec(equipExtra(traits, EQUIP.BANGBOMB) ?? '');
   return m ? Number(m[1]) : 0;
@@ -222,8 +286,13 @@ export function bangbombValue(traits) {
 // Dodge: it needs the attacker in the user's LoF or ZoC, which the calculator
 // can't tell (a shot in the back), so the player chooses. Never against
 // Template Weapons, Direct or Impact.
+/** @param {MaybeRow} row */
 export const cancelsBangbomb = (row) => isTemplate(row) || isImpactTemplate(row);
 
+/**
+ * @param {ResolvedSide | null | undefined} x
+ * @param {import('../types.js').Choice | null | undefined} incoming
+ */
 export function bangbombMod(x, incoming) {
   if (!x?.weapon?.bangbomb || !incoming?.row || cancelsBangbomb(incoming.row)) return 0;
   return bangbombValue(x.traits);
@@ -237,19 +306,25 @@ export function bangbombMod(x, incoming) {
 // Warhorse ignores BS Attack (-X), however it is gained.
 // Surprise Attack (-X): the -X MOD, 0 without the skill. Whether it is used is
 // the player's call (rules/matchup.js opposingMod).
+/** @param {MaybeTraits} traits */
 export function surpriseAttackMod(traits) {
-  const mods = skillExtras(traits, SKILL.SURPRISE_ATTACK).map((e) => /^-(\d+)$/.exec(e)).filter(Boolean);
+  const mods = /** @type {RegExpExecArray[]} */ (skillExtras(traits, SKILL.SURPRISE_ATTACK).map((e) => /^-(\d+)$/.exec(e)).filter(Boolean));
   return mods.length > 0 ? Math.min(...mods.map((m) => -Number(m[1]))) : 0;
 }
 
+/** @param {MaybeTraits} traits */
 export function bsAttackMod(traits) {
-  const mods = skillExtras(traits, SKILL.BS_ATTACK).map((e) => /^-(\d+)$/.exec(e)).filter(Boolean);
+  const mods = /** @type {RegExpExecArray[]} */ (skillExtras(traits, SKILL.BS_ATTACK).map((e) => /^-(\d+)$/.exec(e)).filter(Boolean));
   return mods.length > 0 ? Math.min(...mods.map((m) => -Number(m[1]))) : 0;
 }
 
 
 // The Attribute a weapon rolls against: BS, or PH / WIP for BS Weapon (PH) /
 // (WIP) (e.g. Grenades, Flash Pulse). BS MODs still apply.
+/**
+ * @param {import('../types.js').ProfileRow | null | undefined} profile
+ * @param {MaybeRow} row
+ */
 export function attackStat(profile, row) {
   return profile?.[attackAttribute(row)] ?? 0;
 }
@@ -257,16 +332,25 @@ export function attackStat(profile, row) {
 // Does this side roll? A Dodge, a Reset, a CC Attack, or a BS Attack that isn't
 // a Direct Template (even one its target is immune to: the rolls are still
 // opposed), as long as it has the Attribute to roll.
+/**
+ * @param {ResolvedSide | null | undefined} x
+ * @returns {x is ResolvedSide & {weapon: import('../types.js').Choice}}
+ */
 export function rollsDice(x) {
   const w = x?.weapon;
   if (!rolls(w)) return false;
-  return isPseudo(w) || attackStat(x.profile, w.row) > 0;
+  // `w` is x's weapon: x is there.
+  return isPseudo(w) || attackStat(/** @type {ResolvedSide} */ (x).profile, w.row) > 0;
 }
 
 // Does x's Dodge or Reset evade the attack `incoming` (the other side's
 // weapon)? Dodge evades anything but a Comms Attack; Reset only Comms Attacks
 // (wiki, Reset). Against no attack either one just rolls. An attack evades
 // nothing: it is opposed when both attack.
+/**
+ * @param {ResolvedSide | null | undefined} x
+ * @param {import('../types.js').Choice | null | undefined} incoming
+ */
 export function evades(x, incoming) {
   const kind = x?.weapon?.kind;
   if (kind !== 'dodge' && kind !== 'reset') return false;
@@ -293,6 +377,12 @@ export function evades(x, incoming) {
 //   negative MODs apply to its Dodge.
 // - y answers x's CC Attack with its own and has Natural Born Warrior: none
 //   of x's negative MODs apply either.
+/**
+ * @param {ResolvedSide | null} x
+ * @param {ResolvedSide | null} y
+ * @param {boolean} xActive
+ * @returns {import('../types.js').OpposingMod[]}
+ */
 export function opposingMods(x, y, xActive) {
   if (!rollsDice(x) || !rollsDice(y)) return [];
   // A program that can't target the other trooper isn't rolled.
@@ -310,6 +400,7 @@ export function opposingMods(x, y, xActive) {
   }
   const sixth = y.weapon.kind === 'dodge' && hasSixthSense(y) ? msg('skill.sixthSenseDodge') : null;
   const nbw = naturalBornWarrior(x, y) ? msg('skill.naturalBornWarrior') : null;
+  /** @type {import('../types.js').OpposingMod[]} */
   const out = [];
   if (isCcAttack(x)) {
     for (const m of ccOpposingMods(x)) out.push({...m, ignoredBy: nbw ?? sixth});
@@ -332,15 +423,17 @@ export function opposingMods(x, y, xActive) {
 
 // Only Total Reaction / Neurocinetics keep their full burst in ARO, and only
 // for a BS Attack: a Hacking Program is B 1 in ARO.
+/** @param {ResolvedSide} x */
 export const keepsAroBurst = (x) => x.weapon?.kind !== 'program'
   && (hasSkill(x.traits, SKILL.TOTAL_REACTION) || hasSkill(x.traits, SKILL.NEUROCINETICS));
 
 // Neurocinetics (+1B): the extra Burst counts in the Reactive Turn only (the
 // Active Turn is B 1 regardless). Yan Huo, Sunduqbut.
+/** @param {MaybeTraits} traits */
 export const neurocineticsAroBurst = (traits) =>
-  skillExtras(traits, SKILL.NEUROCINETICS)
+  /** @type {RegExpExecArray[]} */ (skillExtras(traits, SKILL.NEUROCINETICS)
     .map((e) => /^\+(\d+)B$/.exec(e))
-    .filter(Boolean)
+    .filter(Boolean))
     .reduce((n, m) => n + Number(m[1]), 0);
 
 // Burst, SD and BS bonuses on a BS Attack, summed over the weapon's loadout
@@ -348,6 +441,7 @@ export const neurocineticsAroBurst = (traits) =>
 // Templates keep their burst bonuses but don't roll, so get no SD or BS.
 // A Hacking Program is no BS Attack: only its own upgrades (+1B, +1SD), no
 // BS Attack skill or Fireteam bonus (Alex, 2026-10-22).
+/** @param {ResolvedSide} x */
 export function attackBonuses(x) {
   const kind = x.weapon?.kind;
   if (!x.weapon?.row) return {burst: 0, sd: 0, bs: 0, skillBurst: 0};

@@ -5,9 +5,16 @@
 // lazyOnce loader (lib/lazyOnce.js), so a loaded key costs nothing.
 import {useCallback, useEffect, useState} from 'react';
 
+/**
+ * @template T
+ * @param {(key: string) => Promise<T>} load
+ * @param {string} key
+ * @param {boolean} [enabled]
+ */
 export function useLazy(load, key, enabled = true) {
   // valueKey: the key `value` is for; errorKey: the one that failed.
-  const [state, setState] = useState({value: null, valueKey: null, error: null, errorKey: null});
+  const [state, setState] = useState(
+    /** @type {{value: T | null, valueKey: string | null, error: unknown, errorKey: string | null}} */ ({value: null, valueKey: null, error: null, errorKey: null}));
   const {valueKey, error, errorKey} = state;
   useEffect(() => {
     if (!enabled || valueKey === key || (error && errorKey === key)) return undefined;

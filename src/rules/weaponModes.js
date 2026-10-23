@@ -13,6 +13,10 @@ import {list, term} from '../i18n/message.js';
 
 // 'Anti-materiel Mode', 'Anti-Material Mode', 'Antimaterial Mode' -> 'am';
 // otherwise the mode's first word: 'ap', 'shock', 'blast', 'hit', 'burst'...
+/** @typedef {import('../types.js').WeaponEntry} WeaponEntry */
+/** @typedef {'active' | 'reactive'} Role */
+
+/** @param {string | null | undefined} mode */
 export const modeKey = (mode) => (/^anti-?mat/i.test(mode ?? '') ? 'am' : (mode ?? '').split(' ')[0].toLowerCase());
 
 // Low-burst anti-materiel mode: reactive's first choice, active's last.
@@ -20,6 +24,7 @@ const MULTI = {active: ['ap', 'shock', 'am'], reactive: ['am', 'ap', 'shock']};
 const BLAST_FIRST = {active: ['blast', 'hit'], reactive: ['blast', 'hit']};
 
 // Army weapon id -> mode order per role, best first.
+/** @type {Record<string, Record<Role, string[]>>} */
 export const MODE_ORDER = {
   4: MULTI,                                        // MULTI Heavy Machine Gun (AM is EXP B1, AP / Shock B4)
   15: MULTI,                                       // Hyper-Rapid Magnetic Cannon
@@ -43,9 +48,15 @@ export const MODE_ORDER = {
 
 // One weapon's modes (bsWeapons entries sharing an id), best first for role;
 // `fallback` sorts a weapon that isn't in the table.
+/**
+ * @param {WeaponEntry[]} modes
+ * @param {Role} role
+ * @param {(modes: WeaponEntry[], role: Role) => WeaponEntry[]} [fallback]
+ */
 export function orderModes(modes, role, fallback) {
   const order = MODE_ORDER[modes[0]?.id]?.[role];
   if (!order) return fallback ? fallback(modes, role) : modes;
+  /** @param {WeaponEntry} w */
   const rank = (w) => {
     const i = order.indexOf(modeKey(w.mode));
     return i === -1 ? order.length : i;
@@ -55,10 +66,16 @@ export function orderModes(modes, role, fallback) {
 
 // The mode's ammo as the chart writes it: 'AP+DA'. Told apart in English:
 // two modes whose ammo reads the same read the same in any language.
+/** @param {WeaponEntry} w */
 const ammoKey = (w) => (w.row.ammo ?? ['N']).map((a) => a.toUpperCase()).join('+');
+/** @param {WeaponEntry} w */
 const ammoLabel = (w) => list((w.row.ammo ?? ['N']).map(ammoMsg), '+');
 // "Hit Mode" -> "Hit", "Modo Impacto" -> "Impacto": the mode in the player's
 // language (the army's own translation), without the word for mode.
+/**
+ * @param {WeaponEntry} w
+ * @returns {import('../types.js').MessageTerm}
+ */
 const modeWord = (w) => ({...term('modes', w.mode ?? '', w.id), strip: / Mode$|^Modo /i});
 
 // What each mode's button says: its ammo (DA, EXP, AP, Shock, AP+DA), so a
@@ -66,6 +83,10 @@ const modeWord = (w) => ({...term('modes', w.mode ?? '', w.id), strip: / Mode$|^
 // template the ammo doesn't tell them apart, so Hit / Blast stays; so does
 // the mode name if two modes would read the same, or one is a CC Mode.
 // Each label is a message descriptor (i18n/message.js).
+/**
+ * @param {WeaponEntry[]} modes
+ * @returns {Map<string, import('../types.js').Message>}
+ */
 export function modeLabels(modes) {
   // A CC Mode next to a BS one (Vorpal, Kobra Pistol): "BS" / "CC" says
   // more than the ammo.
