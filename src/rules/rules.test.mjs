@@ -615,19 +615,21 @@ test('Vulnerability (Viral): no Immunity against Viral weapons', () => {
 
 // --- Loadout ammo extras: Combi Rifle (T2), Combi Rifle (Viral)... ---------
 const withExtra = (extra, id = 1) => bsWeapons(option([{id, name: 'x', extra}]), W)[0];
+// An entry's label is a Message; the tests read it in English.
+const label = (w) => render(tEn, w.label);
 
 test('ammo extras: the weapon menu label shows the ammo', () => {
-  assert.equal(withExtra([]).label, 'Combi Rifle · B3 · PS7 · N');
-  assert.equal(withExtra(['T2']).label, 'Combi Rifle · B3 · PS7 · T2');
-  assert.equal(withExtra(['Shock']).label, 'Combi Rifle · B3 · PS7 · Shock');
-  assert.equal(withExtra(['AP']).label, 'Combi Rifle · B3 · PS7 · AP');
-  assert.equal(withExtra(['+1B', 'T2']).label, 'Combi Rifle · B4 · PS7 · T2');
+  assert.equal(label(withExtra([])), 'Combi Rifle · B3 · PS7 · N');
+  assert.equal(label(withExtra(['T2'])), 'Combi Rifle · B3 · PS7 · T2');
+  assert.equal(label(withExtra(['Shock'])), 'Combi Rifle · B3 · PS7 · Shock');
+  assert.equal(label(withExtra(['AP'])), 'Combi Rifle · B3 · PS7 · AP');
+  assert.equal(label(withExtra(['+1B', 'T2'])), 'Combi Rifle · B4 · PS7 · T2');
   // Added to other ammo, not in place of it; an AP weapon doesn't say AP twice.
-  assert.equal(withExtra(['T2'], 6).label, 'Heavy Pistol · B2 · PS6 · Shock+T2');
-  assert.equal(withExtra(['AP'], 15).label, 'Breaker Rifle · B3 · PS7 · AP');
+  assert.equal(label(withExtra(['T2'], 6)), 'Heavy Pistol · B2 · PS6 · Shock+T2');
+  assert.equal(label(withExtra(['AP'], 15)), 'Breaker Rifle · B3 · PS7 · AP');
   // Viral is N ammo on a BTS save, like the chart's Viral Combi Rifle.
-  assert.equal(withExtra(['Viral']).label, 'Viral Combi Rifle · B3 · PS7 · N');
-  assert.equal(withExtra(['Viral']).label, withExtra([], 4).label);
+  assert.equal(label(withExtra(['Viral'])), 'Viral Combi Rifle · B3 · PS7 · N');
+  assert.equal(label(withExtra(['Viral'])), label(withExtra([], 4)));
 });
 
 test('ammo extras: T2 fires T2 ammo, treated as N by Immunity (ARM)', () => {
@@ -817,7 +819,7 @@ const byIsc = (isc) => army.units.find((u) => u.isc === isc);
 test('Hatamoto: only BS weapons listed', () => {
   const hatamoto = byIsc('Hatamoto Imperial Guard');
   const group = hatamoto.byFaction['1102'].groups[0];
-  const names = bsWeapons(group.options[0], army.weapons).map((w) => w.label);
+  const names = bsWeapons(group.options[0], army.weapons).map(label);
   assert.equal(names.length, 3);
   assert.ok(names.every((n) => /Plasma Carbine|Heavy Pistol/.test(n)));
 });
@@ -888,7 +890,7 @@ test('Chaksa Longarm: Immunity (BTS) against a Breaker, not against Viral', () =
 test('army ammo extras: Corax Combi Rifle (Viral), Treitak Combi Rifle (T2), Iguana Mine Dispenser (Shock)', () => {
   const corax = byIsc('Shasvastii Team-Ops');
   const active = resolveSelection(army, {unitId: corax.id, factionId: 603, groupId: 1, optionId: 4, weaponKey: '33:'});
-  assert.equal(active.weapon.label, 'Viral Combi Rifle · B3 · PS7 · N');
+  assert.equal(label(active.weapon), 'Viral Combi Rifle · B3 · PS7 · N');
   const chaksa = byIsc('Chaksa Longarms');
   const f = chaksa.inFactions[0];
   const group = chaksa.byFaction[f].groups[0];
@@ -900,7 +902,7 @@ test('army ammo extras: Corax Combi Rifle (Viral), Treitak Combi Rifle (T2), Igu
 
   const treitak = byIsc('Treitak Spec-Ops');
   const t2 = resolveSelection(army, {unitId: treitak.id, factionId: 601, groupId: 1, profileId: 1, optionId: 4, weaponKey: '33:'});
-  assert.equal(t2.weapon.label, 'Combi Rifle · B3 · PS7 · T2');
+  assert.equal(label(t2.weapon), 'Combi Rifle · B3 · PS7 · T2');
   assert.equal(derive({active: t2, reactive: null, rangeCm: 40}).inputs.ammoA, 'T2');
   assert.equal(defaultWeapon(bsWeapons(t2.option, army.weapons), 'active').key, '33:');
 
@@ -959,7 +961,7 @@ test('BS Attack skill SD / B stack with Fireteam and loadout extras', () => {
 test('template burst comes from loadout extras (Dog-Warrior B2 Chain Rifle)', () => {
   const chain = option([{id: 3, name: 'Heavy Flamethrower', extra: ['+1B']}]);
   const x = {...side(profile(), chain, '3:'), ftSize: 4};
-  assert.match(bsWeapons(chain, W)[0].label, / · B2 · /);
+  assert.match(label(bsWeapons(chain, W)[0]), / · B2 · /);
   const r = derive({active: x, reactive: side(profile(), combi, '1:'), rangeCm: 20}).inputs;
   assert.equal(r.burstA, 2);
   assert.equal(r.bonusBurstA, 0);
@@ -1063,7 +1065,7 @@ const bsAttackAP = {id: 201, name: 'BS Attack', extra: ['AP']};
 test('BS Attack (AP) on the profile gives every BS weapon AP', () => {
   const p = profile({skills: [bsAttackAP]});
   const o = option([{id: 1, name: 'Combi Rifle'}, {id: 3, name: 'Heavy Flamethrower'}, {id: 2, name: 'MULTI Rifle'}]);
-  const labels = trooperWeapons(o, W, effectiveTraits(p, o)).map((w) => w.label);
+  const labels = trooperWeapons(o, W, effectiveTraits(p, o)).map(label);
   assert.deepEqual(labels, [
     'Combi Rifle · B3 · PS7 · AP',
     'Heavy Flamethrower · B1 · PS6 · AP+Fire',
@@ -1122,7 +1124,7 @@ const shoot = (shooterSkills, weapons, key, target = profile({arm: 3}), extra = 
 test('BS Attack (T2) adds T2 to every BS Attack', () => {
   const p = profile({skills: [bsAttack('T2')]});
   const o = option([{id: 1, name: 'Combi Rifle'}, {id: 2, name: 'MULTI Rifle'}, {id: 10, name: 'T2 Rifle'}]);
-  assert.deepEqual(trooperWeapons(o, W, effectiveTraits(p, o)).map((w) => w.label), [
+  assert.deepEqual(trooperWeapons(o, W, effectiveTraits(p, o)).map(label), [
     'Combi Rifle · B3 · PS7 · T2',
     'MULTI Rifle (AP) · B3 · PS7 · AP+T2',
     'MULTI Rifle (Shock) · B3 · PS7 · Shock+T2',
@@ -1143,7 +1145,7 @@ test('BS Attack (SR-1) / (SR-2) lower the PS the target saves against', () => {
   // Immunity doesn't cancel a Saving Roll MOD.
   assert.equal(shoot([bsAttack('SR-1')], [{id: 1, name: 'Combi Rifle'}], '1:', immune('ARM')).inputs.damageA, 6);
   const p = profile({skills: [bsAttack('SR-1')]});
-  assert.equal(trooperWeapons(combi, W, effectiveTraits(p, combi))[0].label, 'Combi Rifle · B3 · PS6 · N');
+  assert.equal(label(trooperWeapons(combi, W, effectiveTraits(p, combi))[0]), 'Combi Rifle · B3 · PS6 · N');
 });
 
 test('BS Attack (Continuous Damage) gives every BS Attack the Trait', () => {

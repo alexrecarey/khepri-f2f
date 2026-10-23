@@ -3,8 +3,7 @@
 // Rows are in army.json form (src/army/normalize.js): `ammo` is a list or
 // null, `save` / `saveRolls` describe the Saving Roll. Weapon properties are
 // the Army's strings, read only through the helpers below.
-import {tEn} from '../i18n/index.js';
-import {msg, render} from '../i18n/message.js';
+import {list, msg, render} from '../i18n/message.js';
 
 // Comms Attacks are rolled (the Jammer); the Technical Weapons among them
 // (Tohaa programs) are not modelled yet.
@@ -184,6 +183,11 @@ const modeSuffix = (mode) => (mode ? ` (${mode.replace(/ Mode$/i, '')})` : '');
 // PARA has no PS: 0, its save is the target's PH roll (rules/matchup.js).
 export const weaponPS = (row, mods) => (mods?.ps ?? row.dmg ?? 0) + (mods?.psMod ?? 0);
 
+/**
+ * The entry's one-line summary, "Combi Rifle · B3 · PS13 · N": a Message
+ * (i18n/message.js), rendered where it is read (tests, the ledger snapshot).
+ * @returns {import('../types.js').Message}
+ */
 export function weaponLabel(row, mods) {
   // Templates show their burst too (e.g. a Dog-Warrior's B2 Chain Rifle); the
   // weapon menu marks them "template" in place of the range MOD.
@@ -191,10 +195,9 @@ export function weaponLabel(row, mods) {
   const sd = mods.sd > 0 ? `+${mods.sd}SD` : '';
   // PARA: no PS, the target rolls PH-6.
   const dmg = row.save?.attr === 'PH' ? `PH${row.save.mod ?? ''}` : `PS${weaponPS(row, mods)}`;
-  // As players write it: "AP+EXP", not the data's "AP+Exp". An English
-  // token, like the rest of the label (not shown: tests and rolls read it).
-  const ammo = ammoTypes(row, mods).map((a) => ammoName(a, tEn)).join('+') || 'N';
-  return `${row.name}${modeSuffix(row.mode)} · B${burst}${sd} · ${dmg} · ${ammo}`;
+  // As players write it: "AP+EXP", not the data's "AP+Exp" (ammoMsg).
+  const ammo = ammoTypes(row, mods);
+  return list([`${row.name}${modeSuffix(row.mode)}`, `B${burst}${sd}`, dmg, ammo.length ? list(ammo.map(ammoMsg), '+') : 'N'], ' · ');
 }
 
 // Weapon menu order: single-mode first, then "Hit Mode", then other modes.
