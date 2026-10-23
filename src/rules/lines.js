@@ -64,13 +64,13 @@ export const coverLabel = (y) => (benefitsFromCover(y) ? (y.sapper ? msg('ledger
 
 // A Success Value from its lines: the MODs (every line after the Attribute,
 // Fireteam +1 BS included: Alex, 2026-10-10) capped at +/-12, with a note
-// when the cap bites (`noted`: an attack says so, a Dodge or Reset doesn't),
+// when the cap bites, on a Dodge or Reset as on an attack (Alex, 2026-10-23),
 // then the total within LIMITS (lines.js).
-export function svSection(lines, s, ctx, noted = true) {
+export function svSection(lines, s, ctx) {
   const cap = capLine(lines);
   if (cap) {
     const mods = modSum(lines);
-    if (noted) ctx.say(s, 'note.modCap', {sum: signed(mods), cap: signed(mods + cap.value)});
+    ctx.say(s, 'note.modCap', {sum: signed(mods), cap: signed(mods + cap.value)});
     lines.push(cap);
   }
   const c = clampSv(lines);

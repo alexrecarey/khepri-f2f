@@ -27,7 +27,7 @@ function dodgeInputs(x, y, side, incoming, ctx) {
   }
   if (immADodgeMod(x)) lines.push(line(immADodgeMod(x), msg('chip.immA'), side));
   if (y && incoming) lines.push(...ctx.opposing[side]);
-  const sv = svSection(lines, side, ctx, false);
+  const sv = svSection(lines, side, ctx);
   const sd = section(d.sd ? [line(d.sd, msg('ledger.dodgeSd'), side)] : []);
   const inputs = {
     [`ammo${side}`]: 'DODGE',
@@ -49,7 +49,7 @@ function resetInputs(x, y, side, ctx) {
   if (targetedResetMod(x)) lines.push(line(targetedResetMod(x), msg('chip.targeted'), side));
   if (hackedResetMod(x)) lines.push(line(hackedResetMod(x), msg('chip.hacked'), side));
   if (y) lines.push(...ctx.opposing[side]);
-  const sv = svSection(lines, side, ctx, false);
+  const sv = svSection(lines, side, ctx);
   const inputs = {
     [`ammo${side}`]: 'DODGE',
     [`burst${side}`]: x.weapon.zeroPain ? ZERO_PAIN.burst : 1,
