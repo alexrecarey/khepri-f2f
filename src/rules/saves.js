@@ -7,9 +7,18 @@ import {
   isCommsAttack, isPlasma, saveAttribute, stateCaused,
 } from '../army/weapons.js';
 
+/** @typedef {import('../types.js').Traits | null | undefined} MaybeTraits */
+/** @typedef {import('../types.js').WeaponRow} WeaponRow */
+/** @typedef {WeaponRow | null | undefined} MaybeRow */
+
 // Vulnerability (wiki): no Immunity against the bracketed weapon, e.g. any
 // weapon with "Viral" in its name. Returns the bracketed name, or null.
 // Matched on the English name (`en` when the names are in another language).
+/**
+ * @param {MaybeTraits} targetTraits
+ * @param {MaybeRow} row
+ * @returns {string | null}
+ */
 export function vulnerabilityTo(targetTraits, row) {
   const name = (row?.en ?? row?.name ?? '').toLowerCase();
   return (targetTraits?.skills ?? [])
@@ -24,14 +33,25 @@ export function vulnerabilityTo(targetTraits, row) {
 const COMMS_IMMUNITIES = ['Isolated', 'IMM-B', 'POS'];
 // The Immunity that stops each State a Comms Attack causes, as the Army
 // writes it.
+/** @type {Record<string, string>} */
 const STATE_IMMUNITY = {'Isolated': 'Isolated', 'Immobilized-B': 'IMM-B', 'Possessed': 'POS'};
 
+/**
+ * @param {MaybeTraits} targetTraits
+ * @param {string} kind the Immunity's bracketed value
+ * @param {MaybeRow} row
+ */
 export const hasImmunity = (targetTraits, kind, row) =>
   hasSkill(targetTraits, SKILL.IMMUNITY, kind) && !vulnerabilityTo(targetTraits, row)
   && (!isCommsAttack(row) || COMMS_IMMUNITIES.includes(kind));
 
 // The Immunity that covers this weapon's Saving Roll, ignoring Vulnerability.
 // None against a Comms Attack.
+/**
+ * @param {MaybeTraits} targetTraits
+ * @param {MaybeRow} row
+ * @returns {string | null}
+ */
 export function immunityFor(targetTraits, row) {
   if (!row || isCommsAttack(row)) return null;
   if (hasSkill(targetTraits, SKILL.IMMUNITY, 'Enhanced')) return 'Enhanced';
@@ -46,6 +66,11 @@ export function immunityFor(targetTraits, row) {
 // Critical still adds its Saving Roll, and a combined ARM+BTS save (Plasma)
 // still rolls both. Immunity (Enhanced) is Immunity (ARM) plus Immunity (BTS).
 // Returns the bracketed name of the Immunity that applies, or null.
+/**
+ * @param {MaybeTraits} targetTraits
+ * @param {MaybeRow} row
+ * @returns {string | null}
+ */
 export function immunityAgainst(targetTraits, row) {
   return vulnerabilityTo(targetTraits, row) ? null : immunityFor(targetTraits, row);
 }
@@ -60,27 +85,48 @@ export function immunityAgainst(targetTraits, row) {
 // (Jammer, Oblivion) either, and nor does Warhorse, which makes its user immune
 // to Isolated (Alex, 2026-10-20). Likewise Immunity (IMM-B) against Carbonite
 // and Immunity (POS) against Total Control.
+/**
+ * @param {MaybeTraits} targetTraits
+ * @param {MaybeRow} row
+ */
 export const hasNoEffect = (targetTraits, row) => Boolean(noEffectBy(targetTraits, row));
 
 // What leaves this attack without effect, as the warning names it
 // ("Immunity (BTS)", "Warhorse"), or null.
+/**
+ * @param {MaybeTraits} targetTraits
+ * @param {MaybeRow} row
+ * @returns {import('../types.js').Message | null}
+ */
 export function noEffectBy(targetTraits, row) {
+  /** @param {string} what */
   const immune = (what) => msg('skill.immunity', {what: term('extras', what)});
   const state = isCommsAttack(row) ? stateCaused(row) : null;
-  const stopping = STATE_IMMUNITY[state];
+  // A null State reads nothing.
+  const stopping = STATE_IMMUNITY[/** @type {string} */ (state)];
   if (stopping && hasImmunity(targetTraits, stopping, row)) return immune(stopping);
   if (state === 'Isolated' && hasSkill(targetTraits, SKILL.WARHORSE)) return msg('skill.warhorse');
   const immunity = immunityAgainst(targetTraits, row);
-  return immunity && !causesWounds(row) && !causesStunned(row) ? immune(immunity) : null;
+  // An Immunity applies to a weapon: `row` is one.
+  return immunity && !causesWounds(/** @type {WeaponRow} */ (row)) && !causesStunned(row) ? immune(immunity) : null;
 }
 
 // What the Immunity takes away from this attack, for the matchup note.
+/**
+ * @param {string} immunity
+ * @param {WeaponRow} row
+ * @param {import('../types.js').WeaponMods} mods
+ * @returns {import('../types.js').Message | null}
+ */
 export function immunityNote(immunity, row, mods) {
+  /** @type {import('../types.js').Message[]} */
   const parts = [];
+  /** @type {import('../types.js').Message[]} */
   const ammo = ammoTypes(row, mods).map(ammoMsg);
   const bio = bioweaponProp(row);
   if (bio) ammo.push(term('props', bio));
   if (ammo.length > 0) parts.push(msg('note.treatedAsN', {ammo: list(ammo, '+')}));
+  /** @type {import('../types.js').Message[]} */
   const traits = [];
   if (row.save?.armZero) traits.push(msg('save.armZero'));
   if (hasContinuousDamage(row, mods)) traits.push(msg('trait.continuousDamage'));
@@ -90,6 +136,11 @@ export function immunityNote(immunity, row, mods) {
 }
 
 // The engine's ammunition for this weapon against this target.
+/**
+ * @param {WeaponRow} row
+ * @param {MaybeTraits} targetTraits
+ * @returns {import('../types.js').Ammo}
+ */
 export function calcAmmo(row, targetTraits) {
   if (isPlasma(row)) return 'PLASMA';
   if (immunityAgainst(targetTraits, row)) return 'N';
@@ -106,6 +157,10 @@ export function calcAmmo(row, targetTraits) {
 // extra wound. Troopers with STR or with 2+ VITA are unaffected. Immunity
 // (Shock), and Immunity (ARM) / (BTS) / (Enhanced) on that save, treat the hit
 // as Normal Ammunition. Vulnerability cancels any of them.
+/**
+ * @param {WeaponRow} row
+ * @param {Pick<import('../types.js').ResolvedSide, 'profile' | 'traits'> | null | undefined} target
+ */
 export function shockApplies(row, target) {
   if (!hasShockAmmo(row) || !target?.profile) return false;
   if (target.profile.str || target.profile.w !== 1) return false;
@@ -117,8 +172,13 @@ export function shockApplies(row, target) {
 // BTS/2). Immunity (AP) only ignores the first; any Immunity that turns the
 // hit into Normal Ammunition (immunityAgainst) ignores both.
 //   {ap, other, apIgnored, halves}
+/**
+ * @param {MaybeRow} row
+ * @param {Pick<import('../types.js').WeaponMods, 'forceAP'> | null | undefined} mods
+ * @param {MaybeTraits} targetTraits
+ */
 export function saveHalving(row, mods, targetTraits) {
-  const save = row?.save ?? {};
+  const save = row?.save ?? /** @type {Partial<NonNullable<WeaponRow['save']>>} */ ({});
   const ap = Boolean(mods?.forceAP) || (Boolean(save.halved) && hasAmmo(row, 'AP'));
   const other = Boolean(save.halved) && !hasAmmo(row, 'AP');
   const immune = Boolean(immunityAgainst(targetTraits, row));

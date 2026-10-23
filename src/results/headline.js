@@ -9,12 +9,21 @@ import {pct} from './summary.js';
 // The choices. Their names and hints are src/i18n's headline.<choice> /
 // headline.<choice>Hint. The player's pick lives in state (state/headlines.js:
 // a pref, and part of a Matchup address too).
+/** @typedef {import('../types.js').HeadlineChoice} HeadlineChoice */
+/** @typedef {'active' | 'reactive'} Role */
+
+/** @type {HeadlineChoice[]} */
 export const HEADLINES = ['wpo', 'win', 'wound'];
 
 // step +1 / -1, wrapping round: the swipe goes on past the last one.
+/**
+ * @param {HeadlineChoice} choice
+ * @param {number} step
+ */
 export const nextHeadline = (choice, step) =>
   HEADLINES[(HEADLINES.indexOf(choice) + step + HEADLINES.length) % HEADLINES.length];
 
+/** @param {number | null | undefined} n */
 export const wpoText = (n) => (n == null ? '—' : n.toFixed(2));
 
 // What the card shows for summary s (summary.js summarize). A roll that is
@@ -31,23 +40,39 @@ export const wpoText = (n) => (n == null ? '—' : n.toFixed(2));
  * @param {import('../types.js').HeadlineChoice} choice
  * @param {import('../types.js').Params | null} [params]
  * @param {import('../types.js').Ledger | null} [sides]
+ * @param {import('../types.js').Translator} [t]
  * @returns {import('../types.js').Headline}
  */
 export function headline(s, choice, params = null, sides = null, t = tEn) {
+  /** @type {Role[]} */
   const roles = ['active', 'reactive'];
-  const wpo = s.unopposed ? {active: s.attacks.active.wpo, reactive: s.attacks.reactive.wpo} : s.wpo;
+  // An unopposed summary carries each attack on its own (summary.js).
+  const wpo = s.unopposed ? {active: /** @type {NonNullable<typeof s.attacks>} */ (s.attacks).active.wpo, reactive: /** @type {NonNullable<typeof s.attacks>} */ (s.attacks).reactive.wpo} : s.wpo;
   const wounded = s.unopposed
-    ? {active: s.attacks.active.wounded, reactive: s.attacks.reactive.wounded}
+    ? {active: /** @type {NonNullable<typeof s.attacks>} */ (s.attacks).active.wounded, reactive: /** @type {NonNullable<typeof s.attacks>} */ (s.attacks).reactive.wounded}
     : {active: s.atLeast.active[0], reactive: s.atLeast.reactive[0]};
   const fallback = choice === 'win' && Boolean(s.unopposed);
   const kind = fallback ? 'wound' : choice;
-  const per = (f) => Object.fromEntries(roles.map((side) => [side, f(side)]));
+  /**
+   * @template V
+   * @param {(side: Role) => V} f
+   * @returns {Record<Role, V>}
+   */
+  const per = (f) => /** @type {Record<Role, V>} */ (Object.fromEntries(roles.map((side) => [side, f(side)])));
+  /** @param {Role} side */
   const letter = (side) => (side === 'active' ? 'A' : 'B');
+  /** @param {Role} side */
   const evading = (side) => (sides?.[letter(side)]?.kind === 'reset' ? t('headline.resets')
     : params?.[`ammo${letter(side)}`] === 'DODGE' ? t('headline.dodges') : null);
   // The State's name, or null for a side that wounds.
-  const stateOf = (side) => (s.states?.[side]?.length === 1 && s.states[side][0].state ? s.states[side][0].label : null);
+  /**
+   * The State's name, rendered by then (state/matchupView.js renderMatchup).
+   * @param {Role} side
+   * @returns {string | null}
+   */
+  const stateOf = (side) => (s.states?.[side]?.length === 1 && s.states[side][0].state ? /** @type {string} */ (s.states[side][0].label) : null);
   const value = per((side) => (kind === 'win' ? s.win[side] : stateOf(side) || kind === 'wound' ? wounded[side] : wpo[side]));
+  /** @param {Role} side */
   const smallWpo = (side) => (stateOf(side) ? pct(wounded[side]) : wpoText(wpo[side]));
   return {
     kind,

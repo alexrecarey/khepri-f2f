@@ -10,9 +10,14 @@ import {clamp} from '../lib/clamp.js';
 // stands for a Dodge, which wins the Face to Face Roll but causes no Saving
 // Rolls; NONE for an attack the target is immune to, rolled and opposed but
 // harmless.
+/** @typedef {import('../types.js').Params} Params */
+/** @typedef {import('../types.js').Ammo} Ammo */
+
+/** @type {Ammo[]} */
 export const AMMO_KEYS = ['N', 'DA', 'EXP', 'T2', 'PLASMA', 'DODGE', 'NONE'];
 
-// [min, max] of each numeric param, per side.
+/** [min, max] of each numeric param, per side.
+ * @type {Record<'burst' | 'bonusBurst' | 'successValue' | 'damage' | 'arm' | 'bts', readonly [number, number]>} */
 export const LIMITS = {
   // 0 = not rolled: the other side makes a Normal Roll (unopposed).
   burst: [0, 6],
@@ -24,10 +29,24 @@ export const LIMITS = {
   bts: [0, 12],
 };
 
+/** How a param is read and what it starts at.
+ * @typedef {{type: 'int', limit: readonly [number, number], default: number} | {type: 'bool', default: boolean} | {type: 'ammo', default: Ammo}} ParamSpec */
+
+/**
+ * @param {keyof typeof LIMITS} limit
+ * @param {number} value
+ * @returns {ParamSpec}
+ */
 const int = (limit, value) => ({type: 'int', limit: LIMITS[limit], default: value});
+/** @returns {ParamSpec} */
 const bool = () => ({type: 'bool', default: false});
+/** @returns {ParamSpec} */
 const ammo = () => ({type: 'ammo', default: 'N'});
 
+/**
+ * @param {import('../types.js').Side} s
+ * @param {number} burst
+ */
 const side = (s, burst) => ({
   [`burst${s}`]: int('burst', burst),
   [`bonusBurst${s}`]: int('bonusBurst', 0),
@@ -47,29 +66,37 @@ const side = (s, burst) => ({
   [`template${s}`]: bool(),
 });
 
-export const PARAMS = {
+// Computed keys: tsc sees an index signature, so the shape is stated.
+/** @type {Record<keyof Params, ParamSpec>} */
+export const PARAMS = /** @type {Record<keyof Params, ParamSpec>} */ ({
   ...side('A', 3),
   ...side('B', 1),
   fixedFaceToFace: bool(),   // Reactive rolls a fixed value (e.g. AC2)
-};
+});
 
-export const PARAM_KEYS = Object.keys(PARAMS);
+/** @type {(keyof Params)[]} */
+export const PARAM_KEYS = /** @type {(keyof Params)[]} */ (Object.keys(PARAMS));
 
-/** @type {import('../types.js').Params} */
-export const DEFAULT_PARAMS = Object.fromEntries(PARAM_KEYS.map((k) => [k, PARAMS[k].default]));
+/** @type {Params} */
+export const DEFAULT_PARAMS = /** @type {Params} */ (Object.fromEntries(PARAM_KEYS.map((k) => [k, PARAMS[k].default])));
 
 // One raw string (URL param) -> value, or undefined when it can't be read.
+/**
+ * @param {ParamSpec} spec
+ * @param {string} raw
+ */
 function parseValue(spec, raw) {
   if (spec.type === 'int') return isNaN(Number(raw)) ? undefined : clamp(spec.limit, Number(raw));
   if (spec.type === 'bool') return raw.toLowerCase() === 'true';
   const upper = raw.toUpperCase();
-  return AMMO_KEYS.includes(upper) ? upper : undefined;
+  return AMMO_KEYS.includes(/** @type {Ammo} */ (upper)) ? /** @type {Ammo} */ (upper) : undefined;
 }
 
 /**
  * Calculator params from URL search params; anything missing or unreadable
  * gets its default.
- * @returns {import('../types.js').Params}
+ * @param {URLSearchParams} searchParams
+ * @returns {Params}
  */
 export function parseParams(searchParams) {
   const out = {...DEFAULT_PARAMS};
@@ -77,7 +104,8 @@ export function parseParams(searchParams) {
     const raw = searchParams.get(k);
     if (raw === null) continue;
     const v = parseValue(PARAMS[k], raw);
-    if (v !== undefined) out[k] = v;
+    // parseValue reads k's spec, so v is k's type.
+    if (v !== undefined) /** @type {Record<string, unknown>} */ (out)[k] = v;
   }
   // Links from before templateA / templateB: dtwVsDodge was an active template
   // against a reactive Dodge, whatever ammoB said.
@@ -87,14 +115,19 @@ export function parseParams(searchParams) {
 
 /**
  * Full calculator input, defaults filled in for anything not given.
- * @param {Partial<import('../types.js').Params>} partial
- * @returns {import('../types.js').Params}
+ * @param {Partial<Params>} partial
+ * @returns {Params}
  */
 export function fullParams(partial) {
+  /** @type {Record<string, unknown>} */
   const params = {};
   for (const k of PARAM_KEYS) params[k] = partial[k] !== undefined ? partial[k] : DEFAULT_PARAMS[k];
-  return params;
+  // Every key was set from the same key of a Params.
+  return /** @type {Params} */ (params);
 }
 
-// Cache key independent of object key order.
+/**
+ * Cache key independent of object key order.
+ * @param {Params} params
+ */
 export const paramsKey = (params) => JSON.stringify(PARAM_KEYS.map((k) => params[k]));

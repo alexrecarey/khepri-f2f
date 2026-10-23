@@ -22,10 +22,20 @@ import {msg} from '../i18n/message.js';
 
 // `state` is the State's English name (weapons.js stateCaused); its key and
 // label follow from it.
+/** A wound state before results/summary.js adds its share of the rolls.
+ * @typedef {Pick<import('../types.js').WoundState, 'key' | 'label' | 'wounds' | 'glyph' | 'outOfFight' | 'shock' | 'state'>} WoundStep */
+
+/**
+ * @param {import('../types.js').ProfileRow | null | undefined} profile
+ * @param {import('../types.js').Traits | null | undefined} traits
+ * @param {{shock?: boolean, state?: string | null}} [effects]
+ * @returns {WoundStep[]}
+ */
 export function woundStates(profile, traits, {shock = false, state = null} = {}) {
   if (state) return [{key: state.toLowerCase(), label: msg(`state.${state.toLowerCase()}`), wounds: 1, glyph: null, outOfFight: true, state: true}];
   if (shock) return [{key: 'dead', label: msg('state.dead'), wounds: 1, glyph: 'dead', outOfFight: true, shock: true}];
   const n = Math.max(1, profile?.w ?? 1);
+  /** @type {WoundStep[]} */
   const states = [];
   for (let w = 1; w < n; w++) states.push({key: `w${w}`, label: msg('state.wounds', {count: w}), wounds: w, glyph: null, outOfFight: false});
   const nwi = hasSkill(traits, SKILL.NWI);

@@ -21,6 +21,7 @@ import {latestOnly} from './latestOnly.js';
 
 // Any valid engine input: run once at start-up so the first real calculation
 // doesn't pay for compiling the hot code.
+/** @type {import('../types.js').EngineInput} */
 const WARM_UP = {
   successValueA: 13, burstA: 2, bonusBurstA: 0, templateA: false, saveValueA: 10, savesA: 1, critSaveA: true,
   woundsPerFailureA: 1, contA: false, secondarySaveA: null,
@@ -30,6 +31,7 @@ const WARM_UP = {
 };
 
 let ready = false;
+/** @type {Promise<void> | null} */
 let starting = null;  // init() promise, once 'init' arrives
 
 async function start() {
@@ -40,6 +42,10 @@ async function start() {
   self.postMessage({command: 'status', value: 'ready', description: 'Dice engine ready'})
 }
 
+/** A calculation request: the calculator params and the id echoed back.
+ * @typedef {{data: import('../types.js').Params, requestId: number}} Job */
+
+/** @param {Job} job */
 function run({data, requestId}) {
   if (!ready) {
     self.postMessage({command: 'error', requestId, value: 'dice engine not loaded'})
@@ -51,7 +57,7 @@ function run({data, requestId}) {
     results = calculate(data, runEngine)
   } catch (e) {
     console.error('Face to Face calculation failed', data, e)
-    self.postMessage({command: 'error', requestId, value: String(e.message ?? e)})
+    self.postMessage({command: 'error', requestId, value: String(/** @type {Error} */ (e).message ?? e)})
     return
   }
   results['parameters'] = data;
@@ -71,7 +77,7 @@ self.onmessage = async (msg) => {
       await starting
     } catch (e) {
       console.error('Could not start the dice engine', e)
-      self.postMessage({command: 'status', value: 'error', description: String(e.message ?? e)})
+      self.postMessage({command: 'status', value: 'error', description: String(/** @type {Error} */ (e).message ?? e)})
     }
   }
 }

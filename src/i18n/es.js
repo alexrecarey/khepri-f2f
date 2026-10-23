@@ -1,6 +1,7 @@
 // Spanish (Spain). Game terms as Corvus Belli's Spanish rules and Army write
 // them; src/i18n/glossary.md lists them and the ones still to confirm. Keys
 // and placeholders match en.js (src/i18n/locales.test.mjs checks).
+/** @type {Record<string, string>} */
 export default {
   // Sides
   'side.active': 'Activo',

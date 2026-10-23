@@ -11,6 +11,11 @@ import {other} from '../lib/side.js';
 //   saves             Saving Rolls per hit
 //   woundsPerFailure  wounds per failed Saving Roll
 //   secondary         every Saving Roll also needs a BTS one (Plasma)
+/** @typedef {import('../types.js').Params} Params */
+/** @typedef {import('../types.js').Player} Player */
+/** @typedef {import('../types.js').EngineInput} EngineInput */
+
+/** @type {Record<import('../types.js').Ammo, {saves: number, woundsPerFailure?: number, secondary?: boolean}>} */
 export const AMMO = {
   N: {saves: 1},
   DA: {saves: 2},
@@ -25,6 +30,7 @@ export const AMMO = {
 };
 
 // Keys of one side's engine input; the engine reads these with an A or B suffix.
+/** @type {(keyof import('../types.js').EngineSide)[]} */
 export const ENGINE_SIDE_KEYS = [
   'successValue', 'burst', 'bonusBurst', 'template',
   'saveValue', 'saves', 'critSave', 'woundsPerFailure', 'cont', 'secondarySave',
@@ -38,10 +44,16 @@ export const ENGINE_KEYS = [
 export const MAX_WOUNDS = 25;
 
 // Side s's attack against the other side, as the engine reads it.
+/**
+ * @param {Params} p
+ * @param {import('../types.js').Side} s
+ * @returns {Partial<EngineInput>}
+ */
 function sideInput(p, s) {
   const t = other(s);
   const ammo = AMMO[p[`ammo${s}`]];
-  return {
+  // Computed keys: tsc sees an index signature, so the shape is stated.
+  return /** @type {Partial<EngineInput>} */ ({
     [`successValue${s}`]: p[`successValue${s}`],
     [`burst${s}`]: p[`burst${s}`],
     [`bonusBurst${s}`]: p[`bonusBurst${s}`],
@@ -55,28 +67,47 @@ function sideInput(p, s) {
     [`woundsPerFailure${s}`]: ammo.woundsPerFailure ?? 1,
     [`cont${s}`]: p[`cont${s}`],
     [`secondarySave${s}`]: ammo.secondary ? p[`damage${s}`] + p[`bts${t}`] : null,
-  };
+  });
 }
 
 // Engine input for the whole roll.
-export const engineInput = (p) => ({...sideInput(p, 'A'), ...sideInput(p, 'B'), fixedFaceToFace: p.fixedFaceToFace});
+/**
+ * @param {Params} p
+ * @returns {EngineInput}
+ */
+export const engineInput = (p) => /** @type {EngineInput} */ ({...sideInput(p, 'A'), ...sideInput(p, 'B'), fixedFaceToFace: p.fixedFaceToFace});
 
 // Does side s attack? A Direct Template always does; a roll does unless it is
 // a Dodge or not made.
+/**
+ * @param {Params} p
+ * @param {import('../types.js').Side} s
+ */
 const attacks = (p, s) => p[`template${s}`] || (p[`burst${s}`] > 0 && p[`ammo${s}`] !== 'DODGE');
 
 // A Direct Template against an attack: nothing is opposed, each side's attack
 // is its own roll (a Normal Roll, or the template's automatic hits).
+/** @param {Params} p */
 export const isUnopposed = (p) => (p.templateA || p.templateB) && attacks(p, 'A') && attacks(p, 'B');
 
 // Side s's attack on its own: the other side doesn't roll (a fixed roll
 // included, it only means anything against the active side's roll).
-const alone = (p, s) => ({
+/**
+ * @param {Params} p
+ * @param {import('../types.js').Side} s
+ * @returns {Params}
+ */
+const alone = (p, s) => /** @type {Params} */ ({
   ...p, [`burst${other(s)}`]: 0, [`bonusBurst${other(s)}`]: 0, [`template${other(s)}`]: false, fixedFaceToFace: false,
 });
 
 // Shock: a failed Saving Roll against VITA 1 is Dead, one extra wound, once.
+/**
+ * @param {Params} p
+ * @param {import('../types.js').EngineOutput['outcomes']} outcomes
+ */
 function applyShock(p, outcomes) {
+  /** @type {Partial<Record<Player, boolean>>} */
   const shock = {active: p.shockA, reactive: p.shockB};
   return outcomes.map((o) => (shock[o.player] && o.wounds > 0 ? {...o, wounds: o.wounds + 1} : o));
 }
@@ -85,7 +116,8 @@ function applyShock(p, outcomes) {
  * Engine output -> the result rows: who wins the Face to Face Roll, then the
  * wounds, active then fail then reactive. rawChance is the chance counted in
  * rolls (chance * totalRolls).
- * @param {import('../types.js').Params} p
+ * @param {Params} p
+ * @param {import('../types.js').EngineOutput} output
  * @returns {import('../types.js').EngineResult}
  */
 export function formatResult(p, {rolls: count, outcomes}) {
@@ -93,18 +125,21 @@ export function formatResult(p, {rolls: count, outcomes}) {
   // B6+3 EXP continuous on both sides gets there), and a BigInt in a
   // product with a Number throws. The count is only shown and scaled by.
   const rolls = Number(count);
+  /** @type {Record<Player, Map<number, number>>} */
   const chances = {active: new Map(), fail: new Map(), reactive: new Map()};
   for (const o of applyShock(p, outcomes)) {
     const w = Math.min(o.wounds, MAX_WOUNDS);
     chances[o.player].set(w, (chances[o.player].get(w) ?? 0) + o.chance);
   }
+  /** @param {Map<number, number>} m */
   const total = (m) => [...m.values()].reduce((x, y) => x + y, 0);
-  const faceToFace = ['active', 'reactive', 'fail'].map((player, id) => {
+  const faceToFace = /** @type {Player[]} */ (['active', 'reactive', 'fail']).map((player, id) => {
     const chance = total(chances[player]);
     return {id, player, rawChance: chance * rolls, chance};
   });
+  /** @type {import('../types.js').WoundRow[]} */
   const expectedWounds = [];
-  for (const player of ['active', 'fail', 'reactive']) {
+  for (const player of /** @type {Player[]} */ (['active', 'fail', 'reactive'])) {
     const rows = [...chances[player]].sort(([x], [y]) => x - y);
     rows.forEach(([wounds, chance], i) => expectedWounds.push({
       id: expectedWounds.length,
@@ -126,14 +161,21 @@ export function formatResult(p, {rolls: count, outcomes}) {
  * per side. The result then holds 'unopposed': {active, reactive}, one result
  * per side, each without the other's rows; its top-level 'faceToFace' and
  * 'expectedWounds' keep only each side's own rows (no 'fail').
- * @param {import('../types.js').Params} p
+ * @param {Params} p
+ * @param {import('../types.js').RunEngine} runEngine
  * @returns {import('../types.js').EngineResult}
  */
 export function calculate(p, runEngine) {
+  /** @param {Params} q */
   const run = (q) => formatResult(q, runEngine(engineInput(q)));
   if (!isUnopposed(p)) return run(p);
   const active = run(alone(p, 'A'));
   const reactive = run(alone(p, 'B'));
+  /**
+   * @template {{player: Player}} R
+   * @param {R[]} r
+   * @param {Player} player
+   */
   const own = (r, player) => r.filter((x) => x.player === player);
   const rows = [...own(active.expectedWounds, 'active'), ...own(reactive.expectedWounds, 'reactive')];
   return {

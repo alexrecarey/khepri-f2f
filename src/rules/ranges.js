@@ -11,8 +11,13 @@ import {inZoneOfControl, isTemplate} from '../army/weapons.js';
 export const RANGE_BANDS = [{to: 20}, {to: 40}, {to: 60}, {to: 80}, {to: 100}, {to: 120}, {to: 240}];
 
 // Band i's lower bound in cm (0 for the first).
+/** @param {number} i */
 export const bandFrom = (i) => (i ? RANGE_BANDS[i - 1].to : 0);
 // '24-32"' in English, '60-80 cm' in Spanish (t: the translator, src/i18n).
+/**
+ * @param {number} i
+ * @param {import('../types.js').Translator} t
+ */
 export const bandLabel = (i, t) => t('dist.band', {from: t.distance(bandFrom(i)), to: t.distance(RANGE_BANDS[i].to)});
 
 // Zone of Control: 8" around the trooper, the first band.
@@ -23,6 +28,12 @@ export const ZOC_CM = RANGE_BANDS[0].to;
 // A Zone of Control weapon (Jammer) has no Range MOD inside it. A Hacking
 // Program reaches the Hacking Area (ZoC and Repeaters): never a Range MOD,
 // never out of range (Alex, 2026-10-22).
+/**
+ * @param {import('../types.js').WeaponRow | null | undefined} row
+ * @param {number} distanceCm
+ * @param {import('../types.js').Traits | null | undefined} traits
+ * @returns {number | null}
+ */
 export function rangeModFor(row, distanceCm, traits) {
   if (isTemplate(row) || isHackingProgram(row)) return 0;
   if (inZoneOfControl(row)) return distanceCm <= ZOC_CM ? 0 : null;
