@@ -9,9 +9,9 @@ export const MISS = 'x';
 export const CRIT = 'C';
 export const READINGS = [MISS, ...Array.from({length: 19}, (_, i) => i + 1), CRIT];
 
-// One d20 against a Success Value, as f2f.py read_roll reads it: a roll equal
-// to the SV is a Critical, under it a hit, over it a miss. Over 20 the excess
-// is added to every roll and anything that reaches 20 is a Critical.
+// One d20 against a Success Value, as the engine's read_roll reads it: a roll
+// equal to the SV is a Critical, under it a hit, over it a miss. Over 20 the
+// excess is added to every roll and anything that reaches 20 is a Critical.
 export function readRoll(roll, sv) {
   if (sv > 20) return roll + sv - 20 >= 20 ? CRIT : roll + sv - 20;
   if (roll === sv) return CRIT;

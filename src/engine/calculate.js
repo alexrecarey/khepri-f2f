@@ -1,4 +1,4 @@
-// Calculator params (src/engine/params.js) -> dice engine (src/engine/wasm/, f2f.py's calculate)
+// Calculator params (src/engine/params.js) -> dice engine (src/engine/wasm/, its calculate)
 // -> result rows for the display.
 //
 // The engine only rolls dice. The rules that turn a weapon and a target into

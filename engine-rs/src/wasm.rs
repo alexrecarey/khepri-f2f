@@ -1,5 +1,5 @@
-//! `calculate(engineInput)`: the WASM build's only export, the drop-in for f2f.py's `calculate` that the worker
-//! (src/engine/worker.js) and the link preview (worker/preview.js) call. Same input object, same output shape.
+//! `calculate(engineInput)`: the WASM build's only export, which the worker (src/engine/worker.js) and the link
+//! preview (worker/preview.js) call. Same input object and output shape as the Python engine it replaced.
 
 use serde_json::Value as Json;
 use wasm_bindgen::prelude::*;
@@ -18,11 +18,11 @@ extern "C" {
     fn reflect_set(target: &JsValue, key: &JsValue, value: &JsValue) -> bool;
 }
 
-/// khepri's `f2f.calculate`: the engine input object in,
-/// `{rolls, outcomes: [{player, wounds, chance}, ...]}` out. Throws an `Error` where Python raises.
+/// The engine input object in, `{rolls, outcomes: [{player, wounds, chance}, ...]}` out. Throws an `Error`
+/// where the Python engine raised.
 ///
-/// `rolls` is a Number when it is a safe integer and a BigInt beyond 2**53, as Pyodide's `to_js` converts a Python
-/// int. `chance` is `float(Fraction(q, denominator))`, bit for bit.
+/// `rolls` is a Number when it is a safe integer and a BigInt beyond 2**53, as Pyodide's `to_js` converted the
+/// Python engine's int. `chance` is `float(Fraction(q, denominator))`, bit for bit.
 #[wasm_bindgen]
 pub fn calculate(engine_input: &JsValue) -> Result<JsValue, JsError> {
     let text = json_stringify(engine_input)

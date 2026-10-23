@@ -7,7 +7,7 @@ import {CRIT, MISS, bestOf, breakdownParts, breakdownWins, faceToFaceBreakdown, 
 
 const golden = JSON.parse(readFileSync(new URL('../engine/engine.golden.json', import.meta.url), 'utf8'));
 
-test('a die reads as f2f.py reads it: the SV is a Critical, over 20 shifts every roll', () => {
+test('a die reads as the engine reads it: the SV is a Critical, over 20 shifts every roll', () => {
   assert.equal(readRoll(10, 10), CRIT);
   assert.equal(readRoll(9, 10), 9);
   assert.equal(readRoll(11, 10), MISS);

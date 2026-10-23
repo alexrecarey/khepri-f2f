@@ -15,7 +15,7 @@
     "build:engine": "bash scripts/build-engine.sh",
     "test": "yarn test:js && yarn test:engine",
     "test:js": "node --test $(find src worker -name '*.test.mjs')",
-    "test:engine": "uv run --python 3.12 --with icepool==2.2.2 --with pytest pytest -q src/engine",
+    "test:engine": "cd engine-rs && cargo test --locked --quiet",
     "build-search-index": "node scripts/build-search-index.mjs",
     "search-eval": "node scripts/search-eval.mjs"
   },

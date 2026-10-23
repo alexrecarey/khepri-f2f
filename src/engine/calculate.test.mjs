@@ -1,5 +1,5 @@
 // Run with: yarn test:js
-// The engine itself is tested in test_f2f.py; here a stub stands in for it.
+// The engine itself is tested in engine-rs/tests (cargo test); here a stub stands in for it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {MAX_WOUNDS, calculate, engineInput, formatResult} from './calculate.js';

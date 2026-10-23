@@ -2,11 +2,11 @@
 /* eslint-disable */
 
 /**
- * khepri's `f2f.calculate`: the engine input object in,
- * `{rolls, outcomes: [{player, wounds, chance}, ...]}` out. Throws an `Error` where Python raises.
+ * The engine input object in, `{rolls, outcomes: [{player, wounds, chance}, ...]}` out. Throws an `Error`
+ * where the Python engine raised.
  *
- * `rolls` is a Number when it is a safe integer and a BigInt beyond 2**53, as Pyodide's `to_js` converts a Python
- * int. `chance` is `float(Fraction(q, denominator))`, bit for bit.
+ * `rolls` is a Number when it is a safe integer and a BigInt beyond 2**53, as Pyodide's `to_js` converted the
+ * Python engine's int. `chance` is `float(Fraction(q, denominator))`, bit for bit.
  */
 export function calculate(engine_input: any): any;
 

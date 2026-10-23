@@ -1,5 +1,5 @@
-//! Port of khepri-f2f's Face to Face dice engine (src/engine/f2f.py, still the reference: golden.py writes
-//! engine.golden.json from it) to icepool-rs: d20 rolls in, wound probabilities out.
+//! khepri-f2f's Face to Face dice engine on icepool-rs, ported from the Python engine f2f.py (removed; its results
+//! stay the reference: src/engine/engine.golden.json, tests/khepri_calculate.json): d20s in, wound chances out.
 //!
 //! Typed and native on top of the core: the dice are `Die<i64>` (Python's bool dice from `d20 > save` are their
 //! 0/1 ints, which compare, hash and add alike), the roll is a `Die<Roll>` of `(a_crit, a_hit, b_crit, b_hit)`
@@ -35,7 +35,7 @@ pub type WinnerWounds = (Player, i64);
 /// Continuous Damage: rolls again after a failed Saving Roll at most this many times.
 pub const MAX_CONTINUOUS: u64 = 5;
 
-/// One side's attack, as f2f.py reads it from the engine input (the keys with an `A` or `B` suffix).
+/// One side's attack, as the engine input holds it (the keys with an `A` or `B` suffix).
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Side {
     /// The roll's final success value (0 = always fails, over 20 = more Criticals).
@@ -79,7 +79,7 @@ pub enum Player {
 }
 
 impl Player {
-    /// The string f2f.py uses.
+    /// The string in the engine's output.
     pub fn name(self) -> &'static str {
         match self {
             Player::Active => "active",
@@ -146,7 +146,7 @@ impl Side {
 }
 
 impl Input {
-    /// The engine input as khepri's src/engine/calculate.js builds it (a JSON object; see f2f.py's docstring).
+    /// The engine input as khepri's src/engine/calculate.js builds it (a JSON object; see [`Side`]).
     pub fn from_json(p: &Json) -> Result<Input> {
         let Json::Object(p) = p else {
             return unsupported("not an object".into());
@@ -486,7 +486,7 @@ pub fn outcomes(p: &Input, rolled: &Die<Roll>) -> Result<Die<WinnerWounds>> {
     })
 }
 
-/// The exact result f2f.py's `calculate` turns into floats: `outcomes(p, roll(p))`, with the roll.
+/// The exact result [`calculate`] turns into floats: `outcomes(p, roll(p))`, with the roll.
 pub fn engine(p: &Input) -> Result<(Die<Roll>, Die<WinnerWounds>)> {
     let rolled = roll(p)?;
     let result = outcomes(p, &rolled)?;
@@ -511,7 +511,7 @@ pub struct Calculation {
     pub outcomes: Vec<Chance>,
 }
 
-/// One calculation (f2f.py's `calculate`). `p` is the engine input (see the top of this file).
+/// One calculation. `p` is the engine input (see the top of this file).
 pub fn calculate(p: &Input) -> Result<Calculation> {
     let (rolled, result) = engine(p)?;
     let denominator = IBig::from(result.denominator());
@@ -532,7 +532,7 @@ pub fn calculate(p: &Input) -> Result<Calculation> {
     })
 }
 
-/// [`calculate`] with f2f.calculate's JSON shape, for the WASM build (khepri's worker): the engine input object in,
+/// [`calculate`] with the engine's JSON shape, for the WASM build (khepri's worker): the engine input object in,
 /// `{"rolls": number of distinct rolls, "outcomes": [{"player", "wounds", "chance"}, ...]}` out. `rolls` may
 /// exceed 2**53; it is written as an exact JSON integer.
 pub fn calculate_json(p: &Json) -> Result<Json> {

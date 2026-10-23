@@ -32,10 +32,11 @@ src/rules/     N5 rules: ranges, MODs, saves and Immunity, default weapon;
 src/engine/    the dice: params.js (the calculator params every mode builds),
                calculate.js (calculator params -> engine input -> result rows),
                the WASM engine (wasm/, built from engine-rs/) and the worker that
-               runs it, f2f.py (Python icepool) as its reference (golden.py,
-               engine.golden.json)
-engine-rs/     the engine's Rust source (f2f.py on icepool-rs); `yarn build:engine`
-               builds it into src/engine/wasm/ (engine-rs/README.md)
+               runs it; engine.golden.json, the reference results it must match
+               (from the Python engine it replaced)
+engine-rs/     the engine's Rust source (on icepool-rs) and its tests (`cargo
+               test`); `yarn build:engine` builds it into src/engine/wasm/
+               (engine-rs/README.md)
 src/state/     the state document: schema, pure reducer, store, URL / history /
                storage sync, and the views: matchupView (what the Matchup
                screen shows), pickerView (what the picker shows of a unit)
@@ -63,12 +64,12 @@ src/ui/        the app's screens: shell, Matchup, Classic, trooper picker,
 Dependencies point one way: `ui -> state -> rules -> army`, and everything that
 builds calculator params uses `engine/params.js`. Nothing outside `src/ui/`
 imports from it (`src/layering.test.mjs` checks). Game rules live in
-`src/rules/` and `src/engine/calculate.js`; `f2f.py` only rolls dice: it gets
+`src/rules/` and `src/engine/calculate.js`; the engine only rolls dice: it gets
 final success values, bursts, save values and Saving Rolls per hit (see the top
-of the file) and returns the chance of each (winner, wounds).
+of engine-rs/src/engine.rs) and returns the chance of each (winner, wounds).
 
-`yarn test` runs the JS tests (`node --test`) and the engine tests (pytest via
-[uv](https://docs.astral.sh/uv/)). CI runs both on every PR.
+`yarn test` runs the JS tests (`node --test`) and the engine tests (`cargo test`
+in engine-rs/, which needs [rustup](https://rustup.rs)). CI runs both on every PR.
 
 # Updating the Army data
 
