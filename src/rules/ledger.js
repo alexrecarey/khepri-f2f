@@ -15,13 +15,11 @@
 //   `struck` lines were cancelled and don't count.
 //   save is the Saving Roll the OTHER side makes against this side's hits:
 //   weapon PS + target ARM (or BTS), on d20 <= total.
-import {isHackingProgram} from '../army/hacking.js';
 import {SKILL} from '../army/ids.js';
 import {upgradeRaising} from '../army/loadouts.js';
 import {hasSkill} from '../army/traits.js';
 import {
-  ammoName, ammoTypes, attackAttribute, bioweaponParts, hasContinuousDamage, isCommsAttack, isImpactTemplate, isPlasma, isTemplate, needsLof,
-  weaponPS,
+  ammoName, ammoTypes, attackAttribute, bioweaponParts, hasContinuousDamage, isCommsAttack, isImpactTemplate, isPlasma, isPseudo, needsLof, weaponPS,
 } from '../army/weapons.js';
 import {AMMO} from '../engine/calculate.js';
 import {
@@ -205,7 +203,7 @@ function burstLines(x, y, s, inputs, t) {
   const row = x.weapon.row;
   const total = inputs[`burst${s}`];
   // Neurocinetics is for BS Attacks, not programs (matchup.js attackInputs).
-  const neuroApplies = !isHackingProgram(row);
+  const neuroApplies = x.weapon.kind !== 'program';
   if (s === 'A' && neuroApplies && hasSkill(x.traits, SKILL.NEUROCINETICS)) {
     return {lines: reconcile([line(1, t('skill.neurocinetics'), s)], total, t), total};
   }
@@ -228,7 +226,7 @@ function sdLines(x, s, inputs, dodge, t) {
     const sd = dodgeExtras(x.traits).sd;
     if (sd) lines.push(line(sd, t('ledger.dodgeSd'), s));
   } else {
-    const ft = isHackingProgram(x.weapon.row) ? 0 : fireteamBonuses(x.ftSize).sd;
+    const ft = x.weapon.kind === 'program' ? 0 : fireteamBonuses(x.ftSize).sd;
     const own = attackBonuses(x).sd - ft;
     if (own) lines.push(line(own, t('ledger.loadoutOrBsAttack'), s));
     if (ft) lines.push(line(ft, t('ledger.fireteam', {size: x.ftSize}), s));
@@ -247,14 +245,14 @@ function saveLines(x, y, s, inputs, t) {
   // On a program it is the program's upgrade (Trinity (SR-1)).
   const sr = `${t('abbr.SR')}${mods?.psMod}`;
   if (mods?.psMod) {
-    lines.push(line(mods.psMod, isHackingProgram(row) ? t('ledger.programMod', {program: row.name, mod: sr}) : t('skill.bsAttackMod', {mod: sr}), s));
+    lines.push(line(mods.psMod, x.weapon.kind === 'program' ? t('ledger.programMod', {program: row.name, mod: sr}) : t('skill.bsAttackMod', {mod: sr}), s));
   }
   if (!y) return {lines: reconcile(lines, total, t), total};
   const save = row.save ?? {attr: 'ARM'};
   const immune = Boolean(immunityAgainst(y.traits, row));
   const attr = save.attr === 'BTS' || save.attr === 'PH' ? save.attr : 'ARM';
   const p = y.profile;
-  const dodging = y.weapon?.pseudo === 'dodge';
+  const dodging = y.weapon?.kind === 'dodge';
   let base = attr === 'BTS' ? p.bts ?? 0 : attr === 'PH' ? p.ph ?? 0 : (p.arm ?? 0);
   if (attr === 'PH') {
     // PARA: the target rolls PH at the weapon's MOD, no PS.
@@ -392,15 +390,15 @@ const svText = (n, t) => `${t('abbr.SV')}${n}`;
 function sideLedger(x, y, s, rangeCm, inputs, vis, t) {
   if (!x?.weapon) return null;
   const w = x.weapon;
-  if (w.pseudo === 'none') return {kind: 'none', dice: t('pseudo.none')};
+  if (w.kind === 'none') return {kind: 'none', dice: t('pseudo.none')};
   if (vis[s].blocked) return {kind: 'none', dice: t('ledger.noLofZone', {zone: zoneName(vis[s].blocked, t)})};
   // A Dodge can't evade a Comms Attack, a Reset evades nothing else.
   const incoming = vis[other(s)].blocked ? null : y?.weapon;
-  if (w.pseudo && !evades(x, incoming)) {
-    const reason = w.pseudo === 'reset' ? t('ledger.resetOnlyComms') : t('ledger.dodgeNotComms');
+  if (isPseudo(w) && !evades(x, incoming)) {
+    const reason = w.kind === 'reset' ? t('ledger.resetOnlyComms') : t('ledger.dodgeNotComms');
     return {kind: 'none', dice: t('ledger.notRolled', {choice: pseudoName(w, t)}), reason};
   }
-  if (w.pseudo === 'reset') {
+  if (w.kind === 'reset') {
     // Zero Pain rolls two dice.
     const sv = resetSv(x, y, s, inputs[`successValue${s}`], t);
     const burst = inputs[`burst${s}`] > 1 ? ` ${t('abbr.B')}${inputs[`burst${s}`]}` : '';
@@ -410,7 +408,7 @@ function sideLedger(x, y, s, rangeCm, inputs, vis, t) {
   if (y && !reaches(x, y)) {
     return {kind: 'none', dice: t('ledger.notRolled', {choice: w.row.name}), reason: t('ledger.cantTarget', {program: w.row.name})};
   }
-  if (w.pseudo === 'dodge') {
+  if (w.kind === 'dodge') {
     const sv = dodgeSv(x, y, s, inputs[`successValue${s}`], Boolean(vis[other(s)].blocked), t);
     const sd = sdLines(x, s, inputs, true, t);
     return {kind: 'dodge', dice: `${t('pseudo.dodge')}${sd.total ? ` +${sd.total}${t('abbr.SD')}` : ''} ${svText(sv.total, t)}`, sv, sd};
@@ -428,7 +426,7 @@ function sideLedger(x, y, s, rangeCm, inputs, vis, t) {
     const saveTag = w.row.save?.attr === 'PH' ? t('stat.ph') : t('abbr.PS');
     return {kind: 'attack', dice: `${t('abbr.CC')} ${b} ${svText(sv.total, t)} ${saveTag}${save.total}${tag}`, burst, sd, sv, save, ammo, note};
   }
-  if (isTemplate(w.row)) {
+  if (w.kind === 'template') {
     return {kind: 'template', dice: `${b} ${t('ledger.template')} ${t('abbr.PS')}${save.total}${tag}`, burst, sd, save, ammo, note};
   }
   const sv = attackSv(x, y, s, rangeCm, inputs[`successValue${s}`], vis[s], t);

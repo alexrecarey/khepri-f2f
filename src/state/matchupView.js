@@ -5,8 +5,8 @@
 import {SKILL} from '../army/ids.js';
 import {extraLoadoutName, shortIsc, unitTag} from '../army/names.js';
 import {hasSkill} from '../army/traits.js';
-import {isHackingProgram, trooperPrograms} from '../army/hacking.js';
-import {isCommsAttack, isTemplate, stateCaused} from '../army/weapons.js';
+import {trooperPrograms} from '../army/hacking.js';
+import {isCommsAttack, isPseudo, stateCaused} from '../army/weapons.js';
 import {fullParams} from '../engine/params.js';
 import {defaultWeapon, sortWeapons} from '../rules/defaultWeapon.js';
 import {buildLedger} from '../rules/ledger.js';
@@ -42,7 +42,7 @@ export function effectiveWeaponKey(army, sel, side) {
 function weaponGroups(list, role, t) {
   const groups = [];
   for (const w of list) {
-    const same = w.mode && !w.pseudo ? groups.find((g) => g.id === w.id && g.name === w.name) : null;
+    const same = w.mode && !isPseudo(w) ? groups.find((g) => g.id === w.id && g.name === w.name) : null;
     if (same) {
       same.modes ??= [same.w];
       same.modes.push(w);
@@ -62,9 +62,9 @@ function weaponGroups(list, role, t) {
 // range bands (nothing picked, Dodge, No ARO, Direct Template, CC Attack,
 // Hacking Program).
 function bandMod(resolved, to) {
-  const row = resolved?.weapon?.row;
-  if (!row || isTemplate(row) || isCcAttack(resolved) || isHackingProgram(row)) return undefined;
-  return rangeModFor(row, to, resolved.traits);
+  const w = resolved?.weapon;
+  if (w?.kind !== 'bs') return undefined;
+  return rangeModFor(w.row, to, resolved.traits);
 }
 
 // What a side card shows besides the selection: weapon buttons, which chips
@@ -89,8 +89,8 @@ function sideView(army, sel, side, t) {
     // Dodge (Targeted follows both sides' picks: matchupView).
     // Fireteam, only while the pick gets a bonus from it.
     fireteamChip: fireteamHelps(resolved),
-    hackedChip: resolved?.weapon?.pseudo === 'reset',
-    immAChip: resolved?.weapon?.pseudo === 'dodge',
+    hackedChip: resolved?.weapon?.kind === 'reset',
+    immAChip: resolved?.weapon?.kind === 'dodge',
     // Surprise Attack's MOD, offered only on the active side.
     surprise: side === 'A' ? surpriseAttackMod(resolved?.traits) : 0,
     // Berserk's MOD, offered only on the active side (a Long Skill) while it
@@ -134,11 +134,11 @@ export function matchupView(army, matchup, t = tEn) {
     x.cc = isCcAttack(x.resolved);
     // Targeted: while the other side's shot or program gains from it, or this
     // side Resets (-3 to it).
-    x.targetedChip = targetedHelps(y.resolved) || (x.resolved?.weapon?.pseudo === 'reset' && !x.resolved.weapon.zeroPain);
+    x.targetedChip = targetedHelps(y.resolved) || (x.resolved?.weapon?.kind === 'reset' && !x.resolved.weapon.zeroPain);
     x.ccAlliesMax = x.cc ? ccAlliesMax(y.resolved) : 0;
     // Reset and Zero Pain are buttons only against a Comms Attack (or once picked).
     x.hacked = isCommsAttack(y.resolved?.weapon?.row);
-    const shown = (w) => w.pseudo !== 'reset' || x.hacked || x.sel.weaponKey === w.key;
+    const shown = (w) => w.kind !== 'reset' || x.hacked || x.sel.weaponKey === w.key;
     x.pseudo = x.pseudo.filter(shown);
     x.groups = x.groups.filter((g) => shown(g.w));
   }

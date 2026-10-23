@@ -3,8 +3,8 @@
 import {LIMITS} from '../engine/params.js';
 import {EQUIP, SKILL} from '../army/ids.js';
 import {equipExtra, hasEquip, hasSkill, skillExtra, skillExtras} from '../army/traits.js';
-import {ZERO_PAIN, canTarget, isHackingProgram} from '../army/hacking.js';
-import {attackAttribute, isCommsAttack, isImpactTemplate, isTemplate, parseWeaponMods} from '../army/weapons.js';
+import {ZERO_PAIN, canTarget} from '../army/hacking.js';
+import {attackAttribute, isCommsAttack, isImpactTemplate, isPseudo, isTemplate, parseWeaponMods, rolls} from '../army/weapons.js';
 import {ccOpposingMods, isCcAttack, naturalBornWarrior} from './closeCombat.js';
 import {tEn} from '../i18n/index.js';
 
@@ -79,8 +79,8 @@ export function ecmHackerMod(traits) {
 // the target's ECM: Hacker (`target`: the target's). Firewall is every Comms
 // Attack's (firewallOf).
 export function programSvMods(x, y, t = tEn) {
-  const row = x?.weapon?.row;
-  if (!isHackingProgram(row)) return [];
+  if (x?.weapon?.kind !== 'program') return [];
+  const {row} = x.weapon;
   const out = [];
   if (row.hack.attack) out.push({value: row.hack.attack, label: row.name, target: false});
   const ecm = y ? ecmHackerMod(y.traits) : 0;
@@ -90,7 +90,7 @@ export function programSvMods(x, y, t = tEn) {
 
 // Does x's attack reach y? A Hacking Program only hits its Target types
 // (army/hacking.js canTarget); anything else does.
-export const reaches = (x, y) => !isHackingProgram(x?.weapon?.row) || canTarget(x.weapon.row, y);
+export const reaches = (x, y) => x?.weapon?.kind !== 'program' || canTarget(x.weapon.row, y);
 
 const hasMsv = (traits) => hasEquip(traits, EQUIP.MSV1) || hasEquip(traits, EQUIP.MSV2) || hasEquip(traits, EQUIP.MSV3);
 // The attacker's Multispectral Visor as players write it, or null.
@@ -154,10 +154,8 @@ export const hasSixthSense = (side) => hasSkill(side?.traits, SKILL.SIXTH_SENSE)
 // Visibility) and a Dodge (+1, Sixth Sense). Not a Hacking Program or Reset
 // (WIP rolls, Alex 2026-10-22), a CC Attack, a Direct Template or No ARO.
 export function fireteamHelps(x) {
-  const w = x?.weapon;
-  if (!w) return false;
-  if (w.pseudo) return w.pseudo === 'dodge';
-  return !w.cc && !isTemplate(w.row) && !isHackingProgram(w.row);
+  const kind = x?.weapon?.kind;
+  return kind === 'bs' || kind === 'dodge';
 }
 
 export function fireteamBonuses(size = 0) {
@@ -214,13 +212,13 @@ export const HACKED_RESET_MODS = [-3, -6, -9, -12];
 export const IMM_A_DODGE_MOD = -6;
 // Does x's pick gain from its target being Targeted? A rolled BS Attack or
 // Comms Attack (a Hacking Program, the Jammer).
-export const targetedHelps = (x) => Boolean(x?.weapon?.row) && !x.weapon.cc && !isTemplate(x.weapon.row);
+export const targetedHelps = (x) => x?.weapon?.kind === 'bs' || x?.weapon?.kind === 'program';
 // x attacking y: +3 when y is Targeted.
 export const targetedMod = (x, y) => (y?.targeted && targetedHelps(x) ? TARGETED_MOD : 0);
 // x's own Reset while Targeted (Zero Pain is a program, not a Reset roll).
-export const targetedResetMod = (x) => (x?.targeted && x.weapon?.pseudo === 'reset' && !x.weapon.zeroPain ? TARGETED_RESET_MOD : 0);
-export const hackedResetMod = (x) => (x?.weapon?.pseudo === 'reset' && HACKED_RESET_MODS.includes(x.hackedReset) ? x.hackedReset : 0);
-export const immADodgeMod = (x) => (x?.weapon?.pseudo === 'dodge' && x.immA ? IMM_A_DODGE_MOD : 0);
+export const targetedResetMod = (x) => (x?.targeted && x.weapon?.kind === 'reset' && !x.weapon.zeroPain ? TARGETED_RESET_MOD : 0);
+export const hackedResetMod = (x) => (x?.weapon?.kind === 'reset' && HACKED_RESET_MODS.includes(x.hackedReset) ? x.hackedReset : 0);
+export const immADodgeMod = (x) => (x?.weapon?.kind === 'dodge' && x.immA ? IMM_A_DODGE_MOD : 0);
 
 // Reset Success Value: WIP plus `mod` (the opponent's BS Attack (-X),
 // Surprise Attack), capped at +/-12. No Fireteam bonus: that is Dodge's.
@@ -271,13 +269,13 @@ export function attackStat(profile, row) {
   return profile?.[attackAttribute(row)] ?? 0;
 }
 
-// Does this side roll? A Dodge, a CC Attack, or a BS Attack that isn't a Direct Template
-// (even one its target is immune to: the rolls are still opposed).
+// Does this side roll? A Dodge, a Reset, a CC Attack, or a BS Attack that isn't
+// a Direct Template (even one its target is immune to: the rolls are still
+// opposed), as long as it has the Attribute to roll.
 export function rollsDice(x) {
   const w = x?.weapon;
-  if (!w) return false;
-  if (w.pseudo) return w.pseudo === 'dodge' || w.pseudo === 'reset';
-  return !isTemplate(w.row) && attackStat(x.profile, w.row) > 0;
+  if (!rolls(w)) return false;
+  return isPseudo(w) || attackStat(x.profile, w.row) > 0;
 }
 
 // Does x's Dodge or Reset evade the attack `incoming` (the other side's
@@ -285,10 +283,10 @@ export function rollsDice(x) {
 // (wiki, Reset). Against no attack either one just rolls. An attack evades
 // nothing: it is opposed when both attack.
 export function evades(x, incoming) {
-  const p = x?.weapon?.pseudo;
-  if (p !== 'dodge' && p !== 'reset') return false;
-  if (!incoming?.row || incoming.pseudo) return true;
-  return (p === 'reset') === isCommsAttack(incoming.row);
+  const kind = x?.weapon?.kind;
+  if (kind !== 'dodge' && kind !== 'reset') return false;
+  if (!incoming || isPseudo(incoming)) return true;
+  return (kind === 'reset') === isCommsAttack(incoming.row);
 }
 
 // The MODs x's skills put on y's Face to Face Roll, one entry each:
@@ -315,22 +313,22 @@ export function opposingMods(x, y, xActive, t = tEn) {
   // A program that can't target the other trooper isn't rolled.
   if (!reaches(x, y) || !reaches(y, x)) return [];
   // A Dodge or Reset that can't evade this attack isn't rolled against it.
-  if (x.weapon.pseudo && !evades(x, y.weapon)) return [];
-  if (y.weapon.pseudo && !evades(y, x.weapon)) return [];
+  if (isPseudo(x.weapon) && !evades(x, y.weapon)) return [];
+  if (isPseudo(y.weapon) && !evades(y, x.weapon)) return [];
   // Zero Pain: -3 to the Comms Attack it evades.
-  if (x.weapon.pseudo === 'reset') {
+  if (x.weapon.kind === 'reset') {
     return x.weapon.zeroPain ? [{value: ZERO_PAIN.opponent, label: t('pseudo.zeroPainMod', {mod: ZERO_PAIN.opponent}), ignoredBy: null}] : [];
   }
-  if (x.weapon.pseudo === 'dodge') {
-    const mod = y.weapon.pseudo ? 0 : dodgeExtras(x.traits).opponentMod;
+  if (x.weapon.kind === 'dodge') {
+    const mod = isPseudo(y.weapon) ? 0 : dodgeExtras(x.traits).opponentMod;
     return mod ? [{value: mod, label: t('skill.dodgeMod', {mod}), ignoredBy: null}] : [];
   }
-  const sixth = y.weapon.pseudo === 'dodge' && hasSixthSense(y) ? t('skill.sixthSenseDodge') : null;
+  const sixth = y.weapon.kind === 'dodge' && hasSixthSense(y) ? t('skill.sixthSenseDodge') : null;
   const nbw = naturalBornWarrior(x, y) ? t('skill.naturalBornWarrior') : null;
   const out = [];
   if (isCcAttack(x)) {
     for (const m of ccOpposingMods(x, t)) out.push({...m, ignoredBy: nbw ?? sixth});
-  } else if (isHackingProgram(x.weapon.row)) {
+  } else if (x.weapon.kind === 'program') {
     // A program's (or its upgrade's) Opp. MOD, Trinity (-3). BS Attack (-X) is for shots.
     const opp = x.weapon.mods.opponent ?? 0;
     if (opp) out.push({value: opp, label: t('ledger.programMod', {program: x.weapon.row.name, mod: opp}), ignoredBy: sixth});
@@ -349,7 +347,7 @@ export function opposingMods(x, y, xActive, t = tEn) {
 
 // Only Total Reaction / Neurocinetics keep their full burst in ARO, and only
 // for a BS Attack: a Hacking Program is B 1 in ARO.
-export const keepsAroBurst = (x) => !isHackingProgram(x.weapon?.row)
+export const keepsAroBurst = (x) => x.weapon?.kind !== 'program'
   && (hasSkill(x.traits, SKILL.TOTAL_REACTION) || hasSkill(x.traits, SKILL.NEUROCINETICS));
 
 // Neurocinetics (+1B): the extra Burst counts in the Reactive Turn only (the
@@ -366,14 +364,14 @@ export const neurocineticsAroBurst = (traits) =>
 // A Hacking Program is no BS Attack: only its own upgrades (+1B, +1SD), no
 // BS Attack skill or Fireteam bonus (Alex, 2026-10-22).
 export function attackBonuses(x) {
-  const row = x.weapon?.row;
-  if (!row) return {burst: 0, sd: 0, bs: 0, skillBurst: 0};
-  if (isHackingProgram(row)) return {burst: x.weapon.mods.burst, sd: x.weapon.mods.sd, bs: 0, skillBurst: 0};
+  const kind = x.weapon?.kind;
+  if (!x.weapon?.row) return {burst: 0, sd: 0, bs: 0, skillBurst: 0};
+  if (kind === 'program') return {burst: x.weapon.mods.burst, sd: x.weapon.mods.sd, bs: 0, skillBurst: 0};
   const skillMods = parseWeaponMods(
     skillExtras(x.traits, SKILL.BS_ATTACK).filter((e) => /^\+\d+(B|SD)$/.test(e)),
   );
   const burst = x.weapon.mods.burst + skillMods.burst;
-  if (isTemplate(row)) return {burst, sd: 0, bs: 0, skillBurst: skillMods.burst};
+  if (kind === 'template') return {burst, sd: 0, bs: 0, skillBurst: skillMods.burst};
   const ft = fireteamBonuses(x.ftSize);
   return {
     burst,

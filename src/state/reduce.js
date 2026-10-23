@@ -86,9 +86,11 @@ export function reduce(state, action) {
     // does so from there (Alex, 2026-10-19). The CC side has no range, so a
     // split range closes on both. Any other pick drops Berserk (a CC Attack).
     // A Zone of Control weapon (Jammer) reaches 8", so it closes the range too.
+    // `kind`: the picked entry's kind (army/weapons.js WEAPON_KINDS).
     case 'pickWeapon': {
-      const next = setSide(state, action.side, {...matchup[action.side], weaponKey: action.key, ...(!action.cc && {berserk: false})});
-      if (!action.cc && !action.zoc) return next;
+      const cc = action.kind === 'cc';
+      const next = setSide(state, action.side, {...matchup[action.side], weaponKey: action.key, ...(!cc && {berserk: false})});
+      if (!cc && !action.zoc) return next;
       const close = RANGE_BANDS[0].to;
       return {...next, matchup: {...next.matchup, rangeCm: close, ...(matchup.rangeCmB != null && {rangeCmB: close})}};
     }

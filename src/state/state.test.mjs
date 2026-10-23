@@ -481,16 +481,16 @@ test('Smoke / White Noise: setZone, kept by a swap, in the URL and back', () => 
 
 test('picking a CC weapon moves the range to the closest band, a split range too', () => {
   const s = run(initialState(), {type: 'setRange', rangeCm: 80});
-  assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: '1:', cc: false}).matchup.rangeCm, 80);
-  const cc = run(s, {type: 'pickWeapon', side: 'A', key: '11:', cc: true}).matchup;
+  assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: '1:', kind: 'bs'}).matchup.rangeCm, 80);
+  const cc = run(s, {type: 'pickWeapon', side: 'A', key: '11:', kind: 'cc'}).matchup;
   assert.deepEqual([cc.A.weaponKey, cc.rangeCm, cc.rangeCmB], ['11:', 20, null]);
   const split = run(s, {type: 'setRangeSplit', on: true}, {type: 'setRange', side: 'B', rangeCm: 120},
-    {type: 'pickWeapon', side: 'A', key: '11:', cc: true}).matchup;
+    {type: 'pickWeapon', side: 'A', key: '11:', kind: 'cc'}).matchup;
   assert.deepEqual([split.rangeCm, split.rangeCmB], [20, 20]);
 });
 
 test('picking a Zone of Control weapon (Jammer) closes the range too', () => {
-  const s = run(initialState(), {type: 'setRange', rangeCm: 80}, {type: 'pickWeapon', side: 'B', key: '87:', cc: false, zoc: true});
+  const s = run(initialState(), {type: 'setRange', rangeCm: 80}, {type: 'pickWeapon', side: 'B', key: '87:', kind: 'bs', zoc: true});
   assert.deepEqual([s.matchup.B.weaponKey, s.matchup.rangeCm], ['87:', 20]);
 });
 
@@ -501,7 +501,7 @@ test('Berserk stays with the active side: swapping drops it', () => {
 
 test('picking a shooting weapon (or Dodge) drops Berserk; a CC weapon keeps it', () => {
   const s = run(initialState(), {type: 'patchSide', side: 'A', patch: {unitId: 1, weaponKey: '11:', berserk: true}});
-  assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: '5:', cc: true}).matchup.A.berserk, true);
-  assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: '1:', cc: false}).matchup.A.berserk, false);
-  assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: 'dodge', cc: false}).matchup.A.berserk, false);
+  assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: '5:', kind: 'cc'}).matchup.A.berserk, true);
+  assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: '1:', kind: 'bs'}).matchup.A.berserk, false);
+  assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: 'dodge', kind: 'dodge'}).matchup.A.berserk, false);
 });

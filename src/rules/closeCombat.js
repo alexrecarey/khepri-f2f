@@ -80,7 +80,7 @@ export function berserkMod(traits) {
 export const usesBerserk = (x, active) => active && isCcAttack(x) && Boolean(x.berserk) && hasBerserk(x.traits);
 
 // Is this side making a CC Attack?
-export const isCcAttack = (x) => Boolean(x?.weapon?.cc);
+export const isCcAttack = (x) => x?.weapon?.kind === 'cc';
 
 // MODs to x's own CC Attack roll (before the opponent's). `active`: x is
 // the active side (Berserk).

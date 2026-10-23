@@ -141,7 +141,7 @@ export function trooperPrograms(traits, lang = 'en') {
     const mods = {...NO_MODS(), opponent: PROGRAMS[id].opponent};
     for (const mod of [...general, ...list.filter((i) => i.program === id && i.mod).map((i) => i.mod)]) addProgramMod(mods, mod);
     const key = `hack:${id}`;
-    return {key, id: key, name: row.name, mode: null, row, mods, label: weaponLabel(row, mods), hacking: true};
+    return {key, kind: 'program', id: key, name: row.name, mode: null, row, mods, label: weaponLabel(row, mods)};
   });
 }
 

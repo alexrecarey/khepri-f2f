@@ -65,7 +65,7 @@ test('CC weapons are listed apart from BS weapons, a CC Mode included', () => {
   assert.deepEqual(bsWeapons(o, W).map((w) => w.key), ['1:', '149:BS Mode']);
   const cc = ccWeapons(o, W);
   assert.deepEqual(cc.map((w) => w.key), ['5:', '149:CC Mode', '71:']);
-  assert.ok(cc.every((w) => w.cc));
+  assert.ok(cc.every((w) => w.kind === 'cc'));
   // PARA CC Weapon (-6): the opponent's MOD, not the user's.
   assert.equal(cc[2].mods.opponent, -6);
   assert.equal(cc[2].mods.sv, 0);
