@@ -12,6 +12,7 @@ import {MODES} from './modes.js';
 export const STATE_VERSION = 1;
 
 // The two sides: A is the active trooper, B the reactive one.
+/** @type {Record<import('../types.js').Side, 'active' | 'reactive'>} */
 export const ROLE = {A: 'active', B: 'reactive'};
 export {other} from '../lib/side.js';
 
@@ -64,6 +65,10 @@ export const NO_ZONES = {smoke: false, whiteNoise: false};
 export const MAX_RECENTS = 8; // per side
 
 // The recents for one side, newest first. Untagged (older) entries belong to both.
+/**
+ * @param {import('../types.js').Recent[]} recents
+ * @param {import('../types.js').Side} side
+ */
 export const recentsFor = (recents, side) => recents.filter((r) => r.side == null || r.side === side);
 export const MAX_RECENT_FACTIONS = 3;
 

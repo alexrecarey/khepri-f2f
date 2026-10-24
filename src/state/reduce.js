@@ -13,12 +13,21 @@ import {EMPTY_SIDE, EMPTY_UI, MAX_RECENT_FACTIONS, MAX_RECENTS, initialState, ot
 // How many Back presses the open overlays take to close: the overlay itself,
 // plus each screen pushed inside the picker. Browser history mirrors this
 // (sync.js), so the phone's back gesture closes them one at a time.
+/** @typedef {import('../types.js').AppState} AppState */
+/** @typedef {import('../types.js').UiState} UiState */
+/** @typedef {import('../types.js').Side} Side */
+
+/** @param {UiState | null | undefined} ui */
 export function uiDepth(ui) {
   if (!ui?.overlay) return 0;
   return 1 + (ui.overlay === 'picker' ? ui.picker?.stack?.length ?? 0 : 0);
 }
 
 // One step back: the top picker screen, else the overlay.
+/**
+ * @param {UiState} ui
+ * @returns {UiState}
+ */
 function back(ui) {
   if (ui.overlay === 'picker' && ui.picker?.stack?.length) {
     return {...ui, picker: {...ui.picker, stack: ui.picker.stack.slice(0, -1)}};
@@ -26,32 +35,61 @@ function back(ui) {
   return {...ui, overlay: null, picker: null};
 }
 
+/**
+ * @param {import('../types.js').Recent} a
+ * @param {import('../types.js').Recent} b
+ */
 const sameTrooper = (a, b) => a.unitId === b.unitId && a.groupId === b.groupId && a.optionId === b.optionId;
 
 // A pick moves to the front of its side's recents; the other side's entry for
 // the same trooper stays. Each side keeps MAX_RECENTS; an untagged (older)
 // entry counts against both.
+/**
+ * @param {import('../types.js').Recent[]} list
+ * @param {import('../types.js').Recent} pick
+ */
 const pushRecent = (list, pick) => {
+  /** @type {Record<Side, number>} */
   const kept = {A: 0, B: 0};
   return [pick, ...list.filter((p) => !(sameTrooper(p, pick) && (p.side == null || p.side === pick.side)))]
     .filter((p) => {
-      const sides = p.side == null ? ['A', 'B'] : [p.side];
+      const sides = p.side == null ? /** @type {Side[]} */ (['A', 'B']) : [p.side];
       if (sides.every((s) => kept[s] >= MAX_RECENTS)) return false;
       sides.forEach((s) => { kept[s] += 1; });
       return true;
     });
 };
+/**
+ * @param {number[]} list
+ * @param {number | null | undefined} id
+ */
 const pushFaction = (list, id) => (id == null ? list : [id, ...list.filter((f) => f !== id)].slice(0, MAX_RECENT_FACTIONS));
 
+/**
+ * @param {AppState['scopes']} scopes
+ * @returns {AppState['scopes']}
+ */
 function swapScopes(scopes) {
+  /** @type {AppState['scopes']} */
   const out = {};
   if ('A' in scopes) out.B = scopes.A;
   if ('B' in scopes) out.A = scopes.B;
   return out;
 }
 
+/**
+ * @param {AppState} state
+ * @param {Side} side
+ * @param {import('../types.js').Selection} sel
+ * @returns {AppState}
+ */
 const setSide = (state, side, sel) => ({...state, matchup: {...state.matchup, [side]: sel}});
 
+/**
+ * @param {AppState} state
+ * @param {import('../types.js').Action} action
+ * @returns {AppState}
+ */
 export function reduce(state, action) {
   const {ui, matchup} = state;
   switch (action.type) {
@@ -73,7 +111,7 @@ export function reduce(state, action) {
     }
 
     case 'setMode':
-      if (!Object.values(MODES).includes(action.mode)) return state;
+      if (!Object.values(MODES).includes(/** @type {string} */ (action.mode))) return state;
       return {...state, mode: action.mode, ui: {...EMPTY_UI}};
 
     // --- matchup
@@ -101,7 +139,7 @@ export function reduce(state, action) {
     }
     // side 'B' sets the reactive's own distance (only once the range is split).
     case 'setRange': {
-      const key = action.side === 'B' && matchup.rangeCmB != null ? 'rangeCmB' : 'rangeCm';
+      const key = /** @type {'rangeCmB' | 'rangeCm'} */ (action.side === 'B' && matchup.rangeCmB != null ? 'rangeCmB' : 'rangeCm');
       return {
         ...state,
         matchup: {...matchup, [key]: action.rangeCm},
@@ -175,7 +213,8 @@ export function reduce(state, action) {
       const roll = state.lists.saved.find((r) => r.id === action.id);
       if (!roll) return state;
       const setup = normalizeSetup(roll.mode, roll.setup);
-      const slice = roll.mode === MODES.matchup ? {matchup: setup, scopes: {}} : {classic: setup};
+      // normalizeSetup returns the mode's own slice.
+      const slice = roll.mode === MODES.matchup ? {matchup: /** @type {import('../types.js').Matchup} */ (setup), scopes: {}} : {classic: /** @type {import('../types.js').Params} */ (setup)};
       return {...state, mode: roll.mode, ...slice, ui: {...EMPTY_UI}};
     }
     case 'setSavedTab':
@@ -228,6 +267,7 @@ export function reduce(state, action) {
     case 'pickTrooper': {
       // Cover and Foxhole come with the new trooper (actions.js); fireteam size is kept.
       const {inCover, ftSize} = matchup[action.side];
+      /** @type {UiState['picker']} */
       const picker = action.next && ui.picker
         ? {...ui.picker, side: other(action.side), scope: action.nextScope ?? null, query: '', stack: [], cursor: null, pane: 'list', lcursor: 0, profileId: null}
         : null;

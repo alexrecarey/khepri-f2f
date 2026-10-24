@@ -8,15 +8,23 @@ import {isLieutenant} from '../army/traits.js';
 import {isNonLethal} from '../army/weapons.js';
 import {RANGE_BANDS} from '../rules/ranges.js';
 
+/** @typedef {import('../types.js').Army} Army */
+/** @typedef {import('../types.js').ProfileHit} ProfileHit */
+/** @typedef {import('../types.js').WeaponRow} WeaponRow */
+/** @typedef {'long' | 'mid' | 'close' | 'other'} ReachGroup */
+
 // Their names are src/i18n's reach.<key>.
+/** @type {ReachGroup[]} */
 export const REACH_GROUPS = ['long', 'mid', 'close', 'other'];
 
 // Support kit doesn't say what a loadout is for: a Flash Pulse or a Disco
 // Baller reaches far but doesn't make a Combi Rifle loadout a long-range one.
+/** @param {WeaponRow} row */
 const isSupport = (row) => row.dmg == null || isNonLethal(row);
 
 // The farthest distance (cm) at which a weapon gets its best positive Range
 // MOD: an HMG peaks at 32", a Combi Rifle at 16", a Shotgun at 8".
+/** @param {WeaponRow[] | null | undefined} rows */
 function bestReach(rows) {
   let best = 0;
   for (const row of rows ?? []) {
@@ -31,6 +39,11 @@ function bestReach(rows) {
 
 // A loadout's group by its longest-reaching weapon: 24" or more is long
 // range, past 8" mid range, else close.
+/**
+ * @param {Army | null | undefined} army
+ * @param {number[] | null | undefined} weaponIds
+ * @returns {ReachGroup}
+ */
 export function reachGroup(army, weaponIds) {
   const reach = Math.max(0, ...(weaponIds ?? []).map((id) => bestReach(army?.weapons?.[id])));
   if (!reach) return 'other';
@@ -40,14 +53,27 @@ export function reachGroup(army, weaponIds) {
 }
 
 // Loadout hits -> [{key, name, items}] in REACH_GROUPS order, empty groups left out.
+/**
+ * @param {Army | null | undefined} army
+ * @param {ProfileHit[]} hits
+ * @returns {{key: ReachGroup, items: ProfileHit[]}[]}
+ */
 export function groupLoadouts(army, hits) {
+  /** @type {Map<ReachGroup, ProfileHit[]>} */
   const by = new Map(REACH_GROUPS.map((k) => [k, []]));
-  for (const h of hits) by.get(reachGroup(army, h.weaponIds)).push(h);
-  return REACH_GROUPS.map((key) => ({key, items: by.get(key)})).filter((g) => g.items.length);
+  // Every group starts in the map.
+  for (const h of hits) /** @type {ProfileHit[]} */ (by.get(reachGroup(army, h.weaponIds))).push(h);
+  return REACH_GROUPS.map((key) => ({key, items: /** @type {ProfileHit[]} */ (by.get(key))})).filter((g) => g.items.length);
 }
 
 // [['CC', 13], ['BS', 12], ...] for a unit's first profile in a faction; the
 // names are English tokens, shown as src/i18n's stat.<name lower-cased>.
+/**
+ * @param {Army | null | undefined} army
+ * @param {number} unitId
+ * @param {number} armyFactionId
+ * @returns {[string, number][] | null}
+ */
 export function statLine(army, unitId, armyFactionId) {
   const unit = unitById(army, unitId);
   if (!unit) return null;
@@ -60,6 +86,10 @@ export function statLine(army, unitId, armyFactionId) {
 // What tells a loadout apart from its siblings with the same weapons: the
 // skills it adds ("Forward Observer", "Hacker"), at most two. Lieutenant is
 // left out: it doesn't change a roll and only cluttered the list.
+/**
+ * @param {Army | null | undefined} army
+ * @param {ProfileHit} hit
+ */
 export function loadoutTag(army, hit) {
   const unit = unitById(army, hit.unitId);
   const group = unit?.byFaction[hit.armyFactionId]?.groups.find((g) => g.id === hit.groupId);
@@ -71,6 +101,14 @@ export function loadoutTag(army, hit) {
 // A weapon's chart line for the desktop picker: its first fire mode, the
 // Range MOD per band (null out of range; none at all for a Direct Template)
 // and B / PS / ammo.
+/** A weapon's chart line for the desktop picker.
+ * @typedef {{id: number, name: string, support: boolean, bands: (number | null)[], burst: number | null, ps: number | null, ammo: string}} WeaponChart */
+
+/**
+ * @param {Army | null | undefined} army
+ * @param {number} weaponId
+ * @returns {WeaponChart | null}
+ */
 export function weaponChart(army, weaponId) {
   const row = army?.weapons?.[weaponId]?.[0];
   if (!row) return null;
@@ -79,7 +117,7 @@ export function weaponChart(army, weaponId) {
     id: weaponId,
     name: row.name,
     support: isSupport(row),
-    bands: RANGE_BANDS.map((b) => (template ? null : row.ranges.find((r) => b.to <= r.to)?.mod ?? null)),
+    bands: RANGE_BANDS.map((b) => (template ? null : /** @type {NonNullable<WeaponRow['ranges']>} */ (row.ranges).find((r) => b.to <= r.to)?.mod ?? null)),
     burst: row.burst ?? null,
     ps: row.dmg ?? null,
     ammo: (row.ammo ?? []).join('+') || (template ? 'template' : ''),
@@ -89,24 +127,37 @@ export function weaponChart(army, weaponId) {
 // A loadout's main gun: the lethal weapon that reaches farthest (the army
 // data lists a Swiss Guard ML's Light Shotgun first), leaving out Disposable
 // spares; else the first lethal one (templates, CC), else none.
+/**
+ * @param {Army | null | undefined} army
+ * @param {number[] | null | undefined} weaponIds
+ * @returns {number | null}
+ */
 export function mainWeapon(army, weaponIds) {
   const ids = (weaponIds ?? []).filter((id) => army?.weapons?.[id]);
-  const lethal = ids.filter((id) => !army.weapons[id].every(isSupport));
+  // `ids` only has weapons the army has.
+  const lethal = ids.filter((id) => !/** @type {Army} */ (army).weapons[id].every(isSupport));
   // A Disposable launcher (Flammenspeer) is a spare shot, not what the loadout is for.
-  const disposable = (id) => army.weapons[id].some((r) => (r.props ?? []).some((p) => p.startsWith('Disposable')));
+  /** @param {number} id */
+  const disposable = (id) => /** @type {Army} */ (army).weapons[id].some((r) => (r.props ?? []).some((p) => p.startsWith('Disposable')));
   const main = lethal.filter((id) => !disposable(id));
+  /** @type {number | null} */
   let best = null;
   let reach = 0;
   for (const id of main) {
-    const r = bestReach(army.weapons[id]);
+    const r = bestReach(/** @type {Army} */ (army).weapons[id]);
     if (r > reach) [best, reach] = [id, r];
   }
   return best ?? main[0] ?? lethal[0] ?? null;
 }
 
 // The loadout's weapons as chart lines, its main gun first.
+/**
+ * @param {Army | null | undefined} army
+ * @param {number[] | null | undefined} weaponIds
+ * @returns {WeaponChart[]}
+ */
 export function loadoutCharts(army, weaponIds) {
-  const charts = (weaponIds ?? []).map((id) => weaponChart(army, id)).filter(Boolean);
+  const charts = /** @type {WeaponChart[]} */ ((weaponIds ?? []).map((id) => weaponChart(army, id)).filter(Boolean));
   const main = charts.findIndex((c) => c.id === mainWeapon(army, weaponIds));
   if (main <= 0) return charts;
   return [charts[main], ...charts.slice(0, main), ...charts.slice(main + 1)];
@@ -114,23 +165,46 @@ export function loadoutCharts(army, weaponIds) {
 
 // One unit's loadouts, SWC weapons first (an HMG, an ML, a 0.5 SWC hacker),
 // then by how far the main gun reaches, then cheapest.
+/**
+ * @param {Army | null | undefined} army
+ * @param {ProfileHit[]} hits
+ */
 export function orderLoadouts(army, hits) {
-  const reach = (h) => bestReach(army?.weapons?.[mainWeapon(army, h.weaponIds)]);
-  return [...hits].sort((a, b) => (b.swc ?? 0) - (a.swc ?? 0) || reach(b) - reach(a) || a.points - b.points);
+  /** @param {ProfileHit} h */
+  const reach = (h) => bestReach(army?.weapons?.[/** @type {number} */ (mainWeapon(army, h.weaponIds))]);
+  // swc is a string ("1.5"): subtraction coerces it, as it always has.
+  return [...hits].sort((a, b) => /** @type {number} */ (/** @type {unknown} */ (b.swc ?? 0)) - /** @type {number} */ (/** @type {unknown} */ (a.swc ?? 0)) || reach(b) - reach(a) || a.points - b.points);
 }
 
 // Everything the desktop unit pane shows about a unit in one faction. The
 // desk list asks for one per row on every keystroke, so each is built once.
+/** What the desktop unit pane shows about a unit in one faction.
+ * @typedef {{unit: import('../types.js').UnitRow, profiles: {id: number, name: string, type: string, crest: string | null, stats: [string, number | number[]][], skills: import('../types.js').TraitRef[]}[]}} UnitDetail */
+
+/** @type {WeakMap<Army, Map<string, UnitDetail | null>>} */
 const details = new WeakMap();
+/**
+ * @param {Army | null | undefined} army
+ * @param {number} unitId
+ * @param {number} armyFactionId
+ * @returns {UnitDetail | null}
+ */
 export function unitDetail(army, unitId, armyFactionId) {
   if (!army) return null;
   let cache = details.get(army);
   if (!cache) details.set(army, cache = new Map());
   const key = `${unitId}:${armyFactionId}`;
   if (!cache.has(key)) cache.set(key, buildUnitDetail(army, unitId, armyFactionId));
-  return cache.get(key);
+  // Set just above when missing.
+  return /** @type {UnitDetail | null} */ (cache.get(key));
 }
 
+/**
+ * @param {Army} army
+ * @param {number} unitId
+ * @param {number} armyFactionId
+ * @returns {UnitDetail | null}
+ */
 function buildUnitDetail(army, unitId, armyFactionId) {
   const unit = unitById(army, unitId);
   if (!unit) return null;
@@ -151,6 +225,10 @@ function buildUnitDetail(army, unitId, armyFactionId) {
 // A profile's stats as [name, value] pairs, the names English tokens (src/i18n
 // stat.<name lower-cased>). MOV in cm, as the army has it: the picker shows it
 // in the language's unit.
+/**
+ * @param {import('../types.js').ProfileRow} p
+ * @returns {[string, number | number[]][]}
+ */
 export function profileStats(p) {
   return [['MOV', p.move ?? []], ['CC', p.cc], ['BS', p.bs], ['PH', p.ph],
     ['WIP', p.wip], ['ARM', p.arm], ['BTS', p.bts], [p.str ? 'STR' : 'W', p.w], ['S', p.s]];
@@ -162,6 +240,10 @@ export function profileStats(p) {
 // shared: the weapons every loadout in the group carries (shown once under
 // its stats); own: the rest, what sets a loadout apart (its main gun when it
 // has nothing else). A group of one loadout shares nothing.
+/**
+ * @param {Army | null | undefined} army
+ * @param {ProfileHit[]} hits
+ */
 export function profileGroups(army, hits) {
   const unit = hits.length ? unitById(army, hits[0].unitId) : null;
   if (!unit) return null;
@@ -188,7 +270,7 @@ export function profileGroups(army, hits) {
       items: items.map((hit) => {
         const own = hit.weapons.filter((w) => !shared.includes(w));
         // A peripheral with no weapon (Cutters' Crabbot) is named by its loadout.
-        const main = army.weapons[mainWeapon(army, hit.weaponIds)]?.[0]?.name ?? hit.weapons[0] ?? hit.loadout;
+        const main = /** @type {Army} */ (army).weapons[/** @type {number} */ (mainWeapon(army, hit.weaponIds))]?.[0]?.name ?? hit.weapons[0] ?? hit.loadout;
         return {hit, own: own.length ? own : [main].filter(Boolean)};
       }),
     };
