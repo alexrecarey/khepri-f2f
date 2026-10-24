@@ -55,6 +55,7 @@ test('render: a list joins rendered items; side() wraps a note for one side', ()
 });
 
 test('renderLines renders label, struck and source and keeps the rest', () => {
+  /** @type {import('../types.js').Line[]} */
   const lines = [
     {value: -3, label: msg('ledger.cover'), by: 'B', struck: msg('skill.marksmanship')},
     {value: null, text: '+', label: 'AP', by: null, source: msg('ledger.loadout')},

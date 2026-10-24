@@ -16,20 +16,21 @@ import {DEFAULT_PARAMS} from '../engine/params.js';
 const army = deepFreeze(JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8')));
 const fennec = {...EMPTY_SIDE, unitId: 10, factionId: 101, groupId: 1, optionId: 2, weaponKey: 'w1', ftSize: 3};
 const zhanshi = {...EMPTY_SIDE, unitId: 20, factionId: 201, groupId: 1, optionId: 1, weaponKey: 'none', inCover: true};
-const roll = {id: 'r1', mode: MODES.matchup, savedAt: 1, setup: {A: fennec, B: zhanshi, rangeCm: 40}, summary: {a: 'A', r: 'B'}};
+const roll = /** @type {import('../types.js').SavedRoll} */ ({id: 'r1', mode: MODES.matchup, savedAt: 1, setup: {A: fennec, B: zhanshi, rangeCm: 40}, summary: {a: 'A', r: 'B'}});
 
 // A state with every slice filled: picker open two screens deep, a split
 // range, saved rolls, recents and scopes.
-const busy = () => deepFreeze({
+const busy = () => deepFreeze(/** @type {import('../types.js').AppState} */ ({
   ...initialState(),
   matchup: {...initialState().matchup, A: fennec, B: zhanshi, rangeCmB: 80},
   ui: {...initialState().ui, overlay: 'picker', picker: {side: 'A', query: 'fus', scope: 101, stack: [{view: 'factions'}, {view: 'unit'}]}},
   scopes: {A: 101},
   prefs: {headline: 'win'},
   lists: {recents: [{unitId: 10, groupId: 1, optionId: 2, armyFactionId: 101, side: 'A'}], recentFactions: [101], saved: [roll]},
-});
+}));
 
 // One action of every type reduce() knows.
+/** @type {import('../types.js').Action[]} */
 const ACTIONS = [
   {type: 'replace', state: {mode: MODES.basic}},
   {type: 'setMode', mode: MODES.basic},
@@ -54,7 +55,7 @@ const ACTIONS = [
   {type: 'saveRoll', roll: {...roll, id: 'r2'}},
   {type: 'deleteRoll', id: 'r1'},
   {type: 'loadRoll', id: 'r1'},
-  {type: 'setSavedTab', tab: 'classic'},
+  {type: 'setSavedTab', tab: 'basic'},
   {type: 'setSwiped', id: 'r1'},
   {type: 'clearRecents'},
   {type: 'clearSaved'},
@@ -100,7 +101,7 @@ test('matchupView and the action creators never write to the army or the matchup
     for (const g of view.A.groups) {
       for (const w of g.modes ?? [g.w]) matchupView(army, deepFreeze({...base, A: {...base.A, weaponKey: w.key}}));
     }
-    const hit = {unitId: a.unitId, armyFactionId: a.factionId, factionId: a.factionId, groupId: a.groupId, profileId: a.profileId, optionId: a.optionId};
+    const hit = /** @type {import('../types.js').ProfileHit} */ ({unitId: a.unitId, armyFactionId: a.factionId, factionId: a.factionId, groupId: a.groupId, profileId: a.profileId, optionId: a.optionId});
     pickTrooper(army, 'A', hit, {next: true, state});
     setUpgrade(army, state, 'A', {upgrade: 0});
   }

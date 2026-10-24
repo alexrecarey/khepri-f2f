@@ -46,10 +46,10 @@ test('bonusBurstB is read on its own, not only when burstB is set', () => {
 
 test('paramsKey ignores key order; fullParams fills defaults', () => {
   const a = fullParams({burstA: 4, ammoA: 'DA'});
-  const b = {...a};
+  const b = /** @type {Partial<import('../types.js').Params>} */ ({...a});
   delete b.burstA;
   b.burstA = 4;
-  assert.equal(paramsKey(a), paramsKey(b));
+  assert.equal(paramsKey(a), paramsKey(/** @type {import('../types.js').Params} */ (b)));
   assert.equal(a.burstB, 1);
   assert.equal(a.fixedFaceToFace, false);
 });

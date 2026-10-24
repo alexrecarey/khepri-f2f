@@ -63,7 +63,7 @@ export function scopeFor(army, state, side) {
  * @param {Side} side
  * @param {ProfileHit} hit
  * @param {{next?: boolean, state?: AppState | null}} [opts]
- * @returns {import('../types.js').Action}
+ * @returns {Extract<import('../types.js').Action, {type: 'pickTrooper'}>}
  */
 export function pickTrooper(army, side, hit, {next = false, state = null} = {}) {
   const otherSide = other(side);

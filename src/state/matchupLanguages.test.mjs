@@ -46,10 +46,11 @@ test('Spanish names cover every unit, loadout and weapon', () => {
     assert.ok(u.isc && u.name, `unit ${u.id}`);
     for (const e of Object.values(u.byFaction)) for (const g of e.groups) for (const o of g.options) assert.ok(o.name, `${u.id}:${g.id}:${o.id}`);
   }
-  assert.equal(es.units.find((u) => u.id === 30).isc, 'Caballero Teutón');
-  assert.equal(es.units.find((u) => u.id === 30).code, 'Teutonic Knights');
+  assert.equal(es.units.find((u) => u.id === 30)?.isc, 'Caballero Teutón');
+  assert.equal(es.units.find((u) => u.id === 30)?.code, 'Teutonic Knights');
   // Its Chaksa Peripherals don't name Gorgos Squad.
   const gorgos = es.units.find((u) => u.code === 'Gorgos Squad');
+  assert.ok(gorgos);
   assert.equal(gorgos.isc, 'Gorgos');
 });
 
@@ -68,11 +69,12 @@ test('the Spanish ledger has the same lines as the English one, in Spanish', () 
         const a = matchupView(army, sel);
         if (!a.ledger) continue;
         const b = matchupView(es, sel, tEs);
+        assert.ok(b.ledger);
         assert.equal(shape(b.ledger.ledger), shape(a.ledger.ledger), `${A.unitId}:${A.optionId} ${w.key} vs ${B.unitId}`);
         assert.equal(b.ledger.notes.length, a.ledger.notes.length);
-        for (const side of ['A', 'B']) {
-          const lines = ['sv', 'burst', 'sd', 'save'].flatMap((k) => b.ledger.ledger[side]?.[k]?.lines ?? []);
-          for (const l of lines) assert.doesNotMatch(String(l.label), /\b(loadout|range|cover|template)\b/, l.label);
+        for (const side of /** @type {import('../types.js').Side[]} */ (['A', 'B'])) {
+          const lines = /** @type {('sv' | 'burst' | 'sd' | 'save')[]} */ (['sv', 'burst', 'sd', 'save']).flatMap((k) => b.ledger?.ledger[side]?.[k]?.lines ?? []);
+          for (const l of lines) assert.doesNotMatch(String(l.label), /\b(loadout|range|cover|template)\b/, String(l.label));
           assert.doesNotMatch(b.ledger.ledger[side]?.dice ?? '', /\bSV\d/);
         }
         compared++;
@@ -95,6 +97,7 @@ test('a reactive CC Attack\'s lines match English in Spanish', () => {
         const a = matchupView(army, sel);
         if (!a.ledger) continue;
         const b = matchupView(es, sel, tEs);
+        assert.ok(b.ledger);
         assert.equal(shape(b.ledger.ledger), shape(a.ledger.ledger), `${B.unitId}:${B.optionId} ${w.key} vs ${A.unitId}`);
         compared++;
       }

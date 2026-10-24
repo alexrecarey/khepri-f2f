@@ -37,8 +37,8 @@ test('every entry has a kind in WEAPON_KINDS; template iff a Direct Template, cc
 });
 
 test('isPseudo and rolls split the kinds', () => {
-  assert.deepEqual(WEAPON_KINDS.filter((kind) => isPseudo({kind})), ['dodge', 'reset', 'none']);
-  assert.deepEqual(WEAPON_KINDS.filter((kind) => rolls({kind})), ['bs', 'cc', 'program', 'dodge', 'reset']);
+  assert.deepEqual(WEAPON_KINDS.filter((kind) => isPseudo(/** @type {import('../types.js').Choice} */ ({kind}))), ['dodge', 'reset', 'none']);
+  assert.deepEqual(WEAPON_KINDS.filter((kind) => rolls(/** @type {import('../types.js').Choice} */ ({kind}))), ['bs', 'cc', 'program', 'dodge', 'reset']);
   assert.equal(isPseudo(undefined), false);
   assert.equal(rolls(null), false);
 });

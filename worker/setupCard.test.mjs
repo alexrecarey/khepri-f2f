@@ -24,6 +24,7 @@ test('a matchup link gets the card the app shows for it', () => {
 test('a link without a headline (or a made-up one) shows at least one wound', () => {
   for (const q of [FINAL, `${FINAL}&headline=junk`]) {
     const card = cardFromSetup(q, army, runEngine);
+    assert.ok(card);
     assert.equal(card.k, 'wound');
     assert.deepEqual([card.a.n, card.a.l, card.b.n], ['47.7%', 'at least one wound', '28.6%']);
   }
@@ -31,11 +32,12 @@ test('a link without a headline (or a made-up one) shows at least one wound', ()
 
 test('the Share button\'s headline is the one the card shows', () => {
   const card = cardFromSetup(`${FINAL}&headline=win`, army, runEngine);
+  assert.ok(card);
   assert.deepEqual([card.k, card.a.n, card.a.l, card.b.n], ['win', '56.8%', 'wins face to face', '35.6%']);
 });
 
 test('a split range shows both bands', () => {
-  assert.equal(cardFromSetup(`${FINAL}&rangeB=100`, army, runEngine).x, '24-32" / 32-40"');
+  assert.equal(cardFromSetup(`${FINAL}&rangeB=100`, army, runEngine)?.x, '24-32" / 32-40"');
 });
 
 test('anything that is not a complete matchup has no card', () => {

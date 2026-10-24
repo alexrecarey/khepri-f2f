@@ -139,7 +139,7 @@ export const pseudoName = (w) => msg(`pseudo.${w.bangbomb ? 'bangbomb' : w.zeroP
 // A Firewall of its own can't be switched off: "none" keeps it.
 export const FIREWALL_CHIPS = [-3, -6];
 /**
- * @param {number | null} v
+ * @param {number | null | undefined} v
  * @param {MaybeTraits} traits
  */
 function firewallChip(v, traits) {
@@ -154,7 +154,7 @@ function firewallChip(v, traits) {
  * the returned option includes upgrade weapons. `side`: whose role the
  * choices are for ('A' active, 'B' reactive): its pseudo-weapon list.
  * @param {import('../types.js').Army | null | undefined} army
- * @param {import('../types.js').Selection | null | undefined} sel
+ * @param {Partial<import('../types.js').Selection> | null | undefined} sel a field left out is its default (a share link's, a test's)
  * @param {import('../types.js').Side} [side]
  * @returns {import('../types.js').ResolvedSide | null}
  */

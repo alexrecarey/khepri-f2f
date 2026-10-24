@@ -74,19 +74,23 @@ export function normalizeWeaponRow({saving, saves, ammo, props, ...row}) {
 
 // Loadouts that replace a stat list it as a skill named like "BS=12"
 // (Konduktor FTO) or "BTS=3" (Alguacil Gatta). The skill stays for display.
+/** A loadout's stat overrides, by profile field (OptionRow.statOverrides).
+ * @typedef {NonNullable<import('../types.js').OptionRow['statOverrides']>} StatOverrides */
+
 /** @type {Record<string, string>} */
 const STAT_FIELDS = {MOV: 'move', CC: 'cc', BS: 'bs', PH: 'ph', WIP: 'wip', ARM: 'arm', BTS: 'bts', W: 'w', STR: 'str', S: 's'};
 /**
  * @param {{name?: string}[] | undefined} skills
- * @returns {Record<string, number> | null}
+ * @returns {StatOverrides | null}
  */
 export function statOverrides(skills) {
-  let out = /** @type {Record<string, number> | null} */ (null);
+  let out = /** @type {StatOverrides | null} */ (null);
   for (const s of skills ?? []) {
     const m = /^([A-Z]+)=(\d+)$/.exec(s.name ?? '');
     if (!m) continue;
     if (!STAT_FIELDS[m[1]]) throw new UnknownValue(`stat override "${s.name}"`);
-    out = {...out, [STAT_FIELDS[m[1]]]: Number(m[2])};
+    // A computed key reads as an index signature to tsc; the field is a stat.
+    out = /** @type {StatOverrides} */ ({...out, [STAT_FIELDS[m[1]]]: Number(m[2])});
   }
   return out;
 }

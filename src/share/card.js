@@ -91,7 +91,7 @@ export const detailLine = (x, sep = ' · ') => [x.w, x.s].filter(Boolean).join(s
 
 // "0.81 vs 0.46 wounds / order", or each label after its number when the
 // sides' labels differ (one side dodging: "65% wins face to face vs 20% dodges").
-/** @param {Card} card */
+/** @param {{a: Pick<CardSide, 'n' | 'l'>, b: Pick<CardSide, 'n' | 'l'>}} card each side's number and label */
 export function numbersLine({a, b}) {
   return a.l === b.l ? `${a.n} vs ${b.n} ${a.l}` : `${a.n} ${a.l} vs ${b.n} ${b.l}`;
 }

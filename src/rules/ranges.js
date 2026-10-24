@@ -31,7 +31,7 @@ export const ZOC_CM = RANGE_BANDS[0].to;
 /**
  * @param {import('../types.js').WeaponRow | null | undefined} row
  * @param {number} distanceCm
- * @param {import('../types.js').Traits | null | undefined} traits
+ * @param {import('../types.js').Traits | null} [traits] the shooter's (X Visor)
  * @returns {number | null}
  */
 export function rangeModFor(row, distanceCm, traits) {

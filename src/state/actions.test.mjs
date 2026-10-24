@@ -7,13 +7,13 @@ import {matchupCore} from './matchupView.js';
 
 const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 // Fusiliers (PanOceania) with a Combi Rifle.
-const hit = {unitId: 1, armyFactionId: 101, groupId: 1, profileId: 1, optionId: 1};
+const hit = /** @type {import('../types.js').ProfileHit} */ ({unitId: 1, armyFactionId: 101, groupId: 1, profileId: 1, optionId: 1});
 
 test('a pick stores the weapon the query matched, never a derived default', () => {
   assert.equal(selectionFromHit(army, hit).weaponKey, null);
   assert.equal(selectionFromHit(null, hit).weaponKey, null);   // army not loaded yet
   const matched = selectionFromHit(army, {...hit, weaponId: 33});
-  assert.match(matched.weaponKey, /^33:/);
+  assert.match(/** @type {string} */ (matched.weaponKey), /^33:/);
 });
 
 test('the default follows the side, so it changes when the trooper swaps sides', () => {
