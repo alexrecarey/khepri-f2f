@@ -2,19 +2,14 @@
 // keys with an A (active) / B (reactive) suffix; range and the zones between
 // them (smoke=1, wn=1) are shared, rangeB is the reactive's own distance when
 // the range is split.
+import {parseOr} from '../lib/parse.js';
 import {CC_ALLIES_MAX} from '../rules/closeCombat.js';
-import {FIRETEAM_MAX, FIRETEAM_MIN, HACKED_RESET_MODS} from '../rules/modifiers.js';
-import {RANGE_BANDS} from '../rules/ranges.js';
+import {HACKED_RESET_MODS} from '../rules/modifiers.js';
 import {FIREWALL_CHIPS} from '../rules/trooper.js';
+import {BandSchema, EMPTY_SIDE, SelectionSchema} from '../state/schema.js';
 
 /** @typedef {import('../types.js').Selection} Selection */
 /** @typedef {import('../types.js').Side} Side */
-
-/** @type {Omit<Selection, 'ftSize'>} */
-const EMPTY = {
-  unitId: null, factionId: null, groupId: null, profileId: null, optionId: null,
-  weaponKey: null, inCover: false, firewall: null, targeted: false, hackedReset: 0, immA: false, sapper: false, surpriseAttack: false, upgrade: null, ball: null, ccAllies: 0, berserk: false,
-};
 
 // param name -> selection field, and how to read it back
 /** @type {[string, keyof Omit<Selection, 'ftSize'>, NumberConstructor | StringConstructor][]} */
@@ -66,7 +61,9 @@ export function encodeMatchup({selA, selB, ftSize, rangeCm, rangeCmB, zones}) {
   return out;
 }
 
-// null when the params hold no matchup.
+// null when the params hold no matchup. Each side is assembled from the
+// codec above and read through SelectionSchema: a field the schema refuses
+// (an id of 1.5, a 300-character weapon key) falls back to EMPTY_SIDE's.
 /**
  * @param {URLSearchParams} params
  */
@@ -74,54 +71,44 @@ export function decodeMatchup(params) {
   /** @param {string} k */
   const get = (k) => params.get(k);
   /**
+   * The side's selection, whether or not it has a trooper (its ftSize is
+   * read either way, as it always was).
    * @param {Side} s
-   * @returns {Omit<Selection, 'ftSize'> | null}
    */
   const side = (s) => {
-    const unit = Number(get(`unit${s}`));
-    if (!Number.isInteger(unit) || unit <= 0) return null;
-    const sel = {...EMPTY};
+    /** @type {Record<string, unknown>} */
+    const raw = {};
     for (const [param, field, read] of FIELDS) {
-      const raw = get(`${param}${s}`);
-      if (raw === null || raw === '') continue;
-      const v = read(raw);
-      if (read === Number && !Number.isFinite(v)) continue;
-      // `read` is the field's own constructor (FIELDS).
-      /** @type {Record<string, unknown>} */ (sel)[field] = v;
+      const value = get(`${param}${s}`);
+      if (value !== null && value !== '') raw[field] = read(value);
     }
-    sel.inCover = get(`cover${s}`) === '1';
-    const raw = get(`firewall${s}`);
+    raw.inCover = get(`cover${s}`) === '1';
+    const firewall = get(`firewall${s}`);
     // 0 - n, not -n: "0" must read back as 0, not -0.
-    const firewall = raw ? 0 - Number(raw) : null;
-    sel.firewall = firewall === 0 || FIREWALL_CHIPS.includes(/** @type {number} */ (firewall)) ? firewall : null;
-    sel.sapper = get(`sapper${s}`) === '1';
-    sel.targeted = get(`targeted${s}`) === '1';
-    const hacked = -Number(get(`hacked${s}`));
-    sel.hackedReset = HACKED_RESET_MODS.includes(hacked) ? hacked : 0;
-    sel.immA = get(`imma${s}`) === '1';
-    sel.surpriseAttack = get(`surprise${s}`) === '1';
-    sel.berserk = get(`berserk${s}`) === '1';
-    const allies = Number(get(`allies${s}`));
-    sel.ccAllies = Number.isInteger(allies) && allies > 0 ? Math.min(allies, CC_ALLIES_MAX) : 0;
-    return sel;
+    raw.firewall = firewall ? 0 - Number(firewall) : null;
+    raw.sapper = get(`sapper${s}`) === '1';
+    raw.targeted = get(`targeted${s}`) === '1';
+    raw.hackedReset = 0 - Number(get(`hacked${s}`));
+    raw.immA = get(`imma${s}`) === '1';
+    raw.surpriseAttack = get(`surprise${s}`) === '1';
+    raw.berserk = get(`berserk${s}`) === '1';
+    raw.ftSize = Number(get(`ft${s}`));
+    // More allies than fit around a base are the most that fit.
+    raw.ccAllies = Math.min(Number(get(`allies${s}`)), CC_ALLIES_MAX);
+    return parseOr(SelectionSchema, raw, EMPTY_SIDE);
   };
-  const A = side('A');
-  const B = side('B');
-  if (!A && !B) return null;
-  /** @param {Side} s */
-  const ft = (s) => {
-    const n = Number(get(`ft${s}`));
-    return Number.isInteger(n) && n >= FIRETEAM_MIN && n <= FIRETEAM_MAX ? n : 1;
-  };
-  /** @param {number} cm */
-  const band = (cm) => (RANGE_BANDS.some((b) => b.to === cm) ? cm : null);
-  const range = band(Number(get('range')));
+  const {ftSize: ftA, ...A} = side('A');
+  const {ftSize: ftB, ...B} = side('B');
+  if (!A.unitId && !B.unitId) return null;
+  const {ftSize: _, ...empty} = EMPTY_SIDE;
+  const range = parseOr(BandSchema, Number(get('range')), null);
   return {
-    A: A ?? {...EMPTY},
-    B: B ?? {...EMPTY},
-    ftSize: {A: ft('A'), B: ft('B')},
+    // Only a side with a trooper keeps its chips.
+    A: A.unitId ? A : {...empty},
+    B: B.unitId ? B : {...empty},
+    ftSize: {A: ftA, B: ftB},
     rangeCm: range,
-    rangeCmB: range && get('rangeB') ? band(Number(get('rangeB'))) : null,
+    rangeCmB: range && get('rangeB') ? parseOr(BandSchema, Number(get('rangeB')), null) : null,
     zones: {smoke: get('smoke') === '1', whiteNoise: get('wn') === '1'},
   };
 }
