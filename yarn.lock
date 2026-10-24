@@ -4015,6 +4015,7 @@ __metadata:
     satori: 0.32.0
     svgo: 3.3.2
     typescript: 5.6.3
+    valibot: 1.5.0
     vite: ^4.0.0
     vite-plugin-pwa: ^0.14.4
     vite-plugin-svgr: ^2.4.0
@@ -5431,6 +5432,18 @@ __metadata:
   version: 1.0.2
   resolution: "util-deprecate@npm:1.0.2"
   checksum: 474acf1146cb2701fe3b074892217553dfcf9a031280919ba1b8d651a068c9b15d863b7303cb15bd00a862b498e6cf4ad7b4a08fb134edd5a6f7641681cb54a2
+  languageName: node
+  linkType: hard
+
+"valibot@npm:1.5.0":
+  version: 1.5.0
+  resolution: "valibot@npm:1.5.0"
+  peerDependencies:
+    typescript: ">=5"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 603dd45c226e36cc127c249d911f01fa6397f2cebd57c4516711baf45ecde1d6083ed01795c743ca5c1f9bd833108d0d7e4bee45b51daf6359e8f8e26f6e1447
   languageName: node
   linkType: hard
 
