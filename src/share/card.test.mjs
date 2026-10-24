@@ -39,3 +39,17 @@ test('each number keeps its own label when the sides differ (one is dodging)', (
 test('a headline that fell back says so after the range', () => {
   assert.match(previewDescription({...card, nf: true}), /16-24" · Not face to face/);
 });
+
+test('hand-written cards, field by field: a side needs its number and unit, the kind must be known', () => {
+  const junk = (/** @type {unknown} */ x) => decodeCard(encodeCard(/** @type {import('./card.js').Card} */ (x)));
+  // Wrong types fall back to '', an unknown nf to false; what remains is a card.
+  assert.deepEqual(junk({k: 'win', nf: 'yes', x: 7, a: {...card.a, l: 3, w: null, s: ['x'], c: 9}, b: card.b, extra: 1}),
+    {k: 'win', nf: false, x: '', a: {...card.a, l: '', w: '', s: '', c: ''}, b: card.b});
+  // No number or no unit: no card.
+  assert.equal(junk({...card, a: {...card.a, n: ''}}), null);
+  assert.equal(junk({...card, b: {...card.b, u: 7}}), null);
+  assert.equal(junk({...card, a: 'side'}), null);
+  assert.equal(junk({...card, k: 'WPO'}), null);
+  assert.equal(junk([card]), null);
+  assert.equal(decodeCard('x'.repeat(2001)), null);
+});
