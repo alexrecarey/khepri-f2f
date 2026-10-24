@@ -34,6 +34,7 @@ const KNOWN_PROPS = [
 
 // Bracketed values of the skills and equipment the rules read. `read` is what
 // the rules parse; `known` is seen in the data but not modelled yet.
+/** @type {{kind: 'skill' | 'equip', id: number, name: string, read: RegExp, known: string[]}[]} */
 const TRAIT_EXTRAS = [
   // +1" etc. is extra movement: read, and correctly nothing to roll.
   {kind: 'skill', id: SKILL.DODGE, name: 'Dodge', read: /^(PH=\d+|[+-]\d+|\+\d+SD|ARM \+\d+|\+\d+")$/, known: []},
@@ -51,6 +52,10 @@ const TRAIT_EXTRAS = [
 ];
 
 // Every place a trait or weapon ref appears: profiles, loadouts, upgrades.
+/**
+ * @param {import('../src/types.js').Army} army
+ * @returns {Generator<{where: string, skills?: import('../src/types.js').TraitRef[], equip?: import('../src/types.js').TraitRef[], weapons?: import('../src/types.js').TraitRef[]}>}
+ */
 function* holders(army) {
   for (const u of army.units) {
     for (const [fid, {groups}] of Object.entries(u.byFaction)) {
@@ -60,23 +65,28 @@ function* holders(army) {
       }
     }
     for (const it of [...(u.upgrades?.chart ?? []), ...(u.upgrades?.ball ?? [])]) {
-      const of = (type) => it.attrs.filter((a) => a.type === type);
+      /** @param {'skill' | 'equip' | 'weapon'} type */
+      const of = (type) => /** @type {import('../src/types.js').TraitRef[]} */ (it.attrs.filter((a) => a.type === type));
       yield {where: `${u.isc} upgrade ${it.label}`, skills: of('skill'), equip: of('equip'), weapons: of('weapon')};
     }
   }
 }
 
+/** @param {import('../src/types.js').Army} army */
 export function validateArmy(army) {
+  /** @type {Set<string>} */
   const problems = new Set();
+  /** @param {string} msg */
   const once = (msg) => problems.add(msg);
 
   // Ids the rules use still name the same skill / equipment.
+  /** @type {Record<'skill' | 'equip', Map<number, string>>} */
   const seen = {skill: new Map(), equip: new Map()};
   for (const h of holders(army)) {
     for (const s of h.skills ?? []) seen.skill.set(s.id, s.name);
     for (const e of h.equip ?? []) seen.equip.set(e.id, e.name);
   }
-  for (const kind of ['skill', 'equip']) {
+  for (const kind of /** @type {('skill' | 'equip')[]} */ (['skill', 'equip'])) {
     for (const [id, name] of EXPECTED_NAMES[kind]) {
       if (!seen[kind].has(id)) once(`${kind} id ${id} ("${name}", src/army/ids.js) is on no trooper any more`);
       else if (seen[kind].get(id) !== name) once(`${kind} id ${id} is now "${seen[kind].get(id)}", src/army/ids.js expects "${name}"`);

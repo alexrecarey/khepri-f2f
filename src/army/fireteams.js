@@ -19,25 +19,48 @@
 // it to 2 (no fireteam option). A unit missing from the map never joins a
 // fireteam.
 
+/**
+ * One army's fireteam chart, as scripts/fetch-army.mjs reads it from the
+ * Army API: its teams, each a list of entries (a unit, how many of it may
+ * join, its counts-as comment), the types the army may field (`spec`) and
+ * the chart's prose (`desc`, a Core cap).
+ * @typedef {{name: string, max: number, slug: string | null, comment?: string | null}} FireteamEntry
+ * @typedef {{type: string[], units: FireteamEntry[], obs?: string | null}} FireteamTeam
+ * @typedef {{teams?: FireteamTeam[], spec?: Record<string, number>, desc?: string | null}} FireteamChart
+ */
+
+/** @type {Record<string, number>} */
 const SIZE = {DUO: 2, HARIS: 3, CORE: 5};
 
+/** @param {string | null | undefined} comment */
 const countsAs = (comment) => {
   const m = /\(([^)]*)\)/.exec(comment ?? '');
   return m ? m[1].split(',').map((s) => s.trim().toLowerCase()).filter(Boolean) : [];
 };
+/** @param {FireteamEntry} entry */
 const isFto = (entry) => /\bFTO\b/.test(entry.name) || /^\s*FTO/.test(entry.comment ?? '');
 // "REGULAR" for "REGULAR", "BLADE" for "BLADE FTO": what a counts-as comment names.
 // "fusilier" for "FUSILIERS", "blade" for "BLADE FTO": names compared without
 // case, FTO or a plural s.
+/** @param {string} name */
 const norm = (name) => name.replace(/\bFTO\b/g, '').replace(/\s+/g, ' ').trim().toLowerCase().replace(/s$/, '');
 // A name matches a label word by word: "helot" covers "helot militiaman".
+/**
+ * @param {string} label
+ * @param {string} name
+ */
 const covers = (label, name) => name === label || name.startsWith(`${label} `);
 
+/** @param {FireteamChart} chart */
 function coreCap(chart) {
   const m = /Core have a maximum of (\d+)/i.exec(chart.desc ?? '');
   return m ? Number(m[1]) : SIZE.CORE;
 }
 
+/**
+ * @param {string} type
+ * @param {FireteamChart} chart
+ */
 function teamSize(type, chart) {
   return type === 'CORE' ? coreCap(chart) : SIZE[type];
 }
@@ -48,6 +71,10 @@ function teamSize(type, chart) {
 // Phalanx)", "(Undertow)"), so labels and names match word by word either
 // way; two entry names must be equal (Zhanshi is not Zhanshi Yisheng, and
 // Scarface is not Cordelia Turner though Army sells them as one unit).
+/**
+ * @param {FireteamEntry} m
+ * @param {string} group
+ */
 function standsFor(m, group) {
   const kind = group.slice(0, 2);
   const n = group.slice(2);
@@ -59,6 +86,13 @@ function standsFor(m, group) {
 
 // The purity `x` can reach in one team. `x` is one of the team's entries, or
 // a wildcard joining it from outside (extra).
+/**
+ * @param {FireteamEntry} x
+ * @param {FireteamTeam} team
+ * @param {FireteamChart} chart
+ * @param {Set<string>} fielded
+ * @param {boolean} [extra]
+ */
 function teamPurity(x, team, chart, fielded, extra = false) {
   const sizes = team.type.filter((t) => fielded.has(t)).map((t) => teamSize(t, chart));
   if (!sizes.length) return 0;
@@ -75,8 +109,18 @@ function teamPurity(x, team, chart, fielded, extra = false) {
   return best >= 2 ? best : 0;
 }
 
+/**
+ * @param {(FireteamChart | null | undefined)[]} charts
+ * @returns {Record<string, {all: number, fto: number}>}
+ */
 export function fireteamLimits(charts) {
+  /** @type {Record<string, {all: number, fto: number}>} */
   const out = {};
+  /**
+   * @param {string} slug
+   * @param {boolean} fto
+   * @param {number} size
+   */
   const note = (slug, fto, size) => {
     const u = (out[slug] ??= {all: 0, fto: 0});
     if (fto) u.fto = Math.max(u.fto, size);

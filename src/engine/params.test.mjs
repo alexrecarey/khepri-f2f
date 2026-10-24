@@ -12,7 +12,7 @@ test('f2f.py reads exactly the engine input', () => {
   // p[f'burst{s}'] reads the key for both sides.
   for (const m of f2f.matchAll(/p\[f'(\w+)\{\w+\}'\]/g)) ['A', 'B'].forEach((s) => read.add(m[1] + s));
   // attack() reads a list of keys for one side.
-  const keys = /keys = \[([^\]]*)\]/.exec(f2f)[1];
+  const keys = /** @type {RegExpExecArray} */ (/keys = \[([^\]]*)\]/.exec(f2f))[1];
   for (const m of keys.matchAll(/'(\w+)'/g)) ['A', 'B'].forEach((s) => read.add(m[1] + s));
   assert.deepEqual([...read].sort(), [...ENGINE_KEYS].sort());
 });
@@ -49,10 +49,10 @@ test('bonusBurstB is read on its own, not only when burstB is set', () => {
 
 test('paramsKey ignores key order; fullParams fills defaults', () => {
   const a = fullParams({burstA: 4, ammoA: 'DA'});
-  const b = {...a};
+  const b = /** @type {Partial<import('../types.js').Params>} */ ({...a});
   delete b.burstA;
   b.burstA = 4;
-  assert.equal(paramsKey(a), paramsKey(b));
+  assert.equal(paramsKey(a), paramsKey(/** @type {import('../types.js').Params} */ (b)));
   assert.equal(a.burstB, 1);
   assert.equal(a.fixedFaceToFace, false);
 });

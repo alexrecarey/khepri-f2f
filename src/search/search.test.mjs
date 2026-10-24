@@ -48,8 +48,10 @@ test('index: one row per loadout, sectorials folded into their vanilla', () => {
   // 'Iguana' Squadron exists only in sectorials (403 and 502), so it is listed
   // under their vanillas and loaded from the sectorial that has it.
   const iguana = index.units.find((u) => u.short === "'Iguana' Squadron");
+  assert.ok(iguana);
   assert.deepEqual(iguana.factions.sort(), [401, 501]);
   const row = index.rows.find((r) => r.unitId === iguana.id);
+  assert.ok(row);
   assert.equal(row.factions[401], 403);
 });
 
@@ -145,11 +147,12 @@ test('speed: typing stays well under a frame', () => {
   }
   times.sort((a, b) => a - b);
   // Generous for slow CI machines; on a laptop these run in ~0.5 ms.
-  assert.ok(times.at(-2) < 8, `slowest queries: ${times.slice(-3).map((t) => t.toFixed(1))} ms`);
+  assert.ok(/** @type {number} */ (times.at(-2)) < 8, `slowest queries: ${times.slice(-3).map((t) => t.toFixed(1))} ms`);
 });
 
 test('unit drill-in, units of a type, and finding a saved pick again', () => {
   const fus = index.units.find((u) => u.short === 'Fusiliers');
+  assert.ok(fus);
   const rowsP = searcher.unitRows(fus.id, PANO);
   assert.ok(rowsP.length > 3);
   assert.ok(rowsP.every((r, i) => i === 0 || rowsP[i - 1].points <= r.points));
@@ -193,6 +196,7 @@ test("each unit carries its best match: the loadout Enter picks, past the profil
   const {units} = searcher.search({query: 'spitfire'});
   assert.ok(units.length > 30, `${units.length} units`);
   for (const u of units) {
+    assert.ok(u.best);
     assert.equal(u.best.unitId, u.unitId);
     assert.ok(u.best.weapons.some((w) => /spitfire/i.test(w)), `${u.short} -> ${u.best.weapons}`);
   }
@@ -204,7 +208,7 @@ test("a TAG's own loadout ranks above its Crabbot peripheral", () => {
   for (const [query, want] of [['squalo', 'SQUALO Mk-II'], ['jotum', 'JOTUM'], ['cutter', 'CUTTER']]) {
     const r = searcher.search({query});
     assert.equal(r.profiles[0]?.loadout, want, `${query}: top profile`);
-    assert.equal(r.units[0]?.best.loadout, want, `${query}: the unit row's pick`);
+    assert.equal(r.units[0]?.best?.loadout, want, `${query}: the unit row's pick`);
     assert.ok(r.profiles.some((h) => h.loadout === 'CRABBOT'), `${query}: the Crabbot is still listed`);
   }
 });

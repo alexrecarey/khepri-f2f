@@ -15,14 +15,23 @@ import useLayout, {usesDialogs} from './useLayout.js';
 import useSwipeToDelete from './useSwipeToDelete.js';
 import {useT} from './i18n.jsx';
 
+/** @typedef {import('../types.js').SavedRoll} SavedRoll */
+/** @typedef {import('../types.js').Translator} Translator */
+
 const back = () => dispatch({type: 'back'});
+/** @param {string} id */
 const loadRoll = (id) => dispatch({type: 'loadRoll', id});
+/**
+ * @param {string} id
+ * @param {Translator} t
+ */
 const deleteRoll = (id, t) => {
   dispatch({type: 'deleteRoll', id});
   dispatch({type: 'toast', text: t('saved.deleted')});
 };
 
 // What a roll says: Matchup, the crest row; Classic, both dice lines.
+/** @param {{roll: SavedRoll, size?: number}} props */
 function RollBody({roll, size}) {
   const t = useT();
   const s = roll.summary;
@@ -52,9 +61,14 @@ function RollBody({roll, size}) {
 
 RollBody.propTypes = {roll: PropTypes.object.isRequired, size: PropTypes.number};
 
+/**
+ * @param {import('../types.js').RollSummary} s
+ * @param {Translator} t
+ */
 const rollLabel = (s, t) => t('saved.rollLabel', {a: s.a, r: s.r, setup: s.setup ? `, ${s.setup}` : ''});
 
 // One saved roll on the phone page; swipe it left to show Delete.
+/** @param {{roll: SavedRoll, swiped: boolean}} props */
 function RollCard({roll, swiped}) {
   const t = useT();
   const {cardRef, handlers} = useSwipeToDelete(roll.id, swiped, () => loadRoll(roll.id));
@@ -78,10 +92,11 @@ function useSavedList() {
   const saved = useAppState((s) => s.lists.saved);
   const mode = useAppState((s) => s.mode);
   const tab = useAppState((s) => s.ui.savedTab) ?? mode;
+  /** @param {string} m */
   const count = (m) => saved.filter((r) => r.mode === m).length;
   const tabs = (
     <div className="segs" role="group" aria-label={t('saved.whichCalculator')}>
-      {[[MODES.matchup, t('mode.matchup')], [MODES.basic, t('mode.classic')]].map(([m, name]) => (
+      {/** @type {[import('../types.js').UiState['savedTab'] & string, string][]} */ ([[MODES.matchup, t('mode.matchup')], [MODES.basic, t('mode.classic')]]).map(([m, name]) => (
         <button key={m} type="button" className={`seg${tab === m ? ' on' : ''}`} aria-pressed={tab === m}
           onClick={() => dispatch({type: 'setSavedTab', tab: m})}>{name} · {count(m)}</button>
       ))}
@@ -108,10 +123,11 @@ function SavedPhone() {
 }
 
 // Up / down move the focus between the rows' load buttons.
+/** @param {import('react').KeyboardEvent<HTMLElement>} e */
 function moveFocus(e) {
   if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
-  const rows = [...e.currentTarget.querySelectorAll('.drow-load')];
-  const i = rows.indexOf(document.activeElement);
+  const rows = [.../** @type {NodeListOf<HTMLElement>} */ (e.currentTarget.querySelectorAll('.drow-load'))];
+  const i = rows.indexOf(/** @type {HTMLElement} */ (document.activeElement));
   const next = rows[i < 0 ? 0 : Math.max(0, Math.min(rows.length - 1, i + (e.key === 'ArrowDown' ? 1 : -1)))];
   if (next) { e.preventDefault(); next.focus(); next.scrollIntoView({block: 'nearest'}); }
 }

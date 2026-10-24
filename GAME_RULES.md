@@ -7,9 +7,11 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 ## Rolls
 - d20 against a Success Value (SV). Roll ≤ SV succeeds; roll = SV is a critical. SV above 20 crits from 1 up.
 - MODs total at most ±12. Fireteam +1 BS is a MOD and counts; Dodge PH=14 replaces the Attribute and doesn't.
+  - When the cap bites, the app says so for every roll: a Dodge or Reset as much as an attack (Alex, 2026-10-23).
 - SV below 1 is an automatic failure (clamp to 0, never 1). Out of range = 0.
 - Face to Face: a success cancels the opponent's successes with a lower roll; a critical cancels all their non-critical successes.
 - Direct Template: no roll, so nothing is opposed; each side's attack resolves on its own.
+  - The app says so whenever either side fires a Direct Template, whatever the other side does: shoots, Dodges, Resets, No ARO or can't reach (Alex, 2026-10-23). Not when a zone blocks the template: it rolls nothing.
 - ARO: Burst 1. Only Total Reaction and Neurocinetics keep their full Burst in ARO.
 - Neurocinetics: Burst 1 in the Active Turn, Burst MODs included.
 - BS Weapon (PH) / (WIP) (Grenades, Flash Pulse…) roll against PH / WIP; BS MODs still apply.
@@ -106,6 +108,7 @@ Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Wa
 
 ## Fireteams
 - Bonuses (cumulative, by purity): 2 = BS Attack +1 SD, 3 = +1 Dodge MOD, 4 = +1 BS, 5 = Sixth Sense.
+  - The +1 SD is a BS Attack's: a Direct Template gets none, and How the dice were built shows no Fireteam SD line for it, cancelled or not (Alex, 2026-10-23).
 - Who can join, from every army's fireteam chart (vanilla and sectorial; the picker's vanilla grouping is only for browsing, not a restriction). Each unit gets the most generous team it reaches anywhere.
 - Team sizes: Core 5 (or the army's own cap, e.g. "Core have a maximum of 4 members"), Haris 3, Duo 2. A type only counts if the army may field it (vanilla armies have no Core).
 - Purity: the largest group of one unit in the team. Members that count as that unit join it: a counts-as comment names another entry ("(Orc, Helot)") or a label several entries share ("(Steel Phalanx)", "(Undertow)"). A trooper that isn't the team's unit fills a slot without adding to it: 4 Fusiliers + 1 Bolt is purity 4. Below 2 there is no bonus, so no fireteam.

@@ -19,26 +19,38 @@ import {ProfileRow, UnitRow} from './Rows.jsx';
 import {factionNameOf, useRecentIds} from './useRecentIds.js';
 import {useT} from '../i18n.jsx';
 
+/** @typedef {import('../../types.js').ProfileHit} ProfileHit */
+/** @typedef {import('../../types.js').UnitHit} UnitHit */
+
 const back = () => dispatch({type: 'back'});
+/** @param {string} query */
 const setQuery = (query) => dispatch({type: 'pickerQuery', query});
+/** @param {number | null} scope */
 const setScope = (scope) => dispatch({type: 'pickerScope', scope});
+/** @param {import('../../types.js').PickerView} view */
 const push = (view) => dispatch({type: 'pickerPush', view});
 
 // Three across leaves room for recents above the fold; these don't fit.
 // Keyed by faction id (vanilla Combined Army, Non-Aligned Armies), so any
 // language's long name is replaced.
+/** @type {Record<number, string>} */
 const SHORT_NAMES = {601: 'picker.shortCombined', 901: 'picker.shortNa'};
 
+/**
+ * @param {{side: import('../../types.js').Side, searcher: import('../../types.js').Searcher | null, army: import('../../types.js').Army | null,
+ *   onPick: (hit: ProfileHit) => void, loadError?: (() => void) | null}} props
+ */
 export default function TrooperPicker({side, searcher, army, onPick, loadError}) {
   const t = useT();
   const color = ROLE[side];
-  const {query, scope, stack} = useAppState((s) => s.ui.picker);
+  // Shown while the picker is open (ui.picker set).
+  const {query, scope, stack} = useAppState((s) => /** @type {import('../../types.js').PickerState} */ (s.ui.picker));
   const recentFactions = useAppState((s) => s.lists.recentFactions);
   // Drill-in stack: {view: 'factions'} | {view: 'type', type} | {view: 'unit', unitId, name}
   const top = stack.at(-1) ?? null;
   const pop = back;
   const onClose = back;
-  const inputRef = useRef(null);
+  const inputRef = useRef(/** @type {HTMLInputElement | null} */ (null));
   // preventScroll: focusing must not scroll the page to the input (the page
   // already fits above the keyboard, useVisualViewport.js).
   useEffect(() => { if (!top) inputRef.current?.focus({preventScroll: true}); }, [top]);
@@ -47,16 +59,20 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
   const results = useMemo(() => {
     if (!searcher) return null;
     return query.trim()
-      ? {mode: 'search', ...searcher.search({query, factionId: scope, recentIds})}
-      : {mode: 'browse', ...searcher.browse({factionId: scope, recentIds})};
+      ? {mode: /** @type {const} */ ('search'), ...searcher.search({query, factionId: scope, recentIds})}
+      : {mode: /** @type {const} */ ('browse'), ...searcher.browse({factionId: scope, recentIds})};
   }, [searcher, query, scope, recentIds]);
 
+  /** @param {number | null | undefined} id */
   const factionName = (id) => factionNameOf(searcher, id, t);
+  /** @param {ProfileHit} hit */
   const pick = (hit) => onPick(hit);
+  /** @param {UnitHit} u */
   const openUnit = (u) => push({view: 'unit', unitId: u.unitId, name: u.short});
 
   // Enter takes the top result, but never a typo guess: the player confirms those.
   const firstHit = results?.mode === 'search' ? (results.recent[0] ?? results.profiles[0]) : null;
+  /** @param {import('react').FormEvent} e */
   const onSubmit = (e) => {
     e.preventDefault();
     if (firstHit && !firstHit.loose) pick(firstHit);
@@ -67,8 +83,9 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
 
   // Drilled in: one of the screens in PickerScreens.jsx.
   if (top?.view === 'factions') return factionsScreen({t, searcher, scope, color, recentFactions, pop, setScope});
-  if (top?.view === 'type') return typeScreen({t, searcher, scope, top, factionName, pop, openUnit});
-  if (top?.view === 'unit') return unitScreen({t, searcher, army, scope, color, top, factionName, pop, pick});
+  // Drilling in needs the searcher (the screens were pushed from its lists).
+  if (top?.view === 'type') return typeScreen({t, searcher: /** @type {import('../../types.js').Searcher} */ (searcher), scope, top, factionName, pop, openUnit});
+  if (top?.view === 'unit') return unitScreen({t, searcher: /** @type {import('../../types.js').Searcher} */ (searcher), army, scope, color, top, factionName, pop, pick});
 
   const searchBar = (
     <form className="search-bar" role="search" autoComplete="off" onSubmit={onSubmit}>
@@ -82,7 +99,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
             onClick={() => setQuery(query.trim() === q ? '' : q)}>{label}</button>
         ))}
       </div>
-      <label htmlFor={`trooper-search-${side}`} className="label search-label">{t('picker.search')}</label>
+      <label htmlFor={`trooper-search-${side}`} className="label vh">{t('picker.search')}</label>
       <input
         id={`trooper-search-${side}`}
         ref={inputRef}
@@ -140,7 +157,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
         <>
           <div className="list-head">{t('picker.pickFaction')}</div>
           <div className="tiles three">
-            {searcher.factions.map((f) => (
+            {/** @type {import('../../types.js').Searcher} */ (searcher).factions.map((f) => (
               <button type="button" key={f.id} className="tile faction-pick" onClick={() => setScope(f.id)}>
                 <FactionLogo id={f.id} size={30} /><span>{SHORT_NAMES[f.id] ? t(SHORT_NAMES[f.id]) : f.name}</span>
               </button>

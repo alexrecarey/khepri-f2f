@@ -7,8 +7,10 @@ import useDialogFocus from './useDialogFocus.js';
 import useVisualViewport from './useVisualViewport.js';
 import {useT} from './i18n.jsx';
 
+/** @param {() => void} onClose */
 function useEscape(onClose) {
   useEffect(() => {
+    /** @param {KeyboardEvent} e */
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -17,9 +19,13 @@ function useEscape(onClose) {
 
 // `actions`: small buttons on the handle's row (Save, Share). `sheetRef` /
 // `scrimRef`: for swipe gestures (useSheetGestures.js).
+/**
+ * @param {{onClose: () => void, label: string, children?: import('react').ReactNode, actions?: import('react').ReactNode,
+ *   sheetRef?: import('react').RefObject<HTMLDivElement>, scrimRef?: import('react').RefObject<HTMLDivElement>}} props
+ */
 export function Sheet({onClose, label, children, actions, sheetRef, scrimRef}) {
   useEscape(onClose);
-  const own = useRef(null);
+  const own = useRef(/** @type {HTMLDivElement | null} */ (null));
   const ref = sheetRef ?? own;
   useDialogFocus(ref);
   return (
@@ -40,11 +46,15 @@ Sheet.propTypes = {
 
 // `closeLabel` ("Cancel"): the page is the first of its stack, so it closes
 // with a text button on the right instead of a back arrow.
+/**
+ * @param {{title: import('react').ReactNode, subtitle?: import('react').ReactNode, onBack: () => void, children?: import('react').ReactNode,
+ *   footer?: import('react').ReactNode, action?: import('react').ReactNode, closeLabel?: string, label?: string, className?: string}} props
+ */
 export function Page({title, subtitle, onBack, children, footer, action, closeLabel, label, className = ''}) {
   const t = useT();
   useEscape(onBack);
   useVisualViewport();
-  const ref = useRef(null);
+  const ref = useRef(/** @type {HTMLDivElement | null} */ (null));
   useDialogFocus(ref);
   return (
     <div ref={ref} className={`page ${className}`} role="dialog" aria-modal="true" aria-label={label ?? (typeof title === 'string' ? title : undefined)}>

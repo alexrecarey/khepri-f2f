@@ -18,6 +18,10 @@ import {engineStatus, useT} from './i18n.jsx';
 import {sideLabel} from './SideCard.jsx';
 
 // Dice icons: tap the third die for burst 3; tap the lit last die to drop one.
+/** @typedef {import('../types.js').Params} Params */
+/** @typedef {import('../types.js').Side} Side */
+
+/** @param {{value: number, max: number, min: number, onChange: (n: number) => void, color: string, label: string, zeroOption?: boolean}} props */
 function DiceInput({value, max, min, onChange, color, label, zeroOption}) {
   const t = useT();
   const fill = color === 'active' ? 'var(--active)' : 'var(--reactive)';
@@ -54,8 +58,10 @@ DiceInput.propTypes = {
 };
 
 // −3 −1 [n] +1 +3: the steps that matter in Infinity (MODs come in threes).
+/** @param {{name: string, value: number, limit: readonly [number, number], onChange: (n: number) => void, color: string}} props */
 function Stepper({name, value, limit, onChange, color}) {
   const t = useT();
+  /** @param {number} d */
   const step = (d) => onChange(clamp(limit, value + d));
   return (
     <div className="stepper">
@@ -74,16 +80,26 @@ Stepper.propTypes = {
   onChange: PropTypes.func.isRequired, color: PropTypes.string.isRequired,
 };
 
+/** The per-side params, without the side letter.
+ * @typedef {'burst' | 'bonusBurst' | 'successValue' | 'ammo' | 'cont' | 'critImmune' | 'template'} SideKey */
+
+/** @param {{side: Side, params: Params, setParam: (key: keyof Params) => (value: Params[keyof Params]) => void}} props */
 function ClassicSide({side, params, setParam}) {
   const t = useT();
   const color = ROLE[side];
+  /** @param {SideKey} k */
   const v = (k) => params[`${k}${side}`];
+  /** @param {SideKey} k */
   const set = (k) => setParam(`${k}${side}`);
-  const burst = v('burst');
+  const burst = /** @type {number} */ (v('burst'));
   const ammo = v('ammo');
   const {rollsDice, causesSaves, plasma} = classicSide(params, side);
+  /**
+   * @param {'critImmune' | 'template'} k
+   * @param {string} name
+   */
   const toggle = (k, name) => (
-    <button type="button" className={`chip solid${v(k) ? ` on ${color}` : ''}`} aria-pressed={v(k)} onClick={() => set(k)(!v(k))}>
+    <button type="button" className={`chip solid${v(k) ? ` on ${color}` : ''}`} aria-pressed={/** @type {boolean} */ (v(k))} onClick={() => set(k)(!v(k))}>
       {v(k) ? `${name} ✓` : name}
     </button>
   );
@@ -93,9 +109,9 @@ function ClassicSide({side, params, setParam}) {
       <span className={`role ${color}`}>{sideLabel(t, side)}</span>
       <DiceInput label={t('classic.burst')} value={burst} min={side === 'B' ? 0 : 1} max={6} color={color} onChange={set('burst')}
         zeroOption={side === 'B'} />
-      <DiceInput label={t('classic.specialDice')} value={v('bonusBurst')} min={0} max={3} color={color} onChange={set('bonusBurst')} />
+      <DiceInput label={t('classic.specialDice')} value={/** @type {number} */ (v('bonusBurst'))} min={0} max={3} color={color} onChange={set('bonusBurst')} />
       <div className="steppers">
-        {rollsDice && <Stepper name={t('classic.successValue')} value={v('successValue')} limit={LIMITS.successValue} color={color} onChange={set('successValue')} />}
+        {rollsDice && <Stepper name={t('classic.successValue')} value={/** @type {number} */ (v('successValue'))} limit={LIMITS.successValue} color={color} onChange={set('successValue')} />}
         {/* The save the opponent makes against this side: weapon PS + their ARM
             (cover included); Plasma also makes them save with BTS. */}
         {causesSaves && (
@@ -114,7 +130,7 @@ function ClassicSide({side, params, setParam}) {
             <button type="button" key={key} className={`btn solid${ammo === key ? ` on ${color}` : ''}`} aria-pressed={ammo === key}
               onClick={() => set('ammo')(key)}>{t(name)}</button>
           ))}
-          <button type="button" className={`btn solid${v('cont') ? ` on ${color}` : ''}`} aria-pressed={v('cont')}
+          <button type="button" className={`btn solid${v('cont') ? ` on ${color}` : ''}`} aria-pressed={/** @type {boolean} */ (v('cont'))}
             onClick={() => set('cont')(!v('cont'))} title={t('trait.continuousDamage')}>{t('tag.contUpper')}</button>
         </div>
       </div>
@@ -134,11 +150,13 @@ function ClassicSide({side, params, setParam}) {
 
 ClassicSide.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, params: PropTypes.object.isRequired, setParam: PropTypes.func.isRequired};
 
-const setParam = (key) => (value) => dispatch({type: 'setClassic', key, value});
+/** @param {keyof Params} key */
+const setParam = (key) => /** @param {Params[keyof Params]} value */ (value) => dispatch({type: 'setClassic', key, value});
 
+/** @param {{params: Params, engine: import('../types.js').EngineHook}} props */
 export default function ClassicScreen({params, engine}) {
   const t = useT();
-  const summaryOf = useCallback((s) => classicRollSummary(params, s, t), [params, t]);
+  const summaryOf = useCallback(/** @param {import('../types.js').Summary} s */ (s) => classicRollSummary(params, s, t), [params, t]);
   const status = engineStatus(t, engine.status);
   const {s, save} = useRollResults({result: engine.result, summaryOf, pending: engine.pending});
   const layout = useLayout();

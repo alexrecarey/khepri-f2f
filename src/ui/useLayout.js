@@ -7,19 +7,29 @@
 //   wide       1800+   setup | results | both mods cards side by side
 import {useSyncExternalStore} from 'react';
 
+/** @typedef {import('../types.js').Layout} Layout */
+
+/** @type {[number, Layout][]} */
 const STEPS = [[1800, 'wide'], [1400, 'desktop'], [1100, 'landscape'], [768, 'tablet']];
 
+/**
+ * @param {number} width
+ * @returns {Layout}
+ */
 export const layoutFor = (width) => STEPS.find(([min]) => width >= min)?.[1] ?? 'phone';
 
 // From landscape tablets up the menu pages and the picker are dialogs over
 // the workbench, reached from header buttons; below, full-screen pages.
+/** @param {Layout} layout */
 export const usesDialogs = (layout) => layout === 'landscape' || layout === 'desktop' || layout === 'wide';
 
+/** @param {() => void} cb */
 const subscribe = (cb) => {
   window.addEventListener('resize', cb);
   return () => window.removeEventListener('resize', cb);
 };
 
+/** @returns {Layout} */
 export default function useLayout() {
-  return useSyncExternalStore(subscribe, () => layoutFor(window.innerWidth), () => 'phone');
+  return useSyncExternalStore(subscribe, () => layoutFor(window.innerWidth), () => /** @type {Layout} */ ('phone'));
 }

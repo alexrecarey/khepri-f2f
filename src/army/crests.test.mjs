@@ -4,6 +4,9 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {crestForRow, crestOf, crestSlugs} from './crests.js';
 
+/** @typedef {import('../types.js').UnitRow} UnitRow */
+/** @typedef {import('../types.js').ProfileRow} ProfileRow */
+
 const army = JSON.parse(readFileSync(new URL('./army.json', import.meta.url), 'utf8'));
 
 test('every unit has a crest slug in CB\'s file-name form', () => {
@@ -12,8 +15,8 @@ test('every unit has a crest slug in CB\'s file-name form', () => {
 });
 
 test('a profile with its own crest wins over its unit\'s', () => {
-  assert.equal(crestOf({crest: 'unit-1-1'}, {crest: 'unit-2-1'}), 'unit-2-1');
-  assert.equal(crestOf({crest: 'unit-1-1'}, {}), 'unit-1-1');
+  assert.equal(crestOf(/** @type {UnitRow} */ ({crest: 'unit-1-1'}), /** @type {ProfileRow} */ ({crest: 'unit-2-1'})), 'unit-2-1');
+  assert.equal(crestOf(/** @type {UnitRow} */ ({crest: 'unit-1-1'}), /** @type {ProfileRow} */ ({})), 'unit-1-1');
   assert.equal(crestOf(null, null), null);
 });
 

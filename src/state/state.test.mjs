@@ -12,6 +12,9 @@ import {startSync} from './sync.js';
 import {stateFromUrl, urlFromState} from './url.js';
 import {MODES} from './modes.js';
 
+/** @typedef {import('../types.js').AppState} AppState */
+/** @typedef {import('../types.js').Params} Params */
+
 const run = (state, ...actions) => actions.reduce(reduce, state);
 const memStorage = (init = {}) => {
   const m = new Map(Object.entries(init));
@@ -22,7 +25,8 @@ const zhanshi = {...EMPTY_SIDE, unitId: 20, factionId: 201, groupId: 1, optionId
 
 test('unknown actions return the same object', () => {
   const s0 = initialState();
-  assert.equal(reduce(s0, {type: 'nope'}), s0);
+  // An action type reduce() doesn't know.
+  assert.equal(reduce(s0, /** @type {import('../types.js').Action} */ (/** @type {unknown} */ ({type: 'nope'}))), s0);
 });
 
 test('swapSides drops No ARO and Surprise Attack, carries fireteam and cover', () => {
@@ -125,7 +129,8 @@ test('recents are capped per side', () => {
 });
 
 test('untagged recents from before the side tag belong to both sides', () => {
-  const old = {unitId: 7, groupId: 1, optionId: 1};
+  const old = /** @type {import('../types.js').Recent} */ ({unitId: 7, groupId: 1, optionId: 1});
+  /** @type {AppState} */
   let s = {...initialState(), lists: {recents: [old], recentFactions: [], saved: []}};
   assert.deepEqual(recentsFor(s.lists.recents, 'A'), [old]);
   assert.deepEqual(recentsFor(s.lists.recents, 'B'), [old]);
@@ -166,7 +171,7 @@ test('a Matchup address carries the headline the player sees; opening one keeps 
   assert.equal(new URLSearchParams(urlFromState(s)).get('headline'), 'wpo');
   const win = run(s, {type: 'setPref', key: 'headline', value: 'win'});
   assert.equal(new URLSearchParams(urlFromState(win)).get('headline'), 'win');
-  assert.equal(stateFromUrl(urlFromState(win)).prefs, undefined);
+  assert.equal(/** @type {Partial<AppState>} */ (stateFromUrl(urlFromState(win))).prefs, undefined);
 });
 
 test('classic state round-trips through the URL, defaults left out', () => {
@@ -178,7 +183,7 @@ test('classic state round-trips through the URL, defaults left out', () => {
 });
 
 test('classic links carry the save as one number, never PS and ARM apart', () => {
-  let c = {...DEFAULT_PARAMS, ammoA: 'PLASMA'};
+  let c = /** @type {Params} */ ({...DEFAULT_PARAMS, ammoA: 'PLASMA'});
   c = classicSave(c, 'A', 'arm', 14);
   c = classicSave(c, 'A', 'bts', 11);
   c = classicSave(c, 'B', 'arm', 9);
@@ -189,6 +194,7 @@ test('classic links carry the save as one number, never PS and ARM apart', () =>
   assert.match(url, /psBtsA=11/);
   assert.match(url, /psB=9/);
   const back = stateFromUrl(url).classic;
+  assert.ok(back);
   assert.equal(back.damageA + back.armB, 14);
   assert.equal(back.damageA + back.btsB, 11);
   assert.equal(back.damageB + back.armA, 9);
@@ -196,6 +202,7 @@ test('classic links carry the save as one number, never PS and ARM apart', () =>
 
 test('old classic links with weapon PS, ARM and BTS apart still load', () => {
   const c = stateFromUrl('?mode=basic&damageA=8&armB=4&btsB=2&ammoA=PLASMA&damageB=6&armA=3').classic;
+  assert.ok(c);
   assert.equal(c.damageA + c.armB, 12);
   assert.equal(c.damageA + c.btsB, 10);
   assert.equal(c.damageB + c.armA, 9);
@@ -207,7 +214,7 @@ test('old classic links with weapon PS, ARM and BTS apart still load', () => {
 test('an old classic link without a mode opens the classic calculator', () => {
   const out = stateFromUrl('?burstA=4&successValueA=15');
   assert.equal(out.mode, 'basic');
-  assert.equal(out.classic.burstA, 4);
+  assert.equal(out.classic?.burstA, 4);
   assert.equal(stateFromUrl('?mode=matchup&unitA=10').mode, 'matchup');
   assert.deepEqual(stateFromUrl(''), {});
 });
@@ -291,7 +298,7 @@ test('sync: the URL follows the state, each overlay layer is a history entry', (
   // Browser Back closes one layer.
   win.history.go(-1);
   assert.equal(store.get().ui.overlay, 'picker');
-  assert.deepEqual(store.get().ui.picker.stack, []);
+  assert.deepEqual(store.get().ui.picker?.stack, []);
   // Closing inside the app steps history back too.
   dispatch({type: 'back'});
   assert.equal(win.index, 0);
@@ -324,7 +331,7 @@ test('every fixture is a valid partial state', async () => {
 test('saved rolls: save once per setup, load the whole setup, delete', async () => {
   const {makeRoll} = await import('./rolls.js');
   let s = run(initialState(), {type: 'setSide', side: 'A', sel: fennec}, {type: 'setRange', rangeCm: 80});
-  const roll = makeRoll({mode: 'matchup', setup: s.matchup, summary: {a: 'x'}, now: 1});
+  const roll = makeRoll({mode: 'matchup', setup: s.matchup, summary: /** @type {import('../types.js').RollSummary} */ ({a: 'x'}), now: 1});
   s = run(s, {type: 'saveRoll', roll}, {type: 'saveRoll', roll: {...roll, id: 'again'}});
   assert.equal(s.lists.saved.length, 1);
   assert.equal(s.lists.saved[0].id, 'again');
@@ -383,14 +390,14 @@ test('desktop picker: cursor resets on a new query; pick then the other side', (
 
 test('each side keeps its own picker faction; clearing the troopers forgets both', async () => {
   const {openPicker, pickTrooper, pickerSide, scopeFor} = await import('./actions.js');
-  const hit = (factionId) => ({unitId: 10, armyFactionId: factionId, factionId, groupId: 1, optionId: 2});
+  const hit = (factionId) => /** @type {import('../types.js').ProfileHit} */ ({unitId: 10, armyFactionId: factionId, factionId, groupId: 1, optionId: 2});
   let s = initialState();
   // Nothing chosen yet: All factions, never the other side's.
   assert.equal(scopeFor(null, s, 'A'), null);
   s = run(s, openPicker(null, s, 'A'), {type: 'pickerScope', scope: 101});
   assert.deepEqual(s.scopes, {A: 101});
   s = run(s, {type: 'back'}, openPicker(null, s, 'B'));
-  assert.equal(s.ui.picker.scope, null);                  // reactive doesn't inherit PanOceania
+  assert.equal(s.ui.picker?.scope, null);                  // reactive doesn't inherit PanOceania
   s = run(s, {type: 'pickerScope', scope: 201}, pickTrooper(null, 'B', hit(201)));
   assert.deepEqual(s.scopes, {A: 101, B: 201});
   assert.equal(run(s, openPicker(null, s, 'A')).ui.picker.scope, 101);
@@ -399,7 +406,7 @@ test('each side keeps its own picker faction; clearing the troopers forgets both
   assert.equal(scopeFor(null, s, 'A'), null);
   // Desktop: switching sides brings that side's faction.
   s = run(s, pickerSide(null, s, 'B'));
-  assert.equal(s.ui.picker.scope, 201);
+  assert.equal(s.ui.picker?.scope, 201);
   s = run(s, {type: 'back'}, {type: 'swapSides'});
   assert.deepEqual(s.scopes, {A: 201, B: null});
   s = run(s, {type: 'clearSides'});
@@ -411,9 +418,9 @@ test('picking then the other side opens it on that side\'s faction', async () =>
   const {openPicker, pickTrooper} = await import('./actions.js');
   let s = {...initialState(), scopes: {B: 801}};
   s = run(s, openPicker(null, s, 'A'));
-  s = run(s, pickTrooper(null, 'A', {unitId: 10, armyFactionId: 101, factionId: 101, groupId: 1, optionId: 2}, {next: true, state: s}));
-  assert.equal(s.ui.picker.side, 'B');
-  assert.equal(s.ui.picker.scope, 801);
+  s = run(s, pickTrooper(null, 'A', /** @type {import('../types.js').ProfileHit} */ ({unitId: 10, armyFactionId: 101, factionId: 101, groupId: 1, optionId: 2}), {next: true, state: s}));
+  assert.equal(s.ui.picker?.side, 'B');
+  assert.equal(s.ui.picker?.scope, 801);
   assert.equal(s.scopes.A, 101);
 });
 
@@ -456,10 +463,12 @@ test('sync: a save waiting on its 200 ms is written when the page is hidden or c
 test('saved rolls from older builds: missing fields default, key order does not matter', async () => {
   const {setupKey} = await import('./rolls.js');
   const {sapper, upgrade, ...olderA} = {...EMPTY_SIDE, ...fennec};   // saved before sapper / upgrade existed
-  const reordered = Object.fromEntries(Object.entries(olderA).reverse());
-  const old = {id: 'r1', mode: 'matchup', savedAt: 1, summary: {a: 'x'}, setup: {B: {...EMPTY_SIDE}, rangeCm: 40, A: reordered}};
-  const now = {A: {...EMPTY_SIDE, ...fennec}, B: {...EMPTY_SIDE}, rangeCm: 40};
+  const reordered = /** @type {import('../types.js').Selection} */ (Object.fromEntries(Object.entries(olderA).reverse()));
+  // Saved before the zones and with the summary of its day.
+  const old = /** @type {import('../types.js').SavedRoll} */ ({id: 'r1', mode: 'matchup', savedAt: 1, summary: {a: 'x'}, setup: {B: {...EMPTY_SIDE}, rangeCm: 40, A: reordered}});
+  const now = /** @type {import('../types.js').Matchup} */ ({A: {...EMPTY_SIDE, ...fennec}, B: {...EMPTY_SIDE}, rangeCm: 40});
   assert.equal(setupKey('matchup', old.setup), setupKey('matchup', now));
+  /** @type {AppState} */
   let s = {...initialState(), lists: {...initialState().lists, saved: [old]}};
   s = reduce(s, {type: 'loadRoll', id: 'r1'});
   assert.equal(s.matchup.A.sapper, false);
@@ -478,8 +487,8 @@ test('Smoke / White Noise: setZone, kept by a swap, in the URL and back', () => 
   assert.equal(s.matchup.smoke, true);
   const url = urlFromState(s);
   assert.match(url, /smoke=1/);
-  assert.equal(stateFromUrl(url).matchup.smoke, true);
-  assert.equal(stateFromUrl(url).matchup.whiteNoise, false);
+  assert.equal(stateFromUrl(url).matchup?.smoke, true);
+  assert.equal(stateFromUrl(url).matchup?.whiteNoise, false);
 });
 
 test('picking a CC weapon moves the range to the closest band, a split range too', () => {

@@ -10,17 +10,42 @@ import {deriveInputs as deriveRaw} from './matchup.js';
 import {RANGE_BANDS, rangeModFor} from './ranges.js';
 import {pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
 
+/** @typedef {import('../types.js').WeaponRow} WeaponRow */
+/** @typedef {import('../types.js').WeaponEntry} WeaponEntry */
+/** @typedef {import('../types.js').ProfileRow} ProfileRow */
+/** @typedef {import('../types.js').OptionRow} OptionRow */
+/** @typedef {import('../types.js').Side} Side */
+/** @typedef {import('../types.js').Section} Section */
+/** @typedef {import('../types.js').Ledger} Ledger */
+/** @typedef {import('../types.js').LedgerSide} LedgerSide */
+/** @typedef {import('../types.js').ResolvedSide} ResolvedSide */
+/** @typedef {import('../types.js').Selection} Selection */
+/** @typedef {import('../types.js').Army} Army */
+/** @typedef {import('../types.js').UnitRow} UnitRow */
+/** @typedef {import('../types.js').WeaponMods} WeaponMods */
+
 // The derivation rendered in English, as the view hands it to buildLedger.
+/** @param {Parameters<typeof deriveRaw>[0]} o */
 const deriveInputs = (o) => renderDerived(deriveRaw(o));
 
+/** @type {Army} */
 const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 
 // Seeded, so a failure always reproduces.
 let seed = 11;
 const rand = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+/**
+ * @template T
+ * @param {T[]} list
+ * @returns {T}
+ */
 const pickOne = (list) => list[Math.floor(rand() * list.length)];
 
-// A random trooper: unit, faction, group, loadout and one of its weapons (or Dodge).
+/**
+ * A random trooper: unit, faction, group, loadout and one of its weapons (or Dodge).
+ * @param {Side} side
+ * @returns {ResolvedSide}
+ */
 function randomSide(side) {
   for (;;) {
     const unit = pickOne(army.units);
@@ -29,20 +54,26 @@ function randomSide(side) {
     const option = pickOne(group.options);
     const sel = {unitId: unit.id, factionId, groupId: group.id, profileId: group.profiles[0].id, optionId: option.id,
       inCover: rand() < 0.4, surpriseAttack: rand() < 0.5, ftSize: pickOne([1, 1, 2, 3, 4, 5])};
-    const r = resolveSelection(army, sel);
+    // A unit, group and loadout from the data resolve, with the loadout.
+    const r = /** @type {ResolvedSide & {option: OptionRow}} */ (resolveSelection(army, sel));
     const weapons = trooperWeapons(r.option, army.weapons, r.traits);
     const choices = [...weapons, ...pseudoWeapons(r.traits, side)];
     const w = rand() < 0.85 && weapons.length ? pickOne(weapons) : pickOne(choices);
-    return resolveSelection(army, {...sel, weaponKey: w.key});
+    return /** @type {ResolvedSide} */ (resolveSelection(army, {...sel, weaponKey: w.key}));
   }
 }
 
+/**
+ * @param {string} where
+ * @param {Section | undefined} sec
+ * @param {number | undefined} expected
+ */
 function checkSection(where, sec, expected) {
   if (!sec) return;
   assert.equal(sec.total, expected, `${where} total`);
-  const sum = sec.lines.filter((l) => !l.struck && typeof l.value === 'number').reduce((a, l) => a + l.value, 0);
-  // Out of range is a '—' line with Success Value 0, not a sum.
-  if (!sec.lines.some((l) => l.value === '—')) assert.equal(sum, sec.total, `${where} lines add up: ${JSON.stringify(sec.lines)}`);
+  const sum = sec.lines.filter((l) => l.value !== null && !l.struck).reduce((a, l) => a + /** @type {number} */ (l.value), 0);
+  // Out of range: Success Value 0 under a '—' mark, not the lines' sum.
+  if (!sec.lines.some((l) => l.text === '—')) assert.equal(sum, sec.total, `${where} lines add up: ${JSON.stringify(sec.lines)}`);
 }
 
 test('ledger totals match deriveInputs and are the sum of their lines', () => {
@@ -55,14 +86,16 @@ test('ledger totals match deriveInputs and are the sum of their lines', () => {
     if (!derived.ok) continue;
     const {inputs} = derived;
     const ledger = buildLedger({active, reactive, derived});
-    const where = (s) => `#${i} ${s} ${active.unit.isc} ${active.weapon.key} vs ${reactive.unit.isc} ${reactive.weapon.key} @${rangeCm}`;
-    for (const s of ['A', 'B']) {
+    // Both picked a weapon (or a Dodge).
+    /** @param {Side} s */
+    const where = (s) => `#${i} ${s} ${active.unit.isc} ${/** @type {WeaponEntry} */ (active.weapon).key} vs ${reactive.unit.isc} ${/** @type {WeaponEntry} */ (reactive.weapon).key} @${rangeCm}`;
+    for (const s of /** @type {Side[]} */ (['A', 'B'])) {
       const l = ledger[s];
       if (!l || l.kind === 'none') continue;
       if (l.sv) checkSection(`${where(s)} SV`, l.sv, inputs[`successValue${s}`]);
       if (l.burst) checkSection(`${where(s)} B`, l.burst, inputs[`burst${s}`]);
       if (l.sd) checkSection(`${where(s)} SD`, l.sd, inputs[`bonusBurst${s}`] ?? 0);
-      if (l.save) checkSection(`${where(s)} PS`, l.save, inputs[`damage${s}`] + inputs[`arm${s === 'A' ? 'B' : 'A'}`]);
+      if (l.save) checkSection(`${where(s)} PS`, l.save, /** @type {number} */ (inputs[`damage${s}`]) + /** @type {number} */ (inputs[`arm${s === 'A' ? 'B' : 'A'}`]));
     }
     checked++;
   }
@@ -70,66 +103,88 @@ test('ledger totals match deriveInputs and are the sum of their lines', () => {
 });
 
 test('dice line reads like the results: B, SV and the save value', () => {
-  const find = (isc) => army.units.find((u) => u.isc.startsWith(isc));
+  /** @param {string} isc a unit in the data */
+  const find = (isc) => /** @type {UnitRow} */ (army.units.find((u) => u.isc.startsWith(isc)));
+  /**
+   * @param {string} isc
+   * @param {string} weaponName a weapon one of its loadouts carries
+   * @param {Partial<Selection>} [extra]
+   * @returns {ResolvedSide}
+   */
   const side = (isc, weaponName, extra = {}) => {
     const unit = find(isc);
     const factionId = Number(Object.keys(unit.byFaction)[0]);
     const group = unit.byFaction[factionId].groups[0];
-    const option = group.options.find((o) => o.weapons.some((w) => w.name === weaponName));
+    const option = /** @type {OptionRow} */ (group.options.find((o) => o.weapons.some((w) => w.name === weaponName)));
     const sel = {unitId: unit.id, factionId, groupId: group.id, profileId: group.profiles[0].id, optionId: option.id, ftSize: 1, ...extra};
-    const r = resolveSelection(army, sel);
-    const w = trooperWeapons(r.option, army.weapons, r.traits).find((x) => x.name === weaponName);
-    return resolveSelection(army, {...sel, weaponKey: w.key});
+    const r = /** @type {ResolvedSide & {option: OptionRow}} */ (resolveSelection(army, sel));
+    const w = /** @type {WeaponEntry} */ (trooperWeapons(r.option, army.weapons, r.traits).find((x) => x.name === weaponName));
+    return /** @type {ResolvedSide} */ (resolveSelection(army, {...sel, weaponKey: w.key}));
   };
   const active = side('Fusiliers', 'Combi Rifle');
   const reactive = side('Fusiliers', 'Combi Rifle', {inCover: true});
   const derived = deriveInputs({active, reactive, rangeCm: 40});
-  const ledger = buildLedger({active, reactive, rangeCm: 40, derived});
-  assert.match(ledger.A.dice, /^B3 SV\d+ PS\d+$/);
-  assert.ok(ledger.A.sv.lines.some((l) => l.label === 'cover' && l.by === 'B' && l.value === -3));
-  assert.ok(ledger.A.save.lines.some((l) => l.label === 'cover' && l.by === 'B' && l.value === 3));
-  assert.ok(ledger.B.burst.lines.some((l) => l.label === 'ARO: one die'));
+  // The ledger reads the sides and the derivation; the rest is the setup they came from.
+  const ledger = buildLedger(/** @type {Parameters<typeof buildLedger>[0]} */ ({active, reactive, rangeCm: 40, derived}));
+  assert.match(/** @type {LedgerSide} */ (ledger.A).dice, /^B3 SV\d+ PS\d+$/);
+  assert.ok(/** @type {Section} */ (/** @type {LedgerSide} */ (ledger.A).sv).lines.some((l) => l.label === 'cover' && l.by === 'B' && l.value === -3));
+  assert.ok(/** @type {Section} */ (/** @type {LedgerSide} */ (ledger.A).save).lines.some((l) => l.label === 'cover' && l.by === 'B' && l.value === 3));
+  assert.ok(/** @type {Section} */ (/** @type {LedgerSide} */ (ledger.B).burst).lines.some((l) => l.label === 'ARO: one die'));
 });
 
 test('ammo tag: N never shown, Plasma, Cont, Blast, in the order players write them', () => {
   const rows = Object.values(army.weapons).flat();
-  const row = (name, mode = null) => rows.find((r) => r.name === name && (mode === null || r.mode === mode));
-  assert.equal(ammoTag(row('Combi Rifle'), {}), '');
-  assert.equal(ammoTag(row('Light Flamethrower'), {}), ' Cont');
-  assert.equal(ammoTag(row('AP Heavy Machine Gun'), {}), ' AP');
-  assert.equal(ammoTag(row('Missile Launcher', 'Hit Mode'), {}), ' AP EXP');
-  assert.equal(ammoTag(row('Missile Launcher', 'Blast Mode'), {}), ' EXP Blast');
-  assert.equal(ammoTag(row('Plasma Rifle', 'Hit Mode'), {}), ' Plasma');
-  assert.equal(ammoTag(row('Plasma Rifle', 'Blast Mode'), {}), ' Plasma Blast');
-  assert.equal(ammoTag(row('Combi Rifle'), {forceAP: true, cont: true}), ' AP Cont');
+  /**
+   * @param {string} name a weapon in the data
+   * @param {string | null} [mode]
+   */
+  const row = (name, mode = null) => /** @type {WeaponRow} */ (rows.find((r) => r.name === name && (mode === null || r.mode === mode)));
+  // {} stands for mods that add nothing: all ammoTag reads.
+  assert.equal(ammoTag(row('Combi Rifle'), /** @type {WeaponMods} */ ({})), '');
+  assert.equal(ammoTag(row('Light Flamethrower'), /** @type {WeaponMods} */ ({})), ' Cont');
+  assert.equal(ammoTag(row('AP Heavy Machine Gun'), /** @type {WeaponMods} */ ({})), ' AP');
+  assert.equal(ammoTag(row('Missile Launcher', 'Hit Mode'), /** @type {WeaponMods} */ ({})), ' AP EXP');
+  assert.equal(ammoTag(row('Missile Launcher', 'Blast Mode'), /** @type {WeaponMods} */ ({})), ' EXP Blast');
+  assert.equal(ammoTag(row('Plasma Rifle', 'Hit Mode'), /** @type {WeaponMods} */ ({})), ' Plasma');
+  assert.equal(ammoTag(row('Plasma Rifle', 'Blast Mode'), /** @type {WeaponMods} */ ({})), ' Plasma Blast');
+  assert.equal(ammoTag(row('Combi Rifle'), /** @type {WeaponMods} */ ({forceAP: true, cont: true})), ' AP Cont');
 });
 
 test('BS Attack (SR-n) is its own line under the weapon PS, from the attacker', () => {
   // Cutter (TAG, BS Attack (SR-1)) with its MULTI HMG in AP Mode, vs Fusiliers.
-  const pick = (sel) => resolveSelection(army, sel);
+  /** @param {Partial<Selection>} sel a trooper in the data, with its loadout */
+  const pick = (sel) => /** @type {ResolvedSide & {option: OptionRow}} */ (resolveSelection(army, sel));
   const cutter = pick({unitId: 12, factionId: 101, groupId: 1, optionId: 1});
-  const hmg = trooperWeapons(cutter.option, army.weapons, cutter.traits).find((w) => w.id === 4 && /^AP/.test(w.mode));
+  const hmg = /** @type {WeaponEntry} */ (trooperWeapons(cutter.option, army.weapons, cutter.traits).find((w) => w.id === 4 && /^AP/.test(/** @type {string} */ (w.mode))));
   const active = pick({unitId: 12, factionId: 101, groupId: 1, optionId: 1, weaponKey: hmg.key});
   const reactive = pick({unitId: 1, factionId: 101, groupId: 1, optionId: 1, weaponKey: '33:'});
   const derived = deriveInputs({active, reactive, rangeCm: 80});
-  const save = buildLedger({active, reactive, rangeCm: 80, derived}).A.save;
+  const save = /** @type {Section} */ (/** @type {LedgerSide} */ (buildLedger(/** @type {Parameters<typeof buildLedger>[0]} */ ({active, reactive, rangeCm: 80, derived})).A).save);
   // Then the target's ARM 1: AP halves it to ceil(1/2) = 1, so no halving line.
   assert.deepEqual(save.lines.map((l) => [l.value, l.label, l.by]), [[5, 'PS', null], [-1, 'BS Attack (SR-1)', 'A'], [1, 'ARM', 'B']]);
   assert.equal(save.total, 5);
 });
 
 test('AMMO: the weapon\'s own ammo, then each addition with its source', () => {
+  /**
+   * @param {number} unitId
+   * @param {number} factionId
+   * @param {number} groupId
+   * @param {number} optionId
+   * @returns {ResolvedSide}
+   */
   const side = (unitId, factionId, groupId, optionId) => {
     const sel = {unitId, factionId, groupId, optionId};
-    const r = resolveSelection(army, sel);
+    const r = /** @type {ResolvedSide & {option: OptionRow}} */ (resolveSelection(army, sel));
     const w = trooperWeapons(r.option, army.weapons, r.traits)[0];
-    return resolveSelection(army, {...sel, weaponKey: w.key});
+    return /** @type {ResolvedSide} */ (resolveSelection(army, {...sel, weaponKey: w.key}));
   };
-  const target = resolveSelection(army, {unitId: 1, factionId: 101, groupId: 1, optionId: 1, weaponKey: '33:'});
+  const target = /** @type {ResolvedSide} */ (resolveSelection(army, {unitId: 1, factionId: 101, groupId: 1, optionId: 1, weaponKey: '33:'}));
+  /** @param {ResolvedSide} x */
   const ammo = (x) => {
     const derived = deriveInputs({active: x, reactive: target, rangeCm: 40});
-    const a = buildLedger({active: x, reactive: target, rangeCm: 40, derived}).A.ammo;
-    return {lines: a.lines.map((l) => [l.value, l.label, l.by ?? l.source ?? null]), total: a.total};
+    const a = /** @type {Section} */ (/** @type {LedgerSide} */ (buildLedger(/** @type {Parameters<typeof buildLedger>[0]} */ ({active: x, reactive: target, rangeCm: 40, derived})).A).ammo);
+    return {lines: a.lines.map((l) => [l.text, l.label, l.by ?? l.source ?? null]), total: a.total};
   };
   // Bashi Bazouks: BS Attack (AP) adds AP, from the trooper.
   const bashi = ammo(side(325, 401, 1, 2));
@@ -145,7 +200,13 @@ test('AMMO: the weapon\'s own ammo, then each addition with its source', () => {
 });
 
 // Deterministic cases for rule interactions the random sample can miss.
-const pickSide = (sel) => resolveSelection(army, {profileId: 1, ftSize: 1, ...sel});
+/** @param {Partial<Selection>} sel a trooper in the data */
+const pickSide = (sel) => /** @type {ResolvedSide} */ (resolveSelection(army, {profileId: 1, ftSize: 1, ...sel}));
+/**
+ * @param {ResolvedSide} active
+ * @param {ResolvedSide} reactive
+ * @param {number} rangeCm
+ */
 const ledgerFor = (active, reactive, rangeCm) => {
   const derived = deriveInputs({active, reactive, rangeCm});
   assert.ok(derived.ok);
@@ -158,7 +219,7 @@ test('ARM = 0 wins over the Dodge\'s ARM +3 (struck, not added)', () => {
   const reactive = pickSide({unitId: 1896, factionId: 501, groupId: 1, optionId: 1, weaponKey: 'dodge'});
   const {inputs, ledger} = ledgerFor(active, reactive, 20);
   assert.equal(inputs.armB, 0);
-  const save = ledger.A.save;
+  const save = /** @type {Section} */ (/** @type {LedgerSide} */ (ledger.A).save);
   assert.equal(save.total, inputs.damageA);
   // The ARM line is struck by the weapon, the Dodge's extra by ARM = 0.
   assert.deepEqual(save.lines.slice(2), [
@@ -172,10 +233,11 @@ test('Fireteam +1 BS is a MOD: it counts toward the ±12 cap', () => {
   // an Arjuna (Mimetism -6) in cover: -6 -6 -3 +1 = -14, capped at -12.
   const active = pickSide({unitId: 21, factionId: 102, groupId: 1, optionId: 1, weaponKey: '33:', ftSize: 4});
   const reactive = pickSide({unitId: 1178, factionId: 701, groupId: 2, optionId: 1, weaponKey: '23:', inCover: true});
-  const rangeCm = RANGE_BANDS.map((b) => b.to).find((cm) => rangeModFor(active.weapon.row, cm, active.traits) === -6);
+  // The Combi Rifle has a -6 band.
+  const rangeCm = /** @type {number} */ (RANGE_BANDS.map((b) => b.to).find((cm) => rangeModFor(/** @type {WeaponEntry} */ (active.weapon).row, cm, active.traits) === -6));
   const {inputs, ledger} = ledgerFor(active, reactive, rangeCm);
-  assert.equal(inputs.successValueA, active.profile.bs - 12);
-  const sv = ledger.A.sv;
+  assert.equal(inputs.successValueA, /** @type {ProfileRow} */ (active.profile).bs - 12);
+  const sv = /** @type {Section} */ (/** @type {LedgerSide} */ (ledger.A).sv);
   assert.ok(sv.lines.some((l) => l.label === 'Fireteam 4' && l.value === 1 && l.by === 'A'));
   // The cap line is the rules' own: it gives back the 2 over the cap.
   assert.deepEqual(sv.lines.at(-1), {value: 2, label: 'MODs cap at ±12', by: null});
@@ -187,17 +249,18 @@ test('a split range: each side shoots at its own distance, dice and ledger alike
   const active = pickSide({unitId: 21, factionId: 102, groupId: 1, optionId: 1, weaponKey: '33:'});
   const reactive = pickSide({unitId: 21, factionId: 102, groupId: 1, optionId: 1, weaponKey: '33:'});
   const cms = RANGE_BANDS.map((b) => b.to);
-  const modB = (cm) => rangeModFor(reactive.weapon.row, cm, reactive.traits);
-  // Two distances the reactive's weapon treats differently.
-  const rangeCm = cms.find((cm) => modB(cm) !== null);
-  const rangeCmB = cms.find((cm) => modB(cm) !== null && modB(cm) !== modB(rangeCm));
+  /** @param {number} cm */
+  const modB = (cm) => rangeModFor(/** @type {WeaponEntry} */ (reactive.weapon).row, cm, reactive.traits);
+  // Two distances the reactive's weapon treats differently (a Combi Rifle has them).
+  const rangeCm = /** @type {number} */ (cms.find((cm) => modB(cm) !== null));
+  const rangeCmB = /** @type {number} */ (cms.find((cm) => modB(cm) !== null && modB(cm) !== modB(rangeCm)));
   const split = deriveInputs({active, reactive, rangeCm, rangeCmB});
   assert.ok(split.ok);
   assert.equal(split.inputs.successValueA, deriveInputs({active, reactive, rangeCm}).inputs.successValueA);
   assert.equal(split.inputs.successValueB, deriveInputs({active, reactive, rangeCm: rangeCmB}).inputs.successValueB);
   assert.notEqual(split.inputs.successValueB, deriveInputs({active, reactive, rangeCm}).inputs.successValueB);
-  const ledger = buildLedger({active, reactive, rangeCm, rangeCmB, derived: split});
-  assert.equal(ledger.B.sv.total, split.inputs.successValueB);
+  const ledger = buildLedger(/** @type {Parameters<typeof buildLedger>[0]} */ ({active, reactive, rangeCm, rangeCmB, derived: split}));
+  assert.equal(/** @type {Section} */ (/** @type {LedgerSide} */ (ledger.B).sv).total, split.inputs.successValueB);
   // null (not split) is the shared distance.
   assert.deepEqual(deriveInputs({active, reactive, rangeCm, rangeCmB: null}).inputs, deriveInputs({active, reactive, rangeCm}).inputs);
 });

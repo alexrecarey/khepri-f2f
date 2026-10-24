@@ -3,6 +3,7 @@
 import PropTypes from 'prop-types';
 import {useT} from './i18n.jsx';
 
+/** @param {{what: string, onRetry: () => void, className?: string}} props */
 export default function LoadFailed({what, onRetry, className = 'note'}) {
   const t = useT();
   return (

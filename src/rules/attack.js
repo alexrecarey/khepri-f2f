@@ -15,24 +15,44 @@ import {RANGE_BANDS, bandFrom, rangeModFor} from './ranges.js';
 import {ccAttackMods, ccBurst, ccSd} from './closeCombat.js';
 import {distance, list, msg} from '../i18n/message.js';
 import {hitInputs} from './hit.js';
-import {coverLabel, line, section, statLabel, sum, svSection} from './lines.js';
+import {coverLabel, line, mark, section, statLabel, sum, svSection} from './lines.js';
 
+/** @typedef {import('../types.js').Side} Side */
+/** @typedef {import('../types.js').Ctx} Ctx */
+/** @typedef {import('../types.js').Trooper} Trooper */
+/** @typedef {import('../types.js').Attacker} Attacker */
+/** @typedef {import('../types.js').Line} Line */
+/** @typedef {import('../types.js').Params} Params */
+
+/** @param {number} rangeCm */
 function rangeLabel(rangeCm) {
   const i = RANGE_BANDS.findIndex((b) => rangeCm <= b.to);
   return msg('ledger.range', {from: distance(bandFrom(i)), to: distance(RANGE_BANDS[i].to)});
 }
 
 // "Mimetism (-6)", "Mimetism (-3), Foxhole": the target's Mimetism as the ledger names it.
+/**
+ * @param {Trooper} y
+ * @param {number} full
+ */
 function mimetismLabel(y, full) {
   const name = msg('skill.mimetismMod', {mod: full});
-  return y.traits.skills.find((k) => k.id === SKILL.MIMETISM)?.foxhole ? list([name, msg('skill.foxhole')]) : name;
+  // A trooper with a profile has traits.
+  return /** @type {import('../types.js').Traits} */ (y.traits).skills.find((k) => k.id === SKILL.MIMETISM)?.foxhole ? list([name, msg('skill.foxhole')]) : name;
 }
 
 // The MODs y's position and skills put on x's shot, in y's colour: Mimetism
 // (what x's MSV cancels struck), Albedo, cover or Nanoscreen, Firewall.
+/**
+ * @param {Attacker} x
+ * @param {Trooper} y
+ * @param {Side} s
+ * @returns {Line[]}
+ */
 function targetSvLines(x, y, s) {
   const o = other(s);
   const {row} = x.weapon;
+  /** @type {Line[]} */
   const lines = [];
   // Mimetism and Albedo need LoF (a Jammer or a program has none): struck
   // against one. A Comms Attack takes the target's Firewall in place of cover.
@@ -42,7 +62,8 @@ function targetSvLines(x, y, s) {
   else if (full) {
     const applied = mimetismMod(y.traits, x.traits);
     const name = mimetismLabel(y, full);
-    if (applied) lines.push(line(applied, applied !== full ? list([name, msvName(x.traits)]) : name, o));
+    // Part of it applied: the attacker's MSV cancelled the rest.
+    if (applied) lines.push(line(applied, applied !== full ? list([name, /** @type {import('../types.js').Message} */ (msvName(x.traits))]) : name, o));
     else lines.push(line(full, name, o, msvName(x.traits) ?? msg('ledger.cancelled')));
   }
   const albedo = lof ? albedoMod(y.traits, x.traits) : 0;
@@ -63,6 +84,14 @@ function targetSvLines(x, y, s) {
 }
 
 // A shot's Success Value: the Attribute, then every MOD as a line.
+/**
+ * @param {Attacker} x
+ * @param {Trooper | null} y
+ * @param {number} rangeCm
+ * @param {Side} s
+ * @param {Ctx} ctx
+ * @returns {import('../types.js').Section}
+ */
 function attackSv(x, y, rangeCm, s, ctx) {
   const {vis} = ctx;
   const o = other(s);
@@ -74,7 +103,7 @@ function attackSv(x, y, rangeCm, s, ctx) {
   const rangeMod = rangeModFor(row, rangeCm, x.traits);
   // Out of range: the attack still happens but always fails. A success value
   // of 0 misses on every roll, with no crit.
-  if (rangeMod === null) return {...section([...lines, line('—', msg('ledger.outOfRange'), s)], 0), note: msg('ledger.outOfRangeNote')};
+  if (rangeMod === null) return {...section([...lines, mark('—', msg('ledger.outOfRange'), s)], 0), note: msg('ledger.outOfRangeNote')};
   if (rangeMod) lines.push(line(rangeMod, rangeLabel(rangeCm), s));
   if (mods.sv) lines.push(line(mods.sv, msg('ledger.loadout'), s));
   // A program's Attack MOD is x's, the target's ECM: Hacker the target's.
@@ -92,6 +121,12 @@ function attackSv(x, y, rangeCm, s, ctx) {
 
 // A shot's Burst: the weapon's, the loadout's and BS Attack's +B, and in ARO
 // one die unless Total Reaction or Neurocinetics keep it.
+/**
+ * @param {Attacker} x
+ * @param {Side} s
+ * @param {Ctx} ctx
+ * @returns {Line[]}
+ */
 function burstLines(x, s, ctx) {
   const {say} = ctx;
   const {row} = x.weapon;
@@ -113,9 +148,17 @@ function burstLines(x, s, ctx) {
 }
 
 // A shot's Special Dice: the loadout's and BS Attack's (+1SD), the Fireteam's.
+// The Fireteam's +1 SD is a BS Attack's: a Direct Template or a program gets
+// none (attackBonuses), so no line for it and none to cancel it (Alex, 2026-10-23).
+/**
+ * @param {Attacker} x
+ * @param {Side} s
+ * @returns {Line[]}
+ */
 function sdLines(x, s) {
+  /** @type {Line[]} */
   const lines = [];
-  const ft = x.weapon.kind === 'program' ? 0 : fireteamBonuses(x.ftSize).sd;
+  const ft = x.weapon.kind === 'bs' ? fireteamBonuses(x.ftSize).sd : 0;
   const own = attackBonuses(x).sd - ft;
   if (own) lines.push(line(own, msg('ledger.loadoutOrBsAttack'), s));
   if (ft) lines.push(line(ft, msg('ledger.fireteam', {size: x.ftSize}), s));
@@ -124,23 +167,40 @@ function sdLines(x, s) {
 
 // A shot (a BS Attack, a Direct Template, a Hacking Program): Success Value,
 // Burst and Special Dice as lines, each summed into its input.
+/**
+ * @param {Attacker} x
+ * @param {Trooper | null} y
+ * @param {number} rangeCm
+ * @param {Side} side
+ * @param {Ctx} ctx
+ * @returns {import('../types.js').Roll}
+ */
 export function attackInputs(x, y, rangeCm, side, ctx) {
   const sv = attackSv(x, y, rangeCm, side, ctx);
   const burst = section(burstLines(x, side, ctx));
   const sd = section(sdLines(x, side));
   const hit = hitInputs(x, y, side, ctx);
-  const inputs = {
+  // Computed keys: tsc sees an index signature, so the shape is stated. The
+  // totals of these sections are numbers (lines.js sum).
+  const inputs = /** @type {Partial<Params>} */ ({
     [`successValue${side}`]: sv.total,
-    [`burst${side}`]: clamp(LIMITS.burst, burst.total),
-    [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, sd.total),
+    [`burst${side}`]: clamp(LIMITS.burst, /** @type {number} */ (burst.total)),
+    [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, /** @type {number} */ (sd.total)),
     ...hit.inputs,
-  };
+  });
   return {inputs, lines: {kind: x.weapon.kind === 'template' ? 'template' : 'attack', sv, burst, sd, ammo: hit.ammo}, ps: hit.ps};
 }
 
 // A CC Attack (closeCombat.js): CC plus its own MODs and the opponent's,
 // capped; no range, cover, Mimetism or Smoke. Burst and Special Dice from
 // the weapon and Martial Arts.
+/**
+ * @param {Attacker} x
+ * @param {Trooper | null} y
+ * @param {Side} side
+ * @param {Ctx} ctx
+ * @returns {import('../types.js').Roll}
+ */
 export function ccAttackInputs(x, y, side, ctx) {
   const lines = [line(attackStat(x.profile, x.weapon.row), statLabel(x, 'cc'), null)];
   for (const m of ccAttackMods(x, side === 'A')) lines.push(line(m.value, m.label, side));
@@ -154,12 +214,12 @@ export function ccAttackInputs(x, y, side, ctx) {
   const burst = section(bursts);
   const sd = section(ccSd(x).map((l) => line(l.value, l.label, side)));
   const hit = hitInputs(x, y, side, ctx);
-  const inputs = {
+  const inputs = /** @type {Partial<Params>} */ ({
     [`successValue${side}`]: sv.total,
     [`burst${side}`]: burst.total,
-    [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, sd.total),
+    [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, /** @type {number} */ (sd.total)),
     [`template${side}`]: false,
     ...hit.inputs,
-  };
+  });
   return {inputs, lines: {kind: 'attack', sv, burst, sd, ammo: hit.ammo}, ps: hit.ps};
 }

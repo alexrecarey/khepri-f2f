@@ -13,6 +13,9 @@ import {unitDetail} from '../../state/pickerView.js';
 import {setCursor} from './useDeskPicker.js';
 
 // The typed letters, marked where a word of the name starts with them.
+/** @typedef {import('./useDeskPicker.js').DeskPickerModel} DeskPickerModel */
+
+/** @param {{text: string, query: string}} props */
 function Highlight({text, query}) {
   const tokens = words(query);
   if (!tokens.length) return text;
@@ -26,15 +29,22 @@ function Highlight({text, query}) {
 
 Highlight.propTypes = {text: PropTypes.string.isRequired, query: PropTypes.string.isRequired};
 
+/** @type {Record<number, string>} */
 const REASON = {[TIER.TYPO1]: 'picker.closeMatch', [TIER.SOUND]: 'picker.soundsLike', [TIER.TYPO2]: 'picker.closeMatch'};
 
 // "BS12 ARM1 W1" for a unit's first profile.
+/**
+ * @param {import('../../state/pickerView.js').UnitDetail | null} detail
+ * @param {import('../../types.js').Translator} t
+ */
 function shortStats(detail, t) {
+  /** @type {Record<string, number | number[] | undefined>} */
   const st = Object.fromEntries(detail?.profiles[0]?.stats ?? []);
   return detail ? `${t('stat.bs')}${st.BS} ${t('stat.arm')}${st.ARM} ${t(st.STR != null ? 'stat.str' : 'stat.w')}${st.STR ?? st.W}` : '';
 }
 
 // m: useDeskPicker(); loadError: retry for a search index that failed.
+/** @param {{m: DeskPickerModel, loadError?: (() => void) | null}} props */
 export default function DeskList({m, loadError}) {
   const t = useT();
   const {searcher, army, typing, query, items, rows, current, at, factionName, pick, matched} = m;
@@ -67,7 +77,8 @@ export default function DeskList({m, loadError}) {
           );
         }
         const d = unitDetail(army, x.u.unitId, null);
-        const reason = REASON[x.u.tier] && t(REASON[x.u.tier]);
+        // A unit from browsing has no tier: no reason.
+        const reason = REASON[/** @type {number} */ (x.u.tier)] && t(REASON[/** @type {number} */ (x.u.tier)]);
         return (
           <div key={`u${x.u.unitId}${x.away ? 'x' : ''}`} id={`dp-row-${idx}`} role="option" aria-selected={on}
             className={`dp-row${on ? ' on' : ''}`} onClick={select} onDoubleClick={() => (x.u.best ? pick(x.u.best) : select())}>

@@ -22,25 +22,35 @@ import {matchupRollSummary} from '../state/rolls.js';
 import useRollResults from './useRollResults.js';
 import {engineStatus, useT} from './i18n.jsx';
 
+/** @typedef {import('../types.js').Side} Side */
+/** @typedef {import('../types.js').ProfileHit} ProfileHit */
+
+/**
+ * @param {{army: import('../types.js').Army | null, armyError: unknown, retryArmy: () => void, view: import('../types.js').MatchupView, engine: import('../types.js').EngineHook}} props
+ */
 export default function MatchupScreen({army, armyError, retryArmy, view, engine}) {
   const t = useT();
-  const picking = useAppState((st) => (st.ui.overlay === 'picker' ? st.ui.picker.side : null));
+  // The picker overlay comes with its picker state.
+  const picking = useAppState((st) => (st.ui.overlay === 'picker' ? /** @type {import('../types.js').PickerState} */ (st.ui.picker).side : null));
   const {searcher, error: searchError, retry: retrySearch} = useSearcher(true, useLanguage());
   const result = view.complete ? engine.result : null;
   // Summarized once here; the card, the panel and Save all read it.
-  const summaryOf = useCallback((s) => (view.complete ? matchupRollSummary(view, s, t) : null), [view, t]);
+  const summaryOf = useCallback(/** @param {import('../types.js').Summary} s */ (s) => (view.complete ? matchupRollSummary(view, s, t) : null), [view, t]);
   const {s, save} = useRollResults({result, targets: view.targets, summaryOf, pending: engine.pending});
 
   const layout = useLayout();
+  /** @type {import('../types.js').ResultsProps} */
   const resultProps = {
     s,
     save,
     pending: engine.pending,
     status: view.complete ? engineStatus(t, engine.status) : t('results.chooseBoth'),
-    diceLine: view.ledger ? {active: view.ledger.ledger.A?.dice, reactive: view.ledger.ledger.B?.dice} : null,
+    // A complete matchup's ledger has both sides.
+    diceLine: view.ledger ? {active: /** @type {string} */ (view.ledger.ledger.A?.dice), reactive: /** @type {string} */ (view.ledger.ledger.B?.dice)} : null,
     ledger: view.ledger,
     params: view.params,
   };
+  /** @param {Side} side */
   const openSide = (side) => () => dispatch(openPicker(army, getState(), side));
   const picked = {A: view.A.resolved?.unit != null, B: view.B.resolved?.unit != null};
   resultProps.picked = picked;
@@ -48,9 +58,10 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
   // side's picker shows under Recent.
   const recentList = useAppState((st) => st.lists.recents);
   const recentHits = useMemo(() => {
+    /** @param {Side} side */
     const hits = (side) => {
       if (!searcher) return [];
-      const ids = recentsFor(recentList, side).map((r) => searcher.findRow(r)).filter((id) => id != null);
+      const ids = /** @type {number[]} */ (recentsFor(recentList, side).map((r) => searcher.findRow(r)).filter((id) => id != null));
       return searcher.browse({factionId: null, recentIds: ids}).recent.slice(0, 3);
     };
     return {A: hits('A'), B: hits('B')};
@@ -59,10 +70,11 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
   // Desktop: A and R open the pickers, unless typing somewhere or a picker is up.
   useEffect(() => {
     if (!wide) return undefined;
+    /** @param {KeyboardEvent} e */
     const onKey = (e) => {
       if (e.metaKey || e.ctrlKey || e.altKey || picking) return;
-      if (e.target.closest?.('input, textarea, select, [contenteditable]')) return;
-      const side = {a: 'A', r: 'B'}[e.key.toLowerCase()];
+      if (/** @type {Element} */ (e.target).closest?.('input, textarea, select, [contenteditable]')) return;
+      const side = /** @type {Record<string, Side | undefined>} */ ({a: 'A', r: 'B'})[e.key.toLowerCase()];
       if (!side) return;
       e.preventDefault();
       dispatch(openPicker(army, getState(), side));
@@ -70,6 +82,7 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [wide, picking, army]);
+  /** @param {Side} side */
   const sideBox = (side) => (picked[side]
     ? <SideCard side={side} view={view} onOpenPicker={openSide(side)}
       onUpgrade={(pick) => dispatch(setUpgrade(army, getState(), side, pick))} />
@@ -82,16 +95,16 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
     <div className="setup-actions">
       <button type="button" className="chip" onClick={() => dispatch({type: 'clearSides'})}>{t('matchup.clearBoth')}</button>
       {view.params && (
-        <button type="button" className="chip" onClick={() => dispatch({type: 'openInClassic', params: view.params})}>{t('matchup.modifyInClassic')}</button>
+        <button type="button" className="chip" onClick={() => dispatch({type: 'openInClassic', params: /** @type {import('../types.js').Params} */ (view.params)})}>{t('matchup.modifyInClassic')}</button>
       )}
     </div>
   );
-  const error = (armyError || searchError) && (
+  const error = /** @type {import('react').ReactNode} */ ((armyError || searchError) && (
     <>
       {armyError && <LoadFailed what={t('load.armyData')} onRetry={retryArmy} />}
       {searchError && <LoadFailed what={t('load.trooperList')} onRetry={retrySearch} />}
     </>
-  );
+  ));
   const mods = view.ledger && result && <Ledger {...view.ledger} />;
   // Phone and tablet: the full-screen picker; wider: the two-pane overlay.
   const deskPicker = usesDialogs(layout);

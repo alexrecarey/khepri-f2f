@@ -10,6 +10,11 @@ import {ccAttackSkill} from './closeCombat.js';
 import {bangbombValue, fireteamMax, fireteamSize, firewallMod} from './modifiers.js';
 import {msg} from '../i18n/message.js';
 
+/** @typedef {import('../types.js').Traits | null | undefined} MaybeTraits */
+/** @typedef {import('../types.js').WeaponEntry} WeaponEntry */
+/** @typedef {import('../types.js').PseudoEntry} PseudoEntry */
+/** @typedef {import('../types.js').Choice} Choice */
+
 // What the trooper's BS Attack skill (profile, loadout or upgrade) does to
 // every weapon it makes a BS Attack with, templates and grenades included:
 //   AP                  AP Ammunition: the target's ARM or BTS is halved
@@ -19,9 +24,10 @@ import {msg} from '../i18n/message.js';
 // (+1B / +1SD are roll bonuses, see rules/modifiers.js attackBonuses.)
 export const BS_ATTACK_WEAPON_EXTRAS = /^(AP|T2|SR-\d+|Continuous Damage)$/;
 
+/** @param {MaybeTraits} traits */
 export function bsAttackWeaponMods(traits) {
   const extras = skillExtras(traits, SKILL.BS_ATTACK);
-  const sr = extras.map((e) => /^SR-(\d+)$/.exec(e)).filter(Boolean).map((m) => Number(m[1]));
+  const sr = /** @type {RegExpExecArray[]} */ (extras.map((e) => /^SR-(\d+)$/.exec(e)).filter(Boolean)).map((m) => Number(m[1]));
   return {
     ap: extras.includes('AP'),
     t2: extras.includes('T2'),
@@ -33,6 +39,12 @@ export function bsAttackWeaponMods(traits) {
 
 // The weapons a trooper can make a BS Attack with (army/weapons.js bsWeapons),
 // with its BS Attack skill applied. `traits` are effectiveTraits().
+/**
+ * @param {import('../types.js').OptionRow} option
+ * @param {Record<string, import('../types.js').WeaponRow[]>} weapons
+ * @param {MaybeTraits} traits
+ * @returns {WeaponEntry[]}
+ */
 export function trooperWeapons(option, weapons, traits) {
   const list = bsWeapons(option, weapons);
   const bs = bsAttackWeaponMods(traits);
@@ -49,6 +61,12 @@ export function trooperWeapons(option, weapons, traits) {
 
 // The trooper's CC weapons (army/weapons.js ccWeapons), with its CC Attack
 // skill applied: AP, Shock and Continuous Damage go on every one of them.
+/**
+ * @param {import('../types.js').OptionRow} option
+ * @param {Record<string, import('../types.js').WeaponRow[]>} weapons
+ * @param {MaybeTraits} traits
+ * @returns {WeaponEntry[]}
+ */
 export function trooperCcWeapons(option, weapons, traits) {
   const list = ccWeapons(option, weapons);
   const cc = ccAttackSkill(traits);
@@ -69,7 +87,12 @@ export function trooperCcWeapons(option, weapons, traits) {
 // Reset: every trooper has it; the card shows it only against a Comms Attack
 // (state/matchupView.js). Zero Pain is a better Reset, for hackers that run it
 // (army/hacking.js): shown the same way.
+/**
+ * @param {MaybeTraits} traits
+ * @returns {PseudoEntry[]}
+ */
 function allPseudoWeapons(traits) {
+  /** @type {PseudoEntry[]} */
   const list = [{key: 'dodge', kind: 'dodge'}];
   if (bangbombValue(traits)) list.push({key: 'bangbomb', kind: 'dodge', bangbomb: true});
   list.push({key: 'reset', kind: 'reset'});
@@ -77,22 +100,37 @@ function allPseudoWeapons(traits) {
   list.push({key: 'none', kind: 'none'});
   return list;
 }
+/**
+ * @param {PseudoEntry[]} list
+ * @param {import('../types.js').Side} side
+ */
 const forRole = (list, side) => (side === 'B' ? list : list.filter((w) => w.kind !== 'none'));
-/** @returns {import('../types.js').PseudoEntry[]} */
+/**
+ * @param {MaybeTraits} traits
+ * @param {import('../types.js').Side} [side]
+ * @returns {PseudoEntry[]}
+ */
 export const pseudoWeapons = (traits, side = 'B') => forRole(allPseudoWeapons(traits), side);
 
 // The entry `key` names in any of the lists, or null.
+/**
+ * @param {Choice[][]} lists
+ * @param {string} key
+ * @returns {Choice | null}
+ */
 const byKey = (lists, key) => lists.flatMap((l) => l).find((w) => w.key === key) ?? null;
 
 /**
  * The same resolution rolling `key` instead (a weapon in its lists).
  * @param {import('../types.js').ResolvedSide} r
+ * @param {string} key
  * @returns {import('../types.js').ResolvedSide}
  */
 export const withWeapon = (r, key) => ({...r, weapon: byKey([r.weapons, r.ccWeapons, r.programs, r.pseudo], key)});
 
 // Name of a choice that is not a weapon: "Dodge", "Bangbomb", "Reset", "Zero
 // Pain", "No ARO" (a message descriptor, i18n/message.js).
+/** @param {PseudoEntry} w */
 export const pseudoName = (w) => msg(`pseudo.${w.bangbomb ? 'bangbomb' : w.zeroPain ? 'zeroPain' : w.kind}`);
 
 // The Firewall chip's values (the MOD to the Comms Attack). The chip starts
@@ -100,9 +138,14 @@ export const pseudoName = (w) => msg(`pseudo.${w.bangbomb ? 'bangbomb' : w.zeroP
 // null is that default, 0 the player's "none", -3 / -6 the player's pick.
 // A Firewall of its own can't be switched off: "none" keeps it.
 export const FIREWALL_CHIPS = [-3, -6];
+/**
+ * @param {number | null | undefined} v
+ * @param {MaybeTraits} traits
+ */
 function firewallChip(v, traits) {
   const own = firewallMod(traits);
-  return FIREWALL_CHIPS.includes(v) ? v : own;
+  // A chip value is a number; null (the default) isn't one.
+  return FIREWALL_CHIPS.includes(/** @type {number} */ (v)) ? /** @type {number} */ (v) : own;
 }
 
 /**
@@ -110,7 +153,9 @@ function firewallChip(v, traits) {
  * profile has the loadout's stat overrides and any Team-Ops upgrades applied;
  * the returned option includes upgrade weapons. `side`: whose role the
  * choices are for ('A' active, 'B' reactive): its pseudo-weapon list.
- * @param {import('../types.js').Selection} sel
+ * @param {import('../types.js').Army | null | undefined} army
+ * @param {Partial<import('../types.js').Selection> | null | undefined} sel a field left out is its default (a share link's, a test's)
+ * @param {import('../types.js').Side} [side]
  * @returns {import('../types.js').ResolvedSide | null}
  */
 export function resolveSelection(army, sel, side = 'B') {
@@ -126,19 +171,21 @@ export function resolveSelection(army, sel, side = 'B') {
   let option = baseOption;
   const teamOps = Boolean(profile) && hasSkill(effectiveTraits(profile, baseOption), SKILL.TEAM_OPS);
   const upgrades = teamOps ? pickedUpgrades(unit, sel) : [];
-  if (upgrades.length > 0) ({profile, option} = applyUpgrades(profile, baseOption, upgrades));
+  // Upgrades come with a profile (teamOps).
+  if (upgrades.length > 0) ({profile, option} = applyUpgrades(/** @type {import('../types.js').ProfileRow} */ (profile), baseOption, upgrades));
   // Upgrade weapons the calculator can't roll (e.g. mines), for a warning.
   const unsupportedUpgradeWeapons = upgrades
     .flatMap((u) => u.attrs.filter((x) => x.type === 'weapon'))
-    .filter((w) => !(army.weapons[w.id] ?? []).some(isBsAttackWeapon))
-    .map((w) => w.name);
+    .filter((w) => !(army.weapons[/** @type {number} */ (w.id)] ?? []).some(isBsAttackWeapon))
+    .map((w) => /** @type {string} */ (w.name));
   const baseTraits = profile ? effectiveTraits(profile, option) : null;
   // Sapper: the trooper may sit in a Foxhole (player's chip), which gives it
   // Partial Cover and Mimetism (-3) (wiki, Foxhole State). Cover doesn't
   // stack: the Foxhole is its cover.
   const canSapper = hasSkill(baseTraits, SKILL.SAPPER);
   const sapper = canSapper && Boolean(sel.sapper);
-  const traits = sapper ? foxholeTraits(baseTraits) : baseTraits;
+  // Sapper needs traits, so a Foxhole has them.
+  const traits = sapper ? foxholeTraits(/** @type {import('../types.js').Traits} */ (baseTraits)) : baseTraits;
   // What the trooper can roll with, built once: the side card shows these
   // lists and the weapon key is looked up in them. BS and CC weapons and
   // programs need a loadout; Dodge and Reset only a profile.
@@ -182,11 +229,16 @@ export function resolveSelection(army, sel, side = 'B') {
 
 // In a Foxhole, Mimetism (-3) joins the trooper's skills unless it already has
 // Mimetism (no stacking: a -6 stays -6). Marked so the ledger can say why.
+/**
+ * @param {import('../types.js').Traits} traits
+ * @returns {import('../types.js').Traits}
+ */
 function foxholeTraits(traits) {
   if (hasSkill(traits, SKILL.MIMETISM)) return traits;
   return {...traits, skills: [...traits.skills, {id: SKILL.MIMETISM, name: 'Mimetism', extra: ['-3'], foxhole: true}]};
 }
 
 // Spec-Ops trooper? Only the Initial profile lists the skill, so check the group.
+/** @param {import('../types.js').ResolvedSide | null | undefined} side */
 export const isSpecOps = (side) =>
   (side?.group?.profiles ?? []).some((p) => (p.skills ?? []).some((sk) => sk.id === SKILL.SPEC_OPS));

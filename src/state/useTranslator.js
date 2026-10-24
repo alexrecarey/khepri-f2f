@@ -5,8 +5,10 @@
 import {useEffect, useState} from 'react';
 import {loadTranslator, tEn} from '../i18n/index.js';
 
+/** @param {string} lang */
 export function useTranslator(lang) {
-  const [state, setState] = useState({t: lang === tEn.lang ? tEn : null, failed: null});
+  const [state, setState] = useState(
+    /** @type {{t: import('../types.js').Translator | null, failed: string | null}} */ ({t: lang === tEn.lang ? tEn : null, failed: null}));
   useEffect(() => {
     if (state.t?.lang === lang || state.failed === lang) return undefined;
     let live = true;

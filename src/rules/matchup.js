@@ -16,6 +16,15 @@ import {attackInputs, ccAttackInputs} from './attack.js';
 import {evadeInputs, noLofInputs} from './evade.js';
 import {defenseInputs} from './hit.js';
 
+/** @typedef {import('../types.js').Side} Side */
+/** @typedef {import('../types.js').Ctx} Ctx */
+/** @typedef {import('../types.js').Trooper} Trooper */
+/** @typedef {import('../types.js').Attacker} Attacker */
+/** @typedef {import('../types.js').Line} Line */
+/** @typedef {import('../types.js').Params} Params */
+/** @typedef {import('../types.js').Evader} Evader */
+/** @typedef {import('../types.js').SideLines} SideLines */
+
 // The Immunities the rules here read, and Immunities to States the calculator
 // doesn't model (E/M's IMM-B and Isolated, Possession): recognized, and
 // correctly change nothing here, since a hit is scored the same and only the
@@ -26,11 +35,18 @@ import {defenseInputs} from './hit.js';
 export const MODELED_IMMUNITIES = ['AP', 'ARM', 'BTS', 'Continuous Damage', 'Critical', 'Enhanced', 'Shock'];
 export const STATE_IMMUNITIES = ['IMM-B', 'Isolated', 'POS'];
 
+/**
+ * @param {Side} s
+ * @param {Trooper | null} side
+ * @param {Trooper | null} target
+ * @param {Ctx} ctx
+ */
 function approximationWarnings(s, side, target, ctx) {
   const {warn} = ctx;
   const row = side?.weapon?.row;
   if (row && hasNoEffect(target?.traits, row)) {
-    warn(s, 'warning.noEffect', {weapon: row.name, by: noEffectBy(target.traits, row)});
+    // hasNoEffect read the target's traits: it is there.
+    warn(s, 'warning.noEffect', {weapon: row.name, by: noEffectBy(/** @type {Trooper} */ (target).traits, row)});
   } else if (row && stateCaused(row)) {
     // Not a warning: the results say Isolated / Stunned (rules/woundStates.js).
   } else if (row && isNonLethal(row)) {
@@ -42,6 +58,13 @@ function approximationWarnings(s, side, target, ctx) {
 // The MODs y's skills put on x's Face to Face Roll (modifiers.js
 // opposingMods), one line each in y's colour; one x ignores is struck with the
 // reason, and noted. Nothing when y has no line of fire (it doesn't attack).
+/**
+ * @param {Trooper | null} y
+ * @param {Trooper | null} x
+ * @param {Side} s
+ * @param {Ctx} ctx
+ * @returns {Line[]}
+ */
 function opposingLines(y, x, s, ctx) {
   const o = other(s);
   if (ctx.vis[o].blocked) return [];
@@ -58,20 +81,31 @@ function opposingLines(y, x, s, ctx) {
 // other side puts on s's roll; `rangeCm`, `rangeCmB` the distances.
 // One side's share of the calculator input: x's roll (an attack, a Dodge or a
 // Reset) against y, and x's Saving Roll against y's weapon. Returns the
-// inputs, whether x still waits on its weapon, whether x shoots (rolls a
-// ranged attack, as opposed to a CC Attack, an evasion, or nothing), the
-// lines its roll is built from (null when it has none to show), its hits' PS
-// lines and its Saving Roll's lines (`ps`, `arm`: the two halves of a save).
+// inputs, whether x still waits on its weapon, the lines its roll is built
+// from (null when it has none to show), its hits' PS lines and its Saving
+// Roll's lines (`ps`, `arm`: the two halves of a save).
+/**
+ * @param {Trooper} x
+ * @param {Trooper | null} y
+ * @param {Side} s
+ * @param {Ctx} ctx
+ */
 function sideInputs(x, y, s, ctx) {
   const {say, fail, vis} = ctx;
+  /** @type {Partial<Params>} */
   const inputs = {};
+  /** @type {SideLines | null} */
   let lines = null;
+  /** @type {Line[] | null} */
   let ps = null;
+  /** @type {Line[] | null} */
   let arm = null;
   let incomplete = false;
-  let shoots = false;
   const w = x.weapon;
   const active = s === 'A';
+  // The branches below pick the roll by w's kind, so each cast of x says
+  // what w is.
+  /** @param {import('../types.js').Roll} r */
   const roll = (r) => {
     Object.assign(inputs, r.inputs);
     lines = r.lines;
@@ -80,7 +114,7 @@ function sideInputs(x, y, s, ctx) {
   if (!w) {
     incomplete = true;
   } else if (w.kind === 'dodge' || w.kind === 'reset') {
-    roll(evadeInputs(x, y, s, vis[other(s)].blocked ? null : y?.weapon, ctx));
+    roll(evadeInputs(/** @type {Evader} */ (x), y, s, vis[other(s)].blocked ? null : y?.weapon, ctx));
   } else if (w.kind === 'none') {
     // No ARO exists only on the reactive side: no roll, no template. On the
     // active side it is a leftover (carried over by a swap; swapSides already
@@ -92,7 +126,7 @@ function sideInputs(x, y, s, ctx) {
     const key = isCcAttack(x) ? 'error.noCcAttack' : 'error.noBsAttack';
     fail(s, active ? key : `${key}Aro`);
   } else if (isCcAttack(x)) {
-    roll(ccAttackInputs(x, y, s, ctx));
+    roll(ccAttackInputs(/** @type {Attacker} */ (x), y, s, ctx));
   } else if (vis[s].blocked) {
     roll({inputs: noLofInputs(s), lines: {kind: 'none', blockedZone: vis[s].blocked}});
   } else if (y && !reaches(x, y)) {
@@ -101,16 +135,15 @@ function sideInputs(x, y, s, ctx) {
   } else {
     // Both shoot at rangeCm, unless the reactive answers from its own rangeCmB.
     const rangeCm = active ? ctx.rangeCm : ctx.rangeCmB ?? ctx.rangeCm;
-    roll(attackInputs(x, y, rangeCm, s, ctx));
+    roll(attackInputs(/** @type {Attacker} */ (x), y, rangeCm, s, ctx));
     inputs[`template${s}`] = w.kind === 'template';
-    shoots = true;
   }
   if (y) {
     const d = defenseInputs(x, y.weapon?.row ? y.weapon : null, s, w?.kind === 'dodge', ctx);
     Object.assign(inputs, d.inputs);
     arm = d.lines;
   }
-  return {inputs, incomplete, shoots, lines, ps, arm};
+  return {inputs, incomplete, lines, ps, arm};
 }
 
 /**
@@ -125,56 +158,69 @@ function sideInputs(x, y, s, ctx) {
  * for "How the dice were built" (ledger.js), or null while the side has
  * nothing to roll with.
  * @param {{active: import('../types.js').ResolvedSide | null, reactive: import('../types.js').ResolvedSide | null,
- *   rangeCm: number, rangeCmB: number | null, zones: import('../types.js').Zones}} matchup
+ *   rangeCm: number, rangeCmB?: number | null, zones?: Partial<import('../types.js').Zones> | null}} matchup no rangeCmB: one distance; no zones: none
  * @returns {import('../types.js').Derived}
  */
 export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
+  /** @type {Partial<Params>} */
   const inputs = {};
+  /** @type {import('../types.js').Message[]} */
   const errors = [];
+  /** @type {import('../types.js').Message[]} */
   const notes = [];
+  /** @type {import('../types.js').Message[]} */
   const warnings = [];
-  // say(side, key, params) adds a note, "Active: ..."; side null for both.
+  /**
+   * say(side, key, params) adds a note, "Active: ..."; side null for both.
+   * @param {import('../types.js').Message[]} into
+   * @returns {import('../types.js').Say}
+   */
   const sayTo = (into) => (side, key, params) => into.push(about(side, msg(key, params)));
-  const a = active?.profile ? active : null;
-  const b = reactive?.profile ? reactive : null;
+  // A side with a profile is a Trooper (types.js).
+  const a = /** @type {Trooper | null} */ (active?.profile ? active : null);
+  const b = /** @type {Trooper | null} */ (reactive?.profile ? reactive : null);
   const x = {A: a, B: b};
   // BS Attack (-X) MODs on each side's roll.
   // Smoke / White Noise between them. A side with no line of fire doesn't
   // attack, so its skills put no MODs on the other side's roll.
   const vis = visibility(a, b, zones);
-  const ctx = {say: sayTo(notes), warn: sayTo(warnings), fail: sayTo(errors), vis, rangeCm, rangeCmB, opposing: {}};
+  // opposing: filled for both sides just below.
+  /** @type {Ctx} */
+  const ctx = {say: sayTo(notes), warn: sayTo(warnings), fail: sayTo(errors), vis, rangeCm, rangeCmB, opposing: /** @type {Ctx['opposing']} */ ({})};
   ctx.opposing.A = opposingLines(b, a, 'A', ctx);
   ctx.opposing.B = opposingLines(a, b, 'B', ctx);
-  for (const s of ['A', 'B']) {
-    if (vis[s].blocked) ctx.say(s, 'note.noLof', {zone: zoneName(vis[s].blocked)});
+  for (const s of /** @type {Side[]} */ (['A', 'B'])) {
+    if (vis[s].blocked) ctx.say(s, 'note.noLof', {zone: zoneName(/** @type {import('../types.js').Zone} */ (vis[s].blocked))});
   }
 
   // A side still waiting on its weapon: nothing to report, but not ready to apply.
   let incomplete = false;
-  const shoots = {A: false, B: false};
+  /** @type {{A: SideLines | null, B: SideLines | null}} */
   const lines = {A: null, B: null};
+  /** @type {{A?: Line[] | null, B?: Line[] | null}} */
   const ps = {};
+  /** @type {{A?: Line[] | null, B?: Line[] | null}} */
   const arm = {};
-  for (const s of ['A', 'B']) {
+  for (const s of /** @type {Side[]} */ (['A', 'B'])) {
     if (!x[s]) continue;
     const r = sideInputs(x[s], x[other(s)], s, ctx);
     Object.assign(inputs, r.inputs);
     incomplete ||= r.incomplete;
-    shoots[s] = r.shoots;
     lines[s] = r.lines;
     ps[s] = r.ps;
     arm[s] = r.arm;
   }
   // The save the target makes against a side's hits: the side's PS, then
   // the target's ARM (or BTS / PH) against that weapon, from the other pass.
-  for (const s of ['A', 'B']) {
-    if (ps[s]) lines[s].save = section([...ps[s], ...(arm[other(s)] ?? [])]);
+  for (const s of /** @type {Side[]} */ (['A', 'B'])) {
+    // PS lines come from a roll, so the side has lines.
+    if (ps[s]) /** @type {SideLines} */ (lines[s]).save = section([.../** @type {Line[]} */ (ps[s]), ...(arm[other(s)] ?? [])]);
   }
   // A Direct Template on either side: nothing is opposed, each attack is its
-  // own roll. Said when the reactive shoots (a Dodge against a template, or a
-  // template against No ARO, says nothing).
-  const usesTemplate = (s) => x[s]?.weapon?.kind === 'template';
-  if (shoots.B && (usesTemplate('A') || usesTemplate('B')) && !vis.A.blocked && !vis.B.blocked) ctx.say(null, 'note.directTemplate');
+  // own roll. Said whatever the other side does, a Dodge, a Reset or No ARO
+  // included (Alex, 2026-10-23); a template a zone blocks rolls nothing
+  // (lines.kind 'none'), so it says nothing.
+  if (/** @type {Side[]} */ (['A', 'B']).some((s) => lines[s]?.kind === 'template')) ctx.say(null, 'note.directTemplate');
 
   if (a || b) inputs.fixedFaceToFace = false;
   // Things the result may get wrong; shown as alerts but don't block the calculation.

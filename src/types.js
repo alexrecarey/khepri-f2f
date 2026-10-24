@@ -1,10 +1,173 @@
 // The shapes that cross module boundaries, written down once so editors show
-// them (docs/plans/ui-pass.md, step 5). JSDoc only: nothing here runs, the
-// repo has no type-check step, and the code is the truth: when a producer
-// and a typedef disagree, fix the typedef. A producer keeps its "why" and
-// points here with `@returns`; the fields and their one-line comments live
-// here. Army rows (units, profiles, loadouts, traits) are army.json's own
-// form (src/army/normalize.js) and are left as plain objects.
+// them (docs/plans/ui-pass.md, step 5) and `yarn typecheck` holds the code
+// to them (step 9: tsc, strict, over the JSDoc). JSDoc only: nothing here
+// runs, and the code is the truth: when a producer and a typedef disagree,
+// fix the typedef. A producer keeps its "why" and points here with
+// `@returns`; the fields and their one-line comments live here. Army rows
+// (units, profiles, loadouts, traits) are army.json's own form
+// (src/army/normalize.js): the fields the code reads are written down below.
+
+// ---- The army data (src/army/army.json, as scripts/fetch-army.mjs writes it) ----
+
+/**
+ * A skill, equipment or weapon as a profile or loadout lists it: the Army id,
+ * its name in the army's language and the bracketed extras ("+1B", "Shock").
+ * @typedef {{id: number, name: string, extra?: string[], foxhole?: true}} TraitRef
+ * `foxhole`: the Mimetism (-3) a Foxhole adds (rules/trooper.js foxholeTraits), so the ledger can say why.
+ */
+
+/** Skills and equipment of a trooper: the profile's plus the loadout's (army/traits.js).
+ * @typedef {{skills: TraitRef[], equip: TraitRef[]}} Traits */
+
+/** The Attributes a profile row has as numbers (ProfileRow).
+ * @typedef {'cc' | 'bs' | 'ph' | 'wip' | 'arm' | 'bts' | 'w' | 's' | 'ava'} StatKey */
+
+/**
+ * One profile of a unit group: the trooper's stats and traits.
+ * @typedef {object} ProfileRow
+ * @property {number} id
+ * @property {string} name
+ * @property {string} type Troop Type: LI, MI, HI, TAG, REM, SK, WB, VH
+ * @property {number[]} move
+ * @property {number} cc
+ * @property {number} bs
+ * @property {number} ph
+ * @property {number} wip
+ * @property {number} arm
+ * @property {number} bts
+ * @property {number} w
+ * @property {boolean} str the W above is STR
+ * @property {number} s
+ * @property {number} ava
+ * @property {TraitRef[]} skills
+ * @property {TraitRef[]} equip
+ * @property {TraitRef[]} weapons
+ * @property {string} [crest] its own crest where it differs from the unit's
+ */
+
+/**
+ * One loadout of a unit group.
+ * @typedef {object} OptionRow
+ * @property {number} id
+ * @property {string} name
+ * @property {number} points
+ * @property {string} swc
+ * @property {TraitRef[]} weapons
+ * @property {TraitRef[]} skills
+ * @property {TraitRef[]} equip
+ * @property {boolean} [fto]
+ * @property {Partial<Record<StatKey, number>>} [statOverrides] "BS=12": replaces the profile's stat (normalize.js statOverrides)
+ */
+
+/**
+ * A group of profiles and loadouts (a TAG and its pilot are two groups).
+ * @typedef {object} GroupRow
+ * @property {number} id
+ * @property {string | null} isc
+ * @property {string | null} category
+ * @property {ProfileRow[]} profiles
+ * @property {OptionRow[]} options
+ */
+
+/** A unit's groups as one faction lists them (unit.byFaction[factionId]).
+ * @typedef {{groups: GroupRow[]}} FactionEntry */
+
+/**
+ * One line of a Team-Ops upgrade (unit.upgrades): a stat delta, or a skill,
+ * equipment or weapon added.
+ * @typedef {{type: 'stat', stat: string, q: number, id?: undefined, name?: undefined, extra?: undefined} | {type: 'skill' | 'equip' | 'weapon', id: number, name: string, extra?: string[], stat?: undefined, q?: undefined}} UpgradeAttr
+ */
+
+/** One pick of a Team-Ops chart, with its label as the Army shows it.
+ * @typedef {{label: string, attrs: UpgradeAttr[]}} UpgradeItem */
+
+/**
+ * A unit as army.json lists it.
+ * @typedef {object} UnitRow
+ * @property {number} id
+ * @property {string} isc
+ * @property {string} name
+ * @property {string} slug
+ * @property {string} [code] the English ISC, kept in other languages for search
+ * @property {number[]} inFactions
+ * @property {Record<string, FactionEntry>} byFaction by faction id
+ * @property {string} [crest] crest slug (army/crests.js)
+ * @property {{all: number, fto: number}} [fireteam] the largest Fireteam its bonuses reach (army/fireteams.js)
+ * @property {{chart: UpgradeItem[], ball: UpgradeItem[]}} [upgrades] Team-Ops picks
+ */
+
+/**
+ * @typedef {object} Faction
+ * @property {number} id
+ * @property {string} name
+ * @property {string} slug
+ * @property {number} parent the vanilla army it belongs to (itself for one)
+ * @property {string} logo
+ * @property {string} version
+ */
+
+/**
+ * The army's own display terms for the English tokens the rules read
+ * (names.<lang>.json): `extras`, `types` and `stats` map a token to its text;
+ * `modes` maps a weapon id to its modes' texts.
+ * @typedef {Record<string, Record<string, string | Record<string, string>>>} Terms
+ */
+
+/**
+ * The army data as every module reads it: army.json, or the loaded core with
+ * a language's names put back on it (army/localize.js withNames).
+ * @typedef {object} Army
+ * @property {string} generatedAt
+ * @property {string} source
+ * @property {Record<string, Faction>} factions by id
+ * @property {UnitRow[]} units
+ * @property {Record<string, WeaponRow[]>} weapons by id, one row per firing mode
+ * @property {string} [lang] the names' language (withNames)
+ * @property {Terms | null} [terms] its display terms, null in English
+ */
+
+/**
+ * A names file (names.<lang>.json, src/army/localize.js): every name of
+ * army.json keyed by id, plus the display terms (Terms) in every language
+ * but English, whose tokens are the terms.
+ * @typedef {object} NamesBase
+ * @property {Record<string, string>} factions
+ * @property {Record<string, string>} skills
+ * @property {Record<string, string>} equip
+ * @property {Record<string, string>} weapons
+ * @property {Record<string, UnitNames>} units
+ */
+/** @typedef {NamesBase & ({extras: Record<string, string>, modes: Record<string, Record<string, string>>, types: Record<string, string>, stats: Record<string, string>} | {extras?: undefined, modes?: undefined, types?: undefined, stats?: undefined})} NamesFile */
+
+/**
+ * @typedef {object} UnitNames
+ * @property {string} isc
+ * @property {string} name
+ * @property {string} [code]
+ * @property {Record<string, {isc: string | null, profiles: Record<string, string>, options: Record<string, string>}>} groups
+ * @property {{chart: string[], ball: string[]}} [upgrades]
+ */
+
+/** The core the app ships: army.json with its names stripped out (army/localize.js splitNames); only withNames reads it.
+ * @typedef {Army} ArmyCore */
+
+/** A side of the matchup: A the active trooper, B the reactive one (lib/side.js).
+ * @typedef {'A' | 'B'} Side */
+
+// ---- The translator (i18n/index.js) ----
+
+/**
+ * The player's translator: t(key, params) is the copy in their language,
+ * with the army's own display terms and distance unit on it.
+ * @typedef {((key: string, params?: Record<string, unknown>) => string) & {
+ *   lang: string,
+ *   has: (key: string) => boolean,
+ *   term: (table: string, token: string, scope?: string | number) => string,
+ *   withTerms: (terms: Terms | null | undefined) => Translator,
+ *   distance: (cm: number) => number,
+ *   inchText: (text: string) => string,
+ * }} Translator
+ */
 
 // ---- Text before it is in a language (i18n/message.js) ----
 
@@ -27,7 +190,7 @@
 /**
  * `term(table, token, scope?)`: an army term (t.term).
  * @typedef {object} MessageTerm
- * @property {[string, string] | [string, string, string]} term
+ * @property {[string, string, (string | number)?]} term
  * @property {RegExp} [strip] taken off the term's text
  */
 
@@ -35,8 +198,8 @@
  * @typedef {{inch: string}} MessageInch */
 /** `distance(cm)`: a distance in t's unit (t.distance).
  * @typedef {{distance: number}} MessageDistance */
-/** `list(items, sep)`: descriptors joined by `sep`.
- * @typedef {{list: Message[], sep: string}} MessageList */
+/** `list(items, sep)`: descriptors joined by `sep`; a number (SR-1's -1) is its digits.
+ * @typedef {{list: (Message | number)[], sep: string}} MessageList */
 
 // ---- What a trooper rolls with (army/weapons.js, army/hacking.js, rules/trooper.js) ----
 
@@ -57,12 +220,12 @@
  * @property {string} [en] the English name, when `name` isn't
  * @property {string | null} mode the firing mode, null for a single-mode weapon
  * @property {number} [burst]
- * @property {number} [dmg] the chart's PS (PARA has none)
- * @property {object | null} [ranges] range bands, null for a weapon without them
+ * @property {number | null} [dmg] the chart's PS (PARA has none)
+ * @property {{to: number, mod: number}[] | null} [ranges] range bands (upper bound in cm, BS MOD), null for a weapon without them
  * @property {string[] | null} ammo the chart's ammunition, null for a weapon without (Sepsitor)
- * @property {{attr: 'ARM' | 'BTS' | 'PH', mod?: number, halved?: boolean, alsoBts?: boolean}} [save] the Saving Roll
+ * @property {{attr: 'ARM' | 'BTS' | 'PH', mod?: number, halved?: boolean, armZero?: boolean, alsoBts?: boolean}} [save] the Saving Roll
  * @property {number} [saveRolls] Saving Rolls per hit
- * @property {string[]} [props] the Army's weapon properties, as strings
+ * @property {string[]} props the Army's weapon properties, as strings
  * @property {{id: string, attack: number, opponent: number, state: string | null, targets: string[] | null}} [hack] a program's own (hacking.js)
  */
 
@@ -90,23 +253,27 @@
  * @typedef {object} WeaponEntry
  * @property {string} key `${id}:${mode}`; a program's is `hack:${id}`
  * @property {'bs' | 'template' | 'cc' | 'program'} kind
- * @property {string} id the Army's weapon id (a program's: its key)
+ * @property {number | string} id the Army's weapon id, a number (a program's: its key)
  * @property {string} name the weapon's name, as `row.name`
  * @property {string | null} mode the firing mode
  * @property {WeaponRow} row as fired: the loadout's ammo extra applied
  * @property {WeaponMods} mods
- * @property {string} label "Combi Rifle · B3 · PS13 · N", English, for tests and rolls
+ * @property {Message} label "Combi Rifle · B3 · PS13 · N" once rendered (army/weapons.js weaponLabel); read by tests
  * @property {true} [zoc] reaches the Zone of Control instead of range bands
+ * @property {undefined} [bangbomb] a PseudoEntry's: never set, so `w.bangbomb` tells the two apart
+ * @property {undefined} [zeroPain]
  */
 
 /**
  * A choice that is not a weapon (rules/trooper.js pseudoWeapons): Dodge,
- * Bangbomb (a second Dodge), Reset, Zero Pain (a better Reset), No ARO.
- * @typedef {object} PseudoEntry
- * @property {'dodge' | 'bangbomb' | 'reset' | 'zeroPain' | 'none'} key
- * @property {'dodge' | 'reset' | 'none'} kind
- * @property {true} [bangbomb]
- * @property {true} [zeroPain]
+ * Bangbomb (a second Dodge), Reset, Zero Pain (a better Reset), No ARO. One
+ * variant per kind, so `w.kind` narrows (tsc only drops a variant whose
+ * discriminant is one literal); `row`, `mods`... are never set, so `w.row`
+ * tells a weapon apart from one of these.
+ * @typedef {{kind: 'dodge', key: 'dodge' | 'bangbomb', bangbomb?: true, zeroPain?: undefined}
+ *   | {kind: 'reset', key: 'reset' | 'zeroPain', zeroPain?: true, bangbomb?: undefined}
+ *   | {kind: 'none', key: 'none', bangbomb?: undefined, zeroPain?: undefined}} PseudoKind
+ * @typedef {PseudoKind & {row?: undefined, mods?: undefined, name?: undefined, id?: undefined, mode?: undefined, zoc?: undefined}} PseudoEntry
  */
 
 /** Anything a side can pick: a weapon or a pseudo-weapon (army/weapons.js isPseudo tells them apart).
@@ -117,20 +284,20 @@
  * resolveSelection): the trooper that rolls, what it can roll with, and the
  * situation chips.
  * @typedef {object} ResolvedSide
- * @property {object} unit the Army unit
- * @property {string | null} factionId the faction the unit is taken in
- * @property {object[] | null} groups the unit's groups in that faction
- * @property {object | null} group
- * @property {object | null} profile with the loadout's stat overrides and any Team-Ops upgrades applied
- * @property {object | null} option the loadout, upgrade weapons included
- * @property {{skills: object[], equip: object[]} | null} traits the profile's plus the loadout's (army/traits.js); a Foxhole adds Mimetism (-3)
+ * @property {UnitRow} unit the Army unit
+ * @property {number | null} factionId the faction the unit is taken in
+ * @property {GroupRow[] | null} groups the unit's groups in that faction
+ * @property {GroupRow | null} group
+ * @property {ProfileRow | null} profile with the loadout's stat overrides and any Team-Ops upgrades applied
+ * @property {OptionRow | null} option the loadout, upgrade weapons included
+ * @property {Traits | null} traits the profile's plus the loadout's (army/traits.js); a Foxhole adds Mimetism (-3)
  * @property {Choice | null} weapon the pick, looked up in the lists below (No ARO whichever the side)
  * @property {WeaponEntry[]} weapons BS Attack weapons, the trooper's BS Attack skill applied
  * @property {WeaponEntry[]} ccWeapons CC weapons, its CC Attack skill applied
  * @property {WeaponEntry[]} programs Hacking Programs it can run
  * @property {PseudoEntry[]} pseudo Dodge, Reset..., for the side's role (No ARO on the reactive side only)
  * @property {boolean} teamOps a Team-Ops trooper with upgrades to pick from
- * @property {object[]} upgrades the picked Team-Ops upgrades
+ * @property {UpgradeItem[]} upgrades the picked Team-Ops upgrades
  * @property {string[]} unsupportedUpgradeWeapons upgrade weapons the calculator can't roll, for a warning
  * @property {boolean} inCover Partial Cover (a Foxhole counts)
  * @property {boolean} targeted the Targeted chip
@@ -146,15 +313,67 @@
  * @property {number} ccAllies allies in contact with the target (CC Attack +1 B each)
  */
 
+/**
+ * A resolved side with a profile: what rules/matchup.js deriveInputs works
+ * on (a side without one has nothing to roll with).
+ * @typedef {ResolvedSide & {profile: ProfileRow}} Trooper
+ */
+/** A trooper rolling (or firing) a weapon: a shot, a template, a program or a CC Attack.
+ * @typedef {Trooper & {weapon: WeaponEntry}} Attacker */
+/** A trooper Dodging or Resetting.
+ * @typedef {Trooper & {weapon: PseudoEntry}} Evader */
+
+/**
+ * One MOD as the rules list it, before it is a Line (rules/closeCombat.js,
+ * rules/modifiers.js): its value and what caused it.
+ * @typedef {{value: number, label: Message}} Mod
+ */
+/** A MOD x puts on y's roll, with what of y's cancels it (modifiers.js opposingMods).
+ * @typedef {Mod & {ignoredBy: Message | null}} OpposingMod */
+
+/** A zone between the troopers (rules/visibility.js ZONES).
+ * @typedef {'smoke' | 'whiteNoise'} Zone */
+/**
+ * What the zones do to one side's attack (rules/visibility.js visibility).
+ * @typedef {object} VisSide
+ * @property {Zone | null} blocked the zone that stops it attacking
+ * @property {{zone: Zone, value: number, label: Message, ignoredBy: Message | null}[]} lines the MOD each zone puts on its roll; a struck one doesn't count
+ * @property {number} mod the MOD that counts, 0 without one
+ */
+/** @typedef {{A: VisSide, B: VisSide}} Visibility */
+
+/** Adds a note, warning or error about a side (null: both) as a Message (rules/matchup.js deriveInputs).
+ * @typedef {(side: Side | null, key: string, params?: Record<string, unknown>) => void} Say */
+/**
+ * What one deriveInputs call shares with its helpers (attack.js, hit.js,
+ * evade.js, lines.js).
+ * @typedef {object} Ctx
+ * @property {Say} say
+ * @property {Say} warn
+ * @property {Say} fail
+ * @property {Visibility} vis
+ * @property {number} rangeCm
+ * @property {number | null | undefined} rangeCmB
+ * @property {{A: Line[], B: Line[]}} opposing the lines the other side puts on each side's roll
+ */
+
+/**
+ * One side's roll as calculator inputs (attack.js, evade.js): the params it
+ * sets, the lines they were built from and, for a hit, the PS lines that
+ * start the save section.
+ * @typedef {{inputs: Partial<Params>, lines: SideLines, ps?: Line[]}} Roll
+ */
+
 // ---- How the dice were built (rules/lines.js, rules/matchup.js, rules/ledger.js) ----
 
 /**
  * One line a calculator input adds up to (rules/lines.js). Only a live line
- * counts: not struck, and its value a number (a display-only line has a
- * string: '—', '+', ''). After rules/ledger.js renderDerived, every Message
- * here is a string.
+ * counts: not struck, with a number for its value. A display-only line
+ * (lines.js mark) has value null and a `text` for the value column. After
+ * rules/ledger.js renderDerived, every Message here is a string.
  * @typedef {object} Line
- * @property {number | string} value
+ * @property {number | null} value what it adds; null: it doesn't add up
+ * @property {'—' | '+' | ''} [text] what the value column shows instead (out of range, an ammunition part, the weapon's own)
  * @property {Message} label
  * @property {'A' | 'B' | null} by whose skill, weapon or position caused it (the colour)
  * @property {Message} [struck] why it was cancelled
@@ -201,6 +420,9 @@
  * @property {Message[]} notes what the rules did
  * @property {{A: SideLines | null, B: SideLines | null}} lines null while a side has nothing to roll with
  */
+
+/** The derivation in the player's language (rules/ledger.js renderDerived): every note a string.
+ * @typedef {Omit<Derived, 'errors' | 'warnings' | 'notes'> & {errors: string[], warnings: string[], notes: string[]}} RenderedDerived */
 
 /**
  * One side of "How the dice were built" as the card shows it
@@ -276,6 +498,34 @@
  * @typedef {'active' | 'reactive' | 'fail'} Player */
 
 /**
+ * One side of the dice engine's own input (engine/calculate.js
+ * ENGINE_SIDE_KEYS, f2f.py's calculate): the roll and what a hit does, PS +
+ * ARM already summed into saveValue.
+ * @typedef {object} EngineSide
+ * @property {number} successValue
+ * @property {number} burst
+ * @property {number} bonusBurst
+ * @property {boolean} template
+ * @property {number} saveValue a Saving Roll passes on d20 <= this
+ * @property {number} saves Saving Rolls per hit
+ * @property {boolean} critSave a Critical adds a Saving Roll
+ * @property {number} woundsPerFailure
+ * @property {boolean} cont Continuous Damage
+ * @property {number | null} secondarySave Plasma's BTS save value, else null
+ */
+/**
+ * The dice engine's input: each EngineSide key with an A or B suffix.
+ * @typedef {{[K in keyof EngineSide as `${K}A` | `${K}B`]: EngineSide[K]} & {fixedFaceToFace: boolean}} EngineInput
+ */
+/**
+ * What the engine returns (wasm/khepri_engine.js calculate): the number of
+ * equally likely rolls (a BigInt past 2**53) and each outcome's share.
+ * @typedef {{rolls: number | bigint, outcomes: {player: Player, wounds: number, chance: number}[]}} EngineOutput
+ */
+/** The engine as a function: engine input in, engine output out (the WASM's calculate).
+ * @typedef {(input: EngineInput) => EngineOutput} RunEngine */
+
+/**
  * The chance each player wins the Face to Face Roll (engine/calculate.js
  * formatResult). rawChance is the chance counted in rolls (chance * totalRolls).
  * @typedef {object} FaceToFaceRow
@@ -304,6 +554,7 @@
  * @property {WoundRow[]} expectedWounds (unopposed: each side's own rows only, no 'fail')
  * @property {number} totalRolls
  * @property {{active: EngineResult, reactive: EngineResult}} [unopposed] a Direct Template against an attack: one run per side, each without the other's rows
+ * @property {Params} [parameters] the params it was run for (engine/worker.js adds them to the reply)
  */
 
 // ---- The result as the card shows it (results/summary.js, results/headline.js) ----
@@ -327,6 +578,9 @@
  * @property {number} atLeast that state or worse
  * @property {string} shade its colour (summary.js shade)
  */
+
+/** A wound state as the rules list it (rules/woundStates.js), before results/summary.js adds its share of the rolls.
+ * @typedef {Pick<WoundState, 'key' | 'label' | 'wounds' | 'glyph' | 'outOfFight' | 'shock' | 'state'>} WoundStep */
 
 /** One segment of the wound bar, left to right.
  * @typedef {{side: 'active' | 'none' | 'reactive', wounds: number, chance: number}} BarSegment */
@@ -373,6 +627,87 @@
  * @property {[string, string]} small the line under the bar: [left, right]
  */
 
+// ---- The trooper search (search/buildIndex.js, search/search.js) ----
+
+/**
+ * One loadout in the search index, with the words it can be found by.
+ * @typedef {object} IndexRow
+ * @property {number} id its position in the index: a recent pick stores the real ids instead
+ * @property {number} unitId
+ * @property {number} groupId
+ * @property {number | null} profileId
+ * @property {number} optionId
+ * @property {Record<string, number>} factions vanilla faction id -> the real faction to load it from
+ * @property {string} unit the short unit name
+ * @property {string} loadout the loadout's name
+ * @property {number[]} weapons weapon ids (index.weapons)
+ * @property {string | null} type Troop Type
+ * @property {number | null} bs
+ * @property {number} points
+ * @property {string} swc
+ * @property {string[]} loadoutWords words the loadout adds to the unit's
+ * @property {number[]} skills positions in index.skills
+ */
+/**
+ * One unit in the search index.
+ * @typedef {{id: number, name: string, short: string, type: string | null, factions: number[], words: [string, number][]}} IndexUnit
+ */
+/**
+ * The search index, built from army.json (search/buildIndex.js) at build time
+ * and shipped per language (search/index.json).
+ * @typedef {object} SearchIndex
+ * @property {number} version
+ * @property {{id: number, name: string}[]} factions the vanilla factions
+ * @property {IndexUnit[]} units
+ * @property {Record<string, {name: string, words: [string, number][]}>} weapons by id
+ * @property {{id: number, name: string, words: string[]}[]} skills
+ * @property {IndexRow[]} rows
+ */
+/**
+ * A loadout as the picker lists it (search/search.js profileHit): the ids a
+ * selection needs, its names, and how well it matched.
+ * @typedef {object} ProfileHit
+ * @property {number} rowId
+ * @property {number} unitId
+ * @property {number} factionId the vanilla faction it is listed under
+ * @property {number} armyFactionId the real faction the selection loads it from
+ * @property {number} groupId
+ * @property {number | null} profileId
+ * @property {number} optionId
+ * @property {string} unit the short unit name
+ * @property {string} loadout
+ * @property {string | null} weapon the weapon the query matched, else the first
+ * @property {number | null} weaponId the matched weapon's id, null when none matched
+ * @property {string[]} weapons
+ * @property {number[]} weaponIds
+ * @property {string | null} type
+ * @property {number | null} bs
+ * @property {number} points
+ * @property {string} swc
+ * @property {number} tier search/search.js TIER
+ * @property {boolean} loose matched with a typo or by sound
+ * @property {string[]} matched the index words each typed word matched
+ */
+/**
+ * A unit as the picker lists it (search/search.js unitHit).
+ * @typedef {{unitId: number, name: string, short: string, type: string | null, factionIds: number[], profileCount: number, tier?: number, best?: ProfileHit}} UnitHit
+ */
+/**
+ * What a query finds (search/search.js search).
+ * @typedef {{recent: ProfileHit[], profiles: ProfileHit[], units: UnitHit[], elsewhere: {factionId: number, name: string | undefined, count: number}[], total: number}} SearchResult
+ */
+/**
+ * The search over one index (search/search.js createSearch).
+ * @typedef {object} Searcher
+ * @property {(q?: {query?: string, factionId?: number | null, recentIds?: number[]}) => SearchResult} search
+ * @property {(q?: {factionId?: number | null, recentIds?: number[]}) => {recent: ProfileHit[], types: {type: string, count: number}[], units: UnitHit[]}} browse the empty-box view
+ * @property {(unitId: number, factionId?: number | null) => ProfileHit[]} unitRows every loadout of one unit in scope
+ * @property {(type: string, factionId?: number | null) => UnitHit[]} unitsOfType
+ * @property {(pick: {unitId: number, groupId: number, optionId: number, armyFactionId: number}) => number | null} findRow a saved pick's row id today
+ * @property {(factionId: number) => number} unitCount units per vanilla faction
+ * @property {{id: number, name: string}[]} factions
+ */
+
 // ---- The matchup screens (state/schema.js, state/matchupView.js) ----
 
 /**
@@ -380,11 +715,11 @@
  * ids into the army data plus the situation chips. What can be derived (the
  * default weapon) is not stored.
  * @typedef {object} Selection
- * @property {string | null} unitId
- * @property {string | null} factionId
- * @property {string | null} groupId
- * @property {string | null} profileId
- * @property {string | null} optionId
+ * @property {number | null} unitId Army ids are numbers (army.json, matchup/matchupParams.js)
+ * @property {number | null} factionId
+ * @property {number | null} groupId
+ * @property {number | null} profileId
+ * @property {number | null} optionId
  * @property {string | null} weaponKey null = the default weapon for the side (rules/defaultWeapon.js)
  * @property {boolean} inCover
  * @property {number | null} firewall -3, -6, 0 for none, null for the trooper's own Firewall
@@ -415,17 +750,82 @@
  * @property {boolean} whiteNoise
  */
 
+/** A screen pushed inside the picker (state/reduce.js pickerPush).
+ * @typedef {{view: 'factions'} | {view: 'type', type: string} | {view: 'unit', unitId: number, name: string}} PickerView */
+
+/**
+ * The open picker (state/reduce.js openPicker): whose side it picks for, the
+ * query, the faction it is scoped to, the screens pushed; and, for the
+ * desktop picker, the highlighted list row and loadout, which pane has the
+ * arrow keys and the profile tab (pickerCursor).
+ * @typedef {object} PickerState
+ * @property {Side} side
+ * @property {string} query
+ * @property {number | null} scope a vanilla faction id, null for All
+ * @property {PickerView[]} stack
+ * @property {number | null} [cursor] the highlighted list row
+ * @property {'list' | 'loadouts'} [pane]
+ * @property {number} [lcursor] the highlighted loadout
+ * @property {number | null} [profileId]
+ */
+
 /**
  * The ephemeral slice: overlays, open selectors, the picker stack
  * (state/schema.js EMPTY_UI).
  * @typedef {object} UiState
  * @property {null | 'menu' | 'results' | 'picker' | 'saved' | 'settings' | 'about'} overlay
- * @property {{side: 'A' | 'B', query: string, scope: string | null, stack: object[]} | null} picker while overlay is 'picker'; a stack entry is {view: 'factions'} | {view: 'type', type} | {view: 'unit', unitId, name}
+ * @property {PickerState | null} picker while overlay is 'picker'
  * @property {boolean} rangeOpen
  * @property {{side: 'A' | 'B', chip: 'ftSize' | 'ccAllies' | 'upgrade' | 'ball'} | null} edit while a chip shows its inline editor
  * @property {'matchup' | 'basic' | null} savedTab which list Saved rolls shows
  * @property {string | null} swiped id of the saved roll swiped open to show its Delete button
  * @property {{text: string} | null} toast for a moment after Save, Share or Delete
+ */
+
+/**
+ * The player's preferences, persisted on this device (state/storage.js).
+ * @typedef {object} Prefs
+ * @property {HeadlineChoice} [headline] the results card's big number (state/headlines.js)
+ * @property {string | null} [language] the language picked in Settings (state/language.js); null: automatic
+ * @property {{A?: number | null, B?: number | null}} [startFaction] the faction each side's picker opens on
+ */
+
+/**
+ * A trooper picked before, as stable army ids plus the side it was picked for
+ * (state/schema.js lists.recents); entries saved before the tag have no side.
+ * @typedef {{unitId: number, groupId: number, optionId: number, armyFactionId: number, side?: Side}} Recent
+ */
+
+/**
+ * What a saved roll's row shows (state/rolls.js): who rolls, their dice
+ * lines, the situation and each side's chance. Matchup rolls add the crest
+ * row (unit and weapon apart, crest slugs, vanilla factions).
+ * @typedef {object} RollSummary
+ * @property {string} a "Squalos · HMG" (Matchup) or "Active" (Classic)
+ * @property {string} r
+ * @property {string} ad "B4 SV15 PS7"
+ * @property {string} rd
+ * @property {string} setup '24-32" · Cover · Fireteam 5'
+ * @property {string} ap chance each side wins (or, not face to face, causes a wound)
+ * @property {string} rp
+ * @property {string} [au]
+ * @property {string} [aw]
+ * @property {string} [ru]
+ * @property {string} [rw]
+ * @property {string | null} [ca] unit crest slugs (army/crests.js)
+ * @property {string | null} [cr]
+ * @property {number | null} [fa] vanilla faction ids, whose crest stands in
+ * @property {number | null} [fr]
+ */
+/**
+ * A saved roll (state/schema.js lists.saved): the setup to load back and its summary.
+ * @typedef {{id: string, mode: string, savedAt: number, setup: Matchup | Params, summary: RollSummary}} SavedRoll
+ */
+
+/**
+ * What a 'replace' action brings: a fixture or a saved roll's slices, any of
+ * them partial; the reducer fills the rest from initialState.
+ * @typedef {{v?: number, mode?: string, matchup?: Partial<Matchup>, classic?: Partial<Params>, ui?: Partial<UiState>, prefs?: Prefs, lists?: AppState['lists'], scopes?: AppState['scopes']}} ReplaceState
  */
 
 /**
@@ -437,9 +837,43 @@
  * @property {Matchup} matchup shareable: mirrored into the URL
  * @property {Params} classic Basic mode's params, shareable too
  * @property {UiState} ui ephemeral
- * @property {object} prefs persisted on this device
- * @property {{A?: string | null, B?: string | null}} scopes the faction each side's picker is scoped to
- * @property {{recents: object[], recentFactions: string[], saved: object[]}} lists persisted on this device
+ * @property {Prefs} prefs persisted on this device
+ * @property {{A?: number | null, B?: number | null}} scopes the vanilla faction each side's picker is scoped to (null: All)
+ * @property {{recents: Recent[], recentFactions: number[], saved: SavedRoll[]}} lists persisted on this device
+ */
+
+/**
+ * Every change to the state document (state/reduce.js reduce), by type.
+ * @typedef {{type: 'replace', state: ReplaceState}
+ *   | {type: 'setMode', mode: string}
+ *   | {type: 'setSide', side: Side, sel: Partial<Selection>}
+ *   | {type: 'patchSide', side: Side, patch: Partial<Selection>}
+ *   | {type: 'setCover' | 'setSapper', side: Side, on: boolean}
+ *   | {type: 'pickWeapon', side: Side, key: string, kind: WeaponKind, zoc?: boolean}
+ *   | {type: 'setRange', side?: Side, rangeCm: number, open?: boolean}
+ *   | {type: 'setRangeSplit', on: boolean}
+ *   | {type: 'setZone', zone: Zone, on: boolean}
+ *   | {type: 'setRangeOpen', open: boolean}
+ *   | {type: 'swapSides' | 'clearSides' | 'back' | 'clearRecents' | 'clearSaved'}
+ *   | {type: 'setEdit', edit: UiState['edit']}
+ *   | {type: 'setClassic', key: keyof Params, value: Params[keyof Params]}
+ *   | {type: 'openInClassic', params: Partial<Params>}
+ *   | {type: 'setClassicSave', side: Side, which: 'arm' | 'bts', total: number}
+ *   | {type: 'openOverlay', overlay: UiState['overlay']}
+ *   | {type: 'backTo', depth: number}
+ *   | {type: 'saveRoll', roll: SavedRoll}
+ *   | {type: 'deleteRoll' | 'loadRoll', id: string}
+ *   | {type: 'setSavedTab', tab: UiState['savedTab']}
+ *   | {type: 'setSwiped', id: string | null}
+ *   | {type: 'setPref', key: keyof Prefs, value: Prefs[keyof Prefs]}
+ *   | {type: 'toast', text?: string | null}
+ *   | {type: 'openPicker' | 'pickerSide', side: Side, scope: number | null}
+ *   | {type: 'pickerQuery', query: string}
+ *   | {type: 'pickerCursor', cursor: Partial<PickerState>}
+ *   | {type: 'pickerScope', scope: number | null}
+ *   | {type: 'pickerPush', view: PickerView}
+ *   | {type: 'pickTrooper', side: Side, sel: Partial<Selection>, ftMax?: number, recent?: Omit<Recent, 'side'>, scope?: number | null, next?: true, nextScope?: number | null}
+ * } Action
  */
 
 /**
@@ -447,7 +881,7 @@
  * group (state/matchupView.js weaponGroups).
  * @typedef {object} WeaponGroup
  * @property {string} key
- * @property {string} [id] a pseudo-weapon has none
+ * @property {number | string} [id] a pseudo-weapon has none
  * @property {string} [name] a pseudo-weapon has none
  * @property {Choice} w the first (or only) mode
  * @property {WeaponEntry[]} [modes] a weapon with several fire modes, in the role's order
@@ -481,7 +915,7 @@
  * @property {{mod: number} | null} berserk Berserk's MOD (active side, a CC weapon picked)
  * @property {{chart: string[], ball: string[]} | null} teamOps the Team-Ops options by label (the Army's, in inches until rendered)
  * @property {string | null} faction the vanilla faction's name
- * @property {string | null} vanilla the vanilla faction id (its crest stands in for a missing unit crest)
+ * @property {number | null} vanilla the vanilla faction id (its crest stands in for a missing unit crest)
  * @property {string | null} crest the unit crest's slug (army/crests.js)
  * @property {string | null} short the short unit name
  * @property {string | null} loadout the loadout's extra name, if any
@@ -498,14 +932,14 @@
  * @property {number} rangeCm
  * @property {number | null} rangeCmB
  * @property {Zones} zones
- * @property {{A: object, B: object}} [vis] what Smoke / White Noise do to each side (rules/visibility.js)
+ * @property {Visibility} [vis] what Smoke / White Noise do to each side (rules/visibility.js)
  * @property {Derived | null} derived
  * @property {Params | null} params the full calculator input, once derived.ok
  * @property {LedgerHeader | null} ledger the ledger's names and labels, once complete
  * @property {{to: number, A?: number | null, B?: number | null}[]} bands each range band's Range MOD per side (null out of range, undefined without bands)
  * @property {boolean} hasSelection either side has a unit
  * @property {boolean} complete both sides fully chosen and the matchup valid
- * @property {{active: WoundState[] | null, reactive: WoundState[] | null} | null} targets the states each side's hits push its target through
+ * @property {{active: WoundStep[] | null, reactive: WoundStep[] | null} | null} targets the states each side's hits push its target through
  */
 
 /**
@@ -522,6 +956,31 @@
  * every Message rendered, and the ledger built with its notes. `derived` is
  * the core's own (descriptors): nothing on screen reads it directly.
  * @typedef {Omit<MatchupCore, 'ledger'> & {ledger: (LedgerHeader & {ledger: Ledger, notes: string[]}) | null}} MatchupView
+ */
+
+// ---- The screens (src/ui) ----
+
+/** Which layout the viewport gets (ui/useLayout.js).
+ * @typedef {'phone' | 'tablet' | 'landscape' | 'desktop' | 'wide'} Layout */
+
+/** The Save button (ui/useSaveRoll.js): whether this setup is saved, whether a result is still on its way, and the toggle.
+ * @typedef {{saved: boolean, pending: boolean, toggle: () => void}} SaveControl */
+
+/** The engine as the screens see it (engine/useEngine.js).
+ * @typedef {{result: EngineResult | null, status: {key: string, params?: Record<string, unknown>}, pending: boolean}} EngineHook */
+
+/**
+ * What both results views take (ui/ResultsCard.jsx, ui/ResultsPanel.jsx).
+ * @typedef {object} ResultsProps
+ * @property {Summary | null} s results/summary.js summarize() of the engine's result, or null before there is one
+ * @property {string} [status]
+ * @property {{active: string, reactive: string} | null} [diceLine] matchup only
+ * @property {boolean} [classic]
+ * @property {MatchupView['ledger']} [ledger] matchup only
+ * @property {SaveControl | null} [save] null hides the Save button
+ * @property {boolean} [pending] a new result is on its way
+ * @property {{A: boolean, B: boolean} | null} [picked] which sides have a trooper; matchup only
+ * @property {Params | null} [params] the engine params: who is dodging, for the headline's label
  */
 
 export {};

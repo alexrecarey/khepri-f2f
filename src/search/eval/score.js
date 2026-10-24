@@ -6,9 +6,19 @@
 // scores must not drop below).
 import {words} from '../text.js';
 
+/** One kind's tally.
+ * @typedef {{n: number, top1: number, top5: number, found: number, results: number}} Tally */
+
+/**
+ * @param {import('../../types.js').Searcher} searcher
+ * @param {import('./corpus.js').SearchCase[]} cases
+ */
 export function score(searcher, cases) {
+  /** @type {Map<string, Tally>} */
   const byKind = new Map();
+  /** @type {(import('./corpus.js').SearchCase & {got: string[]})[]} */
   const misses = [];
+  /** @type {number[]} */
   const times = [];
   for (const c of cases) {
     const t0 = performance.now();
@@ -16,7 +26,8 @@ export function score(searcher, cases) {
     times.push(performance.now() - t0);
     const shorts = res.units.map((u) => words(u.short).join(' '));
     const rank = shorts.indexOf(c.expect);
-    const k = byKind.get(c.kind) ?? byKind.set(c.kind, {n: 0, top1: 0, top5: 0, found: 0, results: 0}).get(c.kind);
+    // set() then get(): the tally is there.
+    const k = /** @type {Tally} */ (byKind.get(c.kind) ?? byKind.set(c.kind, {n: 0, top1: 0, top5: 0, found: 0, results: 0}).get(c.kind));
     k.n++;
     k.results += res.units.length;
     if (rank >= 0) k.found++;

@@ -5,7 +5,14 @@
 // `before` (optional) is awaited before the first job runs (the engine
 // loading). `yieldNext` lets queued messages in between jobs; the worker uses
 // setTimeout, tests pass their own.
+/**
+ * @template J
+ * @param {(job: J) => unknown} run
+ * @param {{before?: () => unknown, yieldNext?: () => Promise<unknown>}} [hooks]
+ * @returns {(job: J) => Promise<void>}
+ */
 export function latestOnly(run, {before = () => null, yieldNext = () => new Promise((r) => setTimeout(r, 0))} = {}) {
+  /** @type {J | null} */
   let waiting = null;
   let draining = false;
 

@@ -8,16 +8,31 @@ import {effectiveTraits} from '../army/traits.js';
 import {bsWeapons, ccWeapons} from '../army/weapons.js';
 import {ccAttackMods} from './closeCombat.js';
 import {buildLedger, renderDerived} from './ledger.js';
+import {tEn} from '../i18n/index.js';
+import {render} from '../i18n/message.js';
 import {deriveInputs as deriveRaw} from './matchup.js';
+
+/** @typedef {import('../types.js').WeaponRow} WeaponRow */
+/** @typedef {import('../types.js').WeaponEntry} WeaponEntry */
+/** @typedef {import('../types.js').ProfileRow} ProfileRow */
+/** @typedef {import('../types.js').OptionRow} OptionRow */
+/** @typedef {import('../types.js').TraitRef} TraitRef */
+/** @typedef {import('../types.js').Trooper} Trooper */
+/** @typedef {import('../types.js').Side} Side */
+/** @typedef {import('../types.js').Line} Line */
+/** @typedef {import('../types.js').Ledger} Ledger */
+/** @typedef {import('../types.js').LedgerSide} LedgerSide */
+/** @typedef {import('../types.js').ResolvedSide} ResolvedSide */
 
 // The rules word their notes and lines as message descriptors; these tests
 // read them in English (ledger.js renders them).
+/** @param {Parameters<typeof deriveRaw>[0]} o */
 const deriveInputs = (o) => renderDerived(deriveRaw(o));
 import {pseudoWeapons, trooperCcWeapons, trooperWeapons} from './trooper.js';
 
-// Rows in army.json form.
+// Rows in army.json form (the columns the rules read).
 const RIFLE = [{to: 40, mod: 3}, {to: 80, mod: -3}, {to: 120, mod: -6}];
-const W = {
+const W = /** @type {Record<string, WeaponRow[]>} */ ({
   1: [{name: 'Combi Rifle', mode: null, burst: 3, dmg: 7, ranges: RIFLE, ammo: ['N'], save: {attr: 'ARM'}, saveRolls: 1, props: []}],
   5: [{name: 'CC Weapon', mode: null, burst: 1, dmg: 8, ranges: null, ammo: ['N'], save: {attr: 'ARM'}, saveRolls: 1, props: ['CC']}],
   11: [{name: 'DA CC Weapon', mode: null, burst: 1, dmg: 8, ranges: null, ammo: ['DA'], save: {attr: 'ARM'}, saveRolls: 2, props: ['Anti-materiel', 'CC']}],
@@ -30,46 +45,74 @@ const W = {
     {name: 'Vorpal CC Weapon', mode: 'BS Mode', burst: 1, dmg: 8, ranges: [{to: 20, mod: 3}], ammo: ['N'], save: {attr: 'ARM', armZero: true}, saveRolls: 1, props: ['BS Weapon (PH)', 'State: Dead', '[*]']},
     {name: 'Vorpal CC Weapon', mode: 'CC Mode', burst: 1, dmg: 8, ranges: null, ammo: ['N'], save: {attr: 'ARM', armZero: true}, saveRolls: 1, props: ['CC', 'State: Dead', '[*]']},
   ],
-};
+});
 
+/**
+ * @param {number} id
+ * @param {...string} extra
+ * @returns {TraitRef}
+ */
 const skill = (id, ...extra) => ({id, name: String(id), ...(extra.length ? {extra} : {})});
-const MA = [null, SKILL.MARTIAL_ARTS_L1, SKILL.MARTIAL_ARTS_L2, SKILL.MARTIAL_ARTS_L3, SKILL.MARTIAL_ARTS_L4, SKILL.MARTIAL_ARTS_L5];
-const profile = (over = {}) => ({id: 1, name: 'P', cc: 15, bs: 12, ph: 12, arm: 2, bts: 3, w: 1, skills: [], equip: [], ...over});
+// By level; there is no level 0.
+const MA = /** @type {number[]} */ ([null, SKILL.MARTIAL_ARTS_L1, SKILL.MARTIAL_ARTS_L2, SKILL.MARTIAL_ARTS_L3, SKILL.MARTIAL_ARTS_L4, SKILL.MARTIAL_ARTS_L5]);
+// Test fixtures: the fields the rules read stand for whole rows and troopers.
+/**
+ * @param {Partial<ProfileRow>} [over]
+ * @returns {ProfileRow}
+ */
+const profile = (over = {}) => /** @type {ProfileRow} */ ({id: 1, name: 'P', cc: 15, bs: 12, ph: 12, arm: 2, bts: 3, w: 1, skills: [], equip: [], ...over});
+/** @type {TraitRef[]} */
 const LOADOUT = [{id: 1, name: 'Combi Rifle'}, {id: 11, name: 'DA CC Weapon', extra: ['PS=6']}];
-// A trooper using `key`: a weapon key, 'cc' for its first CC weapon, 'dodge'.
+/**
+ * A trooper using `key`: a weapon key, 'cc' for its first CC weapon, 'dodge'.
+ * @param {string} key
+ * @param {Partial<ProfileRow> & {weapons?: TraitRef[]}} [stats] the profile's, plus the loadout's weapons
+ * @param {Partial<ResolvedSide>} [over]
+ * @returns {Trooper}
+ */
 function trooper(key, {skills = [], weapons = LOADOUT, ...rest} = {}, over = {}) {
   const p = profile({skills, ...rest});
-  const o = {id: 1, name: 'O', weapons, skills: [], equip: []};
+  const o = /** @type {OptionRow} */ ({id: 1, name: 'O', weapons, skills: /** @type {TraitRef[]} */ ([]), equip: /** @type {TraitRef[]} */ ([])});
   const traits = effectiveTraits(p, o);
   const all = [...trooperWeapons(o, W, traits), ...trooperCcWeapons(o, W, traits), ...pseudoWeapons(traits)];
   const weapon = key === 'cc' ? trooperCcWeapons(o, W, traits)[0] : all.find((w) => w.key === key);
-  return {profile: p, option: o, traits, weapon, inCover: false, ftSize: 1, ...over};
+  return /** @type {Trooper} */ ({profile: p, option: o, traits, weapon, inCover: false, ftSize: 1, ...over});
 }
 
-// What a section's live lines (not struck, a number) add up to.
-const addUp = (lines) => lines.filter((x) => !x.struck && typeof x.value === 'number').reduce((n, x) => n + x.value, 0);
+/**
+ * What a section's live lines (not struck, a number) add up to.
+ * @param {Line[]} lines
+ */
+const addUp = (lines) => lines.filter((x) => x.value !== null && !x.struck).reduce((n, x) => n + /** @type {number} */ (x.value), 0);
 
+/** @param {Partial<Parameters<typeof deriveRaw>[0]> & {active: Trooper, reactive: Trooper}} args */
 function derive(args) {
   const r = deriveInputs({rangeCm: 40, ...args});
   assert.ok(r.ok, JSON.stringify(r.errors));
-  const ledger = buildLedger({rangeCm: 40, ...args, derived: r});
-  for (const s of ['A', 'B']) {
-    const l = ledger[s];
+  // The ledger reads the sides and the derivation; the rest is the setup they came from.
+  const ledger = buildLedger(/** @type {Parameters<typeof buildLedger>[0]} */ ({rangeCm: 40, ...args, derived: r}));
+  for (const s of /** @type {Side[]} */ (['A', 'B'])) {
+    // Both sides roll in every case here.
+    const l = /** @type {LedgerSide} */ (ledger[s]);
     const t = s === 'A' ? 'B' : 'A';
+    /** @type {Record<string, number | undefined>} */
     const expect = {sv: r.inputs[`successValue${s}`], burst: r.inputs[`burst${s}`], sd: r.inputs[`bonusBurst${s}`] ?? 0,
-      save: r.inputs[`damage${s}`] + r.inputs[`arm${t}`]};
+      save: /** @type {number} */ (r.inputs[`damage${s}`]) + /** @type {number} */ (r.inputs[`arm${t}`])};
     for (const [k, total] of Object.entries(expect)) {
-      if (!l[k]) continue;
-      const where = `ledger ${s} ${k}: ${JSON.stringify(l[k].lines)}`;
-      assert.equal(l[k].total, total, where);
-      assert.equal(addUp(l[k].lines), total, where);
+      // k names a section of the side (sv, burst, sd, save).
+      const sec = l[/** @type {'sv' | 'burst' | 'sd' | 'save'} */ (k)];
+      if (!sec) continue;
+      const where = `ledger ${s} ${k}: ${JSON.stringify(sec.lines)}`;
+      assert.equal(sec.total, total, where);
+      assert.equal(addUp(sec.lines), total, where);
     }
   }
   return {...r, ledger};
 }
 
 test('CC weapons are listed apart from BS weapons, a CC Mode included', () => {
-  const o = {weapons: [{id: 1}, {id: 5}, {id: 149}, {id: 71, extra: ['-6']}]};
+  // A loadout's weapons, by id (the names the rows carry).
+  const o = /** @type {OptionRow} */ ({weapons: [{id: 1}, {id: 5}, {id: 149}, {id: 71, extra: ['-6']}]});
   assert.deepEqual(bsWeapons(o, W).map((w) => w.key), ['1:', '149:BS Mode']);
   const cc = ccWeapons(o, W);
   assert.deepEqual(cc.map((w) => w.key), ['5:', '149:CC Mode', '71:']);
@@ -90,6 +133,10 @@ test('a CC Attack rolls CC with the loadout PS; Martial Arts L2 gives +3 and -3 
 });
 
 test('Martial Arts L3 / L4 / L5 dice, in both turns', () => {
+  /**
+   * @param {number} lvl
+   * @param {Side} side
+   */
   const ma = (lvl, side) => {
     const x = trooper('cc', {skills: [skill(MA[lvl])]});
     const y = trooper('cc');
@@ -126,16 +173,18 @@ test('range, cover and Mimetism do not touch a CC Attack; the shooter keeps its 
 });
 
 test('both sides in CC: the distance changes nothing', () => {
+  /** @param {number} rangeCm */
   const at = (rangeCm) => derive({active: trooper('cc', {skills: [skill(MA[3])]}), reactive: trooper('cc'), rangeCm}).inputs;
   assert.deepEqual(at(20), at(240));
 });
 
 test('Natural Born Warrior ignores the attacker negative MODs only when it answers in CC', () => {
   const ninja = () => trooper('cc', {skills: [skill(MA[3]), skill(SKILL.SURPRISE_ATTACK, '-3')]}, {surpriseAttack: true});
+  /** @param {string} key */
   const nbw = (key) => trooper(key, {cc: 16, skills: [skill(SKILL.NATURAL_BORN_WARRIOR)]});
   const r = derive({active: ninja(), reactive: nbw('cc')});
   assert.equal(r.inputs.successValueB, 16);
-  assert.deepEqual(r.ledger.B.sv.lines.filter((l) => l.struck).map((l) => l.struck), ['Natural Born Warrior', 'Natural Born Warrior']);
+  assert.deepEqual(/** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (r.ledger.B).sv).lines.filter((l) => l.struck).map((l) => l.struck), ['Natural Born Warrior', 'Natural Born Warrior']);
   // Dodging or shooting, NBW does nothing.
   assert.equal(derive({active: ninja(), reactive: nbw('dodge')}).inputs.successValueB, 12 - 6);
   assert.equal(derive({active: ninja(), reactive: nbw('1:')}).inputs.successValueB, 12 + 3 - 6);
@@ -151,6 +200,7 @@ test('Martial Arts -3 applies to a Dodge, unless the dodger has Sixth Sense', ()
 });
 
 test('BS Attack (-X) is for shots: not on the opponent of the trooper CC attacking', () => {
+  /** @param {string} key */
   const x = (key) => trooper(key, {skills: [skill(SKILL.BS_ATTACK, '-3')]});
   assert.equal(derive({active: x('cc'), reactive: trooper('cc')}).inputs.successValueB, 15);
   assert.equal(derive({active: x('1:'), reactive: trooper('cc')}).inputs.successValueB, 12);
@@ -162,7 +212,7 @@ test('CC Attack skill: +X to itself, -X to the opponent, AP on every CC weapon',
   assert.equal(inputs.successValueA, 18);
   assert.equal(inputs.successValueB, 9);
   assert.equal(inputs.armB, 3);
-  assert.ok(ledger.A.ammo.lines.some((l) => l.label === 'AP' && l.by === 'A'));
+  assert.ok(/** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (ledger.A).ammo).lines.some((l) => l.label === 'AP' && l.by === 'A'));
 });
 
 test('MODs to a CC Attack are capped at -12', () => {
@@ -187,6 +237,7 @@ test('Smoke does not stop a CC Attack', () => {
 });
 
 test('allies in contact: +1 B each, in both turns', () => {
+  /** @param {number} n */
   const x = (n) => trooper('cc', {}, {ccAllies: n});
   assert.equal(derive({active: x(2), reactive: trooper('cc')}).inputs.burstA, 3);
   // In ARO too, on top of the one die.
@@ -203,7 +254,7 @@ test('allies and Martial Arts L4 together are capped at B6', () => {
   const x = trooper('cc', {skills: [skill(MA[4])]}, {ccAllies: 5});
   const r = derive({active: x, reactive: trooper('cc', {s: 6})});
   assert.equal(r.inputs.burstA, 6);
-  assert.ok(r.ledger.A.burst.lines.some((l) => /caps at 6/.test(l.label)));
+  assert.ok(/** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (r.ledger.A).burst).lines.some((l) => /caps at 6/.test(/** @type {string} */ (l.label))));
 });
 
 test('a shot with BS Attack (-3) at a trooper charging in CC: -3 applies, Natural Born Warrior or not', () => {
@@ -212,10 +263,11 @@ test('a shot with BS Attack (-3) at a trooper charging in CC: -3 applies, Natura
   const charger = trooper('cc', {cc: 16, skills: [skill(SKILL.NATURAL_BORN_WARRIOR)]});
   const r = derive({active: charger, reactive: shooter});
   assert.equal(r.inputs.successValueA, 13);
-  assert.ok(r.ledger.A.sv.lines.some((l) => l.label === 'BS Attack (-3)' && !l.struck));
+  assert.ok(/** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (r.ledger.A).sv).lines.some((l) => l.label === 'BS Attack (-3)' && !l.struck));
 });
 
 test('AP, DA, EXP and AP + EXP CC Weapons: labels and what their hits do', () => {
+  /** @type {[number, string, string, string, string, number][]} */
   const cases = [
     // [weapon id, name, label ammo, dice tag, engine ammo, target ARM 5 after AP]
     [6, 'AP CC Weapon', 'AP', ' AP', 'N', 3],
@@ -225,21 +277,25 @@ test('AP, DA, EXP and AP + EXP CC Weapons: labels and what their hits do', () =>
   ];
   for (const [id, name, ammo, tag, engine, arm] of cases) {
     const x = trooper('cc', {weapons: [{id, name, extra: ['PS=5']}]});
-    assert.equal(x.weapon.label, `${name} · B1 · PS5 · ${ammo}`);
+    assert.equal(render(tEn, /** @type {WeaponEntry} */ (x.weapon).label), `${name} · B1 · PS5 · ${ammo}`);
     const {inputs, ledger} = derive({active: x, reactive: trooper('cc', {arm: 5})});
-    assert.equal(ledger.A.dice, `CC B1 SV15 PS${5 + arm}${tag}`, name);
+    assert.equal(/** @type {LedgerSide} */ (ledger.A).dice, `CC B1 SV15 PS${5 + arm}${tag}`, name);
     assert.equal(inputs.ammoA, engine, name);
     assert.equal(inputs.armB, arm, name);
   }
 });
 
 test('Berserk (+X): the MOD goes on the CC Attack, in the Active Turn only', () => {
+  /**
+   * @param {string} key
+   * @param {boolean} [berserk]
+   */
   const x = (key, berserk = true) => trooper(key, {skills: [skill(SKILL.BERSERK, '+6'), skill(MA[3])]}, {berserk});
   const r = derive({active: x('cc'), reactive: trooper('cc')});
   assert.equal(r.inputs.successValueA, 15 + 6 + 3);
   // +1 SD (Martial Arts L3) still applies.
   assert.equal(r.inputs.bonusBurstA, 1);
-  assert.ok(r.ledger.A.sv.lines.some((l) => l.label === 'Berserk (+6)'));
+  assert.ok(/** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (r.ledger.A).sv).lines.some((l) => l.label === 'Berserk (+6)'));
   // Not declared, in ARO, or with a gun: nothing.
   assert.equal(derive({active: x('cc', false), reactive: trooper('cc')}).inputs.successValueA, 18);
   assert.equal(derive({active: trooper('cc'), reactive: x('cc')}).inputs.successValueB, 15 + 3);
@@ -250,13 +306,14 @@ test('plain Berserk changes nothing on the roll', () => {
   const x = trooper('cc', {skills: [skill(SKILL.BERSERK)]}, {berserk: true});
   const r = derive({active: x, reactive: trooper('cc')});
   assert.equal(r.inputs.successValueA, 15);
-  assert.ok(r.ledger.A.sv.lines.some((l) => l.label === 'Berserk' && l.value === 0));
+  assert.ok(/** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (r.ledger.A).sv).lines.some((l) => l.label === 'Berserk' && l.value === 0));
   // ccAttackMods itself speaks in descriptors.
-  assert.deepEqual(ccAttackMods(x, true), [{value: 0, label: {key: 'skill.berserk'}}]);
+  assert.deepEqual(ccAttackMods(/** @type {import('../types.js').Attacker} */ (x), true), [{value: 0, label: {key: 'skill.berserk'}}]);
 });
 
 test('MSV3 always ignores a CC Surprise Attack; MSV1 and MSV2 do not', () => {
   const infiltrator = {...trooper('cc', {skills: [skill(SKILL.SURPRISE_ATTACK, '-3')]}), surpriseAttack: true};
+  /** @param {1 | 2 | 3} level */
   const target = (level) => trooper('cc', {equip: [{id: EQUIP[`MSV${level}`], name: `Multispectral Visor L${level}`}]});
   const r = derive({active: infiltrator, reactive: target(3)});
   assert.equal(r.inputs.successValueB, 15);                    // CC 15, no -3

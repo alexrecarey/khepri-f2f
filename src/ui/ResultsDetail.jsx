@@ -5,18 +5,33 @@ import PropTypes from 'prop-types';
 import {pct, shows} from '../results/summary.js';
 import {useT} from './i18n.jsx';
 
+/** @typedef {import('../types.js').Summary} Summary */
+/** @typedef {'active' | 'reactive'} Role */
+
+/** @param {number | null | undefined} n */
 const wpo = (n) => (n == null ? '—' : n.toFixed(2));
 
+/** @type {Record<Role, string[]>} */
 const SEG = {active: ['', 'seg-a1', 'seg-a2', 'seg-a3'], reactive: ['', 'seg-r1', 'seg-r2', 'seg-r3']};
+/** @param {import('../types.js').BarSegment} s */
 const segClass = (s) => (s.side === 'none' ? 'seg-none' : SEG[s.side][s.wounds]);
 
 // The most wounds each side can cause in this roll (up to 3): that bucket is
 // labelled "N+" ("2+" when 3 or more never happens).
+/**
+ * @param {Summary} s
+ * @param {Role} side
+ */
 const topWounds = (s, side) => Math.max(0, ...s.bar.filter((b) => b.side === side && shows(b.chance)).map((b) => b.wounds));
+/**
+ * @param {number} w
+ * @param {number} top
+ */
 const woundsLabel = (w, top) => (w === top ? `${w}+` : `${w}`);
 
 // `grow`: the phone sheet's bar, sized by CSS from --open, its labels fading
 // in with it; else a fixed `height`, or none and `className` sizes it.
+/** @param {{summary: Summary, labels?: boolean, grow?: boolean, className?: string}} props */
 export function WoundBar({summary, labels = false, grow = false, className = ''}) {
   const top = topWounds(summary, 'active');
   return (
@@ -38,8 +53,14 @@ WoundBar.propTypes = {summary: PropTypes.object.isRequired, height: PropTypes.nu
 // Classic results: the face-to-face bar with its numbers, the wound bar, then
 // each side's wounds per order and its at-least ladder, nobody wounded between.
 // woundBar false: the phone sheet already shows the wound bar at its top.
+/** @param {{s: Summary, woundBar?: boolean}} props */
 export function ClassicBody({s, woundBar = true}) {
   const t = useT();
+  /**
+   * @param {Role} side
+   * @param {string} cls
+   * @param {string} name
+   */
   const ladder = (side, cls, name) => (
     <div className="ladder">
       <div className={`ladder-h c-${side}`}><b>{wpo(s.wpo[side])}</b><span>{t('classic.sideWpo', {side: name})}</span></div>
@@ -48,6 +69,7 @@ export function ClassicBody({s, woundBar = true}) {
       ) : null))}
     </div>
   );
+  /** @param {number} p */
   const big = (p) => p > 0.12;
   return (
     <>
@@ -84,9 +106,15 @@ ClassicBody.propTypes = {s: PropTypes.object.isRequired, woundBar: PropTypes.boo
 // Who wins the roll, and what each winner does: at least 1 / 2 / 3 wounds
 // (cumulative, so the rows overlap) and every hit saved. Anything that never
 // happens is left out.
+/** @param {{s: Summary}} props */
 export function Breakdown({s}) {
   const t = useT();
-  // Bars share one track, so 100% fills it.
+  /**
+   * Bars share one track, so 100% fills it.
+   * @param {string} k
+   * @param {number} chance
+   * @param {string} cls
+   */
   const row = (k, chance, cls) => (shows(chance) ? (
     <div className="row" key={`${cls}-${k}`}>
       <span className="k">{k}</span>
@@ -94,10 +122,19 @@ export function Breakdown({s}) {
       <span className="p">{pct(chance)}</span>
     </div>
   ) : null);
+  /**
+   * @param {Role} side
+   * @param {string} cls
+   */
   const ladder = (side, cls) => [
     ...s.atLeast[side].map((p, i) => row(t('results.atLeast', {count: i + 1}), p, `${cls}${i + 1}`)),
     row(t('results.allSaved'), s.saved[side], 'seg-none'),
   ];
+  /**
+   * @param {string} text
+   * @param {string} cls
+   * @param {boolean} first
+   */
   const head = (text, cls, first) => <div className={`label head${first ? ' first' : ''}${cls ? ` ${cls}` : ''}`}>{text}</div>;
   return (
     <div className="breakdown">

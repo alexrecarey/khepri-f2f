@@ -8,16 +8,25 @@ import Headline from './Headline.jsx';
 import {pct, shade, shadeInk, shows} from '../results/summary.js';
 import {Rich, useT} from './i18n.jsx';
 
+/** @typedef {import('../types.js').AttackOnItsOwn} AttackOnItsOwn */
+/** @typedef {'active' | 'reactive'} Role */
+/** An unopposed summary: each attack on its own and the four joint outcomes.
+ * @typedef {import('../types.js').Summary & Pick<Required<import('../types.js').Summary>, 'attacks' | 'joint'>} UnopposedSummary */
+
+/** @param {AttackOnItsOwn} a */
 const top = (a) => [3, 2, 1].find((w) => shows(a.wounds[w - 1])) ?? 0;
 
 // One attack's bar: wounds (most first for the active side, mirrored for the
 // reactive), then saved, then missed. Nothing for outcomes that can't happen.
 // 1, 2 and 3+ wounds take the face-to-face shades for three states (steps 3,
 // 5, 6), so the deepest is the most wounds here too.
+/** @param {{a: AttackOnItsOwn, side: Role, thin?: boolean, labels?: boolean}} props */
 function AttackBar({a, side, thin = false, labels = false}) {
   const t = useT();
+  /** @type {{key: string, chance: number, bg?: string, ink?: string, cls?: string, text: string}[]} */
   const wounds = [3, 2, 1].map((w) => ({key: `w${w}`, chance: a.wounds[w - 1], bg: shade(side, w - 1, 3), ink: shadeInk(side, w - 1, 3),
     text: w === top(a) ? `${w}+` : `${w}`}));
+  /** @type {typeof wounds} */
   const rest = [
     {key: 'saved', chance: a.saved, cls: 'seg-none', text: t('unopposed.saved')},
     {key: 'miss', chance: a.miss, cls: 'seg-miss', text: t('unopposed.miss')},
@@ -37,6 +46,7 @@ function AttackBar({a, side, thin = false, labels = false}) {
 AttackBar.propTypes = {a: PropTypes.object.isRequired, side: PropTypes.string.isRequired, thin: PropTypes.bool, labels: PropTypes.bool};
 
 // Card body: the two headline numbers, one thin bar per attack.
+/** @param {{s: UnopposedSummary, h: import('../types.js').Headline, choice: import('../types.js').HeadlineChoice}} props */
 export function UnopposedCardBody({s, h, choice}) {
   return (
     <>
@@ -50,14 +60,15 @@ export function UnopposedCardBody({s, h, choice}) {
 
 UnopposedCardBody.propTypes = {s: PropTypes.object.isRequired, h: PropTypes.object.isRequired, choice: PropTypes.string.isRequired};
 
+/** @param {{a: AttackOnItsOwn, side: Role, name: string, dice?: string}} props */
 function AttackDetail({a, side, name, dice}) {
   const t = useT();
   const most = top(a);
-  const rows = [
-    ...[3, 2, 1].filter((w) => w <= most).map((w) => [w === most ? t('unopposed.atLeast', {count: w}) : t('state.wounds', {count: w}), a.wounds[w - 1]]),
+  const rows = /** @type {[string, number][]} */ ([
+    ...[3, 2, 1].filter((w) => w <= most).map((w) => /** @type {[string, number]} */ ([w === most ? t('unopposed.atLeast', {count: w}) : t('state.wounds', {count: w}), a.wounds[w - 1]])),
     [t('unopposed.hitsAllSaved'), a.saved],
     [t('unopposed.misses'), a.miss],
-  ].filter(([, p]) => shows(p));
+  ]).filter(([, p]) => shows(p));
   return (
     <div className="attack">
       <div className={`ledger-top c-${side}`}><span>{t('unopposed.attack', {name})}</span><span>{dice}</span></div>
@@ -73,6 +84,7 @@ function AttackDetail({a, side, name, dice}) {
 AttackDetail.propTypes = {a: PropTypes.object.isRequired, side: PropTypes.string.isRequired, name: PropTypes.string.isRequired, dice: PropTypes.string};
 
 // Sheet body: why it's two attacks, how the order can end, each attack in detail.
+/** @param {{s: UnopposedSummary, names: {A: string, B: string}, diceLine?: {active?: string, reactive?: string} | null}} props */
 export function UnopposedSheetBody({s, names, diceLine}) {
   const t = useT();
   const {joint} = s;

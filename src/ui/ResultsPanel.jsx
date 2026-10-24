@@ -8,6 +8,7 @@ import useResultsView from './useResultsView.js';
 import {useStatesUi} from './WoundStates.jsx';
 import {useT} from './i18n.jsx';
 
+/** @param {import('../types.js').ResultsProps} props */
 export default function ResultsPanel({s, status, diceLine, classic, ledger, save, pending, picked, params}) {
   const t = useT();
   const ui = useStatesUi();

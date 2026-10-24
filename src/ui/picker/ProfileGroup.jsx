@@ -8,6 +8,7 @@ import {loadoutTag} from '../../state/pickerView.js';
 // every loadout in it carries once, then each loadout as only what sets it
 // apart. The side's colour stays on what the player picks (canvas Final,
 // "Picker — units with several profiles").
+/** @param {{g: import('../../state/pickerView.js').ProfileGroupView, onPick: (hit: import('../../types.js').ProfileHit) => void, color: string, army: import('../../types.js').Army | null}} props */
 export default function ProfileGroup({g, onPick, color, army}) {
   const t = useT();
   return (
@@ -17,7 +18,8 @@ export default function ProfileGroup({g, onPick, color, army}) {
         <span>{g.type ? `${typeName(t, g.type)} · ` : ''}{t('picker.loadoutCount', {count: g.items.length})}</span>
       </div>
       <div className="pgroup-stats">
-        {g.stats.map(([k, v]) => <span key={k}><small>{t(`stat.${k.toLowerCase()}`)}</small><b>{k === 'MOV' ? v.map((cm) => t.distance(cm)).join('-') : v}</b></span>)}
+        {/* MOV is the pair of values (profileStats). */}
+        {g.stats.map(([k, v]) => <span key={k}><small>{t(`stat.${k.toLowerCase()}`)}</small><b>{k === 'MOV' ? /** @type {number[]} */ (v).map((cm) => t.distance(cm)).join('-') : v}</b></span>)}
       </div>
       {g.shared.length > 0 && <div className="pgroup-kit">{g.shared.join(', ')}</div>}
       {g.items.map(({hit, own}) => {

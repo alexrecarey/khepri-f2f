@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {decodeCard, encodeCard, numbersLine, previewDescription, previewTitle} from './card.js';
 
 const side = (n, u, w, s, c) => ({n, l: 'wounds / order', u, w, s, c});
+/** @type {import('./card.js').Card} */
 const card = {k: 'wpo', nf: false, x: '16-24"', a: side('0.81', 'Squalos Mk-II', 'HMG', 'Surprise attack', 'squalos-mk-ii-1-1'),
   b: side('0.46', 'Zhanshi Gongchéng', 'Missile L.', 'Cover, Fireteam 5', 'zhanshi-1-1')};
 
@@ -13,10 +14,13 @@ test('a card survives the link, accents and all', () => {
 });
 
 test('hand-written cards: junk is refused, long text cut, odd crest names dropped', () => {
-  for (const bad of [null, '', 'not base64!', encodeCard({k: 'odds', a: card.a, b: card.b}), encodeCard({k: 'wpo', a: card.a})]) {
+  // Deliberately malformed cards, as a hand-written link could carry.
+  const junk = (/** @type {unknown} */ x) => encodeCard(/** @type {import('./card.js').Card} */ (x));
+  for (const bad of [null, '', 'not base64!', junk({k: 'odds', a: card.a, b: card.b}), junk({k: 'wpo', a: card.a})]) {
     assert.equal(decodeCard(bad), null);
   }
   const odd = decodeCard(encodeCard({...card, a: {...card.a, u: 'x'.repeat(500), c: '../secret'}}));
+  assert.ok(odd);
   assert.equal(odd.a.u.length, 60);
   assert.equal(odd.a.c, '');
 });

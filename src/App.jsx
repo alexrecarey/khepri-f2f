@@ -11,7 +11,9 @@ import {TProvider, useT} from "./ui/i18n.jsx";
 import useMatchupView from "./state/useMatchupView.js";
 import ClassicScreen from "./ui/ClassicScreen.jsx";
 import MatchupScreen from "./ui/MatchupScreen.jsx";
-import {AboutPage, Menu, SettingsPage, Toast} from "./ui/Chrome.jsx";
+import {AboutPage} from "./ui/AboutPage.jsx";
+import {Menu, Toast} from "./ui/Menu.jsx";
+import {SettingsPage} from "./ui/SettingsPage.jsx";
 import {AboutDialog, HeaderButtons, SettingsDialog} from "./ui/DeskMenu.jsx";
 import SavedRolls from "./ui/SavedRolls.jsx";
 import {MoreIcon} from "./ui/icons.jsx";
@@ -63,7 +65,7 @@ function App() {
         <span className="wordmark">INFINITY THE CALCULATOR{!matchupMode && layout === 'phone' && <small> · {t('mode.classic').toLocaleUpperCase(t.lang)}</small>}</span>
         {layout !== 'phone' && (
           <span className="mode-switch" role="group" aria-label={t('menu.calculator')}>
-            {[[MODES.matchup, t('mode.matchup')], [MODES.basic, t('mode.classic')]].map(([m, name]) => (
+            {/** @type {[string, string][]} */ ([[MODES.matchup, t('mode.matchup')], [MODES.basic, t('mode.classic')]]).map(([m, name]) => (
               <button type="button" key={m} className={mode === m ? 'on' : ''} aria-pressed={mode === m}
                 onClick={() => dispatch({type: 'setMode', mode: m})}>{name}</button>
             ))}
@@ -86,6 +88,7 @@ function App() {
 // The menu and its pages. Their own component, so opening or closing one
 // re-renders only this, not the screen behind. `dialogs`: wide layouts, where
 // the header buttons open them as dialogs (DeskMenu.jsx).
+/** @param {{dialogs: boolean, results: {result: import('./types.js').EngineResult | null, targets: import('./types.js').MatchupCore['targets'], params: import('./types.js').Params | null}}} props */
 function Overlays({dialogs, results}) {
   const overlay = useAppState((s) => s.ui.overlay);
   // Settings lists the factions; the search index has them without the army data.

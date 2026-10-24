@@ -1,14 +1,13 @@
 // The menu on wide screens (design canvas Final: "Desktop menu — header
 // buttons (A)"): Saved, Settings and About sit in the header and each opens a
 // centred dialog (DeskDialog.jsx); the open one's button stays pressed. The
-// phone keeps the ⋯ menu sheet and full-screen pages (Chrome.jsx).
+// phone keeps the ⋯ menu sheet and full-screen pages (Menu.jsx,
+// SettingsPage.jsx, AboutPage.jsx).
 import {useMemo} from 'react';
 import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
-import {
-  ARMY_DATE, AboutContact, AboutIntro, AboutLinks, LanguageSetting, StartFaction, VERSION,
-  clearRecents, clearSaved,
-} from './Chrome.jsx';
+import {ARMY_DATE, AboutContact, AboutIntro, AboutLinks, VERSION} from './AboutPage.jsx';
+import {LanguageSetting, StartFaction, clearRecents, clearSaved} from './SettingsPage.jsx';
 import DeskDialog from './DeskDialog.jsx';
 import {HEADLINES, headline} from '../results/headline.js';
 import {headlineChoice, setHeadline} from '../state/headlines.js';
@@ -17,6 +16,12 @@ import {BookmarkIcon, GearIcon, InfoIcon} from './icons.jsx';
 import {summarize} from '../results/summary.js';
 
 // A second click on the open page's button closes it.
+/** @typedef {NonNullable<import('../types.js').UiState['overlay']>} Overlay */
+
+/**
+ * @param {Overlay} overlay
+ * @param {boolean} open
+ */
 const toggle = (overlay, open) => dispatch(open ? {type: 'back'} : {type: 'openOverlay', overlay});
 
 export function HeaderButtons() {
@@ -24,6 +29,13 @@ export function HeaderButtons() {
   const overlay = useAppState((s) => s.ui.overlay);
   const savedCount = useAppState((s) => s.lists.saved.length);
   // name: the overlay; label: the button's text, or null for an icon named `aria`.
+  /**
+   * @param {Overlay} name
+   * @param {string | null} label
+   * @param {import('react').ReactNode} icon
+   * @param {import('react').ReactNode} [extra]
+   * @param {string} [aria]
+   */
   const button = (name, label, icon, extra, aria) => (
     <button type="button" className={`hdr-btn${label ? '' : ' icon'}`} aria-pressed={overlay === name}
       aria-label={label ? undefined : aria} onClick={() => toggle(name, overlay === name)}>
@@ -41,6 +53,7 @@ export function HeaderButtons() {
 
 // results: {result, targets, params} of the roll on screen, so each choice
 // shows what the card would read with it (the active side's number).
+/** @param {{factions: {id: number, name: string}[], results: {result: import('../types.js').EngineResult | null, targets: import('../types.js').MatchupCore['targets'], params: import('../types.js').Params | null}}} props */
 export function SettingsDialog({factions, results}) {
   const t = useT();
   const choice = useAppState((s) => headlineChoice(s.prefs));

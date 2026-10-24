@@ -13,7 +13,18 @@ import {StateGlyph} from './icons.jsx';
 import {pct, shows} from '../results/summary.js';
 import {useT} from './i18n.jsx';
 
+/** @typedef {'active' | 'reactive'} Role */
+/** @typedef {import('../types.js').Summary} Summary */
+/** @typedef {import('../types.js').WoundState} WoundState */
+/** @typedef {import('../types.js').StateBarSegment} StateBarSegment */
+/** What the bar and the list point at: a hovered segment or row, a focused side, a row tapped open.
+ * @typedef {{hover: {kind: 'seg' | 'row', side: Role, index: number} | null, focus: Role | null, open: string | null}} StatesState */
+/** The small store the bar and the list share (createStatesUi).
+ * @typedef {{get: () => StatesState, subscribe: (f: () => void) => () => void, setHover: (hover: StatesState['hover']) => void,
+ *   setFocus: (focus: Role | null) => void, setOpen: (open: string | null) => void}} StatesUi */
+
 const ORDERS = 3;
+/** @param {number} p */
 const overOrders = (p) => 1 - (1 - p) ** ORDERS;
 
 // The bar and the list share this small store instead of React state in the
@@ -22,9 +33,13 @@ const overOrders = (p) => 1 - (1 - p) ** ORDERS;
 //   hover  {kind: 'seg' | 'row', side, index}
 //   focus  'active' | 'reactive'
 //   open   `${side}:${key}`, tapped open
+/** @returns {StatesUi} */
 function createStatesUi() {
+  /** @type {StatesState} */
   let state = {hover: null, focus: null, open: null};
+  /** @type {Set<() => void>} */
   const subs = new Set();
+  /** @param {Partial<StatesState>} patch */
   const set = (patch) => {
     state = {...state, ...patch};
     subs.forEach((f) => f());
@@ -43,17 +58,30 @@ export function useStatesUi() {
   return ui;
 }
 
+/** @type {StatesState} */
 const NO_UI = {hover: null, focus: null, open: null};
 const noSubscribe = () => () => {};
-// The current hover / focus / open of `ui` (null: none, nothing changes).
+/**
+ * The current hover / focus / open of `ui` (null: none, nothing changes).
+ * @param {StatesUi | null | undefined} ui
+ */
 const useUiState = (ui) => useSyncExternalStore(ui ? ui.subscribe : noSubscribe, ui ? ui.get : () => NO_UI);
 
+/**
+ * @param {StatesState} cur
+ * @param {StateBarSegment} seg
+ */
 const dimSeg = (cur, seg) => {
   if (cur.focus && seg.side !== cur.focus) return true;
   const h = cur.hover;
   if (h?.kind !== 'row') return false;
   return seg.side !== h.side || seg.index < h.index;
 };
+/**
+ * @param {StatesState} cur
+ * @param {Role} side
+ * @param {number} index
+ */
 const dimRow = (cur, side, index) => {
   if (cur.focus && side !== cur.focus) return true;
   const h = cur.hover;
@@ -64,27 +92,35 @@ const dimRow = (cur, side, index) => {
 // glyphs: false (bar only), true (bar, glyphs under it) or 'only' (just the
 // glyph row: the phone sheet draws the bar in its top and the glyphs below).
 // ui null: a plain bar (the closed phone card, where a tap opens the sheet).
+/** A summary with the target's states (summarize with targets).
+ * @typedef {Summary & {states: NonNullable<Summary['states']>, stateBar: NonNullable<Summary['stateBar']>}} StatesSummary */
+
+/** @param {{s: StatesSummary, ui?: StatesUi | null, glyphs?: boolean | 'only', className?: string}} props */
 export function StateBar({s, ui, glyphs = false, className = ''}) {
   const t = useT();
   const cur = useUiState(ui);
   const segs = s.stateBar.filter((b) => shows(b.chance));
   let x = 0;
+  /** @type {{b: StateBarSegment, glyph: string, left: number}[]} */
   const marks = [];
   for (const b of segs) {
     const st = b.side === 'none' ? null : s.states[b.side][b.index];
     if (st?.glyph) marks.push({b, glyph: st.glyph, left: x + 50 * b.chance});
     x += 100 * b.chance;
   }
+  /** @param {StateBarSegment} b */
   const tip = (b) => {
     if (b.side === 'none') return `${t('results.nobodyWounded')} · ${pct(b.chance)}`;
     const st = s.states[b.side][b.index];
     return t('results.stateTip', {state: st.label, exactly: pct(st.exactly), atLeast: pct(st.atLeast)});
   };
+  /** @param {StateBarSegment} b */
   const hov = (b) => (ui && b.side !== 'none' ? {
-    onMouseEnter: () => ui.setHover({kind: 'seg', side: b.side, index: b.index}),
+    // Not 'none': a side's segment.
+    onMouseEnter: () => ui.setHover({kind: 'seg', side: /** @type {Role} */ (b.side), index: b.index}),
     onMouseLeave: () => ui.setHover(null),
     // A tap also reaches the bar's own button (ResultBars), which shows the wound list.
-    onClick: () => ui.setHover({kind: 'seg', side: b.side, index: b.index}),
+    onClick: () => ui.setHover({kind: 'seg', side: /** @type {Role} */ (b.side), index: b.index}),
   } : {});
   return (
     <>
@@ -107,6 +143,7 @@ export function StateBar({s, ui, glyphs = false, className = ''}) {
 
 StateBar.propTypes = {s: PropTypes.object.isRequired, ui: PropTypes.object, glyphs: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]), className: PropTypes.string};
 
+/** @param {{st: WoundState, side: Role, ui: StatesUi, cur: StatesState}} props */
 function StateRow({st, side, ui, cur}) {
   const t = useT();
   const id = `${side}:${st.key}`;
@@ -121,7 +158,8 @@ function StateRow({st, side, ui, cur}) {
       onFocus={() => ui.setHover({kind: 'row', side, index: st.index})} onBlur={() => ui.setHover(null)}
       onClick={() => ui.setOpen(cur.open === id ? null : id)}>
       <span className={`c-${side}`}><StateGlyph glyph={st.glyph} /></span>
-      <span className={`k${st.key === 'dead' ? ' dead' : ''}`}>{st.label}{st.shock && <span className="stag">{t('ammo.SHOCK')}</span>}</span>
+      {/* Rendered by then (state/matchupView.js renderMatchup). */}
+      <span className={`k${st.key === 'dead' ? ' dead' : ''}`}>{/** @type {string} */ (st.label)}{st.shock && <span className="stag">{t('ammo.SHOCK')}</span>}</span>
       <span className="track"><span className="b" style={{width: `max(2px, ${100 * st.atLeast}%)`, background: st.shade}} /></span>
       <span className="ex">{pct(st.exactly)}</span>
       <span className="p">{pct(st.atLeast)}</span>
@@ -133,6 +171,7 @@ function StateRow({st, side, ui, cur}) {
 StateRow.propTypes = {st: PropTypes.object.isRequired, side: PropTypes.string.isRequired, ui: PropTypes.object.isRequired, cur: PropTypes.object.isRequired};
 
 // A row that hurts nobody: grey, and nothing in the bar to point at.
+/** @param {{glyph: string, label: string, p: number, dim?: boolean}} props */
 function PlainRow({glyph, label, p, dim}) {
   if (!shows(p)) return null;
   return (
@@ -148,18 +187,25 @@ function PlainRow({glyph, label, p, dim}) {
 
 PlainRow.propTypes = {glyph: PropTypes.string.isRequired, label: PropTypes.string.isRequired, p: PropTypes.number.isRequired, dim: PropTypes.bool};
 
+/** @param {{s: StatesSummary, ui: StatesUi}} props */
 export function StateList({s, ui}) {
   const t = useT();
   const cur = useUiState(ui);
+  /**
+   * @param {Role} side
+   * @param {string} text
+   */
   const head = (side, text) => (
     <button type="button" className={`shead${cur.focus && cur.focus !== side ? ' dim' : ''}`} aria-pressed={cur.focus === side}
       onClick={() => ui.setFocus(cur.focus === side ? null : side)}>
       <span className={`t c-${side}`}>{text}</span><span className="lab">{t('results.exactly')}</span><span className="lab">{t('results.atLeastHead')}</span>
     </button>
   );
+  /** @param {Role} side */
   const rows = (side) => s.states[side].filter((st) => shows(st.atLeast)).map((st) => <StateRow key={st.key} st={st} side={side} ui={ui} cur={cur} />);
   // Won, every hit saved: under the side that won, grey like nobody wounded
   // in the bar (extra information, not always important).
+  /** @param {Role} side */
   const saves = (side) => <PlainRow glyph="save" label={t('results.savesAll')} p={s.saved[side]} dim={Boolean(cur.focus && cur.focus !== side)} />;
   return (
     <div className="slist">

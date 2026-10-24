@@ -10,6 +10,16 @@ import {EMPTY_SIDE, other} from './schema.js';
 // A search hit -> a side's selection. The weapon the query matched ("fus ml")
 // is preselected; otherwise weaponKey stays null and matchupView derives the
 // default for the side's role, so it follows the trooper when sides swap.
+/** @typedef {import('../types.js').Army} Army */
+/** @typedef {import('../types.js').AppState} AppState */
+/** @typedef {import('../types.js').ProfileHit} ProfileHit */
+/** @typedef {import('../types.js').Side} Side */
+
+/**
+ * @param {Army | null | undefined} army
+ * @param {ProfileHit} hit
+ * @returns {import('../types.js').Selection}
+ */
 export function selectionFromHit(army, hit) {
   const sel = {
     ...EMPTY_SIDE,
@@ -21,7 +31,8 @@ export function selectionFromHit(army, hit) {
   };
   const resolved = army ? resolveSelection(army, sel) : null;
   if (!resolved?.option) return sel;
-  const weapons = trooperWeapons(resolved.option, army.weapons, resolved.traits);
+  // Resolved, so the army is there.
+  const weapons = trooperWeapons(resolved.option, /** @type {Army} */ (army).weapons, resolved.traits);
   const matched = hit.weaponId != null ? weapons.find((w) => w.id === hit.weaponId) : null;
   return matched ? {...sel, weaponKey: matched.key} : sel;
 }
@@ -29,8 +40,15 @@ export function selectionFromHit(army, hit) {
 // Which faction a side's picker shows: the one last chosen for that side,
 // else the faction of its trooper, else its starting faction (Settings), else
 // All. Never the other side's: each side keeps its own.
+/**
+ * @param {Army | null | undefined} army
+ * @param {AppState} state
+ * @param {Side} side
+ * @returns {number | null}
+ */
 export function scopeFor(army, state, side) {
-  if (state.scopes && side in state.scopes) return state.scopes[side];
+  // `in`: the side's scope is set (a faction id or null for All).
+  if (state.scopes && side in state.scopes) return /** @type {number | null} */ (state.scopes[side]);
   return vanillaOf(army, state.matchup[side].factionId) ?? state.prefs.startFaction?.[side] ?? null;
 }
 
@@ -40,12 +58,20 @@ export function scopeFor(army, state, side) {
 // to fit (or goes) when the new trooper can't match it.
 // A new trooper starts in cover when cover can help it (not No Cover), or in
 // its Foxhole when it has Sapper (the Foxhole is its cover).
+/**
+ * @param {Army | null | undefined} army
+ * @param {Side} side
+ * @param {ProfileHit} hit
+ * @param {{next?: boolean, state?: AppState | null}} [opts]
+ * @returns {Extract<import('../types.js').Action, {type: 'pickTrooper'}>}
+ */
 export function pickTrooper(army, side, hit, {next = false, state = null} = {}) {
   const otherSide = other(side);
   const base = selectionFromHit(army, hit);
   const r = resolveSelection(army, base);
   const sapper = Boolean(r?.canSapper);
-  const sel = {...base, sapper, inCover: !sapper && Boolean(r?.traits) && !hasSkill(r.traits, SKILL.NO_COVER)};
+  // r has traits, so r is there.
+  const sel = {...base, sapper, inCover: !sapper && Boolean(r?.traits) && !hasSkill(/** @type {NonNullable<typeof r>} */ (r).traits, SKILL.NO_COVER)};
   return {
     type: 'pickTrooper',
     side,
@@ -57,17 +83,37 @@ export function pickTrooper(army, side, hit, {next = false, state = null} = {}) 
   };
 }
 
+/**
+ * @param {Army | null | undefined} army
+ * @param {AppState} state
+ * @param {Side} side
+ * @returns {import('../types.js').Action}
+ */
 export const openPicker = (army, state, side) => ({type: 'openPicker', side, scope: scopeFor(army, state, side)});
 
 // Desktop picker: switch sides, each with its own scope.
+/**
+ * @param {Army | null | undefined} army
+ * @param {AppState} state
+ * @param {Side} side
+ * @returns {import('../types.js').Action}
+ */
 export const pickerSide = (army, state, side) => ({type: 'pickerSide', side, scope: scopeFor(army, state, side)});
 
 // A Team-Ops chart or TacBall pick ({upgrade} or {ball}: an index, or null).
 // Dropping an upgrade can take away the weapon in use (it falls back to the
 // default) or the Berserk it gave.
+/**
+ * @param {Army | null | undefined} army
+ * @param {AppState} state
+ * @param {Side} side
+ * @param {{upgrade?: number | null, ball?: number | null}} pick
+ * @returns {import('../types.js').Action}
+ */
 export function setUpgrade(army, state, side, pick) {
   const sel = {...state.matchup[side], ...pick};
   const r = resolveSelection(army, sel);
+  /** @type {Partial<import('../types.js').Selection>} */
   const patch = {...pick};
   if (sel.weaponKey && !r?.weapon) patch.weaponKey = null;
   if (sel.berserk && !hasBerserk(r?.traits)) patch.berserk = false;

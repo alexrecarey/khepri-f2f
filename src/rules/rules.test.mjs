@@ -11,8 +11,24 @@ import {defaultWeapon} from './defaultWeapon.js';
 import {buildLedger, renderDerived} from './ledger.js';
 import {deriveInputs as deriveRaw} from './matchup.js';
 
+
+/** @typedef {import('../types.js').WeaponRow} WeaponRow */
+/** @typedef {import('../types.js').WeaponEntry} WeaponEntry */
+/** @typedef {import('../types.js').ProfileRow} ProfileRow */
+/** @typedef {import('../types.js').OptionRow} OptionRow */
+/** @typedef {import('../types.js').TraitRef} TraitRef */
+/** @typedef {import('../types.js').Traits} Traits */
+/** @typedef {import('../types.js').Trooper} Trooper */
+/** @typedef {import('../types.js').Side} Side */
+/** @typedef {import('../types.js').Line} Line */
+/** @typedef {import('../types.js').Ledger} Ledger */
+/** @typedef {import('../types.js').LedgerSide} LedgerSide */
+/** @typedef {import('../types.js').RenderedDerived} RenderedDerived */
+/** @typedef {Parameters<typeof deriveRaw>[0]} DeriveArgs */
+
 // The rules word their notes and lines as message descriptors; these tests
 // read them in English (ledger.js renders them).
+/** @param {DeriveArgs} o */
 const deriveInputs = (o) => renderDerived(deriveRaw(o));
 import {tEn} from '../i18n/index.js';
 import {render} from '../i18n/message.js';
@@ -21,8 +37,13 @@ import {rangeModFor} from './ranges.js';
 import {pseudoName, pseudoWeapons, resolveSelection, trooperCcWeapons, trooperWeapons} from './trooper.js';
 
 const RIFLE_RANGES = [{to: 40, mod: 3}, {to: 80, mod: -3}, {to: 120, mod: -6}];
-// Weapon rows as the Army API gives them, normalized like the pipeline does.
-const weaponTable = (t) => Object.fromEntries(Object.entries(t).map(([id, rows]) => [id, rows.map(normalizeWeaponRow)]));
+// Weapon rows as the Army API gives them, normalized like the pipeline does
+// (test rows: the columns the rules read, so they stand for army.json rows).
+/**
+ * @param {Record<string, Parameters<typeof normalizeWeaponRow>[0][]>} t
+ * @returns {Record<string, WeaponRow[]>}
+ */
+const weaponTable = (t) => /** @type {Record<string, WeaponRow[]>} */ (Object.fromEntries(Object.entries(t).map(([id, rows]) => [id, rows.map(normalizeWeaponRow)])));
 const W = weaponTable({
   1: [{name: 'Combi Rifle', mode: null, ammo: 'N', burst: 3, dmg: 7, saving: 'ARM', saves: '1', props: ['Suppressive Fire'], ranges: RIFLE_RANGES}],
   2: [
@@ -53,39 +74,62 @@ const W = weaponTable({
   18: [{name: 'Sepsitor', mode: null, ammo: null, burst: 1, dmg: 4, saving: 'BTS', saves: '1', props: ['Intuitive Attack', 'Disposable (2)', 'State: Sepsitorized', 'Direct Template (Large Teardrop)', '[*]'], ranges: null}],
 });
 
-const profile = (over = {}) => ({id: 1, name: 'P', bs: 12, ph: 12, arm: 2, bts: 3, w: 1, skills: [], equip: [], ...over});
-const option = (weapons, over = {}) => ({id: 1, name: 'O', points: 10, swc: '0', weapons, skills: [], equip: [], ...over});
+// Test fixtures: the fields the rules read stand for whole rows and troopers.
+/**
+ * @param {Partial<ProfileRow>} [over]
+ * @returns {ProfileRow}
+ */
+const profile = (over = {}) => /** @type {ProfileRow} */ ({id: 1, name: 'P', bs: 12, ph: 12, arm: 2, bts: 3, w: 1, skills: [], equip: [], ...over});
+/**
+ * @param {TraitRef[]} weapons
+ * @param {Partial<OptionRow>} [over]
+ * @returns {OptionRow}
+ */
+const option = (weapons, over = {}) => /** @type {OptionRow} */ ({id: 1, name: 'O', points: 10, swc: '0', weapons, skills: [], equip: [], ...over});
+/**
+ * @param {ProfileRow} p
+ * @param {OptionRow} o
+ * @param {string | null} weaponKey
+ * @param {boolean} [inCover]
+ * @returns {Trooper}
+ */
 const side = (p, o, weaponKey, inCover = false) => {
   const traits = effectiveTraits(p, o);
   const weapon = [...trooperWeapons(o, W, traits), ...trooperCcWeapons(o, W, traits), ...pseudoWeapons(traits)].find((w) => w.key === weaponKey) ?? null;
-  return {profile: p, option: o, traits, weapon, inCover};
+  return /** @type {Trooper} */ ({profile: p, option: o, traits, weapon, inCover});
 };
 const combi = option([{id: 1, name: 'Combi Rifle'}, {id: 8, name: 'CC Weapon'}]);
 
-// What a section's live lines (not struck, a number) add up to.
-const addUp = (lines) => lines.filter((x) => !x.struck && typeof x.value === 'number').reduce((n, x) => n + x.value, 0);
+/**
+ * What a section's live lines (not struck, a number) add up to.
+ * @param {Line[]} lines
+ */
+const addUp = (lines) => lines.filter((x) => x.value !== null && !x.struck).reduce((n, x) => n + /** @type {number} */ (x.value), 0);
 
 // deriveInputs, plus a check that "How the dice were built" (ledger.js) adds
 // up to every number it produced: each rule case below is also a ledger case,
 // so a struck or display-only line that should count (or the reverse) fails here.
+/** @param {DeriveArgs} args */
 function derive(args) {
   const r = deriveInputs(args);
   if (!r.ok) return r;
   const ledger = buildLedger({...args, derived: r});
-  for (const s of ['A', 'B']) {
+  for (const s of /** @type {Side[]} */ (['A', 'B'])) {
     const l = ledger[s];
     if (!l || l.kind === 'none') continue;
     const t = s === 'A' ? 'B' : 'A';
+    /** @type {Record<string, number | undefined>} */
     const expect = {sv: r.inputs[`successValue${s}`], burst: r.inputs[`burst${s}`], sd: r.inputs[`bonusBurst${s}`] ?? 0};
     // No target, no Saving Roll to explain (the app only builds a ledger for both sides).
-    if (r.inputs[`arm${t}`] !== undefined) expect.save = r.inputs[`damage${s}`] + r.inputs[`arm${t}`];
+    if (r.inputs[`arm${t}`] !== undefined) expect.save = /** @type {number} */ (r.inputs[`damage${s}`]) + /** @type {number} */ (r.inputs[`arm${t}`]);
     for (const [k, total] of Object.entries(expect)) {
-      const sec = l[k];
+      // k names a section of the side (sv, burst, sd, save).
+      const sec = l[/** @type {'sv' | 'burst' | 'sd' | 'save'} */ (k)];
       if (!sec) continue;
       const where = `ledger ${s} ${k}: ${JSON.stringify(sec.lines)}`;
       assert.equal(sec.total, total, where);
-      // Out of range is a '—' line with Success Value 0, not a sum.
-      if (!sec.lines.some((x) => x.value === '—')) assert.equal(addUp(sec.lines), total, where);
+      // Out of range: Success Value 0 under a '—' mark, not the lines' sum.
+      if (!sec.lines.some((x) => x.text === '—')) assert.equal(addUp(sec.lines), total, where);
     }
   }
   return r;
@@ -98,6 +142,10 @@ test('bsWeapons expands modes and drops CC weapons', () => {
   assert.equal(isBsAttackWeapon(W[8][0]), false);
 });
 
+/**
+ * @param {TraitRef[]} weapons
+ * @param {'active' | 'reactive'} role
+ */
 const pick = (weapons, role) => defaultWeapon(bsWeapons(option(weapons), W), role)?.key ?? null;
 
 test('defaultWeapon (active) takes the highest burst, loadout +B included', () => {
@@ -126,22 +174,28 @@ test('defaultWeapon (reactive) prefers +SD, then best range band, then Impact Te
 test('defaultWeapon (reactive) ranks range band above ammo, Non-lethal weapons included', () => {
   const flashPulse = normalizeWeaponRow({name: 'Flash Pulse', mode: null, ammo: 'Stun', burst: 1, dmg: 7, saving: 'BTS', saves: '1', props: ['BS Weapon (WIP)', 'State: Stunned', 'Non-lethal'], ranges: [{to: 20, mod: 0}, {to: 60, mod: 3}, {to: 120, mod: -3}, {to: 240, mod: -6}]});
   const o = option([{id: 1, name: 'Combi Rifle'}, {id: 21, name: 'Flash Pulse'}]);
-  assert.equal(defaultWeapon(bsWeapons(o, {...W, 21: [flashPulse]}), 'reactive').key, '21:');
+  assert.equal(/** @type {WeaponEntry} */ (defaultWeapon(bsWeapons(o, {...W, 21: [/** @type {WeaponRow} */ (flashPulse)]}), 'reactive')).key, '21:');
   assert.equal(pick([{id: 17, name: 'Flash Pulse', extra: ['+1SD']}, {id: 7, name: 'HMG'}], 'reactive'), '17:');
 });
 
 test('defaultWeapon ammo precedence is PLASMA > EXP > DA > Viral > T2 > AP > Shock > N > E/M > Stun', () => {
-  const entry = (key, over) => ({key, row: normalizeWeaponRow({burst: 3, saving: 'ARM', saves: '1', ammo: 'N', props: [], ranges: RIFLE_RANGES, ...over}), mods: parseWeaponMods([])});
+  /**
+   * @param {string} key
+   * @param {Partial<Parameters<typeof normalizeWeaponRow>[0]>} over
+   * @returns {WeaponEntry}
+   */
+  const entry = (key, over) => /** @type {WeaponEntry} */ ({key, row: normalizeWeaponRow({burst: 3, saving: 'ARM', saves: '1', ammo: 'N', props: [], ranges: RIFLE_RANGES, ...over}), mods: parseWeaponMods([])});
   const ranked = [
     entry('PLASMA', {saving: 'ARM and BTS', saves: '1 and 1'}), entry('EXP', {ammo: 'AP+Exp'}), entry('DA', {ammo: 'DA'}),
     entry('VIRAL', {props: ['Bioweapon (DA+SHOCK)']}), entry('T2', {ammo: 'T2'}), entry('AP', {ammo: 'AP'}),
     entry('SHOCK', {ammo: 'Shock'}), entry('N', {ammo: null}), entry('E/M', {ammo: 'E/M'}), entry('STUN', {ammo: 'Stun'}),
   ];
-  for (const role of ['active', 'reactive']) {
+  for (const role of /** @type {('active' | 'reactive')[]} */ (['active', 'reactive'])) {
     const left = [...ranked].reverse();
     const picks = [];
     while (left.length > 0) {
-      const w = defaultWeapon(left, role);
+      // A non-empty list has a default.
+      const w = /** @type {WeaponEntry} */ (defaultWeapon(left, role));
       picks.push(w.key);
       left.splice(left.indexOf(w), 1);
     }
@@ -179,7 +233,7 @@ test('rangeModFor uses the shared distance band', () => {
 });
 
 test('X Visor softens negative range MODs', () => {
-  const xVisor = {equip: [{id: 117, name: 'X Visor'}]};
+  const xVisor = /** @type {Traits} */ ({equip: [{id: 117, name: 'X Visor'}]});
   const plasma = army.weapons[111].find((r) => r.mode === 'Hit Mode');
   assert.deepEqual([40, 80, 100, 120].map((cm) => rangeModFor(plasma, cm)), [3, -3, -6, null]);
   assert.deepEqual([40, 80, 100, 120].map((cm) => rangeModFor(plasma, cm, xVisor)), [3, 0, -3, null]);
@@ -211,6 +265,10 @@ test('mimetism and MSV', () => {
   const mim6 = profile({skills: [{id: 28, name: 'Mimetism', extra: ['-6']}]});
   const msv1 = profile({equip: [{id: 114, name: 'Multispectral Visor L1'}]});
   const msv2 = profile({equip: [{id: 115, name: 'Multispectral Visor L2'}]});
+  /**
+   * @param {ProfileRow} a
+   * @param {ProfileRow} b
+   */
   const sv = (a, b) => derive({active: side(a, combi, '1:'), reactive: side(b, combi, '1:'), rangeCm: 40}).inputs.successValueA;
   assert.equal(sv(profile(), mim3), 12);
   assert.equal(sv(profile(), mim6), 9);
@@ -234,6 +292,10 @@ test('MSV3 against a shooting Surprise Attack: the -3 stands while the chip is o
 
 test('AP halves ARM (rounding up) unless immune; cover added after', () => {
   const multi = option([{id: 2, name: 'MULTI Rifle'}]);
+  /**
+   * @param {ProfileRow} target
+   * @param {boolean} [inCover]
+   */
   const arm = (target, inCover = false) =>
     derive({active: side(profile(), multi, '2:AP Mode'), reactive: side(target, combi, '1:', inCover), rangeCm: 40}).inputs.armB;
   assert.equal(arm(profile({arm: 5})), 3);
@@ -242,6 +304,10 @@ test('AP halves ARM (rounding up) unless immune; cover added after', () => {
 });
 
 test('ammo mapping from saves / saving', () => {
+  /**
+   * @param {number} id
+   * @param {string} key
+   */
   const ammo = (id, key) => derive({active: side(profile(), option([{id, name: 'x'}]), key), reactive: null, rangeCm: 40}).inputs.ammoA;
   assert.equal(ammo(4, '4:'), 'DA');
   assert.equal(ammo(9, '9:Hit Mode'), 'EXP');
@@ -267,7 +333,20 @@ test('template weapon against a Dodge: the template and its continuous damage, t
   assert.equal(r.inputs.ammoB, 'DODGE');
   assert.equal(r.inputs.burstB, 1);
   assert.equal(r.inputs.successValueB, 16);
-  assert.deepEqual(r.notes, []);
+  assert.deepEqual(r.notes, [DIRECT_TEMPLATE_NOTE]);
+});
+
+const DIRECT_TEMPLATE_NOTE = 'Direct Template: no Face to Face Roll; each attack is rolled on its own';
+
+test('Direct Template note: said whatever the other side does (Alex, 2026-10-23)', () => {
+  const flamer = side(profile(), option([{id: 3, name: 'Heavy Flamethrower'}]), '3:');
+  // Against a Dodge, and against No ARO: the template is still its own roll.
+  assert.deepEqual(derive({active: flamer, reactive: side(profile(), combi, 'dodge'), rangeCm: 20}).notes, [DIRECT_TEMPLATE_NOTE]);
+  assert.deepEqual(derive({active: flamer, reactive: side(profile(), combi, 'none'), rangeCm: 20}).notes, [DIRECT_TEMPLATE_NOTE]);
+  // A template Smoke blocks rolls nothing, so there is nothing to say about it.
+  const smoked = derive({active: flamer, reactive: side(profile(), combi, 'dodge'), rangeCm: 20, zones: {smoke: true}});
+  assert.equal(smoked.inputs.burstA, 0);
+  assert.ok(!smoked.notes.includes(DIRECT_TEMPLATE_NOTE), smoked.notes.join(' | '));
 });
 
 test('template weapon against a shot back: two unopposed rolls, the shot a Normal Roll', () => {
@@ -341,6 +420,10 @@ test('No ARO: the reactive rolls nothing; on the active side it leaves the setup
 test('an Attribute of 0 is an error naming the roll: Attack on the active side, ARO on the reactive', () => {
   const noCc = profile({cc: 0});
   const noBs = profile({bs: 0});
+  /**
+   * @param {import('../types.js').ResolvedSide | null} active
+   * @param {import('../types.js').ResolvedSide | null} reactive
+   */
   const errors = (active, reactive) => deriveInputs({active, reactive, rangeCm: 40}).errors;
   assert.deepEqual(errors(side(noCc, combi, '8:'), side(profile(), combi, '1:')), ['Active: this profile cannot make CC attacks; pick Dodge']);
   assert.deepEqual(errors(side(profile(), combi, '1:'), side(noCc, combi, '8:')), ['Reactive: this profile cannot make CC attacks; pick Dodge or No ARO']);
@@ -350,6 +433,10 @@ test('an Attribute of 0 is an error naming the roll: Attack on the active side, 
 
 test('split range: the reactive shoots at rangeCmB, the active at rangeCm', () => {
   const hmg = option([{id: 7, name: 'Heavy Machine Gun'}]);
+  /**
+   * @param {number} rangeCm
+   * @param {number | null} [rangeCmB]
+   */
   const at = (rangeCm, rangeCmB) => derive({active: side(profile(), combi, '1:'), reactive: side(profile(), hmg, '7:'), rangeCm, rangeCmB}).inputs;
   // Combi +3 at 40; HMG 0 at 40, +3 at 60.
   assert.deepEqual([at(40).successValueA, at(40).successValueB], [15, 12]);
@@ -360,6 +447,7 @@ test('split range: the reactive shoots at rangeCmB, the active at rangeCm', () =
 });
 
 test('loadout BS MOD extras: "+3" and "+3 BS" add to the attack roll', () => {
+  /** @param {string[]} extra */
   const sv = (extra) => derive({active: side(profile(), option([{id: 1, name: 'x', extra}]), '1:'), reactive: null, rangeCm: 40}).inputs.successValueA;
   assert.equal(sv([]), 15);
   assert.equal(sv(['+3']), 18);
@@ -377,9 +465,20 @@ test('loadout extras and crit immunity', () => {
 });
 
 // --- Immunity (ARM) / (BTS) ------------------------------------------------
+/**
+ * @param {string} extra
+ * @param {Partial<ProfileRow>} [over]
+ */
 const immune = (extra, over = {}) => profile({arm: 5, bts: 3, skills: [{id: 162, name: 'Immunity', extra: [extra]}], ...over});
 // A derivation without its ledger lines, to compare two weapons' numbers.
+/** @param {RenderedDerived} d */
 const sansLines = ({lines, ...r}) => r;
+/**
+ * @param {ProfileRow} target
+ * @param {number} id
+ * @param {string} key
+ * @param {{extra?: string[], inCover?: boolean}} [opts]
+ */
 const shotAt = (target, id, key, {extra, inCover = false} = {}) =>
   derive({
     active: side(profile({wip: 13}), option([{id, name: 'x', ...(extra ? {extra} : {})}]), key),
@@ -561,6 +660,7 @@ test('Immunity (BTS): E/M has no effect, but it is still rolled and opposed', ()
 
 test('Immunity (BTS): a Sepsitor has no effect, but is still a template to Dodge', () => {
   const jinwei = immune('BTS', {bts: 6});
+  /** @param {ProfileRow} p */
   const sepsitor = (p) => side(p, option([{id: 18, name: 'Sepsitor'}]), '18:');
   const r = derive({active: sepsitor(profile()), reactive: side(jinwei, combi, 'dodge'), rangeCm: 20});
   assert.equal(r.ok, true);
@@ -568,7 +668,7 @@ test('Immunity (BTS): a Sepsitor has no effect, but is still a template to Dodge
   assert.equal(r.inputs.templateA, true);
   assert.equal(r.inputs.ammoA, 'NONE');
   assert.equal(r.inputs.ammoB, 'DODGE');
-  assert.deepEqual(r.notes, []);
+  assert.deepEqual(r.notes, [DIRECT_TEMPLATE_NOTE]);
   assert.deepEqual(r.warnings, ['Active: Sepsitor has no effect on a target with Immunity (BTS); its hits cause no damage']);
   const plain = derive({active: sepsitor(profile()), reactive: side(profile(), combi, '1:'), rangeCm: 20});
   assert.equal(plain.inputs.burstA, 1);
@@ -614,20 +714,27 @@ test('Vulnerability (Viral): no Immunity against Viral weapons', () => {
 });
 
 // --- Loadout ammo extras: Combi Rifle (T2), Combi Rifle (Viral)... ---------
+/**
+ * @param {string[]} extra
+ * @param {number} [id]
+ */
 const withExtra = (extra, id = 1) => bsWeapons(option([{id, name: 'x', extra}]), W)[0];
+// An entry's label is a Message; the tests read it in English.
+/** @param {WeaponEntry} w */
+const label = (w) => render(tEn, w.label);
 
 test('ammo extras: the weapon menu label shows the ammo', () => {
-  assert.equal(withExtra([]).label, 'Combi Rifle · B3 · PS7 · N');
-  assert.equal(withExtra(['T2']).label, 'Combi Rifle · B3 · PS7 · T2');
-  assert.equal(withExtra(['Shock']).label, 'Combi Rifle · B3 · PS7 · Shock');
-  assert.equal(withExtra(['AP']).label, 'Combi Rifle · B3 · PS7 · AP');
-  assert.equal(withExtra(['+1B', 'T2']).label, 'Combi Rifle · B4 · PS7 · T2');
+  assert.equal(label(withExtra([])), 'Combi Rifle · B3 · PS7 · N');
+  assert.equal(label(withExtra(['T2'])), 'Combi Rifle · B3 · PS7 · T2');
+  assert.equal(label(withExtra(['Shock'])), 'Combi Rifle · B3 · PS7 · Shock');
+  assert.equal(label(withExtra(['AP'])), 'Combi Rifle · B3 · PS7 · AP');
+  assert.equal(label(withExtra(['+1B', 'T2'])), 'Combi Rifle · B4 · PS7 · T2');
   // Added to other ammo, not in place of it; an AP weapon doesn't say AP twice.
-  assert.equal(withExtra(['T2'], 6).label, 'Heavy Pistol · B2 · PS6 · Shock+T2');
-  assert.equal(withExtra(['AP'], 15).label, 'Breaker Rifle · B3 · PS7 · AP');
+  assert.equal(label(withExtra(['T2'], 6)), 'Heavy Pistol · B2 · PS6 · Shock+T2');
+  assert.equal(label(withExtra(['AP'], 15)), 'Breaker Rifle · B3 · PS7 · AP');
   // Viral is N ammo on a BTS save, like the chart's Viral Combi Rifle.
-  assert.equal(withExtra(['Viral']).label, 'Viral Combi Rifle · B3 · PS7 · N');
-  assert.equal(withExtra(['Viral']).label, withExtra([], 4).label);
+  assert.equal(label(withExtra(['Viral'])), 'Viral Combi Rifle · B3 · PS7 · N');
+  assert.equal(label(withExtra(['Viral'])), label(withExtra([], 4)));
 });
 
 test('ammo extras: T2 fires T2 ammo, treated as N by Immunity (ARM)', () => {
@@ -664,6 +771,7 @@ test('ammo extras: Viral plays as Bioweapon (DA+SHOCK), like the Viral Combi Rif
 });
 
 test('ammo extras: Shock turns on the Shock rule', () => {
+  /** @param {ProfileRow} target */
   const vs = (target) => shotAt(target, 1, '1:', {extra: ['Shock']}).inputs;
   assert.equal(vs(profile()).shockA, true);
   assert.equal(vs(profile()).ammoA, 'N');
@@ -716,16 +824,27 @@ test('Sixth Sense and Sapper are modelled, not reported as unsupported', () => {
 
 test('Shock takes effect on VITA 1 targets only, unless immune', () => {
   const W2 = {...W, ...weaponTable({12: [{name: 'Uragan MRL', mode: 'Hit Mode', ammo: 'AP+Shock', burst: 3, dmg: 6, saving: 'ARM/2', saves: '1', props: [], ranges: RIFLE_RANGES}]})};
+  /**
+   * @param {number} id
+   * @param {string} key
+   * @returns {Trooper}
+   */
   const shooter = (id, key) => {
     const o = option([{id, name: 'x'}]);
-    return {...side(profile(), o, null), weapon: bsWeapons(o, W2).find((w) => w.key === key)};
+    return /** @type {Trooper} */ ({...side(profile(), o, null), weapon: bsWeapons(o, W2).find((w) => w.key === key)});
   };
+  /** @param {string} extra */
   const immunity = (extra) => ({skills: [{id: 162, name: 'Immunity', extra: [extra]}]});
+  /**
+   * @param {number} id
+   * @param {string} key
+   * @param {Partial<ProfileRow>} target
+   */
   const vs = (id, key, target) =>
     derive({active: shooter(id, key), reactive: side(profile({arm: 5, bts: 6, ...target}), combi, '1:'), rangeCm: 40});
 
   // Shock, AP+Shock, Bioweapon (DA+SHOCK)
-  for (const [id, key] of [[6, '6:'], [12, '12:Hit Mode'], [4, '4:']]) {
+  for (const [id, key] of /** @type {[number, string][]} */ ([[6, '6:'], [12, '12:Hit Mode'], [4, '4:']])) {
     const plain = vs(id, key, {});
     assert.equal(plain.inputs.shockA, true, key);
     assert.ok(plain.notes.some((n) => n.startsWith('Active: Shock against VITA 1')), key);
@@ -745,6 +864,7 @@ test('Shock takes effect on VITA 1 targets only, unless immune', () => {
   // Other ammunition, and the reactive side.
   assert.equal(derive({active: side(profile(), combi, '1:'), reactive: side(profile(), combi, '1:'), rangeCm: 40}).inputs.shockA, false);
   const pistol = option([{id: 6, name: 'Heavy Pistol'}]);
+  /** @param {Partial<ProfileRow>} target */
   const aro = (target) => derive({active: side(profile(target), combi, '1:'), reactive: side(profile(), pistol, '6:'), rangeCm: 20});
   assert.equal(aro({}).inputs.shockB, true);
   assert.equal(aro({}).inputs.shockA, false);
@@ -782,6 +902,10 @@ test('Albedo penalises MSV and Marksmanship attackers only', () => {
   const msv1 = profile({equip: [{id: 114, name: 'Multispectral Visor L1'}]});
   const msv2 = profile({equip: [{id: 115, name: 'Multispectral Visor L2'}]});
   const marksman = profile({skills: [{id: 156, name: 'Marksmanship'}]});
+  /**
+   * @param {ProfileRow} a
+   * @param {ProfileRow} b
+   */
   const sv = (a, b) => derive({active: side(a, combi, '1:'), reactive: side(b, combi, '1:'), rangeCm: 40});
   assert.equal(sv(plain, albedo6).inputs.successValueA, 15);          // no visor, no effect
   assert.equal(sv(msv1, albedo6).inputs.successValueA, 9);            // 12 + 3 - 6
@@ -811,13 +935,18 @@ test('Nanoscreen works like cover, also against templates, and does not stack wi
 });
 
 // --- real data -------------------------------------------------------------
+/** @type {import('../types.js').Army} */
 const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
-const byIsc = (isc) => army.units.find((u) => u.isc === isc);
+/**
+ * The unit the test names (it is in the data).
+ * @param {string} isc
+ */
+const byIsc = (isc) => /** @type {import('../types.js').UnitRow} */ (army.units.find((u) => u.isc === isc));
 
 test('Hatamoto: only BS weapons listed', () => {
   const hatamoto = byIsc('Hatamoto Imperial Guard');
   const group = hatamoto.byFaction['1102'].groups[0];
-  const names = bsWeapons(group.options[0], army.weapons).map((w) => w.label);
+  const names = bsWeapons(group.options[0], army.weapons).map(label);
   assert.equal(names.length, 3);
   assert.ok(names.every((n) => /Plasma Carbine|Heavy Pistol/.test(n)));
 });
@@ -825,10 +954,10 @@ test('Hatamoto: only BS weapons listed', () => {
 test('Hatamoto plasma vs Sierra Dronbot HMG at 8-16"', () => {
   const hatamoto = byIsc('Hatamoto Imperial Guard');
   const sierra = byIsc('Sierra Dronbot');
-  const active = resolveSelection(army, {unitId: hatamoto.id, factionId: 1102, optionId: 1, weaponKey: '111:Hit Mode'});
+  const active = /** @type {Trooper} */ (resolveSelection(army, {unitId: hatamoto.id, factionId: 1102, optionId: 1, weaponKey: '111:Hit Mode'}));
   const sierraGroup = sierra.byFaction['107'].groups[0];
-  const hmg = bsWeapons(sierraGroup.options[0], army.weapons).find((w) => /Machine Gun/.test(w.name));
-  const reactive = resolveSelection(army, {unitId: sierra.id, factionId: 107, optionId: sierraGroup.options[0].id, weaponKey: hmg.key, inCover: true});
+  const hmg = /** @type {WeaponEntry} */ (bsWeapons(sierraGroup.options[0], army.weapons).find((w) => /Machine Gun/.test(w.name)));
+  const reactive = /** @type {Trooper} */ (resolveSelection(army, {unitId: sierra.id, factionId: 107, optionId: sierraGroup.options[0].id, weaponKey: hmg.key, inCover: true}));
   assert.equal(active.factionId, 1102);
   const r = derive({active, reactive, rangeCm: 40});
   assert.equal(r.ok, true, r.errors.join('; '));
@@ -837,7 +966,7 @@ test('Hatamoto plasma vs Sierra Dronbot HMG at 8-16"', () => {
   assert.equal(r.inputs.damageA, 6);
   assert.equal(r.inputs.burstB, hmg.row.burst);     // Total Reaction
   // mimetism -3 and Hatamoto's Nanoscreen -3
-  assert.equal(r.inputs.successValueB, sierra.byFaction['107'].groups[0].profiles[0].bs + hmg.row.ranges[1].mod - 6);
+  assert.equal(r.inputs.successValueB, sierra.byFaction['107'].groups[0].profiles[0].bs + /** @type {NonNullable<WeaponRow['ranges']>} */ (hmg.row.ranges)[1].mod - 6);
   assert.equal(r.inputs.armA, 2 + 3);               // Nanoscreen on saves
   assert.equal(r.inputs.armB, sierraGroup.profiles[0].arm + 3);
 });
@@ -846,15 +975,20 @@ test('Dog-Warrior shrugs off a Panzerfaust and a K1 (Immunity (ARM))', () => {
   const dog = byIsc('Dog-Warriors');
   const f = dog.inFactions[0];
   const group = dog.byFaction[f].groups[0];
-  const form = group.profiles.find((p) => p.name === 'DOG-WARRIOR FORM');
+  const form = /** @type {ProfileRow} */ (group.profiles.find((p) => p.name === 'DOG-WARRIOR FORM'));
   const o = group.options[0];
-  const reactive = resolveSelection(army, {unitId: dog.id, factionId: f, groupId: group.id, profileId: form.id, optionId: o.id, weaponKey: 'dodge'});
-  const find = (name) => Object.entries(army.weapons).find(([, rows]) => rows[0].name === name);
+  const reactive = /** @type {Trooper} */ (resolveSelection(army, {unitId: dog.id, factionId: f, groupId: group.id, profileId: form.id, optionId: o.id, weaponKey: 'dodge'}));
+  /** @param {string} name a weapon in the data */
+  const find = (name) => /** @type {[string, WeaponRow[]]} */ (Object.entries(army.weapons).find(([, rows]) => rows[0].name === name));
+  /**
+   * @param {string} name
+   * @returns {Trooper}
+   */
   const shooter = (name) => {
     const [id, rows] = find(name);
     const opt = option([{id: Number(id), name}]);
     const weapon = bsWeapons(opt, army.weapons).find((w) => w.row === rows.find(isBsAttackWeapon));
-    return {profile: profile(), option: opt, traits: effectiveTraits(profile(), opt), weapon};
+    return /** @type {Trooper} */ ({profile: profile(), option: opt, traits: effectiveTraits(profile(), opt), weapon});
   };
   const pf = derive({active: shooter('Panzerfaust'), reactive, rangeCm: 40});
   assert.equal(pf.ok, true, pf.errors.join('; '));
@@ -869,12 +1003,16 @@ test('Chaksa Longarm: Immunity (BTS) against a Breaker, not against Viral', () =
   const chaksa = byIsc('Chaksa Longarms');
   const f = chaksa.inFactions[0];
   const group = chaksa.byFaction[f].groups[0];
-  const reactive = resolveSelection(army, {unitId: chaksa.id, factionId: f, groupId: group.id, optionId: group.options[0].id, weaponKey: 'dodge'});
+  const reactive = /** @type {Trooper} */ (resolveSelection(army, {unitId: chaksa.id, factionId: f, groupId: group.id, optionId: group.options[0].id, weaponKey: 'dodge'}));
   const bts = reactive.profile.bts;
+  /**
+   * @param {string} name a weapon in the data
+   * @returns {Trooper}
+   */
   const shooter = (name) => {
-    const [id] = Object.entries(army.weapons).find(([, rows]) => rows[0].name === name);
+    const [id] = /** @type {[string, WeaponRow[]]} */ (Object.entries(army.weapons).find(([, rows]) => rows[0].name === name));
     const opt = option([{id: Number(id), name}]);
-    return {profile: profile(), option: opt, traits: effectiveTraits(profile(), opt), weapon: bsWeapons(opt, army.weapons)[0]};
+    return /** @type {Trooper} */ ({profile: profile(), option: opt, traits: effectiveTraits(profile(), opt), weapon: bsWeapons(opt, army.weapons)[0]});
   };
   const breaker = derive({active: shooter('Breaker Rifle'), reactive, rangeCm: 40});
   assert.equal(breaker.ok, true, breaker.errors.join('; '));
@@ -887,26 +1025,26 @@ test('Chaksa Longarm: Immunity (BTS) against a Breaker, not against Viral', () =
 
 test('army ammo extras: Corax Combi Rifle (Viral), Treitak Combi Rifle (T2), Iguana Mine Dispenser (Shock)', () => {
   const corax = byIsc('Shasvastii Team-Ops');
-  const active = resolveSelection(army, {unitId: corax.id, factionId: 603, groupId: 1, optionId: 4, weaponKey: '33:'});
-  assert.equal(active.weapon.label, 'Viral Combi Rifle · B3 · PS7 · N');
+  const active = /** @type {Trooper & {weapon: WeaponEntry}} */ (resolveSelection(army, {unitId: corax.id, factionId: 603, groupId: 1, optionId: 4, weaponKey: '33:'}));
+  assert.equal(label(active.weapon), 'Viral Combi Rifle · B3 · PS7 · N');
   const chaksa = byIsc('Chaksa Longarms');
   const f = chaksa.inFactions[0];
   const group = chaksa.byFaction[f].groups[0];
-  const reactive = resolveSelection(army, {unitId: chaksa.id, factionId: f, groupId: group.id, optionId: group.options[0].id, weaponKey: 'dodge'});
+  const reactive = /** @type {Trooper} */ (resolveSelection(army, {unitId: chaksa.id, factionId: f, groupId: group.id, optionId: group.options[0].id, weaponKey: 'dodge'}));
   const r = derive({active, reactive, rangeCm: 40});
   assert.equal(r.inputs.ammoA, 'DA');
   assert.equal(r.inputs.armB, reactive.profile.bts);
   assert.ok(r.notes.some((n) => n.includes('Vulnerability (Viral)')), r.notes.join(' | '));
 
   const treitak = byIsc('Treitak Spec-Ops');
-  const t2 = resolveSelection(army, {unitId: treitak.id, factionId: 601, groupId: 1, profileId: 1, optionId: 4, weaponKey: '33:'});
-  assert.equal(t2.weapon.label, 'Combi Rifle · B3 · PS7 · T2');
+  const t2 = /** @type {Trooper & {weapon: WeaponEntry, option: OptionRow}} */ (resolveSelection(army, {unitId: treitak.id, factionId: 601, groupId: 1, profileId: 1, optionId: 4, weaponKey: '33:'}));
+  assert.equal(label(t2.weapon), 'Combi Rifle · B3 · PS7 · T2');
   assert.equal(derive({active: t2, reactive: null, rangeCm: 40}).inputs.ammoA, 'T2');
-  assert.equal(defaultWeapon(bsWeapons(t2.option, army.weapons), 'active').key, '33:');
+  assert.equal(/** @type {WeaponEntry} */ (defaultWeapon(bsWeapons(t2.option, army.weapons), 'active')).key, '33:');
 
   // Robin Hook: Tactical Bow (+3 BS). BS11, +3 range at 0-8".
   const robin = byIsc('Robin Hook, outlaw AI');
-  const bow = resolveSelection(army, {unitId: robin.id, factionId: 503, groupId: 1, profileId: 1, optionId: 1, weaponKey: '193:'});
+  const bow = /** @type {Trooper} */ (resolveSelection(army, {unitId: robin.id, factionId: 503, groupId: 1, profileId: 1, optionId: 1, weaponKey: '193:'}));
   assert.equal(derive({active: bow, reactive: null, rangeCm: 20}).inputs.successValueA, 11 + 3 + 3);
 
   // The Mine Dispenser is not a BS Attack, whatever mines it lays.
@@ -922,24 +1060,40 @@ test('searchKey folds case and accents', () => {
 });
 
 test('fireteam size sets cumulative bonuses', () => {
+  /**
+   * @param {number} ftSize
+   * @param {string} [weaponKey]
+   */
   const at = (ftSize, weaponKey = '1:') => ({...side(profile({ph: 11}), combi, weaponKey), ftSize});
+  /** @param {number} n */
   const shoot = (n) => derive({active: at(n), reactive: at(n), rangeCm: 40}).inputs;
   assert.deepEqual([0, 2, 3, 4, 5].map((n) => shoot(n).bonusBurstA), [0, 1, 1, 1, 1]);
   assert.deepEqual([0, 2, 3, 4, 5].map((n) => shoot(n).successValueA), [15, 15, 15, 16, 16]);
   assert.equal(shoot(4).bonusBurstB, 1);
   assert.equal(shoot(4).burstB, 1);
 
+  /** @param {number} n */
   const dodge = (n) => derive({active: at(1), reactive: at(n, 'dodge'), rangeCm: 40}).inputs.successValueB;
   assert.deepEqual([0, 2, 3].map(dodge), [11, 11, 12]);
 
   // A Fireteam of 5 gives Sixth Sense: its Dodge takes no negative MODs.
   const bsAttacker = {...side(profile({skills: [{id: 201, name: 'BS Attack', extra: ['-3']}]}), combi, '1:'), ftSize: 1};
+  /** @param {number} n */
   const dodgeVs = (n) => derive({active: bsAttacker, reactive: at(n, 'dodge'), rangeCm: 40}).inputs.successValueB;
-  assert.equal(dodgeVs(5), dodgeVs(4) + 3);
+  assert.equal(dodgeVs(5), /** @type {number} */ (dodgeVs(4)) + 3);
 
   const flamer = option([{id: 3, name: 'Heavy Flamethrower'}]);
   const t = derive({active: {...side(profile(), flamer, '3:'), ftSize: 4}, reactive: at(1), rangeCm: 20});
   assert.equal(t.inputs.bonusBurstA, 0);
+});
+
+test('a Direct Template in a Fireteam has no Fireteam SD line to cancel (Alex, 2026-10-23)', () => {
+  const flamer = option([{id: 3, name: 'Heavy Flamethrower'}]);
+  const r = deriveRaw({active: {...side(profile(), flamer, '3:'), ftSize: 2}, reactive: {...side(profile(), combi, '1:'), ftSize: 2}, rangeCm: 20});
+  assert.equal(r.inputs.bonusBurstA, 0);
+  assert.deepEqual(/** @type {import('../types.js').SideLines} */ (r.lines.A).sd, {lines: [], total: 0});
+  // The BS Attack facing it still gets its Fireteam's +1 SD line.
+  assert.deepEqual(/** @type {import('../types.js').Section} */ (/** @type {import('../types.js').SideLines} */ (r.lines.B).sd).lines.map((l) => l.value), [1]);
 });
 
 test('BS Attack skill SD / B stack with Fireteam and loadout extras', () => {
@@ -959,7 +1113,7 @@ test('BS Attack skill SD / B stack with Fireteam and loadout extras', () => {
 test('template burst comes from loadout extras (Dog-Warrior B2 Chain Rifle)', () => {
   const chain = option([{id: 3, name: 'Heavy Flamethrower', extra: ['+1B']}]);
   const x = {...side(profile(), chain, '3:'), ftSize: 4};
-  assert.match(bsWeapons(chain, W)[0].label, / · B2 · /);
+  assert.match(label(bsWeapons(chain, W)[0]), / · B2 · /);
   const r = derive({active: x, reactive: side(profile(), combi, '1:'), rangeCm: 20}).inputs;
   assert.equal(r.burstA, 2);
   assert.equal(r.bonusBurstA, 0);
@@ -969,7 +1123,7 @@ test('template burst comes from loadout extras (Dog-Warrior B2 Chain Rifle)', ()
 test('loadout stat overrides (BS=11, BTS=3) replace the profile stat', () => {
   const p = profile({bs: 5, bts: 0});
   const skills = [{id: 279, name: 'BS=11'}, {id: 280, name: 'BTS=3'}];
-  const o = option([], {skills, statOverrides: statOverrides(skills)});
+  const o = option([], {skills, statOverrides: /** @type {OptionRow['statOverrides']} */ (statOverrides(skills))});
   const q = applyStatOverrides(p, o);
   assert.equal(q.bs, 11);
   assert.equal(q.bts, 3);
@@ -977,26 +1131,27 @@ test('loadout stat overrides (BS=11, BTS=3) replace the profile stat', () => {
 
   const polaris = byIsc('Polaris Team');
   const f = polaris.inFactions[0];
-  const group = polaris.byFaction[f].groups.find((g) => g.options.some((x) => x.skills.some((sk) => sk.name === 'BS=11')));
-  const beta = group.options.find((x) => x.skills.some((sk) => sk.name === 'BS=11'));
-  const r = resolveSelection(army, {unitId: polaris.id, factionId: f, groupId: group.id, optionId: beta.id});
+  const group = /** @type {import('../types.js').GroupRow} */ (polaris.byFaction[f].groups.find((g) => g.options.some((x) => x.skills.some((sk) => sk.name === 'BS=11'))));
+  const beta = /** @type {OptionRow} */ (group.options.find((x) => x.skills.some((sk) => sk.name === 'BS=11')));
+  const r = /** @type {Trooper} */ (resolveSelection(army, {unitId: polaris.id, factionId: f, groupId: group.id, optionId: beta.id}));
   assert.equal(r.profile.bs, 11);
 });
 
 test('BS Weapon (PH) / (WIP) roll against PH / WIP', () => {
   const p = profile({bs: 5, ph: 16, wip: 12});
-  assert.equal(attackStat(p, {props: ['BS Weapon (PH)']}), 16);
-  assert.equal(attackStat(p, {props: ['BS Weapon (WIP)']}), 12);
-  assert.equal(attackStat(p, {props: []}), 5);
+  // Rows with only their properties: all attackAttribute reads.
+  assert.equal(attackStat(p, /** @type {WeaponRow} */ ({props: ['BS Weapon (PH)']})), 16);
+  assert.equal(attackStat(p, /** @type {WeaponRow} */ ({props: ['BS Weapon (WIP)']})), 12);
+  assert.equal(attackStat(p, /** @type {WeaponRow} */ ({props: /** @type {string[]} */ ([])})), 5);
 
   const polaris = byIsc('Polaris Team');
   const f = polaris.inFactions[0];
-  const group = polaris.byFaction[f].groups.find((g) => g.profiles[0].ph === 16);
+  const group = /** @type {import('../types.js').GroupRow} */ (polaris.byFaction[f].groups.find((g) => g.profiles[0].ph === 16));
   const o = group.options[0];
-  const grenades = bsWeapons(o, army.weapons).find((w) => w.name === 'Grenades');
-  const x = resolveSelection(army, {unitId: polaris.id, factionId: f, groupId: group.id, optionId: o.id, weaponKey: grenades.key});
+  const grenades = /** @type {WeaponEntry} */ (bsWeapons(o, army.weapons).find((w) => w.name === 'Grenades'));
+  const x = /** @type {Trooper} */ (resolveSelection(army, {unitId: polaris.id, factionId: f, groupId: group.id, optionId: o.id, weaponKey: grenades.key}));
   const r = derive({active: x, reactive: null, rangeCm: 20}).inputs;
-  assert.equal(r.successValueA, 16 + rangeModFor(grenades.row, 20));
+  assert.equal(r.successValueA, 16 + /** @type {number} */ (rangeModFor(grenades.row, 20)));
 });
 
 test('a side without a weapon yet: no error shown, but not ready to apply', () => {
@@ -1010,18 +1165,28 @@ test('Team-Ops upgrades: stat, equipment, TacBall weapon, unsupported weapon war
   const f = unit.inFactions[0];
   const group = unit.byFaction[f].groups[0];
   const o = group.options[0];
+  /**
+   * @param {import('../types.js').UpgradeItem[]} list
+   * @param {string} label
+   */
   const idx = (list, label) => list.findIndex((i) => i.label === label);
-  const base = resolveSelection(army, {unitId: unit.id, factionId: f, groupId: group.id, optionId: o.id});
+  // A Team-Ops unit has its upgrades; a resolution with a profile and traits.
+  const upgrades = /** @type {NonNullable<import('../types.js').UnitRow['upgrades']>} */ (unit.upgrades);
+  const base = /** @type {Trooper} */ (resolveSelection(army, {unitId: unit.id, factionId: f, groupId: group.id, optionId: o.id}));
+  /**
+   * @param {number | null} upgrade
+   * @param {number | null} [ball]
+   */
   const pick = (upgrade, ball = null) =>
-    resolveSelection(army, {unitId: unit.id, factionId: f, groupId: group.id, optionId: o.id, upgrade, ball});
+    /** @type {Trooper & {traits: Traits}} */ (resolveSelection(army, {unitId: unit.id, factionId: f, groupId: group.id, optionId: o.id, upgrade, ball}));
 
-  assert.equal(pick(idx(unit.upgrades.chart, 'BS+1')).profile.bs, base.profile.bs + 1);
-  assert.ok(pick(idx(unit.upgrades.chart, 'Multispectral Visor L1')).traits.equip.some((e) => e.name === 'Multispectral Visor L1'));
+  assert.equal(pick(idx(upgrades.chart, 'BS+1')).profile.bs, base.profile.bs + 1);
+  assert.ok(pick(idx(upgrades.chart, 'Multispectral Visor L1')).traits.equip.some((e) => e.name === 'Multispectral Visor L1'));
 
-  const tac = pick(null, idx(unit.upgrades.ball, 'Plasma Carbine'));
+  const tac = pick(null, idx(upgrades.ball, 'Plasma Carbine'));
   assert.ok(bsWeapons(tac.option, army.weapons).some((w) => w.name === 'Plasma Carbine'));
 
-  const mines = pick(idx(unit.upgrades.chart, 'Minelayer, Shock Mine'));
+  const mines = pick(idx(upgrades.chart, 'Minelayer, Shock Mine'));
   const w = bsWeapons(mines.option, army.weapons)[0];
   const r = derive({active: {...mines, weapon: w}, reactive: null, rangeCm: 40});
   assert.ok(r.warnings.some((x) => x === 'Active: Shock Mine (upgrade) not supported by the calculator'), r.warnings.join(' | '));
@@ -1032,12 +1197,12 @@ test('Spec-Ops charts are not applied (deferred)', () => {
   const f = unit.inFactions[0];
   const group = unit.byFaction[f].groups[0];
   const sel = {unitId: unit.id, factionId: f, groupId: group.id, profileId: group.profiles[0].id, optionId: group.options[0].id};
-  const base = resolveSelection(army, sel);
-  const up = resolveSelection(army, {...sel, upgrade: 1, ball: 0});
+  const base = /** @type {Trooper} */ (resolveSelection(army, sel));
+  const up = /** @type {Trooper} */ (resolveSelection(army, {...sel, upgrade: 1, ball: 0}));
   assert.equal(up.profile.bs, base.profile.bs);
   assert.deepEqual(up.upgrades, []);
   for (const p of group.profiles) {
-    const x = resolveSelection(army, {...sel, profileId: p.id});
+    const x = /** @type {Trooper} */ (resolveSelection(army, {...sel, profileId: p.id}));
     const w = bsWeapons(x.option, army.weapons)[0];
     const r = derive({active: {...x, weapon: w}, reactive: {...x, weapon: w}, rangeCm: 40});
     // Once, even with Spec-Ops on both sides.
@@ -1063,7 +1228,7 @@ const bsAttackAP = {id: 201, name: 'BS Attack', extra: ['AP']};
 test('BS Attack (AP) on the profile gives every BS weapon AP', () => {
   const p = profile({skills: [bsAttackAP]});
   const o = option([{id: 1, name: 'Combi Rifle'}, {id: 3, name: 'Heavy Flamethrower'}, {id: 2, name: 'MULTI Rifle'}]);
-  const labels = trooperWeapons(o, W, effectiveTraits(p, o)).map((w) => w.label);
+  const labels = trooperWeapons(o, W, effectiveTraits(p, o)).map(label);
   assert.deepEqual(labels, [
     'Combi Rifle · B3 · PS7 · AP',
     'Heavy Flamethrower · B1 · PS6 · AP+Fire',
@@ -1086,15 +1251,20 @@ test('BS Attack (AP) on the loadout works the same; without it nothing changes',
 });
 
 test('BS Attack (AP) in the Army data: Scouts (profile) and one Bashi Bazouk loadout', () => {
+  /**
+   * @param {string} isc
+   * @param {(os: OptionRow[]) => OptionRow | undefined} pickOption
+   */
   const ap = (isc, pickOption) => {
     const u = byIsc(isc);
     const f = u.inFactions[0];
     const g = u.byFaction[f].groups[0];
-    const o = pickOption(g.options);
-    const r = resolveSelection(army, {unitId: u.id, factionId: f, groupId: g.id, profileId: g.profiles[0].id, optionId: o.id});
+    const o = /** @type {OptionRow} */ (pickOption(g.options));
+    const r = /** @type {Trooper & {option: OptionRow}} */ (resolveSelection(army, {unitId: u.id, factionId: f, groupId: g.id, profileId: g.profiles[0].id, optionId: o.id}));
     return trooperWeapons(r.option, army.weapons, r.traits).map((w) => w.mods.forceAP);
   };
   assert.ok(ap('Scouts', (os) => os[0]).every(Boolean));
+  /** @param {OptionRow} o */
   const hasSkill = (o) => o.skills.some((s) => s.id === 201 && (s.extra ?? []).includes('AP'));
   assert.ok(ap('Bashi Bazouks', (os) => os.find(hasSkill)).every(Boolean));
   assert.ok(ap('Bashi Bazouks', (os) => os.find((o) => !hasSkill(o) && o.weapons.length > 0)).some((x) => !x));
@@ -1102,6 +1272,11 @@ test('BS Attack (AP) in the Army data: Scouts (profile) and one Bashi Bazouk loa
 
 test('Immunity (AP) ignores AP halving only, not E/M BTS/2', () => {
   const target = side(immune('AP'), combi, '1:');
+  /**
+   * @param {TraitRef[]} weapons
+   * @param {string} key
+   * @param {boolean} [extra]
+   */
   const vs = (weapons, key, extra) => derive({
     active: side(profile(), option(weapons, extra ? {skills: [bsAttackAP]} : {}), key), reactive: target, rangeCm: 40,
   }).inputs.armB;
@@ -1113,7 +1288,15 @@ test('Immunity (AP) ignores AP halving only, not E/M BTS/2', () => {
   assert.equal(derive({active: side(profile(), option([{id: 16, name: 'E/Mitter'}]), '16:'), reactive: plain, rangeCm: 40}).inputs.armB, 2);
 });
 
+/** @param {...string} extra */
 const bsAttack = (...extra) => ({id: 201, name: 'BS Attack', extra});
+/**
+ * @param {TraitRef[]} shooterSkills
+ * @param {TraitRef[]} weapons
+ * @param {string} key
+ * @param {ProfileRow} [target]
+ * @param {Partial<OptionRow>} [extra]
+ */
 const shoot = (shooterSkills, weapons, key, target = profile({arm: 3}), extra = {}) => derive({
   active: side(profile({skills: shooterSkills}), option(weapons, extra), key),
   reactive: side(target, combi, '1:'), rangeCm: 40,
@@ -1122,7 +1305,7 @@ const shoot = (shooterSkills, weapons, key, target = profile({arm: 3}), extra = 
 test('BS Attack (T2) adds T2 to every BS Attack', () => {
   const p = profile({skills: [bsAttack('T2')]});
   const o = option([{id: 1, name: 'Combi Rifle'}, {id: 2, name: 'MULTI Rifle'}, {id: 10, name: 'T2 Rifle'}]);
-  assert.deepEqual(trooperWeapons(o, W, effectiveTraits(p, o)).map((w) => w.label), [
+  assert.deepEqual(trooperWeapons(o, W, effectiveTraits(p, o)).map(label), [
     'Combi Rifle · B3 · PS7 · T2',
     'MULTI Rifle (AP) · B3 · PS7 · AP+T2',
     'MULTI Rifle (Shock) · B3 · PS7 · Shock+T2',
@@ -1143,7 +1326,7 @@ test('BS Attack (SR-1) / (SR-2) lower the PS the target saves against', () => {
   // Immunity doesn't cancel a Saving Roll MOD.
   assert.equal(shoot([bsAttack('SR-1')], [{id: 1, name: 'Combi Rifle'}], '1:', immune('ARM')).inputs.damageA, 6);
   const p = profile({skills: [bsAttack('SR-1')]});
-  assert.equal(trooperWeapons(combi, W, effectiveTraits(p, combi))[0].label, 'Combi Rifle · B3 · PS6 · N');
+  assert.equal(label(trooperWeapons(combi, W, effectiveTraits(p, combi))[0]), 'Combi Rifle · B3 · PS6 · N');
 });
 
 test('BS Attack (Continuous Damage) gives every BS Attack the Trait', () => {
@@ -1173,6 +1356,11 @@ test('BS Attack extras combine', () => {
 const minus3 = {id: 201, name: 'BS Attack', extra: ['-3']};
 const warhorse = {id: 267, name: 'Warhorse'};
 const flamer = option([{id: 3, name: 'Heavy Flamethrower'}]);
+/**
+ * @param {Trooper} a
+ * @param {Trooper} b
+ * @param {number} [rangeCm]
+ */
 const duel = (a, b, rangeCm = 40) => derive({active: a, reactive: b, rangeCm});
 
 test('BS Attack (-3): the opponent takes -3 when shooting back or dodging', () => {
@@ -1212,8 +1400,8 @@ test('Warhorse ignores BS Attack (-3), however it is gained', () => {
   assert.ok(r.notes.includes("Reactive: Warhorse; the opponent's BS Attack (-3) has no effect"), r.notes.join(' | '));
   // The struck line and its note name the skill by key, not by its English name.
   const raw = deriveRaw({active: fromLoadout, reactive: side(profile({skills: [warhorse]}), combi, '1:'), rangeCm: 40});
-  assert.deepEqual(raw.lines.B.sv.lines.find((l) => l.struck), {value: -3, label: {key: 'skill.bsAttackMod', params: {mod: -3}}, by: 'A', struck: {key: 'skill.warhorse'}});
-  assert.deepEqual(raw.notes[0].params.text, {key: 'note.ignoresMod', params: {by: {key: 'skill.warhorse'}, mod: {key: 'skill.bsAttackMod', params: {mod: -3}}}});
+  assert.deepEqual(/** @type {import('../types.js').Section} */ (/** @type {import('../types.js').SideLines} */ (raw.lines.B).sv).lines.find((l) => l.struck), {value: -3, label: {key: 'skill.bsAttackMod', params: {mod: -3}}, by: 'A', struck: {key: 'skill.warhorse'}});
+  assert.deepEqual(/** @type {Required<import('../types.js').MessageKey>} */ (raw.notes[0]).params.text, {key: 'note.ignoresMod', params: {by: {key: 'skill.warhorse'}, mod: {key: 'skill.bsAttackMod', params: {mod: -3}}}});
   assert.equal(duel(fromLoadout, side(profile({skills: [warhorse]}), combi, 'dodge')).inputs.successValueB, 12);
 });
 
@@ -1230,7 +1418,10 @@ test('MODs to a roll are capped at +/-12; Fireteam +1 BS is a MOD and counts', (
   // and Surprise Attack (-3) add up to -15, capped at -12: SV 1.
   const ambusher = {...side(profile({bs: 14, skills: [{id: 201, name: 'BS Attack', extra: ['-6']}, {id: 191, name: 'Surprise Attack', extra: ['-3']}]}), combi, '1:'), surpriseAttack: true};
   const dodger = {...side(profile({ph: 13}), combi, 'dodge'), immA: true};
-  assert.equal(duel(ambusher, dodger).inputs.successValueB, 1);
+  const capped = duel(ambusher, dodger);
+  assert.equal(capped.inputs.successValueB, 1);
+  // And says so, like an attack (Alex, 2026-10-23).
+  assert.ok(capped.notes.includes('Reactive: MODs add up to -15, capped at -12'), capped.notes.join(' | '));
   // Dodge (+6) is a MOD, PH=14 isn't: 14 + 6 and the Fireteam's +1 is 21.
   const ft = {...side(profile({ph: 13, skills: [{id: 40, name: 'Dodge', extra: ['PH=14', '+6']}]}), combi, 'dodge'), ftSize: 3};
   assert.equal(duel(side(profile({bs: 14}), combi, '1:'), ft).inputs.successValueB, 21);
@@ -1246,9 +1437,11 @@ test('Immunity (IMM-B / Isolated / POS) changes nothing: the calculator models n
   }
 });
 
+/** @param {...string} extra */
 const dodgeSkill = (...extra) => extra.map((e) => ({id: 40, name: 'Dodge', extra: [e]}));
 
 test('Dodge reads every bracketed value; movement ones change nothing', () => {
+  /** @param {TraitRef[]} skills */
   const dodgeSv = (skills) => duel(side(profile(), combi, '1:'), side(profile({ph: 10, skills}), combi, 'dodge')).inputs.successValueB;
   // Confessor-style: Dodge (+1") listed before Dodge (+3). Both read.
   assert.equal(dodgeSv(dodgeSkill('+1"', '+3')), 13);
@@ -1299,9 +1492,16 @@ const marksman = {id: 156, name: 'Marksmanship'};
 const limitedCover = {id: 268, name: 'Limited Cover'};
 const noCover = {id: 264, name: 'No Cover'};
 const nanoscreen = {id: 108, name: 'Nanoscreen'};
+/** @param {string} mod */
 const albedo = (mod) => ({id: 183, name: 'Albedo', extra: [mod]});
+/** @param {number} level */
 const msv = (level) => ({id: 113 + level, name: `Multispectral Visor L${level}`});
 // Active Combi Rifle at 8-16" (BS 12 +3 = 15) against a reactive ARM 2 target.
+/**
+ * @param {ProfileRow} shooter
+ * @param {ProfileRow} target
+ * @param {boolean} [inCover]
+ */
 const at = (shooter, target, inCover = false) => {
   const r = duel(side(shooter, combi, '1:'), side(target, combi, '1:', inCover));
   return [r.inputs.successValueA, r.inputs.armB];
@@ -1340,9 +1540,14 @@ test('Albedo (-X) hits MSV L1/L2/L3 and Marksmanship attackers; Marksmanship sti
   assert.deepEqual(at(profile({skills: [marksman]}), profile({equip: [albedo('-3')]}), true), [12, 5]);   // Albedo, no cover
 });
 
+/** @param {string} [mod] */
 const surprise = (mod = '-3') => ({id: 191, name: 'Surprise Attack', extra: [mod]});
 const combatInstinct = {id: 262, name: 'Combat Instinct'};
 // A side with the Surprise Attack toggle set.
+/**
+ * @param {Trooper} s
+ * @param {boolean} [on]
+ */
 const using = (s, on = true) => ({...s, surpriseAttack: on});
 
 test('Surprise Attack (-3): only when toggled on, the opponent takes -3 attacking or Dodging', () => {
@@ -1382,12 +1587,13 @@ test('Combat Instinct ignores Surprise Attack; stacks with BS Attack (-3) otherw
 });
 
 test('Surprise Attack in the Army data and in a share link', () => {
-  const u = army.units.find((x) => x.byFaction[x.inFactions[0]].groups.some((g) => g.profiles.some((p) => p.skills.some((s) => s.id === 191))));
+  // A unit with Surprise Attack (id 191) is in the data.
+  const u = /** @type {import('../types.js').UnitRow} */ (army.units.find((x) => x.byFaction[x.inFactions[0]].groups.some((g) => g.profiles.some((p) => p.skills.some((s) => s.id === 191)))));
   const f = u.inFactions[0];
-  const g = u.byFaction[f].groups.find((gr) => gr.profiles.some((p) => p.skills.some((s) => s.id === 191)));
+  const g = /** @type {import('../types.js').GroupRow} */ (u.byFaction[f].groups.find((gr) => gr.profiles.some((p) => p.skills.some((s) => s.id === 191))));
   const sel = {unitId: u.id, factionId: f, groupId: g.id, profileId: g.profiles[0].id, optionId: g.options[0].id, surpriseAttack: true};
-  assert.equal(resolveSelection(army, sel).surpriseAttack, true);
-  assert.equal(resolveSelection(army, {...sel, surpriseAttack: false}).surpriseAttack, false);
+  assert.equal(/** @type {Trooper} */ (resolveSelection(army, sel)).surpriseAttack, true);
+  assert.equal(/** @type {Trooper} */ (resolveSelection(army, {...sel, surpriseAttack: false})).surpriseAttack, false);
 });
 
 test('Surprise Attack: still -3 out of range and against an attack the target is immune to', () => {
@@ -1420,12 +1626,24 @@ test('Surprise Attack and the reactive Dodge (-3): each side takes the other\'s 
 });
 
 test('Surprise Attack with real units: Lù Duān, Hassassin Áyyār (-6), Combat Instinct (Al Fasid)', () => {
+  /**
+   * @param {number} unitId
+   * @param {number} factionId
+   * @param {string | null} weaponKey
+   * @param {Partial<import('../types.js').Selection>} [extra]
+   * @returns {Partial<import('../types.js').Selection>}
+   */
   const sel = (unitId, factionId, weaponKey, extra = {}) =>
     ({unitId, factionId, groupId: 1, profileId: 1, optionId: 1, weaponKey, ...extra});
+  /** @param {Partial<import('../types.js').Selection>} s a trooper with a loadout and a weapon */
   const weaponOf = (s) => {
-    const r = resolveSelection(army, s);
-    return defaultWeapon(trooperWeapons(r.option, army.weapons, r.traits), 'active').key;
+    const r = /** @type {Trooper & {option: OptionRow}} */ (resolveSelection(army, s));
+    return /** @type {WeaponEntry} */ (defaultWeapon(trooperWeapons(r.option, army.weapons, r.traits), 'active')).key;
   };
+  /**
+   * @param {Partial<import('../types.js').Selection>} a
+   * @param {Partial<import('../types.js').Selection>} b
+   */
   const vs = (a, b) => derive({active: resolveSelection(army, a), reactive: resolveSelection(army, b), rangeCm: 40});
   // Fennec: a plain Dodge (Chaksa, with Sixth Sense, is checked below).
   const fennec = {unitId: 1803, factionId: 101, groupId: 1, profileId: 1, optionId: 1, weaponKey: 'dodge'};
@@ -1435,12 +1653,12 @@ test('Surprise Attack with real units: Lù Duān, Hassassin Áyyār (-6), Combat
   luDuan.weaponKey = weaponOf(luDuan);
   const off = vs(luDuan, fennec);
   const on = vs({...luDuan, surpriseAttack: true}, fennec);
-  assert.equal(on.inputs.successValueB, off.inputs.successValueB - 3);
+  assert.equal(on.inputs.successValueB, /** @type {number} */ (off.inputs.successValueB) - 3);
   assert.equal(on.inputs.successValueA, off.inputs.successValueA);
 
   const ayyar = sel(779, 402, null);
   ayyar.weaponKey = weaponOf(ayyar);
-  assert.equal(vs({...ayyar, surpriseAttack: true}, fennec).inputs.successValueB, vs(ayyar, fennec).inputs.successValueB - 6);
+  assert.equal(vs({...ayyar, surpriseAttack: true}, fennec).inputs.successValueB, /** @type {number} */ (vs(ayyar, fennec).inputs.successValueB) - 6);
 
   // Sixth Sense: a Dodge takes no negative MODs, Surprise Attack included.
   const sixth = vs({...luDuan, surpriseAttack: true}, chaksa);
@@ -1461,9 +1679,10 @@ test('Surprise Attack with real units: Lù Duān, Hassassin Áyyār (-6), Combat
 });
 
 test('surpriseAttackMod: the switch only exists for troopers with the skill', () => {
-  assert.equal(surpriseAttackMod({skills: [surprise('-3')]}), -3);
-  assert.equal(surpriseAttackMod({skills: [surprise('-6')]}), -6);
-  assert.equal(surpriseAttackMod({skills: []}), 0);
+  // Traits with skills only: all it reads.
+  assert.equal(surpriseAttackMod(/** @type {Traits} */ ({skills: [surprise('-3')]})), -3);
+  assert.equal(surpriseAttackMod(/** @type {Traits} */ ({skills: [surprise('-6')]})), -6);
+  assert.equal(surpriseAttackMod(/** @type {Traits} */ ({skills: /** @type {TraitRef[]} */ ([])})), 0);
   assert.equal(surpriseAttackMod(null), 0);
 });
 
@@ -1475,7 +1694,15 @@ const MSV_VS_MIMETISM = [
   [/* 2 */ 0, 0, 0],
   [/* 3 */ 0, 0, 0],
 ];
+/**
+ * @param {number} mod
+ * @param {Partial<ProfileRow>} [over]
+ */
 const mimetic = (mod, over = {}) => profile({...over, skills: [...(over.skills ?? []), ...(mod ? [{id: 28, name: 'Mimetism', extra: [String(mod)]}] : [])]});
+/**
+ * @param {number} level
+ * @param {Partial<ProfileRow>} [over]
+ */
 const visor = (level, over = {}) => profile({...over, equip: [...(over.equip ?? []), ...(level ? [msv(level)] : [])]});
 
 test('MSV x Mimetism: every combination, active and reactive shooter', () => {
@@ -1483,7 +1710,7 @@ test('MSV x Mimetism: every combination, active and reactive shooter', () => {
     for (const level of [0, 1, 2, 3]) {
       const expected = MSV_VS_MIMETISM[level][j];
       const label = `MSV${level} vs Mimetism ${mim}`;
-      assert.equal(mimetismMod({skills: mimetic(mim).skills}, {equip: visor(level).equip}), expected, label);
+      assert.equal(mimetismMod(/** @type {Traits} */ ({skills: mimetic(mim).skills}), /** @type {Traits} */ ({equip: visor(level).equip})), expected, label);
       // Active shooter: BS 12 +3 range.
       assert.equal(duel(side(visor(level), combi, '1:'), side(mimetic(mim), combi, '1:')).inputs.successValueA, 15 + expected, `${label} (active)`);
       // Reactive shooter in ARO against the mimetic active trooper.
@@ -1501,6 +1728,11 @@ test('MSV x Mimetism: the visor counts from the loadout too, and Mimetism only o
 });
 
 test('MSV x Mimetism with cover, Marksmanship, Albedo, Dodge and the cap', () => {
+  /**
+   * @param {ProfileRow} shooter
+   * @param {ProfileRow} target
+   * @param {boolean} [inCover]
+   */
   const at15 = (shooter, target, inCover = false) =>
     duel(side(shooter, combi, '1:'), side(target, combi, '1:', inCover)).inputs.successValueA;
   // Cover is separate from Mimetism: MSV doesn't touch it.
@@ -1527,14 +1759,22 @@ test('MSV x Mimetism with cover, Marksmanship, Albedo, Dodge and the cap', () =>
 });
 
 test('MSV x Mimetism with real units', () => {
+  /**
+   * @param {number} unitId
+   * @param {number} factionId
+   * @param {number} groupId
+   * @param {number} optionId
+   */
   const r = (unitId, factionId, groupId, optionId) =>
-    resolveSelection(army, {unitId, factionId, groupId, profileId: 1, optionId});
+    /** @type {Trooper} */ (resolveSelection(army, {unitId, factionId, groupId, profileId: 1, optionId}));
+  /** @type {[string, Trooper, number][]} */
   const shooters = [
     ['Chaksa (no visor)', r(1310, 801, 1, 1), 0],
     ['Aleph Team-Ops (MSV1)', r(1936, 701, 2, 1), 1],
     ['Agêma Marksmen (MSV2)', r(602, 701, 1, 1), 2],
     ['Aquila Guard (MSV3)', r(8, 101, 1, 3), 3],
   ];
+  /** @type {[string, Trooper, number][]} */
   const targets = [
     ['Chaksa (no Mimetism)', r(1310, 801, 1, 1), 0],
     ["'Gator' Squadron (Mimetism -3)", r(1580, 501, 2, 1), 1],
@@ -1567,7 +1807,7 @@ test('Neurocinetics (+1B): the extra Burst counts in the Reactive Turn only (Yan
   const args = {active: side(profile(), combi, '1:'), reactive: side(neuro, ml, '9:Hit Mode'), rangeCm: 40};
   const r = derive(args);
   assert.equal(r.inputs.burstB, 2);
-  const burst = buildLedger({...args, derived: r}).B.burst;
+  const burst = /** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (buildLedger({...args, derived: r}).B).burst);
   assert.ok(burst.lines.some((l) => l.label === 'Neurocinetics' && l.value === 1), JSON.stringify(burst.lines));
   // Active Turn: still B 1.
   const a = derive({active: side(neuro, ml, '9:Hit Mode'), reactive: side(profile(), combi, '1:'), rangeCm: 40});
@@ -1584,13 +1824,20 @@ test('a Success Value above 30 is capped at 30, in the inputs and the ledger', (
   const args = {active: a, reactive: side(profile(), combi, '1:'), rangeCm: 20};
   const r = derive(args);
   assert.equal(r.inputs.successValueA, 30);
-  const sv = buildLedger({...args, derived: r}).A.sv;
+  const sv = /** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (buildLedger({...args, derived: r}).A).sv);
   assert.ok(sv.lines.some((l) => l.label === 'capped at 30' && l.value === -2), JSON.stringify(sv.lines));
 });
 
 // Smoke and White Noise (rules/visibility.js), combi vs combi at 8-16" (+3).
+/**
+ * @param {Trooper} a
+ * @param {Trooper} b
+ * @param {Partial<import('../types.js').Zones>} zones
+ */
 const zoneDuel = (a, b, zones) => derive({active: a, reactive: b, rangeCm: 40, zones});
+/** @param {Partial<ProfileRow>} [over] */
 const shooter = (over) => side(profile(over), combi, '1:');
+/** @param {Partial<ProfileRow>} [over] */
 const dodger = (over) => side(profile(over), combi, 'dodge');
 const SMOKE = {smoke: true};
 const WHITE_NOISE = {whiteNoise: true};
@@ -1601,8 +1848,9 @@ test('Smoke: without MSV nobody can shoot through it', () => {
   assert.equal(r.inputs.burstA, 0);
   assert.equal(r.inputs.burstB, 0);
   assert.ok(r.notes.includes("Active: no line of fire through Smoke; its attack can't be declared"), r.notes.join(' | '));
-  const l = buildLedger({active: shooter(), reactive: shooter(), rangeCm: 40, derived: r, zones: SMOKE});
-  assert.equal(l.A.dice, 'No LoF (Smoke)');
+  // The ledger reads the sides and the derivation; the rest is the setup it came from.
+  const l = buildLedger(/** @type {Parameters<typeof buildLedger>[0]} */ ({active: shooter(), reactive: shooter(), rangeCm: 40, derived: r, zones: SMOKE}));
+  assert.equal(/** @type {LedgerSide} */ (l.A).dice, 'No LoF (Smoke)');
   // A Dodge isn't an attack: the shooter still can't see.
   assert.equal(zoneDuel(shooter(), dodger(), SMOKE).inputs.burstA, 0);
 });
@@ -1654,8 +1902,8 @@ test('White Noise and Albedo stack; with Smoke and White Noise nobody sees', () 
   // MSV1 shot at by an Albedo trooper through White Noise: 15 - 6 - 3.
   const r = zoneDuel(shooter({equip: [msv(1)]}), shooter(albedo), WHITE_NOISE);
   assert.equal(r.inputs.successValueA, 6);
-  const l = buildLedger({active: shooter({equip: [msv(1)]}), reactive: shooter(albedo), rangeCm: 40, derived: r, zones: WHITE_NOISE});
-  assert.deepEqual(l.A.sv.lines.filter((x) => x.value < 0).map((x) => x.label), ['Albedo', 'White Noise, Poor Visibility']);
+  const l = buildLedger(/** @type {Parameters<typeof buildLedger>[0]} */ ({active: shooter({equip: [msv(1)]}), reactive: shooter(albedo), rangeCm: 40, derived: r, zones: WHITE_NOISE}));
+  assert.deepEqual(/** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (l.A).sv).lines.filter((x) => /** @type {number} */ (x.value) < 0).map((x) => x.label), ['Albedo', 'White Noise, Poor Visibility']);
   // Smoke blocks troopers without MSV, White Noise those with it.
   const both = {smoke: true, whiteNoise: true};
   for (const a of [{}, {equip: [msv(1)]}, {equip: [msv(2)]}]) {
@@ -1666,7 +1914,7 @@ test('White Noise and Albedo stack; with Smoke and White Noise nobody sees', () 
   // the worse of the two (-6), not their sum: the Smoke line is struck by it.
   const cc = derive({active: side(profile(), combi, '8:'), reactive: shooter({equip: [msv(1)]}), rangeCm: 40, zones: both});
   assert.equal(cc.inputs.successValueB, 12 + 3 - 6);
-  const zoneLines = cc.lines.B.sv.lines.filter((l) => /Smoke|White Noise/.test(l.label));
+  const zoneLines = /** @type {import('../types.js').Section} */ (/** @type {import('../types.js').SideLines} */ (cc.lines.B).sv).lines.filter((l) => /Smoke|White Noise/.test(/** @type {string} */ (l.label)));
   assert.deepEqual(zoneLines, [
     {value: -3, label: 'Smoke, Poor Visibility', by: 'B', struck: 'White Noise, Poor Visibility'},
     {value: -6, label: 'White Noise, Poor Visibility', by: 'B'},
@@ -1678,6 +1926,11 @@ test('Bangbomb (+X) is its own Dodge choice: +X, but not against Template Weapon
   const choices = pseudoWeapons(effectiveTraits(bandit, combi), 'B');
   assert.deepEqual(choices.map((w) => render(tEn, pseudoName(w))), ['Dodge', 'Bangbomb', 'Reset', 'No ARO']);
   assert.equal(pseudoWeapons({skills: [], equip: []}).some((w) => w.bangbomb), false);
+  /**
+   * @param {TraitRef[]} weapons
+   * @param {string} key
+   * @param {string} [pick]
+   */
   const dodgeVs = (weapons, key, pick = 'bangbomb') =>
     derive({active: side(profile(), option(weapons), key), reactive: side(bandit, combi, pick), rangeCm: 20}).inputs.successValueB;
   assert.equal(dodgeVs([{id: 1, name: 'Combi Rifle'}], '1:'), 17);
@@ -1686,7 +1939,7 @@ test('Bangbomb (+X) is its own Dodge choice: +X, but not against Template Weapon
   assert.equal(dodgeVs([{id: 3, name: 'Heavy Flamethrower'}], '3:'), 13);
   // The ledger shows the cancelled bonus struck out.
   const vsFlamer = {active: side(profile(), option([{id: 3, name: 'Heavy Flamethrower'}]), '3:'), reactive: side(bandit, combi, 'bangbomb'), rangeCm: 20};
-  const sv = buildLedger({...vsFlamer, derived: derive(vsFlamer)}).B.sv.lines;
+  const sv = /** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (buildLedger({...vsFlamer, derived: derive(vsFlamer)}).B).sv).lines;
   assert.deepEqual(sv.find((x) => x.label === 'Bangbomb (+4)'), {value: 4, label: 'Bangbomb (+4)', by: 'B', struck: 'Template'});
   assert.equal(dodgeVs([{id: 19, name: 'Light Rocket Launcher'}], '19:Blast Mode'), 13);
   // Bangbomb in the Active Turn against a shot.
@@ -1697,11 +1950,13 @@ test('Bangbomb (+X) is its own Dodge choice: +X, but not against Template Weapon
 // Comms Attacks (Alex, 2026-10-20): the Jammer rolls WIP within ZoC; Reset
 // opposes it, Dodge can't; a failed BTS save is Isolated.
 const jammer = option([{id: 21, name: 'Jammer'}, {id: 1, name: 'Combi Rifle'}]);
+/** @param {Partial<ProfileRow>} [over] */
 const hacker = (over = {}) => profile({wip: 13, ...over});
 
 test('Jammer: a WIP roll within Zone of Control (8"), out of range beyond', () => {
-  const x = side(hacker(), jammer, '21:');
+  const x = /** @type {Trooper & {weapon: WeaponEntry}} */ (side(hacker(), jammer, '21:'));
   assert.ok(x.weapon, 'the Jammer is a weapon choice');
+  /** @param {number} rangeCm */
   const at = (rangeCm) => derive({active: x, reactive: side(profile(), combi, '1:'), rangeCm}).inputs;
   assert.equal(at(20).successValueA, 13);
   assert.equal(at(20).burstA, 1);
@@ -1709,8 +1964,8 @@ test('Jammer: a WIP roll within Zone of Control (8"), out of range beyond', () =
   assert.equal(rangeModFor(x.weapon.row, 20), 0);
   assert.equal(rangeModFor(x.weapon.row, 21), null);
   // Not the default: it isolates, it doesn't wound.
-  assert.equal(defaultWeapon(trooperWeapons(jammer, W, x.traits), 'active').name, 'Combi Rifle');
-  assert.equal(defaultWeapon(trooperWeapons(jammer, W, x.traits), 'reactive').name, 'Combi Rifle');
+  assert.equal(/** @type {WeaponEntry} */ (defaultWeapon(trooperWeapons(jammer, W, x.traits), 'active')).name, 'Combi Rifle');
+  assert.equal(/** @type {WeaponEntry} */ (defaultWeapon(trooperWeapons(jammer, W, x.traits), 'reactive')).name, 'Combi Rifle');
 });
 
 test('Comms Attack vs Reset: Face to Face, WIP against WIP, no saves for the Reset', () => {
@@ -1725,6 +1980,13 @@ test('Comms Attack vs Reset: Face to Face, WIP against WIP, no saves for the Res
   assert.equal(derive({active: side(bsAtk, jammer, '21:'), reactive: side(profile({wip: 14}), combi, 'reset'), rangeCm: 20}).inputs.successValueB, 11);
 });
 
+test('a capped Reset says so too: Hacked (-12) and Targeted (-3) (Alex, 2026-10-23)', () => {
+  const hacked = {...side(profile({wip: 13}), combi, 'reset'), hackedReset: -12, targeted: true};
+  const r = derive({active: side(hacker(), jammer, '21:'), reactive: hacked, rangeCm: 20});
+  assert.equal(r.inputs.successValueB, 1);
+  assert.ok(r.notes.includes('Reactive: MODs add up to -15, capped at -12'), r.notes.join(' | '));
+});
+
 test('Dodge can\'t evade a Comms Attack; Reset evades nothing else', () => {
   const dodging = derive({active: side(hacker(), jammer, '21:'), reactive: side(profile(), combi, 'dodge'), rangeCm: 20});
   assert.equal(dodging.inputs.burstB, 0);
@@ -1732,8 +1994,8 @@ test('Dodge can\'t evade a Comms Attack; Reset evades nothing else', () => {
   const resetting = derive({active: side(hacker(), combi, '1:'), reactive: side(profile(), combi, 'reset'), rangeCm: 20});
   assert.equal(resetting.inputs.burstB, 0);
   assert.ok(resetting.notes.some((n) => n.includes('Reset only evades Comms Attacks')), resetting.notes.join(' | '));
-  const l = buildLedger({active: side(hacker(), combi, '1:'), reactive: side(profile(), combi, 'reset'), rangeCm: 20, derived: resetting});
-  assert.deepEqual([l.B.kind, l.B.dice], ['none', 'Reset: not rolled']);
+  const l = buildLedger(/** @type {Parameters<typeof buildLedger>[0]} */ ({active: side(hacker(), combi, '1:'), reactive: side(profile(), combi, 'reset'), rangeCm: 20, derived: resetting}));
+  assert.deepEqual([/** @type {LedgerSide} */ (l.B).kind, /** @type {LedgerSide} */ (l.B).dice], ['none', 'Reset: not rolled']);
   // Shooting back at the Jammer is still a Face to Face Roll.
   assert.equal(derive({active: side(hacker(), jammer, '21:'), reactive: side(profile(), combi, '1:'), rangeCm: 20}).inputs.burstB, 1);
 });

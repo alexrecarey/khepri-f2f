@@ -1,0 +1,21 @@
+{
+  // `yarn typecheck`: strict checking of the JSDoc-typed JS (docs/plans/ui-pass.md, step 9).
+  // Nothing is emitted; Vite builds the app. The tests are checked by
+  // tsconfig.tests.json, which extends this without noImplicitAny.
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+    "noEmit": true,
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "jsx": "react-jsx",
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "types": ["node"],
+    "skipLibCheck": true
+  },
+  "include": ["src", "worker"],
+  "exclude": ["src/engine/wasm/*.js", "**/*.test.mjs"]
+}

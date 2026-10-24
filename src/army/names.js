@@ -4,18 +4,28 @@ import {words} from '../search/text.js';
 import {sharedLoadoutName} from './shortNames.js';
 
 // "Hexas, Strategic Security Division" -> "Hexas": what players call it.
+/** @param {string | null | undefined} isc */
 export const shortIsc = (isc) => (isc ?? '').split(',')[0].trim();
 
 // The trooper's name for narrow columns (the ledger's source), in any
 // language: the chosen loadout's name, which says who is rolling, even inside
 // one unit (Überfallkommando: the Chimera or a Pupnik). Role tags (FTO, Lt)
 // are dropped: "Hac Tao", "Fennec", "Caballero Teutón", "Chandra-1".
+/**
+ * @param {import('../types.js').UnitRow | null | undefined} unit
+ * @param {import('../types.js').OptionRow | null | undefined} option
+ */
 export const unitTag = (unit, option) => sharedLoadoutName([option?.name ?? '']) ?? shortIsc(unit?.isc);
 
 // The loadout's own name when it says something the unit name doesn't
 // ("BIPANDRA", "Hacker"), else null. Army names most loadouts after the unit
 // in capitals ("FENNEC" for Fennec Fusiliers, "FUSILIER" for Fusiliers), which
 // is just noise next to the unit name.
+/**
+ * @param {string | null | undefined} loadout
+ * @param {string} unitName
+ * @returns {string | null}
+ */
 export function extraLoadoutName(loadout, unitName) {
   if (!loadout) return null;
   const unitWords = words(unitName);
@@ -29,6 +39,7 @@ export function extraLoadoutName(loadout, unitName) {
 // that language's names file. Spanish follows the Army's own short forms
 // ("F. Precisión" in its extras); its launchers are one word already
 // ("Lanzamisiles").
+/** @type {Record<string, [RegExp, string][]>} */
 const SHORT_WEAPON = {
   en: [
     [/Heavy Machine Gun/, 'HMG'],
@@ -45,6 +56,10 @@ const SHORT_WEAPON = {
   ],
 };
 
+/**
+ * @param {string | null | undefined} name
+ * @param {string} [lang]
+ */
 export function shortWeaponName(name, lang = 'en') {
   return (SHORT_WEAPON[lang] ?? SHORT_WEAPON.en).reduce((n, [re, to]) => n.replace(re, to), name ?? '');
 }

@@ -13,11 +13,13 @@ const back = () => dispatch({type: 'back'});
 
 // size: 'saved' | 'settings' | 'about', the dialog's width (chrome.css).
 // head: what sits between the title and the close button (the saved tabs).
+/** @param {{title: string, size: 'saved' | 'settings' | 'about', head?: import('react').ReactNode, children?: import('react').ReactNode}} props */
 export default function DeskDialog({title, size, head, children}) {
   const t = useT();
-  const ref = useRef(null);
+  const ref = useRef(/** @type {HTMLDivElement | null} */ (null));
   useDialogFocus(ref);
   useEffect(() => {
+    /** @param {KeyboardEvent} e */
     const onKey = (e) => { if (e.key === 'Escape') back(); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);

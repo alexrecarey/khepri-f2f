@@ -1,7 +1,9 @@
 // Lowercase, accent-free form for unit search: "Nøkken" -> "nokken". NFD
 // splits most accents off as combining marks; letters like ø and æ don't
 // decompose, so map them by hand.
+/** @type {Record<string, string>} */
 const LETTER_FOLDS = {ø: 'o', æ: 'ae', œ: 'oe', ß: 'ss', đ: 'd', ł: 'l', þ: 'th'};
+/** @param {string} text */
 export function searchKey(text) {
   return text
     .toLowerCase()

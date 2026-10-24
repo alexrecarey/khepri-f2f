@@ -9,15 +9,24 @@ import {dispatch} from '../state/store.js';
 // (app.css --roll-delete-w).
 const OPEN = -88;
 
+/**
+ * @param {string} id the saved roll's
+ * @param {boolean} swiped this card is the open one
+ * @param {() => void} onTap
+ */
 export default function useSwipeToDelete(id, swiped, onTap) {
-  const drag = useRef(null);
-  const cardRef = useRef(null);
+  const drag = useRef(/** @type {{x0: number, y0: number, base: number, moved: boolean, id: number} | null} */ (null));
+  const cardRef = useRef(/** @type {HTMLButtonElement | null} */ (null));
   // When a swipe ended: the click that follows it is the swipe's own.
   const swipeEnded = useRef(0);
+  /** @param {number} x */
   const setX = (x) => { if (cardRef.current) cardRef.current.style.transform = x ? `translateX(${x}px)` : ''; };
+  /** @param {boolean} on */
   const setDragging = (on) => cardRef.current?.classList.toggle('dragging', on);
   useEffect(() => setX(swiped ? OPEN : 0), [swiped]);
+  /** @param {import('react').PointerEvent} e */
   const onPointerDown = (e) => { drag.current = {x0: e.clientX, y0: e.clientY, base: swiped ? OPEN : 0, moved: false, id: e.pointerId}; };
+  /** @param {import('react').PointerEvent} e */
   const onPointerMove = (e) => {
     const d = drag.current;
     if (!d) return;
@@ -33,6 +42,7 @@ export default function useSwipeToDelete(id, swiped, onTap) {
     }
     setX(Math.min(0, Math.max(OPEN * 1.5, d.base + dx)));
   };
+  /** @param {import('react').PointerEvent} e */
   const onPointerUp = (e) => {
     const d = drag.current;
     drag.current = null;
@@ -50,6 +60,7 @@ export default function useSwipeToDelete(id, swiped, onTap) {
     setDragging(false);
     setX(swiped ? OPEN : 0);
   };
+  /** @param {import('react').MouseEvent} e */
   const onClick = (e) => {
     if (Date.now() - swipeEnded.current < 350) return;
     if (swiped) { e.preventDefault(); dispatch({type: 'setSwiped', id: null}); return; }

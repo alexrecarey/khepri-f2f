@@ -7,12 +7,17 @@ import {FIRETEAM_MAX, FIRETEAM_MIN, HACKED_RESET_MODS} from '../rules/modifiers.
 import {RANGE_BANDS} from '../rules/ranges.js';
 import {FIREWALL_CHIPS} from '../rules/trooper.js';
 
+/** @typedef {import('../types.js').Selection} Selection */
+/** @typedef {import('../types.js').Side} Side */
+
+/** @type {Omit<Selection, 'ftSize'>} */
 const EMPTY = {
   unitId: null, factionId: null, groupId: null, profileId: null, optionId: null,
   weaponKey: null, inCover: false, firewall: null, targeted: false, hackedReset: 0, immA: false, sapper: false, surpriseAttack: false, upgrade: null, ball: null, ccAllies: 0, berserk: false,
 };
 
 // param name -> selection field, and how to read it back
+/** @type {[string, keyof Omit<Selection, 'ftSize'>, NumberConstructor | StringConstructor][]} */
 const FIELDS = [
   ['unit', 'unitId', Number],
   ['faction', 'factionId', Number],
@@ -25,23 +30,31 @@ const FIELDS = [
 ];
 
 // Only what's set, so links stay short.
+/**
+ * @param {{selA: Selection | null | undefined, selB: Selection | null | undefined, ftSize?: {A: number, B: number} | null,
+ *   rangeCm?: number | null, rangeCmB?: number | null, zones?: import('../types.js').Zones | null}} matchup
+ * @returns {Record<string, string>}
+ */
 export function encodeMatchup({selA, selB, ftSize, rangeCm, rangeCmB, zones}) {
+  /** @type {Record<string, string>} */
   const out = {};
-  for (const [side, sel] of [['A', selA], ['B', selB]]) {
+  for (const [side, sel] of /** @type {[Side, Selection | null | undefined][]} */ ([['A', selA], ['B', selB]])) {
     if (!sel?.unitId) continue;
     for (const [param, field] of FIELDS) {
       if (sel[field] !== null && sel[field] !== undefined) out[`${param}${side}`] = String(sel[field]);
     }
     if (sel.inCover) out[`cover${side}`] = '1';
     // firewall=3 / 6, or 0 for none; left out for the trooper's own.
-    if (sel.firewall === 0 || FIREWALL_CHIPS.includes(sel.firewall)) out[`firewall${side}`] = String(-sel.firewall);
+    // A chip value is a number; null (the trooper's own) isn't one.
+    if (sel.firewall === 0 || FIREWALL_CHIPS.includes(/** @type {number} */ (sel.firewall))) out[`firewall${side}`] = String(-/** @type {number} */ (sel.firewall));
     if (sel.sapper) out[`sapper${side}`] = '1';
     if (sel.targeted) out[`targeted${side}`] = '1';
     if (HACKED_RESET_MODS.includes(sel.hackedReset)) out[`hacked${side}`] = String(-sel.hackedReset);
     if (sel.immA) out[`imma${side}`] = '1';
     if (sel.surpriseAttack) out[`surprise${side}`] = '1';
     if (sel.berserk) out[`berserk${side}`] = '1';
-    if (ftSize?.[side] > 1) out[`ft${side}`] = String(ftSize[side]);
+    // No ftSize compares as false.
+    if (/** @type {number} */ (ftSize?.[side]) > 1) out[`ft${side}`] = String(/** @type {{A: number, B: number}} */ (ftSize)[side]);
     if (sel.ccAllies > 0) out[`allies${side}`] = String(sel.ccAllies);
   }
   if (Object.keys(out).length > 0 && rangeCm) out.range = String(rangeCm);
@@ -54,8 +67,16 @@ export function encodeMatchup({selA, selB, ftSize, rangeCm, rangeCmB, zones}) {
 }
 
 // null when the params hold no matchup.
+/**
+ * @param {URLSearchParams} params
+ */
 export function decodeMatchup(params) {
+  /** @param {string} k */
   const get = (k) => params.get(k);
+  /**
+   * @param {Side} s
+   * @returns {Omit<Selection, 'ftSize'> | null}
+   */
   const side = (s) => {
     const unit = Number(get(`unit${s}`));
     if (!Number.isInteger(unit) || unit <= 0) return null;
@@ -65,13 +86,14 @@ export function decodeMatchup(params) {
       if (raw === null || raw === '') continue;
       const v = read(raw);
       if (read === Number && !Number.isFinite(v)) continue;
-      sel[field] = v;
+      // `read` is the field's own constructor (FIELDS).
+      /** @type {Record<string, unknown>} */ (sel)[field] = v;
     }
     sel.inCover = get(`cover${s}`) === '1';
     const raw = get(`firewall${s}`);
     // 0 - n, not -n: "0" must read back as 0, not -0.
     const firewall = raw ? 0 - Number(raw) : null;
-    sel.firewall = firewall === 0 || FIREWALL_CHIPS.includes(firewall) ? firewall : null;
+    sel.firewall = firewall === 0 || FIREWALL_CHIPS.includes(/** @type {number} */ (firewall)) ? firewall : null;
     sel.sapper = get(`sapper${s}`) === '1';
     sel.targeted = get(`targeted${s}`) === '1';
     const hacked = -Number(get(`hacked${s}`));
@@ -86,10 +108,12 @@ export function decodeMatchup(params) {
   const A = side('A');
   const B = side('B');
   if (!A && !B) return null;
+  /** @param {Side} s */
   const ft = (s) => {
     const n = Number(get(`ft${s}`));
     return Number.isInteger(n) && n >= FIRETEAM_MIN && n <= FIRETEAM_MAX ? n : 1;
   };
+  /** @param {number} cm */
   const band = (cm) => (RANGE_BANDS.some((b) => b.to === cm) ? cm : null);
   const range = band(Number(get('range')));
   return {
