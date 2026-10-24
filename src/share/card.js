@@ -17,6 +17,9 @@
 //            s: 'Cover, Fireteam 5', the side's situation ('' for none)
 //            c: 'squalos-mk-ii-1-1'}}  unit crest slug (src/army/crests.js) or ''
 
+import * as v from 'valibot';
+import {parseOr} from '../lib/parse.js';
+
 /**
  * One side of the share card: the strings the image is drawn from.
  * @typedef {{n: string, l: string, u: string, w: string, s: string, c: string}} CardSide
@@ -32,10 +35,27 @@ export const CARD_PARAM = 'card';
 // (state/headlines.js HEADLINE_PARAM).
 export const LINK_HEADLINE = 'wound';
 export const SHARE_PATH = '/s';
-/** @type {Card['k'][]} */
+/** @type {import('../types.js').HeadlineChoice[]} */
 const KINDS = ['wpo', 'win', 'wound'];
 const MAX_TEXT = 60;
 const SLUG = /^[a-z0-9-]{1,80}$/;
+
+// Hand-written links get the same treatment as real ones: anything missing,
+// too long or the wrong type is dropped, never trusted.
+const text = v.fallback(v.pipe(v.string(), v.transform((s) => s.slice(0, MAX_TEXT))), '');
+const slug = v.fallback(v.pipe(v.string(), v.regex(SLUG)), '');
+// A side needs its number and its unit; the rest may be empty.
+const CardSideSchema = v.pipe(
+  v.object({n: text, l: text, u: text, w: text, s: text, c: slug}),
+  v.check((side) => side.n !== '' && side.u !== ''),
+);
+export const CardSchema = v.object({
+  k: v.picklist(KINDS),
+  nf: v.fallback(v.boolean(), false),
+  x: text,
+  a: CardSideSchema,
+  b: CardSideSchema,
+});
 
 /** @param {Uint8Array} bytes */
 const toB64url = (bytes) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -47,23 +67,6 @@ export function encodeCard(card) {
   return toB64url(new TextEncoder().encode(JSON.stringify(card)));
 }
 
-// Hand-written links get the same treatment as real ones: anything missing,
-// too long or the wrong type is dropped, never trusted.
-/** @param {unknown} v */
-const text = (v) => (typeof v === 'string' ? v.slice(0, MAX_TEXT) : '');
-/** @param {unknown} v */
-const slug = (v) => (typeof v === 'string' && SLUG.test(v) ? v : '');
-
-/**
- * @param {Partial<Record<keyof CardSide, unknown>> | string | number | boolean | null | undefined} x anything a hand-written link may carry
- * @returns {CardSide | null}
- */
-function side(x) {
-  if (!x || typeof x !== 'object') return null;
-  const out = {n: text(x.n), l: text(x.l), u: text(x.u), w: text(x.w), s: text(x.s), c: slug(x.c)};
-  return out.n && out.u ? out : null;
-}
-
 // The card in a link's ?card= value, or null.
 /**
  * @param {string | null | undefined} value
@@ -71,14 +74,14 @@ function side(x) {
  */
 export function decodeCard(value) {
   if (!value || value.length > 2000) return null;
+  /** @type {unknown} */
+  let raw;
   try {
-    const raw = JSON.parse(new TextDecoder().decode(fromB64url(value)));
-    const a = side(raw?.a), b = side(raw?.b);
-    if (!a || !b || !KINDS.includes(raw.k)) return null;
-    return {k: raw.k, nf: raw.nf === true, x: text(raw.x), a, b};
+    raw = JSON.parse(new TextDecoder().decode(fromB64url(value)));
   } catch {
     return null;
   }
+  return parseOr(CardSchema, raw, null);
 }
 
 // One side's second line on the card ("Missile L. · Cover, Fireteam 5"), or
