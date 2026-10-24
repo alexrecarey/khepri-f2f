@@ -102,12 +102,14 @@ const valueSchema = (spec) =>
       : v.fallback(v.picklist(AMMO_KEYS), spec.default);
 export const ParamsSchema = table(valueSchema);
 
-// A param as a URL string: a number is clamped into its limits (a link made
-// for other limits still loads as near as it can), 'true' in any case is
-// true, ammo is read in any case. Anything else is the default.
+// A param as a URL string: a whole number is clamped into its limits (a link
+// made for other limits still loads as near as it can), 'true' in any case is
+// true, ammo is read in any case. Anything else is the default: "burstA=1.5"
+// is not one die and one Special Die (bonusBurstA carries those, and there
+// can be more than one), it is nothing (Alex, 2026-10-24).
 /** @param {ParamSpec} spec */
 const urlSchema = (spec) =>
-  spec.type === 'int' ? v.fallback(v.pipe(numberFromUrl, v.transform((n) => clamp(spec.limit, n))), spec.default)
+  spec.type === 'int' ? v.fallback(v.pipe(numberFromUrl, v.integer(), v.transform((n) => clamp(spec.limit, n))), spec.default)
     : spec.type === 'bool' ? v.fallback(v.pipe(v.string(), v.transform((raw) => raw.toLowerCase() === 'true')), spec.default)
       : v.fallback(v.pipe(v.string(), v.toUpperCase(), v.picklist(AMMO_KEYS)), spec.default);
 const UrlParamsSchema = table(urlSchema);

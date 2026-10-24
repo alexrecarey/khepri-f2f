@@ -79,6 +79,13 @@ test('ParamsSchema (a saved setup): ints within their limits, else the default; 
 });
 
 test('parseParams: a URL number is what Number() reads, clamped; an empty value is 0', () => {
-  const p = parseParams(new URLSearchParams({burstA: 'Infinity', damageA: '', armA: ' 5 ', btsB: '1e1'}));
+  const p = parseParams(new URLSearchParams({burstA: '9', damageA: '', armA: ' 5 ', btsB: '1e1'}));
   assert.deepEqual([p.burstA, p.damageA, p.armA, p.btsB], [6, 0, 5, 10]);
+});
+
+test('parseParams: a fraction is not a Burst: dice and Special Dice travel apart (Alex, 2026-10-24)', () => {
+  // burstA=1.5 once stood for one die and one Special Die; bonusBurstA says
+  // that, and can say two. A fraction (or an infinite value) is the default.
+  const p = parseParams(new URLSearchParams({burstA: '1.5', bonusBurstA: '2', burstB: 'Infinity', armA: '2.0'}));
+  assert.deepEqual([p.burstA, p.bonusBurstA, p.burstB, p.armA], [DEFAULT_PARAMS.burstA, 2, DEFAULT_PARAMS.burstB, 2]);
 });
