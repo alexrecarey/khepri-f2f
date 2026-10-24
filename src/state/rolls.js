@@ -15,12 +15,13 @@ import {hackedResetMod, immADodgeMod} from '../rules/modifiers.js';
 import {RANGE_BANDS, bandLabel} from '../rules/ranges.js';
 import {shortIsc, shortWeaponName} from '../army/names.js';
 import {isPseudo} from '../army/weapons.js';
-import {DEFAULT_PARAMS} from '../engine/params.js';
+import {DEFAULT_PARAMS, ParamsSchema} from '../engine/params.js';
+import {parseOr} from '../lib/parse.js';
 import {MODES} from './modes.js';
 import {classicAmmoKey} from './classicView.js';
 import {ZONES, zoneName} from '../rules/visibility.js';
 import {pseudoName} from '../rules/trooper.js';
-import {DEFAULT_RANGE_CM, EMPTY_SIDE, NO_ZONES} from './schema.js';
+import {MatchupSchema, emptyMatchup} from './schema.js';
 import {tEn} from '../i18n/index.js';
 import {render} from '../i18n/message.js';
 
@@ -36,25 +37,16 @@ const pct0 = (p) => `${Math.round(100 * p)}%`;
 /** @param {import('../types.js').UnitRow} unit */
 const shortUnit = (unit) => shortIsc(unit.isc);
 
-// A saved setup with today's fields: a roll saved before a field existed gets
-// its default, so it loads complete and matches the same setup saved now.
+// A saved setup with today's fields, read through its mode's schema: a roll
+// saved before a field existed gets its default, a field that can't be read
+// too, so it loads complete and matches the same setup saved now.
 /**
  * @param {string} mode
- * @param {Partial<import('../types.js').Matchup> | Partial<import('../types.js').Params> | null | undefined} setup
+ * @param {unknown} setup
  * @returns {import('../types.js').Matchup | import('../types.js').Params}
  */
 export function normalizeSetup(mode, setup) {
-  if (mode === MODES.matchup) {
-    // A Matchup setup, read field by field (an old one may lack some).
-    return {
-      ...NO_ZONES, ...setup,
-      A: {...EMPTY_SIDE, .../** @type {Partial<import('../types.js').Matchup> | null | undefined} */ (setup)?.A},
-      B: {...EMPTY_SIDE, .../** @type {Partial<import('../types.js').Matchup> | null | undefined} */ (setup)?.B},
-      rangeCm: /** @type {Partial<import('../types.js').Matchup> | null | undefined} */ (setup)?.rangeCm ?? DEFAULT_RANGE_CM,
-      rangeCmB: /** @type {Partial<import('../types.js').Matchup> | null | undefined} */ (setup)?.rangeCmB ?? null,
-    };
-  }
-  return {...DEFAULT_PARAMS, .../** @type {Partial<import('../types.js').Params> | null | undefined} */ (setup)};
+  return mode === MODES.matchup ? parseOr(MatchupSchema, setup, emptyMatchup()) : parseOr(ParamsSchema, setup, DEFAULT_PARAMS);
 }
 
 // JSON with object keys sorted, so key order never makes two setups differ.

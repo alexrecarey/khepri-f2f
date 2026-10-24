@@ -222,7 +222,7 @@ test('an old classic link without a mode opens the classic calculator', () => {
 test('storage: saves the persisted slices and reads them back', () => {
   const storage = memStorage();
   const s = run(initialState(), {type: 'setMode', mode: 'basic'},
-    {type: 'pickTrooper', side: 'A', sel: fennec, recent: {unitId: 10, groupId: 1, optionId: 2}});
+    {type: 'pickTrooper', side: 'A', sel: fennec, recent: {unitId: 10, groupId: 1, optionId: 2, armyFactionId: 101}});
   savePersisted(storage, s);
   const saved = JSON.parse(storage.map.get(STORAGE_KEY));
   assert.equal(saved.ui, undefined);                // ephemeral, never stored
@@ -241,7 +241,7 @@ test('storage: reads the keys older builds wrote, survives junk', () => {
 });
 
 test('boot: the URL beats the remembered mode', () => {
-  const storage = memStorage({[STORAGE_KEY]: JSON.stringify({v: 1, mode: 'basic', lists: {recents: [{unitId: 3}]}})});
+  const storage = memStorage({[STORAGE_KEY]: JSON.stringify({v: 1, mode: 'basic', lists: {recents: [{unitId: 3, groupId: 1, optionId: 1, armyFactionId: 101}]}})});
   const s = bootState({search: '?mode=matchup&unitA=10&rangeA=1', storage});
   assert.equal(s.mode, 'matchup');
   assert.equal(s.matchup.A.unitId, 10);
@@ -308,7 +308,7 @@ test('sync: the URL follows the state, each overlay layer is a history entry', (
 });
 
 test('replace fills missing slices and keeps this device\'s lists', () => {
-  const s0 = run(initialState(), {type: 'pickTrooper', side: 'A', sel: fennec, recent: {unitId: 10, groupId: 1, optionId: 2}});
+  const s0 = run(initialState(), {type: 'pickTrooper', side: 'A', sel: fennec, recent: {unitId: 10, groupId: 1, optionId: 2, armyFactionId: 101}});
   const s = reduce(s0, {type: 'replace', state: {mode: 'basic', classic: {burstA: 5}, ui: {overlay: 'results'}}});
   assert.equal(s.classic.burstA, 5);
   assert.equal(s.classic.burstB, DEFAULT_PARAMS.burstB);
@@ -465,7 +465,7 @@ test('saved rolls from older builds: missing fields default, key order does not 
   const {sapper, upgrade, ...olderA} = {...EMPTY_SIDE, ...fennec};   // saved before sapper / upgrade existed
   const reordered = /** @type {import('../types.js').Selection} */ (Object.fromEntries(Object.entries(olderA).reverse()));
   // Saved before the zones and with the summary of its day.
-  const old = /** @type {import('../types.js').SavedRoll} */ ({id: 'r1', mode: 'matchup', savedAt: 1, summary: {a: 'x'}, setup: {B: {...EMPTY_SIDE}, rangeCm: 40, A: reordered}});
+  const old = /** @type {import('../types.js').SavedRoll} */ ({id: 'r1', mode: 'matchup', savedAt: 1, summary: /** @type {import('../types.js').RollSummary} */ ({a: 'x'}), setup: {B: {...EMPTY_SIDE}, rangeCm: 40, A: reordered}});
   const now = /** @type {import('../types.js').Matchup} */ ({A: {...EMPTY_SIDE, ...fennec}, B: {...EMPTY_SIDE}, rangeCm: 40});
   assert.equal(setupKey('matchup', old.setup), setupKey('matchup', now));
   /** @type {AppState} */
@@ -516,4 +516,48 @@ test('picking a shooting weapon (or Dodge) drops Berserk; a CC weapon keeps it',
   assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: '5:', kind: 'cc'}).matchup.A.berserk, true);
   assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: '1:', kind: 'bs'}).matchup.A.berserk, false);
   assert.equal(run(s, {type: 'pickWeapon', side: 'A', key: 'dodge', kind: 'dodge'}).matchup.A.berserk, false);
+});
+
+test('storage: a bad field falls back, a bad list item is dropped, the rest is kept', () => {
+  const good = {unitId: 3, groupId: 1, optionId: 1, armyFactionId: 101, side: 'B'};
+  const roll = {id: 'r2', mode: 'basic', savedAt: 5, setup: {burstA: 4}, summary: {a: 'Active', r: 'Reactive', ad: '', rd: '', setup: '', ap: '', rp: ''}};
+  const storage = memStorage({[STORAGE_KEY]: JSON.stringify({
+    v: 1, mode: 'nope',
+    prefs: {headline: 'odds', language: 3, startFaction: 'x'},
+    lists: {
+      recents: [{groupId: 1, optionId: 1, armyFactionId: 101}, {...good, side: 'X'}, good, 'junk'],
+      recentFactions: [101, 'x', 1.5, 202],
+      saved: [{id: 'x'}, {...roll, mode: 'odd'}, {...roll, summary: 'none'}, roll],
+    },
+    scopes: {A: 'x', B: null},
+  })});
+  const back = loadPersisted(storage);
+  assert.equal('mode' in back, false);
+  assert.deepEqual(back.prefs, {headline: 'wpo', language: null, startFaction: {}});
+  assert.deepEqual(back.lists.recents, [good]);
+  assert.deepEqual(back.lists.recentFactions, [101, 202]);
+  assert.deepEqual(back.lists.saved, [roll]);
+  assert.deepEqual(back.scopes, {});
+  // Per field: one side's bad faction is null, the other stays.
+  assert.deepEqual(loadPersisted(memStorage({[STORAGE_KEY]: JSON.stringify({prefs: {startFaction: {A: 'x', B: 202}}})})).prefs.startFaction, {A: null, B: 202});
+});
+
+test('a saved roll loads through its mode\'s schema: a field that can\'t be read gets its default', async () => {
+  const {normalizeSetup} = await import('./rolls.js');
+  const m = /** @type {import('../types.js').Matchup} */ (normalizeSetup('matchup', {A: {...fennec, unitId: {}, weaponKey: 'w'.repeat(65)}, B: 'none', rangeCm: 'abc', rangeCmB: 33, smoke: 1, stale: true}));
+  assert.equal(m.A.unitId, null);
+  assert.equal(m.A.weaponKey, null);
+  assert.equal(m.A.factionId, fennec.factionId);
+  assert.deepEqual(m.B, EMPTY_SIDE);
+  assert.deepEqual([m.rangeCm, m.rangeCmB, m.smoke, m.whiteNoise], [40, null, false, false]);
+  assert.equal('stale' in m, false);
+  assert.deepEqual(normalizeSetup('matchup', 'junk'), initialState().matchup);
+  const c = /** @type {import('../types.js').Params} */ (normalizeSetup('basic', {burstA: 99, ammoB: 'DA', dtwVsDodge: true}));
+  assert.deepEqual(c, {...DEFAULT_PARAMS, ammoB: 'DA'});
+  assert.deepEqual(normalizeSetup('basic', null), DEFAULT_PARAMS);
+  // Loading such a roll puts the read setup in the document.
+  const old = /** @type {import('../types.js').SavedRoll} */ ({id: 'r9', mode: 'matchup', savedAt: 1, summary: /** @type {import('../types.js').RollSummary} */ ({a: 'x'}), setup: {A: {...fennec, unitId: {}}, rangeCm: 'abc'}});
+  const s = reduce({...initialState(), lists: {...initialState().lists, saved: [old]}}, {type: 'loadRoll', id: 'r9'});
+  assert.equal(s.matchup.A.unitId, null);
+  assert.equal(s.matchup.rangeCm, 40);
 });

@@ -818,8 +818,9 @@
  * @property {number | null} [fr]
  */
 /**
- * A saved roll (state/schema.js lists.saved): the setup to load back and its summary.
- * @typedef {{id: string, mode: string, savedAt: number, setup: Matchup | Params, summary: RollSummary}} SavedRoll
+ * A saved roll (state/schema.js lists.saved): the setup to load back (an
+ * object its mode's schema reads when loaded, state/rolls.js normalizeSetup) and its summary.
+ * @typedef {{id: string, mode: string, savedAt: number, setup: Record<string, unknown>, summary: RollSummary}} SavedRoll
  */
 
 /**
