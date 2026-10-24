@@ -11,8 +11,10 @@ import {bandColor, signedMod} from './bands.js';
 import {SplitIcon} from './icons.jsx';
 import {useT} from './i18n.jsx';
 
+/** @type {Record<import('../types.js').Side, string>} */
 const ROLE = {A: 'side.active', B: 'side.reactive'};
 
+/** @param {{side: import('../types.js').Side, i: number, on?: boolean, mod?: number | null, open?: boolean}} props */
 function Pick({side, i, on, mod, open}) {
   const t = useT();
   const b = RANGE_BANDS[i];
@@ -28,6 +30,7 @@ function Pick({side, i, on, mod, open}) {
 Pick.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, i: PropTypes.number.isRequired, on: PropTypes.bool, mod: PropTypes.number, open: PropTypes.bool};
 
 // selA / selB: each side's band index.
+/** @param {{bands: import('../types.js').MatchupCore['bands'], open: boolean, selA: number, selB: number}} props */
 export default function RangeScale({bands, open, selA, selB}) {
   const t = useT();
   return (
@@ -51,6 +54,7 @@ export default function RangeScale({bands, open, selA, selB}) {
 RangeScale.propTypes = {bands: PropTypes.array.isRequired, open: PropTypes.bool, selA: PropTypes.number.isRequired, selB: PropTypes.number.isRequired};
 
 // Next to Smoke / White Noise: split the range so each side picks its own.
+/** @param {{split: boolean, open: boolean}} props */
 export function SplitChip({split, open}) {
   const t = useT();
   return (

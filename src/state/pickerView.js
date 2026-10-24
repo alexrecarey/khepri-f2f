@@ -71,13 +71,14 @@ export function groupLoadouts(army, hits) {
 /**
  * @param {Army | null | undefined} army
  * @param {number} unitId
- * @param {number} armyFactionId
+ * @param {number | undefined} armyFactionId
  * @returns {[string, number][] | null}
  */
 export function statLine(army, unitId, armyFactionId) {
   const unit = unitById(army, unitId);
   if (!unit) return null;
-  const faction = unit.byFaction[armyFactionId] ?? Object.values(unit.byFaction)[0];
+  // No faction id reads nothing, falling back to the first.
+  const faction = unit.byFaction[/** @type {number} */ (armyFactionId)] ?? Object.values(unit.byFaction)[0];
   const p = faction?.groups[0]?.profiles[0];
   if (!p) return null;
   return [['CC', p.cc], ['BS', p.bs], ['PH', p.ph], ['WIP', p.wip], ['ARM', p.arm], ['BTS', p.bts], [p.str ? 'STR' : 'W', p.w]];
@@ -186,7 +187,7 @@ const details = new WeakMap();
 /**
  * @param {Army | null | undefined} army
  * @param {number} unitId
- * @param {number} armyFactionId
+ * @param {number | null} armyFactionId null: the unit's first faction
  * @returns {UnitDetail | null}
  */
 export function unitDetail(army, unitId, armyFactionId) {
@@ -202,13 +203,14 @@ export function unitDetail(army, unitId, armyFactionId) {
 /**
  * @param {Army} army
  * @param {number} unitId
- * @param {number} armyFactionId
+ * @param {number | null} armyFactionId
  * @returns {UnitDetail | null}
  */
 function buildUnitDetail(army, unitId, armyFactionId) {
   const unit = unitById(army, unitId);
   if (!unit) return null;
-  const faction = unit.byFaction[armyFactionId] ?? Object.values(unit.byFaction)[0];
+  // A null faction reads nothing, falling back to the first.
+  const faction = unit.byFaction[/** @type {number} */ (armyFactionId)] ?? Object.values(unit.byFaction)[0];
   const group = faction?.groups[0];
   const profiles = (group?.profiles ?? []).map((p) => ({
     id: p.id,
@@ -241,8 +243,17 @@ export function profileStats(p) {
 // its stats); own: the rest, what sets a loadout apart (its main gun when it
 // has nothing else). A group of one loadout shares nothing.
 /**
+ * One profile group of a unit with several (Team-Ops, a TAG and its pilot):
+ * its name, type, stats and skills, the weapons every loadout shares and each
+ * loadout with what sets it apart.
+ * @typedef {{key: number, name: string, type: string | null, stats: [string, number | number[]][], skills: import('../types.js').TraitRef[],
+ *   shared: string[], items: {hit: ProfileHit, own: string[]}[]}} ProfileGroupView
+ */
+
+/**
  * @param {Army | null | undefined} army
  * @param {ProfileHit[]} hits
+ * @returns {ProfileGroupView[] | null}
  */
 export function profileGroups(army, hits) {
   const unit = hits.length ? unitById(army, hits[0].unitId) : null;

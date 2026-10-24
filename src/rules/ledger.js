@@ -98,7 +98,7 @@ function sideLedger(x, y, s, l, inputs, t) {
     return {kind: 'none', dice: t('pseudo.none')};
   }
   // A roll's lines carry the sections its kind has (types.js SideLines).
-  const sv = /** @type {import('../types.js').Section} */ (l.sv);
+  const {sv} = /** @type {import('../types.js').SideLines & {sv: import('../types.js').Section}} */ (l);
   if (l.kind === 'reset') {
     // Zero Pain rolls two dice.
     const burst = /** @type {number} */ (inputs[`burst${s}`]) > 1 ? ` ${t('abbr.B')}${inputs[`burst${s}`]}` : '';

@@ -11,16 +11,23 @@ import {useT} from './i18n.jsx';
 const back = () => dispatch({type: 'back'});
 
 // Settings shared by the phone page and the desktop dialog (DeskMenu.jsx).
-const confirmThen = (ask, action, done) => (t) => () => {
+/**
+ * @param {string} ask
+ * @param {import('../types.js').Action} action
+ * @param {string} done
+ */
+const confirmThen = (ask, action, done) => /** @param {import('../types.js').Translator} t */ (t) => () => {
   if (window.confirm(t(ask))) { dispatch(action); dispatch({type: 'toast', text: t(done)}); }
 };
 export const clearRecents = confirmThen('settings.clearRecentsAsk', {type: 'clearRecents'}, 'settings.recentsCleared');
 export const clearSaved = confirmThen('settings.deleteSavedAsk', {type: 'clearSaved'}, 'settings.savedDeleted');
 
 // The faction each side's picker starts on: "Last used" or a vanilla army.
+/** @param {{side: import('../types.js').Side, label: string, factions: {id: number, name: string}[], className?: string}} props */
 export function StartFaction({side, label, factions, className}) {
   const t = useT();
   const start = useAppState((s) => s.prefs.startFaction) ?? {};
+  /** @param {string} value */
   const set = (value) => dispatch({type: 'setPref', key: 'startFaction', value: {...start, [side]: value === '' ? null : Number(value)}});
   return (
     <label className="setting">
@@ -40,6 +47,7 @@ export function LanguageSetting() {
   const t = useT();
   const choice = useAppState((s) => languageChoice(s.prefs));
   const detected = LANGUAGES[resolveLanguage(AUTO, browserLanguages())];
+  /** @param {string} value */
   const set = (value) => dispatch({type: 'setPref', key: 'language', value: value === AUTO ? null : value});
   return (
     <>
@@ -54,6 +62,7 @@ export function LanguageSetting() {
   );
 }
 
+/** @param {{factions: {id: number, name: string}[]}} props */
 export function SettingsPage({factions}) {
   const t = useT();
   const prefs = useAppState((s) => s.prefs);

@@ -7,6 +7,14 @@ declare const __APP_VERSION__: string;
 declare const __ARMY_DATE__: string | null;
 declare const __PREVIEW__: boolean;
 
+// Dev and preview-only hooks on window (src/devTools.js DEV_TOOLS).
+interface Window {
+  /** The store and dispatch, to inspect or replace the whole document (main.jsx). */
+  __app?: {store: import('@tanstack/store').Store<import('./types.js').AppState>, dispatch: (action: import('./types.js').Action) => void};
+  /** ?debug=touch: a readout of the drag guard's decisions (ui/useVisualViewport.js). */
+  __touchDebug?: (line: string) => void;
+}
+
 // vite.config.js armyModules(): army.json split into the language-neutral core
 // and the English names (src/army/localize.js splitNames).
 declare module 'virtual:army-core' {

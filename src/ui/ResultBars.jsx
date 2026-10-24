@@ -8,6 +8,10 @@ import {pct} from '../results/summary.js';
 import {useT} from './i18n.jsx';
 
 // Who wins the Face to Face Roll, as one thin bar.
+/** Which breakdown shows under the bars.
+ * @typedef {'wounds' | 'f2f'} BreakdownView */
+
+/** @param {{s: import('../types.js').Summary, className?: string}} props */
 export function F2FBar({s, className = ''}) {
   const t = useT();
   return (
@@ -25,8 +29,12 @@ F2FBar.propTypes = {s: PropTypes.object.isRequired, className: PropTypes.string}
 // 'wounds' | 'f2f': the breakdown under the bars. Back to the wounds when
 // `reset` turns true (the phone sheet closing). Set during the render, not in
 // an effect, so the closed sheet never paints the old breakdown first.
+/**
+ * @param {boolean} [reset]
+ * @returns {[BreakdownView, (view: BreakdownView) => void]}
+ */
 export function useBreakdownView(reset = false) {
-  const [view, setView] = useState('wounds');
+  const [view, setView] = useState(/** @type {BreakdownView} */ ('wounds'));
   if (reset && view !== 'wounds') setView('wounds');
   return [view, setView];
 }
@@ -36,6 +44,7 @@ export function useBreakdownView(reset = false) {
 // Its name is the bar's own (its role=img label); aria-pressed says it is the
 // one shown. ring: outline the bar while on (the face to face bar, whose
 // breakdown is the one that isn't there by default).
+/** @param {{on?: boolean, faded?: boolean, ring?: boolean, onPick: () => void, children?: import('react').ReactNode}} props */
 export function BarButton({on, faded, ring, onPick, children}) {
   return (
     <button type="button" className={`bar-btn${faded ? ' faded' : ''}${ring ? ' ring' : ''}`} aria-pressed={on} onClick={onPick}>{children}</button>
@@ -46,6 +55,7 @@ BarButton.propTypes = {on: PropTypes.bool, faded: PropTypes.bool, ring: PropType
 
 // The two bars, each a switch when `pick` (there is a chart to switch to):
 // face to face toggles its breakdown, the wound bar goes back to the wounds.
+/** @param {{f2fBar?: import('react').ReactNode, woundBar?: import('react').ReactNode, view: BreakdownView, onView: (view: BreakdownView) => void, pick: boolean}} props */
 export function PickBars({f2fBar, woundBar, view, onView, pick}) {
   if (!pick) return <>{f2fBar}{woundBar}</>;
   const f2f = view === 'f2f';

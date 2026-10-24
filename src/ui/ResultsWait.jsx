@@ -9,6 +9,7 @@ import {useT} from './i18n.jsx';
 // Until the first result shows up (the dice engine loading on a first visit,
 // a few seconds) the two dice roll at each other, bump and bounce back: the
 // face to face roll, before the maths. After that, recalculations shimmer.
+/** @param {{label?: string}} props */
 export function EngineLoading({label}) {
   const t = useT();
   return (
@@ -26,6 +27,7 @@ EngineLoading.propTypes = {label: PropTypes.string};
 
 // Each side's number while waiting: its still, dimmed die, or Ready in its
 // own colour once that side is chosen (useResultsView.js waitingFor).
+/** @param {{side: 'active' | 'reactive', ready?: boolean, size?: string}} props */
 function SideWait({side, ready, size = ''}) {
   const t = useT();
   return ready
@@ -35,6 +37,7 @@ function SideWait({side, ready, size = ''}) {
 
 SideWait.propTypes = {side: PropTypes.string.isRequired, ready: PropTypes.bool, size: PropTypes.string};
 
+/** @param {{picked: {A: boolean, B: boolean}, size?: string}} props */
 export function WaitRow({picked, size}) {
   return <WpoRow active={<SideWait side="active" ready={picked.A} size={size} />} reactive={<SideWait side="reactive" ready={picked.B} size={size} />} />;
 }
@@ -43,8 +46,13 @@ WaitRow.propTypes = {picked: PropTypes.object.isRequired, size: PropTypes.string
 
 // Desktop and tablet: the whole results panel in outline, so its shape is
 // there before the numbers are.
+/** @param {{picked: {A: boolean, B: boolean}}} props */
 export function WaitPanel({picked}) {
   const t = useT();
+  /**
+   * @param {string} side
+   * @param {string[]} labels
+   */
   const rows = (side, labels) => labels.map((l) => (
     <div key={`${side}${l}`} className="skel-row"><span>{l}</span><span className="skel" /><span>—%</span></div>
   ));

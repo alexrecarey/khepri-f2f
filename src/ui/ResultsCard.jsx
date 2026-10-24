@@ -30,6 +30,11 @@ import {useT} from './i18n.jsx';
 // sheet is dragged.
 // Open, with a chart to show (pick), each bar is the switch for its own
 // breakdown below (ResultBars).
+/**
+ * @param {{s: import('../types.js').Summary | null, h: import('../types.js').Headline | null, choice: import('../types.js').HeadlineChoice, classic?: boolean,
+ *   pending?: boolean, status?: string, wait: {A: boolean, B: boolean} | null, ui: import('./WoundStates.jsx').StatesUi | null,
+ *   view: import('./ResultBars.jsx').BreakdownView, onView: (view: import('./ResultBars.jsx').BreakdownView) => void, pick: boolean}} props
+ */
 function SheetTop({s, h, choice, classic, pending, status, wait, ui, view, onView, pick}) {
   const t = useT();
   if (wait) {
@@ -41,15 +46,16 @@ function SheetTop({s, h, choice, classic, pending, status, wait, ui, view, onVie
       </>
     );
   }
-  if (s?.unopposed) return <UnopposedCardBody s={s} h={h} choice={choice} />;
+  // A summary comes with its headline.
+  if (s?.unopposed) return <UnopposedCardBody s={/** @type {import('./Unopposed.jsx').UnopposedSummary} */ (s)} h={/** @type {import('../types.js').Headline} */ (h)} choice={choice} />;
   if (!s && pending) return <EngineLoading label={status} />;
   return (
     <>
       {h ? <Headline h={h} choice={choice} pending={pending} />
         : <WpoRow active={<span className="big c-active">—</span>} reactive={<span className="big c-reactive">—</span>} />}
       <PickBars view={view} onView={onView} pick={Boolean(pick && ui)}
-        f2fBar={s && (!classic || h.kind === 'win') ? <F2FBar s={s} className="rs-f2f" /> : null}
-        woundBar={s?.states ? <StateBar s={s} ui={ui} className="rs-wbar" />
+        f2fBar={s && (!classic || /** @type {import('../types.js').Headline} */ (h).kind === 'win') ? <F2FBar s={s} className="rs-f2f" /> : null}
+        woundBar={s?.states ? <StateBar s={/** @type {import('./WoundStates.jsx').StatesSummary} */ (s)} ui={ui} className="rs-wbar" />
           : s ? <WoundBar summary={s} grow labels={classic} /> : <div className="bar rs-wbar blank" />} />
       <div className="split">
         {h ? <><span>{h.small[0]}</span><span>{h.small[1]}</span></> : <span>{status}</span>}
@@ -67,6 +73,7 @@ SheetTop.propTypes = {
 // card) and opens to the full results. Swipe it up or down (it follows the
 // finger) or tap the top to open, outside to close (useSheetGestures.js).
 // Swipe the top sideways (or arrow keys on it) for the next headline.
+/** @param {import('../types.js').ResultsProps} props */
 export default function ResultsCard({s, status, diceLine, classic, ledger, save, pending, picked, params}) {
   const t = useT();
   const ui = useStatesUi();
@@ -75,11 +82,13 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
   // Closing the sheet goes back to the wounds.
   const [view, setView] = useBreakdownView(!open);
   const showF2F = view === 'f2f' && Boolean(b);
+  /** @param {boolean} o */
   const setOpen = (o) => dispatch(o ? {type: 'openOverlay', overlay: 'results'} : {type: 'back'});
   const g = useSheetGestures({open, canOpen: Boolean(s), onOpen: () => setOpen(true), onClose: () => setOpen(false),
     onSwipeX: s ? swipe : null, measureKey: [s?.wpo.active, s?.wpo.reactive, s?.unopposed, classic, status, h?.kind].join('|')});
   useEffect(() => {
     if (!open) return undefined;
+    /** @param {KeyboardEvent} e */
     const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -112,11 +121,11 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
         {/* Below the top: only there for screen readers and keys while open. */}
         <div className={`rs-rest${showF2F ? ' f2f-view' : ''}`} {...(open ? {} : {inert: '', 'aria-hidden': true})}>
           {s && (s.unopposed
-            ? <UnopposedSheetBody s={s} names={ledger?.names ?? {A: t('side.active'), B: t('side.reactive')}} diceLine={diceLine} />
+            ? <UnopposedSheetBody s={/** @type {import('./Unopposed.jsx').UnopposedSummary} */ (s)} names={ledger?.names ?? {A: t('side.active'), B: t('side.reactive')}} diceLine={diceLine} />
             : classic ? <ClassicBody s={s} woundBar={false} />
               : <>
-                {s.states && <StateBar s={s} ui={ui} glyphs="only" />}
-                {showF2F ? <FaceToFaceChart b={b} names={ledger.labels} /> : s.states ? <StateList s={s} ui={ui} /> : <Breakdown s={s} />}
+                {s.states && <StateBar s={/** @type {import('./WoundStates.jsx').StatesSummary} */ (s)} ui={ui} glyphs="only" />}
+                {showF2F ? <FaceToFaceChart b={/** @type {NonNullable<typeof b>} */ (b)} names={/** @type {NonNullable<typeof ledger>} */ (ledger).labels} /> : s.states ? <StateList s={/** @type {import('./WoundStates.jsx').StatesSummary} */ (s)} ui={ui} /> : <Breakdown s={s} />}
               </>)}
           {s && ledger && !s.unopposed && <div className="mods-sep" />}
           {s && ledger && <Ledger {...ledger} />}

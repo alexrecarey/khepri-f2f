@@ -7,8 +7,9 @@
 import {useState} from 'react';
 import PropTypes from 'prop-types';
 
+/** @param {{text: string, className?: string}} props */
 export default function SlideNumber({text, className = ''}) {
-  const [s, setS] = useState({text, old: null, dir: 'up', n: 0});
+  const [s, setS] = useState(/** @type {{text: string, old: string | null, dir: 'up' | 'down', n: number}} */ ({text, old: null, dir: 'up', n: 0}));
   if (s.text !== text) {
     // Percentages compare by their number; non-numbers ("—") have no
     // direction, they come in like a rise.

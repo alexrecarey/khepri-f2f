@@ -9,6 +9,11 @@ import {useT} from './i18n.jsx';
 // pending: a calculation is on its way, so the numbers on screen belong to the
 // previous setup; the button stays (disabled, so nothing jumps) but saves
 // nothing until it lands.
+/**
+ * @param {import('../types.js').RollSummary | null} summary
+ * @param {boolean} [pending]
+ * @returns {import('../types.js').SaveControl | null}
+ */
 export default function useSaveRoll(summary, pending = false) {
   const t = useT();
   const mode = useAppState((s) => s.mode);

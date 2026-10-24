@@ -9,7 +9,9 @@ const FOCUSABLE = 'button:not([disabled]):not([tabindex="-1"]), [href], input:no
 // runs, its opener has often lost it already (on phones the page hides the
 // screen behind; the results card stops being focusable as it opens), and
 // the dialog's own search box may have taken it.
+/** @type {EventTarget | null} */
 let last = null;
+/** @type {EventTarget | null} */
 let before = null;
 if (typeof document !== 'undefined') {
   document.addEventListener('focusin', (e) => {
@@ -19,14 +21,24 @@ if (typeof document !== 'undefined') {
   });
 }
 
+/**
+ * @param {unknown} x
+ * @param {HTMLElement} el
+ * @returns {x is HTMLElement}
+ */
 const usable = (x, el) => x instanceof HTMLElement && x !== document.body && x.isConnected && !el.contains(x);
 
 // returnTo (optional): what gets the focus back on close, when it isn't the
 // element that opened the dialog (the results card's top, inside the sheet).
+/**
+ * @param {import('react').RefObject<HTMLElement>} ref
+ * @param {boolean} [active]
+ * @param {(() => HTMLElement | null | undefined) | null} [returnTo]
+ */
 export default function useDialogFocus(ref, active = true, returnTo = null) {
   // Kept across React's development double run of effects (mount, cleanup,
   // mount): the second run would find the focus already inside.
-  const opener = useRef(null);
+  const opener = useRef(/** @type {HTMLElement | null} */ (null));
   const open = useRef(false);
   useEffect(() => {
     const el = ref.current;
@@ -34,7 +46,7 @@ export default function useDialogFocus(ref, active = true, returnTo = null) {
     open.current = true;
     opener.current ??= [document.activeElement, last, before].find((x) => usable(x, el)) ?? null;
     // Something inside already has it (the picker focuses its search box).
-    if (!el.contains(document.activeElement)) el.querySelector(FOCUSABLE)?.focus({preventScroll: true});
+    if (!el.contains(document.activeElement)) /** @type {HTMLElement | null} */ (el.querySelector(FOCUSABLE))?.focus({preventScroll: true});
     return () => {
       open.current = false;
       // After the other cleanups (the page unhides the screen behind), once

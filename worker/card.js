@@ -22,12 +22,16 @@ export const CARD_H = 630;
 const INK = '#e8e6e1', GREY = '#9a978f', BG = '#121212', ACTIVE = '#5fc4a0', REACTIVE = '#e59bc0';
 const CHAKRA = 'Chakra Petch', PLEX = 'IBM Plex Sans';
 
-const FONTS = [
+// wrangler's Data rule (wrangler.jsonc) bundles the fonts as bytes, where
+// vite/client's `*.ttf` declaration says a URL string: through unknown.
+/** @type {import('satori').Font[]} */
+const FONTS = /** @type {import('satori').Font[]} */ (/** @type {unknown} */ ([
   {name: CHAKRA, data: chakra600, weight: 600}, {name: CHAKRA, data: chakra700, weight: 700},
   {name: PLEX, data: plex400, weight: 400}, {name: PLEX, data: plex600, weight: 600},
-];
+]));
 
 // Both wasm modules start once per isolate; a failed start is retried next time.
+/** @type {Promise<unknown> | null} */
 let ready = null;
 const setup = () => (ready ??= Promise.all([initSatori(yoga), initWasm(resvgWasm)]).catch((e) => {
   ready = null;
@@ -35,11 +39,24 @@ const setup = () => (ready ??= Promise.all([initSatori(yoga), initWasm(resvgWasm
 }));
 
 // Satori wants every div to say how it lays out its children.
+/** A node of the card as satori lays it out: a div or an img with its style and children.
+ * @typedef {{type: string, props: Record<string, unknown>}} Node */
+
+/**
+ * @param {Record<string, unknown>} style
+ * @param {...(Node | string)} children
+ * @returns {Node}
+ */
 const div = (style, ...children) => ({type: 'div', props: {style: {display: 'flex', ...style}, children: children.length === 1 ? children[0] : children}});
 const oneLine = {overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 500};
 
 // The unit crest as a data URI, or null. resvg can't read WebP, so the few
 // crests R2 holds as WebP (scripts/crests) are left out, as are missing ones.
+/**
+ * @param {Env} env
+ * @param {string} slug
+ * @returns {Promise<string | null>}
+ */
 async function crestUri(env, slug) {
   if (!slug) return null;
   const object = await env.CRESTS.get(`${slug}.svg`);
@@ -51,6 +68,11 @@ async function crestUri(env, slug) {
 }
 
 // A crest at the card's edge in its own colours, fading toward the middle.
+/**
+ * @param {'left' | 'right'} edge
+ * @param {string | null} uri
+ * @returns {Node[]}
+ */
 function wing(edge, uri) {
   if (!uri) return [];
   return [
@@ -61,6 +83,11 @@ function wing(edge, uri) {
 }
 
 // One side: number, its label, unit, weapon and situation, flush toward the middle.
+/**
+ * @param {import('../src/share/card.js').CardSide} x
+ * @param {string} colour
+ * @param {boolean} towardRight
+ */
 function column(x, colour, towardRight) {
   return div({flexDirection: 'column', alignItems: towardRight ? 'flex-end' : 'flex-start', width: 500},
     div({fontFamily: CHAKRA, fontWeight: 700, fontSize: 150, lineHeight: 0.95, color: colour}, x.n),
@@ -70,6 +97,10 @@ function column(x, colour, towardRight) {
 }
 
 // card: decodeCard()'s result. Returns the PNG's bytes.
+/**
+ * @param {Env} env
+ * @param {import('../src/share/card.js').Card} card
+ */
 export async function renderCard(env, card) {
   await setup();
   const [crestA, crestB] = await Promise.all([crestUri(env, card.a.c), crestUri(env, card.b.c)]);
@@ -80,7 +111,8 @@ export async function renderCard(env, card) {
   div({flexGrow: 1, width: '100%', justifyContent: 'center', alignItems: 'center', gap: 72},
     column(card.a, ACTIVE, true), column(card.b, REACTIVE, false)),
   div({fontSize: 32, color: GREY}, footerLine(card)));
-  const svg = await satori(tree, {width: CARD_W, height: CARD_H, fonts: FONTS});
+  // satori takes the plain {type, props} tree React would build.
+  const svg = await satori(/** @type {import('react').ReactNode} */ (tree), {width: CARD_W, height: CARD_H, fonts: FONTS});
   return new Resvg(svg, {fitTo: {mode: 'width', value: CARD_W}}).render().asPng();
 }
 
@@ -94,6 +126,10 @@ const MARK = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/
 // from the edges and meet in it.
 export async function renderDefault() {
   await setup();
+  /**
+   * @param {'left' | 'right'} edge
+   * @param {string} colour
+   */
   const lane = (edge, colour) => div({position: 'absolute', top: 213, [edge]: 0, width: 500, height: 8, borderRadius: 4, background: colour});
   const tree = div({width: CARD_W, height: CARD_H, flexDirection: 'column', alignItems: 'center',
     padding: '92px 64px 64px', background: BG, color: INK, fontFamily: PLEX, position: 'relative'},
@@ -101,6 +137,6 @@ export async function renderDefault() {
   {type: 'img', props: {src: MARK, width: 250, height: 250}},
   div({fontFamily: CHAKRA, fontWeight: 700, fontSize: 64, letterSpacing: 7.68, lineHeight: 1, marginTop: 44}, 'INFINITY THE CALCULATOR'),
   div({fontSize: 36, color: GREY, marginTop: 22}, 'Face-to-face odds for Infinity N5'));
-  const svg = await satori(tree, {width: CARD_W, height: CARD_H, fonts: FONTS});
+  const svg = await satori(/** @type {import('react').ReactNode} */ (tree), {width: CARD_W, height: CARD_H, fonts: FONTS});
   return new Resvg(svg, {fitTo: {mode: 'width', value: CARD_W}}).render().asPng();
 }

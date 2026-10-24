@@ -10,11 +10,16 @@ import {useT} from '../i18n.jsx';
 
 // The loadout's weapons, the one the query matched first: several loadouts
 // often share their main weapon and only differ further down the list.
+/** @typedef {import('../../types.js').ProfileHit} ProfileHit */
+/** @typedef {import('../../types.js').Army} Army */
+
+/** @param {ProfileHit} hit */
 function weaponList(hit) {
   const rest = hit.weapons.filter((w) => w !== hit.weapon);
   return [hit.weapon, ...rest].filter(Boolean).join(', ');
 }
 
+/** @param {{hit: ProfileHit, onPick: (hit: ProfileHit) => void, first?: boolean, color: string, army: Army | null}} props */
 export function ProfileRow({hit, onPick, first, color, army}) {
   const t = useT();
   const extra = extraLoadoutName(hit.loadout, hit.unit) ?? loadoutTag(army, hit);
@@ -35,6 +40,7 @@ ProfileRow.propTypes = {
 
 // A loadout on its unit's page: the unit name is the page title, so just the
 // weapons (and any loadout name), with the points on the right.
+/** @param {{hit: ProfileHit, onPick: (hit: ProfileHit) => void, color: string, army: Army | null}} props */
 export function LoadoutRow({hit, onPick, color, army}) {
   const extra = extraLoadoutName(hit.loadout, hit.unit) ?? loadoutTag(army, hit);
   return (
@@ -47,6 +53,7 @@ export function LoadoutRow({hit, onPick, color, army}) {
 
 LoadoutRow.propTypes = {hit: PropTypes.object.isRequired, onPick: PropTypes.func.isRequired, color: PropTypes.string.isRequired, army: PropTypes.object};
 
+/** @param {{u: import('../../types.js').UnitHit, onOpen: (u: import('../../types.js').UnitHit) => void}} props */
 export function UnitRow({u, onOpen}) {
   return (
     <button type="button" className="line-btn" onClick={() => onOpen(u)}>

@@ -13,14 +13,27 @@ import WeaponButtons from './WeaponButtons.jsx';
 import {Rich, useT} from './i18n.jsx';
 
 // "ACTIVE" / "REACTIVE" over a card, in t's language.
+/** @typedef {import('../types.js').Side} Side */
+/** @typedef {import('../types.js').ProfileHit} ProfileHit */
+
+/**
+ * "ACTIVE" / "REACTIVE" over a card, in t's language.
+ * @param {import('../types.js').Translator} t
+ * @param {Side} side
+ */
 export const sideLabel = (t, side) => t(`side.${ROLE[side]}`).toLocaleUpperCase(t.lang);
 
+/**
+ * @param {Side} side
+ * @param {Partial<import('../types.js').Selection>} p
+ */
 const patch = (side, p) => dispatch({type: 'patchSide', side, patch: p});
 
 // A side with no trooper yet: a tall slot with the site mark, one call to
 // action and the latest recent picks as one-tap chips. A slow plasma tint
 // behind it draws the eye to what is still missing. Tapping anywhere on the
 // card opens the search (the button covers the card, app.css).
+/** @param {{side: Side, recents: ProfileHit[], onOpenPicker: () => void, onPick: (hit: ProfileHit) => void, hint?: boolean}} props */
 export function EmptySlot({side, recents, onOpenPicker, onPick, hint}) {
   const t = useT();
   const color = ROLE[side];
@@ -49,11 +62,13 @@ EmptySlot.propTypes = {
   onOpenPicker: PropTypes.func.isRequired, onPick: PropTypes.func.isRequired, hint: PropTypes.bool,
 };
 
+/** @param {{side: Side, view: import('../types.js').MatchupView, onOpenPicker: () => void, onUpgrade: (pick: {upgrade?: number | null, ball?: number | null}) => void}} props */
 export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
   const t = useT();
   const color = ROLE[side];
+  // A side card is drawn for a picked trooper (MatchupScreen).
   const {sel, resolved, groups, cc, ccAllies, ccAlliesMax, noCover, coverOn, hacked, firewallRequired, fireteamChip, targetedChip, hackedChip, immAChip, surprise,
-    berserk, teamOps, faction, crest, short, loadout} = view[side];
+    berserk, teamOps, faction, crest, short, loadout} = /** @type {import('../types.js').SideView & {resolved: import('../types.js').ResolvedSide}} */ (view[side]);
   const unit = resolved?.unit;
   const option = resolved?.option;
 
@@ -136,7 +151,7 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
           )}
         </div>
       )}
-      {resolved?.unsupportedUpgradeWeapons?.length > 0 && (
+      {/** @type {number} */ (resolved?.unsupportedUpgradeWeapons?.length) > 0 && (
         <span className="note">{t('side.notRolled', {weapons: resolved.unsupportedUpgradeWeapons.join(', ')})}</span>
       )}
     </section>
