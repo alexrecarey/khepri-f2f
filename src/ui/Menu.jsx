@@ -11,12 +11,17 @@ import {Sheet} from './Sheet.jsx';
 import {useT} from './i18n.jsx';
 
 const back = () => dispatch({type: 'back'});
+/** @param {NonNullable<import('../types.js').UiState['overlay']>} overlay */
 const open = (overlay) => dispatch({type: 'openOverlay', overlay});
 
 export function Menu() {
   const t = useT();
   const mode = useAppState((s) => s.mode);
   const savedCount = useAppState((s) => s.lists.saved.length);
+  /**
+   * @param {string} m
+   * @param {string} text
+   */
   const item = (m, text) => (
     <button type="button" className="menu-item" onClick={() => dispatch({type: 'setMode', mode: m})} aria-pressed={mode === m}>
       <span className="dot">{mode === m ? '●' : '○'}</span>

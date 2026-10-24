@@ -109,8 +109,7 @@ export function summarize(result, targets = null) {
   /** @param {Player} player */
   const won = (player) => sum(ftf.filter((r) => r.player === player));
   // `none` is the remainder, set once both are known.
-  /** @type {import('../types.js').Summary['win']} */
-  const win = {active: won('active'), reactive: won('reactive'), none: 0};
+  const win = /** @type {import('../types.js').Summary['win']} */ ({active: won('active'), reactive: won('reactive')});
   win.none = Math.max(0, 1 - win.active - win.reactive);
 
   /** @type {import('../types.js').BarSegment[]} */

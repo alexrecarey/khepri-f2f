@@ -24,14 +24,15 @@ import {sideLabel} from '../SideCard.jsx';
 
 const back = () => dispatch({type: 'back'});
 
+/** @param {{searcher: import('../../types.js').Searcher | null, army: import('../../types.js').Army | null, loadError?: (() => void) | null}} props */
 export default function DeskPicker({searcher, army, loadError}) {
   const t = useT();
   const m = useDeskPicker({searcher, army});
   const {side, color, query, scope, sides, all, chips, current, at, pane, lat, loadouts} = m;
   // The highlighted option, in whichever pane has the arrow keys.
   const active = pane === 'loadouts' && loadouts[lat] ? `dp-lo-${lat}` : current ? `dp-row-${at}` : undefined;
-  const inputRef = useRef(null);
-  const dialogRef = useRef(null);
+  const inputRef = useRef(/** @type {HTMLInputElement | null} */ (null));
+  const dialogRef = useRef(/** @type {HTMLDivElement | null} */ (null));
   useEffect(() => { inputRef.current?.focus(); }, [side]);
   useDialogFocus(dialogRef);
   const onKey = deskKeyHandler(m);
@@ -42,7 +43,7 @@ export default function DeskPicker({searcher, army, loadError}) {
       <div ref={dialogRef} className="desk-picker" role="dialog" aria-modal="true" aria-label={t('side.trooper', {side: t(`side.${color}`)})}>
         <div className="dp-top">
           <span className="dp-sides" role="group" aria-label={t('picker.side')}>
-            {['A', 'B'].map((s) => (
+            {/** @type {import('../../types.js').Side[]} */ (['A', 'B']).map((s) => (
               <button type="button" key={s} className={`${s === side ? `on ${ROLE[s]}` : ''}`} aria-pressed={s === side}
                 onClick={() => s !== side && dispatch(pickerSide(army, getState(), s))}>
                 {sideLabel(t, s)}

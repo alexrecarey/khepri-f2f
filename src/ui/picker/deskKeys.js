@@ -9,6 +9,10 @@ import {setCursor} from './useDeskPicker.js';
 const back = () => dispatch({type: 'back'});
 
 // The search box's onKeyDown. m: useDeskPicker()
+/**
+ * @param {import('./useDeskPicker.js').DeskPickerModel} m
+ * @returns {(e: import('react').KeyboardEvent<HTMLInputElement>) => void}
+ */
 export default function deskKeyHandler(m) {
   const {pane, loadouts, lat, current, rows, at, unitId, query, bestAt, otherSet, army, otherSide} = m;
   return (e) => {

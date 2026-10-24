@@ -16,7 +16,9 @@ const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce
 
 // Swap: each trooper's card content moves to the other card, so slide each
 // card in from where its trooper was (FLIP), along a slight arc.
+/** @param {() => void} run */
 function flipSwap(run) {
+  /** @param {string} s */
   const card = (s) => document.querySelector(`.card[data-side="${s}"]`);
   const A = card('A');
   const B = card('B');
@@ -24,7 +26,7 @@ function flipSwap(run) {
   const from = {A: B.getBoundingClientRect(), B: A.getBoundingClientRect()};
   run();
   requestAnimationFrame(() => {
-    for (const [el, f] of [[A, from.A], [B, from.B]]) {
+    for (const [el, f] of /** @type {[Element, DOMRect][]} */ ([[A, from.A], [B, from.B]])) {
       const to = el.getBoundingClientRect();
       const dx = f.left - to.left;
       const dy = f.top - to.top;
@@ -38,6 +40,10 @@ function flipSwap(run) {
 }
 
 // "Missile Launcher (Hit)", "Dodge": what the footer's Range MOD belongs to.
+/**
+ * @param {import('../types.js').SideView} side
+ * @param {import('../types.js').Translator} t
+ */
 const weaponName = (side, t) => {
   const w = side.resolved?.weapon;
   if (!w) return '—';
@@ -45,8 +51,13 @@ const weaponName = (side, t) => {
   return weaponText(w, t);
 };
 
+/** @param {number} cm */
 const bandIndex = (cm) => Math.max(0, RANGE_BANDS.findIndex((b) => b.to === cm));
 // "24–32"" ("60–80 cm") for a band index.
+/**
+ * @param {number} i
+ * @param {import('../types.js').Translator} t
+ */
 const span = (i, t) => t('dist.value', {n: `${t.distance(bandFrom(i))}–${t.distance(RANGE_BANDS[i].to)}`});
 
 // The distance. Closed: one slim row of bands. Tapping a band picks it
@@ -56,22 +67,25 @@ const span = (i, t) => t('dist.value', {n: `${t.distance(bandFrom(i))}–${t.dis
 // closed. Lines of fire are reciprocal, so both sides usually share the
 // distance; Split range gives each its own (RangeScale), as when the reactive
 // answers from somewhere else.
+/** @param {{view: import('../types.js').MatchupView}} props */
 export default function RangeSelector({view}) {
   const t = useT();
   const open = useAppState((st) => st.ui.rangeOpen);
   const rangeCm = useAppState((st) => st.matchup.rangeCm);
   const rangeCmB = useAppState((st) => st.matchup.rangeCmB ?? null);
   const split = rangeCmB != null;
+  /** @param {boolean} o */
   const setOpen = (o) => dispatch({type: 'setRangeOpen', open: o});
   // Open, Escape closes it like a tap outside.
   useEffect(() => {
     if (!open) return undefined;
+    /** @param {KeyboardEvent} e */
     const onKey = (e) => { if (e.key === 'Escape') dispatch({type: 'setRangeOpen', open: false}); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
   const selected = bandIndex(rangeCm);
-  const selB = split ? bandIndex(rangeCmB) : selected;
+  const selB = split ? bandIndex(/** @type {number} */ (rangeCmB)) : selected;
   // Range MODs per band (matchupView bands): undefined = no range bands.
   const modA = view.bands[selected].A;
   const modB = view.bands[selB].B;

@@ -163,7 +163,7 @@
  *   lang: string,
  *   has: (key: string) => boolean,
  *   term: (table: string, token: string, scope?: string | number) => string,
- *   withTerms: (terms: Terms | null) => Translator,
+ *   withTerms: (terms: Terms | null | undefined) => Translator,
  *   distance: (cm: number) => number,
  *   inchText: (text: string) => string,
  * }} Translator
@@ -273,7 +273,7 @@
  * @typedef {{kind: 'dodge', key: 'dodge' | 'bangbomb', bangbomb?: true, zeroPain?: undefined}
  *   | {kind: 'reset', key: 'reset' | 'zeroPain', zeroPain?: true, bangbomb?: undefined}
  *   | {kind: 'none', key: 'none', bangbomb?: undefined, zeroPain?: undefined}} PseudoKind
- * @typedef {PseudoKind & {row?: undefined, mods?: undefined, name?: undefined, id?: undefined, mode?: undefined}} PseudoEntry
+ * @typedef {PseudoKind & {row?: undefined, mods?: undefined, name?: undefined, id?: undefined, mode?: undefined, zoc?: undefined}} PseudoEntry
  */
 
 /** Anything a side can pick: a weapon or a pseudo-weapon (army/weapons.js isPseudo tells them apart).
@@ -783,7 +783,7 @@
  * The player's preferences, persisted on this device (state/storage.js).
  * @typedef {object} Prefs
  * @property {HeadlineChoice} [headline] the results card's big number (state/headlines.js)
- * @property {string} [language] the language picked in Settings (state/language.js)
+ * @property {string | null} [language] the language picked in Settings (state/language.js); null: automatic
  * @property {{A?: number | null, B?: number | null}} [startFaction] the faction each side's picker opens on
  */
 
@@ -947,6 +947,31 @@
  * every Message rendered, and the ledger built with its notes. `derived` is
  * the core's own (descriptors): nothing on screen reads it directly.
  * @typedef {Omit<MatchupCore, 'ledger'> & {ledger: (LedgerHeader & {ledger: Ledger, notes: string[]}) | null}} MatchupView
+ */
+
+// ---- The screens (src/ui) ----
+
+/** Which layout the viewport gets (ui/useLayout.js).
+ * @typedef {'phone' | 'tablet' | 'landscape' | 'desktop' | 'wide'} Layout */
+
+/** The Save button (ui/useSaveRoll.js): whether this setup is saved, whether a result is still on its way, and the toggle.
+ * @typedef {{saved: boolean, pending: boolean, toggle: () => void}} SaveControl */
+
+/** The engine as the screens see it (engine/useEngine.js).
+ * @typedef {{result: EngineResult | null, status: {key: string, params?: Record<string, unknown>}, pending: boolean}} EngineHook */
+
+/**
+ * What both results views take (ui/ResultsCard.jsx, ui/ResultsPanel.jsx).
+ * @typedef {object} ResultsProps
+ * @property {Summary | null} s results/summary.js summarize() of the engine's result, or null before there is one
+ * @property {string} [status]
+ * @property {{active: string, reactive: string} | null} [diceLine] matchup only
+ * @property {boolean} [classic]
+ * @property {MatchupView['ledger']} [ledger] matchup only
+ * @property {SaveControl | null} [save] null hides the Save button
+ * @property {boolean} [pending] a new result is on its way
+ * @property {{A: boolean, B: boolean} | null} [picked] which sides have a trooper; matchup only
+ * @property {Params | null} [params] the engine params: who is dodging, for the headline's label
  */
 
 export {};

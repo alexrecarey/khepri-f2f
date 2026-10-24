@@ -11,11 +11,31 @@ import {useT} from './i18n.jsx';
 // Weapon button text: the short name and fire mode, "Missile L. (Blast)". The
 // full stat line (B, PS, ammo) belongs to the results, not to a button. The
 // mode in t's language: the army's own translation, without the word for mode.
+/** @typedef {import('../types.js').WeaponEntry} WeaponEntry */
+/** @typedef {import('../types.js').Translator} Translator */
+
+/**
+ * @param {WeaponEntry} w
+ * @param {Translator} t
+ */
 const modeText = (w, t) => (w.mode ? ` (${t.term('modes', w.mode, w.id).replace(/ Mode$|^Modo /i, '')})` : '');
+/**
+ * @param {WeaponEntry} w
+ * @param {Translator} t
+ */
 export const weaponText = (w, t) => `${shortWeaponName(w.name, t.lang)}${modeText(w, t)}`;
+/**
+ * @param {WeaponEntry} w
+ * @param {Translator} t
+ */
 const weaponTitle = (w, t) => `${w.name}${modeText(w, t)}`;
+/**
+ * @param {import('../types.js').Side} side
+ * @param {import('../types.js').Choice} w
+ */
 const pick = (side, w) => dispatch({type: 'pickWeapon', side, key: w.key, kind: w.kind, zoc: Boolean(w.zoc)});
 
+/** @param {{side: import('../types.js').Side, groups: import('../types.js').WeaponGroup[], selected: string | null, color: string}} props */
 export default function WeaponButtons({side, groups, selected, color}) {
   const t = useT();
   return (
@@ -26,14 +46,15 @@ export default function WeaponButtons({side, groups, selected, color}) {
         // other modes outlined.
         <span key={g.key} className={`btn-group ${color}${g.modes.some((w) => w.key === selected) ? ' on' : ''}`}
           role="group" aria-label={shortWeaponName(g.name, t.lang)}>
-          <button type="button" className="g-name" title={`${g.name}: ${g.labels.get(g.modes[0].key)}`}
-            aria-pressed={g.modes.some((w) => w.key === selected)} onClick={() => pick(side, g.modes[0])}>
+          {/* A group with modes has their labels, rendered (renderMatchup). */}
+          <button type="button" className="g-name" title={`${g.name}: ${/** @type {Map<string, string>} */ (g.labels).get(g.modes[0].key)}`}
+            aria-pressed={g.modes.some((w) => w.key === selected)} onClick={() => pick(side, /** @type {WeaponEntry[]} */ (g.modes)[0])}>
             {shortWeaponName(g.name, t.lang)}
           </button>
-          {g.modes.map((w) => (
+          {/** @type {WeaponEntry[]} */ (g.modes).map((w) => (
             <button type="button" key={w.key} className={`g-mode${selected === w.key ? ' on' : ''}`}
               aria-pressed={selected === w.key} title={weaponTitle(w, t)} onClick={() => pick(side, w)}>
-              {g.labels.get(w.key)}
+              {/** @type {Map<string, string>} */ (g.labels).get(w.key)}
             </button>
           ))}
         </span>

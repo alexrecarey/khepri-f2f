@@ -31,6 +31,6 @@ export const browserLanguages = () =>
 
 // What Settings shows: 'auto' unless a language was picked.
 /** @param {import('../types.js').Prefs | null | undefined} prefs */
-export const languageChoice = (prefs) => (/** @type {string} */ (prefs?.language) in LANGUAGES ? /** @type {string} */ (prefs?.language) : AUTO);
+export const languageChoice = (prefs) => (/** @type {string} */ (prefs?.language) in LANGUAGES ? /** @type {string} */ (/** @type {import('../types.js').Prefs} */ (prefs).language) : AUTO);
 
 export const useLanguage = () => useAppState((s) => resolveLanguage(s.prefs.language, browserLanguages()));

@@ -14,11 +14,15 @@ import {loadoutTag} from '../../state/pickerView.js';
 import {setCursor} from './useDeskPicker.js';
 
 // A profile's stats, each label over its value.
+/** @typedef {import('./useDeskPicker.js').DeskPickerModel} DeskPickerModel */
+
+/** @param {{stats: [string, number | number[]][]}} props */
 function Stats({stats}) {
   const t = useT();
   return (
     <div className="dp-stats">
-      {stats.map(([k, v]) => <span key={k}><small>{t(`stat.${k.toLowerCase()}`)}</small><b>{k === 'MOV' ? v.map((cm) => t.distance(cm)).join('-') : v}</b></span>)}
+      {/* MOV is the pair of values (profileStats). */}
+      {stats.map(([k, v]) => <span key={k}><small>{t(`stat.${k.toLowerCase()}`)}</small><b>{k === 'MOV' ? /** @type {number[]} */ (v).map((cm) => t.distance(cm)).join('-') : v}</b></span>)}
     </div>
   );
 }
@@ -29,9 +33,11 @@ Stats.propTypes = {stats: PropTypes.array.isRequired};
 // section per group with its own name, type, stats and skills, then its
 // loadouts. The section names the profile, so a loadout's tag is its skills
 // (canvas, "Picker — a unit with several profiles", desktop).
+/** @param {{m: DeskPickerModel, lit: number}} props */
 function ProfileSections({m, lit}) {
   const t = useT();
-  const {army, pgroups, color, pick} = m;
+  // Drawn for a unit with several profile groups.
+  const {army, pgroups, color, pick} = /** @type {DeskPickerModel & {pgroups: NonNullable<DeskPickerModel['pgroups']>}} */ (m);
   let start = 0;
   return pgroups.map((g) => {
     const first = start;
@@ -55,9 +61,12 @@ function ProfileSections({m, lit}) {
 ProfileSections.propTypes = {m: PropTypes.object.isRequired, lit: PropTypes.number.isRequired};
 
 // The unit: name, profile tabs, stats, skills, loadouts and the Use buttons.
+/** @param {{m: DeskPickerModel}} props */
 function UnitPane({m}) {
   const t = useT();
-  const {army, detail, profile, factionName, factionId, loadouts, pgroups, pane, lat, best, bestAt, color, pick, withProfile, hitFor, otherSet, otherName} = m;
+  // Drawn for a highlighted unit (DeskDetail checks both).
+  const {army, detail, profile, factionName, factionId, loadouts, pgroups, pane, lat, best, bestAt, color, pick, withProfile, hitFor, otherSet, otherName} =
+    /** @type {DeskPickerModel & {detail: NonNullable<DeskPickerModel['detail']>, profile: NonNullable<DeskPickerModel['profile']>}} */ (m);
   // The loadout Enter picks is the lit one: the keyboard's in the loadouts
   // pane, else the one the search matched ("fus ml") on a unit row.
   const lit = pane === 'loadouts' ? lat : best ? bestAt : -1;
@@ -119,6 +128,7 @@ function UnitPane({m}) {
 UnitPane.propTypes = {m: PropTypes.object.isRequired};
 
 // Before typing, with no faction: every faction to browse.
+/** @param {{searcher: import('../../types.js').Searcher | null}} props */
 function FactionTiles({searcher}) {
   const t = useT();
   return (
@@ -128,7 +138,7 @@ function FactionTiles({searcher}) {
         {(searcher?.factions ?? []).map((f) => (
           <button type="button" key={f.id} className="tile faction" onClick={() => dispatch({type: 'pickerScope', scope: f.id})}>
             <FactionLogo id={f.id} size={40} />
-            <span>{f.name}</span><span className="r">{searcher.unitCount(f.id)}</span>
+            <span>{f.name}</span><span className="r">{/** @type {import('../../types.js').Searcher} */ (searcher).unitCount(f.id)}</span>
           </button>
         ))}
       </div>
@@ -140,9 +150,11 @@ function FactionTiles({searcher}) {
 FactionTiles.propTypes = {searcher: PropTypes.object};
 
 // Before typing, in a faction: its unit types.
+/** @param {{m: DeskPickerModel}} props */
 function TypeTiles({m}) {
   const t = useT();
-  const {searcher, scope, browse, factionName} = m;
+  // Tiles are drawn once the searcher has loaded (browse set).
+  const {searcher, scope, browse, factionName} = /** @type {DeskPickerModel & {searcher: import('../../types.js').Searcher}} */ (m);
   return (
     <>
       <div className="dp-unit">
@@ -168,6 +180,7 @@ function TypeTiles({m}) {
 TypeTiles.propTypes = {m: PropTypes.object.isRequired};
 
 // m: useDeskPicker()
+/** @param {{m: DeskPickerModel}} props */
 export default function DeskDetail({m}) {
   const t = useT();
   const {detail, profile, browsing, rows, scope, searcher} = m;

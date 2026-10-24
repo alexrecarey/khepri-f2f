@@ -17,14 +17,22 @@ import {summarize} from '../src/results/summary.js';
 
 // The card for search ("?mode=..") given the army data and the engine's
 // calculate, or null when it isn't a complete matchup.
+/**
+ * @param {string} search
+ * @param {import('../src/types.js').Army} army
+ * @param {import('../src/types.js').RunEngine} engine
+ * @returns {import('../src/share/card.js').Card | null}
+ */
 export function cardFromSetup(search, army, engine) {
   const {mode, matchup} = stateFromUrl(search);
   if (mode !== MODES.matchup || !matchup) return null;
   const view = matchupView(army, {...NO_ZONES, ...matchup});
   if (!view.complete) return null;
-  const s = summarize(calculate(view.params, engine), view.targets);
+  // A complete matchup has its params.
+  const s = summarize(calculate(/** @type {import('../src/types.js').Params} */ (view.params), engine), view.targets);
   // The headline the sender saw (the address carries it), else the default.
-  const asked = new URLSearchParams(search).get(HEADLINE_PARAM);
+  // A null or unknown value isn't a choice.
+  const asked = /** @type {import('../src/types.js').HeadlineChoice} */ (new URLSearchParams(search).get(HEADLINE_PARAM));
   const choice = HEADLINES.includes(asked) ? asked : LINK_HEADLINE;
   return s && matchupShareCard(view, headline(s, choice, view.params, view.ledger?.ledger));
 }

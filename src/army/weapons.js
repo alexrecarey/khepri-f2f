@@ -52,7 +52,8 @@ export const isImpactTemplate = (row) => (row?.props ?? []).some((p) => p.starts
 // PARA (no PS; save.mod is the MOD to the PH roll).
 /** @param {MaybeRow} row */
 export const isCcWeapon = (row) => (row?.props ?? []).some((p) => p === 'CC' || p.startsWith('CC Attack ('))
-  && (row?.save?.attr === 'ARM' || row?.save?.attr === 'BTS' || row?.save?.attr === 'PH');
+  // With a CC property there is a row.
+  && (/** @type {WeaponRow} */ (row).save?.attr === 'ARM' || /** @type {WeaponRow} */ (row).save?.attr === 'BTS' || /** @type {WeaponRow} */ (row).save?.attr === 'PH');
 
 // Comms Attack (wiki, Labels): evaded with Reset, not Dodge; Partial Cover
 // has no effect on it.

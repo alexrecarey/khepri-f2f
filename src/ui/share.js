@@ -5,6 +5,7 @@
 import {dispatch} from '../state/store.js';
 
 // t: the toast's language (src/i18n).
+/** @param {import('../types.js').Translator} t */
 export async function shareLink(t) {
   try {
     await navigator.clipboard.writeText(window.location.href);

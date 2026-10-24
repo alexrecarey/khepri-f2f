@@ -9,18 +9,24 @@ import {dispatch} from '../state/store.js';
 import {ZoneIcon} from './icons.jsx';
 import {useT} from './i18n.jsx';
 
+/** @param {number} n */
 const signed = (n) => `${n > 0 ? '+' : ''}${n}`;
 
 // " · smoke −6", " · smoke 0 (MSV2)", " · no LoF": what the zones do to one
 // side's attack (matchupView vis), after its Range MOD.
+/**
+ * @param {import('../types.js').VisSide} v rendered (renderMatchup): its labels are strings
+ * @param {import('../types.js').Translator} t
+ */
 export function zoneText(v, t) {
   if (v.blocked) return ` · ${t('range.noLof')}`;
   return v.lines.map((l) => {
     const name = render(t, zoneName(l.zone)).toLocaleLowerCase(t.lang);
-    return l.ignoredBy ? ` · ${name} 0 (${l.ignoredBy})` : ` · ${name} ${signed(l.value)}`;
+    return l.ignoredBy ? ` · ${name} 0 (${/** @type {string} */ (l.ignoredBy)})` : ` · ${name} ${signed(l.value)}`;
   }).join('');
 }
 
+/** @param {{zones: import('../types.js').Zones, open: boolean}} props */
 export function ZoneChips({zones, open}) {
   const t = useT();
   return (
@@ -39,6 +45,7 @@ ZoneChips.propTypes = {zones: PropTypes.object.isRequired, open: PropTypes.bool}
 
 // The slot: the icons of the zones that are on, or a faint cloud when none
 // is (so the feature can be found); a tap opens or closes the selector.
+/** @param {{zones: import('../types.js').Zones, open: boolean}} props */
 export function ZoneMarks({zones, open}) {
   const t = useT();
   const on = ZONES.filter((z) => zones[z]);
