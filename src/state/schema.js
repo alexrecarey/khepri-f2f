@@ -8,7 +8,8 @@
 //   ui                       ephemeral: overlays, open selectors, picker stack
 import * as v from 'valibot';
 import {DEFAULT_PARAMS} from '../engine/params.js';
-import {intFrom, intIn, textUpTo} from '../lib/parse.js';
+import {arrayOf, intFrom, intIn, textUpTo} from '../lib/parse.js';
+import {DEFAULT_HEADLINE, HEADLINES} from '../results/headline.js';
 import {CC_ALLIES_MAX} from '../rules/closeCombat.js';
 import {FIRETEAM_MAX, HACKED_RESET_MODS} from '../rules/modifiers.js';
 import {RANGE_BANDS} from '../rules/ranges.js';
@@ -16,6 +17,9 @@ import {FIREWALL_CHIPS} from '../rules/trooper.js';
 import {MODES} from './modes.js';
 
 export const STATE_VERSION = 1;
+
+/** @type {import('../types.js').Side[]} */
+const SIDES = ['A', 'B'];
 
 // The two sides: A is the active trooper, B the reactive one.
 /** @type {Record<import('../types.js').Side, 'active' | 'reactive'>} */
@@ -124,6 +128,10 @@ export const MatchupSchema = v.object({
   whiteNoise: v.fallback(v.boolean(), NO_ZONES.whiteNoise),
 });
 
+// An empty matchup: initialState's, and what a saved setup that isn't an
+// object at all loads as (rolls.js normalizeSetup).
+export const emptyMatchup = () => ({A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}, rangeCm: DEFAULT_RANGE_CM, rangeCmB: null, ...NO_ZONES});
+
 export const MAX_RECENTS = 8; // per side
 
 // The recents for one side, newest first. Untagged (older) entries belong to both.
@@ -133,6 +141,80 @@ export const MAX_RECENTS = 8; // per side
  */
 export const recentsFor = (recents, side) => recents.filter((r) => r.side == null || r.side === side);
 export const MAX_RECENT_FACTIONS = 3;
+
+// ---- What this device keeps (storage.js), as stored data is read back ----
+
+// The results card's big number (headlines.js): a choice, else the default.
+export const HeadlineSchema = v.fallback(v.picklist(HEADLINES), DEFAULT_HEADLINE);
+// A vanilla faction id; null for All (scopes) or the last one used (startFaction).
+const factionOrNull = v.optional(v.fallback(v.nullable(intFrom(1)), null));
+
+// The player's preferences (types.js Prefs): each one optional, a bad one
+// read as never chosen.
+export const PrefsSchema = v.object({
+  headline: v.optional(HeadlineSchema),
+  // the language picked in Settings (language.js); null: automatic
+  language: v.optional(v.fallback(v.nullable(v.string()), null)),
+  // the faction each side's picker opens on
+  startFaction: v.optional(v.fallback(v.object({A: factionOrNull, B: factionOrNull}), {})),
+});
+
+// A trooper picked before (types.js Recent): stable army ids plus the side
+// it was picked for; entries saved before the tag have no side. One that
+// lacks an id can't be found again and is dropped.
+export const RecentSchema = v.object({
+  unitId: intFrom(1),
+  groupId: intFrom(1),
+  optionId: intFrom(1),
+  armyFactionId: intFrom(1),
+  side: v.optional(v.picklist(SIDES)),
+});
+
+const text = v.fallback(v.string(), '');
+// What a saved roll's row shows (types.js RollSummary, rolls.js): a missing
+// line shows as nothing.
+export const RollSummarySchema = v.object({
+  a: text,                                   // "Squalos · HMG" (Matchup) or "Active" (Classic)
+  r: text,
+  ad: text,                                  // "B4 SV15 PS7"
+  rd: text,
+  setup: text,                               // '24-32" · Cover · Fireteam 5'
+  ap: text,                                  // chance each side wins (or, not face to face, causes a wound)
+  rp: text,
+  au: v.optional(v.string()),                // unit and weapon apart (Matchup)
+  aw: v.optional(v.string()),
+  ru: v.optional(v.string()),
+  rw: v.optional(v.string()),
+  ca: v.optional(v.nullable(v.string())),    // unit crest slugs (army/crests.js)
+  cr: v.optional(v.nullable(v.string())),
+  fa: v.optional(v.nullable(v.number())),    // vanilla faction ids, whose crest stands in
+  fr: v.optional(v.nullable(v.number())),
+});
+
+// A saved roll (types.js SavedRoll): the setup to load back and its summary.
+// The setup is any object here; its mode's schema reads it when it is
+// loaded or compared (rolls.js normalizeSetup).
+export const SavedRollSchema = v.object({
+  id: v.string(),
+  mode: v.picklist(Object.values(MODES)),
+  savedAt: v.fallback(v.number(), 0),
+  setup: v.record(v.string(), v.unknown()),
+  summary: RollSummarySchema,
+});
+
+const integer = v.pipe(v.number(), v.integer());
+// The persisted slices (storage.js loadPersisted): a slice that can't be
+// read is empty, a list item that can't be read is dropped.
+export const PersistedSchema = v.object({
+  mode: v.fallback(v.optional(v.picklist(Object.values(MODES))), undefined),
+  prefs: v.fallback(PrefsSchema, {}),
+  lists: v.fallback(v.object({
+    recents: v.fallback(v.pipe(arrayOf(RecentSchema), v.transform((xs) => xs.slice(0, MAX_RECENTS * 2))), []),
+    recentFactions: v.fallback(arrayOf(integer), []),
+    saved: v.fallback(arrayOf(SavedRollSchema), []),
+  }), () => ({recents: [], recentFactions: [], saved: []})),
+  scopes: v.fallback(v.object({A: v.optional(v.nullable(integer)), B: v.optional(v.nullable(integer))}), {}),
+});
 
 // The ephemeral slice: overlays, the picker stack, a chip's inline editor,
 // the toast (types.js UiState).
@@ -144,7 +226,7 @@ export function initialState() {
   return {
     v: STATE_VERSION,
     mode: MODES.matchup,
-    matchup: {A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}, rangeCm: DEFAULT_RANGE_CM, rangeCmB: null, ...NO_ZONES},
+    matchup: emptyMatchup(),
     classic: {...DEFAULT_PARAMS},
     ui: {...EMPTY_UI},
     // startFaction: {A, B}, the faction the picker opens on for an empty side

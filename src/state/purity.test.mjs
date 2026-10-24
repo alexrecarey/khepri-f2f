@@ -16,7 +16,8 @@ import {DEFAULT_PARAMS} from '../engine/params.js';
 const army = deepFreeze(JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8')));
 const fennec = {...EMPTY_SIDE, unitId: 10, factionId: 101, groupId: 1, optionId: 2, weaponKey: 'w1', ftSize: 3};
 const zhanshi = {...EMPTY_SIDE, unitId: 20, factionId: 201, groupId: 1, optionId: 1, weaponKey: 'none', inCover: true};
-const roll = /** @type {import('../types.js').SavedRoll} */ ({id: 'r1', mode: MODES.matchup, savedAt: 1, setup: {A: fennec, B: zhanshi, rangeCm: 40}, summary: {a: 'A', r: 'B'}});
+// A summary of the day it was saved: a deliberately partial fixture.
+const roll = /** @type {import('../types.js').SavedRoll} */ ({id: 'r1', mode: MODES.matchup, savedAt: 1, setup: {A: fennec, B: zhanshi, rangeCm: 40}, summary: /** @type {import('../types.js').RollSummary} */ ({a: 'A', r: 'B'})});
 
 // A state with every slice filled: picker open two screens deep, a split
 // range, saved rolls, recents and scopes.

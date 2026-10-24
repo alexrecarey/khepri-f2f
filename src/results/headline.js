@@ -14,6 +14,9 @@ import {pct} from './summary.js';
 
 /** @type {HeadlineChoice[]} */
 export const HEADLINES = ['wpo', 'win', 'wound'];
+// What a player who never chose sees: wounds per order.
+/** @type {HeadlineChoice} */
+export const DEFAULT_HEADLINE = 'wpo';
 
 // step +1 / -1, wrapping round: the swipe goes on past the last one.
 /**
