@@ -169,15 +169,21 @@ function sideView(army, side, {sel, resolved}, other) {
   };
 }
 
+/**
+ * A matchup to view: rangeCmB and the zones may be left out (tests, the
+ * share card's setup), which reads as one distance and no zones.
+ * @typedef {Pick<import('../types.js').Matchup, 'A' | 'B' | 'rangeCm'> & Partial<import('../types.js').Matchup>} MatchupInput
+ */
+
 // The reactive's own distance, or null while both share rangeCm.
-/** @param {import('../types.js').Matchup} matchup */
+/** @param {MatchupInput} matchup */
 const rangeCmB = (matchup) => matchup.rangeCmB ?? null;
 
 /**
  * The rules applied to the matchup, with no language in it: what
  * renderMatchup words. Memoised on (army, matchup) alone (useMatchupView.js).
  * @param {Army | null} army
- * @param {import('../types.js').Matchup} matchup
+ * @param {MatchupInput} matchup
  * @returns {MatchupCore}
  */
 export function matchupCore(army, matchup) {
@@ -268,7 +274,7 @@ export function renderMatchup(core, t = tEn) {
   const ledger = core.ledger && {
     ledger: buildLedger({active: A.resolved, reactive: B.resolved, derived: rendered, t}),
     ...core.ledger,
-    notes: /** @type {string[]} */ ([...rendered.warnings, ...rendered.notes]),
+    notes: [...rendered.warnings, ...rendered.notes],
   };
   /** @param {import('../types.js').VisSide} v */
   const zoneLines = (v) => ({...v, lines: v.lines.map((l) => ({...l, label: say(l.label), ignoredBy: say(l.ignoredBy)}))});
@@ -282,7 +288,7 @@ export function renderMatchup(core, t = tEn) {
 /**
  * t: the language of every label and note (src/i18n), with the army's terms.
  * @param {Army | null} army
- * @param {import('../types.js').Matchup} matchup
+ * @param {MatchupInput} matchup
  * @param {import('../types.js').Translator} [t]
  * @returns {import('../types.js').MatchupView}
  */

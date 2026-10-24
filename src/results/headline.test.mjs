@@ -5,15 +5,17 @@ import {headlineChoice} from '../state/headlines.js';
 import {headline, nextHeadline} from './headline.js';
 
 // The FinalPeek fixture's numbers (Squalos HMG vs Fennec Missile L.).
-const s = {
+/** @type {import('../types.js').Summary} */
+const s = /** @type {import('../types.js').Summary} */ ({
   wpo: {active: 0.81, reactive: 0.46},
   win: {active: 0.568, reactive: 0.356, none: 0.076},
   atLeast: {active: [0.477, 0.24, 0.1], reactive: [0.286, 0.14, 0.03]},
-};
-const unopposed = {
+});
+/** @type {import('../types.js').Summary} */
+const unopposed = /** @type {import('../types.js').Summary} */ ({
   unopposed: true, win: {active: 0, reactive: 0, none: 1}, wpo: {active: 0, reactive: 0},
   attacks: {active: {wpo: 1.2, wounded: 0.62}, reactive: {wpo: 0.5, wounded: 0.38}},
-};
+});
 
 test('unknown or missing prefs show wounds per order', () => {
   assert.equal(headlineChoice({}), 'wpo');
@@ -42,8 +44,8 @@ test('each headline moves wounds per order or 1+ wound to the small line', () =>
 });
 
 test('a Dodging side wins by dodging', () => {
-  assert.equal(headline(s, 'win', {ammoA: 'N', ammoB: 'DODGE'}).label.reactive, 'dodges');
-  assert.equal(headline(s, 'win', {ammoA: 'N', ammoB: 'DODGE'}).label.active, 'wins face to face');
+  assert.equal(headline(s, 'win', /** @type {import('../types.js').Params} */ ({ammoA: 'N', ammoB: 'DODGE'})).label.reactive, 'dodges');
+  assert.equal(headline(s, 'win', /** @type {import('../types.js').Params} */ ({ammoA: 'N', ammoB: 'DODGE'})).label.active, 'wins face to face');
 });
 
 test('not face to face: wins face to face falls back to at least one wound', () => {
@@ -56,15 +58,15 @@ test('not face to face: wins face to face falls back to at least one wound', () 
 });
 
 test('a side whose hits only Isolate shows the chance of Isolated, and a Reset "resets"', () => {
-  const iso = {...s, states: {active: [{key: 'isolated', label: 'Isolated', state: true}], reactive: [{key: 'unc'}, {key: 'dead'}]}};
+  const iso = /** @type {import('../types.js').Summary} */ ({...s, states: {active: [{key: 'isolated', label: 'Isolated', state: true}], reactive: [{key: 'unc'}, {key: 'dead'}]}});
   const w = headline(iso, 'wpo');
   assert.deepEqual([w.text.active, w.label.active], ['47.7%', 'Isolated']);
   assert.deepEqual([w.text.reactive, w.label.reactive], ['0.46', 'wounds / order']);
   assert.deepEqual(w.small, ['47.7% Isolated', '28.6%']);
   assert.equal(headline(iso, 'wound').label.active, 'Isolated');
-  const stun = {...s, states: {active: [{key: 'stunned', label: 'Stunned', state: true}], reactive: [{key: 'unc'}, {key: 'dead'}]}};
+  const stun = /** @type {import('../types.js').Summary} */ ({...s, states: {active: [{key: 'stunned', label: 'Stunned', state: true}], reactive: [{key: 'unc'}, {key: 'dead'}]}});
   assert.deepEqual(headline(stun, 'wpo').small, ['47.7% Stunned', '28.6%']);
-  const r = headline(s, 'win', {ammoA: 'N', ammoB: 'DODGE'}, {A: {kind: 'attack'}, B: {kind: 'reset'}});
+  const r = headline(s, 'win', /** @type {import('../types.js').Params} */ ({ammoA: 'N', ammoB: 'DODGE'}), /** @type {import('../types.js').Ledger} */ ({A: {kind: 'attack'}, B: {kind: 'reset'}}));
   assert.equal(r.label.reactive, 'resets');
-  assert.equal(headline(s, 'win', {ammoA: 'N', ammoB: 'DODGE'}).label.reactive, 'dodges');
+  assert.equal(headline(s, 'win', /** @type {import('../types.js').Params} */ ({ammoA: 'N', ammoB: 'DODGE'})).label.reactive, 'dodges');
 });

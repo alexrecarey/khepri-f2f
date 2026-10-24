@@ -1,0 +1,11 @@
+{
+  // `yarn typecheck`, second pass: the tests, strict but without noImplicitAny.
+  // Fixtures pass the minimum a function reads, so the untyped parameters of a
+  // test helper are not worth annotating one by one (Alex, 2026-10-24).
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noImplicitAny": false
+  },
+  "include": ["src/**/*.test.mjs", "worker/**/*.test.mjs"],
+  "exclude": []
+}

@@ -14,7 +14,7 @@
     "crests": "node scripts/crests/sync.mjs",
     "build:engine": "bash scripts/build-engine.sh",
     "test": "yarn typecheck && yarn test:js && yarn test:engine",
-    "typecheck": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.tests.json",
     "test:js": "node --test $(find src worker -name '*.test.mjs')",
     "test:engine": "uv run --python 3.12 --with icepool==2.2.2 --with pytest pytest -q src/engine",
     "build-search-index": "node scripts/build-search-index.mjs",

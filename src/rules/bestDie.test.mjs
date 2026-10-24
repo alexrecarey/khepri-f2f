@@ -17,7 +17,7 @@ test('a die reads as f2f.py reads it: the SV is a Critical, over 20 shifts every
 });
 
 test('the best of 3 dice at SV 28 is a Critical 1 - (11/20)^3 of the time', () => {
-  assert.ok(Math.abs(bestOf(28, 3).get(CRIT) - (1 - (11 / 20) ** 3)) < 1e-12);
+  assert.ok(Math.abs(/** @type {number} */ (bestOf(28, 3).get(CRIT)) - (1 - (11 / 20) ** 3)) < 1e-12);
 });
 
 test('Face to Face chances match the engine on every reference input', () => {
@@ -35,7 +35,7 @@ test('Face to Face chances match the engine on every reference input', () => {
 });
 
 test('Mushashi (SV 28, 3 dice) vs a dodging Crabbot (SV 10): 95% / 4.17% / 0.83%', () => {
-  const b = faceToFaceBreakdown({successValueA: 28, burstA: 2, bonusBurstA: 1, successValueB: 10, burstB: 1, bonusBurstB: 0});
+  const b = /** @type {import('./bestDie.js').Breakdown} */ (faceToFaceBreakdown({successValueA: 28, burstA: 2, bonusBurstA: 1, successValueB: 10, burstB: 1, bonusBurstB: 0}));
   const w = breakdownWins(b);
   assert.ok(Math.abs(w.reactive - (1 / 20) * (11 / 20) ** 3) < 1e-12);
   // Nobody: both Critical, or a 9 against a best die of 9 (all three roll a 1).
@@ -54,7 +54,7 @@ test('no breakdown without a Face to Face Roll', () => {
 });
 
 test('Squalos B4 SV14 vs Fennec B2 SV13: the cancelled rolls split into same number, two Criticals, two misses', () => {
-  const b = faceToFaceBreakdown({successValueA: 14, burstA: 4, bonusBurstA: 0, successValueB: 13, burstB: 2, bonusBurstB: 0});
+  const b = /** @type {import('./bestDie.js').Breakdown} */ (faceToFaceBreakdown({successValueA: 14, burstA: 4, bonusBurstA: 0, successValueB: 13, burstB: 2, bonusBurstB: 0}));
   const {critWins, cancel} = breakdownParts(b);
   const w = breakdownWins(b);
   assert.ok(Math.abs(cancel.same + cancel.crits + cancel.misses - w.none) < 1e-12);

@@ -67,7 +67,8 @@ imports from it (`src/layering.test.mjs` checks). Game rules live in
 final success values, bursts, save values and Saving Rolls per hit (see the top
 of the file) and returns the chance of each (winner, wounds).
 
-`yarn test` runs the type check (`yarn typecheck`: `tsc` over the JSDoc, strict),
+`yarn test` runs the type check (`yarn typecheck`: `tsc` over the JSDoc, strict;
+the tests under `tsconfig.tests.json`, without `noImplicitAny`),
 the JS tests (`node --test`) and the engine tests (pytest via
 [uv](https://docs.astral.sh/uv/)). CI runs all three on every PR.
 

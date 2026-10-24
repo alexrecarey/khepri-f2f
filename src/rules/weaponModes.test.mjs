@@ -9,7 +9,7 @@ import {defaultWeapon, sortWeapons} from './defaultWeapon.js';
 import {MODE_ORDER, modeKey, modeLabels, orderModes} from './weaponModes.js';
 
 const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
-const modesOf = (id) => bsWeapons({weapons: [{id, name: army.weapons[id][0].name}]}, army.weapons);
+const modesOf = (id) => bsWeapons(/** @type {import('../types.js').OptionRow} */ ({weapons: [{id, name: army.weapons[id][0].name}]}), army.weapons);
 const order = (id, role) => orderModes(modesOf(id), role, sortWeapons).map((w) => modeKey(w.mode));
 
 test('every listed weapon has those modes in the army data', () => {
@@ -33,9 +33,11 @@ test('Blast before Hit; Feuerbach by burst', () => {
 });
 
 test('the default weapon starts on the first mode: Boarding Pistol on its template', () => {
-  for (const role of ['active', 'reactive']) assert.equal(modeKey(defaultWeapon(modesOf(212), role).mode), 'blast');
-  assert.equal(modeKey(defaultWeapon(modesOf(41), 'active').mode), 'ap');
-  assert.equal(modeKey(defaultWeapon(modesOf(41), 'reactive').mode), 'am');
+  /** @param {import('../types.js').WeaponEntry | null} w */
+  const mode = (w) => modeKey(/** @type {import('../types.js').WeaponEntry} */ (w).mode);
+  for (const role of /** @type {import('./defaultWeapon.js').Role[]} */ (['active', 'reactive'])) assert.equal(mode(defaultWeapon(modesOf(212), role)), 'blast');
+  assert.equal(mode(defaultWeapon(modesOf(41), 'active')), 'ap');
+  assert.equal(mode(defaultWeapon(modesOf(41), 'reactive')), 'am');
 });
 
 test('mode buttons read the ammo, except next to a template', () => {

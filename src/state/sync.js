@@ -10,9 +10,18 @@ import {savePersisted} from './storage.js';
 import {urlFromState} from './url.js';
 
 /**
+ * What the sync reads of the window; a test fakes it (state.test.mjs).
+ * @typedef {{location: {pathname: string, search: string, hash: string},
+ *   history: {pushState(data: unknown, unused: string, url?: string | null): void, replaceState(data: unknown, unused: string, url?: string | null): void, go(delta?: number): void},
+ *   addEventListener(type: string, listener: (e: PopStateEvent) => void): void,
+ *   removeEventListener(type: string, listener: (e: PopStateEvent) => void): void,
+ *   document?: {visibilityState: string, addEventListener(type: string, listener: () => void): void, removeEventListener(type: string, listener: () => void): void}}} SyncWindow
+ */
+
+/**
  * @param {import('@tanstack/store').Store<import('../types.js').AppState>} store
  * @param {(action: import('../types.js').Action) => void} dispatch
- * @param {{win?: Window, storage?: import('./storage.js').StorageLike | null}} [env]
+ * @param {{win?: SyncWindow, storage?: import('./storage.js').StorageLike | null}} [env]
  */
 export function startSync(store, dispatch, {win = window, storage = null} = {}) {
   /** @param {import('../types.js').AppState} state */

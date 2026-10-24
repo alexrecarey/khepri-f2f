@@ -141,7 +141,7 @@ const renderSection = (t, sec) => (sec
  * buildLedger.
  * @param {import('../types.js').Derived} derived
  * @param {Translator} [t]
- * @returns {import('../types.js').Derived}
+ * @returns {import('../types.js').RenderedDerived}
  */
 export function renderDerived(derived, t = tEn) {
   /** @param {import('../types.js').Message} m */
@@ -170,7 +170,7 @@ export function renderDerived(derived, t = tEn) {
  * derived: the deriveInputs result for the same two sides, rendered with t
  * (renderDerived) by the caller. t: the language of the display text here.
  * @param {{active: import('../types.js').ResolvedSide | null, reactive: import('../types.js').ResolvedSide | null,
- *   derived: import('../types.js').Derived, t?: Translator}} _
+ *   derived: import('../types.js').Derived | import('../types.js').RenderedDerived, t?: Translator}} _
  * @returns {import('../types.js').Ledger}
  */
 export function buildLedger({active, reactive, derived, t = tEn}) {

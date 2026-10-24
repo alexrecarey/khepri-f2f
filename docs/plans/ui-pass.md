@@ -314,7 +314,11 @@ and order unchanged. `types.js` `Line` updated.
 ## Step 9 — strict type checking
 
 `yarn typecheck` = `tsc --noEmit` over `src/` and `worker/` (tests
-included), `checkJs` + `strict`, run by `yarn test` and CI. Dev
+included), `checkJs` + `strict`, run by `yarn test` and CI. The tests are
+checked by `tsconfig.tests.json` (extends the root config, excludes nothing
+but adds `noImplicitAny: false`): fixtures pass the minimum a function
+reads, so a test helper's untyped parameters are not worth annotating one
+by one; `strictNullChecks` stays on (Alex, 2026-10-24). Dev
 dependencies: `typescript`, `@types/react`, `@types/react-dom`,
 `@types/node` (for the tests and scripts that import `node:*`); nothing
 else. `tsconfig.json` at the root (`allowJs`, `checkJs`, `strict`,

@@ -158,7 +158,7 @@ function sideInputs(x, y, s, ctx) {
  * for "How the dice were built" (ledger.js), or null while the side has
  * nothing to roll with.
  * @param {{active: import('../types.js').ResolvedSide | null, reactive: import('../types.js').ResolvedSide | null,
- *   rangeCm: number, rangeCmB: number | null, zones: import('../types.js').Zones}} matchup
+ *   rangeCm: number, rangeCmB?: number | null, zones?: Partial<import('../types.js').Zones> | null}} matchup no rangeCmB: one distance; no zones: none
  * @returns {import('../types.js').Derived}
  */
 export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {

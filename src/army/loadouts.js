@@ -17,7 +17,7 @@ export function applyStatOverrides(profile, option) {
 // the calculator doesn't use MOV. Spec-Ops charts are not applied yet.
 /**
  * @param {import('../types.js').UnitRow | null | undefined} unit
- * @param {Pick<import('../types.js').Selection, 'upgrade' | 'ball'> | null | undefined} sel
+ * @param {Partial<Pick<import('../types.js').Selection, 'upgrade' | 'ball'>> | null | undefined} sel
  * @returns {import('../types.js').UpgradeItem[]}
  */
 export function pickedUpgrades(unit, sel) {

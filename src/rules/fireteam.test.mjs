@@ -42,7 +42,7 @@ test('units in no chart, or only in Duos they cannot make pure, get none', () =>
 
 test("a size above the trooper's max drops to it", () => {
   const squalos = unit('Squalos');
-  const r = resolveSelection(army, sel(squalos, options(squalos)[0], {ftSize: 5}));
+  const r = /** @type {import('../types.js').ResolvedSide} */ (resolveSelection(army, sel(squalos, options(squalos)[0], {ftSize: 5})));
   assert.equal(r.ftMax, 2);
   assert.equal(r.ftSize, 2);
 });
@@ -53,7 +53,7 @@ test('picking a trooper keeps the fireteam size only as far as it can go', () =>
   const dogs = unit('Dog-Warriors');
   const hit = (u) => {
     const s = sel(u, options(u)[0]);
-    return {unitId: s.unitId, groupId: s.groupId, optionId: s.optionId, factionId: s.factionId, armyFactionId: s.factionId};
+    return /** @type {import('../types.js').ProfileHit} */ ({unitId: s.unitId, groupId: s.groupId, optionId: s.optionId, factionId: s.factionId, armyFactionId: s.factionId});
   };
   let s = reduce(initialState(), pickTrooper(army, 'A', hit(fennec)));
   s = reduce(s, {type: 'patchSide', side: 'A', patch: {ftSize: 5}});
