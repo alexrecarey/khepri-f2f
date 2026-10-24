@@ -3,7 +3,11 @@
 // to them (step 9: tsc, strict, over the JSDoc). JSDoc only: nothing here
 // runs, and the code is the truth: when a producer and a typedef disagree,
 // fix the typedef. A producer keeps its "why" and points here with
-// `@returns`; the fields and their one-line comments live here. Army rows
+// `@returns`; the fields and their one-line comments live here. The shapes
+// that come in from outside (a share link, localStorage, ?card=) are valibot
+// schemas instead (step 10: engine/params.js, state/schema.js,
+// share/card.js), both parser and type; their typedefs here are inferred
+// from them, and their field comments sit on the schema. Army rows
 // (units, profiles, loadouts, traits) are army.json's own form
 // (src/army/normalize.js): the fields the code reads are written down below.
 
@@ -467,31 +471,10 @@
 /**
  * The calculator's input: one flat object, the same in Basic mode, Matchup
  * mode, share links, saved results and the CSV export. Each SideParams key
- * ends in A (active) or B (reactive).
- * @typedef {object} Params
- * @property {number} burstA
- * @property {number} bonusBurstA
- * @property {number} successValueA
- * @property {number} damageA
- * @property {number} armA
- * @property {number} btsA
- * @property {Ammo} ammoA
- * @property {boolean} contA
- * @property {boolean} shockA
- * @property {boolean} critImmuneA
- * @property {boolean} templateA
- * @property {number} burstB
- * @property {number} bonusBurstB
- * @property {number} successValueB
- * @property {number} damageB
- * @property {number} armB
- * @property {number} btsB
- * @property {Ammo} ammoB
- * @property {boolean} contB
- * @property {boolean} shockB
- * @property {boolean} critImmuneB
- * @property {boolean} templateB
- * @property {boolean} fixedFaceToFace the reactive rolls a fixed value (e.g. AC2)
+ * ends in A (active) or B (reactive), plus fixedFaceToFace (the reactive
+ * rolls a fixed value, e.g. AC2). As engine/params.js ParamsSchema reads it,
+ * built from the PARAMS table.
+ * @typedef {import('valibot').InferOutput<typeof import('./engine/params.js').ParamsSchema>} Params
  */
 
 /** Whose outcome a result row is; 'fail' is nobody's (both fail, or a tie).
@@ -711,28 +694,11 @@
 // ---- The matchup screens (state/schema.js, state/matchupView.js) ----
 
 /**
- * One side of a matchup as the player chose it (state/schema.js EMPTY_SIDE):
- * ids into the army data plus the situation chips. What can be derived (the
- * default weapon) is not stored.
- * @typedef {object} Selection
- * @property {number | null} unitId Army ids are numbers (army.json, matchup/matchupParams.js)
- * @property {number | null} factionId
- * @property {number | null} groupId
- * @property {number | null} profileId
- * @property {number | null} optionId
- * @property {string | null} weaponKey null = the default weapon for the side (rules/defaultWeapon.js)
- * @property {boolean} inCover
- * @property {number | null} firewall -3, -6, 0 for none, null for the trooper's own Firewall
- * @property {boolean} sapper in a Foxhole (units with Sapper)
- * @property {boolean} targeted
- * @property {number} hackedReset the Hacked chip's MOD to a Reset, 0 for none
- * @property {boolean} immA
- * @property {boolean} surpriseAttack
- * @property {boolean} berserk
- * @property {number | null} upgrade Team-Ops: index into unit.upgrades.chart
- * @property {number | null} ball Team-Ops: index into unit.upgrades.ball
- * @property {number} ftSize Fireteam size; 1 = not in a fireteam
- * @property {number} ccAllies allies in base contact with the target
+ * One side of a matchup as the player chose it, as state/schema.js
+ * SelectionSchema reads it (EMPTY_SIDE is its fallback): ids into the army
+ * data plus the situation chips. What can be derived (the default weapon)
+ * is not stored.
+ * @typedef {import('valibot').InferOutput<typeof import('./state/schema.js').SelectionSchema>} Selection
  */
 
 /** Smoke / White Noise between the troopers (rules/visibility.js).
@@ -740,14 +706,8 @@
 
 /**
  * The matchup slice of the state document: both sides, the distance and the
- * table's zones (state/schema.js).
- * @typedef {object} Matchup
- * @property {Selection} A the active trooper
- * @property {Selection} B the reactive trooper
- * @property {number} rangeCm the distance both share, as a range band's upper bound in cm
- * @property {number | null} rangeCmB the reactive's own distance when the range is split, else null
- * @property {boolean} smoke
- * @property {boolean} whiteNoise
+ * table's zones, as state/schema.js MatchupSchema reads it.
+ * @typedef {import('valibot').InferOutput<typeof import('./state/schema.js').MatchupSchema>} Matchup
  */
 
 /** A screen pushed inside the picker (state/reduce.js pickerPush).
@@ -783,44 +743,29 @@
  */
 
 /**
- * The player's preferences, persisted on this device (state/storage.js).
- * @typedef {object} Prefs
- * @property {HeadlineChoice} [headline] the results card's big number (state/headlines.js)
- * @property {string | null} [language] the language picked in Settings (state/language.js); null: automatic
- * @property {{A?: number | null, B?: number | null}} [startFaction] the faction each side's picker opens on
+ * The player's preferences, persisted on this device (state/storage.js), as
+ * state/schema.js PrefsSchema reads them.
+ * @typedef {import('valibot').InferOutput<typeof import('./state/schema.js').PrefsSchema>} Prefs
  */
 
 /**
  * A trooper picked before, as stable army ids plus the side it was picked for
- * (state/schema.js lists.recents); entries saved before the tag have no side.
- * @typedef {{unitId: number, groupId: number, optionId: number, armyFactionId: number, side?: Side}} Recent
+ * (state/schema.js lists.recents, RecentSchema).
+ * @typedef {import('valibot').InferOutput<typeof import('./state/schema.js').RecentSchema>} Recent
  */
 
 /**
  * What a saved roll's row shows (state/rolls.js): who rolls, their dice
  * lines, the situation and each side's chance. Matchup rolls add the crest
- * row (unit and weapon apart, crest slugs, vanilla factions).
- * @typedef {object} RollSummary
- * @property {string} a "Squalos · HMG" (Matchup) or "Active" (Classic)
- * @property {string} r
- * @property {string} ad "B4 SV15 PS7"
- * @property {string} rd
- * @property {string} setup '24-32" · Cover · Fireteam 5'
- * @property {string} ap chance each side wins (or, not face to face, causes a wound)
- * @property {string} rp
- * @property {string} [au]
- * @property {string} [aw]
- * @property {string} [ru]
- * @property {string} [rw]
- * @property {string | null} [ca] unit crest slugs (army/crests.js)
- * @property {string | null} [cr]
- * @property {number | null} [fa] vanilla faction ids, whose crest stands in
- * @property {number | null} [fr]
+ * row (unit and weapon apart, crest slugs, vanilla factions). As
+ * state/schema.js RollSummarySchema reads it.
+ * @typedef {import('valibot').InferOutput<typeof import('./state/schema.js').RollSummarySchema>} RollSummary
  */
 /**
- * A saved roll (state/schema.js lists.saved): the setup to load back (an
- * object its mode's schema reads when loaded, state/rolls.js normalizeSetup) and its summary.
- * @typedef {{id: string, mode: string, savedAt: number, setup: Record<string, unknown>, summary: RollSummary}} SavedRoll
+ * A saved roll (state/schema.js lists.saved, SavedRollSchema): the setup to
+ * load back (an object its mode's schema reads when loaded, state/rolls.js
+ * normalizeSetup) and its summary.
+ * @typedef {import('valibot').InferOutput<typeof import('./state/schema.js').SavedRollSchema>} SavedRoll
  */
 
 /**

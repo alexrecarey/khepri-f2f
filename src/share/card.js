@@ -21,13 +21,13 @@ import * as v from 'valibot';
 import {parseOr} from '../lib/parse.js';
 
 /**
- * One side of the share card: the strings the image is drawn from.
- * @typedef {{n: string, l: string, u: string, w: string, s: string, c: string}} CardSide
+ * The share card, as CardSchema below reads it: the headline kind, whether
+ * it fell back (not face to face), the range band and both sides.
+ * @typedef {import('valibot').InferOutput<typeof CardSchema>} Card
  */
 /**
- * The share card: the headline kind, whether it fell back (not face to face),
- * the range band and both sides.
- * @typedef {{k: 'wpo' | 'win' | 'wound', nf: boolean, x: string, a: CardSide, b: CardSide}} Card
+ * One side of the share card: the strings the image is drawn from.
+ * @typedef {Card['a']} CardSide
  */
 
 export const CARD_PARAM = 'card';
@@ -46,13 +46,20 @@ const text = v.fallback(v.pipe(v.string(), v.transform((s) => s.slice(0, MAX_TEX
 const slug = v.fallback(v.pipe(v.string(), v.regex(SLUG)), '');
 // A side needs its number and its unit; the rest may be empty.
 const CardSideSchema = v.pipe(
-  v.object({n: text, l: text, u: text, w: text, s: text, c: slug}),
+  v.object({
+    n: text,     // headline number
+    l: text,     // its label
+    u: text,     // unit
+    w: text,     // weapon
+    s: text,     // the side's situation ('' for none)
+    c: slug,     // unit crest slug (src/army/crests.js) or ''
+  }),
   v.check((side) => side.n !== '' && side.u !== ''),
 );
 export const CardSchema = v.object({
-  k: v.picklist(KINDS),
-  nf: v.fallback(v.boolean(), false),
-  x: text,
+  k: v.picklist(KINDS),                  // which headline it shows
+  nf: v.fallback(v.boolean(), false),    // not face to face (headline fell back)
+  x: text,                               // range band
   a: CardSideSchema,
   b: CardSideSchema,
 });

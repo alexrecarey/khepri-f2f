@@ -55,7 +55,8 @@ src/i18n/      the app's copy per language (en.js, es.js) and t(); the rules
                (message.js) that the view renders with it (docs/i18n.md)
 src/data/      loads the army data chunk (useLazy: once per language, retried
                after a failure); src/lib/ small shared helpers (clamp,
-               the other side) that more than one layer needs
+               the other side, parse.js: the valibot parse policy) that more
+               than one layer needs
 src/ui/        the app's screens: shell, Matchup, Classic, trooper picker,
                results card and sheet (design: docs/design-canvas/mobile-ux-redesign);
                styles in src/ui/styles, design tokens in tokens.css
@@ -63,7 +64,12 @@ src/ui/        the app's screens: shell, Matchup, Classic, trooper picker,
 
 Dependencies point one way: `ui -> state -> rules -> army`, and everything that
 builds calculator params uses `engine/params.js`. Nothing outside `src/ui/`
-imports from it (`src/layering.test.mjs` checks). Game rules live in
+imports from it (`src/layering.test.mjs` checks). What comes in from outside
+(a share link, localStorage, a `?card=`) is defined by a valibot schema next
+to the data it describes (`engine/params.js` ParamsSchema, `state/schema.js`
+SelectionSchema / MatchupSchema / PersistedSchema, `share/card.js`
+CardSchema), both the parser and the type; `src/lib/parse.js` holds the
+policy (never throw; a bad field falls back, the rest is kept). Game rules live in
 `src/rules/` and `src/engine/calculate.js`; the engine only rolls dice: it gets
 final success values, bursts, save values and Saving Rolls per hit (see the top
 of engine-rs/src/engine.rs) and returns the chance of each (winner, wounds).
