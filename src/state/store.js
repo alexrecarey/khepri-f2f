@@ -10,6 +10,10 @@ import {stateFromUrl} from './url.js';
 
 // First state: defaults, then what this device saved, then the URL (a share
 // link wins over the remembered mode).
+/**
+ * @param {{search?: string, storage?: import('./storage.js').StorageLike | null}} [from]
+ * @returns {import('../types.js').AppState}
+ */
 export function bootState({search = '', storage = null} = {}) {
   const base = initialState();
   const persisted = loadPersisted(storage);
@@ -28,10 +32,17 @@ export function bootState({search = '', storage = null} = {}) {
 // Starts on the defaults: importing this module reads no URL and no storage.
 // main.jsx boots it (bootStore) before the first render.
 export const store = createStore(initialState());
+/** @param {Parameters<typeof bootState>[0]} [from] */
 export const bootStore = (from) => store.setState(() => bootState(from));
 
 export const getState = () => store.get();
+/** @param {import('../types.js').Action} action */
 export const dispatch = (action) => store.setState((s) => reduce(s, action));
 
-// Selectors return a slice or a primitive (AGENTS.md): no compare needed.
+/**
+ * Selectors return a slice or a primitive (AGENTS.md): no compare needed.
+ * @template T
+ * @param {(state: import('../types.js').AppState) => T} selector
+ * @returns {T}
+ */
 export const useAppState = (selector) => useSelector(store, selector);

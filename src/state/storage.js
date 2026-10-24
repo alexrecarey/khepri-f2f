@@ -18,6 +18,16 @@ export function browserStorage() {
 }
 const LEGACY_MODE = 'calculatorMode';
 
+/** Anything with getItem/setItem: localStorage, or a Map-like in tests.
+ * @typedef {Pick<Storage, 'getItem' | 'setItem'>} StorageLike */
+/** What JSON.parse can give.
+ * @typedef {Record<string, unknown> | unknown[] | string | number | boolean | null | undefined} Json */
+
+/**
+ * @param {StorageLike} storage
+ * @param {string} key
+ * @returns {Json}
+ */
 const readJson = (storage, key) => {
   try {
     const raw = storage.getItem(key);
@@ -27,10 +37,23 @@ const readJson = (storage, key) => {
   }
 };
 
+/**
+ * @param {unknown} x
+ * @returns {x is Record<string, unknown>}
+ */
 const isObject = (x) => x !== null && typeof x === 'object' && !Array.isArray(x);
+/**
+ * @param {unknown} x
+ * @param {unknown[]} [fallback]
+ * @returns {unknown[]}
+ */
 const arrayOr = (x, fallback = []) => (Array.isArray(x) ? x : fallback);
 
 // Whatever was stored -> {mode?, prefs, lists}, dropping anything malformed.
+/**
+ * @param {StorageLike | null} storage
+ * @returns {{scopes: import('../types.js').AppState['scopes'], mode?: string, prefs: import('../types.js').Prefs, lists: import('../types.js').AppState['lists']}}
+ */
 export function loadPersisted(storage) {
   let saved = storage ? readJson(storage, STORAGE_KEY) : undefined;
   if (!isObject(saved)) {
@@ -39,26 +62,35 @@ export function loadPersisted(storage) {
     saved = {v: STATE_VERSION, mode};
   }
   const lists = isObject(saved.lists) ? saved.lists : {};
+  /** @type {import('../types.js').AppState['scopes']} */
   const scopes = {};
-  for (const side of ['A', 'B']) {
+  for (const side of /** @type {import('../types.js').Side[]} */ (['A', 'B'])) {
     const v = isObject(saved.scopes) ? saved.scopes[side] : undefined;
-    if (v === null || Number.isInteger(v)) scopes[side] = v;
+    // null or an integer: checked just above.
+    if (v === null || Number.isInteger(v)) scopes[side] = /** @type {number | null} */ (v);
   }
   return {
     scopes,
-    ...(Object.values(MODES).includes(saved.mode) ? {mode: saved.mode} : {}),
-    prefs: isObject(saved.prefs) ? saved.prefs : {},
+    // What was stored is only checked for shape: each list's items are
+    // objects (or integers) of the kind the state keeps there.
+    ...(Object.values(MODES).includes(/** @type {string} */ (saved.mode)) ? {mode: /** @type {string} */ (saved.mode)} : {}),
+    prefs: isObject(saved.prefs) ? /** @type {import('../types.js').Prefs} */ (saved.prefs) : {},
     lists: {
-      recents: arrayOr(lists.recents).filter(isObject).slice(0, MAX_RECENTS * 2),
-      recentFactions: arrayOr(lists.recentFactions).filter(Number.isInteger),
+      recents: /** @type {import('../types.js').Recent[]} */ (arrayOr(lists.recents).filter(isObject).slice(0, MAX_RECENTS * 2)),
+      recentFactions: /** @type {number[]} */ (arrayOr(lists.recentFactions).filter(Number.isInteger)),
       // A saved roll needs its setup to load and its summary to list.
-      saved: arrayOr(lists.saved).filter((r) => isObject(r) && isObject(r.setup) && isObject(r.summary)),
+      saved: /** @type {import('../types.js').SavedRoll[]} */ (arrayOr(lists.saved).filter((r) => isObject(r) && isObject(r.setup) && isObject(r.summary))),
     },
   };
 }
 
+/** @param {import('../types.js').AppState} state */
 export const persistedSlice = (state) => ({v: STATE_VERSION, mode: state.mode, prefs: state.prefs, lists: state.lists, scopes: state.scopes});
 
+/**
+ * @param {StorageLike} storage
+ * @param {import('../types.js').AppState} state
+ */
 export function savePersisted(storage, state) {
   try {
     storage.setItem(STORAGE_KEY, JSON.stringify(persistedSlice(state)));

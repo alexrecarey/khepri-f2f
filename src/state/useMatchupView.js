@@ -6,6 +6,10 @@ import {useMemo} from 'react';
 import {matchupCore, renderMatchup} from './matchupView.js';
 import {useAppState} from './store.js';
 
+/**
+ * @param {import('../types.js').Army | null} army
+ * @param {import('../types.js').Translator} t
+ */
 export default function useMatchupView(army, t) {
   const matchup = useAppState((s) => s.matchup);
   const core = useMemo(() => matchupCore(army, matchup), [army, matchup]);

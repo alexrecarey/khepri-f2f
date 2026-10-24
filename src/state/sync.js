@@ -9,12 +9,19 @@ import {uiDepth} from './reduce.js';
 import {savePersisted} from './storage.js';
 import {urlFromState} from './url.js';
 
+/**
+ * @param {import('@tanstack/store').Store<import('../types.js').AppState>} store
+ * @param {(action: import('../types.js').Action) => void} dispatch
+ * @param {{win?: Window, storage?: import('./storage.js').StorageLike | null}} [env]
+ */
 export function startSync(store, dispatch, {win = window, storage = null} = {}) {
+  /** @param {import('../types.js').AppState} state */
   const urlOf = (state) => `${win.location.pathname}${urlFromState(state)}${win.location.hash}`;
   let depth = 0;
   // A path other than / (old routes) lands on the calculator.
   win.history.replaceState({depth: 0}, '', urlOf(store.get()).replace(/^[^?]*/, '/'));
 
+  /** @param {import('../types.js').AppState} state */
   const apply = (state) => {
     const want = uiDepth(state.ui);
     const url = urlOf(state);
@@ -30,6 +37,7 @@ export function startSync(store, dispatch, {win = window, storage = null} = {}) 
     depth = want;
   };
 
+  /** @param {PopStateEvent} e */
   const onPop = (e) => {
     const target = Number(e.state?.depth ?? 0);
     depth = target;
@@ -39,6 +47,7 @@ export function startSync(store, dispatch, {win = window, storage = null} = {}) 
   };
   win.addEventListener('popstate', onPop);
 
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let saveTimer = null;
   let last = store.get();
   const {unsubscribe} = store.subscribe((state) => {
@@ -48,7 +57,8 @@ export function startSync(store, dispatch, {win = window, storage = null} = {}) 
     last = state;
     apply(state);
     if (storage && persistedChanged) {
-      clearTimeout(saveTimer);
+      // A null timer clears nothing.
+      clearTimeout(/** @type {ReturnType<typeof setTimeout>} */ (saveTimer));
       saveTimer = setTimeout(() => {
         saveTimer = null;
         savePersisted(storage, store.get());
@@ -62,7 +72,7 @@ export function startSync(store, dispatch, {win = window, storage = null} = {}) 
     if (saveTimer == null) return;
     clearTimeout(saveTimer);
     saveTimer = null;
-    savePersisted(storage, store.get());
+    savePersisted(/** @type {import('./storage.js').StorageLike} */ (storage), store.get());
   };
   const onHidden = () => { if (win.document?.visibilityState === 'hidden') flush(); };
   win.addEventListener('pagehide', flush);
@@ -73,6 +83,6 @@ export function startSync(store, dispatch, {win = window, storage = null} = {}) 
     win.removeEventListener('popstate', onPop);
     win.removeEventListener('pagehide', flush);
     win.document?.removeEventListener('visibilitychange', onHidden);
-    clearTimeout(saveTimer);
+    clearTimeout(/** @type {ReturnType<typeof setTimeout>} */ (saveTimer));
   };
 }

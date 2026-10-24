@@ -576,6 +576,9 @@
  * @property {string} shade its colour (summary.js shade)
  */
 
+/** A wound state as the rules list it (rules/woundStates.js), before results/summary.js adds its share of the rolls.
+ * @typedef {Pick<WoundState, 'key' | 'label' | 'wounds' | 'glyph' | 'outOfFight' | 'shock' | 'state'>} WoundStep */
+
 /** One segment of the wound bar, left to right.
  * @typedef {{side: 'active' | 'none' | 'reactive', wounds: number, chance: number}} BarSegment */
 
@@ -869,7 +872,7 @@
  * group (state/matchupView.js weaponGroups).
  * @typedef {object} WeaponGroup
  * @property {string} key
- * @property {string} [id] a pseudo-weapon has none
+ * @property {number | string} [id] a pseudo-weapon has none
  * @property {string} [name] a pseudo-weapon has none
  * @property {Choice} w the first (or only) mode
  * @property {WeaponEntry[]} [modes] a weapon with several fire modes, in the role's order
@@ -903,7 +906,7 @@
  * @property {{mod: number} | null} berserk Berserk's MOD (active side, a CC weapon picked)
  * @property {{chart: string[], ball: string[]} | null} teamOps the Team-Ops options by label (the Army's, in inches until rendered)
  * @property {string | null} faction the vanilla faction's name
- * @property {string | null} vanilla the vanilla faction id (its crest stands in for a missing unit crest)
+ * @property {number | null} vanilla the vanilla faction id (its crest stands in for a missing unit crest)
  * @property {string | null} crest the unit crest's slug (army/crests.js)
  * @property {string | null} short the short unit name
  * @property {string | null} loadout the loadout's extra name, if any
@@ -920,14 +923,14 @@
  * @property {number} rangeCm
  * @property {number | null} rangeCmB
  * @property {Zones} zones
- * @property {{A: object, B: object}} [vis] what Smoke / White Noise do to each side (rules/visibility.js)
+ * @property {Visibility} [vis] what Smoke / White Noise do to each side (rules/visibility.js)
  * @property {Derived | null} derived
  * @property {Params | null} params the full calculator input, once derived.ok
  * @property {LedgerHeader | null} ledger the ledger's names and labels, once complete
  * @property {{to: number, A?: number | null, B?: number | null}[]} bands each range band's Range MOD per side (null out of range, undefined without bands)
  * @property {boolean} hasSelection either side has a unit
  * @property {boolean} complete both sides fully chosen and the matchup valid
- * @property {{active: WoundState[] | null, reactive: WoundState[] | null} | null} targets the states each side's hits push its target through
+ * @property {{active: WoundStep[] | null, reactive: WoundStep[] | null} | null} targets the states each side's hits push its target through
  */
 
 /**

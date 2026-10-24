@@ -5,21 +5,39 @@ import {clamp} from '../lib/clamp.js';
 import {other} from './schema.js';
 
 // Ammunition buttons, in order: [calculator ammo, its label's src/i18n key].
+/** @typedef {import('../types.js').Params} Params */
+/** @typedef {import('../types.js').Side} Side */
+
+/** @type {[import('../types.js').Ammo, string][]} */
 export const CLASSIC_AMMO = [['N', 'ammo.N'], ['DA', 'ammo.DA'], ['EXP', 'ammo.EXP'], ['T2', 'ammo.T2'], ['PLASMA', 'classic.plasma'],
   ['DODGE', 'pseudo.dodge']];
+/** @param {string} ammo */
 export const classicAmmoKey = (ammo) => CLASSIC_AMMO.find(([key]) => key === ammo)?.[1] ?? null;
 
 // The highest Opponent PS the steppers reach: weapon PS + ARM (or BTS) limits.
+/** @type {Record<'arm' | 'bts', readonly [number, number]>} */
 export const SAVE_LIMIT = {arm: [0, LIMITS.damage[1] + LIMITS.arm[1]], bts: [0, LIMITS.damage[1] + LIMITS.bts[1]]};
 
 // The save the opponent makes against side s: weapon PS + their ARM (cover
 // included), and + their BTS for Plasma's second save.
+/**
+ * @param {Params} c
+ * @param {Side} s
+ */
 export const armSave = (c, s) => c[`damage${s}`] + c[`arm${other(s)}`];
+/**
+ * @param {Params} c
+ * @param {Side} s
+ */
 export const btsSave = (c, s) => c[`damage${s}`] + c[`bts${other(s)}`];
 
 // Which of side s's inputs mean anything: burst 0 rolls nothing; a Direct
 // Template hits automatically (no roll, so no Success Value); a Dodge causes
 // no saves.
+/**
+ * @param {Params} c
+ * @param {Side} s
+ */
 export function classicSide(c, s) {
   const burst = c[`burst${s}`];
   return {
@@ -33,6 +51,13 @@ export function classicSide(c, s) {
 // engine only reads PS + ARM and PS + BTS). Moves the weapon PS first and
 // spills into the target's ARM past its limits; a Plasma BTS total below the
 // PS lowers the PS and gives the difference to ARM, so the ARM total holds.
+/**
+ * @param {Params} c
+ * @param {Side} s
+ * @param {'arm' | 'bts'} which
+ * @param {number} total
+ * @returns {Params}
+ */
 export function classicSave(c, s, which, total) {
   const t = other(s);
   const dmg = c[`damage${s}`];
