@@ -84,3 +84,27 @@ test('allies in CC round-trip as alliesA / alliesB, capped at 5', () => {
   assert.equal(dec.A.ccAllies, 2);
   assert.equal(dec.B.ccAllies, 5);
 });
+
+test('hand-written links: ids are positive integers, a weapon key is bounded, chips take their own values', () => {
+  // No trooper without a positive integer unit id.
+  assert.equal(decodeMatchup(new URLSearchParams('unitA=1.5&factionA=101')), null);
+  assert.equal(decodeMatchup(new URLSearchParams('unitA=-3')), null);
+  assert.equal(decodeMatchup(new URLSearchParams('unitA=0&unitB=abc')), null);
+  const d = decodeMatchup(new URLSearchParams(
+    `unitA=5&factionA=1.5&groupA=-3&optionA=1e400&weaponA=${'w'.repeat(300)}&upgradeA=-1&ballA=1.5&firewallA=2&hackedA=4&alliesA=-2`));
+  assert.ok(d);
+  assert.equal(d.A.unitId, 5);
+  assert.equal(d.A.factionId, null);
+  assert.equal(d.A.groupId, null);
+  assert.equal(d.A.optionId, null);
+  assert.equal(d.A.weaponKey, null);        // the default weapon
+  assert.equal(d.A.upgrade, null);
+  assert.equal(d.A.ball, null);
+  assert.equal(d.A.firewall, null);         // the trooper's own
+  assert.equal(d.A.hackedReset, 0);
+  assert.equal(d.A.ccAllies, 0);
+  // A 64-character key is still a key.
+  assert.equal(decodeMatchup(new URLSearchParams(`unitA=5&weaponA=${'w'.repeat(64)}`))?.A.weaponKey, 'w'.repeat(64));
+  // Chips of a side without a trooper are nothing.
+  assert.equal(decodeMatchup(new URLSearchParams('unitB=5&coverA=1'))?.A.inCover, false);
+});
