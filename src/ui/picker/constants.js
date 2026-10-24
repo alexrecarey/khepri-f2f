@@ -1,6 +1,10 @@
 // Unit types in the order both pickers list them; their names are src/i18n's
 // typeName.<type>.
 export const TYPE_ORDER = ['LI', 'MI', 'HI', 'TAG', 'REM', 'SK', 'WB', 'VH'];
+/**
+ * @param {import('../../types.js').Translator} t
+ * @param {string | null | undefined} type
+ */
 export const typeName = (t, type) => (type && t.has(`typeName.${type}`) ? t(`typeName.${type}`) : type ?? '');
 
 // One tap fills the box with what players often look for on that side: big
@@ -8,6 +12,7 @@ export const typeName = (t, type) => (type && t.has(`typeName.${type}`) ? t(`typ
 // also finds the variants ("hmg": AP and MULTI HMG; "spitfire": AP / MULTI).
 // Per language: the search index is in the app's language, so the queries are
 // the words of that language's names.
+/** @type {Record<string, Record<import('../../types.js').Side, [string, string][]>>} */
 export const QUICK = {
   en: {
     A: [['HMG', 'hmg'], ['Spitfire', 'spitfire'], ['Red Fury', 'red fury']],
@@ -22,4 +27,8 @@ export const QUICK = {
       ['Lanzamisiles', 'lanzamisiles'], ['Lanzacohetes Pesado', 'lanzacohetes pesado'], ['F. Francotirador', 'francotirador']],
   },
 };
+/**
+ * @param {string} lang
+ * @param {import('../../types.js').Side} side
+ */
 export const quickSearches = (lang, side) => (QUICK[lang] ?? QUICK.en)[side];

@@ -6,6 +6,9 @@ import {useT} from '../i18n.jsx';
 import {loadoutCharts} from '../../state/pickerView.js';
 import {setCursor} from './useDeskPicker.js';
 
+/** @typedef {import('../../state/pickerView.js').WeaponChart} WeaponChart */
+
+/** @param {{bands: (number | null)[]}} props */
 function Stripe({bands}) {
   return (
     <span className="stripe7" aria-hidden="true">{bands.map((m, i) => <i key={i} style={{background: bandColor(m)}} />)}</span>
@@ -15,6 +18,7 @@ function Stripe({bands}) {
 Stripe.propTypes = {bands: PropTypes.array.isRequired};
 
 // c.ammo: English tokens joined by +, or 'template'.
+/** @param {{c: WeaponChart, sub?: boolean}} props */
 function ChartLine({c, sub}) {
   const t = useT();
   const ammo = c.ammo === 'template' ? t('ledger.template') : c.ammo.split('+').filter(Boolean).map((a) => ammoName(a, t)).join('+');
@@ -34,6 +38,7 @@ ChartLine.propTypes = {c: PropTypes.object.isRequired, sub: PropTypes.bool};
 // One loadout as chart lines: its main gun (with `tag`), the rest once it is
 // the lit one, then points and SWC. i is its place in the pane's loadouts,
 // which the arrow keys walk.
+/** @param {{h: import('../../types.js').ProfileHit, i: number, tag?: string | null, on?: boolean, color: string, army: import('../../types.js').Army | null, onPick: (hit: import('../../types.js').ProfileHit) => void}} props */
 export default function DeskLoadout({h, i, tag, on, color, army, onPick}) {
   const t = useT();
   const charts = loadoutCharts(army, h.weaponIds);

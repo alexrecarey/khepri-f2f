@@ -10,12 +10,22 @@ const W = 32;
 const H = 24;
 const ALT = [122, 168, 255]; // the blue the side colour drifts towards
 
+/**
+ * @param {Element} el
+ * @param {string} cssVar
+ */
 function rgbOf(el, cssVar) {
   const hex = getComputedStyle(el).getPropertyValue(cssVar).trim();
   const m = /^#([0-9a-f]{6})$/i.exec(hex);
   return m ? [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16)) : [154, 151, 143];
 }
 
+/**
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {ImageData} img
+ * @param {number[]} rgb
+ * @param {number} t
+ */
 function draw(ctx, img, rgb, t) {
   const d = img.data;
   for (let y = 0, i = 0; y < H; y++) {
@@ -34,10 +44,12 @@ function draw(ctx, img, rgb, t) {
   ctx.putImageData(img, 0, 0);
 }
 
+/** @param {{cssVar: string, seed?: number}} props */
 export default function Plasma({cssVar, seed = 0}) {
-  const ref = useRef(null);
+  const ref = useRef(/** @type {HTMLCanvasElement | null} */ (null));
   useEffect(() => {
-    const cv = ref.current;
+    // The canvas is mounted by the time the effect runs.
+    const cv = /** @type {HTMLCanvasElement} */ (ref.current);
     const ctx = cv.getContext('2d');
     if (!ctx) return undefined;
     const img = ctx.createImageData(W, H);
@@ -48,6 +60,7 @@ export default function Plasma({cssVar, seed = 0}) {
     let visible = true;
     let last = 0;
     let raf = 0;
+    /** @param {number} now */
     const frame = (now) => {
       raf = requestAnimationFrame(frame);
       if (now - last < 33) return;

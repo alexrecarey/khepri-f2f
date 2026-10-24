@@ -65,7 +65,7 @@ function App() {
         <span className="wordmark">INFINITY THE CALCULATOR{!matchupMode && layout === 'phone' && <small> · {t('mode.classic').toLocaleUpperCase(t.lang)}</small>}</span>
         {layout !== 'phone' && (
           <span className="mode-switch" role="group" aria-label={t('menu.calculator')}>
-            {[[MODES.matchup, t('mode.matchup')], [MODES.basic, t('mode.classic')]].map(([m, name]) => (
+            {/** @type {[string, string][]} */ ([[MODES.matchup, t('mode.matchup')], [MODES.basic, t('mode.classic')]]).map(([m, name]) => (
               <button type="button" key={m} className={mode === m ? 'on' : ''} aria-pressed={mode === m}
                 onClick={() => dispatch({type: 'setMode', mode: m})}>{name}</button>
             ))}
@@ -88,6 +88,7 @@ function App() {
 // The menu and its pages. Their own component, so opening or closing one
 // re-renders only this, not the screen behind. `dialogs`: wide layouts, where
 // the header buttons open them as dialogs (DeskMenu.jsx).
+/** @param {{dialogs: boolean, results: {result: import('./types.js').EngineResult | null, targets: import('./types.js').MatchupCore['targets'], params: import('./types.js').Params | null}}} props */
 function Overlays({dialogs, results}) {
   const overlay = useAppState((s) => s.ui.overlay);
   // Settings lists the factions; the search index has them without the army data.

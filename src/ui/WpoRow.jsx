@@ -5,6 +5,7 @@
 import PropTypes from 'prop-types';
 import {useT} from './i18n.jsx';
 
+/** @param {{active: import('react').ReactNode, reactive: import('react').ReactNode, labels?: {active: string, reactive: string} | null, middle?: import('react').ReactNode}} props */
 export default function WpoRow({active, reactive, labels: given = null, middle = null}) {
   const t = useT();
   const labels = given ?? {active: t('headline.wpoLabel'), reactive: t('headline.wpoLabel')};

@@ -23,12 +23,21 @@ const ACTIVE = '#5fc4a0', REACTIVE = '#e59bc0';
 // The numbers in an image URL never change, so caches may keep it for good.
 const IMMUTABLE = 'public, max-age=31536000, immutable';
 
+/** @typedef {import('../src/share/card.js').Card} Card */
+
+/** @param {unknown} s */
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 // Which side the stripe goes to: the bigger headline number (ties go active).
+/** @param {Card} card */
 const leader = (card) => (parseFloat(card.b.n) > parseFloat(card.a.n) ? REACTIVE : ACTIVE);
 
 // link: the address the preview stands for (og:url, where a click goes).
+/**
+ * @param {Card} card
+ * @param {URL} url
+ * @param {string} link
+ */
 function cardTags(card, url, link) {
   // The card's numbers are in the image URL, so it never goes stale: new
   // army data makes a new card, and so a new URL.
@@ -53,14 +62,21 @@ function cardTags(card, url, link) {
 
 // The army data (a Text module, wrangler.jsonc) is parsed once per isolate,
 // on the first preview, not for every crest.
+/** @type {import('../src/types.js').Army | null} */
 let army = null;
 async function armyData() {
-  army ??= JSON.parse((await import('../src/army/army.json')).default);
-  return army;
+  // wrangler.jsonc serves army.json as a Text module: a string, where tsc
+  // resolves the JSON file itself, so the import goes through unknown.
+  army ??= JSON.parse(/** @type {string} */ (/** @type {unknown} */ ((await import('../src/army/army.json')).default)));
+  return /** @type {import('../src/types.js').Army} */ (army);
 }
 
 // The card for a /?<setup> address, or null for anything that isn't one;
 // the engine refusing a setup included: the site's own preview then.
+/**
+ * @param {string} search
+ * @returns {Promise<Card | null>}
+ */
 async function setupCard(search) {
   try {
     initSync({module: engineWasm});
@@ -73,12 +89,18 @@ async function setupCard(search) {
 
 // /s: the app's page, with the card's tags in place of the site's; as built
 // when the link has no card.
+/**
+ * @param {Request} request
+ * @param {Env} env
+ * @param {URL} url
+ */
 export async function sharePage(request, env, url) {
   const page = await env.ASSETS.fetch(new Request(new URL('/', url), request));
   const sent = url.searchParams.get(CARD_PARAM);
   const card = sent ? decodeCard(sent) : await setupCard(url.search);
   if (!card) return page;
   const link = sent ? url.href : `${url.origin}/${url.search}`;
+  /** @param {HTMLRewriterElement} el */
   const isSiteTag = (el) => /^(og:|twitter:)/.test(el.getAttribute('property') ?? el.getAttribute('name') ?? '')
     || el.getAttribute('name') === 'theme-color';
   return new HTMLRewriter()
@@ -90,6 +112,12 @@ export async function sharePage(request, env, url) {
 
 // /og/v1/card.png?card=... and /og/v1/default.png; anything else under /og/
 // is not found (not the app's page, which is what the assets would answer).
+/**
+ * @param {Request} request
+ * @param {Env} env
+ * @param {ExecutionContext} ctx
+ * @param {URL} url
+ */
 export async function previewImage(request, env, ctx, url) {
   const name = url.pathname.startsWith(IMAGE_PATH) ? url.pathname.slice(IMAGE_PATH.length) : '';
   const card = name === 'card.png' ? decodeCard(url.searchParams.get(CARD_PARAM)) : null;

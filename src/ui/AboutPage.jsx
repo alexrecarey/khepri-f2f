@@ -4,14 +4,14 @@ import {dispatch} from '../state/store.js';
 import {Page} from './Sheet.jsx';
 import {Rich, useT} from './i18n.jsx';
 
-/* global __APP_VERSION__, __ARMY_DATE__ */
 export const VERSION = typeof __APP_VERSION__ === 'undefined' ? 'dev' : __APP_VERSION__;
 export const ARMY_DATE = typeof __ARMY_DATE__ === 'undefined' ? null : __ARMY_DATE__;
 
 const back = () => dispatch({type: 'back'});
 
 // About text shared by the phone page and the desktop dialog.
-const link = (href) => (text) => <a href={href}>{text}</a>;
+/** @param {string} href */
+const link = (href) => /** @param {string} text */ (text) => <a href={href}>{text}</a>;
 export function AboutIntro() {
   const t = useT();
   return (

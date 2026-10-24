@@ -2,8 +2,10 @@
 // through) when there is no band to colour: no weapon yet, a Dodge, a Direct
 // Template (no range bands) or out of range.
 // "+3", "0", "−3"; "—" when there is no Range MOD.
+/** @param {number | null | undefined} n */
 export const signedMod = (n) => (n == null ? '—' : `${n > 0 ? '+' : ''}${n}`);
 
+/** @param {number | null | undefined} mod */
 export const bandColor = (mod) => {
   if (mod == null) return 'transparent';
   if (mod > 0) return 'var(--band-plus)';

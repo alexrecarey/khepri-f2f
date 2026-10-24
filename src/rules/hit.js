@@ -134,18 +134,16 @@ export function hitInputs(x, y, side, ctx) {
   // Immunity (Continuous Damage): the Trait is ignored, the hit is not.
   const contImmune = hasImmunity(y?.traits, 'Continuous Damage', row);
   const ps = psLines(x, side);
-  const ammoKey = /** @type {const} */ (`ammo${side}`);
-  const shockKey = /** @type {const} */ (`shock${side}`);
   // Computed keys: tsc sees an index signature, so the shape is stated.
   const out = /** @type {Partial<Params>} */ ({
     [`damage${side}`]: clamp(LIMITS.damage, sum(ps)),
-    [ammoKey]: noEffect ? 'NONE' : calcAmmo(row, y?.traits),
+    [`ammo${side}`]: noEffect ? 'NONE' : calcAmmo(row, y?.traits),
     [`cont${side}`]: !immunity && !contImmune && hasContinuousDamage(row, mods),
-    [shockKey]: shockApplies(row, y),
+    [`shock${side}`]: shockApplies(row, y),
   });
-  // Both set just above.
-  const ammo = ammoLines(x, side, /** @type {import('../types.js').Ammo} */ (out[ammoKey]), contImmune);
-  if (out[shockKey]) say(side, 'note.shock');
+  // Set just above.
+  const ammo = ammoLines(x, side, /** @type {import('../types.js').Ammo} */ (out[`ammo${side}`]), contImmune);
+  if (out[`shock${side}`]) say(side, 'note.shock');
   const state = stateCaused(row);
   if (state && !noEffect) say(side, 'note.stateCaused', {weapon: row.name, state: msg(`state.${state.toLowerCase()}`)});
   // State-only weapons get a warning instead (no effect), or play as always (Stunned).

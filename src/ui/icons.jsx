@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 const [w, h] = [512, 512];
 const d20Path = 'M64.7 125.8l53.2 31.9c7.8 4.7 17.8 2 22.2-5.9L217.6 12.1c3-5.4-.9-12.1-7.1-12.1c-1.6 0-3.2 .5-4.6 1.4L63.9 98.8c-9.6 6.6-9.2 20.9 .8 26.9zM32 171.7V295.3c0 8 10.4 11 14.7 4.4l60-92c5-7.6 2.6-17.8-5.2-22.5L56.2 158C45.6 151.6 32 159.3 32 171.7zM326.4 12.1l77.6 139.6c4.4 7.9 14.5 10.6 22.2 5.9l53.2-31.9c10-6 10.4-20.3 .8-26.9L338.1 1.4c-1.4-.9-3-1.4-4.6-1.4c-6.2 0-10.1 6.7-7.1 12.1zM512 171.7c0-12.4-13.6-20.1-24.2-13.7l-45.3 27.2c-7.8 4.7-10.1 14.9-5.2 22.5l60 92c4.3 6.7 14.7 3.6 14.7-4.4V171.7zm-49.3 246L302.1 436.6c-8.1 .9-14.1 7.8-14.1 15.9v52.8c0 3.7 3 6.8 6.8 6.8c.8 0 1.6-.1 2.4-.4l172.7-64c6.1-2.2 10.1-8 10.1-14.5c0-9.3-8.1-16.5-17.3-15.4zM249.2 512c3.7 0 6.8-3 6.8-6.8V452.6c0-8.1-6.1-14.9-14.1-15.9l-160.6-19c-9.2-1.1-17.3 6.1-17.3 15.4c0 6.5 4 12.3 10.1 14.5l172.7 64c.8 .3 1.6 .4 2.4 .4zM57.7 382.9l170.9 20.2c7.8 .9 13.4-7.5 9.5-14.3l-85.7-150c-5.9-10.4-20.7-10.8-27.3-.8L46.2 358.2c-6.5 9.9-.3 23.3 11.5 24.7zm439.6-24.8L418.9 238.1c-6.5-10-21.4-9.6-27.3 .8L306.2 388.5c-3.9 6.8 1.6 15.2 9.5 14.3l170.1-20c11.8-1.4 18-14.7 11.5-24.6zm-216.9 11l78.4-137.2c6.1-10.7-1.6-23.9-13.9-23.9H199.1c-12.3 0-20 13.3-13.9 23.9l78.4 137.2c3.7 6.4 13 6.4 16.7 0zM190.4 176H353.6c12.2 0 19.9-13.1 14-23.8l-80-144c-2.8-5.1-8.2-8.2-14-8.2h-3.2c-5.8 0-11.2 3.2-14 8.2l-80 144c-5.9 10.7 1.8 23.8 14 23.8z';
 
+/** @param {{fill: string, opacity?: number, crossed?: boolean}} props */
 export function D20({fill, opacity = 1, crossed = false}) {
   return (
     <svg viewBox={`0 0 ${w} ${h}`} aria-hidden="true" style={{opacity}}>
@@ -20,6 +21,7 @@ D20.propTypes = {fill: PropTypes.string.isRequired, opacity: PropTypes.number, c
 
 // The site mark (public/favicon.svg): a hexagon with a triangle cut into it.
 // The empty slot shows it in the side colour.
+/** @param {{fill: string}} props */
 export function SiteMark({fill}) {
   return (
     <svg viewBox="0 0 100 100" aria-hidden="true">
@@ -39,7 +41,9 @@ export const MoreIcon = () => (
 
 export const BackIcon = () => <span className="back-ic" aria-hidden="true">‹</span>;
 
+/** @type {import('react').SVGProps<SVGSVGElement>} */
 const stroke = {fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinejoin: 'round', strokeLinecap: 'round'};
+/** @param {{filled?: boolean}} props */
 export const BookmarkIcon = ({filled = false}) => (
   <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" {...stroke} fill={filled ? 'currentColor' : 'none'}><path d="M6 3h12v18l-6-4-6 4z" /></svg>
 );
@@ -67,6 +71,7 @@ export const TrashIcon = () => (
 // is lost at this size) and Dead. The results list also marks the rolls that
 // hurt nobody: a shield (won, every hit saved; 90%, a full-size solid shield
 // outweighs the rows) and = (nobody wins the roll).
+/** @type {Record<string, import('react').ReactElement>} */
 const STATE_GLYPHS = {
   save: <path fill="currentColor" transform="translate(12 12) scale(.9) translate(-12 -12)" d="M12 1.8 L20.5 5 V11.2 C20.5 16.4 17 20.4 12 22.2 C7 20.4 3.5 16.4 3.5 11.2 V5 Z" />,
   tie: <g stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="4" y1="8.5" x2="20" y2="8.5" /><line x1="4" y1="15.5" x2="20" y2="15.5" /></g>,
@@ -86,14 +91,17 @@ const STATE_GLYPHS = {
   dead: <path fill="currentColor" fillRule="evenodd" d="M12 1.8 C6.6 1.8 3 5.5 3 10.2 C3 13.4 4.5 15.6 6.5 16.8 V20.5 Q6.5 22.2 8.2 22.2 H15.8 Q17.5 22.2 17.5 20.5 V16.8 C19.5 15.6 21 13.4 21 10.2 C21 5.5 17.4 1.8 12 1.8 Z M8.6 9 a2.3 2.3 0 1 0 0.01 0 Z M15.4 9 a2.3 2.3 0 1 0 0.01 0 Z M11 14.5 L12 13 L13 14.5 Z" />,
 };
 
+/** @param {{glyph?: string | null, size?: number}} props */
 export function StateGlyph({glyph, size = 15}) {
-  if (!STATE_GLYPHS[glyph]) return <span className="state-glyph blank" style={{width: size}} />;
-  return <svg className="state-glyph" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">{STATE_GLYPHS[glyph]}</svg>;
+  // A null glyph misses, like an unknown one.
+  if (!STATE_GLYPHS[/** @type {string} */ (glyph)]) return <span className="state-glyph blank" style={{width: size}} />;
+  return <svg className="state-glyph" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">{STATE_GLYPHS[/** @type {string} */ (glyph)]}</svg>;
 }
 
 StateGlyph.propTypes = {glyph: PropTypes.string, size: PropTypes.number};
 
 // Split range: one line pulling apart, up and down.
+/** @param {{size?: number}} props */
 export function SplitIcon({size = 13}) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"
@@ -104,10 +112,12 @@ export function SplitIcon({size = 13}) {
 SplitIcon.propTypes = {size: PropTypes.number};
 
 // Smoke (a cloud) and White Noise (static), for the zone chips by the range.
+/** @type {Record<import('../types.js').Zone, string>} */
 const zonePath = {
   smoke: 'M5.5 15h8.5a3.2 3.2 0 0 0 .3-6.4A4.5 4.5 0 0 0 5.8 8 3.5 3.5 0 0 0 5.5 15z',
   whiteNoise: 'M2 10h2.5l1.5-4 2 8 2-10 2 12 2-8 1.5 2H18',
 };
+/** @param {{zone: import('../types.js').Zone, size?: number}} props */
 export function ZoneIcon({zone, size = 13}) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"

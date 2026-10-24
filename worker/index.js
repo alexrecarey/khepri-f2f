@@ -15,6 +15,11 @@ import {previewImage, sharePage} from './preview.js';
 const SLUG = /^\/crests\/([a-z0-9-]+)$/;
 
 export default {
+  /**
+   * @param {Request} request
+   * @param {Env} env
+   * @param {ExecutionContext} ctx
+   */
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (request.method === 'GET' || request.method === 'HEAD') {

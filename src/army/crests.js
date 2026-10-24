@@ -16,7 +16,7 @@ export const crestOf = (unit, profile) => profile?.crest ?? unit?.crest ?? null;
 // the group picks the profile. Groups are the same in every faction.
 /**
  * @param {import('../types.js').Army | null | undefined} army
- * @param {{unitId: number, groupId: number, profileId: number} | null | undefined} row
+ * @param {{unitId: number, groupId: number, profileId: number | null} | null | undefined} row
  * @returns {string | null}
  */
 export function crestForRow(army, row) {

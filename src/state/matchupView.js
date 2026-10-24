@@ -157,7 +157,7 @@ function sideView(army, side, {sel, resolved}, other) {
     // teamOps: the unit has upgrades (rules/trooper.js). A unit means a
     // resolved side and an army.
     teamOps: resolved?.teamOps
-      ? {chart: (/** @type {NonNullable<typeof unit>} */ (unit).upgrades?.chart ?? []).map((u) => u.label), ball: (/** @type {NonNullable<typeof unit>} */ (unit).upgrades?.ball ?? []).map((u) => u.label)}
+      ? {chart: (/** @type {import('../types.js').UnitRow & {upgrades: NonNullable<import('../types.js').UnitRow['upgrades']>}} */ (unit).upgrades.chart ?? []).map((u) => u.label), ball: (/** @type {import('../types.js').UnitRow & {upgrades: NonNullable<import('../types.js').UnitRow['upgrades']>}} */ (unit).upgrades.ball ?? []).map((u) => u.label)}
       : null,
     faction: unit ? /** @type {Army} */ (army).factions[/** @type {number} */ (vanillaOf(army, /** @type {ResolvedSide} */ (resolved).factionId))]?.name ?? null : null,
     // The vanilla faction id (its crest stands in for a missing unit crest)

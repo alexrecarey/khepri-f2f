@@ -16,6 +16,12 @@ import {BookmarkIcon, GearIcon, InfoIcon} from './icons.jsx';
 import {summarize} from '../results/summary.js';
 
 // A second click on the open page's button closes it.
+/** @typedef {NonNullable<import('../types.js').UiState['overlay']>} Overlay */
+
+/**
+ * @param {Overlay} overlay
+ * @param {boolean} open
+ */
 const toggle = (overlay, open) => dispatch(open ? {type: 'back'} : {type: 'openOverlay', overlay});
 
 export function HeaderButtons() {
@@ -23,6 +29,13 @@ export function HeaderButtons() {
   const overlay = useAppState((s) => s.ui.overlay);
   const savedCount = useAppState((s) => s.lists.saved.length);
   // name: the overlay; label: the button's text, or null for an icon named `aria`.
+  /**
+   * @param {Overlay} name
+   * @param {string | null} label
+   * @param {import('react').ReactNode} icon
+   * @param {import('react').ReactNode} [extra]
+   * @param {string} [aria]
+   */
   const button = (name, label, icon, extra, aria) => (
     <button type="button" className={`hdr-btn${label ? '' : ' icon'}`} aria-pressed={overlay === name}
       aria-label={label ? undefined : aria} onClick={() => toggle(name, overlay === name)}>
@@ -40,6 +53,7 @@ export function HeaderButtons() {
 
 // results: {result, targets, params} of the roll on screen, so each choice
 // shows what the card would read with it (the active side's number).
+/** @param {{factions: {id: number, name: string}[], results: {result: import('../types.js').EngineResult | null, targets: import('../types.js').MatchupCore['targets'], params: import('../types.js').Params | null}}} props */
 export function SettingsDialog({factions, results}) {
   const t = useT();
   const choice = useAppState((s) => headlineChoice(s.prefs));

@@ -68,7 +68,7 @@ export function translator(messages = en, lang = SOURCE_LANGUAGE, terms = null) 
     const map = /** @type {Record<string, string> | undefined} */ (scope === undefined ? terms?.[table] : terms?.[table]?.[scope]);
     return map?.[token] ?? token;
   };
-  /** @param {import('../types.js').Terms | null} next */
+  /** @param {import('../types.js').Terms | null | undefined} next */
   t.withTerms = (next) => translator(messages, lang, next);
   // Distances. State and URLs hold centimetres; each language shows its own
   // unit (dist.cmPerUnit): English inches, 2.5 cm each as Infinity plays

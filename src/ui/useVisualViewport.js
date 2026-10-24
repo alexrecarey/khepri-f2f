@@ -20,8 +20,16 @@
 import {useLayoutEffect} from 'react';
 import {DEV_TOOLS} from '../devTools.js';
 
+/** The touched element's scrollers, per axis.
+ * @typedef {{x: Element[], y: Element[]}} Scrollers */
+
+/** @type {{x: number, y: number, scrollers: Scrollers} | null} */
 let touchStart = null;
 
+/**
+ * @param {CSSStyleDeclaration} style
+ * @param {'x' | 'y'} axis
+ */
 const overflows = (style, axis) => {
   const o = axis === 'y' ? style.overflowY : style.overflowX;
   return o === 'auto' || o === 'scroll';
@@ -29,7 +37,12 @@ const overflows = (style, axis) => {
 
 // The touched element and its ancestors that are set to scroll, per axis.
 // Worked out once when the finger goes down, not on every move.
+/**
+ * @param {Element | null} el
+ * @returns {Scrollers}
+ */
 function scrollersOf(el) {
+  /** @type {Scrollers} */
   const out = {x: [], y: []};
   for (; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
     const style = getComputedStyle(el);
@@ -41,6 +54,11 @@ function scrollersOf(el) {
 
 // Can one of the touched element's scrollers scroll by this drag (d > 0:
 // finger moves down / right, so the content scrolls back toward its start)?
+/**
+ * @param {Scrollers} scrollers
+ * @param {'x' | 'y'} axis
+ * @param {number} d
+ */
 function canScroll(scrollers, axis, d) {
   for (const el of scrollers[axis]) {
     const fits = axis === 'y' ? el.scrollHeight <= el.clientHeight + 1 : el.scrollWidth <= el.clientWidth + 1;
@@ -52,11 +70,13 @@ function canScroll(scrollers, axis, d) {
   return false;
 }
 
+/** @param {TouchEvent} e */
 function onTouchStart(e) {
   const t = e.touches[0];
-  touchStart = e.touches.length === 1 ? {x: t.clientX, y: t.clientY, scrollers: scrollersOf(e.target)} : null;
+  touchStart = e.touches.length === 1 ? {x: t.clientX, y: t.clientY, scrollers: scrollersOf(/** @type {Element | null} */ (e.target))} : null;
 }
 
+/** @param {TouchEvent} e */
 function onTouchMove(e) {
   if (!touchStart || e.touches.length !== 1) return; // pinch zoom stays
   const t = e.touches[0];
@@ -67,9 +87,10 @@ function onTouchMove(e) {
   if (window.__touchDebug) {
     const pb = document.querySelector('.page-body');
     const vv = window.visualViewport;
-    window.__touchDebug(`${ok ? 'allow' : 'BLOCK'} ${axis} dx${Math.round(dx)} dy${Math.round(dy)} t=${e.target.className}`
+    // A debug line: a missing viewport reads NaN.
+    window.__touchDebug(`${ok ? 'allow' : 'BLOCK'} ${axis} dx${Math.round(dx)} dy${Math.round(dy)} t=${/** @type {Element} */ (e.target).className}`
       + ` | body st${pb?.scrollTop} sh${pb?.scrollHeight} ch${pb?.clientHeight} ov${pb && getComputedStyle(pb).overflowY}`
-      + ` | vv h${Math.round(vv?.height)} top${Math.round(vv?.offsetTop)} inner${innerHeight} sy${scrollY}`);
+      + ` | vv h${Math.round(/** @type {number} */ (vv?.height))} top${Math.round(/** @type {number} */ (vv?.offsetTop))} inner${innerHeight} sy${scrollY}`);
   }
   if (!ok && e.cancelable) e.preventDefault();
 }
@@ -79,6 +100,7 @@ function onTouchMove(e) {
 if (DEV_TOOLS && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === 'touch') {
   const box = document.createElement('pre');
   box.style.cssText = 'position:fixed;left:0;right:0;top:40px;z-index:999;margin:0;padding:6px;font:10px/1.3 monospace;color:#0f0;background:rgba(0,0,0,.8);pointer-events:none;white-space:pre-wrap;max-height:40vh;overflow:hidden';
+  /** @type {string[]} */
   const lines = [];
   window.__touchDebug = (line) => { lines.unshift(line); lines.length = Math.min(lines.length, 8); box.textContent = lines.join('\n'); };
   window.addEventListener('DOMContentLoaded', () => document.body.appendChild(box));
@@ -89,7 +111,7 @@ let users = 0;
 let savedScroll = 0;
 
 function nudgeScrollers() {
-  for (const el of document.querySelectorAll('.page-body')) {
+  for (const el of /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.page-body'))) {
     const top = el.scrollTop;
     el.style.overflowY = 'hidden';
     void el.offsetHeight; // force the layout with scrolling off...
@@ -109,7 +131,8 @@ function update() {
   const root = document.documentElement.style;
   root.setProperty('--vv-top', `${vv ? vv.offsetTop : 0}px`);
   root.setProperty('--vv-height', `${vv ? vv.height : window.innerHeight}px`);
-  if (window.__touchDebug) window.__touchDebug(`vv h${Math.round(vv?.height)} top${Math.round(vv?.offsetTop)} sy${window.scrollY}`);
+  // A debug line: a missing viewport reads NaN.
+  if (window.__touchDebug) window.__touchDebug(`vv h${Math.round(/** @type {number} */ (vv?.height))} top${Math.round(/** @type {number} */ (vv?.offsetTop))} sy${window.scrollY}`);
 }
 
 function onResize() {
