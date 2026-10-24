@@ -26,7 +26,7 @@ import {msg} from '../i18n/message.js';
 
 /**
  * @param {import('../types.js').ProfileRow | null | undefined} profile
- * @param {import('../types.js').Traits | null | undefined} traits
+ * @param {import('../types.js').Traits | null | undefined} [traits]
  * @param {{shock?: boolean, state?: string | null}} [effects]
  * @returns {WoundStep[]}
  */

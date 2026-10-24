@@ -220,7 +220,7 @@
  * @property {string} [en] the English name, when `name` isn't
  * @property {string | null} mode the firing mode, null for a single-mode weapon
  * @property {number} [burst]
- * @property {number} [dmg] the chart's PS (PARA has none)
+ * @property {number | null} [dmg] the chart's PS (PARA has none)
  * @property {{to: number, mod: number}[] | null} [ranges] range bands (upper bound in cm, BS MOD), null for a weapon without them
  * @property {string[] | null} ammo the chart's ammunition, null for a weapon without (Sepsitor)
  * @property {{attr: 'ARM' | 'BTS' | 'PH', mod?: number, halved?: boolean, armZero?: boolean, alsoBts?: boolean}} [save] the Saving Roll
@@ -353,7 +353,7 @@
  * @property {Say} fail
  * @property {Visibility} vis
  * @property {number} rangeCm
- * @property {number | null} rangeCmB
+ * @property {number | null | undefined} rangeCmB
  * @property {{A: Line[], B: Line[]}} opposing the lines the other side puts on each side's roll
  */
 
@@ -420,6 +420,9 @@
  * @property {Message[]} notes what the rules did
  * @property {{A: SideLines | null, B: SideLines | null}} lines null while a side has nothing to roll with
  */
+
+/** The derivation in the player's language (rules/ledger.js renderDerived): every note a string.
+ * @typedef {Omit<Derived, 'errors' | 'warnings' | 'notes'> & {errors: string[], warnings: string[], notes: string[]}} RenderedDerived */
 
 /**
  * One side of "How the dice were built" as the card shows it
@@ -820,6 +823,12 @@
  */
 
 /**
+ * What a 'replace' action brings: a fixture or a saved roll's slices, any of
+ * them partial; the reducer fills the rest from initialState.
+ * @typedef {{v?: number, mode?: string, matchup?: Partial<Matchup>, classic?: Partial<Params>, ui?: Partial<UiState>, prefs?: Prefs, lists?: AppState['lists'], scopes?: AppState['scopes']}} ReplaceState
+ */
+
+/**
  * The app's one state document (state/schema.js initialState): every screen
  * is a pure function of it plus the army data. Plain, JSON-serializable data.
  * @typedef {object} AppState
@@ -835,7 +844,7 @@
 
 /**
  * Every change to the state document (state/reduce.js reduce), by type.
- * @typedef {{type: 'replace', state: Partial<AppState>}
+ * @typedef {{type: 'replace', state: ReplaceState}
  *   | {type: 'setMode', mode: string}
  *   | {type: 'setSide', side: Side, sel: Partial<Selection>}
  *   | {type: 'patchSide', side: Side, patch: Partial<Selection>}

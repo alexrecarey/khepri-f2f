@@ -5,10 +5,10 @@ import {HEADLINES} from '../results/headline.js';
 
 // The stored pref, or the default for anything missing or unknown.
 /**
- * @param {import('../types.js').Prefs | null | undefined} prefs
+ * @param {{headline?: unknown} | null | undefined} prefs stored prefs, so anything may be in there
  * @returns {import('../types.js').HeadlineChoice}
  */
-export const headlineChoice = (prefs) => (HEADLINES.includes(/** @type {import('../types.js').HeadlineChoice} */ (prefs?.headline)) ? /** @type {import('../types.js').HeadlineChoice} */ (/** @type {import('../types.js').Prefs} */ (prefs).headline) : 'wpo');
+export const headlineChoice = (prefs) => (HEADLINES.includes(/** @type {import('../types.js').HeadlineChoice} */ (prefs?.headline)) ? /** @type {import('../types.js').HeadlineChoice} */ (/** @type {{headline?: unknown}} */ (prefs).headline) : 'wpo');
 
 // The action that sets it, from the Settings, the headline dots and the swipe.
 /**

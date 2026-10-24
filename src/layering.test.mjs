@@ -15,6 +15,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 // What each layer may not import. Anything not listed (worker/, src root)
 // may import what it needs, except ui/: only ui/ and the entry files draw.
 const BOTTOM = ['rules', 'army', 'search', 'engine', 'results', 'lib', 'i18n'];
+/** @type {Record<string, string[]>} */
 const FORBIDDEN = {
   worker: ['ui'],
   // state/ reads the army through army/, never the search index's builder.
@@ -67,7 +68,8 @@ test('layering: dependencies point one way (ui -> state -> rules -> army)', () =
   const violations = [];
   for (const dir of ['src', 'worker']) {
     for (const file of modules(join(ROOT, dir))) {
-      const from = layerOf(file);
+      // Every module under src/ and worker/ is in a layer.
+      const from = /** @type {string} */ (layerOf(file));
       const forbidden = FORBIDDEN[from] ?? (from === 'app' ? [] : ['ui']);
       for (const spec of specifiers(readFileSync(file, 'utf8'))) {
         if (!spec.startsWith('.')) continue;

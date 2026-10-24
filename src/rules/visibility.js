@@ -74,7 +74,7 @@ function ignoredBy(zone, traits) {
 }
 
 // The zones that are on, from {smoke, whiteNoise}.
-/** @param {import('../types.js').Zones | null | undefined} zones */
+/** @param {Partial<import('../types.js').Zones> | null | undefined} zones */
 export const zonesOn = (zones) => ZONES.filter((z) => zones?.[z]);
 
 // Both sides' visibility through the zones: per side,
@@ -88,7 +88,7 @@ export const zonesOn = (zones) => ZONES.filter((z) => zones?.[z]);
 /**
  * @param {ResolvedSide | null} a
  * @param {ResolvedSide | null} b
- * @param {import('../types.js').Zones | null | undefined} zones
+ * @param {Partial<import('../types.js').Zones> | null | undefined} zones
  * @returns {import('../types.js').Visibility}
  */
 export function visibility(a, b, zones) {

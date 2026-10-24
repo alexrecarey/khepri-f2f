@@ -9,8 +9,22 @@ import {stateCaused} from '../army/weapons.js';
 import {buildLedger, renderDerived} from './ledger.js';
 import {deriveInputs as deriveRaw} from './matchup.js';
 
+/** @typedef {import('../types.js').WeaponRow} WeaponRow */
+/** @typedef {import('../types.js').WeaponEntry} WeaponEntry */
+/** @typedef {import('../types.js').ProfileRow} ProfileRow */
+/** @typedef {import('../types.js').OptionRow} OptionRow */
+/** @typedef {import('../types.js').TraitRef} TraitRef */
+/** @typedef {import('../types.js').Trooper} Trooper */
+/** @typedef {import('../types.js').Side} Side */
+/** @typedef {import('../types.js').Line} Line */
+/** @typedef {import('../types.js').Ledger} Ledger */
+/** @typedef {import('../types.js').LedgerSide} LedgerSide */
+/** @typedef {import('../types.js').RenderedDerived} RenderedDerived */
+/** @typedef {import('../types.js').ResolvedSide} ResolvedSide */
+
 // The rules word their notes and lines as message descriptors; these tests
 // read them in English (ledger.js renders them).
+/** @param {Parameters<typeof deriveRaw>[0]} o */
 const deriveInputs = (o) => renderDerived(deriveRaw(o));
 import {rangeModFor} from './ranges.js';
 import {readFileSync} from 'node:fs';
@@ -19,43 +33,75 @@ import {pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
 import {hasNoEffect} from './saves.js';
 import {woundStates} from './woundStates.js';
 
-const W = Object.fromEntries(Object.entries({
+// One rifle, in army.json form: the columns the rules read.
+const W = /** @type {Record<string, WeaponRow[]>} */ (Object.fromEntries(Object.entries({
   1: [{name: 'Combi Rifle', mode: null, ammo: 'N', burst: 3, dmg: 7, saving: 'ARM', saves: '1', props: [],
     ranges: [{to: 40, mod: 3}, {to: 80, mod: -3}, {to: 120, mod: -6}]}],
-}).map(([id, rows]) => [id, rows.map(normalizeWeaponRow)]));
+}).map(([id, rows]) => [id, rows.map(normalizeWeaponRow)])));
 
+/** @type {TraitRef} */
 const HD = {id: EQUIP.HACKING_DEVICE, name: 'Hacking Device'};
+/** @type {TraitRef} */
 const KHD = {id: EQUIP.KILLER_HACKING_DEVICE, name: 'Killer Hacking Device'};
+/** @type {TraitRef} */
 const HACKER = {id: SKILL.HACKER, name: 'Hacker'};
-const profile = (over = {}) => ({id: 1, name: 'P', type: 'LI', bs: 12, ph: 12, wip: 13, arm: 1, bts: 3, w: 1, skills: [], equip: [], ...over});
-const option = (over = {}) => ({id: 1, name: 'O', points: 10, swc: '0', weapons: [{id: 1, name: 'Combi Rifle'}], skills: [], equip: [], ...over});
+// Test fixtures: the fields the rules read stand for whole rows and troopers.
+/**
+ * @param {Partial<ProfileRow>} [over]
+ * @returns {ProfileRow}
+ */
+const profile = (over = {}) => /** @type {ProfileRow} */ ({id: 1, name: 'P', type: 'LI', bs: 12, ph: 12, wip: 13, arm: 1, bts: 3, w: 1, skills: [], equip: [], ...over});
+/**
+ * @param {Partial<OptionRow>} [over]
+ * @returns {OptionRow}
+ */
+const option = (over = {}) => /** @type {OptionRow} */ ({id: 1, name: 'O', points: 10, swc: '0', weapons: [{id: 1, name: 'Combi Rifle'}], skills: [], equip: [], ...over});
+/**
+ * @param {TraitRef} [device]
+ * @param {Partial<ProfileRow>} [over]
+ */
 const hacker = (device = HD, over = {}) => profile({skills: [HACKER], equip: [device], ...over});
 
+/**
+ * @param {ProfileRow} p
+ * @param {string} key
+ * @param {Partial<ResolvedSide>} [extra]
+ * @returns {Trooper}
+ */
 function side(p, key, extra = {}) {
   const o = option();
   const traits = effectiveTraits(p, o);
   const weapon = trooperWeapons(o, W, traits).find((w) => w.key === key)
     ?? trooperPrograms(traits).find((w) => w.key === key)
     ?? pseudoWeapons(traits).find((w) => w.key === key) ?? null;
-  return {profile: p, option: o, traits, weapon, inCover: false, ftSize: 1, ...extra};
+  return /** @type {Trooper} */ ({profile: p, option: o, traits, weapon, inCover: false, ftSize: 1, ...extra});
 }
 
-// What a section's live lines (not struck, a number) add up to.
-const addUp = (lines) => lines.filter((x) => x.value !== null && !x.struck).reduce((n, x) => n + x.value, 0);
+/**
+ * What a section's live lines (not struck, a number) add up to.
+ * @param {Line[]} lines
+ */
+const addUp = (lines) => lines.filter((x) => x.value !== null && !x.struck).reduce((n, x) => n + /** @type {number} */ (x.value), 0);
 
-// deriveInputs, with "How the dice were built" checked against every number.
+/**
+ * deriveInputs, with "How the dice were built" checked against every number.
+ * @param {Parameters<typeof deriveRaw>[0]} args
+ * @returns {RenderedDerived & {ledger: Ledger}}
+ */
 function derive(args) {
   const r = deriveInputs(args);
-  if (!r.ok) return r;
+  // No ledger without inputs: a test reading one fails on its inputs first.
+  if (!r.ok) return /** @type {RenderedDerived & {ledger: Ledger}} */ (r);
   const ledger = buildLedger({...args, derived: r});
-  for (const s of ['A', 'B']) {
+  for (const s of /** @type {Side[]} */ (['A', 'B'])) {
     const l = ledger[s];
     if (!l || l.kind === 'none') continue;
     const o = s === 'A' ? 'B' : 'A';
+    /** @type {Record<string, number | undefined>} */
     const expect = {sv: r.inputs[`successValue${s}`], burst: r.inputs[`burst${s}`], sd: r.inputs[`bonusBurst${s}`] ?? 0,
-      save: r.inputs[`damage${s}`] + r.inputs[`arm${o}`]};
+      save: /** @type {number} */ (r.inputs[`damage${s}`]) + /** @type {number} */ (r.inputs[`arm${o}`])};
     for (const [k, total] of Object.entries(expect)) {
-      const sec = l[k];
+      const sec = l[/** @type {'sv' | 'burst' | 'sd' | 'save'} */ (k)];
       if (!sec) continue;
       const where = `ledger ${s} ${k}: ${JSON.stringify(sec.lines)}`;
       assert.equal(sec.total, total, where);
@@ -67,6 +113,7 @@ function derive(args) {
 }
 
 test('devices: a Hacking Device runs Carbonite, Spotlight, Total Control, Oblivion; a Killer one Trinity', () => {
+  /** @param {ProfileRow} p */
   const keys = (p) => trooperPrograms(effectiveTraits(p, option())).map((w) => w.key);
   assert.deepEqual(keys(hacker()), ['hack:carbonite', 'hack:oblivion', 'hack:spotlight', 'hack:totalControl']);
   assert.deepEqual(keys(hacker(KHD)), ['hack:trinity']);
@@ -77,6 +124,7 @@ test('devices: a Hacking Device runs Carbonite, Spotlight, Total Control, Oblivi
 });
 
 test('program upgrades: +1B, +1SD, PS=X, SR-X, AP, an opponent MOD; device MODs on every program', () => {
+  /** @param {TraitRef} device */
   const programs = (device) => Object.fromEntries(trooperPrograms(effectiveTraits(hacker(device), option())).map((w) => [w.key, w]));
   const k = programs({...KHD, extra: ['UPGRADE: Trinity (AP)', 'UPGRADE: Trinity (-3)', '+1B']});
   assert.equal(k['hack:trinity'].mods.forceAP, true);
@@ -102,7 +150,7 @@ test('Zero Pain: from the Hacker skill or an UPGRADE, a Reset with two dice and 
   assert.equal(r.inputs.ammoB, 'DODGE');      // it evades, it causes no saves
   assert.equal(r.inputs.successValueA, 10);   // WIP 13 - 3
   assert.equal(r.inputs.successValueB, 13);
-  assert.match(r.ledger.B.dice, /^Zero Pain B2 SV13/);
+  assert.match(/** @type {LedgerSide} */ (r.ledger.B).dice, /^Zero Pain B2 SV13/);
 });
 
 test('Carbonite: WIP, B2 (B1 in ARO), PS 7 DA on BTS, Immobilized-B; no range, Fireteam or cover', () => {
@@ -112,42 +160,46 @@ test('Carbonite: WIP, B2 (B1 in ARO), PS 7 DA on BTS, Immobilized-B; no range, F
   assert.equal(r.inputs.burstA, 2);
   assert.equal(r.inputs.bonusBurstA, 0);      // no Fireteam +1 SD
   assert.equal(r.inputs.ammoA, 'DA');
-  assert.equal(r.inputs.damageA + r.inputs.armB, 7 + 6);  // cover's +3 does nothing
+  assert.equal(/** @type {number} */ (r.inputs.damageA) + /** @type {number} */ (r.inputs.armB), 7 + 6);  // cover's +3 does nothing
   assert.equal(rangeModFor(trooperPrograms(effectiveTraits(hacker(), option()))[0].row, 240), 0);
   const aro = derive({active: side(tag, '1:'), reactive: side(hacker(), 'hack:carbonite'), rangeCm: 40});
   assert.equal(aro.inputs.burstB, 1);
-  const states = woundStates(tag, effectiveTraits(tag, option()), {state: stateCaused(side(hacker(), 'hack:carbonite').weapon.row)});
+  const states = woundStates(tag, effectiveTraits(tag, option()), {state: stateCaused(/** @type {WeaponEntry} */ (side(hacker(), 'hack:carbonite').weapon).row)});
   assert.deepEqual(states.map((s) => s.key), ['immobilized-b']);
 });
 
 test('Oblivion and Spotlight: AP halves BTS; Trinity: +3 WIP, wounds, B3', () => {
   const hi = profile({type: 'HI', bts: 6});
   const ob = derive({active: side(hacker(), 'hack:oblivion'), reactive: side(hi, '1:'), rangeCm: 40});
-  assert.equal(ob.inputs.damageA + ob.inputs.armB, 4 + 3);
+  assert.equal(/** @type {number} */ (ob.inputs.damageA) + /** @type {number} */ (ob.inputs.armB), 4 + 3);
   const tr = derive({active: side(hacker(KHD), 'hack:trinity'), reactive: side(hacker(HD, {bts: 3}), 'hack:carbonite'), rangeCm: 40});
   assert.equal(tr.inputs.successValueA, 16);
   assert.equal(tr.inputs.burstA, 3);
-  assert.equal(tr.inputs.damageA + tr.inputs.armB, 6 + 3);
-  assert.equal(stateCaused(side(hacker(KHD), 'hack:trinity').weapon.row), null);
+  assert.equal(/** @type {number} */ (tr.inputs.damageA) + /** @type {number} */ (tr.inputs.armB), 6 + 3);
+  assert.equal(stateCaused(/** @type {WeaponEntry} */ (side(hacker(KHD), 'hack:trinity').weapon).row), null);
   // Hacker against hacker: both programs are rolled, Face to Face.
   assert.equal(tr.inputs.burstB, 1);
   assert.equal(tr.inputs.successValueB, 13);
 });
 
 test('targets: Carbonite needs a Hackable trooper or a Hacker, Total Control a TAG, Trinity a Hacker; Spotlight anyone', () => {
-  const row = (key, p = hacker(KHD, {skills: [{...HACKER, extra: ['Carbonite', 'Spotlight']}]})) => side(p, key).weapon.row;
+  /**
+   * @param {string} key a program the hacker has
+   * @param {ProfileRow} [p]
+   */
+  const row = (key, p = hacker(KHD, {skills: [{...HACKER, extra: ['Carbonite', 'Spotlight']}]})) => /** @type {WeaponEntry} */ (side(p, key).weapon).row;
   const li = side(profile(), '1:');
   assert.equal(canTarget(row('hack:carbonite'), li), false);
   assert.equal(canTarget(row('hack:carbonite'), side(profile({type: 'REM'}), '1:')), true);
   assert.equal(canTarget(row('hack:carbonite'), side(hacker(), '1:')), true);
   assert.equal(canTarget(row('hack:spotlight'), li), true);
   assert.equal(canTarget(row('hack:trinity'), li), false);
-  assert.equal(canTarget(side(hacker(), 'hack:totalControl').weapon.row, side(profile({type: 'HI'}), '1:')), false);
+  assert.equal(canTarget(/** @type {WeaponEntry} */ (side(hacker(), 'hack:totalControl').weapon).row, side(profile({type: 'HI'}), '1:')), false);
   // Not a valid target: the program isn't rolled, the other side's shot is a Normal Roll.
   const r = derive({active: side(hacker(KHD), 'hack:trinity'), reactive: side(profile(), '1:'), rangeCm: 40});
   assert.equal(r.inputs.burstA, 0);
   assert.equal(r.inputs.burstB, 1);
-  assert.equal(r.ledger.A.kind, 'none');
+  assert.equal(/** @type {LedgerSide} */ (r.ledger.A).kind, 'none');
   // The reason is a descriptor naming the program; the ledger words it.
   const raw = deriveRaw({active: side(hacker(KHD), 'hack:trinity'), reactive: side(profile(), '1:'), rangeCm: 40});
   assert.deepEqual(raw.lines.A, {kind: 'none', reason: {key: 'ledger.cantTarget', params: {program: 'Trinity'}}});
@@ -168,6 +220,7 @@ test('Face to Face: Dodge can\'t evade a program (Normal Roll); Reset is opposed
 
 test('Firewall: the chip, which starts on the trooper\'s own; +3 to the save; ECM: Hacker on programs only', () => {
   const tag = profile({type: 'TAG', bts: 6});
+  /** @param {Trooper} target */
   const at = (target) => derive({active: side(hacker(), 'hack:carbonite'), reactive: target, rangeCm: 40}).inputs;
   assert.equal(at(side(tag, '1:', {firewall: -3})).successValueA, 10);
   assert.equal(at(side(tag, '1:', {firewall: -3})).armB, 6 + 3);
@@ -179,8 +232,10 @@ test('Firewall: the chip, which starts on the trooper\'s own; +3 to the save; EC
 });
 
 test('Immunity to the State stops the program: (IMM-B) Carbonite, (Isolated) or Warhorse Oblivion, (POS) Total Control', () => {
+  /** @param {string} what */
   const immune = (what) => effectiveTraits(profile({type: 'TAG', skills: [{id: SKILL.IMMUNITY, name: 'Immunity', extra: [what]}]}), option());
-  const row = (key) => side(hacker(), key).weapon.row;
+  /** @param {string} key a program the hacker has */
+  const row = (key) => /** @type {WeaponEntry} */ (side(hacker(), key).weapon).row;
   assert.equal(hasNoEffect(immune('IMM-B'), row('hack:carbonite')), true);
   assert.equal(hasNoEffect(immune('IMM-B'), row('hack:oblivion')), false);
   assert.equal(hasNoEffect(immune('Isolated'), row('hack:oblivion')), true);
@@ -195,27 +250,33 @@ test('upgrades reach the dice: Trinity (AP) halves BTS, (SR-1) lowers PS, (-3) g
   const khd = hacker({...KHD, extra: ['UPGRADE: Trinity (AP)', 'UPGRADE: Trinity (SR-1)', 'UPGRADE: Trinity (-3)']});
   const target = hacker(HD, {wip: 14, bts: 6});
   const r = derive({active: side(khd, 'hack:trinity'), reactive: side(target, 'reset'), rangeCm: 40});
-  assert.equal(r.inputs.damageA + r.inputs.armB, 6 - 1 + 3);
+  assert.equal(/** @type {number} */ (r.inputs.damageA) + /** @type {number} */ (r.inputs.armB), 6 - 1 + 3);
   assert.equal(r.inputs.successValueB, 11);
 });
 
 test('the Firewall chip starts on the trooper\'s own Firewall, which can\'t be switched off; off without one', () => {
+  /** @type {import('../types.js').Army} */
   const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
+  /**
+   * The first loadout the predicate picks, as a selection (the data has one).
+   * @param {(p: ProfileRow, o: OptionRow) => boolean} pred
+   * @returns {Partial<import('../types.js').Selection>}
+   */
   const sel = (pred) => {
     for (const u of army.units) for (const [fid, {groups}] of Object.entries(u.byFaction)) for (const g of groups) for (const o of g.options) {
       if (pred(g.profiles[0], o)) return {unitId: u.id, factionId: Number(fid), groupId: g.id, profileId: g.profiles[0].id, optionId: o.id};
     }
-    return null;
+    return /** @type {never} */ (null);
   };
   const own = sel((p, o) => o.equip.some((e) => (e.extra ?? []).includes('UPGRADE: Firewall (-3)')));
-  assert.equal(resolveSelection(army, own).firewall, -3);
-  assert.equal(resolveSelection(army, {...own, firewall: -6}).firewall, -6);
-  assert.equal(resolveSelection(army, {...own, firewall: 0}).firewall, -3);
-  assert.equal(resolveSelection(army, {...own, firewall: null}).firewall, -3);
+  assert.equal(/** @type {Trooper} */ (resolveSelection(army, own)).firewall, -3);
+  assert.equal(/** @type {Trooper} */ (resolveSelection(army, {...own, firewall: -6})).firewall, -6);
+  assert.equal(/** @type {Trooper} */ (resolveSelection(army, {...own, firewall: 0})).firewall, -3);
+  assert.equal(/** @type {Trooper} */ (resolveSelection(army, {...own, firewall: null})).firewall, -3);
   const none = sel((p, o) => p.type === 'LI' && o.equip.length === 0 && !(p.equip ?? []).length);
-  assert.equal(resolveSelection(army, none).firewall, 0);
-  assert.equal(resolveSelection(army, {...none, firewall: -6}).firewall, -6);
-  assert.equal(resolveSelection(army, {...none, firewall: 0}).firewall, 0);
+  assert.equal(/** @type {Trooper} */ (resolveSelection(army, none)).firewall, 0);
+  assert.equal(/** @type {Trooper} */ (resolveSelection(army, {...none, firewall: -6})).firewall, -6);
+  assert.equal(/** @type {Trooper} */ (resolveSelection(army, {...none, firewall: 0})).firewall, 0);
 });
 
 test('Targeted (the side\'s State): +3 to a shot or program against it, -3 to its Reset; not CC, Dodge or Zero Pain', () => {
@@ -226,7 +287,7 @@ test('Targeted (the side\'s State): +3 to a shot or program against it, -3 to it
   const program = derive({active: side(hacker(), 'hack:carbonite'), reactive: side(hi, 'reset', {targeted: true}), rangeCm: 40});
   assert.equal(program.inputs.successValueA, 13 + 3);
   assert.equal(program.inputs.successValueB, 13 - 3);    // its Reset
-  assert.ok(program.ledger.B.sv.lines.some((l) => l.label === 'Targeted' && l.value === -3));
+  assert.ok(/** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (program.ledger.B).sv).lines.some((l) => l.label === 'Targeted' && l.value === -3));
   // The active side Targeted: the reactive's shot back gets +3.
   const back = derive({active: side(profile(), '1:', {targeted: true}), reactive: side(profile(), '1:'), rangeCm: 40});
   assert.equal(back.inputs.successValueB, 12 + 3 + 3);
@@ -237,13 +298,17 @@ test('Targeted (the side\'s State): +3 to a shot or program against it, -3 to it
 
 test('Hacked: -3 to -12 on a Reset only, within the MOD cap', () => {
   const hi = hacker(HD, {type: 'HI', wip: 13});
+  /**
+   * @param {Partial<ResolvedSide>} extra
+   * @param {Trooper} [attacker]
+   */
   const reset = (extra, attacker = side(hacker(), 'hack:carbonite')) => derive({active: attacker, reactive: side(hi, 'reset', extra), rangeCm: 40});
   assert.equal(reset({hackedReset: -6}).inputs.successValueB, 7);
   // -12 and Trinity's (-3): MODs never pass -12.
   const khd = hacker({...KHD, extra: ['UPGRADE: Trinity (-3)']});
   const capped = reset({hackedReset: -12}, side(khd, 'hack:trinity'));
   assert.equal(capped.inputs.successValueB, 1);
-  assert.ok(capped.ledger.B.sv.lines.some((l) => l.label.includes('MOD')), JSON.stringify(capped.ledger.B.sv.lines));
+  assert.ok(/** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (capped.ledger.B).sv).lines.some((l) => /** @type {string} */ (l.label).includes('MOD')), JSON.stringify(/** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (capped.ledger.B).sv).lines));
   // Not a Reset: the chip does nothing.
   const dodging = derive({active: side(profile(), '1:'), reactive: side(hi, 'dodge', {hackedReset: -9}), rangeCm: 40});
   assert.equal(dodging.inputs.successValueB, 12);
@@ -252,7 +317,7 @@ test('Hacked: -3 to -12 on a Reset only, within the MOD cap', () => {
 test('IMM-A: -6 to a Dodge only', () => {
   const r = derive({active: side(profile(), '1:'), reactive: side(profile(), 'dodge', {immA: true}), rangeCm: 40});
   assert.equal(r.inputs.successValueB, 12 - 6);
-  assert.ok(r.ledger.B.sv.lines.some((l) => l.label === 'IMM-A' && l.value === -6));
+  assert.ok(/** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (r.ledger.B).sv).lines.some((l) => l.label === 'IMM-A' && l.value === -6));
   const shot = derive({active: side(profile(), '1:'), reactive: side(profile(), '1:', {immA: true}), rangeCm: 40});
   assert.equal(shot.inputs.successValueB, 12 + 3);
 });

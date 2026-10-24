@@ -7,6 +7,10 @@ import {createSearch} from '../search/search.js';
 import {lieutenantTwins} from '../search/buildIndex.js';
 import {SKILL} from '../army/ids.js';
 
+/** @typedef {import('../types.js').ProfileHit} ProfileHit */
+/** @typedef {import('../types.js').OptionRow} OptionRow */
+
+/** @type {import('../types.js').Army} */
 const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 const idOf = (name) => Number(Object.keys(army.weapons).find((id) => army.weapons[id][0].name === name));
 
@@ -23,17 +27,17 @@ test('loadouts group by how far their best weapon reaches', () => {
 });
 
 test('groups keep their order and drop empty ones', () => {
-  const hits = [{weaponIds: [idOf('Combi Rifle')]}, {weaponIds: [idOf('Heavy Machine Gun')]}];
+  const hits = /** @type {ProfileHit[]} */ ([{weaponIds: [idOf('Combi Rifle')]}, {weaponIds: [idOf('Heavy Machine Gun')]}]);
   assert.deepEqual(groupLoadouts(army, hits).map((g) => g.key), ['long', 'mid']);
 });
 
 test('stat line of a unit', () => {
-  assert.deepEqual(statLine(army, 1803, 101).slice(0, 3), [['CC', 13], ['BS', 12], ['PH', 10]]);
+  assert.deepEqual(statLine(army, 1803, 101)?.slice(0, 3), [['CC', 13], ['BS', 12], ['PH', 10]]);
   assert.equal(statLine(army, -1, 101), null);
 });
 
 test('a loadout is tagged with the skills it adds', () => {
-  const hit = (optionId) => ({unitId: 1803, armyFactionId: 101, groupId: 1, optionId});
+  const hit = (optionId) => /** @type {ProfileHit} */ ({unitId: 1803, armyFactionId: 101, groupId: 1, optionId});
   assert.equal(loadoutTag(army, hit(11)), null); // Lieutenant only: not a tag
   assert.equal(loadoutTag(army, hit(9)), 'Forward Observer, Sensor');
   assert.equal(loadoutTag(army, hit(1)), null);
@@ -41,12 +45,14 @@ test('a loadout is tagged with the skills it adds', () => {
 
 test('weapon charts: bands per range column, main gun first', () => {
   const ml = weaponChart(army, idOf('Missile Launcher'));
+  assert.ok(ml);
   assert.equal(ml.bands.length, 7);
   assert.equal(ml.bands[3], 3);                        // 24-32" is +3
-  assert.equal(weaponChart(army, idOf('Chain Rifle')).bands.every((b) => b === null), true);
+  assert.equal(weaponChart(army, idOf('Chain Rifle'))?.bands.every((b) => b === null), true);
   const charts = loadoutCharts(army, [idOf('Flash Pulse'), idOf('Combi Rifle'), idOf('Pistol')]);
   assert.equal(charts[0].name, 'Combi Rifle');
   const d = unitDetail(army, 1803, 101);
+  assert.ok(d);
   assert.equal(d.profiles[0].stats[0][0], 'MOV');
   assert.deepEqual(d.profiles[0].stats[0][1], [10, 10]); // cm; the pane shows 4-4 (inches) or 10-10 (cm)
 });
@@ -56,27 +62,35 @@ test('Swiss Guard: SWC loadouts first (longer reach first), main gun is the fart
   const index = JSON.parse(readFileSync(new URL('../search/index.json', import.meta.url), 'utf8'));
   const searcher = createSearcher(index);
   const swiss = army.units.find((u) => u.isc === 'Swiss Guard');
+  assert.ok(swiss);
   const hits = orderLoadouts(army, searcher.unitRows(swiss.id, 101));
-  const mains = hits.map((h) => army.weapons[mainWeapon(army, h.weaponIds)][0].name);
+  // Every Swiss Guard loadout has a main weapon.
+  const mains = hits.map((h) => army.weapons[/** @type {number} */ (mainWeapon(army, h.weaponIds))][0].name);
   assert.deepEqual(mains.slice(0, 3), ['Missile Launcher', 'Heavy Machine Gun', 'MULTI Rifle']);
   assert.equal(loadoutCharts(army, hits[0].weaponIds)[0].name, 'Missile Launcher');
 });
 
 test('Lieutenant: twins of a plain loadout are dropped, the skill is never a tag', () => {
-  const lt = {id: 2, weapons: [{id: 1}], skills: [{id: SKILL.LIEUTENANT, name: 'Lieutenant'}], equip: []};
-  const plain = {id: 1, weapons: [{id: 1}], skills: [], equip: []};
-  const other = {id: 3, weapons: [{id: 2}], skills: [{id: SKILL.LIEUTENANT, name: 'Lieutenant'}, {id: 0, name: 'Hacker'}], equip: []};
+  // Loadouts as the twins check reads them: weapons, skills, equipment.
+  const lt = /** @type {OptionRow} */ ({id: 2, weapons: [{id: 1}], skills: [{id: SKILL.LIEUTENANT, name: 'Lieutenant'}], equip: /** @type {import('../types.js').TraitRef[]} */ ([])});
+  const plain = /** @type {OptionRow} */ ({id: 1, weapons: [{id: 1}], skills: /** @type {import('../types.js').TraitRef[]} */ ([]), equip: /** @type {import('../types.js').TraitRef[]} */ ([])});
+  const other = /** @type {OptionRow} */ ({id: 3, weapons: [{id: 2}], skills: [{id: SKILL.LIEUTENANT, name: 'Lieutenant'}, {id: 0, name: 'Hacker'}], equip: /** @type {import('../types.js').TraitRef[]} */ ([])});
   assert.deepEqual([...lieutenantTwins([plain, lt, other])], [2]);
   const unit = army.units.find((u) => u.byFaction[101]?.groups.some((g) => g.options.some((o) => (o.skills ?? []).some((s) => s.name === 'Lieutenant'))));
+  assert.ok(unit);
   const group = unit.byFaction[101].groups.find((g) => g.options.some((o) => (o.skills ?? []).some((s) => s.name === 'Lieutenant')));
+  assert.ok(group);
   const option = group.options.find((o) => (o.skills ?? []).some((s) => s.name === 'Lieutenant'));
-  assert.ok(!(loadoutTag(army, {unitId: unit.id, armyFactionId: 101, groupId: group.id, optionId: option.id}) ?? '').includes('Lieutenant'));
+  assert.ok(option);
+  assert.ok(!(loadoutTag(army, /** @type {ProfileHit} */ ({unitId: unit.id, armyFactionId: 101, groupId: group.id, optionId: option.id})) ?? '').includes('Lieutenant'));
 });
 
 test('a unit with several profile groups: one section each, shared kit once, rows keep what differs', () => {
   const searcher = createSearch(JSON.parse(readFileSync(new URL('../search/index.json', import.meta.url), 'utf8')));
   const morat = army.units.find((u) => u.slug === 'morat-team-ops');
+  assert.ok(morat);
   const groups = profileGroups(army, searcher.unitRows(morat.id));
+  assert.ok(groups);
   assert.deepEqual(groups.map((g) => [g.name, g.type, g.items.length]),
     [['Treitak Spec-Ops', 'MI', 6], ['Treitak Heavy Spec-Ops', 'HI', 4], ['Asklad Creatures', 'LI', 2]]);
   const [treitak, heavy, asklad] = groups;
@@ -87,10 +101,12 @@ test('a unit with several profile groups: one section each, shared kit once, row
   assert.notDeepEqual(heavy.stats, treitak.stats);
   assert.deepEqual(asklad.shared, ['Heavy Flamethrower', 'AP CC Weapon']);
   // A TAG and its peripheral: the Crabbot carries no weapon, so its row is its loadout's name.
-  const cutters = profileGroups(army, searcher.unitRows(army.units.find((u) => u.slug === 'cutters-varuna-naval-chasseurs').id));
+  const cutters = profileGroups(army, searcher.unitRows(/** @type {import('../types.js').UnitRow} */ (army.units.find((u) => u.slug === 'cutters-varuna-naval-chasseurs')).id));
+  assert.ok(cutters);
   assert.deepEqual(cutters.map((g) => g.type), ['TAG', 'REM']);
   assert.deepEqual(cutters[1].items.map(({own}) => own), [['CRABBOT']]);
   // A unit with one profile group keeps today's page.
   const fusiliers = army.units.find((u) => u.slug === 'fusiliers');
+  assert.ok(fusiliers);
   assert.equal(profileGroups(army, searcher.unitRows(fusiliers.id)), null);
 });

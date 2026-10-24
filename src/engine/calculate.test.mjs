@@ -42,6 +42,11 @@ test('engine input: Immunity (Critical) belongs to the target', () => {
   assert.equal(e.critSaveB, true);
 });
 
+/**
+ * @param {import('../types.js').EngineOutput['outcomes']} outcomes
+ * @param {number | bigint} [rolls]
+ * @returns {import('../types.js').RunEngine}
+ */
 const stub = (outcomes, rolls = 8000) => () => ({rolls, outcomes});
 
 test('result rows: active, fail, reactive by wounds, with cumulative chances', () => {
@@ -81,6 +86,7 @@ test('result rows: wounds over the maximum count as the maximum', () => {
 });
 
 test('Shock: one extra wound once a Saving Roll fails, on the side that has it', () => {
+  /** @type {import('../types.js').EngineOutput['outcomes']} */
   const outcomes = [
     {player: 'active', wounds: 0, chance: 0.2},
     {player: 'active', wounds: 1, chance: 0.3},
@@ -93,7 +99,9 @@ test('Shock: one extra wound once a Saving Roll fails, on the side that has it',
 });
 
 test('a Direct Template against an attack: one engine run per side, each alone', () => {
+  /** @type {import('../types.js').EngineInput[]} */
   const runs = [];
+  /** @type {import('../types.js').RunEngine} */
   const engine = (e) => {
     runs.push(e);
     const player = e.burstA > 0 || e.templateA ? 'active' : 'reactive';
@@ -108,14 +116,14 @@ test('a Direct Template against an attack: one engine run per side, each alone',
   // The shot alone: no template, no fixed roll.
   assert.deepEqual([runs[1].templateA, runs[1].burstA, runs[1].burstB, runs[1].bonusBurstB], [false, 0, 1, 1]);
   assert.equal(r.totalRolls, 21);
-  assert.deepEqual(Object.keys(r.unopposed), ['active', 'reactive']);
+  assert.deepEqual(Object.keys(/** @type {NonNullable<typeof r.unopposed>} */ (r.unopposed)), ['active', 'reactive']);
   assert.deepEqual(r.faceToFace.map((x) => x.player), ['active', 'reactive']);
   assert.deepEqual(r.expectedWounds.map((x) => [x.id, x.player]),
     [[0, 'active'], [1, 'active'], [2, 'reactive']]);
 });
 
 test('a Direct Template against a Dodge or No ARO is one run', () => {
-  for (const p of [{ammoB: 'DODGE'}, {burstB: 0}]) {
+  for (const p of /** @type {Partial<import('../types.js').Params>[]} */ ([{ammoB: 'DODGE'}, {burstB: 0}])) {
     let n = 0;
     const r = calculate({...P, templateA: true, ...p}, () => (n++, {rolls: 1, outcomes: []}));
     assert.equal(n, 1);
