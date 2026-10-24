@@ -27,6 +27,12 @@ that review found. Layout and commands: README.md and CLAUDE.md.
 - Never classify things by their display label (`label.startsWith(...)`).
 - State stores what the player chose, not what can be derived (default
   weapons, summaries, results).
+- What crosses a boundary from outside (URL, localStorage, `?card=`) is
+  defined once as a valibot schema next to its data (`engine/params.js`,
+  `state/schema.js`, `share/card.js`); `types.js` infers the typedef from it
+  and `lib/parse.js` `parseOr` is the one parse policy (never throw; a bad
+  field falls back to its default, the rest is kept). No hand-written check
+  beside a schema.
 - Write the rule in GAME_RULES.md when Alex rules on it.
 
 ## Async and data loading
