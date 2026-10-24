@@ -337,3 +337,51 @@ tuple parameter, `win.none` assigned after the literal). No runtime change
 unless a diagnostic finds a real bug: then fix it with a test and say so.
 CI (`.github/workflows/*.yml`) runs `yarn test`, which now includes the
 check; confirm.
+
+## Step 10 — input validated by schemas (valibot)
+
+Outside data enters in four places, each hand-checked against a shape that
+is also written as a typedef in `types.js`: `engine/params.js` `parseParams`
+(URL → Params, table-driven from `PARAMS`), `matchup/matchupParams.js`
+`decodeMatchup` (URL → Selection; ids accept 1.5 or −3, `weaponKey` is
+unbounded), `share/card.js` `decodeCard` (?card= → Card, also in the
+Cloudflare Worker), and `state/storage.js` `loadPersisted` (localStorage →
+mode/prefs/lists/scopes; `prefs` is cast wholesale, recents aren't
+field-checked, a saved roll's `setup` is spread into the document by
+`normalizeSetup` unchecked). One definition each, as a valibot schema that is
+both the parser and the type.
+
+- Dependency: `valibot` 1.x (pinned, at least two weeks old), a runtime
+  dependency; `.yarn/cache` committed; `yarn install --immutable` passes.
+  Nothing else.
+- Policy, unchanged: never throw; a bad field falls back to its default and
+  the rest is kept (`v.fallback` per field, `v.safeParse` at the top). One
+  helper `src/lib/parse.js` `parseOr(schema, value, fallback)` holds the
+  policy; `lib/` may import valibot.
+- Schemas next to the data they describe: `SelectionSchema`,
+  `MatchupSchema`, `PrefsSchema`, `RecentSchema`, `SavedRollSchema`,
+  `PersistedSchema` in `state/schema.js`; `CardSchema` in `share/card.js`;
+  `ParamsSchema` in `engine/params.js` built FROM the `PARAMS` table (the
+  table stays the source: the UI reads its limits). `decodeMatchup` keeps its
+  `FIELDS` codec and validates the assembled selection through
+  `SelectionSchema`; `loadPersisted` becomes one `safeParse` of
+  `PersistedSchema`; `normalizeSetup` validates a loaded roll's `setup`
+  through `MatchupSchema` / `ParamsSchema`; `decodeCard` is `CardSchema` plus
+  the length cap; `headlineChoice` reads `PrefsSchema`'s `headline`.
+- Types: the typedefs `Selection`, `Matchup`, `Params`, `Prefs`, `Recent`,
+  `SavedRoll`, `Card`, `CardSide` in `types.js` become
+  `import('valibot').InferOutput<typeof X>` aliases, so the schema is the
+  one definition; the `/** @type */` casts those four decoders carry go.
+  `yarn typecheck` (both configs) stays at 0.
+- Tests: the existing decoder tests stay green; add the negative cases that
+  pass today and must not: `unitA=1.5`, `unitA=-3`, a 300-char `weaponA`, a
+  saved roll with `rangeCm: "abc"` or `A.unitId: {}`, `prefs.startFaction:
+  "x"`, `prefs.language: 3`, a recent without `unitId`; each with the
+  expected fallback.
+- Verification: ledger snapshot identical (the snapshot feeds well-formed
+  state); the URL round-trip tests (`matchupParams.test.mjs`,
+  `url.test.mjs` if present) identical; a before/after dump of `stateFromUrl`
+  over every share link in the tests plus 500 random well-formed links (seeded)
+  must be equal; main chunk growth reported (expect ≤ 3 kB gzip); the
+  Worker build (`yarn build` covers it? check `wrangler.jsonc` / deploy
+  workflow) still bundles `share/card.js`.
