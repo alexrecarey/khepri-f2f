@@ -1,4 +1,6 @@
+import * as v from 'valibot';
 import {clamp} from '../lib/clamp.js';
+import {intIn, numberFromUrl, parseOr} from '../lib/parse.js';
 
 // The calculator's input (types.js Params): one flat object of calculator
 // params, the same in Basic mode, Matchup mode, share links, saved results
@@ -11,7 +13,10 @@ import {clamp} from '../lib/clamp.js';
 // Rolls; NONE for an attack the target is immune to, rolled and opposed but
 // harmless.
 /** @typedef {import('../types.js').Params} Params */
+/** @typedef {import('../types.js').SideParams} SideParams */
 /** @typedef {import('../types.js').Ammo} Ammo */
+/** A param's key: a SideParams key with its side, or the fixed-roll flag.
+ * @typedef {`${keyof SideParams}A` | `${keyof SideParams}B` | 'fixedFaceToFace'} ParamKey */
 
 /** @type {Ammo[]} */
 export const AMMO_KEYS = ['N', 'DA', 'EXP', 'T2', 'PLASMA', 'DODGE', 'NONE'];
@@ -67,30 +72,45 @@ const side = (s, burst) => ({
 });
 
 // Computed keys: tsc sees an index signature, so the shape is stated.
-/** @type {Record<keyof Params, ParamSpec>} */
-export const PARAMS = /** @type {Record<keyof Params, ParamSpec>} */ ({
+/** @type {Record<ParamKey, ParamSpec>} */
+export const PARAMS = /** @type {Record<ParamKey, ParamSpec>} */ ({
   ...side('A', 3),
   ...side('B', 1),
   fixedFaceToFace: bool(),   // Reactive rolls a fixed value (e.g. AC2)
 });
 
-/** @type {(keyof Params)[]} */
-export const PARAM_KEYS = /** @type {(keyof Params)[]} */ (Object.keys(PARAMS));
+/** @type {ParamKey[]} */
+export const PARAM_KEYS = /** @type {ParamKey[]} */ (Object.keys(PARAMS));
 
 /** @type {Params} */
 export const DEFAULT_PARAMS = /** @type {Params} */ (Object.fromEntries(PARAM_KEYS.map((k) => [k, PARAMS[k].default])));
 
-// One raw string (URL param) -> value, or undefined when it can't be read.
-/**
- * @param {ParamSpec} spec
- * @param {string} raw
- */
-function parseValue(spec, raw) {
-  if (spec.type === 'int') return isNaN(Number(raw)) ? undefined : clamp(spec.limit, Number(raw));
-  if (spec.type === 'bool') return raw.toLowerCase() === 'true';
-  const upper = raw.toUpperCase();
-  return AMMO_KEYS.includes(/** @type {Ammo} */ (upper)) ? /** @type {Ammo} */ (upper) : undefined;
-}
+// The schemas, built from the table (PARAMS stays the source: the UI reads
+// its limits). Each field falls back to its default, so a Params always
+// comes out whole. The entries' type is stated the way PARAMS's is: tsc sees
+// Object.fromEntries as an index signature.
+/** @typedef {{[K in keyof SideParams as `${K}A` | `${K}B`]: v.GenericSchema<unknown, SideParams[K]>} & {fixedFaceToFace: v.GenericSchema<unknown, boolean>}} ParamEntries */
+/** @param {(spec: ParamSpec) => v.GenericSchema<unknown, number> | v.GenericSchema<unknown, boolean> | v.GenericSchema<unknown, Ammo>} schemaOf */
+const table = (schemaOf) => v.object(/** @type {ParamEntries} */ (Object.fromEntries(PARAM_KEYS.map((k) => [k, schemaOf(PARAMS[k])]))));
+
+// A param as a value (a saved roll's setup): an int within its limits, a
+// boolean, an ammo key.
+/** @param {ParamSpec} spec */
+const valueSchema = (spec) =>
+  spec.type === 'int' ? v.fallback(intIn(spec.limit), spec.default)
+    : spec.type === 'bool' ? v.fallback(v.boolean(), spec.default)
+      : v.fallback(v.picklist(AMMO_KEYS), spec.default);
+export const ParamsSchema = table(valueSchema);
+
+// A param as a URL string: a number is clamped into its limits (a link made
+// for other limits still loads as near as it can), 'true' in any case is
+// true, ammo is read in any case. Anything else is the default.
+/** @param {ParamSpec} spec */
+const urlSchema = (spec) =>
+  spec.type === 'int' ? v.fallback(v.pipe(numberFromUrl, v.transform((n) => clamp(spec.limit, n))), spec.default)
+    : spec.type === 'bool' ? v.fallback(v.pipe(v.string(), v.transform((raw) => raw.toLowerCase() === 'true')), spec.default)
+      : v.fallback(v.pipe(v.string(), v.toUpperCase(), v.picklist(AMMO_KEYS)), spec.default);
+const UrlParamsSchema = table(urlSchema);
 
 /**
  * Calculator params from URL search params; anything missing or unreadable
@@ -99,17 +119,10 @@ function parseValue(spec, raw) {
  * @returns {Params}
  */
 export function parseParams(searchParams) {
-  const out = {...DEFAULT_PARAMS};
-  for (const k of PARAM_KEYS) {
-    const raw = searchParams.get(k);
-    if (raw === null) continue;
-    const v = parseValue(PARAMS[k], raw);
-    // parseValue reads k's spec, so v is k's type.
-    if (v !== undefined) /** @type {Record<string, unknown>} */ (out)[k] = v;
-  }
+  const out = parseOr(UrlParamsSchema, Object.fromEntries(PARAM_KEYS.flatMap((k) => (searchParams.has(k) ? [[k, searchParams.get(k)]] : []))), DEFAULT_PARAMS);
   // Links from before templateA / templateB: dtwVsDodge was an active template
   // against a reactive Dodge, whatever ammoB said.
-  if (searchParams.get('dtwVsDodge')?.toLowerCase() === 'true') Object.assign(out, {templateA: true, ammoB: 'DODGE'});
+  if (searchParams.get('dtwVsDodge')?.toLowerCase() === 'true') return {...out, templateA: true, ammoB: 'DODGE'};
   return out;
 }
 

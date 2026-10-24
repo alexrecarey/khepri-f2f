@@ -2,7 +2,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {AMMO_KEYS, DEFAULT_PARAMS, PARAM_KEYS, fullParams, paramsKey, parseParams} from './params.js';
+import {AMMO_KEYS, DEFAULT_PARAMS, PARAM_KEYS, ParamsSchema, fullParams, paramsKey, parseParams} from './params.js';
+import {parseOr} from '../lib/parse.js';
 import {AMMO as AMMO_RULES, ENGINE_KEYS} from './calculate.js';
 
 const engine = readFileSync(new URL('../../engine-rs/src/engine.rs', import.meta.url), 'utf8');
@@ -60,4 +61,24 @@ test('old share links: dtwVsDodge is an active template against a reactive Dodge
   assert.equal(p.ammoB, 'DODGE');
   assert.equal(parseParams(new URLSearchParams({dtwVsDodge: 'false'})).templateA, false);
   assert.equal('dtwVsDodge' in p, false);
+});
+
+test('ParamsSchema (a saved setup): ints within their limits, else the default; nothing is clamped', () => {
+  const read = (/** @type {unknown} */ setup) => parseOr(ParamsSchema, setup, null);
+  assert.deepEqual(read({}), DEFAULT_PARAMS);
+  assert.deepEqual(read({burstA: 4, ammoB: 'DA', contA: true, junk: 1}), {...DEFAULT_PARAMS, burstA: 4, ammoB: 'DA', contA: true});
+  const p = read({burstA: 1.5, armB: 14, successValueA: '13', ammoA: 'plasma', contA: 'true', shockB: 1});
+  assert.ok(p);
+  assert.equal(p.burstA, DEFAULT_PARAMS.burstA);
+  assert.equal(p.armB, DEFAULT_PARAMS.armB);
+  assert.equal(p.successValueA, DEFAULT_PARAMS.successValueA);
+  assert.equal(p.ammoA, 'N');               // a value, unlike a URL param, is not read in any case
+  assert.equal(p.contA, false);
+  assert.equal(p.shockB, false);
+  assert.equal(read(null), null);
+});
+
+test('parseParams: a URL number is what Number() reads, clamped; an empty value is 0', () => {
+  const p = parseParams(new URLSearchParams({burstA: 'Infinity', damageA: '', armA: ' 5 ', btsB: '1e1'}));
+  assert.deepEqual([p.burstA, p.damageA, p.armA, p.btsB], [6, 0, 5, 10]);
 });
