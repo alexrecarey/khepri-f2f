@@ -60,6 +60,12 @@ const isDescriptor = (m) => m !== null && typeof m === 'object' && !Array.isArra
 /**
  * @overload
  * @param {import('../types.js').Translator} t
+ * @param {import('../types.js').Message | null} m a Message, or null
+ * @returns {string | null} the text, or null as it came
+ */
+/**
+ * @overload
+ * @param {import('../types.js').Translator} t
  * @param {unknown} m anything else
  * @returns {unknown} `m` as it came
  */

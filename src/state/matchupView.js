@@ -30,11 +30,28 @@ import {render} from '../i18n/message.js';
 // A side resolved with the weapon it rolls: its own pick, else the default
 // for its role, picked from the lists the one resolution built. `sel` carries
 // that key (the default is derived here, never written to the document).
+/** @typedef {import('../types.js').Army} Army */
+/** @typedef {import('../types.js').Side} Side */
+/** @typedef {import('../types.js').ResolvedSide} ResolvedSide */
+/** @typedef {import('../types.js').Choice} Choice */
+/** @typedef {import('../types.js').WeaponGroup} WeaponGroup */
+/** @typedef {import('../types.js').SideView} SideView */
+/** @typedef {import('../types.js').MatchupCore} MatchupCore */
+/** A side as resolveSide returns it: the selection with its weapon key, and the trooper.
+ * @typedef {{sel: import('../types.js').Selection, resolved: ResolvedSide | null}} Resolution */
+
+/**
+ * @param {Army | null} army
+ * @param {import('../types.js').Selection} sel
+ * @param {Side} side
+ * @returns {Resolution}
+ */
 function resolveSide(army, sel, side) {
   const resolved = resolveSelection(army, sel, side);
   if (sel.weaponKey) return {sel, resolved};
   const key = resolved?.option && resolved.profile ? defaultWeapon(resolved.weapons, ROLE[side])?.key ?? 'dodge' : null;
-  return {sel: {...sel, weaponKey: key}, resolved: key ? withWeapon(resolved, key) : resolved};
+  // A key means a resolved side with a loadout.
+  return {sel: {...sel, weaponKey: key}, resolved: key ? withWeapon(/** @type {ResolvedSide} */ (resolved), key) : resolved};
 }
 
 // Weapon buttons in list order, a weapon's fire modes gathered into one group
@@ -42,13 +59,20 @@ function resolveSide(army, sel, side) {
 // their order for the side's role:
 //   [{key, id, name, w, modes?, labels?}]  modes / labels only for a weapon
 //   with several fire modes (labels: modeLabels, descriptors until rendered).
+/**
+ * @param {Choice[]} list
+ * @param {'active' | 'reactive'} role
+ * @returns {WeaponGroup[]}
+ */
 function weaponGroups(list, role) {
+  /** @type {WeaponGroup[]} */
   const groups = [];
   for (const w of list) {
     const same = w.mode && !isPseudo(w) ? groups.find((g) => g.id === w.id && g.name === w.name) : null;
     if (same) {
-      same.modes ??= [same.w];
-      same.modes.push(w);
+      // A group with a mode is a weapon's (isPseudo above), as is `w`.
+      same.modes ??= [/** @type {import('../types.js').WeaponEntry} */ (same.w)];
+      same.modes.push(/** @type {import('../types.js').WeaponEntry} */ (w));
     } else {
       groups.push({key: w.key, id: w.id, name: w.name, w});
     }
@@ -64,10 +88,15 @@ function weaponGroups(list, role) {
 // A side's Range MOD at a band: null out of range, undefined when it has no
 // range bands (nothing picked, Dodge, No ARO, Direct Template, CC Attack,
 // Hacking Program).
+/**
+ * @param {ResolvedSide | null} resolved
+ * @param {number} to
+ */
 function bandMod(resolved, to) {
   const w = resolved?.weapon;
   if (w?.kind !== 'bs') return undefined;
-  return rangeModFor(w.row, to, resolved.traits);
+  // A weapon means a resolved side.
+  return rangeModFor(w.row, to, /** @type {ResolvedSide} */ (resolved).traits);
 }
 
 // What a side card shows besides the selection: weapon buttons, which chips
@@ -76,6 +105,13 @@ function bandMod(resolved, to) {
 // null) it is the empty side, so this is the one place that builds the fields
 // (types.js SideView).
 // Language-free: renderMatchup words the mode labels and the Team-Ops options.
+/**
+ * @param {Army | null} army
+ * @param {Side} side
+ * @param {Resolution} resolution
+ * @param {ResolvedSide | null} other
+ * @returns {SideView}
+ */
 function sideView(army, side, {sel, resolved}, other) {
   const unit = resolved?.unit;
   const weapons = resolved?.weapons ?? [];
@@ -114,30 +150,35 @@ function sideView(army, side, {sel, resolved}, other) {
     surprise: side === 'A' ? surpriseAttackMod(resolved?.traits) : 0,
     // Berserk's MOD, offered only on the active side (a Long Skill) while it
     // has a CC weapon picked; null otherwise.
-    berserk: side === 'A' && cc && hasBerserk(resolved.traits) ? {mod: berserkMod(resolved.traits)} : null,
+    // cc: the side is resolved.
+    berserk: side === 'A' && cc && hasBerserk(/** @type {ResolvedSide} */ (resolved).traits) ? {mod: berserkMod(/** @type {ResolvedSide} */ (resolved).traits)} : null,
     // Team-Ops: the chart and TacBall options, by label (the Army's, in
     // inches: renderMatchup puts them in the language's unit), for their chips.
+    // teamOps: the unit has upgrades (rules/trooper.js). A unit means a
+    // resolved side and an army.
     teamOps: resolved?.teamOps
-      ? {chart: (unit.upgrades.chart ?? []).map((u) => u.label), ball: (unit.upgrades.ball ?? []).map((u) => u.label)}
+      ? {chart: (/** @type {NonNullable<typeof unit>} */ (unit).upgrades?.chart ?? []).map((u) => u.label), ball: (/** @type {NonNullable<typeof unit>} */ (unit).upgrades?.ball ?? []).map((u) => u.label)}
       : null,
-    faction: unit ? army.factions[vanillaOf(army, resolved.factionId)]?.name ?? null : null,
+    faction: unit ? /** @type {Army} */ (army).factions[/** @type {number} */ (vanillaOf(army, /** @type {ResolvedSide} */ (resolved).factionId))]?.name ?? null : null,
     // The vanilla faction id (its crest stands in for a missing unit crest)
     // and the unit crest's slug (src/army/crests.js).
-    vanilla: unit ? vanillaOf(army, resolved.factionId) : null,
-    crest: unit ? crestOf(unit, resolved.profile) : null,
+    vanilla: unit ? vanillaOf(army, /** @type {ResolvedSide} */ (resolved).factionId) : null,
+    crest: unit ? crestOf(unit, /** @type {ResolvedSide} */ (resolved).profile) : null,
     short: unit ? shortIsc(unit.isc) : null,
-    loadout: unit ? extraLoadoutName(resolved.option?.name, unit.isc) : null,
+    loadout: unit ? extraLoadoutName(/** @type {ResolvedSide} */ (resolved).option?.name, unit.isc) : null,
   };
 }
 
 // The reactive's own distance, or null while both share rangeCm.
+/** @param {import('../types.js').Matchup} matchup */
 const rangeCmB = (matchup) => matchup.rangeCmB ?? null;
 
 /**
  * The rules applied to the matchup, with no language in it: what
  * renderMatchup words. Memoised on (army, matchup) alone (useMatchupView.js).
+ * @param {Army | null} army
  * @param {import('../types.js').Matchup} matchup
- * @returns {import('../types.js').MatchupCore}
+ * @returns {MatchupCore}
  */
 export function matchupCore(army, matchup) {
   const zones = {smoke: Boolean(matchup.smoke), whiteNoise: Boolean(matchup.whiteNoise)};
@@ -158,21 +199,27 @@ export function matchupCore(army, matchup) {
   const params = derived?.ok ? fullParams(derived.inputs) : null;
   // "How the dice were built", but for the ledger itself and the notes,
   // which renderMatchup adds in the player's language.
+  // Complete: both sides resolved.
   const ledger = complete ? {
-    names: {A: shortIsc(A.resolved.unit.isc), B: shortIsc(B.resolved.unit.isc)},
-    tags: {A: unitTag(A.resolved.unit, A.resolved.option), B: unitTag(B.resolved.unit, B.resolved.option)},
+    names: {A: shortIsc(/** @type {ResolvedSide} */ (A.resolved).unit.isc), B: shortIsc(/** @type {ResolvedSide} */ (B.resolved).unit.isc)},
+    tags: {A: unitTag(/** @type {ResolvedSide} */ (A.resolved).unit, /** @type {ResolvedSide} */ (A.resolved).option), B: unitTag(/** @type {ResolvedSide} */ (B.resolved).unit, /** @type {ResolvedSide} */ (B.resolved).option)},
     // As the side cards name them: "Squalos Mk-II · CRABBOT" for a Peripheral.
     labels: {A: [A.short, A.loadout].filter(Boolean).join(' · '), B: [B.short, B.loadout].filter(Boolean).join(' · ')},
-    weapons: {A: A.resolved.weapon?.name, B: B.resolved.weapon?.name},
+    weapons: {A: /** @type {ResolvedSide} */ (A.resolved).weapon?.name, B: /** @type {ResolvedSide} */ (B.resolved).weapon?.name},
   } : null;
   // The states each side's hits push its target through. The active side's
   // results are what it does to the reactive trooper, so they follow B's
   // states (and the other way round).
   // A Jammer's failed save is Isolated, a Flash Pulse's Stunned, not a wound.
+  /**
+   * @param {ResolvedSide | null} target
+   * @param {boolean} shock
+   * @param {ResolvedSide | null} attacker
+   */
   const statesOf = (target, shock, attacker) => (target?.profile
     ? woundStates(target.profile, target.traits, {shock, state: stateCaused(attacker?.weapon?.row)}) : null);
   const targets = complete
-    ? {active: statesOf(B.resolved, params.shockA, A.resolved), reactive: statesOf(A.resolved, params.shockB, B.resolved)} : null;
+    ? {active: statesOf(B.resolved, /** @type {import('../types.js').Params} */ (params).shockA, A.resolved), reactive: statesOf(A.resolved, /** @type {import('../types.js').Params} */ (params).shockB, B.resolved)} : null;
   // Each band's Range MOD per side, for the range selector's stripes.
   const bands = RANGE_BANDS.map((b) => ({to: b.to, A: bandMod(A.resolved, b.to), B: bandMod(B.resolved, b.to)}));
   // What Smoke / White Noise do to each side, for the range selector.
@@ -187,12 +234,26 @@ export function matchupCore(army, matchup) {
  * notes, zone lines, wound states, mode labels), the Team-Ops labels in its
  * unit. `derived` stays the core's: the rules' output, descriptors and all.
  * t: the player's translator (src/i18n), with the army's terms.
- * @param {import('../types.js').MatchupCore} core
+ * @param {MatchupCore} core
+ * @param {import('../types.js').Translator} [t]
  * @returns {import('../types.js').MatchupView}
  */
 export function renderMatchup(core, t = tEn) {
-  if (!core.ready) return core;
+  // Not ready: nothing to render, and its ledger is null either way.
+  if (!core.ready) return /** @type {import('../types.js').MatchupView} */ (core);
+  /**
+   * @overload
+   * @param {import('../types.js').Message} m
+   * @returns {string}
+   */
+  /**
+   * @overload
+   * @param {import('../types.js').Message | null} m
+   * @returns {string | null}
+   */
+  /** @param {import('../types.js').Message | null} m */
   const say = (m) => render(t, m);
+  /** @param {SideView} x */
   const side = (x) => ({
     ...x,
     groups: x.groups.map((g) => (g.labels ? {...g, labels: new Map([...g.labels].map(([k, m]) => [k, say(m)]))} : g)),
@@ -202,14 +263,17 @@ export function renderMatchup(core, t = tEn) {
   const B = side(core.B);
   // The derivation in t's language feeds the ledger and its notes; the view
   // keeps the core's own `derived` (descriptors), one shape under one name.
-  const rendered = renderDerived(core.derived, t);
+  // A ready core has derived and vis; rendered notes are strings.
+  const rendered = renderDerived(/** @type {import('../types.js').Derived} */ (core.derived), t);
   const ledger = core.ledger && {
     ledger: buildLedger({active: A.resolved, reactive: B.resolved, derived: rendered, t}),
     ...core.ledger,
-    notes: [...rendered.warnings, ...rendered.notes],
+    notes: /** @type {string[]} */ ([...rendered.warnings, ...rendered.notes]),
   };
+  /** @param {import('../types.js').VisSide} v */
   const zoneLines = (v) => ({...v, lines: v.lines.map((l) => ({...l, label: say(l.label), ignoredBy: say(l.ignoredBy)}))});
-  const vis = {A: zoneLines(core.vis.A), B: zoneLines(core.vis.B)};
+  const vis = {A: zoneLines(/** @type {import('../types.js').Visibility} */ (core.vis).A), B: zoneLines(/** @type {import('../types.js').Visibility} */ (core.vis).B)};
+  /** @param {import('../types.js').WoundStep[] | null} list */
   const states = (list) => list && list.map((s) => ({...s, label: say(s.label)}));
   const targets = core.targets && {active: states(core.targets.active), reactive: states(core.targets.reactive)};
   return {...core, A, B, ledger, vis, targets};
@@ -217,7 +281,9 @@ export function renderMatchup(core, t = tEn) {
 
 /**
  * t: the language of every label and note (src/i18n), with the army's terms.
+ * @param {Army | null} army
  * @param {import('../types.js').Matchup} matchup
+ * @param {import('../types.js').Translator} [t]
  * @returns {import('../types.js').MatchupView}
  */
 export const matchupView = (army, matchup, t = tEn) => renderMatchup(matchupCore(army, matchup), t);

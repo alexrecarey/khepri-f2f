@@ -22,8 +22,7 @@ import {msg} from '../i18n/message.js';
 
 // `state` is the State's English name (weapons.js stateCaused); its key and
 // label follow from it.
-/** A wound state before results/summary.js adds its share of the rolls.
- * @typedef {Pick<import('../types.js').WoundState, 'key' | 'label' | 'wounds' | 'glyph' | 'outOfFight' | 'shock' | 'state'>} WoundStep */
+/** @typedef {import('../types.js').WoundStep} WoundStep */
 
 /**
  * @param {import('../types.js').ProfileRow | null | undefined} profile

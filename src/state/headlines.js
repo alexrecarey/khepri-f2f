@@ -4,9 +4,17 @@
 import {HEADLINES} from '../results/headline.js';
 
 // The stored pref, or the default for anything missing or unknown.
-export const headlineChoice = (prefs) => (HEADLINES.includes(prefs?.headline) ? prefs.headline : 'wpo');
+/**
+ * @param {import('../types.js').Prefs | null | undefined} prefs
+ * @returns {import('../types.js').HeadlineChoice}
+ */
+export const headlineChoice = (prefs) => (HEADLINES.includes(/** @type {import('../types.js').HeadlineChoice} */ (prefs?.headline)) ? /** @type {import('../types.js').HeadlineChoice} */ (prefs?.headline) : 'wpo');
 
 // The action that sets it, from the Settings, the headline dots and the swipe.
+/**
+ * @param {import('../types.js').HeadlineChoice} choice
+ * @returns {import('../types.js').Action}
+ */
 export const setHeadline = (choice) => ({type: 'setPref', key: 'headline', value: choice});
 
 // The address's key. Opening a link leaves the receiver's own pref alone.

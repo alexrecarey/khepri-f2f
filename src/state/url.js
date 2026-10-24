@@ -15,15 +15,24 @@ import {armSave, btsSave, classicSave} from './classicView.js';
 import {DEFAULT_RANGE_CM, EMPTY_SIDE} from './schema.js';
 
 // Engine params the ps keys replace in new links.
+/** @typedef {import('../types.js').Side} Side */
+/** @typedef {import('../types.js').AppState} AppState */
+
 const SPLIT_KEYS = new Set(['A', 'B'].flatMap((s) => [`damage${s}`, `arm${s}`, `bts${s}`]));
+/** @param {Side} s */
 const psKey = (s) => `ps${s}`;
+/** @param {Side} s */
 const psBtsKey = (s) => `psBts${s}`;
 
 // The ps keys of a link applied over its params (setClassicSave's rules).
+/**
+ * @param {import('../types.js').Params} classic
+ * @param {URLSearchParams} params
+ */
 function applySaves(classic, params) {
   let c = classic;
-  for (const [key, which] of [[psKey, 'arm'], [psBtsKey, 'bts']]) {
-    for (const s of ['A', 'B']) {
+  for (const [key, which] of /** @type {[(s: Side) => string, 'arm' | 'bts'][]} */ ([[psKey, 'arm'], [psBtsKey, 'bts']])) {
+    for (const s of /** @type {Side[]} */ (['A', 'B'])) {
       const raw = params.get(key(s));
       const n = raw === null || raw.trim() === '' ? NaN : Number(raw);
       if (Number.isFinite(n)) c = classicSave(c, s, which, Math.round(n));
@@ -34,11 +43,16 @@ function applySaves(classic, params) {
 
 // What a URL says about the document: {mode?, matchup?, classic?}; only the
 // keys the URL actually sets.
+/**
+ * @param {string} search
+ * @returns {{mode?: string, matchup?: import('../types.js').Matchup, classic?: import('../types.js').Params}}
+ */
 export function stateFromUrl(search) {
   const params = new URLSearchParams(search);
+  /** @type {{mode?: string, matchup?: import('../types.js').Matchup, classic?: import('../types.js').Params}} */
   const out = {};
   const mode = params.get('mode');
-  if (Object.values(MODES).includes(mode)) out.mode = mode;
+  if (Object.values(MODES).includes(/** @type {string} */ (mode))) out.mode = /** @type {string} */ (mode);
 
   const m = decodeMatchup(params);
   if (m) {
@@ -51,7 +65,7 @@ export function stateFromUrl(search) {
     };
   }
   const hasCalc = PARAM_KEYS.some((k) => params.has(k)) || params.has('dtwVsDodge')
-    || ['A', 'B'].some((s) => params.has(psKey(s)) || params.has(psBtsKey(s)));
+    || /** @type {Side[]} */ (['A', 'B']).some((s) => params.has(psKey(s)) || params.has(psBtsKey(s)));
   if (hasCalc) out.classic = applySaves(parseParams(params), params);
   // A link without a mode opens what it carries: troopers -> Matchup, else
   // calculator values -> Classic (links from before modes were in the URL).
@@ -61,6 +75,7 @@ export function stateFromUrl(search) {
 }
 
 // The query string ("?mode=..") for the document's current mode.
+/** @param {AppState} state */
 export function urlFromState(state) {
   const q = new URLSearchParams({mode: state.mode});
   if (state.mode === MODES.matchup) {
@@ -74,7 +89,7 @@ export function urlFromState(state) {
     for (const k of PARAM_KEYS) {
       if (!SPLIT_KEYS.has(k) && c[k] !== DEFAULT_PARAMS[k]) q.set(k, String(c[k]));
     }
-    for (const s of ['A', 'B']) {
+    for (const s of /** @type {Side[]} */ (['A', 'B'])) {
       if (armSave(c, s) !== armSave(DEFAULT_PARAMS, s)) q.set(psKey(s), String(armSave(c, s)));
       // Only Plasma makes the target save with BTS.
       if (c[`ammo${s}`] === 'PLASMA' && btsSave(c, s) !== btsSave(DEFAULT_PARAMS, s)) q.set(psBtsKey(s), String(btsSave(c, s)));

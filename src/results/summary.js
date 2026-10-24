@@ -6,8 +6,7 @@ import {RAMP} from './ramp.js';
 /** @typedef {import('../types.js').WoundRow} WoundRow */
 /** @typedef {import('../types.js').Player} Player */
 /** @typedef {'active' | 'reactive'} Role */
-/** A side's target's wound states before the rolls are shared out (rules/woundStates.js).
- * @typedef {Pick<import('../types.js').WoundState, 'key' | 'label' | 'wounds' | 'glyph' | 'outOfFight' | 'shock' | 'state'>} WoundStep */
+/** @typedef {import('../types.js').WoundStep} WoundStep */
 
 // Wounds the bars count one by one; more show as this many ("3+"). Not the
 // engine's MAX_WOUNDS (calculate.js), which caps what it calculates.
