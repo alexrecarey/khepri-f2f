@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import svgr from 'vite-plugin-svgr'
 import { VitePWA } from 'vite-plugin-pwa'
 import { execSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -71,8 +70,7 @@ export default defineConfig({
     __PREVIEW__: JSON.stringify(process.env.PREVIEW === '1'),
   },
   plugins: [
-    react(), 
-    svgr(), 
+    react(),
     armyModules(),
     VitePWA({
       registerType: 'autoUpdate',
