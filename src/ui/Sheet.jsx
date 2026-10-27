@@ -1,7 +1,6 @@
 // Overlays: a bottom sheet over a dimmed screen, and a full-screen page.
 // Both close on Escape; the sheet also on a tap outside it.
 import {useRef} from 'react';
-import PropTypes from 'prop-types';
 import {BackIcon} from './icons.jsx';
 import useDialogFocus from './useDialogFocus.js';
 import useEscape from './useEscape.js';
@@ -29,11 +28,6 @@ export function Sheet({onClose, label, children, actions, sheetRef, scrimRef}) {
     </>
   );
 }
-
-Sheet.propTypes = {
-  onClose: PropTypes.func.isRequired, label: PropTypes.string.isRequired, children: PropTypes.node, actions: PropTypes.node,
-  sheetRef: PropTypes.object, scrimRef: PropTypes.object,
-};
 
 // `closeLabel` ("Cancel"): the page is the first of its stack, so it closes
 // with a text button on the right instead of a back arrow.
@@ -63,15 +57,3 @@ export function Page({title, subtitle, onBack, children, footer, action, closeLa
     </div>
   );
 }
-
-Page.propTypes = {
-  title: PropTypes.node.isRequired,
-  subtitle: PropTypes.node,
-  onBack: PropTypes.func.isRequired,
-  children: PropTypes.node,
-  footer: PropTypes.node,
-  action: PropTypes.node,
-  closeLabel: PropTypes.string,
-  label: PropTypes.string,
-  className: PropTypes.string,
-};

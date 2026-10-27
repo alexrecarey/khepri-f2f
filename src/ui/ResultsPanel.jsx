@@ -1,6 +1,5 @@
 // Tablet and desktop: the results in their own column, always open. The mods
 // go in another column (MatchupScreen). The phone's sheet is ResultsCard.jsx.
-import PropTypes from 'prop-types';
 import {shareLink} from './share.js';
 import ResultsBody, {SheetActions} from './ResultsBody.jsx';
 import {EngineLoading, WaitPanel} from './ResultsWait.jsx';
@@ -25,7 +24,3 @@ export default function ResultsPanel({s, status, diceLine, classic, ledger, save
 }
 
 // The same props as ResultsCard (documented there).
-ResultsPanel.propTypes = {
-  s: PropTypes.object, status: PropTypes.string, diceLine: PropTypes.object, classic: PropTypes.bool,
-  ledger: PropTypes.object, save: PropTypes.object, pending: PropTypes.bool, picked: PropTypes.object, params: PropTypes.object,
-};

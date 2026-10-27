@@ -1,6 +1,5 @@
 // A side card's weapon buttons (CC weapons included): each weapon a button,
 // a weapon with several fire modes a group (name + one button per mode).
-import PropTypes from 'prop-types';
 import {shortWeaponName} from '../army/names.js';
 import {isPseudo} from '../army/weapons.js';
 import {dispatch} from '../state/store.js';
@@ -68,8 +67,3 @@ export default function WeaponButtons({side, groups, selected, color}) {
     </div>
   );
 }
-
-WeaponButtons.propTypes = {
-  side: PropTypes.oneOf(['A', 'B']).isRequired, groups: PropTypes.array.isRequired, selected: PropTypes.string,
-  color: PropTypes.string.isRequired,
-};

@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import {useT} from '../i18n.jsx';
 import {typeName} from './constants.js';
 import {loadoutTag} from '../../state/pickerView.js';
@@ -36,5 +35,3 @@ export default function ProfileGroup({g, onPick, color, army}) {
     </section>
   );
 }
-
-ProfileGroup.propTypes = {g: PropTypes.object.isRequired, onPick: PropTypes.func.isRequired, color: PropTypes.string.isRequired, army: PropTypes.object};

@@ -5,7 +5,6 @@
 // shows the trooper's vanilla faction crest instead, and with neither, an
 // empty coin.
 import {useState} from 'react';
-import PropTypes from 'prop-types';
 import {factionLogoSrc} from './factionLogo.jsx';
 
 /** @param {{slug?: string | null, faction?: number | null, side: 'active' | 'reactive', size?: number}} props */
@@ -20,8 +19,6 @@ export function Crest({slug, faction, side, size = 36}) {
     : <span className={cls} style={style} />;
 }
 
-Crest.propTypes = {slug: PropTypes.string, faction: PropTypes.number, side: PropTypes.oneOf(['active', 'reactive']).isRequired, size: PropTypes.number};
-
 // Active's coin with reactive's overlapping it on the right.
 /** @param {{row: Pick<Required<import('../types.js').RollSummary>, 'ca' | 'cr' | 'fa' | 'fr'>, size?: number}} props */
 export function CrestPair({row, size = 36}) {
@@ -32,8 +29,6 @@ export function CrestPair({row, size = 36}) {
     </span>
   );
 }
-
-CrestPair.propTypes = {row: PropTypes.object.isRequired, size: PropTypes.number};
 
 // The unit's crest behind a setup card (design canvas: Crests A5): in its own
 // colours, cut by the card's top-right corner and fading towards the bottom
@@ -50,8 +45,6 @@ export function CardCrest({slug}) {
   );
 }
 
-CardCrest.propTypes = {slug: PropTypes.string};
-
 // A picker row's crest (design canvas: Crests D): behind the row's right
 // edge, faint and grey, in its own colours on the row Enter or a tap would
 // pick (picker.css). Decoration only, like CardCrest.
@@ -61,5 +54,3 @@ export function RowCrest({slug}) {
   if (!slug || failed === slug) return null;
   return <img className="row-crest" src={`/crests/${slug}`} alt="" aria-hidden="true" loading="lazy" onError={() => setFailed(slug)} />;
 }
-
-RowCrest.propTypes = {slug: PropTypes.string};

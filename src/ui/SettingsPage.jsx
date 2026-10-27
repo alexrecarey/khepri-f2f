@@ -1,6 +1,5 @@
 // The Settings page behind the ⋯ menu (phone; one overlay, so Back closes
 // it), and the settings the desktop dialog (DeskMenu.jsx) shares with it.
-import PropTypes from 'prop-types';
 import {AUTO, LANGUAGES, browserLanguages, languageChoice, resolveLanguage} from '../state/language.js';
 import {dispatch, useAppState} from '../state/store.js';
 import {HEADLINES} from '../results/headline.js';
@@ -38,8 +37,6 @@ export function StartFaction({side, label, factions, className}) {
     </label>
   );
 }
-
-StartFaction.propTypes = {side: PropTypes.string.isRequired, label: PropTypes.string.isRequired, factions: PropTypes.array.isRequired, className: PropTypes.string};
 
 // Automatic follows the browser; the option says which language that is.
 export function LanguageSetting() {
@@ -94,5 +91,3 @@ export function SettingsPage({factions}) {
     </Page>
   );
 }
-
-SettingsPage.propTypes = {factions: PropTypes.array.isRequired};

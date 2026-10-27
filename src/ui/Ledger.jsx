@@ -3,7 +3,6 @@
 // the target makes / Burst, each a short sum: value, what it is, and who or
 // what it comes from. Lines are coloured by the side that caused them;
 // cancelled lines are struck through and say what cancelled them.
-import PropTypes from 'prop-types';
 import {shortWeaponName} from '../army/names.js';
 import {useT} from './i18n.jsx';
 
@@ -59,11 +58,6 @@ function Section({title, lines, total, abbr, base, tags}) {
   );
 }
 
-Section.propTypes = {
-  title: PropTypes.string.isRequired, lines: PropTypes.array.isRequired, total: PropTypes.node.isRequired,
-  abbr: PropTypes.string.isRequired, base: PropTypes.string.isRequired, tags: PropTypes.object.isRequired,
-};
-
 // A Dodge rolls PH, a Reset WIP; anything else shows its Success Value.
 /** @type {Record<string, string>} */
 const EVADE_ABBR = {dodge: 'stat.ph', reset: 'stat.wip'};
@@ -103,8 +97,6 @@ export function SideMods({side, l, tags, weapon}) {
   );
 }
 
-SideMods.propTypes = {side: PropTypes.string.isRequired, l: PropTypes.object.isRequired, tags: PropTypes.object.isRequired, weapon: PropTypes.string};
-
 /** @param {{ledger: import('../types.js').Ledger, tags: Tags, notes: string[], weapons?: {A?: string, B?: string}}} props */
 export default function Ledger({ledger, tags, notes, weapons = {}}) {
   return (
@@ -115,5 +107,3 @@ export default function Ledger({ledger, tags, notes, weapons = {}}) {
     </div>
   );
 }
-
-Ledger.propTypes = {ledger: PropTypes.object.isRequired, tags: PropTypes.object.isRequired, notes: PropTypes.array.isRequired, weapons: PropTypes.object};

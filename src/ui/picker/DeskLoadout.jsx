@@ -1,5 +1,4 @@
 // A loadout in the desk picker's unit pane, as weapon chart lines.
-import PropTypes from 'prop-types';
 import {bandColor} from '../bands.js';
 import {ammoName} from '../../army/weapons.js';
 import {useT} from '../i18n.jsx';
@@ -14,8 +13,6 @@ function Stripe({bands}) {
     <span className="stripe7" aria-hidden="true">{bands.map((m, i) => <i key={i} style={{background: bandColor(m)}} />)}</span>
   );
 }
-
-Stripe.propTypes = {bands: PropTypes.array.isRequired};
 
 // c.ammo: English tokens joined by +, or 'template'.
 /** @param {{c: WeaponChart, sub?: boolean}} props */
@@ -32,8 +29,6 @@ function ChartLine({c, sub}) {
     </div>
   );
 }
-
-ChartLine.propTypes = {c: PropTypes.object.isRequired, sub: PropTypes.bool};
 
 // One loadout as chart lines: its main gun (with `tag`), the rest once it is
 // the lit one, then points and SWC. i is its place in the pane's loadouts,
@@ -53,8 +48,3 @@ export default function DeskLoadout({h, i, tag, on, color, army, onPick}) {
     </div>
   );
 }
-
-DeskLoadout.propTypes = {
-  h: PropTypes.object.isRequired, i: PropTypes.number.isRequired, tag: PropTypes.string, on: PropTypes.bool,
-  color: PropTypes.string.isRequired, army: PropTypes.object, onPick: PropTypes.func.isRequired,
-};

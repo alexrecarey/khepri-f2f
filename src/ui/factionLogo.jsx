@@ -1,7 +1,6 @@
 // Vanilla faction crests (public/factions, copied from the infinitystats
 // site's static/factions). Keyed by the vanilla faction id the search index
 // uses; precached with the rest of the app, so they work offline.
-import PropTypes from 'prop-types';
 
 /** @type {Record<number, string>} */
 const SLUG = {
@@ -19,5 +18,3 @@ export default function FactionLogo({id, size = 24}) {
   if (!src) return null;
   return <img className="faction-logo" src={src} alt="" width={size} height={size} loading="lazy" />;
 }
-
-FactionLogo.propTypes = {id: PropTypes.number, size: PropTypes.number};

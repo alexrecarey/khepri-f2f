@@ -4,7 +4,6 @@
 // phone keeps the ⋯ menu sheet and full-screen pages (Menu.jsx,
 // SettingsPage.jsx, AboutPage.jsx).
 import {useMemo} from 'react';
-import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {ARMY_DATE, AboutContact, AboutIntro, AboutLinks, VERSION} from './AboutPage.jsx';
 import {LanguageSetting, StartFaction, clearRecents, clearSaved} from './SettingsPage.jsx';
@@ -97,8 +96,6 @@ export function SettingsDialog({factions, results}) {
     </DeskDialog>
   );
 }
-
-SettingsDialog.propTypes = {factions: PropTypes.array.isRequired, results: PropTypes.object.isRequired};
 
 export function AboutDialog() {
   const t = useT();

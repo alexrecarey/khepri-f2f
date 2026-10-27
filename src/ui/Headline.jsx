@@ -3,7 +3,6 @@
 // On the phone card a sideways swipe moves between them (useSheetGestures.js)
 // and the dots only show where you are; on the results panel they are buttons.
 import {useEffect, useRef, useState} from 'react';
-import PropTypes from 'prop-types';
 import {dispatch} from '../state/store.js';
 import {HEADLINES} from '../results/headline.js';
 import {setHeadline} from '../state/headlines.js';
@@ -45,11 +44,6 @@ function Num({value, text, kind, side, size, pending}) {
   );
 }
 
-Num.propTypes = {
-  value: PropTypes.number, text: PropTypes.string.isRequired, kind: PropTypes.string.isRequired,
-  side: PropTypes.string.isRequired, size: PropTypes.string, pending: PropTypes.bool,
-};
-
 // Where you are among the three. buttons: each dot picks its headline (the
 // panel); otherwise they are a picture only, as the card is one button.
 /** @param {{choice: HeadlineChoice, buttons?: boolean}} props */
@@ -72,8 +66,6 @@ function Dots({choice, buttons}) {
   );
 }
 
-Dots.propTypes = {choice: PropTypes.string.isRequired, buttons: PropTypes.bool};
-
 // h: headline(s, choice, params); choice: the player's pick (h.kind can differ
 // when it falls back).
 /** @param {{h: import('../types.js').Headline, choice: HeadlineChoice, size?: string, pending?: boolean, buttons?: boolean}} props */
@@ -82,8 +74,3 @@ export default function Headline({h, choice, size = '', pending, buttons = false
   const num = (side) => <Num value={h.value[side]} text={h.text[side]} kind={h.kind} side={side} size={size} pending={pending} />;
   return <WpoRow active={num('active')} reactive={num('reactive')} labels={h.label} middle={<Dots choice={choice} buttons={buttons} />} />;
 }
-
-Headline.propTypes = {
-  h: PropTypes.object.isRequired, choice: PropTypes.string.isRequired, size: PropTypes.string,
-  pending: PropTypes.bool, buttons: PropTypes.bool,
-};

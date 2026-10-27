@@ -1,6 +1,5 @@
 // Situation chips with an inline editor: tapped, a chip opens in place
 // (ui.edit names which), a pick or × closes it.
-import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {useT} from './i18n.jsx';
 
@@ -55,12 +54,6 @@ export function CountChip({side, chip, label, value, min, max, none, color}) {
     : <button type="button" className="chip" onClick={() => setEditing(true)}>+ {label}</button>;
 }
 
-CountChip.propTypes = {
-  side: PropTypes.oneOf(['A', 'B']).isRequired, chip: PropTypes.string.isRequired, label: PropTypes.string.isRequired,
-  value: PropTypes.number.isRequired, min: PropTypes.number.isRequired, max: PropTypes.number.isRequired,
-  none: PropTypes.number.isRequired, color: PropTypes.string.isRequired,
-};
-
 // One item from a list the player picks with a chip: closed, "+ Team-Ops" or
 // "Team-Ops: BS+1"; tapped, one button per option and × for none (not when
 // `required`: a Firewall of the trooper's own). `value` is the picked index or
@@ -89,12 +82,6 @@ export function PickChip({side, chip, label, options, value, onPick, color, requ
     : <button type="button" className="chip" onClick={() => setEditing(true)}>+ {label}</button>;
 }
 
-PickChip.propTypes = {
-  side: PropTypes.oneOf(['A', 'B']).isRequired, chip: PropTypes.string.isRequired, label: PropTypes.string.isRequired,
-  options: PropTypes.arrayOf(PropTypes.string).isRequired, value: PropTypes.number, onPick: PropTypes.func.isRequired,
-  color: PropTypes.string.isRequired, required: PropTypes.bool,
-};
-
 // An on / off situation: "+ Targeted", tapped "Targeted ✓" (`onLabel` when
 // the chip says more once on: "Berserk (+3) ✓").
 /** @param {{on: boolean, label: string, onLabel?: string, color: string, onToggle: () => void}} props */
@@ -105,8 +92,3 @@ export function ToggleChip({on, label, onLabel = label, color, onToggle}) {
     </button>
   );
 }
-
-ToggleChip.propTypes = {
-  on: PropTypes.bool.isRequired, label: PropTypes.string.isRequired, onLabel: PropTypes.string,
-  color: PropTypes.string.isRequired, onToggle: PropTypes.func.isRequired,
-};

@@ -2,7 +2,6 @@
 // the same hiding rules as before (src/CalculatorColumn.jsx), in the new design.
 // The numbers are the state document's classic slice.
 import {useCallback} from 'react';
-import PropTypes from 'prop-types';
 import {LIMITS} from '../engine/params.js';
 import {clamp} from '../lib/clamp.js';
 import {CLASSIC_AMMO, SAVE_LIMIT, armSave, btsSave, classicSide} from '../state/classicView.js';
@@ -51,12 +50,6 @@ function DiceInput({value, max, min, onChange, color, label, zeroOption}) {
   );
 }
 
-DiceInput.propTypes = {
-  value: PropTypes.number.isRequired, max: PropTypes.number.isRequired, min: PropTypes.number.isRequired,
-  onChange: PropTypes.func.isRequired, color: PropTypes.string.isRequired, label: PropTypes.string.isRequired,
-  zeroOption: PropTypes.bool,
-};
-
 // −3 −1 [n] +1 +3: the steps that matter in Infinity (MODs come in threes).
 /** @param {{name: string, value: number, limit: readonly [number, number], onChange: (n: number) => void, color: string}} props */
 function Stepper({name, value, limit, onChange, color}) {
@@ -74,11 +67,6 @@ function Stepper({name, value, limit, onChange, color}) {
     </div>
   );
 }
-
-Stepper.propTypes = {
-  name: PropTypes.string.isRequired, value: PropTypes.number.isRequired, limit: PropTypes.array.isRequired,
-  onChange: PropTypes.func.isRequired, color: PropTypes.string.isRequired,
-};
 
 /** The per-side params, without the side letter.
  * @typedef {'burst' | 'bonusBurst' | 'successValue' | 'ammo' | 'cont' | 'critImmune' | 'template'} SideKey */
@@ -148,8 +136,6 @@ function ClassicSide({side, params, setParam}) {
   );
 }
 
-ClassicSide.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, params: PropTypes.object.isRequired, setParam: PropTypes.func.isRequired};
-
 /** @param {keyof Params} key */
 const setParam = (key) => /** @param {Params[keyof Params]} value */ (value) => dispatch({type: 'setClassic', key, value});
 
@@ -181,5 +167,3 @@ export default function ClassicScreen({params, engine}) {
     </main>
   );
 }
-
-ClassicScreen.propTypes = {params: PropTypes.object.isRequired, engine: PropTypes.object.isRequired};

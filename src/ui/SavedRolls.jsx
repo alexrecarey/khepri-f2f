@@ -3,7 +3,6 @@
 // Phone and tablet: a page whose cards swipe left to Delete. Wider: a dialog
 // over the workbench; Delete shows on the row under the mouse or the focus,
 // arrows move, Enter loads, Delete removes, Esc closes.
-import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import {MODES} from '../state/modes.js';
 import {rollRow} from '../state/rolls.js';
@@ -59,8 +58,6 @@ function RollBody({roll, size}) {
   );
 }
 
-RollBody.propTypes = {roll: PropTypes.object.isRequired, size: PropTypes.number};
-
 /**
  * @param {import('../types.js').RollSummary} s
  * @param {Translator} t
@@ -83,8 +80,6 @@ function RollCard({roll, swiped}) {
     </div>
   );
 }
-
-RollCard.propTypes = {roll: PropTypes.object.isRequired, swiped: PropTypes.bool};
 
 // The list for the open tab, and the Matchup | Classic switch.
 function useSavedList() {

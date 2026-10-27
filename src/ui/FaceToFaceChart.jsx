@@ -4,7 +4,6 @@
 // The numbers come from rules/bestDie.js. It takes the place of the wound
 // list when the face to face bar is tapped (ResultsCard), so it ends with what
 // the wound list would have said per outcome: who wins, and why.
-import PropTypes from 'prop-types';
 import {CRIT, MISS, breakdownParts, breakdownWins} from '../rules/bestDie.js';
 import {pct, shows} from '../results/summary.js';
 import {useT} from './i18n.jsx';
@@ -50,8 +49,6 @@ function Bars({side, best, scale}) {
   );
 }
 
-Bars.propTypes = {side: PropTypes.string.isRequired, best: PropTypes.array.isRequired, scale: PropTypes.number.isRequired};
-
 // Under the chart: each outcome's chance and where it comes from (a side's
 // Critical; for nobody, the three ways the best dice cancel).
 /** @param {{b: Breakdown, w: ReturnType<typeof breakdownWins>, names: {A: string, B: string}}} props */
@@ -80,8 +77,6 @@ function WhyLines({b, w, names}) {
   );
 }
 
-WhyLines.propTypes = {b: PropTypes.object.isRequired, w: PropTypes.object.isRequired, names: PropTypes.object.isRequired};
-
 // b: faceToFaceBreakdown(params), worked out once by the results.
 /** @param {{b: Breakdown, names: {A: string, B: string}}} props */
 export default function FaceToFaceChart({b, names}) {
@@ -104,5 +99,3 @@ export default function FaceToFaceChart({b, names}) {
     </section>
   );
 }
-
-FaceToFaceChart.propTypes = {b: PropTypes.object.isRequired, names: PropTypes.object.isRequired};

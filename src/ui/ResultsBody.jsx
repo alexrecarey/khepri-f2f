@@ -1,7 +1,6 @@
 // What the results say, wherever they are shown (the open phone sheet draws
 // the same pieces itself, ResultsCard.jsx), and the Save and Share buttons
 // both views put on their head row.
-import PropTypes from 'prop-types';
 import {BookmarkIcon, ShareIcon} from './icons.jsx';
 import Headline from './Headline.jsx';
 import FaceToFaceChart from './FaceToFaceChart.jsx';
@@ -28,8 +27,6 @@ export function SheetActions({save, onShare}) {
   );
 }
 
-SheetActions.propTypes = {save: PropTypes.object, onShare: PropTypes.func.isRequired};
-
 // h, choice, b: useResultsView.js, computed once by the panel.
 /**
  * @param {{s: import('../types.js').Summary, h: import('../types.js').Headline | null, choice: import('../types.js').HeadlineChoice, b: import('../rules/bestDie.js').Breakdown | null,
@@ -53,8 +50,3 @@ export default function ResultsBody({s, h, choice, b, classic, ledger, diceLine,
     </>
   );
 }
-
-ResultsBody.propTypes = {
-  s: PropTypes.object.isRequired, h: PropTypes.object, choice: PropTypes.string, b: PropTypes.object, classic: PropTypes.bool,
-  ledger: PropTypes.object, diceLine: PropTypes.object, pending: PropTypes.bool, ui: PropTypes.object,
-};

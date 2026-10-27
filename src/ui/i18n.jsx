@@ -1,7 +1,6 @@
 // The app's translator for components: App provides it (with the army's
 // display terms), useT() reads it. Outside a provider it is English.
 import {createContext, Fragment, useContext} from 'react';
-import PropTypes from 'prop-types';
 import {tEn} from '../i18n/index.js';
 
 const TContext = createContext(tEn);
@@ -22,8 +21,6 @@ export function Rich({text, tags}) {
   }
   return <>{out}</>;
 }
-
-Rich.propTypes = {text: PropTypes.string.isRequired, tags: PropTypes.object.isRequired};
 
 // The engine's status message (engine/useEngine.js) in t's language; the
 // number of rolls with the language's digit grouping.

@@ -1,5 +1,4 @@
 import {useEffect, useMemo} from 'react'
-import PropTypes from 'prop-types'
 
 import './ui/app.css'
 import useEngine from "./engine/useEngine.js";
@@ -100,7 +99,5 @@ function Overlays({dialogs, results}) {
   if (overlay === 'about') return dialogs ? <AboutDialog /> : <AboutPage />;
   return null;
 }
-
-Overlays.propTypes = {dialogs: PropTypes.bool.isRequired, results: PropTypes.object.isRequired};
 
 export default App
