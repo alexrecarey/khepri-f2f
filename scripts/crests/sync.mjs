@@ -65,7 +65,8 @@ async function readManifest() {
     const {stdout} = await wrangler('r2', 'object', 'get', `${CREST_BUCKET}/${MANIFEST}`, '--remote', '--pipe');
     return JSON.parse(stdout);
   } catch (e) {
-    if (/does not exist|NoSuchKey|10007/.test(String(e.stderr ?? e.message))) return {version: 1, crests: {}};
+    const {stderr, message} = /** @type {{stderr?: string, message?: string}} */ (e);
+    if (/does not exist|NoSuchKey|10007/.test(String(stderr ?? message))) return {version: 1, crests: {}};
     throw e;
   }
 }
@@ -98,23 +99,15 @@ async function processCrest(slug, tmp) {
   const source = res.ok ? await res.text() : '';
   if (!res.ok || !source.includes('<svg')) throw new Error(`GET ${res.status}`);
   await writeFile(path.join(CACHE, `${slug}.svg`), source);
-  // The first candidate that still looks like the source (the last one is
-  // the source itself, so there always is one).
-  let pick = null;
-  for (const c of await crestCandidates(source)) {
-    const diff = c.how === 'original' ? 0 : crestDiff(source, c.svg);
-    if (diff <= MAX_DIFF) { pick = {...c, diff}; break; }
-  }
+  const pick = await firstCandidate(source);
   const bytes = Buffer.byteLength(pick.svg);
-  let format = formatFor(bytes);
-  let raster = null;
-  if (format === 'webp') {
-    raster = await crestWebp(pick.svg);
-    // Not like the crest: serve the SVG after all, and say so.
-    if (raster.diff > MAX_DIFF) { format = 'svg'; pick.notes = [...pick.notes, `webp rejected, diff ${raster.diff.toFixed(4)}`]; }
-  }
+  const raster = formatFor(bytes) === 'webp' ? await crestWebp(pick.svg) : null;
+  // Not like the crest: serve the SVG after all, and say so.
+  const webp = raster && raster.diff <= MAX_DIFF ? raster : null;
+  const notes = raster && !webp ? [...pick.notes, `webp rejected, diff ${raster.diff.toFixed(4)}`] : pick.notes;
+  const format = webp ? 'webp' : 'svg';
   const file = path.join(tmp, `${slug}.${format}`);
-  await writeFile(file, format === 'webp' ? raster.webp : pick.svg);
+  await writeFile(file, webp ? webp.webp : pick.svg);
   if (!dryRun) {
     await put(`${slug}.${format}`, file, `image/${format === 'webp' ? 'webp' : 'svg+xml'}`);
     // One file per crest: the Worker serves whichever exists.
@@ -128,9 +121,20 @@ async function processCrest(slug, tmp) {
     how: pick.how,
     diff: Math.round(pick.diff * 10000) / 10000,
     format,
-    ...(format === 'webp' ? {webpBytes: raster.webp.length, webpDiff: Math.round(raster.diff * 10000) / 10000} : {}),
-    ...(pick.notes.length ? {notes: pick.notes} : {}),
+    ...(webp ? {webpBytes: webp.webp.length, webpDiff: Math.round(webp.diff * 10000) / 10000} : {}),
+    ...(notes.length ? {notes} : {}),
   };
+}
+
+// The first candidate that still looks like the source (the last one is the
+// source itself, so there always is one).
+/** @param {string} source */
+async function firstCandidate(source) {
+  for (const c of await crestCandidates(source)) {
+    const diff = c.how === 'original' ? 0 : crestDiff(source, c.svg);
+    if (diff <= MAX_DIFF) return {...c, diff};
+  }
+  throw new Error('no candidate, not even the source');
 }
 
 async function main() {
@@ -179,7 +183,7 @@ async function main() {
         console.log(`  ${slug}: ${todo.get(slug)}; ${Math.round(e.sourceBytes / 1000)} -> ${Math.round(e.bytes / 1000)} KB, ${e.how}, diff ${e.diff}${webp}`);
       }
     } catch (e) {
-      failed.push(`${slug} (${e.message})`);
+      failed.push(`${slug} (${/** @type {Error} */ (e).message})`);
     }
     if (++done % 100 === 0) console.log(`  ${done}/${todo.size}`);
   });

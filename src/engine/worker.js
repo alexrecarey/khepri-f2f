@@ -14,10 +14,14 @@
 // Only the newest calculation runs: one that arrives while another is running
 // (or while the engine loads) replaces any still waiting, so tapping a stepper
 // five times runs the first and the last, not all five.
-import init, {calculate as runEngine} from './wasm/khepri_engine.js';
+import init, {calculate as wasmCalculate} from './wasm/khepri_engine.js';
 import wasmUrl from './wasm/khepri_engine_bg.wasm?url';
 import {calculate} from './calculate.js';
 import {latestOnly} from './latestOnly.js';
+
+// wasm-pack types calculate as any -> any; this is the contract the engine keeps
+// (engine-rs/src/engine.rs: the keys it reads are calculate.js ENGINE_SIDE_KEYS).
+const runEngine = /** @type {import('../types.js').RunEngine} */ (wasmCalculate);
 
 // Any valid engine input: run once at start-up so the first real calculation
 // doesn't pay for compiling the hot code.

@@ -272,7 +272,8 @@ async function main() {
   if (unresolved.size > 0) {
     console.warn(`Unresolved names: ${[...unresolved].join(', ')}`);
   }
-  const problems = [...unknownValues, ...validateArmy(data)];
+  // The snapshot is the Army, plus where and when it came from.
+  const problems = [...unknownValues, ...validateArmy(/** @type {import('../src/types.js').Army} */ (data))];
   if (problems.length > 0) {
     console.error(`\n${problems.length} value(s) the calculator doesn't know yet; army.json not written:`);
     for (const p of problems) console.error(`  - ${p}`);

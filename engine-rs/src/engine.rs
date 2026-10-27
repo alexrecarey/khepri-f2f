@@ -17,9 +17,8 @@ use dashu_int::IBig;
 use rustc_hash::FxHashMap;
 use serde_json::{json, Map, Value as Json};
 
-use icepool_core::evaluator::{
-    evaluate, highest_slice, Final, KeepIndex, MultisetEvaluator, MultisetSource,
-};
+use icepool_core::evaluator::basic::SumEvaluator;
+use icepool_core::evaluator::{evaluate, Final, MultisetEvaluator, MultisetSource};
 use icepool_core::value::{ratio_to_f64, DieArg};
 use icepool_core::{
     d, AgainEnd, Die, Error, Int, Order, OutcomeArith, OutcomeOrder, Pool, Quantity,
@@ -204,12 +203,10 @@ fn d20_gt(value: i64) -> Result<Die<i64>> {
     d(20).binary_operator(&constant(value)?, |a, b| Ok(i64::from(a > b)))
 }
 
-/// `pool.highest(keep)`.
-fn highest(pool: &Pool<i64>, keep: i64) -> Result<Pool<i64>> {
-    pool.keep(&KeepIndex::Slice {
-        slice: highest_slice(Some(keep), None)?,
-        step: false,
-    })
+/// A number of dice to keep, as `Pool::highest` counts them; a negative count is an error, as `pool.highest`
+/// of a negative count is in Python.
+fn keep_count(n: i64) -> Result<usize> {
+    usize::try_from(n).map_err(|_| Error::InvalidArgument(format!("cannot keep {n} dice")))
 }
 
 /// `Pool([die], times)`: one die, `times` times. Python raises for a negative count (`(1,) * sum(times)` makes
@@ -338,55 +335,13 @@ fn small(count: &Int) -> Result<i64> {
         .ok_or_else(|| Error::Overflow("i64 count overflowed".into()))
 }
 
-/// `pool.sum()` (icepool's `SumEvaluator` without a map) for int pools. The state is `None` until the first
-/// outcome.
-struct Sum;
-
-impl MultisetEvaluator<i64> for Sum {
-    type State = Option<i64>;
-    type Final = i64;
-
-    fn initial_state(&self, _: Order, _: &[i64], _: &[Option<Int>]) -> Result<Option<i64>> {
-        Ok(None)
-    }
-
-    fn next_state(
-        &self,
-        state: &Option<i64>,
-        _: Order,
-        &outcome: &i64,
-        counts: &[Int],
-    ) -> Result<Option<Option<i64>>> {
-        let term = outcome
-            .checked_mul(small(&counts[0])?)
-            .ok_or_else(|| Error::Overflow("i64 product overflowed".into()))?;
-        Ok(Some(Some(match state {
-            None => term,
-            Some(s) => OutcomeArith::try_add(s, &term)?,
-        })))
-    }
-
-    fn final_outcome(
-        &self,
-        final_state: &Option<i64>,
-        _: Order,
-        _: &[i64],
-        _: &[Option<Int>],
-    ) -> Result<Final<i64>> {
-        Ok(match final_state {
-            Some(s) => Final::Outcome(*s),
-            None => Final::None,
-        })
-    }
-}
-
 /// Side `side`'s dice: burst plus Special Dice rolled, the best `burst` kept.
 fn dice(side: &Side) -> Result<Pool<i64>> {
     let rolled = pool_of(
         infinity_die(side.success_value)?,
         side.burst + side.bonus_burst,
     )?;
-    highest(&rolled, side.burst)
+    Ok(rolled.highest(keep_count(side.burst)?))
 }
 
 /// A Direct Template's automatic hits, as `(crit, hit)`, cancelled by any success of the other side.
@@ -399,7 +354,8 @@ fn template_roll(hits: i64, dodger: &Side) -> Result<Die<[i64; 2]>> {
         infinity_die(dodger.success_value)?,
         dodger.burst + dodger.bonus_burst,
     )?;
-    let best = evaluate_pools(&Sum, &[highest(&dodge, 1)?])?;
+    // `pool.highest(1).sum()`: the best die.
+    let best = evaluate_pools(&SumEvaluator, &[dodge.highest(1)])?;
     map(&best, |&best| {
         Ok(DieArg::Outcome(if best != 0 { [0, 0] } else { [0, hits] }))
     })

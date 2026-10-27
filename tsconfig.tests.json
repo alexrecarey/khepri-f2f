@@ -1,11 +1,12 @@
 {
-  // `yarn typecheck`, second pass: the tests, strict but without noImplicitAny.
+  // `yarn typecheck`, second pass: the tests, the scripts and vite.config.js,
+// strict but without noImplicitAny (the scripts are typed where they read src/).
   // Fixtures pass the minimum a function reads, so the untyped parameters of a
   // test helper are not worth annotating one by one (Alex, 2026-10-24).
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noImplicitAny": false
   },
-  "include": ["src/**/*.test.mjs", "worker/**/*.test.mjs"],
+  "include": ["src/**/*.test.mjs", "worker/**/*.test.mjs", "scripts/**/*.mjs", "vite.config.js"],
   "exclude": []
 }

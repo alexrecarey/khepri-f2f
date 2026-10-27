@@ -11,11 +11,14 @@
 // the app, which moves its address to /?<setup> itself. Images live under
 // /og/, drawn from the card in their URL.
 import {CARD_PARAM, decodeCard, encodeCard, previewDescription, previewTitle} from '../src/share/card.js';
-import {initSync, calculate as runEngine} from '../src/engine/wasm/khepri_engine.js';
+import {initSync, calculate as wasmCalculate} from '../src/engine/wasm/khepri_engine.js';
 import engineWasm from '../src/engine/wasm/khepri_engine_bg.wasm';
 import {CARD_H, CARD_W, renderCard, renderDefault} from './card.js';
 import {cardFromSetup} from './setupCard.js';
 import {SIDE_COLOR} from '../src/results/ramp.js';
+
+// wasm-pack types calculate as any -> any; typed as the RunEngine setupCard.js takes.
+const runEngine = /** @type {import('../src/types.js').RunEngine} */ (wasmCalculate);
 
 // Bump when the image changes: the apps cache previews by image URL.
 const IMAGE_PATH = '/og/v1/';
