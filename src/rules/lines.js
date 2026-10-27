@@ -9,7 +9,7 @@
 // and a `text` for the value column ('—' out of range, '+' an ammunition
 // part, '' the weapon's own ammunition): it says what it is instead of
 // being told apart by its type.
-import {msg} from '../i18n/message.js';
+import {msg, side as about} from '../i18n/message.js';
 import {benefitsFromCover, capMods, LIMITS, MOD_CAP} from './modifiers.js';
 import {upgradeRaising} from '../army/loadouts.js';
 
@@ -34,6 +34,26 @@ export const line = (value, label, by, struck) => ({value, label, by, ...(struck
  * @returns {import('../types.js').Line}
  */
 export const mark = (text, label, by, struck) => ({value: null, text, label, by, ...(struck ? {struck} : {})});
+/**
+ * The lines among `xs`: a builder lists every candidate line, with false /
+ * null / 0 where its condition fails, and this keeps the lines. The same for
+ * notes (Message), or anything else listed that way.
+ * @template T
+ * @param {(T | false | null | undefined | 0 | '')[]} xs
+ * @returns {T[]}
+ */
+export const compact = (xs) => /** @type {T[]} */ (xs.filter(Boolean));
+
+/**
+ * A note about a side (null: both) as the rules word it: "Active: ..."
+ * (i18n/message.js), for deriveInputs' notes, warnings and errors.
+ * @param {import('../types.js').Side | null} side
+ * @param {string} key
+ * @param {Record<string, unknown>} [params]
+ * @returns {Message}
+ */
+export const note = (side, key, params) => about(side, msg(key, params));
+
 /** @param {Line[]} lines */
 export const live = (lines) => lines.filter((l) => l.value !== null && !l.struck);
 /** @param {Line[]} lines */
@@ -99,20 +119,20 @@ export const coverLabel = (y) => (benefitsFromCover(y) ? (y.sapper ? msg('ledger
 // A Success Value from its lines: the MODs (every line after the Attribute,
 // Fireteam +1 BS included: Alex, 2026-10-10) capped at +/-12, with a note
 // when the cap bites, on a Dodge or Reset as on an attack (Alex, 2026-10-23),
-// then the total within LIMITS (lines.js).
+// then the total within LIMITS (lines.js). Returns the section and the notes
+// it adds; `lines` is left as it was.
 /**
  * @param {Line[]} lines
  * @param {import('../types.js').Side} s
- * @param {import('../types.js').Ctx} ctx
+ * @returns {{sv: import('../types.js').Section, notes: Message[]}}
  */
-export function svSection(lines, s, ctx) {
+export function svSection(lines, s) {
   const cap = capLine(lines);
-  if (cap) {
-    const mods = modSum(lines);
-    ctx.say(s, 'note.modCap', {sum: signed(mods), cap: signed(mods + /** @type {number} */ (cap.value))});
-    lines.push(cap);
-  }
-  const c = clampSv(lines);
-  if (c) lines.push(c);
-  return section(lines);
+  const capped = cap ? [...lines, cap] : lines;
+  const c = clampSv(capped);
+  const mods = modSum(lines);
+  return {
+    sv: section(c ? [...capped, c] : capped),
+    notes: cap ? [note(s, 'note.modCap', {sum: signed(mods), cap: signed(mods + /** @type {number} */ (cap.value))})] : [],
+  };
 }

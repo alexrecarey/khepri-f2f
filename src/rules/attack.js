@@ -2,7 +2,8 @@
 // Special Dice, each as the lines it adds up to (lines.js) and summed into
 // its input, with what the hit does (hit.js). A shot is a BS Attack, a
 // Direct Template or a Hacking Program; the CC Attack's own MODs are in
-// closeCombat.js. ctx: matchup.js deriveInputs.
+// closeCombat.js. ctx: matchup.js deriveInputs. Every builder here returns
+// its lines (and the notes it makes); nothing is pushed into a shared list.
 import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
 import {attackAttribute, isCommsAttack, needsLof} from '../army/weapons.js';
@@ -15,13 +16,14 @@ import {RANGE_BANDS, bandFrom, rangeModFor} from './ranges.js';
 import {ccAttackMods, ccBurst, ccSd} from './closeCombat.js';
 import {distance, list, msg} from '../i18n/message.js';
 import {hitInputs} from './hit.js';
-import {coverLabel, line, mark, section, statLabel, sum, svSection} from './lines.js';
+import {compact, coverLabel, line, mark, note, section, statLabel, sum, svSection} from './lines.js';
 
 /** @typedef {import('../types.js').Side} Side */
 /** @typedef {import('../types.js').Ctx} Ctx */
 /** @typedef {import('../types.js').Trooper} Trooper */
 /** @typedef {import('../types.js').Attacker} Attacker */
 /** @typedef {import('../types.js').Line} Line */
+/** @typedef {import('../types.js').Message} Message */
 /** @typedef {import('../types.js').Params} Params */
 
 /** @param {number} rangeCm */
@@ -41,8 +43,30 @@ function mimetismLabel(y, full) {
   return /** @type {import('../types.js').Traits} */ (y.traits).skills.find((k) => k.id === SKILL.MIMETISM)?.foxhole ? list([name, msg('skill.foxhole')]) : name;
 }
 
-// The MODs y's position and skills put on x's shot, in y's colour: Mimetism
-// (what x's MSV cancels struck), Albedo, cover or Nanoscreen, Firewall.
+// The target's Mimetism on x's shot: struck without LoF (a Jammer or a
+// program has none); what x's MSV cancels struck, or part of it applied
+// (the MSV cancelled the rest).
+/**
+ * @param {Attacker} x
+ * @param {Trooper} y
+ * @param {Side} o the target's side (the line's colour)
+ * @returns {Line | null}
+ */
+function mimetismLine(x, y, o) {
+  const full = mimetismValue(y.traits);
+  if (!full) return null;
+  if (!needsLof(x.weapon.row)) return line(full, msg('skill.mimetismMod', {mod: full}), o, msg('ledger.noLof'));
+  const applied = mimetismMod(y.traits, x.traits);
+  const name = mimetismLabel(y, full);
+  const msv = msvName(x.traits);
+  if (!applied) return line(full, name, o, msv ?? msg('ledger.cancelled'));
+  // Part of it applied, so the attacker has an MSV.
+  return line(applied, applied !== full ? list([name, /** @type {Message} */ (msv)]) : name, o);
+}
+
+// The MODs y's position and skills put on x's shot, in y's colour: Mimetism,
+// Albedo (both need LoF), cover or Nanoscreen, Firewall. A Comms Attack
+// takes the target's Firewall in place of cover.
 /**
  * @param {Attacker} x
  * @param {Trooper} y
@@ -52,35 +76,22 @@ function mimetismLabel(y, full) {
 function targetSvLines(x, y, s) {
   const o = other(s);
   const {row} = x.weapon;
-  /** @type {Line[]} */
-  const lines = [];
-  // Mimetism and Albedo need LoF (a Jammer or a program has none): struck
-  // against one. A Comms Attack takes the target's Firewall in place of cover.
   const lof = needsLof(row);
-  const full = mimetismValue(y.traits);
-  if (full && !lof) lines.push(line(full, msg('skill.mimetismMod', {mod: full}), o, msg('ledger.noLof')));
-  else if (full) {
-    const applied = mimetismMod(y.traits, x.traits);
-    const name = mimetismLabel(y, full);
-    // Part of it applied: the attacker's MSV cancelled the rest.
-    if (applied) lines.push(line(applied, applied !== full ? list([name, /** @type {import('../types.js').Message} */ (msvName(x.traits))]) : name, o));
-    else lines.push(line(full, name, o, msvName(x.traits) ?? msg('ledger.cancelled')));
-  }
   const albedo = lof ? albedoMod(y.traits, x.traits) : 0;
-  if (albedo) lines.push(line(albedo, msg('equip.albedo'), o));
-  else if (albedoValue(y.traits)) lines.push(line(albedoValue(y.traits), msg('equip.albedo'), o, lof ? msg('ledger.albedoOnly') : msg('ledger.noLof')));
   const comms = isCommsAttack(row);
   const cover = coverBsMod(y, x.traits, row);
   const coverName = coverLabel(y);
-  if (cover) lines.push(line(cover, coverName, o));
-  else if (benefitsFromCover(y) || hasNanoscreen(y)) {
-    const why = comms ? msg('ledger.commsAttack') : hasSkill(x.traits, SKILL.MARKSMANSHIP) ? msg('skill.marksmanship') : msg('skill.limitedCover');
-    lines.push(line(COVER_BS_MOD, coverName, o, why));
-  }
-  // Firewall: a Comms Attack's cover.
+  // Cover that does nothing to this shot, struck with the reason.
+  const coverWhy = comms ? msg('ledger.commsAttack') : hasSkill(x.traits, SKILL.MARKSMANSHIP) ? msg('skill.marksmanship') : msg('skill.limitedCover');
   const firewall = comms ? firewallOf(y) : 0;
-  if (firewall) lines.push(line(firewall, msg('equip.firewallMod', {mod: firewall}), o));
-  return lines;
+  return compact([
+    mimetismLine(x, y, o),
+    albedo && line(albedo, msg('equip.albedo'), o),
+    !albedo && albedoValue(y.traits) && line(albedoValue(y.traits), msg('equip.albedo'), o, lof ? msg('ledger.albedoOnly') : msg('ledger.noLof')),
+    cover && line(cover, coverName, o),
+    !cover && (benefitsFromCover(y) || hasNanoscreen(y)) && line(COVER_BS_MOD, coverName, o, coverWhy),
+    firewall && line(firewall, msg('equip.firewallMod', {mod: firewall}), o),
+  ]);
 }
 
 // A shot's Success Value: the Attribute, then every MOD as a line.
@@ -90,33 +101,39 @@ function targetSvLines(x, y, s) {
  * @param {number} rangeCm
  * @param {Side} s
  * @param {Ctx} ctx
- * @returns {import('../types.js').Section}
+ * @returns {{sv: import('../types.js').Section, notes: Message[]}}
  */
 function attackSv(x, y, rangeCm, s, ctx) {
-  const {vis} = ctx;
   const o = other(s);
   const {row, mods} = x.weapon;
-  const lines = [line(attackStat(x.profile, row), statLabel(x, attackAttribute(row)), null)];
+  const stat = line(attackStat(x.profile, row), statLabel(x, attackAttribute(row)), null);
   // Fireteam +1 BS: none on a Hacking Program (attackBonuses).
   const ftBs = attackBonuses(x).bs;
-  if (ftBs) lines.push(line(ftBs, msg('ledger.fireteam', {size: x.ftSize}), s));
+  const fireteam = ftBs ? [line(ftBs, msg('ledger.fireteam', {size: x.ftSize}), s)] : [];
   const rangeMod = rangeModFor(row, rangeCm, x.traits);
   // Out of range: the attack still happens but always fails. A success value
   // of 0 misses on every roll, with no crit.
-  if (rangeMod === null) return {...section([...lines, mark('—', msg('ledger.outOfRange'), s)], 0), note: msg('ledger.outOfRangeNote')};
-  if (rangeMod) lines.push(line(rangeMod, rangeLabel(rangeCm), s));
-  if (mods.sv) lines.push(line(mods.sv, msg('ledger.loadout'), s));
-  // A program's Attack MOD is x's, the target's ECM: Hacker the target's.
-  for (const m of programSvMods(x, y)) lines.push(line(m.value, m.label, m.target ? o : s));
-  // Targeted is the target's State.
-  if (targetedMod(x, y)) lines.push(line(targetedMod(x, y), msg('chip.targeted'), o));
-  if (y) {
-    lines.push(...targetSvLines(x, y, s));
-    // Smoke / White Noise: x's own sight, so x's colour.
-    for (const v of vis[s].lines) lines.push(line(v.value, v.label, s, v.ignoredBy));
-    lines.push(...ctx.opposing[s]);
+  if (rangeMod === null) {
+    return {sv: {...section([stat, ...fireteam, mark('—', msg('ledger.outOfRange'), s)], 0), note: msg('ledger.outOfRangeNote')}, notes: []};
   }
-  return svSection(lines, s, ctx);
+  const targeted = targetedMod(x, y);
+  const lines = compact([
+    stat,
+    ...fireteam,
+    rangeMod && line(rangeMod, rangeLabel(rangeCm), s),
+    mods.sv && line(mods.sv, msg('ledger.loadout'), s),
+    // A program's Attack MOD is x's, the target's ECM: Hacker the target's.
+    ...programSvMods(x, y).map((m) => line(m.value, m.label, m.target ? o : s)),
+    // Targeted is the target's State.
+    targeted && line(targeted, msg('chip.targeted'), o),
+    ...(y ? [
+      ...targetSvLines(x, y, s),
+      // Smoke / White Noise: x's own sight, so x's colour.
+      ...ctx.vis[s].lines.map((v) => line(v.value, v.label, s, v.ignoredBy)),
+      ...ctx.opposing[s],
+    ] : []),
+  ]);
+  return svSection(lines, s);
 }
 
 // A shot's Burst: the weapon's, the loadout's and BS Attack's +B, and in ARO
@@ -124,27 +141,26 @@ function attackSv(x, y, rangeCm, s, ctx) {
 /**
  * @param {Attacker} x
  * @param {Side} s
- * @param {Ctx} ctx
- * @returns {Line[]}
+ * @returns {{lines: Line[], notes: Message[]}}
  */
-function burstLines(x, s, ctx) {
-  const {say} = ctx;
+function burstLines(x, s) {
   const {row} = x.weapon;
   // Neurocinetics is for BS Attacks: a program keeps its Burst.
   const neuro = x.weapon.kind !== 'program';
   // Neurocinetics: B 1 in the Active Turn, Burst MODs included (wiki).
   if (s === 'A' && neuro && hasSkill(x.traits, SKILL.NEUROCINETICS)) {
-    say(s, 'note.neurocinetics');
-    return [line(1, msg('skill.neurocinetics'), s)];
+    return {lines: [line(1, msg('skill.neurocinetics'), s)], notes: [note(s, 'note.neurocinetics')]};
   }
-  const lines = [line(row.burst ?? 1, x.weapon.name ?? row.name, null)];
-  const b = attackBonuses(x).burst;
-  if (b) lines.push(line(b, msg('ledger.loadoutOrBsAttack'), s));
+  const bonus = attackBonuses(x).burst;
   const aro = s === 'B' && neuro ? neurocineticsAroBurst(x.traits) : 0;
-  if (aro) lines.push(line(aro, msg('skill.neurocinetics'), s));
+  const base = compact([
+    line(row.burst ?? 1, x.weapon.name ?? row.name, null),
+    bonus && line(bonus, msg('ledger.loadoutOrBsAttack'), s),
+    aro && line(aro, msg('skill.neurocinetics'), s),
+  ]);
   // In ARO a trooper rolls one die, whatever its burst (Total Reaction aside).
-  if (s === 'B' && !keepsAroBurst(x) && sum(lines) !== 1) lines.push(line(1 - sum(lines), msg('ledger.aroOneDie'), null));
-  return lines;
+  const oneDie = s === 'B' && !keepsAroBurst(x) && sum(base) !== 1 ? [line(1 - sum(base), msg('ledger.aroOneDie'), null)] : [];
+  return {lines: [...base, ...oneDie], notes: []};
 }
 
 // A shot's Special Dice: the loadout's and BS Attack's (+1SD), the Fireteam's.
@@ -156,13 +172,12 @@ function burstLines(x, s, ctx) {
  * @returns {Line[]}
  */
 function sdLines(x, s) {
-  /** @type {Line[]} */
-  const lines = [];
   const ft = x.weapon.kind === 'bs' ? fireteamBonuses(x.ftSize).sd : 0;
   const own = attackBonuses(x).sd - ft;
-  if (own) lines.push(line(own, msg('ledger.loadoutOrBsAttack'), s));
-  if (ft) lines.push(line(ft, msg('ledger.fireteam', {size: x.ftSize}), s));
-  return lines;
+  return compact([
+    own && line(own, msg('ledger.loadoutOrBsAttack'), s),
+    ft && line(ft, msg('ledger.fireteam', {size: x.ftSize}), s),
+  ]);
 }
 
 // A shot (a BS Attack, a Direct Template, a Hacking Program): Success Value,
@@ -176,10 +191,11 @@ function sdLines(x, s) {
  * @returns {import('../types.js').Roll}
  */
 export function attackInputs(x, y, rangeCm, side, ctx) {
-  const sv = attackSv(x, y, rangeCm, side, ctx);
-  const burst = section(burstLines(x, side, ctx));
+  const {sv, notes: svNotes} = attackSv(x, y, rangeCm, side, ctx);
+  const b = burstLines(x, side);
+  const burst = section(b.lines);
   const sd = section(sdLines(x, side));
-  const hit = hitInputs(x, y, side, ctx);
+  const hit = hitInputs(x, y, side);
   // Computed keys: tsc sees an index signature, so the shape is stated. The
   // totals of these sections are numbers (lines.js sum).
   const inputs = /** @type {Partial<Params>} */ ({
@@ -188,7 +204,12 @@ export function attackInputs(x, y, rangeCm, side, ctx) {
     [`bonusBurst${side}`]: clamp(LIMITS.bonusBurst, /** @type {number} */ (sd.total)),
     ...hit.inputs,
   });
-  return {inputs, lines: {kind: x.weapon.kind === 'template' ? 'template' : 'attack', sv, burst, sd, ammo: hit.ammo}, ps: hit.ps};
+  return {
+    inputs,
+    lines: {kind: x.weapon.kind === 'template' ? 'template' : 'attack', sv, burst, sd, ammo: hit.ammo},
+    ps: hit.ps,
+    notes: [...svNotes, ...b.notes, ...hit.notes],
+  };
 }
 
 // A CC Attack (closeCombat.js): CC plus its own MODs and the opponent's,
@@ -202,18 +223,19 @@ export function attackInputs(x, y, rangeCm, side, ctx) {
  * @returns {import('../types.js').Roll}
  */
 export function ccAttackInputs(x, y, side, ctx) {
-  const lines = [line(attackStat(x.profile, x.weapon.row), statLabel(x, 'cc'), null)];
-  for (const m of ccAttackMods(x, side === 'A')) lines.push(line(m.value, m.label, side));
-  if (y) lines.push(...ctx.opposing[side]);
-  const sv = svSection(lines, side, ctx);
+  const lines = [
+    line(attackStat(x.profile, x.weapon.row), statLabel(x, 'cc'), null),
+    ...ccAttackMods(x, side === 'A').map((m) => line(m.value, m.label, side)),
+    ...(y ? ctx.opposing[side] : []),
+  ];
+  const {sv, notes: svNotes} = svSection(lines, side);
   // The weapon's B is the weapon's, ARO is the rules', the rest are x's.
-  const bursts = ccBurst(x, side === 'A', y).map((l, i) => line(l.value, l.label, i === 0 || l.aro ? null : side));
+  const base = ccBurst(x, side === 'A', y).map((l, i) => line(l.value, l.label, i === 0 || l.aro ? null : side));
   // B over the cap (LIMITS.burst): the rest is lost.
-  const over = sum(bursts) - clamp(LIMITS.burst, sum(bursts));
-  if (over > 0) bursts.push(line(-over, msg('ledger.burstCap', {max: LIMITS.burst[1]}), null));
-  const burst = section(bursts);
+  const over = sum(base) - clamp(LIMITS.burst, sum(base));
+  const burst = section(over > 0 ? [...base, line(-over, msg('ledger.burstCap', {max: LIMITS.burst[1]}), null)] : base);
   const sd = section(ccSd(x).map((l) => line(l.value, l.label, side)));
-  const hit = hitInputs(x, y, side, ctx);
+  const hit = hitInputs(x, y, side);
   const inputs = /** @type {Partial<Params>} */ ({
     [`successValue${side}`]: sv.total,
     [`burst${side}`]: burst.total,
@@ -221,5 +243,5 @@ export function ccAttackInputs(x, y, side, ctx) {
     [`template${side}`]: false,
     ...hit.inputs,
   });
-  return {inputs, lines: {kind: 'attack', sv, burst, sd, ammo: hit.ammo}, ps: hit.ps};
+  return {inputs, lines: {kind: 'attack', sv, burst, sd, ammo: hit.ammo}, ps: hit.ps, notes: [...svNotes, ...hit.notes]};
 }

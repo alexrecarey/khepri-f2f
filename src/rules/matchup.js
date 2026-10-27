@@ -2,16 +2,18 @@
 // (rules/trooper.js resolveSelection) and returns the engine input with the
 // notes and warnings to show next to it.
 // The roll itself is attack.js, evade.js and hit.js; this file decides which
-// one each side makes and what the two sides do to each other's roll.
+// one each side makes and what the two sides do to each other's roll. Every
+// helper returns what it found (inputs, lines, notes); this is the one place
+// that puts the two sides' results together.
 import {isNonLethal, stateCaused} from '../army/weapons.js';
 import {attackStat, opposingMods, reaches} from './modifiers.js';
-import {other} from '../lib/side.js';
-import {line, section} from './lines.js';
+import {SIDES, other} from '../lib/side.js';
+import {compact, line, note, section} from './lines.js';
 import {visibility, zoneName} from './visibility.js';
 import {hasNoEffect, noEffectBy} from './saves.js';
 import {isSpecOps} from './trooper.js';
 import {isCcAttack} from './closeCombat.js';
-import {msg, side as about} from '../i18n/message.js';
+import {msg} from '../i18n/message.js';
 import {attackInputs, ccAttackInputs} from './attack.js';
 import {evadeInputs, noLofInputs} from './evade.js';
 import {defenseInputs} from './hit.js';
@@ -21,8 +23,10 @@ import {defenseInputs} from './hit.js';
 /** @typedef {import('../types.js').Trooper} Trooper */
 /** @typedef {import('../types.js').Attacker} Attacker */
 /** @typedef {import('../types.js').Line} Line */
+/** @typedef {import('../types.js').Message} Message */
 /** @typedef {import('../types.js').Params} Params */
 /** @typedef {import('../types.js').Evader} Evader */
+/** @typedef {import('../types.js').Roll} Roll */
 /** @typedef {import('../types.js').SideLines} SideLines */
 
 // The Immunities the rules here read, and Immunities to States the calculator
@@ -35,24 +39,27 @@ import {defenseInputs} from './hit.js';
 export const MODELED_IMMUNITIES = ['AP', 'ARM', 'BTS', 'Continuous Damage', 'Critical', 'Enhanced', 'Shock'];
 export const STATE_IMMUNITIES = ['IMM-B', 'Isolated', 'POS'];
 
+// Things the result may get wrong with this side's weapon; shown as alerts
+// but they don't block the calculation.
 /**
  * @param {Side} s
  * @param {Trooper | null} side
  * @param {Trooper | null} target
- * @param {Ctx} ctx
+ * @returns {Message[]}
  */
-function approximationWarnings(s, side, target, ctx) {
-  const {warn} = ctx;
+function approximationWarnings(s, side, target) {
   const row = side?.weapon?.row;
-  if (row && hasNoEffect(target?.traits, row)) {
-    // hasNoEffect read the target's traits: it is there.
-    warn(s, 'warning.noEffect', {weapon: row.name, by: noEffectBy(/** @type {Trooper} */ (target).traits, row)});
-  } else if (row && stateCaused(row)) {
-    // Not a warning: the results say Isolated / Stunned (rules/woundStates.js).
-  } else if (row && isNonLethal(row)) {
-    warn(s, 'warning.nonLethal', {weapon: row.name});
-  }
-  for (const name of side?.unsupportedUpgradeWeapons ?? []) warn(s, 'warning.upgradeWeapon', {weapon: name});
+  // hasNoEffect read the target's traits: it is there.
+  const weapon = !row ? null
+    : hasNoEffect(target?.traits, row) ? note(s, 'warning.noEffect', {weapon: row.name, by: noEffectBy(/** @type {Trooper} */ (target).traits, row)})
+      // Not a warning: the results say Isolated / Stunned (rules/woundStates.js).
+      : stateCaused(row) ? null
+        : isNonLethal(row) ? note(s, 'warning.nonLethal', {weapon: row.name})
+          : null;
+  return compact([
+    weapon,
+    ...(side?.unsupportedUpgradeWeapons ?? []).map((name) => note(s, 'warning.upgradeWeapon', {weapon: name})),
+  ]);
 }
 
 // The MODs y's skills put on x's Face to Face Roll (modifiers.js
@@ -62,28 +69,66 @@ function approximationWarnings(s, side, target, ctx) {
  * @param {Trooper | null} y
  * @param {Trooper | null} x
  * @param {Side} s
- * @param {Ctx} ctx
- * @returns {Line[]}
+ * @param {import('../types.js').Visibility} vis
+ * @returns {{lines: Line[], notes: Message[]}}
  */
-function opposingLines(y, x, s, ctx) {
+function opposingLines(y, x, s, vis) {
   const o = other(s);
-  if (ctx.vis[o].blocked) return [];
+  if (vis[o].blocked) return {lines: [], notes: []};
   const lines = opposingMods(y, x, o === 'A').map((m) => line(m.value, m.label, o, m.ignoredBy));
-  for (const l of lines) if (l.struck) ctx.say(s, 'note.ignoresMod', {by: l.struck, mod: l.label});
-  return lines;
+  return {lines, notes: compact(lines.map((l) => l.struck && note(s, 'note.ignoresMod', {by: l.struck, mod: l.label})))};
 }
 
-// ctx: what one deriveInputs call shares with its helpers (attack.js, hit.js,
-// evade.js). `say(side, key, params)` adds a note ("Active: ..."; side null
-// for both), `warn` a warning, `fail` an error, each a message descriptor
-// (i18n/message.js) the view renders in the player's language; `vis` the
-// Smoke / White Noise blocks (visibility.js); `opposing[s]` the lines the
-// other side puts on s's roll; `rangeCm`, `rangeCmB` the distances.
-// One side's share of the calculator input: x's roll (an attack, a Dodge or a
-// Reset) against y, and x's Saving Roll against y's weapon. Returns the
-// inputs, whether x still waits on its weapon, the lines its roll is built
-// from (null when it has none to show), its hits' PS lines and its Saving
-// Roll's lines (`ps`, `arm`: the two halves of a save).
+// The roll x makes against y (an attack, a Dodge or a Reset), picked by its
+// weapon's kind, or why there is none yet: `incomplete` while x waits on its
+// weapon, `error` when x can't make the roll it picked.
+/**
+ * @param {Trooper} x
+ * @param {Trooper | null} y
+ * @param {Side} s
+ * @param {Ctx} ctx
+ * @returns {{roll: Roll} | {incomplete: true} | {error: Message}}
+ */
+function sideRoll(x, y, s, ctx) {
+  const {vis} = ctx;
+  const w = x.weapon;
+  const active = s === 'A';
+  // The branches below pick the roll by w's kind, so each cast of x says
+  // what w is.
+  if (!w) return {incomplete: true};
+  if (w.kind === 'dodge' || w.kind === 'reset') {
+    return {roll: evadeInputs(/** @type {Evader} */ (x), y, s, vis[other(s)].blocked ? null : y?.weapon, ctx)};
+  }
+  if (w.kind === 'none') {
+    // No ARO exists only on the reactive side: no roll, no template. On the
+    // active side it is a leftover (carried over by a swap; swapSides already
+    // drops it), so the setup is not complete until a real choice is made.
+    return active ? {incomplete: true} : {roll: {inputs: noLofInputs(s), lines: {kind: 'none'}}};
+  }
+  if (attackStat(x.profile, w.row) <= 0) {
+    // The error names the roll: an Attack in the Active Turn, an ARO otherwise.
+    const key = isCcAttack(x) ? 'error.noCcAttack' : 'error.noBsAttack';
+    return {error: note(s, active ? key : `${key}Aro`)};
+  }
+  if (isCcAttack(x)) return {roll: ccAttackInputs(/** @type {Attacker} */ (x), y, s, ctx)};
+  if (vis[s].blocked) return {roll: {inputs: noLofInputs(s), lines: {kind: 'none', blockedZone: vis[s].blocked}}};
+  if (y && !reaches(x, y)) {
+    return {roll: {
+      inputs: noLofInputs(s),
+      lines: {kind: 'none', reason: msg('ledger.cantTarget', {program: w.row.name})},
+      notes: [note(s, 'note.cantTarget', {program: w.row.name})],
+    }};
+  }
+  // Both shoot at rangeCm, unless the reactive answers from its own rangeCmB.
+  const rangeCm = active ? ctx.rangeCm : ctx.rangeCmB ?? ctx.rangeCm;
+  const roll = attackInputs(/** @type {Attacker} */ (x), y, rangeCm, s, ctx);
+  return {roll: {...roll, inputs: {...roll.inputs, [`template${s}`]: w.kind === 'template'}}};
+}
+
+// One side's share of the calculator input: x's roll against y (sideRoll)
+// and x's Saving Roll against y's weapon (hit.js defenseInputs). `lines`:
+// what x's roll is built from (null while it has none to show); `ps` its
+// hits' PS lines and `arm` its Saving Roll's lines, the two halves of a save.
 /**
  * @param {Trooper} x
  * @param {Trooper | null} y
@@ -91,59 +136,18 @@ function opposingLines(y, x, s, ctx) {
  * @param {Ctx} ctx
  */
 function sideInputs(x, y, s, ctx) {
-  const {say, fail, vis} = ctx;
-  /** @type {Partial<Params>} */
-  const inputs = {};
-  /** @type {SideLines | null} */
-  let lines = null;
-  /** @type {Line[] | null} */
-  let ps = null;
-  /** @type {Line[] | null} */
-  let arm = null;
-  let incomplete = false;
-  const w = x.weapon;
-  const active = s === 'A';
-  // The branches below pick the roll by w's kind, so each cast of x says
-  // what w is.
-  /** @param {import('../types.js').Roll} r */
-  const roll = (r) => {
-    Object.assign(inputs, r.inputs);
-    lines = r.lines;
-    ps = r.ps ?? null;
+  const r = sideRoll(x, y, s, ctx);
+  const roll = 'roll' in r ? r.roll : null;
+  const defense = y ? defenseInputs(x, y.weapon?.row ? y.weapon : null, s, x.weapon?.kind === 'dodge') : null;
+  return {
+    inputs: {...roll?.inputs, ...defense?.inputs},
+    incomplete: 'incomplete' in r,
+    error: 'error' in r ? r.error : null,
+    lines: roll?.lines ?? null,
+    ps: roll?.ps ?? null,
+    arm: defense?.lines ?? null,
+    notes: roll?.notes ?? [],
   };
-  if (!w) {
-    incomplete = true;
-  } else if (w.kind === 'dodge' || w.kind === 'reset') {
-    roll(evadeInputs(/** @type {Evader} */ (x), y, s, vis[other(s)].blocked ? null : y?.weapon, ctx));
-  } else if (w.kind === 'none') {
-    // No ARO exists only on the reactive side: no roll, no template. On the
-    // active side it is a leftover (carried over by a swap; swapSides already
-    // drops it), so the setup is not complete until a real choice is made.
-    if (active) incomplete = true;
-    else roll({inputs: noLofInputs(s), lines: {kind: 'none'}});
-  } else if (attackStat(x.profile, w.row) <= 0) {
-    // The error names the roll: an Attack in the Active Turn, an ARO otherwise.
-    const key = isCcAttack(x) ? 'error.noCcAttack' : 'error.noBsAttack';
-    fail(s, active ? key : `${key}Aro`);
-  } else if (isCcAttack(x)) {
-    roll(ccAttackInputs(/** @type {Attacker} */ (x), y, s, ctx));
-  } else if (vis[s].blocked) {
-    roll({inputs: noLofInputs(s), lines: {kind: 'none', blockedZone: vis[s].blocked}});
-  } else if (y && !reaches(x, y)) {
-    say(s, 'note.cantTarget', {program: w.row.name});
-    roll({inputs: noLofInputs(s), lines: {kind: 'none', reason: msg('ledger.cantTarget', {program: w.row.name})}});
-  } else {
-    // Both shoot at rangeCm, unless the reactive answers from its own rangeCmB.
-    const rangeCm = active ? ctx.rangeCm : ctx.rangeCmB ?? ctx.rangeCm;
-    roll(attackInputs(/** @type {Attacker} */ (x), y, rangeCm, s, ctx));
-    inputs[`template${s}`] = w.kind === 'template';
-  }
-  if (y) {
-    const d = defenseInputs(x, y.weapon?.row ? y.weapon : null, s, w?.kind === 'dodge', ctx);
-    Object.assign(inputs, d.inputs);
-    arm = d.lines;
-  }
-  return {inputs, incomplete, lines, ps, arm};
 }
 
 /**
@@ -162,71 +166,47 @@ function sideInputs(x, y, s, ctx) {
  * @returns {import('../types.js').Derived}
  */
 export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
-  /** @type {Partial<Params>} */
-  const inputs = {};
-  /** @type {import('../types.js').Message[]} */
-  const errors = [];
-  /** @type {import('../types.js').Message[]} */
-  const notes = [];
-  /** @type {import('../types.js').Message[]} */
-  const warnings = [];
-  /**
-   * say(side, key, params) adds a note, "Active: ..."; side null for both.
-   * @param {import('../types.js').Message[]} into
-   * @returns {import('../types.js').Say}
-   */
-  const sayTo = (into) => (side, key, params) => into.push(about(side, msg(key, params)));
   // A side with a profile is a Trooper (types.js).
   const a = /** @type {Trooper | null} */ (active?.profile ? active : null);
   const b = /** @type {Trooper | null} */ (reactive?.profile ? reactive : null);
-  const x = {A: a, B: b};
-  // BS Attack (-X) MODs on each side's roll.
   // Smoke / White Noise between them. A side with no line of fire doesn't
   // attack, so its skills put no MODs on the other side's roll.
   const vis = visibility(a, b, zones);
-  // opposing: filled for both sides just below.
+  const opposing = {A: opposingLines(b, a, 'A', vis), B: opposingLines(a, b, 'B', vis)};
   /** @type {Ctx} */
-  const ctx = {say: sayTo(notes), warn: sayTo(warnings), fail: sayTo(errors), vis, rangeCm, rangeCmB, opposing: /** @type {Ctx['opposing']} */ ({})};
-  ctx.opposing.A = opposingLines(b, a, 'A', ctx);
-  ctx.opposing.B = opposingLines(a, b, 'B', ctx);
-  for (const s of /** @type {Side[]} */ (['A', 'B'])) {
-    if (vis[s].blocked) ctx.say(s, 'note.noLof', {zone: zoneName(/** @type {import('../types.js').Zone} */ (vis[s].blocked))});
-  }
-
-  // A side still waiting on its weapon: nothing to report, but not ready to apply.
-  let incomplete = false;
-  /** @type {{A: SideLines | null, B: SideLines | null}} */
-  const lines = {A: null, B: null};
-  /** @type {{A?: Line[] | null, B?: Line[] | null}} */
-  const ps = {};
-  /** @type {{A?: Line[] | null, B?: Line[] | null}} */
-  const arm = {};
-  for (const s of /** @type {Side[]} */ (['A', 'B'])) {
-    if (!x[s]) continue;
-    const r = sideInputs(x[s], x[other(s)], s, ctx);
-    Object.assign(inputs, r.inputs);
-    incomplete ||= r.incomplete;
-    lines[s] = r.lines;
-    ps[s] = r.ps;
-    arm[s] = r.arm;
-  }
+  const ctx = {vis, rangeCm, rangeCmB, opposing: {A: opposing.A.lines, B: opposing.B.lines}};
+  const sides = {A: a ? sideInputs(a, b, 'A', ctx) : null, B: b ? sideInputs(b, a, 'B', ctx) : null};
   // The save the target makes against a side's hits: the side's PS, then
   // the target's ARM (or BTS / PH) against that weapon, from the other pass.
-  for (const s of /** @type {Side[]} */ (['A', 'B'])) {
-    // PS lines come from a roll, so the side has lines.
-    if (ps[s]) /** @type {SideLines} */ (lines[s]).save = section([.../** @type {Line[]} */ (ps[s]), ...(arm[other(s)] ?? [])]);
-  }
-  // A Direct Template on either side: nothing is opposed, each attack is its
-  // own roll. Said whatever the other side does, a Dodge, a Reset or No ARO
-  // included (Alex, 2026-10-23); a template a zone blocks rolls nothing
-  // (lines.kind 'none'), so it says nothing.
-  if (/** @type {Side[]} */ (['A', 'B']).some((s) => lines[s]?.kind === 'template')) ctx.say(null, 'note.directTemplate');
-
-  if (a || b) inputs.fixedFaceToFace = false;
-  // Things the result may get wrong; shown as alerts but don't block the calculation.
-  approximationWarnings('A', a, b, ctx);
-  approximationWarnings('B', b, a, ctx);
-  if (isSpecOps(a) || isSpecOps(b)) ctx.warn(null, 'warning.specOps');
-
+  // PS lines come from a roll, so the side has lines.
+  /** @param {Side} s */
+  const sideLines = (s) => {
+    const l = sides[s]?.lines ?? null;
+    const ps = sides[s]?.ps;
+    return l && ps ? {...l, save: section([...ps, ...(sides[other(s)]?.arm ?? [])])} : l;
+  };
+  const lines = {A: sideLines('A'), B: sideLines('B')};
+  const errors = compact(SIDES.map((s) => sides[s]?.error));
+  // A side still waiting on its weapon: nothing to report, but not ready to apply.
+  const incomplete = SIDES.some((s) => sides[s]?.incomplete);
+  const notes = [
+    ...opposing.A.notes,
+    ...opposing.B.notes,
+    ...compact(SIDES.map((s) => vis[s].blocked && note(s, 'note.noLof', {zone: zoneName(/** @type {import('../types.js').Zone} */ (vis[s].blocked))}))),
+    ...(sides.A?.notes ?? []),
+    ...(sides.B?.notes ?? []),
+    // A Direct Template on either side: nothing is opposed, each attack is its
+    // own roll. Said whatever the other side does, a Dodge, a Reset or No ARO
+    // included (Alex, 2026-10-23); a template a zone blocks rolls nothing
+    // (lines.kind 'none'), so it says nothing.
+    ...(SIDES.some((s) => lines[s]?.kind === 'template') ? [note(null, 'note.directTemplate')] : []),
+  ];
+  const warnings = [
+    ...approximationWarnings('A', a, b),
+    ...approximationWarnings('B', b, a),
+    ...(isSpecOps(a) || isSpecOps(b) ? [note(null, 'warning.specOps')] : []),
+  ];
+  /** @type {Partial<Params>} */
+  const inputs = {...sides.A?.inputs, ...sides.B?.inputs, ...((a || b) && {fixedFaceToFace: false})};
   return {inputs, ok: errors.length === 0 && !incomplete && (a !== null || b !== null), errors, warnings, notes, lines};
 }
