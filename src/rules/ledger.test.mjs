@@ -4,11 +4,11 @@
 // and is the sum of its live lines (struck and display-only lines don't count).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
-import {ammoTag, buildLedger, renderDerived} from './ledger.js';
-import {deriveInputs as deriveRaw} from './matchup.js';
+import {ammoTag, buildLedger} from './ledger.js';
+import {deriveInputs} from './testFixtures.mjs';
 import {RANGE_BANDS, rangeModFor} from './ranges.js';
 import {pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
+import {army} from '../army/testArmy.mjs';
 
 /** @typedef {import('../types.js').WeaponRow} WeaponRow */
 /** @typedef {import('../types.js').WeaponEntry} WeaponEntry */
@@ -24,12 +24,6 @@ import {pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
 /** @typedef {import('../types.js').UnitRow} UnitRow */
 /** @typedef {import('../types.js').WeaponMods} WeaponMods */
 
-// The derivation rendered in English, as the view hands it to buildLedger.
-/** @param {Parameters<typeof deriveRaw>[0]} o */
-const deriveInputs = (o) => renderDerived(deriveRaw(o));
-
-/** @type {Army} */
-const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 
 // Seeded, so a failure always reproduces.
 let seed = 11;

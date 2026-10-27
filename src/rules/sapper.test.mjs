@@ -3,25 +3,17 @@
 // a picked trooper starts in cover, or in its Foxhole when it has Sapper.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
 import {pickTrooper} from '../state/actions.js';
 import {matchupCore} from '../state/matchupView.js';
-import {buildLedger, renderDerived} from './ledger.js';
-import {deriveInputs as deriveRaw} from './matchup.js';
-
-// The rules word their notes and lines as message descriptors; these tests
-// read them in English (ledger.js renders them).
-const deriveInputs = (o) => renderDerived(deriveRaw(o));
+import {buildLedger} from './ledger.js';
+import {deriveInputs} from './testFixtures.mjs';
 import {resolveSelection} from './trooper.js';
+import {army, unitByIsc as unit} from '../army/testArmy.mjs';
 
 /** @typedef {import('../types.js').Selection} Selection */
 
-/** @type {import('../types.js').Army} */
-const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
-/** @param {string} isc a unit in the data */
-const unit = (isc) => /** @type {import('../types.js').UnitRow} */ (army.units.find((u) => u.isc.startsWith(isc)));
 /**
  * @param {string} isc
  * @param {number} optionId

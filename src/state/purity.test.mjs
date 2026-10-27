@@ -12,8 +12,9 @@ import {reduce} from './reduce.js';
 import {EMPTY_SIDE, initialState} from './schema.js';
 import {MODES} from './modes.js';
 import {DEFAULT_PARAMS} from '../engine/params.js';
+import {army as loaded} from '../army/testArmy.mjs';
 
-const army = deepFreeze(JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8')));
+const army = deepFreeze(loaded);
 const fennec = {...EMPTY_SIDE, unitId: 10, factionId: 101, groupId: 1, optionId: 2, weaponKey: 'w1', ftSize: 3};
 const zhanshi = {...EMPTY_SIDE, unitId: 20, factionId: 201, groupId: 1, optionId: 1, weaponKey: 'none', inCover: true};
 // A summary of the day it was saved: a deliberately partial fixture.

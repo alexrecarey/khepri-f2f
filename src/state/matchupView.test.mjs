@@ -1,7 +1,6 @@
 // Run with: yarn test:js
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import {pickTrooper, setUpgrade} from './actions.js';
 import {matchupCore, matchupView, renderMatchup} from './matchupView.js';
 import {translator} from '../i18n/index.js';
@@ -9,6 +8,7 @@ import es from '../i18n/es.js';
 import {reduce} from './reduce.js';
 import {EMPTY_SIDE, initialState} from './schema.js';
 import {unitById} from '../army/lookup.js';
+import {army} from '../army/testArmy.mjs';
 
 /** @typedef {import('../types.js').MatchupView} MatchupView */
 /** @typedef {import('../types.js').LedgerSide} LedgerSide */
@@ -16,8 +16,6 @@ import {unitById} from '../army/lookup.js';
 /** @typedef {import('../types.js').ResolvedSide} ResolvedSide */
 /** @typedef {import('../types.js').AppState} AppState */
 
-/** @type {import('../types.js').Army} */
-const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 // Share-link ids: Corax-1 (Viral) and Chaksa.
 const corax = {...EMPTY_SIDE, unitId: 1934, factionId: 603, groupId: 1, optionId: 4};
 const chaksa = {...EMPTY_SIDE, unitId: 1310, factionId: 801, groupId: 1, optionId: 1};

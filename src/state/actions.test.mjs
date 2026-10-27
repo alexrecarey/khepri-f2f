@@ -1,11 +1,10 @@
 // Run with: yarn test:js
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import {selectionFromHit} from './actions.js';
 import {matchupCore} from './matchupView.js';
+import {army} from '../army/testArmy.mjs';
 
-const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 // Fusiliers (PanOceania) with a Combi Rifle.
 const hit = /** @type {import('../types.js').ProfileHit} */ ({unitId: 1, armyFactionId: 101, groupId: 1, profileId: 1, optionId: 1});
 
