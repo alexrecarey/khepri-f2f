@@ -14,12 +14,14 @@ import chakra600 from './fonts/ChakraPetch-SemiBold.ttf';
 import chakra700 from './fonts/ChakraPetch-Bold.ttf';
 import plex400 from './fonts/IBMPlexSans-Regular.ttf';
 import plex600 from './fonts/IBMPlexSans-SemiBold.ttf';
+import {SIDE_COLOR} from '../src/results/ramp.js';
 
 export const CARD_W = 1200;
 export const CARD_H = 630;
 
-// The app's tokens (src/ui/styles/tokens.css): the side colours are fixed.
-const INK = '#e8e6e1', GREY = '#9a978f', BG = '#121212', ACTIVE = '#5fc4a0', REACTIVE = '#e59bc0';
+// The app's tokens (src/ui/styles/tokens.css); the side colours are results/ramp.js's.
+const INK = '#e8e6e1', GREY = '#9a978f', BG = '#121212';
+const {active: ACTIVE, reactive: REACTIVE} = SIDE_COLOR;
 const CHAKRA = 'Chakra Petch', PLEX = 'IBM Plex Sans';
 
 // wrangler's Data rule (wrangler.jsonc) bundles the fonts as bytes, where

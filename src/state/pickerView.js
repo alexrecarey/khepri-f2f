@@ -173,8 +173,10 @@ export function loadoutCharts(army, weaponIds) {
 export function orderLoadouts(army, hits) {
   /** @param {ProfileHit} h */
   const reach = (h) => bestReach(army?.weapons?.[/** @type {number} */ (mainWeapon(army, h.weaponIds))]);
-  // swc is a string ("1.5"): subtraction coerces it, as it always has.
-  return [...hits].sort((a, b) => /** @type {number} */ (/** @type {unknown} */ (b.swc ?? 0)) - /** @type {number} */ (/** @type {unknown} */ (a.swc ?? 0)) || reach(b) - reach(a) || a.points - b.points);
+  // swc is a string in the data ("1.5"); the number it names.
+  /** @param {ProfileHit} h */
+  const swc = (h) => Number(h.swc ?? 0);
+  return [...hits].sort((a, b) => swc(b) - swc(a) || reach(b) - reach(a) || a.points - b.points);
 }
 
 // Everything the desktop unit pane shows about a unit in one faction. The

@@ -19,6 +19,8 @@
 
 import * as v from 'valibot';
 import {parseOr} from '../lib/parse.js';
+import {CREST_SLUG} from '../army/crests.js';
+import {HEADLINES} from '../results/headline.js';
 
 /**
  * The share card, as CardSchema below reads it: the headline kind, whether
@@ -35,15 +37,12 @@ export const CARD_PARAM = 'card';
 // (state/headlines.js HEADLINE_PARAM).
 export const LINK_HEADLINE = 'wound';
 export const SHARE_PATH = '/s';
-/** @type {import('../types.js').HeadlineChoice[]} */
-const KINDS = ['wpo', 'win', 'wound'];
 const MAX_TEXT = 60;
-const SLUG = /^[a-z0-9-]{1,80}$/;
 
 // Hand-written links get the same treatment as real ones: anything missing,
 // too long or the wrong type is dropped, never trusted.
 const text = v.fallback(v.pipe(v.string(), v.transform((s) => s.slice(0, MAX_TEXT))), '');
-const slug = v.fallback(v.pipe(v.string(), v.regex(SLUG)), '');
+const slug = v.fallback(v.pipe(v.string(), v.regex(CREST_SLUG)), '');
 // A side needs its number and its unit; the rest may be empty.
 const CardSideSchema = v.pipe(
   v.object({
@@ -57,7 +56,7 @@ const CardSideSchema = v.pipe(
   v.check((side) => side.n !== '' && side.u !== ''),
 );
 export const CardSchema = v.object({
-  k: v.picklist(KINDS),                  // which headline it shows
+  k: v.picklist(HEADLINES),              // which headline it shows
   nf: v.fallback(v.boolean(), false),    // not face to face (headline fell back)
   x: text,                               // range band
   a: CardSideSchema,

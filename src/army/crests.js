@@ -3,6 +3,10 @@
 // live in R2, put there by scripts/crests/sync.mjs (yarn crests).
 import {unitById} from './lookup.js';
 
+// What a slug looks like (Corvus Belli's file names): what the Worker serves
+// at /crests/<slug> and a share card may name.
+export const CREST_SLUG = /^[a-z0-9-]{1,80}$/;
+
 // The crest for a trooper: its profile's own, else its unit's.
 /**
  * @param {import('../types.js').UnitRow | null | undefined} unit
