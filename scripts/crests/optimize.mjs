@@ -29,7 +29,7 @@ export async function magick(args, input) {
   }
   return new Promise((resolve, reject) => {
     const p = execFile(magickBin, args, {encoding: 'buffer', maxBuffer: 64 * 1024 * 1024}, (err, stdout) => (err ? reject(err) : resolve(stdout)));
-    if (input) p.stdin.end(input); else p.stdin.end();
+    p.stdin?.end(input ?? undefined);
   });
 }
 

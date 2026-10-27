@@ -58,7 +58,7 @@ export function localNames(lang, army, {enMetadata, enFiles, metadata, files}) {
   // groups and loadouts differ between factions, so all copies are searched.
   const raw = new Map();
   for (const file of files.values()) for (const u of file.units) raw.set(u.id, [...(raw.get(u.id) ?? []), u]);
-  const statLabels = Object.fromEntries(([...files.values()][0]?.filters?.attrs ?? []).map((a) => [a.id, a.abbr]));
+  const statLabels = /** @type {Parameters<typeof compactUpgrades>[2]} */ (Object.fromEntries(([...files.values()][0]?.filters?.attrs ?? []).map((a) => [a.id, a.abbr])));
   for (const unit of army.units) {
     const copies = [...(raw.get(unit.id) ?? []), ...(raw.get(unit.id + 10000) ?? [])];
     const u = copies[0];

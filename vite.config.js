@@ -46,6 +46,7 @@ function armyModules() {
 
 // Per-language chunks get a lang-<what>.<lang> name: the PWA leaves them out
 // of the precache (each player caches only their own language, on first use).
+/** @type {[RegExp, string][]} */
 const LANG_CHUNKS = [
   [/army-names-en$/, 'lang-names.en'],
   [/names\.([a-z]+)\.json$/, 'lang-names.$1'],
