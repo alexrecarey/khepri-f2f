@@ -2,8 +2,8 @@
 // `ui -> state -> rules -> army`. Reads every module under src/ and worker/,
 // takes its import specifiers and fails on an import that points up a layer.
 // A layer is a top-level directory under src/ (ui, state, rules, army, ...).
-// Tests, the WASM glue and the app's entry files (src/App.jsx, main.jsx) are
-// not checked; the entry files wire everything together by design.
+// Tests and their fixture modules, the WASM glue and the app's entry files
+// (src/App.jsx, main.jsx) are not checked; the entry files wire everything together by design.
 import assert from 'node:assert/strict';
 import {readdirSync, readFileSync, statSync} from 'node:fs';
 import {dirname, join, relative, resolve, sep} from 'node:path';
@@ -28,7 +28,8 @@ const FORBIDDEN = {
 FORBIDDEN.engine = [...FORBIDDEN.engine, 'rules'];
 
 const SKIP_DIRS = new Set([join('src', 'engine', 'wasm'), 'node_modules']);
-const isModule = (f) => /\.(js|jsx|mjs)$/.test(f) && !/\.test\.mjs$/.test(f);
+// test*.mjs: a test fixture module (src/rules/testFixtures.mjs), read by tests only.
+const isModule = (f) => /\.(js|jsx|mjs)$/.test(f) && !/\.test\.mjs$/.test(f) && !/^test[A-Z]\w*\.mjs$/.test(f);
 
 function* modules(dir) {
   for (const name of readdirSync(dir)) {
