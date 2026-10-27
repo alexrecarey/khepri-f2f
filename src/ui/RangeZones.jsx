@@ -6,11 +6,9 @@ import PropTypes from 'prop-types';
 import {ZONES, zoneName} from '../rules/visibility.js';
 import {render} from '../i18n/message.js';
 import {dispatch} from '../state/store.js';
+import {signed} from '../rules/lines.js';
 import {ZoneIcon} from './icons.jsx';
 import {useT} from './i18n.jsx';
-
-/** @param {number} n */
-const signed = (n) => `${n > 0 ? '+' : ''}${n}`;
 
 // " · smoke −6", " · smoke 0 (MSV2)", " · no LoF": what the zones do to one
 // side's attack (matchupView vis), after its Range MOD.

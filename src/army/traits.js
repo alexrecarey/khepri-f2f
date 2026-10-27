@@ -50,6 +50,19 @@ export const equipExtra = (traits, id) => (traits?.equip ?? []).find((e) => e.id
 export const skillExtras = (traits, id) =>
   (traits?.skills ?? []).filter((s) => s.id === id).flatMap((s) => s.extra ?? []);
 
+// The number each extra that matches `re` carries in its first group, in
+// order: extraNumbers(['-3', '+1B', '-6'], /^-(\d+)$/) is [3, 6]. The rules
+// read every bracketed MOD this way.
+/**
+ * @param {string[]} extras
+ * @param {RegExp} re with one capturing group, a number
+ * @returns {number[]}
+ */
+export const extraNumbers = (extras, re) => extras.flatMap((e) => {
+  const m = re.exec(e);
+  return m ? [Number(m[1])] : [];
+});
+
 // "Name (extra, extra)" as the Army list shows it; the extras in t's
 // language (the army's own translation: "+1B" -> "+1R") and distance unit
 // (Dodge (+2") -> Esquivar (+5 cm)). t: the translator (src/i18n).

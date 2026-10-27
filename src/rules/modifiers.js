@@ -3,7 +3,7 @@
 import {LIMITS} from '../engine/params.js';
 import {clamp} from '../lib/clamp.js';
 import {EQUIP, SKILL} from '../army/ids.js';
-import {equipExtra, hasEquip, hasSkill, skillExtra, skillExtras} from '../army/traits.js';
+import {equipExtra, extraNumbers, hasEquip, hasSkill, skillExtra, skillExtras} from '../army/traits.js';
 import {ZERO_PAIN, canTarget} from '../army/hacking.js';
 import {attackAttribute, isCommsAttack, isImpactTemplate, isPseudo, isTemplate, parseWeaponMods, rolls} from '../army/weapons.js';
 import {ccOpposingMods, isCcAttack, naturalBornWarrior} from './closeCombat.js';
@@ -74,7 +74,7 @@ const FIREWALL_EXTRA = /\bFirewall \(?(-\d+)\)?/;
 export function firewallMod(traits) {
   const mods = [...(traits?.skills ?? []), ...(traits?.equip ?? [])].flatMap((t) => {
     if (t.id === EQUIP.TINBOT_FIREWALL) return (t.extra ?? []).map(Number).filter((n) => n < 0);
-    return /** @type {RegExpExecArray[]} */ ((t.extra ?? []).map((e) => FIREWALL_EXTRA.exec(e)).filter(Boolean)).map((m) => Number(m[1]));
+    return extraNumbers(t.extra ?? [], FIREWALL_EXTRA);
   });
   return mods.length > 0 ? Math.min(...mods) : 0;
 }
@@ -306,17 +306,19 @@ export function bangbombMod(x, incoming) {
 // Warhorse ignores BS Attack (-X), however it is gained.
 // Surprise Attack (-X): the -X MOD, 0 without the skill. Whether it is used is
 // the player's call (rules/matchup.js opposingMod).
-/** @param {MaybeTraits} traits */
-export function surpriseAttackMod(traits) {
-  const mods = /** @type {RegExpExecArray[]} */ (skillExtras(traits, SKILL.SURPRISE_ATTACK).map((e) => /^-(\d+)$/.exec(e)).filter(Boolean));
-  return mods.length > 0 ? Math.min(...mods.map((m) => -Number(m[1]))) : 0;
+// Both are the skill's bracketed (-X), the largest when it lists several.
+/**
+ * @param {MaybeTraits} traits
+ * @param {number} skill
+ */
+function opponentMod(traits, skill) {
+  const mods = extraNumbers(skillExtras(traits, skill), /^-(\d+)$/);
+  return mods.length > 0 ? -Math.max(...mods) : 0;
 }
-
 /** @param {MaybeTraits} traits */
-export function bsAttackMod(traits) {
-  const mods = /** @type {RegExpExecArray[]} */ (skillExtras(traits, SKILL.BS_ATTACK).map((e) => /^-(\d+)$/.exec(e)).filter(Boolean));
-  return mods.length > 0 ? Math.min(...mods.map((m) => -Number(m[1]))) : 0;
-}
+export const surpriseAttackMod = (traits) => opponentMod(traits, SKILL.SURPRISE_ATTACK);
+/** @param {MaybeTraits} traits */
+export const bsAttackMod = (traits) => opponentMod(traits, SKILL.BS_ATTACK);
 
 
 // The Attribute a weapon rolls against: BS, or PH / WIP for BS Weapon (PH) /
@@ -431,10 +433,7 @@ export const keepsAroBurst = (x) => x.weapon?.kind !== 'program'
 // Active Turn is B 1 regardless). Yan Huo, Sunduqbut.
 /** @param {MaybeTraits} traits */
 export const neurocineticsAroBurst = (traits) =>
-  /** @type {RegExpExecArray[]} */ (skillExtras(traits, SKILL.NEUROCINETICS)
-    .map((e) => /^\+(\d+)B$/.exec(e))
-    .filter(Boolean))
-    .reduce((n, m) => n + Number(m[1]), 0);
+  extraNumbers(skillExtras(traits, SKILL.NEUROCINETICS), /^\+(\d+)B$/).reduce((n, b) => n + b, 0);
 
 // Burst, SD and BS bonuses on a BS Attack, summed over the weapon's loadout
 // extras, the profile's BS Attack (+1SD / +1B) skill and the Fireteam.

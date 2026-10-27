@@ -7,8 +7,7 @@ import {HEADLINES} from '../results/headline.js';
 import {headlineChoice, setHeadline} from '../state/headlines.js';
 import {Page} from './Sheet.jsx';
 import {useT} from './i18n.jsx';
-
-const back = () => dispatch({type: 'back'});
+import {back} from './nav.js';
 
 // Settings shared by the phone page and the desktop dialog (DeskMenu.jsx).
 /**

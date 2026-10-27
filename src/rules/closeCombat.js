@@ -7,7 +7,7 @@
 // Every MOD here is a line {value, label} (label: i18n/message.js); deriveInputs (matchup.js) adds
 // them up and the ledger lists them, so a rule lives only in this file.
 import {SKILL} from '../army/ids.js';
-import {hasSkill, skillExtras} from '../army/traits.js';
+import {extraNumbers, hasSkill, skillExtras} from '../army/traits.js';
 import {msg} from '../i18n/message.js';
 
 /** @typedef {import('../types.js').Traits | null | undefined} MaybeTraits */
@@ -88,7 +88,7 @@ export function ccAttackSkill(traits) {
 export const hasBerserk = (traits) => hasSkill(traits, SKILL.BERSERK);
 /** @param {MaybeTraits} traits */
 export function berserkMod(traits) {
-  const mods = /** @type {RegExpExecArray[]} */ (skillExtras(traits, SKILL.BERSERK).map((e) => /^\+(\d+)$/.exec(e)).filter(Boolean)).map((m) => Number(m[1]));
+  const mods = extraNumbers(skillExtras(traits, SKILL.BERSERK), /^\+(\d+)$/);
   return mods.length ? Math.max(...mods) : 0;
 }
 // x declared Berserk: the chip is on, x is the active side and CC attacks.

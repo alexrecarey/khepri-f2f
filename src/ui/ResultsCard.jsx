@@ -10,6 +10,7 @@ import Headline from './Headline.jsx';
 import {shareLink} from './share.js';
 import useDialogFocus from './useDialogFocus.js';
 import useSheetGestures from './useSheetGestures.js';
+import useEscape from './useEscape.js';
 import useResultsView, {waitMessage} from './useResultsView.js';
 import FaceToFaceChart from './FaceToFaceChart.jsx';
 import Ledger from './Ledger.jsx';
@@ -86,13 +87,7 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
   const setOpen = (o) => dispatch(o ? {type: 'openOverlay', overlay: 'results'} : {type: 'back'});
   const g = useSheetGestures({open, canOpen: Boolean(s), onOpen: () => setOpen(true), onClose: () => setOpen(false),
     onSwipeX: s ? swipe : null, measureKey: [s?.wpo.active, s?.wpo.reactive, s?.unopposed, classic, status, h?.kind].join('|')});
-  useEffect(() => {
-    if (!open) return undefined;
-    /** @param {KeyboardEvent} e */
-    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEscape(() => setOpen(false), open);
   // Closing gives the focus back to the card (the top), not to what opened it.
   useDialogFocus(g.sheetRef, open, () => g.sheetRef.current?.querySelector('.rs-top'));
   // Resting low, the sheet's scroll goes back to the top.

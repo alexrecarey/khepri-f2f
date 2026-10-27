@@ -9,6 +9,7 @@ import {deriveInputs} from './testFixtures.mjs';
 import {RANGE_BANDS, rangeModFor} from './ranges.js';
 import {pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
 import {army} from '../army/testArmy.mjs';
+import {SIDES} from '../lib/side.js';
 
 /** @typedef {import('../types.js').WeaponRow} WeaponRow */
 /** @typedef {import('../types.js').WeaponEntry} WeaponEntry */
@@ -83,7 +84,7 @@ test('ledger totals match deriveInputs and are the sum of their lines', () => {
     // Both picked a weapon (or a Dodge).
     /** @param {Side} s */
     const where = (s) => `#${i} ${s} ${active.unit.isc} ${/** @type {WeaponEntry} */ (active.weapon).key} vs ${reactive.unit.isc} ${/** @type {WeaponEntry} */ (reactive.weapon).key} @${rangeCm}`;
-    for (const s of /** @type {Side[]} */ (['A', 'B'])) {
+    for (const s of SIDES) {
       const l = ledger[s];
       if (!l || l.kind === 'none') continue;
       if (l.sv) checkSection(`${where(s)} SV`, l.sv, inputs[`successValue${s}`]);
