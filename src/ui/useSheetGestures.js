@@ -4,7 +4,7 @@
 // way it was flicked). Taps still open it (the top) and close it (outside).
 //
 // --open runs 0 (resting low) to 1 (open). CSS grows the numbers and bars
-// from it (app.css .rsheet), and transitions it on taps; while dragging it is
+// from it (phone-sheet.css .rsheet), and transitions it on taps; while dragging it is
 // written straight to the element each move, not through React state. Whether
 // the sheet is open stays in the state document (ui.overlay): onOpen /
 // onClose run once a drag has settled, so Back and history work as before.
@@ -69,7 +69,7 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, onSwip
     for (const el of [sheetRef.current, scrimRef.current]) el?.classList.toggle('dragging', on);
   };
   // Let go: CSS springs it to the chosen position; then the state follows.
-  // 'settling' covers the spring until the state catches up (app.css keeps
+  // 'settling' covers the spring until the state catches up (phone-sheet.css keeps
   // the sheet's content and stacking as they were while dragging).
   /** @param {boolean} toOpen */
   const settle = (toOpen) => {

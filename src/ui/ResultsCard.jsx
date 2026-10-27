@@ -26,7 +26,7 @@ import {useT} from './i18n.jsx';
 // results card): both sides' headline numbers (wounds per order unless the
 // player chose another, results/headline.js) over the shaded wound bar, or over the
 // face-to-face bar when the headline is winning it. Open, the numbers and the
-// bars are bigger and both bars show; app.css grows them with --open as the
+// bars are bigger and both bars show; phone-sheet.css grows them with --open as the
 // sheet is dragged.
 // Open, with a chart to show (pick), each bar is the switch for its own
 // breakdown below (ResultBars).

@@ -17,7 +17,7 @@
 import en from './en.js';
 import {lazyOnce} from '../lib/lazyOnce.js';
 
-export const SOURCE_LANGUAGE = 'en';
+const SOURCE_LANGUAGE = 'en';
 
 // A new language is listed here and in src/state/language.js (LANGUAGES).
 /** @type {Record<string, () => Promise<Record<string, string>>>} */
@@ -92,7 +92,3 @@ export async function loadTranslator(lang) {
   const load = LOADERS[lang];
   return load ? translator(await load(), lang) : tEn;
 }
-
-// The messages of a language, for the locale tests.
-/** @param {string} lang */
-export const loadMessages = (lang) => (lang === SOURCE_LANGUAGE ? Promise.resolve(en) : LOADERS[lang]());

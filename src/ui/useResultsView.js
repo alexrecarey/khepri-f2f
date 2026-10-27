@@ -16,7 +16,7 @@ import {useT} from './i18n.jsx';
  * @typedef {{A: boolean, B: boolean} | null} Picked */
 
 /** @param {Picked | undefined} picked */
-export const waitingFor = (picked) => (picked && !(picked.A && picked.B) ? picked : null);
+const waitingFor = (picked) => (picked && !(picked.A && picked.B) ? picked : null);
 /**
  * @param {{A: boolean, B: boolean}} picked
  * @param {import('../types.js').Translator} t

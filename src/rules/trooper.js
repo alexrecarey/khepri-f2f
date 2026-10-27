@@ -46,15 +46,23 @@ export function bsAttackWeaponMods(traits) {
  * @returns {WeaponEntry[]}
  */
 export function trooperWeapons(option, weapons, traits) {
-  const list = bsWeapons(option, weapons);
   const bs = bsAttackWeaponMods(traits);
-  if (!bs.ap && !bs.t2 && !bs.cont && !bs.sr) return list;
+  return withSkill(bsWeapons(option, weapons), {ap: bs.ap, cont: bs.cont, sr: bs.sr, ammo: bs.t2 ? 'T2' : null, hasAmmo: (row) => hasAmmo(row, 'T2')});
+}
+
+// `list` with what a BS Attack or CC Attack skill adds to every weapon: AP
+// and Continuous Damage as MODs, SR-X off the PS, and an ammunition (T2,
+// Shock) joined to the row's unless `hasAmmo` says it already fires it.
+/**
+ * @param {WeaponEntry[]} list
+ * @param {{ap: boolean, cont: boolean, sr?: number, ammo: string | null, hasAmmo: (row: import('../types.js').WeaponRow) => boolean}} skill
+ * @returns {WeaponEntry[]}
+ */
+function withSkill(list, {ap, cont, sr = 0, ammo, hasAmmo}) {
+  if (!ap && !cont && !sr && !ammo) return list;
   return list.map((w) => {
-    let {row, mods} = w;
-    if (bs.ap) mods = {...mods, forceAP: true};
-    if (bs.cont) mods = {...mods, cont: true};
-    if (bs.sr) mods = {...mods, psMod: mods.psMod - bs.sr};
-    if (bs.t2 && !hasAmmo(row, 'T2')) row = {...row, ammo: [...ammoTypes(row), 'T2']};
+    const mods = {...w.mods, ...(ap && {forceAP: true}), ...(cont && {cont: true}), ...(sr && {psMod: w.mods.psMod - sr})};
+    const row = ammo && !hasAmmo(w.row) ? {...w.row, ammo: [...ammoTypes(w.row), ammo]} : w.row;
     return {...w, row, mods, label: weaponLabel(row, mods)};
   });
 }
@@ -68,16 +76,8 @@ export function trooperWeapons(option, weapons, traits) {
  * @returns {WeaponEntry[]}
  */
 export function trooperCcWeapons(option, weapons, traits) {
-  const list = ccWeapons(option, weapons);
   const cc = ccAttackSkill(traits);
-  if (!cc.ap && !cc.shock && !cc.cont) return list;
-  return list.map((w) => {
-    let {row, mods} = w;
-    if (cc.ap) mods = {...mods, forceAP: true};
-    if (cc.cont) mods = {...mods, cont: true};
-    if (cc.shock && !hasShockAmmo(row)) row = {...row, ammo: [...ammoTypes(row), 'Shock']};
-    return {...w, row, mods, label: weaponLabel(row, mods)};
-  });
+  return withSkill(ccWeapons(option, weapons), {ap: cc.ap, cont: cc.cont, ammo: cc.shock ? 'Shock' : null, hasAmmo: hasShockAmmo});
 }
 
 // Choices that are not weapons.

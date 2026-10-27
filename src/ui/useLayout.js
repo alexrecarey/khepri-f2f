@@ -16,7 +16,7 @@ const STEPS = [[1800, 'wide'], [1400, 'desktop'], [1100, 'landscape'], [768, 'ta
  * @param {number} width
  * @returns {Layout}
  */
-export const layoutFor = (width) => STEPS.find(([min]) => width >= min)?.[1] ?? 'phone';
+const layoutFor = (width) => STEPS.find(([min]) => width >= min)?.[1] ?? 'phone';
 
 // From landscape tablets up the menu pages and the picker are dialogs over
 // the workbench, reached from header buttons; below, full-screen pages.

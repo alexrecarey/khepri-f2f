@@ -10,7 +10,7 @@ import {EQUIP, SKILL} from './ids.js';
 import {parseWeaponMods, weaponLabel} from './weapons.js';
 
 // Troop Types with the Hackable Characteristic.
-export const HACKABLE_TYPES = ['TAG', 'HI', 'REM', 'VH'];
+const HACKABLE_TYPES = ['TAG', 'HI', 'REM', 'VH'];
 // A program's target: these Troop Types, or 'Hacker' (the Hacker skill).
 // null: any trooper (Spotlight).
 const HACKABLE_OR_HACKER = [...HACKABLE_TYPES, 'Hacker'];
@@ -32,7 +32,7 @@ const HACKABLE_OR_HACKER = [...HACKABLE_TYPES, 'Hacker'];
  * @property {string[] | null} targets
  */
 /** @type {Record<string, Program>} */
-export const PROGRAMS = {
+const PROGRAMS = {
   carbonite: {name: 'Carbonite', names: {es: 'Carbonita'}, attack: 0, opponent: 0, ps: 7, burst: 2, ammo: 'DA',
     state: 'Immobilized-B', targets: HACKABLE_OR_HACKER},
   oblivion: {name: 'Oblivion', attack: 0, opponent: 0, ps: 4, burst: 2, ammo: 'AP', state: 'Isolated', targets: HACKABLE_OR_HACKER},

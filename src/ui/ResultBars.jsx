@@ -42,7 +42,7 @@ export function useBreakdownView(reset = false) {
 // one shown. ring: outline the bar while on (the face to face bar, whose
 // breakdown is the one that isn't there by default).
 /** @param {{on?: boolean, faded?: boolean, ring?: boolean, onPick: () => void, children?: import('react').ReactNode}} props */
-export function BarButton({on, faded, ring, onPick, children}) {
+function BarButton({on, faded, ring, onPick, children}) {
   return (
     <button type="button" className={`bar-btn${faded ? ' faded' : ''}${ring ? ' ring' : ''}`} aria-pressed={on} onClick={onPick}>{children}</button>
   );

@@ -31,7 +31,7 @@ const patch = (side, p) => dispatch({type: 'patchSide', side, patch: p});
 // A side with no trooper yet: a tall slot with the site mark, one call to
 // action and the latest recent picks as one-tap chips. A slow plasma tint
 // behind it draws the eye to what is still missing. Tapping anywhere on the
-// card opens the search (the button covers the card, app.css).
+// card opens the search (the button covers the card, slots.css).
 /** @param {{side: Side, recents: ProfileHit[], onOpenPicker: () => void, onPick: (hit: ProfileHit) => void, hint?: boolean}} props */
 export function EmptySlot({side, recents, onOpenPicker, onPick, hint}) {
   const t = useT();

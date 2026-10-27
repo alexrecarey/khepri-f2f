@@ -17,6 +17,7 @@ import {shortIsc, shortWeaponName} from '../army/names.js';
 import {isPseudo} from '../army/weapons.js';
 import {DEFAULT_PARAMS, ParamsSchema} from '../engine/params.js';
 import {parseOr} from '../lib/parse.js';
+import {other} from '../lib/side.js';
 import {MODES} from './modes.js';
 import {classicAmmoKey} from './classicView.js';
 import {ZONES, zoneName} from '../rules/visibility.js';
@@ -173,8 +174,29 @@ const rangeText = (view, t) => {
  */
 const zoneNames = (view, t) => ZONES.filter((z) => view.zones?.[z]).map((z) => render(t, zoneName(z)));
 
+// The situation chips a side's roll uses, by kind: the saved-rolls line and
+// the share card each word them in their own order. `y`: the other side.
+/**
+ * @param {FilledSide} x
+ * @param {FilledSide} y
+ * @param {Side} role
+ * @param {Translator} t
+ */
+const situationOf = (x, y, role, t) => ({
+  foxhole: inFoxhole(x) ? t('skill.foxhole') : null,
+  cover: inCover(x) ? t('roll.cover') : null,
+  firewall: firewall(x, t),
+  chips: ownChips(x, t),
+  fireteam: fireteam(x, t),
+  teamOps: teamOps(x),
+  allies: allies(x, y, t),
+  surprise: surprise(x, role) ? t('roll.surpriseAttack') : null,
+  berserk: berserk(x, role) ? t('skill.berserk') : null,
+});
+
 // view: matchupView(); s: results/summary.js summarize(). The summary is saved as
-// text, in the language it was saved in.
+// text, in the language it was saved in. Cover or a Foxhole is said once
+// for both sides.
 /**
  * @param {MatchupView} view a complete one: both sides resolved
  * @param {import('../types.js').Summary | null} s
@@ -183,15 +205,13 @@ const zoneNames = (view, t) => ZONES.filter((z) => view.zones?.[z]).map((z) => r
  */
 export function matchupRollSummary(view, s, t = tEn) {
   const {A, B} = /** @type {{A: FilledSide, B: FilledSide}} */ (view);
-  /** @type {unknown[]} */
-  const bits = [rangeText(view, t), ...zoneNames(view, t)];
-  if (inFoxhole(A) || inFoxhole(B)) bits.push(t('skill.foxhole'));
-  if (inCover(A) || inCover(B)) bits.push(t('roll.cover'));
-  bits.push(firewall(A, t), firewall(B, t), ...ownChips(A, t), ...ownChips(B, t));
-  for (const x of [A, B]) bits.push(fireteam(x, t), ...teamOps(x));
-  bits.push(allies(A, B, t), allies(B, A, t));
-  if (surprise(A, 'A')) bits.push(t('roll.surpriseAttack'));
-  if (berserk(A, 'A')) bits.push(t('skill.berserk'));
+  const a = situationOf(A, B, 'A', t);
+  const b = situationOf(B, A, 'B', t);
+  const bits = [
+    rangeText(view, t), ...zoneNames(view, t), a.foxhole ?? b.foxhole, a.cover ?? b.cover,
+    a.firewall, b.firewall, ...a.chips, ...b.chips, a.fireteam, ...a.teamOps, b.fireteam, ...b.teamOps,
+    a.allies, b.allies, a.surprise, a.berserk,
+  ];
   const [au, aw, ru, rw] = [shortUnit(A.resolved.unit), weaponShort(A.resolved.weapon, t), shortUnit(B.resolved.unit), weaponShort(B.resolved.weapon, t)];
   return {
     a: `${au} · ${aw}`,
@@ -221,8 +241,8 @@ export function matchupShareCard(view, h, t = tEn) {
    */
   const side = (role, key) => {
     const x = /** @type {FilledSide} */ (view[role]);
-    const situation = [inFoxhole(x) && t('skill.foxhole'), inCover(x) && t('roll.cover'), firewall(x, t), ...ownChips(x, t), fireteam(x, t), allies(x, /** @type {FilledSide} */ (view[role === 'A' ? 'B' : 'A']), t),
-      surprise(x, role) && t('roll.surpriseAttack'), berserk(x, role) && t('skill.berserk'), ...teamOps(x)];
+    const s = situationOf(x, /** @type {FilledSide} */ (view[other(role)]), role, t);
+    const situation = [s.foxhole, s.cover, s.firewall, ...s.chips, s.fireteam, s.allies, s.surprise, s.berserk, ...s.teamOps];
     return {
       n: h.text[key], l: h.label[key],
       u: shortUnit(x.resolved.unit), w: weaponShort(x.resolved.weapon, t), s: situation.filter(Boolean).join(', '),

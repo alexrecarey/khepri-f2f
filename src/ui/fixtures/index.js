@@ -3,8 +3,6 @@
 // the build in the exact state the board shows.
 const FIXTURES = import.meta.glob('./*.json', {import: 'default'});
 
-export const fixtureNames = Object.keys(FIXTURES).map((p) => p.slice(2, -5));
-
 // `name` comes from the URL: only an own key of the glob map may be called.
 /**
  * @param {string} name

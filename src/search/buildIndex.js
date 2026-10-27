@@ -190,7 +190,3 @@ function makeRow(id, army, unit, short, group, profile, option, unitWords, weapo
  * @param {import('../types.js').OptionRow} option
  */
 const skillsOf = (profile, option) => [...(profile?.skills ?? []), ...(option.skills ?? [])];
-
-// For tests and the eval harness: the folded short name of a unit.
-/** @param {string} isc */
-export const foldedShort = (isc) => words(shortIsc(isc)).join(' ');

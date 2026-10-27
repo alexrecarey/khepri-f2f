@@ -1,5 +1,5 @@
 // The classic calculator: type the final numbers yourself. Same inputs and
-// the same hiding rules as before (src/CalculatorColumn.jsx), in the new design.
+// the same hiding rules (state/classicView.js classicSide), in the new design.
 // The numbers are the state document's classic slice.
 import {useCallback} from 'react';
 import {LIMITS} from '../engine/params.js';
