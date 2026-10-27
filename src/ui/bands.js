@@ -1,9 +1,11 @@
+import {signed} from '../rules/lines.js';
+
 // Infinity's range-band colours for a Range MOD. Nothing (the card shows
 // through) when there is no band to colour: no weapon yet, a Dodge, a Direct
 // Template (no range bands) or out of range.
 // "+3", "0", "−3"; "—" when there is no Range MOD.
 /** @param {number | null | undefined} n */
-export const signedMod = (n) => (n == null ? '—' : `${n > 0 ? '+' : ''}${n}`);
+export const signedMod = (n) => (n == null ? '—' : signed(n));
 
 /** @param {number | null | undefined} mod */
 export const bandColor = (mod) => {

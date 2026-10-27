@@ -95,27 +95,21 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
           )}
           {/* Cover or, for Sapper, the Foxhole (its own cover): one or the other. */}
           {!hacked && !noCover && (
-            <button type="button" className={`chip${coverOn ? ` on ${color}` : ''}`} aria-pressed={coverOn}
-              onClick={() => dispatch({type: 'setCover', side, on: !coverOn})}>
-              {coverOn ? `${t('chip.cover')} ✓` : `+ ${t('chip.cover')}`}
-            </button>
+            <ToggleChip on={coverOn} label={t('chip.cover')} color={color} onToggle={() => dispatch({type: 'setCover', side, on: !coverOn})} />
           )}
           {!hacked && resolved.canSapper && (
-            <button type="button" className={`chip${resolved.sapper ? ` on ${color}` : ''}`} aria-pressed={resolved.sapper}
-              onClick={() => dispatch({type: 'setSapper', side, on: !resolved.sapper})}>
-              {resolved.sapper ? `${t('chip.sapper')} ✓` : `+ ${t('chip.sapper')}`}
-            </button>
+            <ToggleChip on={resolved.sapper} label={t('chip.sapper')} color={color} onToggle={() => dispatch({type: 'setSapper', side, on: !resolved.sapper})} />
           )}
           {/* States that matter to this pick: Targeted against a shot or
               program or on a Reset, Hacked (-3 to -12) on a Reset, IMM-A on
               a Dodge. */}
-          {targetedChip && <ToggleChip side={side} field="targeted" on={sel.targeted} label={t('chip.targeted')} color={color} />}
+          {targetedChip && <ToggleChip on={sel.targeted} label={t('chip.targeted')} color={color} onToggle={() => patch(side, {targeted: !sel.targeted})} />}
           {hackedChip && (
             <PickChip side={side} chip="hackedReset" label={t('chip.hacked')} options={HACKED_RESET_MODS.map(String)}
               value={HACKED_RESET_MODS.includes(sel.hackedReset) ? HACKED_RESET_MODS.indexOf(sel.hackedReset) : null} color={color}
               onPick={(i) => patch(side, {hackedReset: i == null ? 0 : HACKED_RESET_MODS[i]})} />
           )}
-          {immAChip && <ToggleChip side={side} field="immA" on={sel.immA} label={t('chip.immA')} color={color} />}
+          {immAChip && <ToggleChip on={sel.immA} label={t('chip.immA')} color={color} onToggle={() => patch(side, {immA: !sel.immA})} />}
           {/* Team-Ops: one pick from the unit's chart and one TacBall item;
               a weapon joins the weapon buttons, a skill or equipment shows
               on the chip. */}
@@ -138,16 +132,12 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
               none={0} color={color} />
           )}
           {berserk && (
-            <button type="button" className={`chip${sel.berserk ? ` on ${color}` : ''}`} aria-pressed={sel.berserk}
-              onClick={() => patch(side, {berserk: !sel.berserk})}>
-              {sel.berserk ? `${berserk.mod ? t('skill.berserkMod', {mod: `+${berserk.mod}`}) : t('skill.berserk')} ✓` : `+ ${t('skill.berserk')}`}
-            </button>
+            <ToggleChip on={sel.berserk} label={t('skill.berserk')} color={color} onToggle={() => patch(side, {berserk: !sel.berserk})}
+              onLabel={berserk.mod ? t('skill.berserkMod', {mod: `+${berserk.mod}`}) : t('skill.berserk')} />
           )}
           {surprise !== 0 && (
-            <button type="button" className={`chip${sel.surpriseAttack ? ` on ${color}` : ''}`} aria-pressed={sel.surpriseAttack}
-              onClick={() => patch(side, {surpriseAttack: !sel.surpriseAttack})}>
-              {sel.surpriseAttack ? `${t('chip.surpriseAttackMod', {mod: surprise})} ✓` : `+ ${t('roll.surpriseAttack')}`}
-            </button>
+            <ToggleChip on={sel.surpriseAttack} label={t('roll.surpriseAttack')} onLabel={t('chip.surpriseAttackMod', {mod: surprise})} color={color}
+              onToggle={() => patch(side, {surpriseAttack: !sel.surpriseAttack})} />
           )}
         </div>
       )}

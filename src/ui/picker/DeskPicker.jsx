@@ -21,8 +21,7 @@ import useDeskPicker from './useDeskPicker.js';
 import useDialogFocus from '../useDialogFocus.js';
 import {useT} from '../i18n.jsx';
 import {sideLabel} from '../SideCard.jsx';
-
-const back = () => dispatch({type: 'back'});
+import {back} from '../nav.js';
 
 /** @param {{searcher: import('../../types.js').Searcher | null, army: import('../../types.js').Army | null, loadError?: (() => void) | null}} props */
 export default function DeskPicker({searcher, army, loadError}) {

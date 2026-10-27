@@ -1,13 +1,11 @@
 // The About page behind the ⋯ menu (phone; the desktop dialog in DeskMenu.jsx
 // reuses the parts), and the build's version and army date it shows.
-import {dispatch} from '../state/store.js';
 import {Page} from './Sheet.jsx';
 import {Rich, useT} from './i18n.jsx';
+import {back} from './nav.js';
 
 export const VERSION = typeof __APP_VERSION__ === 'undefined' ? 'dev' : __APP_VERSION__;
 export const ARMY_DATE = typeof __ARMY_DATE__ === 'undefined' ? null : __ARMY_DATE__;
-
-const back = () => dispatch({type: 'back'});
 
 // About text shared by the phone page and the desktop dialog.
 /** @param {string} href */

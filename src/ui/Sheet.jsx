@@ -1,21 +1,12 @@
 // Overlays: a bottom sheet over a dimmed screen, and a full-screen page.
 // Both close on Escape; the sheet also on a tap outside it.
-import {useEffect, useRef} from 'react';
+import {useRef} from 'react';
 import PropTypes from 'prop-types';
 import {BackIcon} from './icons.jsx';
 import useDialogFocus from './useDialogFocus.js';
+import useEscape from './useEscape.js';
 import useVisualViewport from './useVisualViewport.js';
 import {useT} from './i18n.jsx';
-
-/** @param {() => void} onClose */
-function useEscape(onClose) {
-  useEffect(() => {
-    /** @param {KeyboardEvent} e */
-    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
-}
 
 // `actions`: small buttons on the handle's row (Save, Share). `sheetRef` /
 // `scrimRef`: for swipe gestures (useSheetGestures.js).

@@ -4,6 +4,7 @@
 // is worked out before dispatching, in actions.js.
 import {FIRETEAM_MAX, fireteamSize} from '../rules/modifiers.js';
 import {RANGE_BANDS} from '../rules/ranges.js';
+import {SIDES} from '../lib/side.js';
 import {MODES} from './modes.js';
 import {fullParams} from '../engine/params.js';
 import {classicSave} from './classicView.js';
@@ -53,7 +54,7 @@ const pushRecent = (list, pick) => {
   const kept = {A: 0, B: 0};
   return [pick, ...list.filter((p) => !(sameTrooper(p, pick) && (p.side == null || p.side === pick.side)))]
     .filter((p) => {
-      const sides = p.side == null ? /** @type {Side[]} */ (['A', 'B']) : [p.side];
+      const sides = p.side == null ? SIDES : [p.side];
       if (sides.every((s) => kept[s] >= MAX_RECENTS)) return false;
       sides.forEach((s) => { kept[s] += 1; });
       return true;
@@ -84,6 +85,22 @@ function swapScopes(scopes) {
  * @returns {AppState}
  */
 const setSide = (state, side, sel) => ({...state, matchup: {...state.matchup, [side]: sel}});
+
+// The open picker with `patch` applied (a patch, or a function of the picker
+// as it is); no picker, no change.
+/** @typedef {NonNullable<UiState['picker']>} Picker */
+/**
+ * @param {AppState} state
+ * @param {Partial<Picker> | ((picker: Picker) => Partial<Picker>)} patch
+ * @returns {AppState}
+ */
+function patchPicker(state, patch) {
+  const picker = state.ui.picker;
+  if (!picker) return state;
+  return {...state, ui: {...state.ui, picker: {...picker, ...(typeof patch === 'function' ? patch(picker) : patch)}}};
+}
+// Back at the top of the picker's list, with the arrow keys on it.
+const LIST_TOP = /** @type {const} */ ({pane: 'list', lcursor: 0});
 
 /**
  * @param {AppState} state
@@ -239,14 +256,13 @@ export function reduce(state, action) {
       };
     // A new query starts again at the top of the list.
     case 'pickerQuery':
-      return ui.picker ? {...state, ui: {...ui, picker: {...ui.picker, query: action.query, cursor: 0, pane: 'list', lcursor: 0, profileId: null}}} : state;
+      return patchPicker(state, {query: action.query, cursor: 0, ...LIST_TOP, profileId: null});
     // Desktop picker: the highlighted list row and loadout, which pane has the
     // arrow keys, the profile tab.
     case 'pickerCursor':
-      return ui.picker ? {...state, ui: {...ui, picker: {...ui.picker, ...action.cursor}}} : state;
+      return patchPicker(state, action.cursor);
     case 'pickerSide':
-      return ui.picker ? {...state, ui: {...ui, picker: {...ui.picker, side: action.side, scope: action.scope ?? null,
-        cursor: null, pane: 'list', lcursor: 0, profileId: null, stack: []}}} : state;
+      return patchPicker(state, {side: action.side, scope: action.scope ?? null, cursor: null, ...LIST_TOP, profileId: null, stack: []});
     // Choosing a faction from the faction list also leaves that list.
     case 'pickerScope': {
       if (!ui.picker) return state;
@@ -254,13 +270,13 @@ export function reduce(state, action) {
       const stack = top?.view === 'factions' ? ui.picker.stack.slice(0, -1) : ui.picker.stack;
       return {
         ...state,
-        ui: {...ui, picker: {...ui.picker, scope: action.scope, stack, cursor: null, pane: 'list', lcursor: 0}},
+        ui: {...ui, picker: {...ui.picker, scope: action.scope, stack, cursor: null, ...LIST_TOP}},
         scopes: {...state.scopes, [ui.picker.side]: action.scope},
         lists: {...state.lists, recentFactions: pushFaction(state.lists.recentFactions, action.scope)},
       };
     }
     case 'pickerPush':
-      return ui.picker ? {...state, ui: {...ui, picker: {...ui.picker, stack: [...ui.picker.stack, action.view], cursor: 0, pane: 'list', lcursor: 0}}} : state;
+      return patchPicker(state, (p) => ({stack: [...p.stack, action.view], cursor: 0, ...LIST_TOP}));
     // The picked trooper goes into its side (fireteam size kept), joins
     // the recents, and the picker closes; with `next` it moves on to the other
     // side instead (desktop "Use, then pick Reactive").
@@ -269,7 +285,7 @@ export function reduce(state, action) {
       const {inCover, ftSize} = matchup[action.side];
       /** @type {UiState['picker']} */
       const picker = action.next && ui.picker
-        ? {...ui.picker, side: other(action.side), scope: action.nextScope ?? null, query: '', stack: [], cursor: null, pane: 'list', lcursor: 0, profileId: null}
+        ? {...ui.picker, side: other(action.side), scope: action.nextScope ?? null, query: '', stack: [], cursor: null, ...LIST_TOP, profileId: null}
         : null;
       return {
         ...setSide(state, action.side, {...EMPTY_SIDE, ...action.sel, inCover: action.sel?.inCover ?? inCover, ftSize: fireteamSize(ftSize, action.ftMax ?? FIRETEAM_MAX)}),

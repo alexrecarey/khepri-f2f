@@ -1,5 +1,4 @@
 // The shared distance between the two side cards, and the swap button.
-import {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {isPseudo} from '../army/weapons.js';
 import {RANGE_BANDS, bandFrom, bandLabel} from '../rules/ranges.js';
@@ -7,6 +6,7 @@ import {pseudoName} from '../rules/trooper.js';
 import {render} from '../i18n/message.js';
 import {dispatch, useAppState} from '../state/store.js';
 import {bandColor, signedMod as signed} from './bands.js';
+import useEscape from './useEscape.js';
 import RangeScale, {SplitChip} from './RangeScale.jsx';
 import {ZoneChips, ZoneMarks, zoneText} from './RangeZones.jsx';
 import {weaponText} from './WeaponButtons.jsx';
@@ -77,13 +77,7 @@ export default function RangeSelector({view}) {
   /** @param {boolean} o */
   const setOpen = (o) => dispatch({type: 'setRangeOpen', open: o});
   // Open, Escape closes it like a tap outside.
-  useEffect(() => {
-    if (!open) return undefined;
-    /** @param {KeyboardEvent} e */
-    const onKey = (e) => { if (e.key === 'Escape') dispatch({type: 'setRangeOpen', open: false}); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [open]);
+  useEscape(() => setOpen(false), open);
   const selected = bandIndex(rangeCm);
   const selB = split ? bandIndex(/** @type {number} */ (rangeCmB)) : selected;
   // Range MODs per band (matchupView bands): undefined = no range bands.

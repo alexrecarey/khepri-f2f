@@ -18,11 +18,11 @@ import {factionsScreen, typeScreen, unitScreen} from './PickerScreens.jsx';
 import {ProfileRow, UnitRow} from './Rows.jsx';
 import {factionNameOf, useRecentIds} from './useRecentIds.js';
 import {useT} from '../i18n.jsx';
+import {back} from '../nav.js';
 
 /** @typedef {import('../../types.js').ProfileHit} ProfileHit */
 /** @typedef {import('../../types.js').UnitHit} UnitHit */
 
-const back = () => dispatch({type: 'back'});
 /** @param {string} query */
 const setQuery = (query) => dispatch({type: 'pickerQuery', query});
 /** @param {number | null} scope */

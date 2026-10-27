@@ -4,7 +4,7 @@ import {hasZeroPain, trooperPrograms} from '../army/hacking.js';
 import {SKILL} from '../army/ids.js';
 import {applyStatOverrides, applyUpgrades, pickedUpgrades} from '../army/loadouts.js';
 import {unitById} from '../army/lookup.js';
-import {effectiveTraits, hasSkill, skillExtras} from '../army/traits.js';
+import {effectiveTraits, extraNumbers, hasSkill, skillExtras} from '../army/traits.js';
 import {ammoTypes, bsWeapons, ccWeapons, hasAmmo, hasShockAmmo, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
 import {ccAttackSkill} from './closeCombat.js';
 import {bangbombValue, fireteamMax, fireteamSize, firewallMod} from './modifiers.js';
@@ -27,7 +27,7 @@ export const BS_ATTACK_WEAPON_EXTRAS = /^(AP|T2|SR-\d+|Continuous Damage)$/;
 /** @param {MaybeTraits} traits */
 export function bsAttackWeaponMods(traits) {
   const extras = skillExtras(traits, SKILL.BS_ATTACK);
-  const sr = /** @type {RegExpExecArray[]} */ (extras.map((e) => /^SR-(\d+)$/.exec(e)).filter(Boolean)).map((m) => Number(m[1]));
+  const sr = extraNumbers(extras, /^SR-(\d+)$/);
   return {
     ap: extras.includes('AP'),
     t2: extras.includes('T2'),

@@ -5,8 +5,7 @@
 import {pickerSide} from '../../state/actions.js';
 import {dispatch, getState} from '../../state/store.js';
 import {setCursor} from './useDeskPicker.js';
-
-const back = () => dispatch({type: 'back'});
+import {back} from '../nav.js';
 
 // The search box's onKeyDown. m: useDeskPicker()
 /**

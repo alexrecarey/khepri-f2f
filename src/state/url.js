@@ -10,6 +10,7 @@
 import {DEFAULT_PARAMS, PARAM_KEYS, parseParams} from '../engine/params.js';
 import {decodeMatchup, encodeMatchup} from '../matchup/matchupParams.js';
 import {HEADLINE_PARAM, headlineChoice} from './headlines.js';
+import {SIDES} from '../lib/side.js';
 import {MODES} from './modes.js';
 import {armSave, btsSave, classicSave} from './classicView.js';
 import {DEFAULT_RANGE_CM, EMPTY_SIDE} from './schema.js';
@@ -32,7 +33,7 @@ const psBtsKey = (s) => `psBts${s}`;
 function applySaves(classic, params) {
   let c = classic;
   for (const [key, which] of /** @type {[(s: Side) => string, 'arm' | 'bts'][]} */ ([[psKey, 'arm'], [psBtsKey, 'bts']])) {
-    for (const s of /** @type {Side[]} */ (['A', 'B'])) {
+    for (const s of SIDES) {
       const raw = params.get(key(s));
       const n = raw === null || raw.trim() === '' ? NaN : Number(raw);
       if (Number.isFinite(n)) c = classicSave(c, s, which, Math.round(n));
@@ -65,7 +66,7 @@ export function stateFromUrl(search) {
     };
   }
   const hasCalc = PARAM_KEYS.some((k) => params.has(k)) || params.has('dtwVsDodge')
-    || /** @type {Side[]} */ (['A', 'B']).some((s) => params.has(psKey(s)) || params.has(psBtsKey(s)));
+    || SIDES.some((s) => params.has(psKey(s)) || params.has(psBtsKey(s)));
   if (hasCalc) out.classic = applySaves(parseParams(params), params);
   // A link without a mode opens what it carries: troopers -> Matchup, else
   // calculator values -> Classic (links from before modes were in the URL).
@@ -89,7 +90,7 @@ export function urlFromState(state) {
     for (const k of PARAM_KEYS) {
       if (!SPLIT_KEYS.has(k) && c[k] !== DEFAULT_PARAMS[k]) q.set(k, String(c[k]));
     }
-    for (const s of /** @type {Side[]} */ (['A', 'B'])) {
+    for (const s of SIDES) {
       if (armSave(c, s) !== armSave(DEFAULT_PARAMS, s)) q.set(psKey(s), String(armSave(c, s)));
       // Only Plasma makes the target save with BTS.
       if (c[`ammo${s}`] === 'PLASMA' && btsSave(c, s) !== btsSave(DEFAULT_PARAMS, s)) q.set(psBtsKey(s), String(btsSave(c, s)));

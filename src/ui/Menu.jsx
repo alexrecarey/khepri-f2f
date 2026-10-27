@@ -9,8 +9,8 @@ import {MODES} from '../state/modes.js';
 import {ARMY_DATE, VERSION} from './AboutPage.jsx';
 import {Sheet} from './Sheet.jsx';
 import {useT} from './i18n.jsx';
+import {back} from './nav.js';
 
-const back = () => dispatch({type: 'back'});
 /** @param {NonNullable<import('../types.js').UiState['overlay']>} overlay */
 const open = (overlay) => dispatch({type: 'openOverlay', overlay});
 

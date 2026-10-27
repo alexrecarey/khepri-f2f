@@ -95,18 +95,18 @@ PickChip.propTypes = {
   color: PropTypes.string.isRequired, required: PropTypes.bool,
 };
 
-// An on / off situation: "+ Targeted", tapped "Targeted ✓". `field` is the
-// side's selection field it sets.
-/** @param {{side: Side, field: 'targeted' | 'immA', on: boolean, label: string, color: string}} props */
-export function ToggleChip({side, field, on, label, color}) {
+// An on / off situation: "+ Targeted", tapped "Targeted ✓" (`onLabel` when
+// the chip says more once on: "Berserk (+3) ✓").
+/** @param {{on: boolean, label: string, onLabel?: string, color: string, onToggle: () => void}} props */
+export function ToggleChip({on, label, onLabel = label, color, onToggle}) {
   return (
-    <button type="button" className={`chip${on ? ` on ${color}` : ''}`} aria-pressed={on} onClick={() => patch(side, {[field]: !on})}>
-      {on ? `${label} ✓` : `+ ${label}`}
+    <button type="button" className={`chip${on ? ` on ${color}` : ''}`} aria-pressed={on} onClick={onToggle}>
+      {on ? `${onLabel} ✓` : `+ ${label}`}
     </button>
   );
 }
 
 ToggleChip.propTypes = {
-  side: PropTypes.oneOf(['A', 'B']).isRequired, field: PropTypes.string.isRequired, on: PropTypes.bool.isRequired,
-  label: PropTypes.string.isRequired, color: PropTypes.string.isRequired,
+  on: PropTypes.bool.isRequired, label: PropTypes.string.isRequired, onLabel: PropTypes.string,
+  color: PropTypes.string.isRequired, onToggle: PropTypes.func.isRequired,
 };

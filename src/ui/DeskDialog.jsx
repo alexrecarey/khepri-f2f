@@ -2,14 +2,13 @@
 // About): a centred window over the dimmed workbench with a title row and a
 // close button. It takes the focus and gives it back; Escape or a click
 // outside closes it (one 'back', like the phone pages).
-import {useEffect, useRef} from 'react';
+import {useRef} from 'react';
 import PropTypes from 'prop-types';
-import {dispatch} from '../state/store.js';
 import {CloseIcon} from './icons.jsx';
+import {back} from './nav.js';
 import useDialogFocus from './useDialogFocus.js';
+import useEscape from './useEscape.js';
 import {useT} from './i18n.jsx';
-
-const back = () => dispatch({type: 'back'});
 
 // size: 'saved' | 'settings' | 'about', the dialog's width (chrome.css).
 // head: what sits between the title and the close button (the saved tabs).
@@ -18,12 +17,7 @@ export default function DeskDialog({title, size, head, children}) {
   const t = useT();
   const ref = useRef(/** @type {HTMLDivElement | null} */ (null));
   useDialogFocus(ref);
-  useEffect(() => {
-    /** @param {KeyboardEvent} e */
-    const onKey = (e) => { if (e.key === 'Escape') back(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  useEscape(back);
   return (
     <>
       <div className="desk-scrim" onClick={back} />

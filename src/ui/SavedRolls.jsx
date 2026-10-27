@@ -14,11 +14,11 @@ import {Page} from './Sheet.jsx';
 import useLayout, {usesDialogs} from './useLayout.js';
 import useSwipeToDelete from './useSwipeToDelete.js';
 import {useT} from './i18n.jsx';
+import {back} from './nav.js';
 
 /** @typedef {import('../types.js').SavedRoll} SavedRoll */
 /** @typedef {import('../types.js').Translator} Translator */
 
-const back = () => dispatch({type: 'back'});
 /** @param {string} id */
 const loadRoll = (id) => dispatch({type: 'loadRoll', id});
 /**
