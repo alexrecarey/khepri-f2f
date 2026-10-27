@@ -9,10 +9,12 @@
 // content type tells the browser which it got, so the app doesn't care.
 
 import {CREST_CACHE_CONTROL} from '../scripts/crests/config.mjs';
+import {CREST_SLUG} from '../src/army/crests.js';
 import {SHARE_PATH} from '../src/share/card.js';
 import {previewImage, sharePage} from './preview.js';
 
-const SLUG = /^\/crests\/([a-z0-9-]+)$/;
+// /crests/<slug> (src/army/crests.js CREST_SLUG).
+const CREST_PATH = '/crests/';
 
 export default {
   /**
@@ -26,11 +28,11 @@ export default {
       if (url.pathname === SHARE_PATH || url.pathname === `${SHARE_PATH}/`) return sharePage(request, env, url);
       if (url.pathname.startsWith('/og/')) return previewImage(request, env, ctx, url);
     }
-    const m = SLUG.exec(url.pathname);
-    if (!m || (request.method !== 'GET' && request.method !== 'HEAD')) return env.ASSETS.fetch(request);
+    const slug = url.pathname.startsWith(CREST_PATH) ? url.pathname.slice(CREST_PATH.length) : null;
+    if (slug === null || !CREST_SLUG.test(slug) || (request.method !== 'GET' && request.method !== 'HEAD')) return env.ASSETS.fetch(request);
     // SVG first: nearly every crest is one, so most requests are one lookup.
-    const object = await env.CRESTS.get(`${m[1]}.svg`, {onlyIf: request.headers})
-      ?? await env.CRESTS.get(`${m[1]}.webp`, {onlyIf: request.headers});
+    const object = await env.CRESTS.get(`${slug}.svg`, {onlyIf: request.headers})
+      ?? await env.CRESTS.get(`${slug}.webp`, {onlyIf: request.headers});
     if (!object) return new Response('Not found', {status: 404});
     const headers = new Headers();
     object.writeHttpMetadata(headers);   // content-type from the upload

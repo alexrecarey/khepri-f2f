@@ -4,6 +4,8 @@
 // (hmg, msr, gl) are generated automatically, so only add what they miss.
 // Add a line whenever someone searches for something reasonable and gets nothing.
 
+import {SKILL} from '../army/ids.js';
+
 /** @type {Record<string, string[]>} */
 export const WEAPON_ALIASES = {
   'Missile Launcher': ['ml'],
@@ -53,13 +55,10 @@ export const UNIT_ALIASES = {
 // Reaction is a "TR bot", whatever its name. Matched on profile type and the
 // skill id (profile or loadout), so new TR remotes pick it up on their own.
 export const KIND_ALIASES = [
-  {type: 'REM', skill: 61, words: ['tr', 'bot', 'bots', 'trbot', 'trbots']}, // Total Reaction
+  {type: 'REM', skill: SKILL.TOTAL_REACTION, words: ['tr', 'bot', 'bots', 'trbot', 'trbots']},
 ];
 
 // Skills players search for by name (reactive picks): their ids. The skill's
 // name, in the index's language, goes on every loadout with it, from the
 // profile or the loadout.
-export const SEARCHABLE_SKILLS = [
-  61, // Total Reaction
-  109, // Neurocinetics
-];
+export const SEARCHABLE_SKILLS = [SKILL.TOTAL_REACTION, SKILL.NEUROCINETICS];

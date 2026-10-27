@@ -2,6 +2,7 @@
 // with the words it can be found by. Runs at build time
 // (scripts/build-search-index.mjs) so the app loads a small JSON file instead
 // of the whole army; tests call it directly on army.json.
+import {SKILL} from '../army/ids.js';
 import {rootFaction} from '../army/factions.js';
 import {shortIsc} from '../army/names.js';
 import {isLieutenant} from '../army/traits.js';
@@ -161,7 +162,7 @@ function makeRow(id, army, unit, short, group, profile, option, unitWords, weapo
   /** @param {string[] | undefined} extra */
   const sd = (extra) => (extra ?? []).some((e) => /^\+\d+SD$/.test(e));
   const skills = [...(profile?.skills ?? []), ...(option.skills ?? [])];
-  if (option.weapons.some((w) => sd(w.extra)) || skills.some((k) => k.id === 201 && sd(k.extra))) addWord('sd');
+  if (option.weapons.some((w) => sd(w.extra)) || skills.some((k) => k.id === SKILL.BS_ATTACK && sd(k.extra))) addWord('sd');
   // Every skill of the profile and loadout ("mimetism", "sixth sense"):
   // a weak field, found exactly or by prefix only (search.js).
   const skillList = [...new Map(skillsOf(profile, option).map((s) => [s.id, s])).values()].map(skillId);

@@ -15,11 +15,12 @@ import {initSync, calculate as runEngine} from '../src/engine/wasm/khepri_engine
 import engineWasm from '../src/engine/wasm/khepri_engine_bg.wasm';
 import {CARD_H, CARD_W, renderCard, renderDefault} from './card.js';
 import {cardFromSetup} from './setupCard.js';
+import {SIDE_COLOR} from '../src/results/ramp.js';
 
 // Bump when the image changes: the apps cache previews by image URL.
 const IMAGE_PATH = '/og/v1/';
 // Discord's embed stripe: the side that does better.
-const ACTIVE = '#5fc4a0', REACTIVE = '#e59bc0';
+const {active: ACTIVE, reactive: REACTIVE} = SIDE_COLOR;
 // The numbers in an image URL never change, so caches may keep it for good.
 const IMMUTABLE = 'public, max-age=31536000, immutable';
 
