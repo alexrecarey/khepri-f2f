@@ -4,7 +4,7 @@
 
 export const SLOP = 8;          // px before a press becomes a drag
 export const FLICK = 0.4;       // px/ms that counts as a flick
-export const SETTLE_MS = 330;   // the spring in app.css
+export const SETTLE_MS = 330;   // the spring in phone-sheet.css
 export const SWIPE_X = 32;      // px sideways that change the headline
 export const DRAG_CLICK_MS = 350; // a click this soon after a drag is the drag's own, not a tap
 

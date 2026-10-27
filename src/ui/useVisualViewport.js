@@ -144,7 +144,7 @@ function lockDocument() {
   savedScroll = window.scrollY;
   const b = document.body.style;
   // top 0, not -scroll: on phones the screen behind is hidden while a page
-  // is open (app.css), so there's nothing to keep in place; the scroll comes
+  // is open (sheets.css), so there's nothing to keep in place; the scroll comes
   // back on close.
   Object.assign(b, {position: 'fixed', top: '0', left: '0', right: '0', width: '100%'});
   document.documentElement.classList.add('page-open');

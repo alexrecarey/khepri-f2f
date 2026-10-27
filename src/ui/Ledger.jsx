@@ -63,7 +63,7 @@ function Section({title, lines, total, abbr, base, tags}) {
 const EVADE_ABBR = {dodge: 'stat.ph', reset: 'stat.wip'};
 
 /** @param {{side: import('../types.js').Side, l: LedgerSide, tags: Tags, weapon?: string}} props */
-export function SideMods({side, l, tags, weapon}) {
+function SideMods({side, l, tags, weapon}) {
   const t = useT();
   const color = side === 'A' ? 'active' : 'reactive';
   /** @param {string} text */

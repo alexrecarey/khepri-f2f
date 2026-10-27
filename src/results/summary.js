@@ -10,7 +10,7 @@ import {RAMP} from './ramp.js';
 
 // Wounds the bars count one by one; more show as this many ("3+"). Not the
 // engine's MAX_WOUNDS (calculate.js), which caps what it calculates.
-export const BAR_WOUNDS = 3;
+const BAR_WOUNDS = 3;
 
 /** @param {{chance: number}[]} rows */
 const sum = (rows) => rows.reduce((s, r) => s + r.chance, 0);

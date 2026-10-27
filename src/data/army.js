@@ -20,7 +20,7 @@ const loaders = Object.fromEntries(Object.entries(NAMES).map(([lang, load]) =>
  * @param {string} lang
  * @returns {Promise<import('../types.js').Army>}
  */
-export const loadArmy = (lang) => (loaders[lang] ?? loaders.en)();
+const loadArmy = (lang) => (loaders[lang] ?? loaders.en)();
 
 // The army in `lang` once loaded (null until the first one is); starts
 // loading when `enabled`. While another language loads, the last one stays

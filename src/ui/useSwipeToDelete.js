@@ -6,7 +6,7 @@ import {useEffect, useRef} from 'react';
 import {dispatch} from '../state/store.js';
 
 // How far a swiped card slides to show Delete: the Delete button's width
-// (app.css --roll-delete-w).
+// (tokens.css --roll-delete-w).
 const OPEN = -88;
 
 /**

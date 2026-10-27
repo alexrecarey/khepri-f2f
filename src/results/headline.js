@@ -27,7 +27,7 @@ export const nextHeadline = (choice, step) =>
   HEADLINES[(HEADLINES.indexOf(choice) + step + HEADLINES.length) % HEADLINES.length];
 
 /** @param {number | null | undefined} n */
-export const wpoText = (n) => (n == null ? '—' : n.toFixed(2));
+const wpoText = (n) => (n == null ? '—' : n.toFixed(2));
 
 // What the card shows for summary s (summary.js summarize). A roll that is
 // not face to face (Direct Template vs a shot) has nobody to win, so "wins

@@ -55,7 +55,7 @@ const CardSideSchema = v.pipe(
   }),
   v.check((side) => side.n !== '' && side.u !== ''),
 );
-export const CardSchema = v.object({
+const CardSchema = v.object({
   k: v.picklist(HEADLINES),              // which headline it shows
   nf: v.fallback(v.boolean(), false),    // not face to face (headline fell back)
   x: text,                               // range band

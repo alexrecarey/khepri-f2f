@@ -13,7 +13,7 @@ export const typeName = (t, type) => (type && t.has(`typeName.${type}`) ? t(`typ
 // Per language: the search index is in the app's language, so the queries are
 // the words of that language's names.
 /** @type {Record<string, Record<import('../../types.js').Side, [string, string][]>>} */
-export const QUICK = {
+const QUICK = {
   en: {
     A: [['HMG', 'hmg'], ['Spitfire', 'spitfire'], ['Red Fury', 'red fury']],
     B: [['+SD', '+SD'], ['Neurocinetics', 'neurocinetics'], ['Total Reaction', 'total reaction'],

@@ -113,7 +113,6 @@ function bandMod(resolved, to) {
  * @returns {SideView}
  */
 function sideView(army, side, {sel, resolved}, other) {
-  const unit = resolved?.unit;
   const weapons = resolved?.weapons ?? [];
   const ccWeapons = resolved?.ccWeapons ?? [];
   const programs = resolved?.programs ?? [];
@@ -121,6 +120,9 @@ function sideView(army, side, {sel, resolved}, other) {
   // Reset and Zero Pain are buttons only against a Comms Attack (or once picked).
   const hacked = isCommsAttack(other?.weapon?.row);
   const pseudo = (resolved?.pseudo ?? []).filter((w) => w.kind !== 'reset' || hacked || sel.weaponKey === w.key);
+  // Team-Ops: the unit's chart and TacBall options (teamOps means it has them, rules/trooper.js).
+  const upgrades = resolved?.teamOps ? resolved.unit.upgrades : null;
+  const vanilla = resolved ? vanillaOf(army, resolved.factionId) : null;
   return {
     sel, resolved, weapons, ccWeapons, programs, pseudo,
     // CC weapons and Hacking Programs are weapons like any other, after the BS ones.
@@ -151,21 +153,19 @@ function sideView(army, side, {sel, resolved}, other) {
     // Berserk's MOD, offered only on the active side (a Long Skill) while it
     // has a CC weapon picked; null otherwise.
     // cc: the side is resolved.
-    berserk: side === 'A' && cc && hasBerserk(/** @type {ResolvedSide} */ (resolved).traits) ? {mod: berserkMod(/** @type {ResolvedSide} */ (resolved).traits)} : null,
+    berserk: side === 'A' && cc && hasBerserk(resolved.traits) ? {mod: berserkMod(resolved.traits)} : null,
     // Team-Ops: the chart and TacBall options, by label (the Army's, in
     // inches: renderMatchup puts them in the language's unit), for their chips.
     // teamOps: the unit has upgrades (rules/trooper.js). A unit means a
     // resolved side and an army.
-    teamOps: resolved?.teamOps
-      ? {chart: (/** @type {import('../types.js').UnitRow & {upgrades: NonNullable<import('../types.js').UnitRow['upgrades']>}} */ (unit).upgrades.chart ?? []).map((u) => u.label), ball: (/** @type {import('../types.js').UnitRow & {upgrades: NonNullable<import('../types.js').UnitRow['upgrades']>}} */ (unit).upgrades.ball ?? []).map((u) => u.label)}
-      : null,
-    faction: unit ? /** @type {Army} */ (army).factions[/** @type {number} */ (vanillaOf(army, /** @type {ResolvedSide} */ (resolved).factionId))]?.name ?? null : null,
+    teamOps: upgrades ? {chart: (upgrades.chart ?? []).map((u) => u.label), ball: (upgrades.ball ?? []).map((u) => u.label)} : null,
+    faction: vanilla == null ? null : army?.factions[vanilla]?.name ?? null,
     // The vanilla faction id (its crest stands in for a missing unit crest)
     // and the unit crest's slug (src/army/crests.js).
-    vanilla: unit ? vanillaOf(army, /** @type {ResolvedSide} */ (resolved).factionId) : null,
-    crest: unit ? crestOf(unit, /** @type {ResolvedSide} */ (resolved).profile) : null,
-    short: unit ? shortIsc(unit.isc) : null,
-    loadout: unit ? extraLoadoutName(/** @type {ResolvedSide} */ (resolved).option?.name, unit.isc) : null,
+    vanilla,
+    crest: resolved ? crestOf(resolved.unit, resolved.profile) : null,
+    short: resolved ? shortIsc(resolved.unit.isc) : null,
+    loadout: resolved ? extraLoadoutName(resolved.option?.name, resolved.unit.isc) : null,
   };
 }
 

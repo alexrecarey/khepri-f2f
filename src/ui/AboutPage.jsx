@@ -36,7 +36,7 @@ export function AboutLinks() {
     </>
   );
 }
-export const CONTACT_EMAIL = 'khepri@infinitythecalculator.com';
+const CONTACT_EMAIL = 'khepri@infinitythecalculator.com';
 export function AboutContact() {
   const t = useT();
   return <p><Rich text={t('about.contact', {email: CONTACT_EMAIL})} tags={{a: link(`mailto:${CONTACT_EMAIL}`)}} /></p>;
