@@ -10,8 +10,8 @@ import {prefixDistance, soundKey, words, indexWords} from './text.js';
 import {buildCorpus} from './eval/corpus.js';
 import {score} from './eval/score.js';
 import {splitNames, withNames} from '../army/localize.js';
+import {army} from '../army/testArmy.mjs';
 
-const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 const hard = JSON.parse(readFileSync(new URL('./eval/hard-cases.json', import.meta.url), 'utf8'));
 const index = buildIndex(army);
 const searcher = createSearch(index);

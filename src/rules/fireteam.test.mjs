@@ -3,15 +3,13 @@
 // army.json (unit.fireteam, built by fetch-army from every army's chart).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import {pickTrooper} from '../state/actions.js';
 import {reduce} from '../state/reduce.js';
 import {initialState} from '../state/schema.js';
 import {fireteamMax} from './modifiers.js';
 import {resolveSelection} from './trooper.js';
+import {army, unitByIsc as unit} from '../army/testArmy.mjs';
 
-const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
-const unit = (isc) => army.units.find((u) => u.isc.startsWith(isc));
 const options = (u) => Object.values(u.byFaction)[0].groups.flatMap((g) => g.options);
 const sel = (u, option, extra = {}) => {
   const [factionId, {groups}] = Object.entries(u.byFaction)[0];

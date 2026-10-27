@@ -1,9 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import {splitNames, withNames} from './localize.js';
+import {army} from './testArmy.mjs';
 
-const army = JSON.parse(readFileSync(new URL('./army.json', import.meta.url), 'utf8'));
 
 test('the English names put back on the core give army.json again', () => {
   const {core, names} = splitNames(army);

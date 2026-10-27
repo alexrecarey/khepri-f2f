@@ -7,10 +7,10 @@ import {EQUIP, SKILL} from '../army/ids.js';
 import {effectiveTraits} from '../army/traits.js';
 import {bsWeapons, ccWeapons} from '../army/weapons.js';
 import {ccAttackMods} from './closeCombat.js';
-import {buildLedger, renderDerived} from './ledger.js';
 import {tEn} from '../i18n/index.js';
 import {render} from '../i18n/message.js';
 import {deriveInputs as deriveRaw} from './matchup.js';
+import {derive as checked, deriveInputs, profile as baseProfile} from './testFixtures.mjs';
 
 /** @typedef {import('../types.js').WeaponRow} WeaponRow */
 /** @typedef {import('../types.js').WeaponEntry} WeaponEntry */
@@ -24,10 +24,6 @@ import {deriveInputs as deriveRaw} from './matchup.js';
 /** @typedef {import('../types.js').LedgerSide} LedgerSide */
 /** @typedef {import('../types.js').ResolvedSide} ResolvedSide */
 
-// The rules word their notes and lines as message descriptors; these tests
-// read them in English (ledger.js renders them).
-/** @param {Parameters<typeof deriveRaw>[0]} o */
-const deriveInputs = (o) => renderDerived(deriveRaw(o));
 import {pseudoWeapons, trooperCcWeapons, trooperWeapons} from './trooper.js';
 
 // Rows in army.json form (the columns the rules read).
@@ -55,12 +51,12 @@ const W = /** @type {Record<string, WeaponRow[]>} */ ({
 const skill = (id, ...extra) => ({id, name: String(id), ...(extra.length ? {extra} : {})});
 // By level; there is no level 0.
 const MA = /** @type {number[]} */ ([null, SKILL.MARTIAL_ARTS_L1, SKILL.MARTIAL_ARTS_L2, SKILL.MARTIAL_ARTS_L3, SKILL.MARTIAL_ARTS_L4, SKILL.MARTIAL_ARTS_L5]);
-// Test fixtures: the fields the rules read stand for whole rows and troopers.
+// A fighter: CC 15 so a CC Attack rolls.
 /**
  * @param {Partial<ProfileRow>} [over]
  * @returns {ProfileRow}
  */
-const profile = (over = {}) => /** @type {ProfileRow} */ ({id: 1, name: 'P', cc: 15, bs: 12, ph: 12, arm: 2, bts: 3, w: 1, skills: [], equip: [], ...over});
+const profile = (over = {}) => baseProfile({cc: 15, ...over});
 /** @type {TraitRef[]} */
 const LOADOUT = [{id: 1, name: 'Combi Rifle'}, {id: 11, name: 'DA CC Weapon', extra: ['PS=6']}];
 /**
@@ -79,35 +75,13 @@ function trooper(key, {skills = [], weapons = LOADOUT, ...rest} = {}, over = {})
   return /** @type {Trooper} */ ({profile: p, option: o, traits, weapon, inCover: false, ftSize: 1, ...over});
 }
 
-/**
- * What a section's live lines (not struck, a number) add up to.
- * @param {Line[]} lines
- */
-const addUp = (lines) => lines.filter((x) => x.value !== null && !x.struck).reduce((n, x) => n + /** @type {number} */ (x.value), 0);
-
+// Both sides roll in every case here, at the default distance; the ledger
+// is checked against every number (testFixtures.mjs derive).
 /** @param {Partial<Parameters<typeof deriveRaw>[0]> & {active: Trooper, reactive: Trooper}} args */
 function derive(args) {
-  const r = deriveInputs({rangeCm: 40, ...args});
+  const r = checked({rangeCm: 40, ...args});
   assert.ok(r.ok, JSON.stringify(r.errors));
-  // The ledger reads the sides and the derivation; the rest is the setup they came from.
-  const ledger = buildLedger(/** @type {Parameters<typeof buildLedger>[0]} */ ({rangeCm: 40, ...args, derived: r}));
-  for (const s of /** @type {Side[]} */ (['A', 'B'])) {
-    // Both sides roll in every case here.
-    const l = /** @type {LedgerSide} */ (ledger[s]);
-    const t = s === 'A' ? 'B' : 'A';
-    /** @type {Record<string, number | undefined>} */
-    const expect = {sv: r.inputs[`successValue${s}`], burst: r.inputs[`burst${s}`], sd: r.inputs[`bonusBurst${s}`] ?? 0,
-      save: /** @type {number} */ (r.inputs[`damage${s}`]) + /** @type {number} */ (r.inputs[`arm${t}`])};
-    for (const [k, total] of Object.entries(expect)) {
-      // k names a section of the side (sv, burst, sd, save).
-      const sec = l[/** @type {'sv' | 'burst' | 'sd' | 'save'} */ (k)];
-      if (!sec) continue;
-      const where = `ledger ${s} ${k}: ${JSON.stringify(sec.lines)}`;
-      assert.equal(sec.total, total, where);
-      assert.equal(addUp(sec.lines), total, where);
-    }
-  }
-  return {...r, ledger};
+  return r;
 }
 
 test('CC weapons are listed apart from BS weapons, a CC Mode included', () => {

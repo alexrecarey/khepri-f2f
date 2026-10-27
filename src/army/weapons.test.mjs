@@ -3,13 +3,12 @@
 // over the whole committed army.json.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import {trooperPrograms} from './hacking.js';
 import {effectiveTraits} from './traits.js';
 import {WEAPON_KINDS, bsWeapons, ccWeapons, isPseudo, isTemplate, rolls} from './weapons.js';
 import {pseudoWeapons} from '../rules/trooper.js';
+import {army} from './testArmy.mjs';
 
-const army = JSON.parse(readFileSync(new URL('./army.json', import.meta.url), 'utf8'));
 
 test('every entry has a kind in WEAPON_KINDS; template iff a Direct Template, cc / program / pseudo by list', () => {
   const seen = new Set();

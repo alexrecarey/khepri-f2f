@@ -1,14 +1,13 @@
 // Run with: yarn test:js
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import {bsWeapons} from '../army/weapons.js';
 import {tEn} from '../i18n/index.js';
 import {render} from '../i18n/message.js';
 import {defaultWeapon, sortWeapons} from './defaultWeapon.js';
 import {MODE_ORDER, modeKey, modeLabels, orderModes} from './weaponModes.js';
+import {army} from '../army/testArmy.mjs';
 
-const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 const modesOf = (id) => bsWeapons(/** @type {import('../types.js').OptionRow} */ ({weapons: [{id, name: army.weapons[id][0].name}]}), army.weapons);
 const order = (id, role) => orderModes(modesOf(id), role, sortWeapons).map((w) => modeKey(w.mode));
 

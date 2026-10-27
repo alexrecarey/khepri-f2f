@@ -6,12 +6,11 @@ import {groupLoadouts, loadoutCharts, loadoutTag, mainWeapon, orderLoadouts, pro
 import {createSearch} from '../search/search.js';
 import {lieutenantTwins} from '../search/buildIndex.js';
 import {SKILL} from '../army/ids.js';
+import {army} from '../army/testArmy.mjs';
 
 /** @typedef {import('../types.js').ProfileHit} ProfileHit */
 /** @typedef {import('../types.js').OptionRow} OptionRow */
 
-/** @type {import('../types.js').Army} */
-const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 const idOf = (name) => Number(Object.keys(army.weapons).find((id) => army.weapons[id][0].name === name));
 
 test('loadouts group by how far their best weapon reaches', () => {

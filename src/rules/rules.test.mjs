@@ -1,16 +1,21 @@
 // Run with: yarn test:js   (node --test, no extra dependencies)
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import {applyStatOverrides} from '../army/loadouts.js';
 import {normalizeWeaponRow, statOverrides} from '../army/normalize.js';
 import {effectiveTraits} from '../army/traits.js';
 import {bsWeapons, isBsAttackWeapon, parseWeaponMods} from '../army/weapons.js';
 import {searchKey} from '../lib/searchKey.js';
 import {defaultWeapon} from './defaultWeapon.js';
-import {buildLedger, renderDerived} from './ledger.js';
+import {buildLedger} from './ledger.js';
 import {deriveInputs as deriveRaw} from './matchup.js';
-
+import {addUp, derive, deriveInputs, option, profile, weaponTable} from './testFixtures.mjs';
+import {army} from '../army/testArmy.mjs';
+import {tEn} from '../i18n/index.js';
+import {render} from '../i18n/message.js';
+import {attackStat, mimetismMod, surpriseAttackMod} from './modifiers.js';
+import {rangeModFor} from './ranges.js';
+import {pseudoName, pseudoWeapons, resolveSelection, trooperCcWeapons, trooperWeapons} from './trooper.js';
 
 /** @typedef {import('../types.js').WeaponRow} WeaponRow */
 /** @typedef {import('../types.js').WeaponEntry} WeaponEntry */
@@ -26,24 +31,7 @@ import {deriveInputs as deriveRaw} from './matchup.js';
 /** @typedef {import('../types.js').RenderedDerived} RenderedDerived */
 /** @typedef {Parameters<typeof deriveRaw>[0]} DeriveArgs */
 
-// The rules word their notes and lines as message descriptors; these tests
-// read them in English (ledger.js renders them).
-/** @param {DeriveArgs} o */
-const deriveInputs = (o) => renderDerived(deriveRaw(o));
-import {tEn} from '../i18n/index.js';
-import {render} from '../i18n/message.js';
-import {attackStat, mimetismMod, surpriseAttackMod} from './modifiers.js';
-import {rangeModFor} from './ranges.js';
-import {pseudoName, pseudoWeapons, resolveSelection, trooperCcWeapons, trooperWeapons} from './trooper.js';
-
 const RIFLE_RANGES = [{to: 40, mod: 3}, {to: 80, mod: -3}, {to: 120, mod: -6}];
-// Weapon rows as the Army API gives them, normalized like the pipeline does
-// (test rows: the columns the rules read, so they stand for army.json rows).
-/**
- * @param {Record<string, Parameters<typeof normalizeWeaponRow>[0][]>} t
- * @returns {Record<string, WeaponRow[]>}
- */
-const weaponTable = (t) => /** @type {Record<string, WeaponRow[]>} */ (Object.fromEntries(Object.entries(t).map(([id, rows]) => [id, rows.map(normalizeWeaponRow)])));
 const W = weaponTable({
   1: [{name: 'Combi Rifle', mode: null, ammo: 'N', burst: 3, dmg: 7, saving: 'ARM', saves: '1', props: ['Suppressive Fire'], ranges: RIFLE_RANGES}],
   2: [
@@ -74,18 +62,6 @@ const W = weaponTable({
   18: [{name: 'Sepsitor', mode: null, ammo: null, burst: 1, dmg: 4, saving: 'BTS', saves: '1', props: ['Intuitive Attack', 'Disposable (2)', 'State: Sepsitorized', 'Direct Template (Large Teardrop)', '[*]'], ranges: null}],
 });
 
-// Test fixtures: the fields the rules read stand for whole rows and troopers.
-/**
- * @param {Partial<ProfileRow>} [over]
- * @returns {ProfileRow}
- */
-const profile = (over = {}) => /** @type {ProfileRow} */ ({id: 1, name: 'P', bs: 12, ph: 12, arm: 2, bts: 3, w: 1, skills: [], equip: [], ...over});
-/**
- * @param {TraitRef[]} weapons
- * @param {Partial<OptionRow>} [over]
- * @returns {OptionRow}
- */
-const option = (weapons, over = {}) => /** @type {OptionRow} */ ({id: 1, name: 'O', points: 10, swc: '0', weapons, skills: [], equip: [], ...over});
 /**
  * @param {ProfileRow} p
  * @param {OptionRow} o
@@ -100,40 +76,6 @@ const side = (p, o, weaponKey, inCover = false) => {
 };
 const combi = option([{id: 1, name: 'Combi Rifle'}, {id: 8, name: 'CC Weapon'}]);
 
-/**
- * What a section's live lines (not struck, a number) add up to.
- * @param {Line[]} lines
- */
-const addUp = (lines) => lines.filter((x) => x.value !== null && !x.struck).reduce((n, x) => n + /** @type {number} */ (x.value), 0);
-
-// deriveInputs, plus a check that "How the dice were built" (ledger.js) adds
-// up to every number it produced: each rule case below is also a ledger case,
-// so a struck or display-only line that should count (or the reverse) fails here.
-/** @param {DeriveArgs} args */
-function derive(args) {
-  const r = deriveInputs(args);
-  if (!r.ok) return r;
-  const ledger = buildLedger({...args, derived: r});
-  for (const s of /** @type {Side[]} */ (['A', 'B'])) {
-    const l = ledger[s];
-    if (!l || l.kind === 'none') continue;
-    const t = s === 'A' ? 'B' : 'A';
-    /** @type {Record<string, number | undefined>} */
-    const expect = {sv: r.inputs[`successValue${s}`], burst: r.inputs[`burst${s}`], sd: r.inputs[`bonusBurst${s}`] ?? 0};
-    // No target, no Saving Roll to explain (the app only builds a ledger for both sides).
-    if (r.inputs[`arm${t}`] !== undefined) expect.save = /** @type {number} */ (r.inputs[`damage${s}`]) + /** @type {number} */ (r.inputs[`arm${t}`]);
-    for (const [k, total] of Object.entries(expect)) {
-      // k names a section of the side (sv, burst, sd, save).
-      const sec = l[/** @type {'sv' | 'burst' | 'sd' | 'save'} */ (k)];
-      if (!sec) continue;
-      const where = `ledger ${s} ${k}: ${JSON.stringify(sec.lines)}`;
-      assert.equal(sec.total, total, where);
-      // Out of range: Success Value 0 under a '—' mark, not the lines' sum.
-      if (!sec.lines.some((x) => x.text === '—')) assert.equal(addUp(sec.lines), total, where);
-    }
-  }
-  return r;
-}
 
 test('bsWeapons expands modes and drops CC weapons', () => {
   const o = option([{id: 2, name: 'MULTI Rifle'}, {id: 3, name: 'Heavy Flamethrower'}, {id: 8, name: 'CC Weapon'}]);
@@ -470,9 +412,10 @@ test('loadout extras and crit immunity', () => {
  * @param {Partial<ProfileRow>} [over]
  */
 const immune = (extra, over = {}) => profile({arm: 5, bts: 3, skills: [{id: 162, name: 'Immunity', extra: [extra]}], ...over});
-// A derivation without its ledger lines, to compare two weapons' numbers.
-/** @param {RenderedDerived} d */
-const sansLines = ({lines, ...r}) => r;
+// A derivation without its lines and ledger (they name the weapon), to
+// compare two weapons' numbers.
+/** @param {RenderedDerived & {ledger?: Ledger}} d */
+const sansLines = ({lines, ledger, ...r}) => r;
 /**
  * @param {ProfileRow} target
  * @param {number} id
@@ -936,7 +879,6 @@ test('Nanoscreen works like cover, also against templates, and does not stack wi
 
 // --- real data -------------------------------------------------------------
 /** @type {import('../types.js').Army} */
-const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 /**
  * The unit the test names (it is in the data).
  * @param {string} isc

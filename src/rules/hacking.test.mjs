@@ -3,11 +3,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {canTarget, hasZeroPain, trooperPrograms, unreadHackingExtras} from '../army/hacking.js';
 import {EQUIP, SKILL} from '../army/ids.js';
-import {normalizeWeaponRow} from '../army/normalize.js';
 import {effectiveTraits} from '../army/traits.js';
 import {stateCaused} from '../army/weapons.js';
-import {buildLedger, renderDerived} from './ledger.js';
 import {deriveInputs as deriveRaw} from './matchup.js';
+import {derive as checked, deriveInputs, option as loadout, profile as baseProfile, weaponTable} from './testFixtures.mjs';
+import {army} from '../army/testArmy.mjs';
 
 /** @typedef {import('../types.js').WeaponRow} WeaponRow */
 /** @typedef {import('../types.js').WeaponEntry} WeaponEntry */
@@ -22,22 +22,17 @@ import {deriveInputs as deriveRaw} from './matchup.js';
 /** @typedef {import('../types.js').RenderedDerived} RenderedDerived */
 /** @typedef {import('../types.js').ResolvedSide} ResolvedSide */
 
-// The rules word their notes and lines as message descriptors; these tests
-// read them in English (ledger.js renders them).
-/** @param {Parameters<typeof deriveRaw>[0]} o */
-const deriveInputs = (o) => renderDerived(deriveRaw(o));
 import {rangeModFor} from './ranges.js';
-import {readFileSync} from 'node:fs';
 import {fireteamHelps} from './modifiers.js';
 import {pseudoWeapons, resolveSelection, trooperWeapons} from './trooper.js';
 import {hasNoEffect} from './saves.js';
 import {woundStates} from './woundStates.js';
 
 // One rifle, in army.json form: the columns the rules read.
-const W = /** @type {Record<string, WeaponRow[]>} */ (Object.fromEntries(Object.entries({
+const W = weaponTable({
   1: [{name: 'Combi Rifle', mode: null, ammo: 'N', burst: 3, dmg: 7, saving: 'ARM', saves: '1', props: [],
     ranges: [{to: 40, mod: 3}, {to: 80, mod: -3}, {to: 120, mod: -6}]}],
-}).map(([id, rows]) => [id, rows.map(normalizeWeaponRow)])));
+});
 
 /** @type {TraitRef} */
 const HD = {id: EQUIP.HACKING_DEVICE, name: 'Hacking Device'};
@@ -45,17 +40,17 @@ const HD = {id: EQUIP.HACKING_DEVICE, name: 'Hacking Device'};
 const KHD = {id: EQUIP.KILLER_HACKING_DEVICE, name: 'Killer Hacking Device'};
 /** @type {TraitRef} */
 const HACKER = {id: SKILL.HACKER, name: 'Hacker'};
-// Test fixtures: the fields the rules read stand for whole rows and troopers.
+// A hacker's profile: WIP for the programs, ARM 1 so a hit shows.
 /**
  * @param {Partial<ProfileRow>} [over]
  * @returns {ProfileRow}
  */
-const profile = (over = {}) => /** @type {ProfileRow} */ ({id: 1, name: 'P', type: 'LI', bs: 12, ph: 12, wip: 13, arm: 1, bts: 3, w: 1, skills: [], equip: [], ...over});
+const profile = (over = {}) => baseProfile({type: 'LI', wip: 13, arm: 1, ...over});
 /**
  * @param {Partial<OptionRow>} [over]
  * @returns {OptionRow}
  */
-const option = (over = {}) => /** @type {OptionRow} */ ({id: 1, name: 'O', points: 10, swc: '0', weapons: [{id: 1, name: 'Combi Rifle'}], skills: [], equip: [], ...over});
+const option = (over = {}) => loadout([{id: 1, name: 'Combi Rifle'}], over);
 /**
  * @param {TraitRef} [device]
  * @param {Partial<ProfileRow>} [over]
@@ -77,40 +72,8 @@ function side(p, key, extra = {}) {
   return /** @type {Trooper} */ ({profile: p, option: o, traits, weapon, inCover: false, ftSize: 1, ...extra});
 }
 
-/**
- * What a section's live lines (not struck, a number) add up to.
- * @param {Line[]} lines
- */
-const addUp = (lines) => lines.filter((x) => x.value !== null && !x.struck).reduce((n, x) => n + /** @type {number} */ (x.value), 0);
-
-/**
- * deriveInputs, with "How the dice were built" checked against every number.
- * @param {Parameters<typeof deriveRaw>[0]} args
- * @returns {RenderedDerived & {ledger: Ledger}}
- */
-function derive(args) {
-  const r = deriveInputs(args);
-  // No ledger without inputs: a test reading one fails on its inputs first.
-  if (!r.ok) return /** @type {RenderedDerived & {ledger: Ledger}} */ (r);
-  const ledger = buildLedger({...args, derived: r});
-  for (const s of /** @type {Side[]} */ (['A', 'B'])) {
-    const l = ledger[s];
-    if (!l || l.kind === 'none') continue;
-    const o = s === 'A' ? 'B' : 'A';
-    /** @type {Record<string, number | undefined>} */
-    const expect = {sv: r.inputs[`successValue${s}`], burst: r.inputs[`burst${s}`], sd: r.inputs[`bonusBurst${s}`] ?? 0,
-      save: /** @type {number} */ (r.inputs[`damage${s}`]) + /** @type {number} */ (r.inputs[`arm${o}`])};
-    for (const [k, total] of Object.entries(expect)) {
-      const sec = l[/** @type {'sv' | 'burst' | 'sd' | 'save'} */ (k)];
-      if (!sec) continue;
-      const where = `ledger ${s} ${k}: ${JSON.stringify(sec.lines)}`;
-      assert.equal(sec.total, total, where);
-      // Out of range: Success Value 0 under a '—' mark, not the lines' sum.
-      if (!sec.lines.some((x) => x.text === '—')) assert.equal(addUp(sec.lines), total, where);
-    }
-  }
-  return {...r, ledger};
-}
+// Every case is also a ledger case (testFixtures.mjs derive).
+const derive = checked;
 
 test('devices: a Hacking Device runs Carbonite, Spotlight, Total Control, Oblivion; a Killer one Trinity', () => {
   /** @param {ProfileRow} p */
@@ -256,7 +219,6 @@ test('upgrades reach the dice: Trinity (AP) halves BTS, (SR-1) lowers PS, (-3) g
 
 test('the Firewall chip starts on the trooper\'s own Firewall, which can\'t be switched off; off without one', () => {
   /** @type {import('../types.js').Army} */
-  const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
   /**
    * The first loadout the predicate picks, as a selection (the data has one).
    * @param {(p: ProfileRow, o: OptionRow) => boolean} pred

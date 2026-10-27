@@ -8,8 +8,8 @@ import {matchupView} from './matchupView.js';
 import {EMPTY_SIDE} from './schema.js';
 import {translator} from '../i18n/index.js';
 import esMessages from '../i18n/es.js';
+import {army} from '../army/testArmy.mjs';
 
-const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 const {core} = splitNames(army);
 const es = withNames(core, JSON.parse(readFileSync(new URL('../army/names.es.json', import.meta.url), 'utf8')), 'es');
 // The Spanish copy with the Spanish army's terms, as the app builds it.

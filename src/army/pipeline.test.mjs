@@ -3,11 +3,10 @@
 // the checks in scripts/army-validate.mjs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import {UnknownValue, fixName, normalizeAmmo, normalizeSave, normalizeWeaponRow, statOverrides} from './normalize.js';
 import {validateArmy} from '../../scripts/army-validate.mjs';
+import {army} from './testArmy.mjs';
 
-const army = JSON.parse(readFileSync(new URL('./army.json', import.meta.url), 'utf8'));
 
 test('Saving Roll columns become {attr, halved, armZero, alsoBts} and a roll count', () => {
   assert.deepEqual(normalizeSave('ARM', '1'), {save: {attr: 'ARM'}, saveRolls: 1});

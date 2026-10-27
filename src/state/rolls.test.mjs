@@ -1,12 +1,11 @@
 // Run with: yarn test:js
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import {matchupView} from './matchupView.js';
 import {matchupRollSummary, matchupShareCard, rollRow} from './rolls.js';
 import {EMPTY_SIDE} from './schema.js';
+import {army} from '../army/testArmy.mjs';
 
-const army = JSON.parse(readFileSync(new URL('../army/army.json', import.meta.url), 'utf8'));
 // Share-link ids: Corax-1 (Viral, Combined Army sectorial 603) and Chaksa (Tohaa).
 const corax = {...EMPTY_SIDE, unitId: 1934, factionId: 603, groupId: 1, optionId: 4};
 const chaksa = {...EMPTY_SIDE, unitId: 1310, factionId: 801, groupId: 1, optionId: 1, inCover: true};

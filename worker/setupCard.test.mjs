@@ -5,9 +5,9 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {initSync, calculate as runEngine} from '../src/engine/wasm/khepri_engine.js';
 import {cardFromSetup} from './setupCard.js';
+import {army} from '../src/army/testArmy.mjs';
 
 initSync({module: readFileSync(new URL('../src/engine/wasm/khepri_engine_bg.wasm', import.meta.url))});
-const army = JSON.parse(readFileSync(new URL('../src/army/army.json', import.meta.url), 'utf8'));
 
 // The Final results board (src/ui/fixtures/FinalResults.json) as its link.
 const FINAL = '?mode=matchup&unitA=1651&factionA=101&groupA=1&optionA=2&weaponA=2%3A'
