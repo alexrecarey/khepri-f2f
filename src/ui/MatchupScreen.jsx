@@ -3,7 +3,6 @@
 // document (src/state) and its derived matchup view; this file only lays it
 // out and turns taps into actions.
 import {useCallback, useEffect, useMemo} from 'react';
-import PropTypes from 'prop-types';
 import {openPicker, pickTrooper, setUpgrade} from '../state/actions.js';
 import {recentsFor} from '../state/schema.js';
 import {dispatch, getState, useAppState} from '../state/store.js';
@@ -159,11 +158,3 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
     </>
   );
 }
-
-MatchupScreen.propTypes = {
-  army: PropTypes.object,
-  armyError: PropTypes.any,
-  retryArmy: PropTypes.func,
-  view: PropTypes.object.isRequired,
-  engine: PropTypes.object.isRequired,
-};

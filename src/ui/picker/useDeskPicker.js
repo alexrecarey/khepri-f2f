@@ -47,7 +47,7 @@ export default function useDeskPicker({searcher, army}) {
 
   // The left list (empty until the searcher has loaded).
   const items = useMemo(() => listItems({searcher, typing, scope, top, all, scoped, browse, factionName, t}),
-    [searcher, typing, scoped, all, browse, top, scope, t]); // eslint-disable-line react-hooks/exhaustive-deps
+    [searcher, typing, scoped, all, browse, top, scope, t]);
 
   const rows = items.filter((x) => x.kind !== 'head');
   const matched = matchedCount({typing, scope, all, scoped});

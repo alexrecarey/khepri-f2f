@@ -1,6 +1,5 @@
 // A data chunk (army data, search index) that failed to load, with a way to
 // try again instead of "Loading…" forever.
-import PropTypes from 'prop-types';
 import {useT} from './i18n.jsx';
 
 /** @param {{what: string, onRetry: () => void, className?: string}} props */
@@ -13,5 +12,3 @@ export default function LoadFailed({what, onRetry, className = 'note'}) {
     </div>
   );
 }
-
-LoadFailed.propTypes = {what: PropTypes.string.isRequired, onRetry: PropTypes.func.isRequired, className: PropTypes.string};

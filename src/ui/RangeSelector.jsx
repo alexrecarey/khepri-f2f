@@ -1,5 +1,4 @@
 // The shared distance between the two side cards, and the swap button.
-import PropTypes from 'prop-types';
 import {isPseudo} from '../army/weapons.js';
 import {RANGE_BANDS, bandFrom, bandLabel} from '../rules/ranges.js';
 import {pseudoName} from '../rules/trooper.js';
@@ -142,5 +141,3 @@ export default function RangeSelector({view}) {
     </>
   );
 }
-
-RangeSelector.propTypes = {view: PropTypes.object.isRequired};

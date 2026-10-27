@@ -4,7 +4,6 @@
 // weapon's Range MOD colours; closed, the tracks shrink to thin bars, so both
 // distances still show. A tap on a distance only opens the selector: it
 // belongs to both sides, so it can't pick for either.
-import PropTypes from 'prop-types';
 import {RANGE_BANDS, bandLabel} from '../rules/ranges.js';
 import {dispatch} from '../state/store.js';
 import {bandColor, signedMod} from './bands.js';
@@ -26,8 +25,6 @@ function Pick({side, i, on, mod, open}) {
     </button>
   );
 }
-
-Pick.propTypes = {side: PropTypes.oneOf(['A', 'B']).isRequired, i: PropTypes.number.isRequired, on: PropTypes.bool, mod: PropTypes.number, open: PropTypes.bool};
 
 // selA / selB: each side's band index.
 /** @param {{bands: import('../types.js').MatchupCore['bands'], open: boolean, selA: number, selB: number}} props */
@@ -51,8 +48,6 @@ export default function RangeScale({bands, open, selA, selB}) {
   );
 }
 
-RangeScale.propTypes = {bands: PropTypes.array.isRequired, open: PropTypes.bool, selA: PropTypes.number.isRequired, selB: PropTypes.number.isRequired};
-
 // Next to Smoke / White Noise: split the range so each side picks its own.
 /** @param {{split: boolean, open: boolean}} props */
 export function SplitChip({split, open}) {
@@ -64,5 +59,3 @@ export function SplitChip({split, open}) {
     </button>
   );
 }
-
-SplitChip.propTypes = {split: PropTypes.bool, open: PropTypes.bool};

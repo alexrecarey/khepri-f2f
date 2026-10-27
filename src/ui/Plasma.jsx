@@ -3,7 +3,6 @@
 // does the blurring, so a frame is ~800 pixels of arithmetic, cheap enough
 // for old phones. 30 fps, paused off screen or in a hidden tab, one still
 // frame under reduced motion. No video, no WebGL.
-import PropTypes from 'prop-types';
 import {useEffect, useRef} from 'react';
 
 const W = 32;
@@ -88,5 +87,3 @@ export default function Plasma({cssVar, seed = 0}) {
   }, [cssVar, seed]);
   return <canvas ref={ref} className="slot-plasma" width={W} height={H} aria-hidden="true" />;
 }
-
-Plasma.propTypes = {cssVar: PropTypes.string.isRequired, seed: PropTypes.number};

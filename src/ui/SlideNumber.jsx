@@ -5,7 +5,6 @@
 // Both values sit in the same grid cell while they cross; the old one is
 // dropped when its animation ends (hidden outright under reduced motion).
 import {useState} from 'react';
-import PropTypes from 'prop-types';
 
 /** @param {{text: string, className?: string}} props */
 export default function SlideNumber({text, className = ''}) {
@@ -24,5 +23,3 @@ export default function SlideNumber({text, className = ''}) {
     </span>
   );
 }
-
-SlideNumber.propTypes = {text: PropTypes.string.isRequired, className: PropTypes.string};

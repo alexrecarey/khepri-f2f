@@ -7,7 +7,6 @@
 // Query, faction scope and the drill-in stack are the state document's
 // ui.picker, so Back (button, Escape or the browser's) pops one screen.
 import {useEffect, useMemo, useRef} from 'react';
-import PropTypes from 'prop-types';
 import {ROLE} from '../../state/schema.js';
 import {dispatch, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
@@ -190,11 +189,3 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
     </Page>
   );
 }
-
-TrooperPicker.propTypes = {
-  loadError: PropTypes.func,   // the search index failed: retry it
-  side: PropTypes.oneOf(['A', 'B']).isRequired,
-  searcher: PropTypes.object,
-  army: PropTypes.object,
-  onPick: PropTypes.func.isRequired,
-};

@@ -8,7 +8,6 @@
 // side; Unconscious and Dead, the states that take a trooper out of the fight,
 // also give the chance over three orders. Phones tap where desktops hover.
 import {useState, useSyncExternalStore} from 'react';
-import PropTypes from 'prop-types';
 import {StateGlyph} from './icons.jsx';
 import {pct, shows} from '../results/summary.js';
 import {useT} from './i18n.jsx';
@@ -141,8 +140,6 @@ export function StateBar({s, ui, glyphs = false, className = ''}) {
   );
 }
 
-StateBar.propTypes = {s: PropTypes.object.isRequired, ui: PropTypes.object, glyphs: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]), className: PropTypes.string};
-
 /** @param {{st: WoundState, side: Role, ui: StatesUi, cur: StatesState}} props */
 function StateRow({st, side, ui, cur}) {
   const t = useT();
@@ -168,8 +165,6 @@ function StateRow({st, side, ui, cur}) {
   );
 }
 
-StateRow.propTypes = {st: PropTypes.object.isRequired, side: PropTypes.string.isRequired, ui: PropTypes.object.isRequired, cur: PropTypes.object.isRequired};
-
 // A row that hurts nobody: grey, and nothing in the bar to point at.
 /** @param {{glyph: string, label: string, p: number, dim?: boolean}} props */
 function PlainRow({glyph, label, p, dim}) {
@@ -184,8 +179,6 @@ function PlainRow({glyph, label, p, dim}) {
     </div>
   );
 }
-
-PlainRow.propTypes = {glyph: PropTypes.string.isRequired, label: PropTypes.string.isRequired, p: PropTypes.number.isRequired, dim: PropTypes.bool};
 
 /** @param {{s: StatesSummary, ui: StatesUi}} props */
 export function StateList({s, ui}) {
@@ -220,5 +213,3 @@ export function StateList({s, ui}) {
     </div>
   );
 }
-
-StateList.propTypes = {s: PropTypes.object.isRequired, ui: PropTypes.object.isRequired};

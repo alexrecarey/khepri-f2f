@@ -1,7 +1,6 @@
 // The desk picker's right pane: the highlighted unit with its stats and every
 // loadout as a chart line, or, before typing, factions and unit types to browse.
 import {useEffect} from 'react';
-import PropTypes from 'prop-types';
 import {extraLoadoutName, shortIsc} from '../../army/names.js';
 import {dispatch} from '../../state/store.js';
 import {CardCrest} from '../Crest.jsx';
@@ -26,8 +25,6 @@ function Stats({stats}) {
     </div>
   );
 }
-
-Stats.propTypes = {stats: PropTypes.array.isRequired};
 
 // A unit with several profile groups (Team-Ops, a TAG and its peripheral): a
 // section per group with its own name, type, stats and skills, then its
@@ -57,8 +54,6 @@ function ProfileSections({m, lit}) {
     );
   });
 }
-
-ProfileSections.propTypes = {m: PropTypes.object.isRequired, lit: PropTypes.number.isRequired};
 
 // The unit: name, profile tabs, stats, skills, loadouts and the Use buttons.
 /** @param {{m: DeskPickerModel}} props */
@@ -125,8 +120,6 @@ function UnitPane({m}) {
   );
 }
 
-UnitPane.propTypes = {m: PropTypes.object.isRequired};
-
 // Before typing, with no faction: every faction to browse.
 /** @param {{searcher: import('../../types.js').Searcher | null}} props */
 function FactionTiles({searcher}) {
@@ -146,8 +139,6 @@ function FactionTiles({searcher}) {
     </>
   );
 }
-
-FactionTiles.propTypes = {searcher: PropTypes.object};
 
 // Before typing, in a faction: its unit types.
 /** @param {{m: DeskPickerModel}} props */
@@ -177,8 +168,6 @@ function TypeTiles({m}) {
   );
 }
 
-TypeTiles.propTypes = {m: PropTypes.object.isRequired};
-
 // m: useDeskPicker()
 /** @param {{m: DeskPickerModel}} props */
 export default function DeskDetail({m}) {
@@ -193,5 +182,3 @@ export default function DeskDetail({m}) {
     </div>
   );
 }
-
-DeskDetail.propTypes = {m: PropTypes.object.isRequired};

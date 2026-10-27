@@ -4,7 +4,6 @@
 // wound bar and the breakdown. Tablet and desktop show the same pieces inline
 // (ResultsPanel.jsx); what both derive first is useResultsView.js.
 import {useEffect} from 'react';
-import PropTypes from 'prop-types';
 import {dispatch, useAppState} from '../state/store.js';
 import Headline from './Headline.jsx';
 import {shareLink} from './share.js';
@@ -65,11 +64,6 @@ function SheetTop({s, h, choice, classic, pending, status, wait, ui, view, onVie
   );
 }
 
-SheetTop.propTypes = {
-  s: PropTypes.object, h: PropTypes.object, choice: PropTypes.string, classic: PropTypes.bool, pending: PropTypes.bool, status: PropTypes.string,
-  wait: PropTypes.object, ui: PropTypes.object, view: PropTypes.string, onView: PropTypes.func, pick: PropTypes.bool,
-};
-
 // Phone: one sheet that rests low with only its top showing (the results
 // card) and opens to the full results. Swipe it up or down (it follows the
 // finger) or tap the top to open, outside to close (useSheetGestures.js).
@@ -91,7 +85,7 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
   // Closing gives the focus back to the card (the top), not to what opened it.
   useDialogFocus(g.sheetRef, open, () => g.sheetRef.current?.querySelector('.rs-top'));
   // Resting low, the sheet's scroll goes back to the top.
-  useEffect(() => { if (!open && g.sheetRef.current) g.sheetRef.current.scrollTop = 0; }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!open && g.sheetRef.current) g.sheetRef.current.scrollTop = 0; }, [open]);
   return (
     <>
       <div className={`rscrim${open ? ' open' : ''}`} ref={g.scrimRef} onClick={() => setOpen(false)} />
@@ -132,22 +126,3 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
 }
 
 // ResultsPanel takes the same props.
-ResultsCard.propTypes = {
-  // results/summary.js summarize() of the engine's result (with the targets' wound
-  // states in Matchup), or null before there is one.
-  s: PropTypes.object,
-  status: PropTypes.string,
-  // {active: 'B4 SV14 PS9', reactive: ...}; matchup only.
-  diceLine: PropTypes.object,
-  classic: PropTypes.bool,
-  // {ledger: buildLedger(...), names: {A, B}, notes: [...]}; matchup only.
-  ledger: PropTypes.object,
-  // {saved, toggle}: the Save button; null hides it.
-  save: PropTypes.object,
-  // A new result is on its way.
-  pending: PropTypes.bool,
-  // {A, B}: which sides have a trooper; matchup only. Missing ones show the wait state.
-  picked: PropTypes.object,
-  // The engine params: who is dodging, for the headline's label.
-  params: PropTypes.object,
-};

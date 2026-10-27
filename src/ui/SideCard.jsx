@@ -1,6 +1,5 @@
 // One side of the matchup: the picked trooper's card (weapon buttons and the
 // situation chips), or the empty slot that asks for one.
-import PropTypes from 'prop-types';
 import {FIRETEAM_MIN, HACKED_RESET_MODS} from '../rules/modifiers.js';
 import {ROLE} from '../state/schema.js';
 import {dispatch} from '../state/store.js';
@@ -56,11 +55,6 @@ export function EmptySlot({side, recents, onOpenPicker, onPick, hint}) {
     </section>
   );
 }
-
-EmptySlot.propTypes = {
-  side: PropTypes.oneOf(['A', 'B']).isRequired, recents: PropTypes.array.isRequired,
-  onOpenPicker: PropTypes.func.isRequired, onPick: PropTypes.func.isRequired, hint: PropTypes.bool,
-};
 
 /** @param {{side: Side, view: import('../types.js').MatchupView, onOpenPicker: () => void, onUpgrade: (pick: {upgrade?: number | null, ball?: number | null}) => void}} props */
 export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
@@ -147,8 +141,3 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
     </section>
   );
 }
-
-SideCard.propTypes = {
-  side: PropTypes.oneOf(['A', 'B']).isRequired, view: PropTypes.object.isRequired, onOpenPicker: PropTypes.func.isRequired,
-  onUpgrade: PropTypes.func.isRequired,
-};

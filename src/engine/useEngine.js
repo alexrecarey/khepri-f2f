@@ -64,7 +64,7 @@ export default function useEngine(params) {
     latest.current += 1;
     setPending(true);
     workerRef.current?.postMessage({command: 'calculate', data: params, requestId: latest.current});
-  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key]);
 
   return useMemo(() => ({result, status, pending}), [result, status, pending]);
 }

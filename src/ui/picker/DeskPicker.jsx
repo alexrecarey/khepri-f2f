@@ -8,7 +8,6 @@
 // box only), Esc close.
 // Query, scope, highlight and side are the state document's ui.picker.
 import {useEffect, useRef} from 'react';
-import PropTypes from 'prop-types';
 import {unitById} from '../../army/lookup.js';
 import {shortIsc} from '../../army/names.js';
 import {pickerSide} from '../../state/actions.js';
@@ -78,5 +77,3 @@ export default function DeskPicker({searcher, army, loadError}) {
     </>
   );
 }
-
-DeskPicker.propTypes = {searcher: PropTypes.object, army: PropTypes.object, loadError: PropTypes.func};

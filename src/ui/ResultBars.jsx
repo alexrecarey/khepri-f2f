@@ -3,7 +3,6 @@
 // the best-die chart (FaceToFaceChart). Tapping a bar shows its breakdown in
 // the same place; the other bar fades.
 import {useState} from 'react';
-import PropTypes from 'prop-types';
 import {pct} from '../results/summary.js';
 import {useT} from './i18n.jsx';
 
@@ -23,8 +22,6 @@ export function F2FBar({s, className = ''}) {
     </div>
   );
 }
-
-F2FBar.propTypes = {s: PropTypes.object.isRequired, className: PropTypes.string};
 
 // 'wounds' | 'f2f': the breakdown under the bars. Back to the wounds when
 // `reset` turns true (the phone sheet closing). Set during the render, not in
@@ -51,8 +48,6 @@ export function BarButton({on, faded, ring, onPick, children}) {
   );
 }
 
-BarButton.propTypes = {on: PropTypes.bool, faded: PropTypes.bool, ring: PropTypes.bool, onPick: PropTypes.func.isRequired, children: PropTypes.node};
-
 // The two bars, each a switch when `pick` (there is a chart to switch to):
 // face to face toggles its breakdown, the wound bar goes back to the wounds.
 /** @param {{f2fBar?: import('react').ReactNode, woundBar?: import('react').ReactNode, view: BreakdownView, onView: (view: BreakdownView) => void, pick: boolean}} props */
@@ -66,5 +61,3 @@ export function PickBars({f2fBar, woundBar, view, onView, pick}) {
     </>
   );
 }
-
-PickBars.propTypes = {f2fBar: PropTypes.node, woundBar: PropTypes.node, view: PropTypes.string, onView: PropTypes.func, pick: PropTypes.bool};

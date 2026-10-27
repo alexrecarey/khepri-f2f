@@ -3,7 +3,6 @@
 // own event and both can wound in the same order. One combined bar would
 // mislead, so each attack gets its own (card: two stacked bars; sheet: the
 // four ways the order can end, then each attack in detail).
-import PropTypes from 'prop-types';
 import Headline from './Headline.jsx';
 import {pct, shade, shadeInk, shows} from '../results/summary.js';
 import {Rich, useT} from './i18n.jsx';
@@ -43,8 +42,6 @@ function AttackBar({a, side, thin = false, labels = false}) {
   );
 }
 
-AttackBar.propTypes = {a: PropTypes.object.isRequired, side: PropTypes.string.isRequired, thin: PropTypes.bool, labels: PropTypes.bool};
-
 // Card body: the two headline numbers, one thin bar per attack.
 /** @param {{s: UnopposedSummary, h: import('../types.js').Headline, choice: import('../types.js').HeadlineChoice}} props */
 export function UnopposedCardBody({s, h, choice}) {
@@ -57,8 +54,6 @@ export function UnopposedCardBody({s, h, choice}) {
     </>
   );
 }
-
-UnopposedCardBody.propTypes = {s: PropTypes.object.isRequired, h: PropTypes.object.isRequired, choice: PropTypes.string.isRequired};
 
 /** @param {{a: AttackOnItsOwn, side: Role, name: string, dice?: string}} props */
 function AttackDetail({a, side, name, dice}) {
@@ -80,8 +75,6 @@ function AttackDetail({a, side, name, dice}) {
     </div>
   );
 }
-
-AttackDetail.propTypes = {a: PropTypes.object.isRequired, side: PropTypes.string.isRequired, name: PropTypes.string.isRequired, dice: PropTypes.string};
 
 // Sheet body: why it's two attacks, how the order can end, each attack in detail.
 /** @param {{s: UnopposedSummary, names: {A: string, B: string}, diceLine?: {active?: string, reactive?: string} | null}} props */
@@ -111,5 +104,3 @@ export function UnopposedSheetBody({s, names, diceLine}) {
     </>
   );
 }
-
-UnopposedSheetBody.propTypes = {s: PropTypes.object.isRequired, names: PropTypes.object.isRequired, diceLine: PropTypes.object};

@@ -3,7 +3,6 @@
 // close button. It takes the focus and gives it back; Escape or a click
 // outside closes it (one 'back', like the phone pages).
 import {useRef} from 'react';
-import PropTypes from 'prop-types';
 import {CloseIcon} from './icons.jsx';
 import {back} from './nav.js';
 import useDialogFocus from './useDialogFocus.js';
@@ -32,5 +31,3 @@ export default function DeskDialog({title, size, head, children}) {
     </>
   );
 }
-
-DeskDialog.propTypes = {title: PropTypes.string.isRequired, size: PropTypes.string.isRequired, head: PropTypes.node, children: PropTypes.node};

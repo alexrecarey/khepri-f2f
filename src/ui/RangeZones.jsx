@@ -2,7 +2,6 @@
 // small chips under the legend, each side's zone MOD after its Range MOD, and
 // a narrow slot by the swap button (board D3) that is always there, open or
 // closed, so the bands never change length.
-import PropTypes from 'prop-types';
 import {ZONES, zoneName} from '../rules/visibility.js';
 import {render} from '../i18n/message.js';
 import {dispatch} from '../state/store.js';
@@ -39,8 +38,6 @@ export function ZoneChips({zones, open}) {
   );
 }
 
-ZoneChips.propTypes = {zones: PropTypes.object.isRequired, open: PropTypes.bool};
-
 // The slot: the icons of the zones that are on, or a faint cloud when none
 // is (so the feature can be found); a tap opens or closes the selector.
 /** @param {{zones: import('../types.js').Zones, open: boolean}} props */
@@ -56,5 +53,3 @@ export function ZoneMarks({zones, open}) {
     </button>
   );
 }
-
-ZoneMarks.propTypes = {zones: PropTypes.object.isRequired, open: PropTypes.bool};

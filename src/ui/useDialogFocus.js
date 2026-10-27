@@ -61,5 +61,5 @@ export default function useDialogFocus(ref, active = true, returnTo = null) {
         if (target?.isConnected) target.focus({preventScroll: true});
       }, 0);
     };
-  }, [ref, active]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ref, active]);
 }

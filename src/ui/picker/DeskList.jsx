@@ -1,7 +1,6 @@
 // The desk picker's left pane: recents, a unit type's units, or the matches
 // (this faction first, then other factions), with headings between.
 import {useEffect} from 'react';
-import PropTypes from 'prop-types';
 import {TIER} from '../../search/search.js';
 import {words} from '../../search/text.js';
 import {crestForRow} from '../../army/crests.js';
@@ -27,8 +26,6 @@ function Highlight({text, query}) {
   });
 }
 
-Highlight.propTypes = {text: PropTypes.string.isRequired, query: PropTypes.string.isRequired};
-
 /** @type {Record<number, string>} */
 const REASON = {[TIER.TYPO1]: 'picker.closeMatch', [TIER.SOUND]: 'picker.soundsLike', [TIER.TYPO2]: 'picker.closeMatch'};
 
@@ -51,7 +48,7 @@ export default function DeskList({m, loadError}) {
   // The arrow keys move the highlight; keep it in view.
   useEffect(() => {
     if (current) document.getElementById(`dp-row-${at}`)?.scrollIntoView({block: 'nearest'});
-  }, [current != null, at]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [current != null, at]);
   let i = -1;
   return (
     <div className="dp-list" id="dp-list" role="listbox" aria-label={t('picker.troopers')}>
@@ -96,5 +93,3 @@ export default function DeskList({m, loadError}) {
     </div>
   );
 }
-
-DeskList.propTypes = {m: PropTypes.object.isRequired, loadError: PropTypes.func};

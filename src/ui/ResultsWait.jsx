@@ -1,6 +1,5 @@
 // The results before there are any: the dice engine loading, and the wait
 // for both troopers to be picked (the sheet's row, the panel's outline).
-import PropTypes from 'prop-types';
 import {D20} from './icons.jsx';
 import WpoRow from './WpoRow.jsx';
 import {waitMessage} from './useResultsView.js';
@@ -23,8 +22,6 @@ export function EngineLoading({label}) {
   );
 }
 
-EngineLoading.propTypes = {label: PropTypes.string};
-
 // Each side's number while waiting: its still, dimmed die, or Ready in its
 // own colour once that side is chosen (useResultsView.js waitingFor).
 /** @param {{side: 'active' | 'reactive', ready?: boolean, size?: string}} props */
@@ -35,14 +32,10 @@ function SideWait({side, ready, size = ''}) {
     : <span className={`wait-die ${size}`}><D20 fill={`var(--${side})`} /></span>;
 }
 
-SideWait.propTypes = {side: PropTypes.string.isRequired, ready: PropTypes.bool, size: PropTypes.string};
-
 /** @param {{picked: {A: boolean, B: boolean}, size?: string}} props */
 export function WaitRow({picked, size}) {
   return <WpoRow active={<SideWait side="active" ready={picked.A} size={size} />} reactive={<SideWait side="reactive" ready={picked.B} size={size} />} />;
 }
-
-WaitRow.propTypes = {picked: PropTypes.object.isRequired, size: PropTypes.string};
 
 // Desktop and tablet: the whole results panel in outline, so its shape is
 // there before the numbers are.
@@ -72,5 +65,3 @@ export function WaitPanel({picked}) {
     </>
   );
 }
-
-WaitPanel.propTypes = {picked: PropTypes.object.isRequired};

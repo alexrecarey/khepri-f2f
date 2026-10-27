@@ -1,7 +1,6 @@
 // The results below the headline numbers: the labelled wound bar, the
 // Matchup breakdown (who wins, then at least 1 / 2 / 3 wounds) and the
 // Classic ladders.
-import PropTypes from 'prop-types';
 import {pct, shows} from '../results/summary.js';
 import {useT} from './i18n.jsx';
 
@@ -47,8 +46,6 @@ export function WoundBar({summary, labels = false, grow = false, className = ''}
     </div>
   );
 }
-
-WoundBar.propTypes = {summary: PropTypes.object.isRequired, height: PropTypes.number, labels: PropTypes.bool, grow: PropTypes.bool, className: PropTypes.string};
 
 // Classic results: the face-to-face bar with its numbers, the wound bar, then
 // each side's wounds per order and its at-least ladder, nobody wounded between.
@@ -101,8 +98,6 @@ export function ClassicBody({s, woundBar = true}) {
   );
 }
 
-ClassicBody.propTypes = {s: PropTypes.object.isRequired, woundBar: PropTypes.bool};
-
 // Who wins the roll, and what each winner does: at least 1 / 2 / 3 wounds
 // (cumulative, so the rows overlap) and every hit saved. Anything that never
 // happens is left out.
@@ -148,5 +143,3 @@ export function Breakdown({s}) {
     </div>
   );
 }
-
-Breakdown.propTypes = {s: PropTypes.object.isRequired};

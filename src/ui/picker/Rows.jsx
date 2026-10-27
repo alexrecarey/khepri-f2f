@@ -1,7 +1,6 @@
 // The trooper picker's rows (TrooperPicker.jsx, PickerScreens.jsx): a profile
 // hit with its crest and stats, a loadout on its unit's page, a unit to drill
 // into.
-import PropTypes from 'prop-types';
 import {crestForRow} from '../../army/crests.js';
 import {extraLoadoutName} from '../../army/names.js';
 import {RowCrest} from '../Crest.jsx';
@@ -33,11 +32,6 @@ export function ProfileRow({hit, onPick, first, color, army}) {
   );
 }
 
-ProfileRow.propTypes = {
-  hit: PropTypes.object.isRequired, onPick: PropTypes.func.isRequired, first: PropTypes.bool,
-  color: PropTypes.string.isRequired, army: PropTypes.object,
-};
-
 // A loadout on its unit's page: the unit name is the page title, so just the
 // weapons (and any loadout name), with the points on the right.
 /** @param {{hit: ProfileHit, onPick: (hit: ProfileHit) => void, color: string, army: Army | null}} props */
@@ -51,8 +45,6 @@ export function LoadoutRow({hit, onPick, color, army}) {
   );
 }
 
-LoadoutRow.propTypes = {hit: PropTypes.object.isRequired, onPick: PropTypes.func.isRequired, color: PropTypes.string.isRequired, army: PropTypes.object};
-
 /** @param {{u: import('../../types.js').UnitHit, onOpen: (u: import('../../types.js').UnitHit) => void}} props */
 export function UnitRow({u, onOpen}) {
   return (
@@ -61,5 +53,3 @@ export function UnitRow({u, onOpen}) {
     </button>
   );
 }
-
-UnitRow.propTypes = {u: PropTypes.object.isRequired, onOpen: PropTypes.func.isRequired};
