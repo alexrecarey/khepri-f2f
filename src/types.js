@@ -346,15 +346,10 @@
  */
 /** @typedef {{A: VisSide, B: VisSide}} Visibility */
 
-/** Adds a note, warning or error about a side (null: both) as a Message (rules/matchup.js deriveInputs).
- * @typedef {(side: Side | null, key: string, params?: Record<string, unknown>) => void} Say */
 /**
- * What one deriveInputs call shares with its helpers (attack.js, hit.js,
- * evade.js, lines.js).
+ * What one deriveInputs call shares with its helpers (attack.js, evade.js):
+ * read-only. What a helper has to say comes back in its Roll's notes.
  * @typedef {object} Ctx
- * @property {Say} say
- * @property {Say} warn
- * @property {Say} fail
  * @property {Visibility} vis
  * @property {number} rangeCm
  * @property {number | null | undefined} rangeCmB
@@ -363,9 +358,10 @@
 
 /**
  * One side's roll as calculator inputs (attack.js, evade.js): the params it
- * sets, the lines they were built from and, for a hit, the PS lines that
- * start the save section.
- * @typedef {{inputs: Partial<Params>, lines: SideLines, ps?: Line[]}} Roll
+ * sets, the lines they were built from, for a hit the PS lines that start
+ * the save section, and the notes the rules made on the way ("Active: ...",
+ * lines.js note), for deriveInputs to collect.
+ * @typedef {{inputs: Partial<Params>, lines: SideLines, ps?: Line[], notes?: Message[]}} Roll
  */
 
 // ---- How the dice were built (rules/lines.js, rules/matchup.js, rules/ledger.js) ----

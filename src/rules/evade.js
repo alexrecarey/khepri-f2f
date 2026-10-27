@@ -7,7 +7,7 @@ import {
 } from './modifiers.js';
 import {clamp} from '../lib/clamp.js';
 import {msg} from '../i18n/message.js';
-import {line, section, statLabel, svSection} from './lines.js';
+import {compact, line, note, section, statLabel, svSection} from './lines.js';
 
 /** @typedef {import('../types.js').Side} Side */
 /** @typedef {import('../types.js').Ctx} Ctx */
@@ -30,20 +30,21 @@ import {line, section, statLabel, svSection} from './lines.js';
  */
 function dodgeInputs(x, y, side, incoming, ctx) {
   const d = dodgeExtras(x.traits);
-  // Dodge (PH=14) replaces the Attribute, so it isn't a MOD (MOD_CAP).
-  const lines = [d.ph !== null ? line(d.ph, msg('ledger.dodgePh', {ph: d.ph}), side) : line(x.profile.ph ?? 0, statLabel(x, 'ph'), null)];
-  if (d.mod) lines.push(line(d.mod, msg('skill.dodgeMod', {mod: `+${d.mod}`}), side));
   const ft = fireteamBonuses(x.ftSize).dodge;
-  if (ft) lines.push(line(ft, msg('ledger.fireteam', {size: x.ftSize}), side));
   const bang = bangbombMod(x, incoming);
-  if (bang) lines.push(line(bang, msg('equip.bangbombMod', {mod: `+${bang}`}), side));
-  else if (x.weapon.bangbomb && incoming?.row && cancelsBangbomb(incoming.row)) {
-    const v = bangbombValue(x.traits);
-    lines.push(line(v, msg('equip.bangbombMod', {mod: `+${v}`}), side, msg('ledger.templateWeapon')));
-  }
-  if (immADodgeMod(x)) lines.push(line(immADodgeMod(x), msg('chip.immA'), side));
-  if (y && incoming) lines.push(...ctx.opposing[side]);
-  const sv = svSection(lines, side, ctx);
+  // The Bangbomb Dodge against a template: its MOD is struck.
+  const bangStruck = !bang && x.weapon.bangbomb && incoming?.row && cancelsBangbomb(incoming.row) ? bangbombValue(x.traits) : 0;
+  const lines = compact([
+    // Dodge (PH=14) replaces the Attribute, so it isn't a MOD (MOD_CAP).
+    d.ph !== null ? line(d.ph, msg('ledger.dodgePh', {ph: d.ph}), side) : line(x.profile.ph ?? 0, statLabel(x, 'ph'), null),
+    d.mod && line(d.mod, msg('skill.dodgeMod', {mod: `+${d.mod}`}), side),
+    ft && line(ft, msg('ledger.fireteam', {size: x.ftSize}), side),
+    bang && line(bang, msg('equip.bangbombMod', {mod: `+${bang}`}), side),
+    bangStruck && line(bangStruck, msg('equip.bangbombMod', {mod: `+${bangStruck}`}), side, msg('ledger.templateWeapon')),
+    immADodgeMod(x) && line(immADodgeMod(x), msg('chip.immA'), side),
+    ...(y && incoming ? ctx.opposing[side] : []),
+  ]);
+  const {sv, notes} = svSection(lines, side);
   const sd = section(d.sd ? [line(d.sd, msg('ledger.dodgeSd'), side)] : []);
   // Computed keys: tsc sees an index signature, so the shape is stated.
   const inputs = /** @type {Partial<Params>} */ ({
@@ -55,7 +56,7 @@ function dodgeInputs(x, y, side, incoming, ctx) {
     [`shock${side}`]: false,
     [`template${side}`]: false,
   });
-  return {inputs, lines: {kind: 'dodge', sv, sd}};
+  return {inputs, lines: {kind: 'dodge', sv, sd}, notes};
 }
 
 // A Reset: one WIP roll against a Comms Attack (the opponent's BS Attack
@@ -69,11 +70,13 @@ function dodgeInputs(x, y, side, incoming, ctx) {
  * @returns {import('../types.js').Roll}
  */
 function resetInputs(x, y, side, ctx) {
-  const lines = [line(x.profile.wip ?? 0, statLabel(x, 'wip'), null)];
-  if (targetedResetMod(x)) lines.push(line(targetedResetMod(x), msg('chip.targeted'), side));
-  if (hackedResetMod(x)) lines.push(line(hackedResetMod(x), msg('chip.hacked'), side));
-  if (y) lines.push(...ctx.opposing[side]);
-  const sv = svSection(lines, side, ctx);
+  const lines = compact([
+    line(x.profile.wip ?? 0, statLabel(x, 'wip'), null),
+    targetedResetMod(x) && line(targetedResetMod(x), msg('chip.targeted'), side),
+    hackedResetMod(x) && line(hackedResetMod(x), msg('chip.hacked'), side),
+    ...(y ? ctx.opposing[side] : []),
+  ]);
+  const {sv, notes} = svSection(lines, side);
   const inputs = /** @type {Partial<Params>} */ ({
     [`ammo${side}`]: 'DODGE',
     [`burst${side}`]: x.weapon.zeroPain ? ZERO_PAIN.burst : 1,
@@ -83,7 +86,7 @@ function resetInputs(x, y, side, ctx) {
     [`shock${side}`]: false,
     [`template${side}`]: false,
   });
-  return {inputs, lines: {kind: 'reset', sv}};
+  return {inputs, lines: {kind: 'reset', sv}, notes};
 }
 
 // A Dodge or Reset that can't evade the attack it faces (modifiers.js
@@ -100,8 +103,12 @@ export function evadeInputs(x, y, side, incoming, ctx) {
   if (!evades(x, incoming)) {
     const reset = x.weapon.kind === 'reset';
     // Only an attack (a weapon) can't be evaded.
-    ctx.say(side, reset ? 'note.resetOnlyComms' : 'note.dodgeNotComms', {weapon: /** @type {import('../types.js').WeaponEntry} */ (incoming).row.name});
-    return {inputs: noLofInputs(side), lines: {kind: 'none', reason: msg(reset ? 'ledger.resetOnlyComms' : 'ledger.dodgeNotComms')}};
+    const weapon = /** @type {import('../types.js').WeaponEntry} */ (incoming).row.name;
+    return {
+      inputs: noLofInputs(side),
+      lines: {kind: 'none', reason: msg(reset ? 'ledger.resetOnlyComms' : 'ledger.dodgeNotComms')},
+      notes: [note(side, reset ? 'note.resetOnlyComms' : 'note.dodgeNotComms', {weapon})],
+    };
   }
   if (x.weapon.kind === 'reset') return resetInputs(x, y, side, ctx);
   return dodgeInputs(x, y, side, incoming, ctx);
