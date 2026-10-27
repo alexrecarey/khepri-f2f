@@ -34,4 +34,26 @@ fi
 # test run is quick.
 (cd engine-rs && cargo fetch --locked --quiet)
 
-echo "khepri-f2f cloud setup done: yarn test / yarn dev ready"
+# build:engine needs wasm-pack and binaryen's wasm-opt. Installed here, pinned, as prebuilt binaries into
+# ~/.cargo/bin: wasm-pack's own download of binaryen fails behind the session's proxy, and a binary fetched
+# mid-session needs a permission prompt to run, one installed by this hook doesn't. WASM_PACK_VERSION must
+# stay what src/engine/wasm/BUILD.json records, so a rebuild here matches a rebuild anywhere else.
+WASM_PACK_VERSION=0.15.0
+BINARYEN_VERSION=117
+BIN="$HOME/.cargo/bin"
+mkdir -p "$BIN"
+if ! command -v wasm-pack >/dev/null; then
+  curl -sSfL "https://github.com/rustwasm/wasm-pack/releases/download/v$WASM_PACK_VERSION/wasm-pack-v$WASM_PACK_VERSION-x86_64-unknown-linux-musl.tar.gz" \
+    | tar -xz -C "$BIN" --strip-components=1 --wildcards '*/wasm-pack'
+fi
+if ! command -v wasm-opt >/dev/null; then
+  tmp="$(mktemp -d)"
+  curl -sSfL "https://github.com/WebAssembly/binaryen/releases/download/version_$BINARYEN_VERSION/binaryen-version_$BINARYEN_VERSION-x86_64-linux.tar.gz" \
+    | tar -xz -C "$tmp"
+  # wasm-opt and the shared library it links against; the other tools in the release aren't needed.
+  cp "$tmp"/binaryen-version_$BINARYEN_VERSION/bin/wasm-opt "$BIN"/
+  mkdir -p "$BIN/../lib" && cp "$tmp"/binaryen-version_$BINARYEN_VERSION/lib/* "$BIN/../lib"/ 2>/dev/null || true
+  rm -rf "$tmp"
+fi
+
+echo "khepri-f2f cloud setup done: yarn test / yarn dev / yarn build:engine ready"
