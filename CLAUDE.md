@@ -65,4 +65,6 @@ main; it doesn't exist on workers.dev previews, so test those at
 ## Claude cloud sessions
 
 `scripts/claude-cloud-setup.sh` runs on SessionStart when
-`CLAUDE_CODE_REMOTE=true` and installs yarn deps and the engine's Rust toolchain and crates (for `cargo test`).
+`CLAUDE_CODE_REMOTE=true` and installs yarn deps, the engine's Rust toolchain and crates (for `cargo test`),
+and pinned wasm-pack and binaryen builds (for `yarn build:engine`; the wasm-pack version is the one
+src/engine/wasm/BUILD.json records).
