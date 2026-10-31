@@ -171,17 +171,22 @@ export function loadoutCharts(army, weaponIds) {
   return [charts[main], ...charts.slice(0, main), ...charts.slice(main + 1)];
 }
 
+// swc is a string in the data ("1.5", "+1", "-"), as a sort key: a "+1"
+// (SWC on top of the list's allowance) sorts as -1, ahead of 0 and 0.5;
+// "-" (a peripheral) as 0.
+/** @param {string | null | undefined} swc */
+const swcKey = (swc) => (swc?.startsWith('+') ? -Number(swc.slice(1)) : Number(swc) || 0);
+
 // One unit's loadouts as the army app lists them: cheapest first, then least
-// SWC, then Lieutenant last; a list builder looks for what fits the points
-// left. Other ties keep the army's order (the rows arrive in it).
+// SWC ("+1" first), then Lieutenant last; a list builder looks for what fits
+// the points left. Other ties keep the army's order (the rows arrive in it).
 /**
  * @param {Army | null | undefined} army
  * @param {ProfileHit[]} hits
  */
 export function orderLoadouts(army, hits) {
-  // swc is a string in the data ("1.5", "+1"); the number it names.
   /** @param {ProfileHit} h */
-  const swc = (h) => Number(h.swc ?? 0);
+  const swc = (h) => swcKey(h.swc);
   const lt = new Map(hits.map((h) => [h, (optionOf(army, h)?.skills ?? []).some(isLieutenant) ? 1 : 0]));
   return [...hits].sort((a, b) => a.points - b.points || swc(a) - swc(b)
     || /** @type {number} */ (lt.get(a)) - /** @type {number} */ (lt.get(b)));

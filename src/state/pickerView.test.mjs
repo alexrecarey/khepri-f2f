@@ -56,16 +56,17 @@ test('weapon charts: bands per range column, main gun first', () => {
   assert.deepEqual(d.profiles[0].stats[0][1], [10, 10]); // cm; the pane shows 4-4 (inches) or 10-10 (cm)
 });
 
-test('loadouts: cheapest first, then least SWC ("+1" counts as 1), then Lieutenant last, then army order', () => {
+test('loadouts: cheapest first, then least SWC ("+1" before 0, "-" as 0), then Lieutenant last, then army order', () => {
   // Option 8 is the Lieutenant; a fake army is all the order reads of it.
   const lt = /** @type {import('../types.js').Army} */ (/** @type {unknown} */ ({units: [{id: 1, byFaction: {101: {groups: [{id: 1,
     options: [{id: 8, skills: [{id: SKILL.LIEUTENANT, name: 'Lieutenant'}]}]}]}}}]}));
   const hits = /** @type {ProfileHit[]} */ ([
     {optionId: 1, points: 9, swc: '0.5'}, {optionId: 2, points: 41, swc: '1.5'}, {optionId: 3, points: 9, swc: '0'},
-    {optionId: 4, points: 38, swc: '+1'}, {optionId: 5, points: 38, swc: '0'}, {optionId: 6, points: 34, swc: '0'},
+    {optionId: 4, points: 38, swc: '+1'}, {optionId: 5, points: 38, swc: '0'}, {optionId: 11, points: 34, swc: '0.5'},
+    {optionId: 10, points: 34, swc: '-'}, {optionId: 6, points: 34, swc: '0'},
     {optionId: 8, points: 21, swc: '0'}, {optionId: 7, points: 21, swc: '0'}, {optionId: 9, points: 21, swc: '0'},
   ].map((h) => ({...h, unitId: 1, armyFactionId: 101, groupId: 1})));
-  assert.deepEqual(orderLoadouts(lt, hits).map((h) => h.optionId), [3, 1, 7, 9, 8, 6, 5, 4, 2]);
+  assert.deepEqual(orderLoadouts(lt, hits).map((h) => h.optionId), [3, 1, 7, 9, 8, 10, 6, 11, 4, 5, 2]);
 });
 
 test('Swiss Guard: cheapest first, a points tie goes to less SWC; main gun is the farthest-reaching weapon', async () => {
