@@ -6,9 +6,9 @@ import {decodeMatchup, encodeMatchup} from './matchupParams.js';
 /** @typedef {import('../types.js').Selection} Selection */
 
 const selA = /** @type {Selection} */ ({unitId: 42, factionId: 1102, groupId: 1, profileId: null, optionId: 3, weaponKey: '111:Hit Mode',
-  inCover: true, firewall: null, targeted: true, hackedReset: 0, immA: false, sapper: false, surpriseAttack: true, upgrade: 2, ball: null, ccAllies: 3, berserk: true});
+  inCover: true, firewall: null, targeted: true, hackedReset: 0, immA: false, sapper: false, surpriseAttack: true, upgrade: 2, ball: null, ccAllies: 3, berserk: true, supportware: 'assistedFire'});
 const selB = /** @type {Selection} */ ({unitId: 7, factionId: 107, groupId: null, profileId: 2, optionId: 1, weaponKey: 'hack:carbonite',
-  inCover: false, firewall: -6, targeted: false, hackedReset: -9, immA: true, sapper: true, surpriseAttack: false, upgrade: null, ball: 0, ccAllies: 0, berserk: false});
+  inCover: false, firewall: -6, targeted: false, hackedReset: -9, immA: true, sapper: true, surpriseAttack: false, upgrade: null, ball: 0, ccAllies: 0, berserk: false, supportware: null});
 
 test('matchup round-trips through URL params', () => {
   const params = encodeMatchup({selA, selB, ftSize: {A: 3, B: 1}, rangeCm: 60});
@@ -24,6 +24,8 @@ test('matchup round-trips through URL params', () => {
   assert.equal(params.targetedA, '1');
   assert.equal(params.hackedB, '9');
   assert.equal(params.immaB, '1');
+  assert.equal(params.swA, 'assistedFire');
+  assert.equal(params.swB, undefined);
   assert.equal(params.firewallA, undefined);           // the trooper's own Firewall
   assert.equal(decodeMatchup(new URLSearchParams(encodeMatchup({selA: {...selA, firewall: 0}, selB: null})))?.A.firewall, 0);
   assert.equal(params.profileA, undefined);           // unset fields are left out
@@ -37,9 +39,10 @@ test('matchup round-trips through URL params', () => {
 
 test('no matchup in params: null; bad values are ignored', () => {
   assert.equal(decodeMatchup(new URLSearchParams('burstA=3&mode=matchup')), null);
-  const d = decodeMatchup(new URLSearchParams('unitA=5&factionA=x&ftA=9&range=33'));
+  const d = decodeMatchup(new URLSearchParams('unitA=5&factionA=x&ftA=9&range=33&swA=fairyDust'));
   assert.ok(d);
   assert.equal(d.A.unitId, 5);
+  assert.equal(d.A.supportware, null);
   assert.equal(d.A.factionId, null);
   assert.equal(d.ftSize.A, 1);
   assert.equal(d.rangeCm, null);

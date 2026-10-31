@@ -62,7 +62,7 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
   const color = ROLE[side];
   // A side card is drawn for a picked trooper (MatchupScreen).
   const {sel, resolved, groups, cc, ccAllies, ccAlliesMax, noCover, coverOn, hacked, firewallRequired, fireteamChip, targetedChip, hackedChip, immAChip, surprise,
-    berserk, teamOps, faction, crest, short, loadout} = /** @type {import('../types.js').SideView & {resolved: import('../types.js').ResolvedSide}} */ (view[side]);
+    berserk, supportware, teamOps, faction, crest, short, loadout} = /** @type {import('../types.js').SideView & {resolved: import('../types.js').ResolvedSide}} */ (view[side]);
   const unit = resolved?.unit;
   const option = resolved?.option;
 
@@ -129,6 +129,11 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
             <ToggleChip on={sel.berserk} label={t('skill.berserk')} color={color} onToggle={() => patch(side, {berserk: !sel.berserk})}
               onLabel={berserk.mod ? t('skill.berserkMod', {mod: `+${berserk.mod}`}) : t('skill.berserk')} />
           )}
+          {/* Supportware on a REM: one at a time, so turning one on replaces the other. */}
+          {supportware.map((id) => (
+            <ToggleChip key={id} on={sel.supportware === id} label={t(`supportware.${id}`)} color={color}
+              onToggle={() => patch(side, {supportware: sel.supportware === id ? null : id})} />
+          ))}
           {surprise !== 0 && (
             <ToggleChip on={sel.surpriseAttack} label={t('roll.surpriseAttack')} onLabel={t('chip.surpriseAttackMod', {mod: surprise})} color={color}
               onToggle={() => patch(side, {surpriseAttack: !sel.surpriseAttack})} />

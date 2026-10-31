@@ -16,8 +16,9 @@
 /**
  * A skill, equipment or weapon as a profile or loadout lists it: the Army id,
  * its name in the army's language and the bracketed extras ("+1B", "Shock").
- * @typedef {{id: number, name: string, extra?: string[], foxhole?: true}} TraitRef
+ * @typedef {{id: number, name: string, extra?: string[], foxhole?: true, supportware?: 'assistedFire'}} TraitRef
  * `foxhole`: the Mimetism (-3) a Foxhole adds (rules/trooper.js foxholeTraits), so the ledger can say why.
+ * `supportware`: the Marksmanship Assisted Fire adds (rules/supportware.js), the same.
  */
 
 /** Skills and equipment of a trooper: the profile's plus the loadout's (army/traits.js).
@@ -312,6 +313,8 @@
  * @property {boolean} sapper in a Foxhole
  * @property {boolean} surpriseAttack uses Surprise Attack (active side)
  * @property {boolean} berserk declared Berserk (active side)
+ * @property {boolean} [canSupportware] a REM of an army list with an EVO hacker (rules/supportware.js)
+ * @property {import('./rules/supportware.js').Supportware | null} [supportware] the Supportware it runs; null when it can't take any
  * @property {number} ftMax the largest Fireteam it can join
  * @property {number} ftSize the Fireteam size in use (1 = none)
  * @property {number} ccAllies allies in contact with the target (CC Attack +1 B each)
@@ -855,6 +858,7 @@
  * @property {boolean} immAChip the pick is a Dodge
  * @property {number} surprise Surprise Attack's MOD (active side), 0 without
  * @property {{mod: number} | null} berserk Berserk's MOD (active side, a CC weapon picked)
+ * @property {import('./rules/supportware.js').Supportware[]} supportware the Supportware chips that can change the pick (rules/supportware.js)
  * @property {{chart: string[], ball: string[]} | null} teamOps the Team-Ops options by label (the Army's, in inches until rendered)
  * @property {string | null} faction the vanilla faction's name
  * @property {number | null} vanilla the vanilla faction id (its crest stands in for a missing unit crest)

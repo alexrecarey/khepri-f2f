@@ -14,6 +14,7 @@ import {clamp} from '../lib/clamp.js';
 import {other} from '../lib/side.js';
 import {RANGE_BANDS, bandFrom, rangeModFor} from './ranges.js';
 import {ccAttackMods, ccBurst, ccSd} from './closeCombat.js';
+import {ENHANCED_REACTION_BURST, marksmanshipFromAssistedFire, usesEnhancedReaction} from './supportware.js';
 import {distance, list, msg} from '../i18n/message.js';
 import {hitInputs} from './hit.js';
 import {compact, coverLabel, line, mark, note, section, statLabel, sum, svSection} from './lines.js';
@@ -64,6 +65,11 @@ function mimetismLine(x, y, o) {
   return line(applied, applied !== full ? list([name, /** @type {Message} */ (msv)]) : name, o);
 }
 
+// "Marksmanship", or "Marksmanship, Assisted Fire" when the Supportware gave it.
+/** @param {import('../types.js').Traits | null} traits */
+const marksmanshipName = (traits) =>
+  (marksmanshipFromAssistedFire(traits) ? list([msg('skill.marksmanship'), msg('supportware.assistedFire')]) : msg('skill.marksmanship'));
+
 // The MODs y's position and skills put on x's shot, in y's colour: Mimetism,
 // Albedo (both need LoF), cover or Nanoscreen, Firewall. A Comms Attack
 // takes the target's Firewall in place of cover.
@@ -82,7 +88,7 @@ function targetSvLines(x, y, s) {
   const cover = coverBsMod(y, x.traits, row);
   const coverName = coverLabel(y);
   // Cover that does nothing to this shot, struck with the reason.
-  const coverWhy = comms ? msg('ledger.commsAttack') : hasSkill(x.traits, SKILL.MARKSMANSHIP) ? msg('skill.marksmanship') : msg('skill.limitedCover');
+  const coverWhy = comms ? msg('ledger.commsAttack') : hasSkill(x.traits, SKILL.MARKSMANSHIP) ? marksmanshipName(x.traits) : msg('skill.limitedCover');
   const firewall = comms ? firewallOf(y) : 0;
   return compact([
     mimetismLine(x, y, o),
@@ -137,7 +143,8 @@ function attackSv(x, y, rangeCm, s, ctx) {
 }
 
 // A shot's Burst: the weapon's, the loadout's and BS Attack's +B, and in ARO
-// one die unless Total Reaction or Neurocinetics keep it.
+// one die unless Total Reaction or Neurocinetics keep it (two with Enhanced
+// Reaction, rules/supportware.js).
 /**
  * @param {Attacker} x
  * @param {Side} s
@@ -159,6 +166,12 @@ function burstLines(x, s) {
     aro && line(aro, msg('skill.neurocinetics'), s),
   ]);
   // In ARO a trooper rolls one die, whatever its burst (Total Reaction aside).
+  // Enhanced Reaction makes it two: the Supportware's line, in x's colour,
+  // even when it takes nothing off (a B2 weapon), so the ledger names it.
+  if (usesEnhancedReaction(x, s)) {
+    const label = msg('supportware.enhancedReactionBurst', {burst: ENHANCED_REACTION_BURST});
+    return {lines: [...base, line(ENHANCED_REACTION_BURST - sum(base), label, s)], notes: []};
+  }
   const oneDie = s === 'B' && !keepsAroBurst(x) && sum(base) !== 1 ? [line(1 - sum(base), msg('ledger.aroOneDie'), null)] : [];
   return {lines: [...base, ...oneDie], notes: []};
 }
