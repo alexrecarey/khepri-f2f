@@ -13,6 +13,7 @@ import {DEFAULT_HEADLINE, HEADLINES} from '../results/headline.js';
 import {CC_ALLIES_MAX} from '../rules/closeCombat.js';
 import {FIRETEAM_MAX, HACKED_RESET_MODS} from '../rules/modifiers.js';
 import {RANGE_BANDS} from '../rules/ranges.js';
+import {SUPPORTWARE} from '../rules/supportware.js';
 import {FIREWALL_CHIPS} from '../rules/trooper.js';
 import {MODES} from './modes.js';
 
@@ -53,6 +54,9 @@ export const EMPTY_SIDE = {
   surpriseAttack: false,
   // Declare Berserk (active side, units with the skill): a CC Attack.
   berserk: false,
+  // The Supportware an EVO hacker runs on it (a REM): 'assistedFire',
+  // 'enhancedReaction', or null. One at a time.
+  supportware: null,
   // Team-Ops: index into unit.upgrades.chart / .ball, or null.
   upgrade: null,
   ball: null,
@@ -95,6 +99,8 @@ export const SelectionSchema = v.object({
   immA: field('immA', v.boolean()),
   surpriseAttack: field('surpriseAttack', v.boolean()),
   berserk: field('berserk', v.boolean()),
+  // Assisted Fire or Enhanced Reaction, null for none
+  supportware: field('supportware', v.nullable(v.picklist(SUPPORTWARE))),
   // Team-Ops: index into unit.upgrades.chart / .ball
   upgrade: field('upgrade', v.nullable(intFrom(0))),
   ball: field('ball', v.nullable(intFrom(0))),

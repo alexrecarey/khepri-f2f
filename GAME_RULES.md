@@ -67,7 +67,7 @@ Alex, 2026-10-20: Comms Attacks are opposed by Reset; the Jammer's success cause
 
 ## Hacking Programs
 Alex, 2026-10-22; the rest from the wiki (Hacking, Hacking Device, Hacking Programs Chart, Firewall, ECM, Zero Pain). Code: `src/army/hacking.js` (the chart, devices, upgrades, targets), `src/rules/modifiers.js` (firewallOf, ecmHackerMod, programSvMods, reaches).
-- Programs rolled: Carbonite, Oblivion, Spotlight, Total Control (Hacking Device, Hacking Device Plus), Trinity (Killer Hacking Device), each a weapon choice. Extra programs come from an UPGRADE on the device ("UPGRADE: Trinity", "UPGRADES: Carbonite, Firewall (−3)") or are listed on the Hacker skill ("Hacker (Carbonite, Spotlight)"). Supportware (Fairy Dust, Assisted Fire, Enhanced Reaction, Controlled Jump), Cybermask and White Noise roll nothing face to face: not offered.
+- Programs rolled: Carbonite, Oblivion, Spotlight, Total Control (Hacking Device, Hacking Device Plus), Trinity (Killer Hacking Device), each a weapon choice. Extra programs come from an UPGRADE on the device ("UPGRADE: Trinity", "UPGRADES: Carbonite, Firewall (−3)") or are listed on the Hacker skill ("Hacker (Carbonite, Spotlight)"). Supportware (Fairy Dust, Assisted Fire, Enhanced Reaction, Controlled Jump), Cybermask and White Noise roll nothing face to face: not offered as programs (Supportware below).
 - A program is a Comms Attack: a WIP roll with its Attack MOD (Trinity +3), Burst in the Active Turn, B1 in ARO (Total Reaction and Neurocinetics are for BS Attacks). BTS save against its PS: DA two saves (Carbonite, Total Control), AP halves BTS (Oblivion, Spotlight), a Critical adds one.
 - Results: Carbonite Immobilized-B, Oblivion Isolated, Spotlight Targeted, Total Control Possessed (one State, like the Jammer); Trinity a Wound per failed save. Immunity (IMM-B) stops Carbonite, Immunity (Isolated) or Warhorse Oblivion, Immunity (POS) Total Control.
 - Upgrade MODs, on one program ("Trinity (AP)") or on every program (a device's "+1B", "PS=6", "UPGRADE: SR-1"): +1B, +1SD, PS=X, AP, SR−X (−X to the target's Saving Rolls), (−X) (a MOD to the opponent's Face to Face Roll).
@@ -85,6 +85,14 @@ Alex, 2026-10-22; the rest from the wiki (Hacking, Hacking Device, Hacking Progr
   - IMM-A (−6): on a Dodge, the trooper is Immobilized-A.
   - All are MODs: they count toward the ±12 cap.
 - Not modelled: Repeaters' reach is assumed, a Possessed TAG's Total Control back to Normal.
+
+## Supportware
+From the wiki (Assisted Fire, Enhanced Reaction, Supportware, Hacking Device). Code: `src/rules/supportware.js`, `src/army/hacking.js` (runsSupportware).
+- EVO Hacking Device programs, No Roll. Their target is a REM of the hacker's Army List, so a REM gets the chips only when its army list (the faction it is picked in) fields an EVO Hacking Device: not Ariadna and its sectorials, Tohaa, NA2 or Kosmoflot.
+- One Supportware per trooper at a time: the side holds one, and turning on the other replaces it.
+- Assisted Fire: the REM gains Marksmanship (both turns): it ignores the −3 from cover and Nanoscreen, and Albedo and White Noise now work against it. Chip only while it makes a BS Attack (not a Direct Template: no roll), and not for a REM with Marksmanship of its own.
+- Enhanced Reaction: the REM's BS Attack is B2 in ARO, never above the weapon's own Burst (a B1 Missile Launcher stays B1). Chip only on the reactive side while that changes the roll: not with Total Reaction or Neurocinetics (full Burst already), a B1 weapon, a Dodge or a CC Attack.
+- Not modelled: Fairy Dust (Firewall (−3) against Comms Attacks: the Firewall chip already offers −3), Controlled Jump (Combat Jump only).
 
 ## Close combat
 Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Warrior, Weapon Chart). Code: `src/rules/closeCombat.js`.

@@ -18,6 +18,7 @@ import {fireteamHelps, firewallMod, surpriseAttackMod, targetedHelps} from '../r
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {visibility} from '../rules/visibility.js';
 import {berserkMod, ccAllies, ccAlliesMax, hasBerserk, isCcAttack} from '../rules/closeCombat.js';
+import {supportwareChips} from '../rules/supportware.js';
 import {resolveSelection, withWeapon} from '../rules/trooper.js';
 import {modeLabels, orderModes} from '../rules/weaponModes.js';
 import {woundStates} from '../rules/woundStates.js';
@@ -154,6 +155,10 @@ function sideView(army, side, {sel, resolved}, other) {
     // has a CC weapon picked; null otherwise.
     // cc: the side is resolved.
     berserk: side === 'A' && cc && hasBerserk(resolved.traits) ? {mod: berserkMod(resolved.traits)} : null,
+    // Supportware an EVO hacker of its army can run on it (a REM), each only
+    // while it can change the pick: Assisted Fire for a BS Attack, Enhanced
+    // Reaction for one in ARO.
+    supportware: supportwareChips(resolved, side),
     // Team-Ops: the chart and TacBall options, by label (the Army's, in
     // inches: renderMatchup puts them in the language's unit), for their chips.
     // teamOps: the unit has upgrades (rules/trooper.js). A unit means a

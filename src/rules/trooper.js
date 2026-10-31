@@ -8,6 +8,7 @@ import {effectiveTraits, extraNumbers, hasSkill, skillExtras} from '../army/trai
 import {ammoTypes, bsWeapons, ccWeapons, hasAmmo, hasShockAmmo, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
 import {ccAttackSkill} from './closeCombat.js';
 import {bangbombValue, fireteamMax, fireteamSize, firewallMod} from './modifiers.js';
+import {assistedFireTraits, supportwareTarget} from './supportware.js';
 import {msg} from '../i18n/message.js';
 
 /** @typedef {import('../types.js').Traits | null | undefined} MaybeTraits */
@@ -185,7 +186,13 @@ export function resolveSelection(army, sel, side = 'B') {
   const canSapper = hasSkill(baseTraits, SKILL.SAPPER);
   const sapper = canSapper && Boolean(sel.sapper);
   // Sapper needs traits, so a Foxhole has them.
-  const traits = sapper ? foxholeTraits(/** @type {import('../types.js').Traits} */ (baseTraits)) : baseTraits;
+  const ownTraits = sapper ? foxholeTraits(/** @type {import('../types.js').Traits} */ (baseTraits)) : baseTraits;
+  // Supportware from an EVO hacker of its army (rules/supportware.js): only a
+  // REM can take it, so a choice left on for another trooper is none.
+  const canSupportware = supportwareTarget(army, unit, factionId, profile);
+  const supportware = canSupportware ? sel.supportware ?? null : null;
+  // A REM has a profile, so traits.
+  const traits = supportware === 'assistedFire' ? assistedFireTraits(/** @type {import('../types.js').Traits} */ (ownTraits)) : ownTraits;
   // What the trooper can roll with, built once: the side card shows these
   // lists and the weapon key is looked up in them. BS and CC weapons and
   // programs need a loadout; Dodge and Reset only a profile.
@@ -217,6 +224,9 @@ export function resolveSelection(army, sel, side = 'B') {
     surpriseAttack: Boolean(sel.surpriseAttack),
     // The player declared Berserk (active side, units with the skill).
     berserk: Boolean(sel.berserk),
+    // A REM of an army with an EVO hacker, and the Supportware it runs.
+    canSupportware,
+    supportware,
     // Fireteam: the largest this trooper can join, and the size in use
     // (a stored size above the max, e.g. from a share link, drops to it).
     ftMax,

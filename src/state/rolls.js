@@ -11,6 +11,7 @@
 //   ca / cr            unit crest slugs (src/army/crests.js)
 //   fa / fr            vanilla faction ids, whose crest stands in
 import {ccAllies, usesBerserk} from '../rules/closeCombat.js';
+import {supportwareInUse} from '../rules/supportware.js';
 import {hackedResetMod, immADodgeMod} from '../rules/modifiers.js';
 import {RANGE_BANDS, bandLabel} from '../rules/ranges.js';
 import {shortIsc, shortWeaponName} from '../army/names.js';
@@ -127,6 +128,16 @@ const surprise = (x, role) => role === 'A' && x.sel.surpriseAttack;
  * @param {Side} role
  */
 const berserk = (x, role) => usesBerserk(x.resolved, role === 'A');
+// The Supportware it rolls with, while its chip shows.
+/**
+ * @param {FilledSide} x
+ * @param {Side} role
+ * @param {Translator} t
+ */
+const supportwareName = (x, role, t) => {
+  const id = supportwareInUse(x.resolved, role);
+  return id ? t(`supportware.${id}`) : null;
+};
 // Allies in contact, as the CC Attack counts them (closeCombat.js ccAllies).
 /**
  * @param {FilledSide} x
@@ -192,6 +203,7 @@ const situationOf = (x, y, role, t) => ({
   allies: allies(x, y, t),
   surprise: surprise(x, role) ? t('roll.surpriseAttack') : null,
   berserk: berserk(x, role) ? t('skill.berserk') : null,
+  supportware: supportwareName(x, role, t),
 });
 
 // view: matchupView(); s: results/summary.js summarize(). The summary is saved as
@@ -210,7 +222,7 @@ export function matchupRollSummary(view, s, t = tEn) {
   const bits = [
     rangeText(view, t), ...zoneNames(view, t), a.foxhole ?? b.foxhole, a.cover ?? b.cover,
     a.firewall, b.firewall, ...a.chips, ...b.chips, a.fireteam, ...a.teamOps, b.fireteam, ...b.teamOps,
-    a.allies, b.allies, a.surprise, a.berserk,
+    a.allies, b.allies, a.surprise, a.berserk, a.supportware, b.supportware,
   ];
   const [au, aw, ru, rw] = [shortUnit(A.resolved.unit), weaponShort(A.resolved.weapon, t), shortUnit(B.resolved.unit), weaponShort(B.resolved.weapon, t)];
   return {
@@ -242,7 +254,7 @@ export function matchupShareCard(view, h, t = tEn) {
   const side = (role, key) => {
     const x = /** @type {FilledSide} */ (view[role]);
     const s = situationOf(x, /** @type {FilledSide} */ (view[other(role)]), role, t);
-    const situation = [s.foxhole, s.cover, s.firewall, ...s.chips, s.fireteam, s.allies, s.surprise, s.berserk, ...s.teamOps];
+    const situation = [s.foxhole, s.cover, s.firewall, ...s.chips, s.fireteam, s.allies, s.surprise, s.berserk, s.supportware, ...s.teamOps];
     return {
       n: h.text[key], l: h.label[key],
       u: shortUnit(x.resolved.unit), w: weaponShort(x.resolved.weapon, t), s: situation.filter(Boolean).join(', '),

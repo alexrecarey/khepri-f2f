@@ -8,7 +8,8 @@ import es from '../i18n/es.js';
 import {reduce} from './reduce.js';
 import {EMPTY_SIDE, initialState} from './schema.js';
 import {unitById} from '../army/lookup.js';
-import {army} from '../army/testArmy.mjs';
+import {army, unitByIsc} from '../army/testArmy.mjs';
+import {matchupRollSummary} from './rolls.js';
 
 /** @typedef {import('../types.js').MatchupView} MatchupView */
 /** @typedef {import('../types.js').LedgerSide} LedgerSide */
@@ -232,4 +233,33 @@ test('the side view holds the allies in contact to what fits, as the CC Attack c
   assert.equal(v.ccAllies, v.ccAlliesMax);
   // Not CC attacking: no allies count.
   assert.equal(matchupCore(army, {A: {...corax, ccAllies: 3}, B: chaksa, rangeCm: 40}).A.ccAllies, 0);
+});
+
+// Supportware (rules/supportware.js): a Pathfinder Dronbot (REM) in
+// PanOceania, which fields EVO hackers; a Vystrel (REM) in Ariadna, which
+// doesn't; a Fusilier (no REM).
+/**
+ * @param {import('../types.js').UnitRow} unit
+ * @param {number} factionId
+ * @param {Partial<import('../types.js').Selection>} [over]
+ */
+const first = (unit, factionId, over = {}) => {
+  const group = unit.byFaction[factionId].groups[0];
+  return {...EMPTY_SIDE, unitId: unit.id, factionId, groupId: group.id, profileId: group.profiles[0].id, optionId: group.options[0].id, ...over};
+};
+
+test('Supportware: the side card offers the chips that change the pick, the saved roll names the one in use', () => {
+  const pathfinder = first(unitByIsc('Pathfinder Dronbot'), 101, {weaponKey: '33:', supportware: 'enhancedReaction'});
+  const matchup = {A: first(unitByIsc('Fusiliers'), 101), B: pathfinder, rangeCm: 40};
+  const view = matchupView(army, matchup);
+  assert.deepEqual(view.B.supportware, ['assistedFire', 'enhancedReaction']);
+  assert.deepEqual(view.A.supportware, []);
+  assert.equal(view.params?.burstB, 2);
+  assert.match(matchupRollSummary(view, null).setup, /Enhanced Reaction/);
+  // Its Flash Pulse is B1: Enhanced Reaction can't raise it, so no chip, and it isn't named.
+  const pulse = matchupView(army, {...matchup, B: {...pathfinder, weaponKey: '72:'}});
+  assert.deepEqual(pulse.B.supportware, ['assistedFire']);
+  assert.doesNotMatch(matchupRollSummary(pulse, null).setup, /Enhanced Reaction/);
+  // Ariadna has no EVO hacker: no chips.
+  assert.deepEqual(matchupView(army, {...matchup, B: first(unitByIsc('Vystrel Mobile Artillery Regiment'), 301)}).B.supportware, []);
 });
