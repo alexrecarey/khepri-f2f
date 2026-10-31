@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {effectiveTraits} from '../army/traits.js';
-import {bsWeapons} from '../army/weapons.js';
+import {bsWeapons, stateCaused} from '../army/weapons.js';
 import {buildLedger} from './ledger.js';
 import {deriveInputs as deriveRaw} from './matchup.js';
 import {derive, option, profile} from './testFixtures.mjs';
@@ -226,6 +226,32 @@ test('BS Attack (SR-1) / (SR-2) lower the PS the target saves against', () => {
   assert.equal(shoot([bsAttack('SR-1')], [{id: 1, name: 'Combi Rifle'}], '1:', immune('ARM')).inputs.damageA, 6);
   const p = profile({skills: [bsAttack('SR-1')]});
   assert.equal(label(trooperWeapons(combi, W, effectiveTraits(p, combi))[0]), 'Combi Rifle · B3 · PS6 · N');
+});
+
+test('Adhesive Launcher Rifle (PARA): a BS Attack the target saves on PH-6, Immobilized-A when it fails', () => {
+  const adhesive = [{id: 22, name: 'Adhesive Launcher Rifle'}];
+  assert.deepEqual(bsWeapons(option(adhesive), W).map((w) => w.key), ['22:']);
+  assert.equal(stateCaused(W[22][0]), 'Immobilized-A');
+  const r = shoot([], adhesive, '22:', profile({ph: 14}));
+  assert.equal(r.ok, true, r.errors.join('; '));
+  assert.equal(r.inputs.successValueA, 12 + 3);
+  assert.equal(r.inputs.burstA, 2);
+  assert.equal(r.inputs.damageA, 0);
+  assert.equal(r.inputs.armB, 14 - 6);
+  assert.equal(/** @type {LedgerSide} */ (r.ledger.A).dice, 'B2 SV15 PH8 PARA');
+  assert.ok(r.notes.some((n) => n.includes('leaves the target Immobilized-A')), r.notes.join(' | '));
+  // A State, not wounds: no "results shown as wounds" warning.
+  assert.deepEqual(r.warnings, []);
+});
+
+test('BS Attack (SR-1) with PARA: PS 0 can\'t go lower, so the PH-6 roll takes the -1, and stops at 0', () => {
+  const adhesive = [{id: 22, name: 'Adhesive Launcher Rifle'}];
+  const r = shoot([bsAttack('SR-1')], adhesive, '22:', profile({ph: 14}));
+  assert.equal(r.inputs.damageA, 0);
+  assert.equal(r.inputs.armB, 14 - 6 - 1);
+  // PH 5: PH-6 is already 0; the save stays 0 (derive checks the ledger agrees).
+  const low = shoot([bsAttack('SR-1')], adhesive, '22:', profile({ph: 5}));
+  assert.deepEqual([low.inputs.damageA, low.inputs.armB], [0, 0]);
 });
 
 test('BS Attack (Continuous Damage) gives every BS Attack the Trait', () => {

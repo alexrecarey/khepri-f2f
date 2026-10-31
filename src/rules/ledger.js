@@ -113,15 +113,15 @@ function sideLedger(x, y, s, l, inputs, t) {
   // The kinds left (attack, template) fire a weapon.
   const tag = ammoTag(w.row, /** @type {import('../types.js').WeaponMods} */ (w.mods), t);
   const note = ammoNote(inputs, s, t);
+  // PARA's save is the target's PH roll, not PS + ARM.
+  const saveTag = /** @type {import('../types.js').WeaponRow} */ (w.row).save?.attr === 'PH' ? t('stat.ph') : t('abbr.PS');
   if (isCcAttack(x)) {
-    // PARA's save is the target's PH roll, not PS + ARM.
-    const saveTag = /** @type {import('../types.js').WeaponRow} */ (w.row).save?.attr === 'PH' ? t('stat.ph') : t('abbr.PS');
     return {kind: 'attack', dice: `${t('abbr.CC')} ${b} ${svText(sv.total, t)} ${saveTag}${save.total}${tag}`, burst, sd, sv, save, ammo, note};
   }
   if (l.kind === 'template') {
-    return {kind: 'template', dice: `${b} ${t('ledger.template')} ${t('abbr.PS')}${save.total}${tag}`, burst, sd, save, ammo, note};
+    return {kind: 'template', dice: `${b} ${t('ledger.template')} ${saveTag}${save.total}${tag}`, burst, sd, save, ammo, note};
   }
-  return {kind: 'attack', dice: `${b} ${svText(sv.total, t)} ${t('abbr.PS')}${save.total}${tag}`, burst, sd, sv, save, ammo, note};
+  return {kind: 'attack', dice: `${b} ${svText(sv.total, t)} ${saveTag}${save.total}${tag}`, burst, sd, sv, save, ammo, note};
 }
 
 // A section ({lines, total, note?}) with its lines and note rendered.

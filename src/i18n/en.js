@@ -116,6 +116,7 @@ export default {
   'state.dead': 'Dead',
   'state.isolated': 'Isolated',
   'state.stunned': 'Stunned',
+  'state.immobilized-a': 'Immobilized-A',
   'state.immobilized-b': 'Immobilized-B',
   'state.targeted': 'Targeted',
   'state.possessed': 'Possessed',

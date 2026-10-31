@@ -132,6 +132,7 @@ Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Wa
 - Weapons that cause a State instead of wounds show one result, that State, for one failed save or more:
   - Stunned: Stun Ammunition (Flash Pulse, Stun Pistol). Immunity never stops it (Non-Lethal and State: Stunned always apply); with Immunity (BTS) the hit is Normal Ammunition, one save per hit.
   - Isolated: Jammer. Immunity (Isolated) and Warhorse stop it.
+  - Immobilized-A: PARA Ammunition (Adhesive Launcher Rifle, Riotstoppers, PARA CC Weapon). The target saves on PH−6, PS 0; a SR−X MOD (BS Attack (SR−1)) lowers that roll, not below 0.
   - Cybermines (Stunned, or Immobilized-B for hackable troopers) are Deployables, which the app doesn't offer.
 
 ## Not modelled yet

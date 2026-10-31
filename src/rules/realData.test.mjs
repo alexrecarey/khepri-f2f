@@ -125,3 +125,12 @@ test('army ammo extras: Corax Combi Rifle (Viral), Treitak Combi Rifle (T2), Igu
   assert.ok(iguana.weapons.some((w) => w.name === 'Mine Dispenser' && w.extra?.includes('Shock')));
   assert.ok(bsWeapons(iguana, army.weapons).every((w) => w.name !== 'Mine Dispenser'));
 });
+
+test('Moonraker: the Adhesive Launcher Rifle is one of its BS weapons', () => {
+  const moonraker = byIsc('Moonrakers, Forward Remote Devices');
+  for (const f of moonraker.inFactions) {
+    for (const o of moonraker.byFaction[f].groups[0].options) {
+      assert.ok(bsWeapons(o, army.weapons).some((w) => w.name === 'Adhesive Launcher Rifle'), `${f} ${o.id}`);
+    }
+  }
+});
