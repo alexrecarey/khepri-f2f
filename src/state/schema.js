@@ -45,10 +45,12 @@ export const EMPTY_SIDE = {
   sapper: false,
   // Situation chips on the side's own roll (rules/modifiers.js): the target is
   // Targeted (+3 to a shot or program against it, -3 to its Reset), Hacked (-3 to -12 to a Reset, 0 for
-  // none), Immobilized-A (-6 to a Dodge).
+  // none), Immobilized-A (-6 to a Dodge), No LoF (the attacker outside its
+  // LoF: -3 and Silent (X) to a Dodge).
   targeted: false,
   hackedReset: 0,
   immA: false,
+  noLof: false,
   // Use Surprise Attack (active side, units with the skill).
   surpriseAttack: false,
   // Declare Berserk (active side, units with the skill): a CC Attack.
@@ -93,6 +95,7 @@ export const SelectionSchema = v.object({
   // the Hacked chip's MOD to a Reset, 0 for none
   hackedReset: field('hackedReset', v.picklist([...HACKED_RESET_MODS, 0])),
   immA: field('immA', v.boolean()),
+  noLof: field('noLof', v.boolean()),
   surpriseAttack: field('surpriseAttack', v.boolean()),
   berserk: field('berserk', v.boolean()),
   // Team-Ops: index into unit.upgrades.chart / .ball

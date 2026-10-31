@@ -205,10 +205,11 @@ export function resolveSelection(army, sel, side = 'B') {
     upgrades, unsupportedUpgradeWeapons,
     inCover: Boolean(sel.inCover) || sapper,
     // Situation chips on its own roll (modifiers.js targetedMod, hackedResetMod,
-    // immADodgeMod): read only while the weapon they need is picked.
+    // immADodgeMod, noLofDodgeMods): read only while the weapon they need is picked.
     targeted: Boolean(sel.targeted),
     hackedReset: sel.hackedReset ?? 0,
     immA: Boolean(sel.immA),
+    noLof: Boolean(sel.noLof),
     // Its Firewall against a Comms Attack (the chip): -3, -6 or 0.
     firewall: firewallChip(sel.firewall, traits),
     canSapper,

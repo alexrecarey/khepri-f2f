@@ -57,6 +57,7 @@ export default {
   'tag.contUpper': 'CONT',
   'tag.blast': 'Blast',
   'trait.continuousDamage': 'Continuous Damage',
+  'trait.silentMod': 'Silent ({mod})',
   'save.armZero': 'ARM=0',
 
   // Choices that are not weapons
@@ -280,6 +281,7 @@ export default {
   'chip.targeted': 'Targeted',
   'chip.hacked': 'Hacked',
   'chip.immA': 'IMM-A',
+  'chip.noLof': 'No LoF',
   'chip.sapper': 'Sapper',
   'chip.fireteam': 'Fireteam',
   'chip.allies': 'Allies',

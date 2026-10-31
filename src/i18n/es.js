@@ -57,6 +57,7 @@ export default {
   'tag.contUpper': 'CONT',
   'tag.blast': 'Expansiva',
   'trait.continuousDamage': 'Daño Continuo',
+  'trait.silentMod': 'Silencioso ({mod})',
   'save.armZero': 'BLI=0',
 
   // Choices that are not weapons
@@ -280,6 +281,7 @@ export default {
   'chip.targeted': 'Marcado',
   'chip.hacked': 'Hackeado',
   'chip.immA': 'IMM-A',
+  'chip.noLof': 'Sin LDT',
   'chip.sapper': 'Zapador',
   'chip.fireteam': 'Fireteam',
   'chip.allies': 'Aliados',
