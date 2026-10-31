@@ -30,6 +30,9 @@ kbd { padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line-strong)
 .dp-row .row-crest { width: 84px; height: 84px; margin-top: -42px; right: -15px; }
 .dp-row:hover { background: var(--hover); }
 .dp-row.on { background: var(--surface-3); }
+/* The highlight takes the side's colour in the pane with the arrow keys; the other pane's stays grey. */
+.dp-row.on.active { background: var(--active-tint); box-shadow: inset 3px 0 var(--active); }
+.dp-row.on.reactive { background: var(--reactive-tint); box-shadow: inset 3px 0 var(--reactive); }
 .dp-row .t { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dp-row .s { font-family: var(--font-mono); font-size: var(--fs-small); color: var(--muted); align-self: center; }
 .dp-row .sub { font-size: var(--fs-small); color: var(--muted); grid-column: 1 / -1; }
@@ -57,6 +60,7 @@ b.hl { color: var(--text); background: #2e4a40; border-radius: 3px; padding: 0 1
 .dp-group-head h3 { margin: 0; font-size: 17px; font-weight: 600; }
 .dp-loadout { padding: 8px 12px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; }
 .dp-loadout:hover { background: var(--hover); }
+.dp-loadout.on { background: var(--surface-3); }
 .dp-loadout.on.active { background: var(--active-tint); box-shadow: inset 3px 0 var(--active); }
 .dp-loadout.on.reactive { background: var(--reactive-tint); box-shadow: inset 3px 0 var(--reactive); }
 .dp-loadout .pts { font-size: var(--fs-small); color: var(--faint); font-family: var(--font-mono); }

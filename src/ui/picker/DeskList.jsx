@@ -44,7 +44,9 @@ function shortStats(detail, t) {
 /** @param {{m: DeskPickerModel, loadError?: (() => void) | null}} props */
 export default function DeskList({m, loadError}) {
   const t = useT();
-  const {searcher, army, typing, query, items, rows, current, at, factionName, pick, matched} = m;
+  const {searcher, army, typing, query, items, rows, current, at, factionName, pick, matched, pane, color} = m;
+  // The lit row takes the side's colour while the arrow keys are in this pane.
+  const lit = pane === 'list' ? ` on ${color}` : ' on';
   // The arrow keys move the highlight; keep it in view.
   useEffect(() => {
     if (current) document.getElementById(`dp-row-${at}`)?.scrollIntoView({block: 'nearest'});
@@ -65,7 +67,7 @@ export default function DeskList({m, loadError}) {
         if (x.kind === 'recent') {
           const d = unitDetail(army, x.hit.unitId, x.hit.armyFactionId);
           return (
-            <div key={`r${x.hit.rowId}`} id={`dp-row-${idx}`} role="option" aria-selected={on} className={`dp-row${on ? ' on' : ''}`}
+            <div key={`r${x.hit.rowId}`} id={`dp-row-${idx}`} role="option" aria-selected={on} className={`dp-row${on ? lit : ''}`}
               onClick={select} onDoubleClick={() => pick(x.hit)}>
               <RowCrest slug={crestForRow(army, x.hit)} />
               <span className="t">{x.hit.unit} · {x.hit.weapon}</span><span className="s">{shortStats(d, t)}</span>
@@ -78,7 +80,7 @@ export default function DeskList({m, loadError}) {
         const reason = REASON[/** @type {number} */ (x.u.tier)] && t(REASON[/** @type {number} */ (x.u.tier)]);
         return (
           <div key={`u${x.u.unitId}${x.away ? 'x' : ''}`} id={`dp-row-${idx}`} role="option" aria-selected={on}
-            className={`dp-row${on ? ' on' : ''}`} onClick={select} onDoubleClick={() => (x.u.best ? pick(x.u.best) : select())}>
+            className={`dp-row${on ? lit : ''}`} onClick={select} onDoubleClick={() => (x.u.best ? pick(x.u.best) : select())}>
             <RowCrest slug={d?.profiles[0]?.crest} />
             <span className="t"><Highlight text={x.u.short} query={query} />{x.away ? ` · ${factionName(x.factionId)}` : ''}</span>
             <span className="s">{shortStats(d, t)}</span>

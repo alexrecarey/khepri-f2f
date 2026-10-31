@@ -34,11 +34,21 @@ export default function DeskPicker({searcher, army, loadError}) {
   useEffect(() => { inputRef.current?.focus(); }, [side]);
   useDialogFocus(dialogRef);
   const onKey = deskKeyHandler(m);
+  // The keys live on the search box, so a click anywhere else in the picker
+  // keeps the focus there: rows and loadouts aren't focusable, and a click on
+  // one would drop it to the body and ↑↓ ↵ would do nothing.
+  /** @param {import('react').MouseEvent} e */
+  const keepFocus = (e) => {
+    if (e.target === inputRef.current) return;
+    e.preventDefault();
+    inputRef.current?.focus({preventScroll: true});
+  };
 
   return (
     <>
       <div className="desk-scrim" onClick={back} />
-      <div ref={dialogRef} className="desk-picker" role="dialog" aria-modal="true" aria-label={t('side.trooper', {side: t(`side.${color}`)})}>
+      <div ref={dialogRef} className="desk-picker" role="dialog" aria-modal="true" aria-label={t('side.trooper', {side: t(`side.${color}`)})}
+        onMouseDown={keepFocus}>
         <div className="dp-top">
           <span className="dp-sides" role="group" aria-label={t('picker.side')}>
             {/** @type {import('../../types.js').Side[]} */ (['A', 'B']).map((s) => (
