@@ -84,6 +84,16 @@ export function statLine(army, unitId, armyFactionId) {
   return [['CC', p.cc], ['BS', p.bs], ['PH', p.ph], ['WIP', p.wip], ['ARM', p.arm], ['BTS', p.bts], [p.str ? 'STR' : 'W', p.w]];
 }
 
+// The army's option row a picker hit names; null without the army data.
+/**
+ * @param {Army | null | undefined} army
+ * @param {ProfileHit} hit
+ */
+function optionOf(army, hit) {
+  const group = unitById(army, hit.unitId)?.byFaction[hit.armyFactionId]?.groups.find((g) => g.id === hit.groupId);
+  return group?.options.find((o) => o.id === hit.optionId) ?? null;
+}
+
 // What tells a loadout apart from its siblings with the same weapons: the
 // skills it adds ("Forward Observer", "Hacker"), at most two. Lieutenant is
 // left out: it doesn't change a roll and only cluttered the list.
@@ -92,10 +102,7 @@ export function statLine(army, unitId, armyFactionId) {
  * @param {ProfileHit} hit
  */
 export function loadoutTag(army, hit) {
-  const unit = unitById(army, hit.unitId);
-  const group = unit?.byFaction[hit.armyFactionId]?.groups.find((g) => g.id === hit.groupId);
-  const option = group?.options.find((o) => o.id === hit.optionId);
-  const skills = (option?.skills ?? []).filter((sk) => !isLieutenant(sk)).map((sk) => sk.name);
+  const skills = (optionOf(army, hit)?.skills ?? []).filter((sk) => !isLieutenant(sk)).map((sk) => sk.name);
   return skills.length ? skills.slice(0, 2).join(', ') : null;
 }
 
@@ -164,19 +171,20 @@ export function loadoutCharts(army, weaponIds) {
   return [charts[main], ...charts.slice(0, main), ...charts.slice(main + 1)];
 }
 
-// One unit's loadouts, SWC weapons first (an HMG, an ML, a 0.5 SWC hacker),
-// then by how far the main gun reaches, then cheapest.
+// One unit's loadouts as the army app lists them: cheapest first, then least
+// SWC, then Lieutenant last; a list builder looks for what fits the points
+// left. Other ties keep the army's order (the rows arrive in it).
 /**
  * @param {Army | null | undefined} army
  * @param {ProfileHit[]} hits
  */
 export function orderLoadouts(army, hits) {
-  /** @param {ProfileHit} h */
-  const reach = (h) => bestReach(army?.weapons?.[/** @type {number} */ (mainWeapon(army, h.weaponIds))]);
-  // swc is a string in the data ("1.5"); the number it names.
+  // swc is a string in the data ("1.5", "+1"); the number it names.
   /** @param {ProfileHit} h */
   const swc = (h) => Number(h.swc ?? 0);
-  return [...hits].sort((a, b) => swc(b) - swc(a) || reach(b) - reach(a) || a.points - b.points);
+  const lt = new Map(hits.map((h) => [h, (optionOf(army, h)?.skills ?? []).some(isLieutenant) ? 1 : 0]));
+  return [...hits].sort((a, b) => a.points - b.points || swc(a) - swc(b)
+    || /** @type {number} */ (lt.get(a)) - /** @type {number} */ (lt.get(b)));
 }
 
 // Everything the desktop unit pane shows about a unit in one faction. The
