@@ -307,6 +307,7 @@
  * @property {boolean} targeted the Targeted chip
  * @property {number} hackedReset the Hacked chip's MOD to a Reset (0 for none)
  * @property {boolean} immA the Immobilized-A chip
+ * @property {boolean} noLof the No LoF chip: the attacker is outside its LoF
  * @property {number} firewall its Firewall against a Comms Attack: -3, -6 or 0
  * @property {boolean} canSapper has Sapper, so may sit in a Foxhole
  * @property {boolean} sapper in a Foxhole
@@ -853,6 +854,7 @@
  * @property {boolean} targetedChip the other side's shot or program gains from Targeted, or this side Resets
  * @property {boolean} hackedChip the pick is a Reset
  * @property {boolean} immAChip the pick is a Dodge
+ * @property {boolean} noLofChip the pick is a Dodge that No LoF can change (modifiers.js noLofHelps)
  * @property {number} surprise Surprise Attack's MOD (active side), 0 without
  * @property {{mod: number} | null} berserk Berserk's MOD (active side, a CC weapon picked)
  * @property {{chart: string[], ball: string[]} | null} teamOps the Team-Ops options by label (the Army's, in inches until rendered)

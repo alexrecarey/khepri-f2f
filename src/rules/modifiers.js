@@ -5,7 +5,7 @@ import {clamp} from '../lib/clamp.js';
 import {EQUIP, SKILL} from '../army/ids.js';
 import {equipExtra, extraNumbers, hasEquip, hasSkill, skillExtra, skillExtras} from '../army/traits.js';
 import {ZERO_PAIN, canTarget} from '../army/hacking.js';
-import {attackAttribute, isCommsAttack, isImpactTemplate, isPseudo, isTemplate, parseWeaponMods, rolls} from '../army/weapons.js';
+import {attackAttribute, isCommsAttack, isPseudo, isTemplateWeapon, parseWeaponMods, rolls, silentMod} from '../army/weapons.js';
 import {ccOpposingMods, isCcAttack, naturalBornWarrior} from './closeCombat.js';
 import {msg} from '../i18n/message.js';
 
@@ -29,7 +29,7 @@ export const capMods = (sum) => clamp(MOD_CAP, sum);
 // Direct and Impact (Blast mode) templates ignore cover's +3 to the Saving
 // Roll. The -3 BS MOD still applies to the attack roll.
 /** @param {MaybeRow} row */
-export const ignoresCoverOnSaves = (row) => isTemplate(row) || isImpactTemplate(row);
+export const ignoresCoverOnSaves = isTemplateWeapon;
 
 // Units with the No Cover skill (TAGs, bikes, Redeye...) get nothing from cover.
 /** @param {ResolvedSide | null | undefined} side */
@@ -274,6 +274,43 @@ export const hackedResetMod = (x) => (x?.weapon?.kind === 'reset' && HACKED_RESE
 /** @param {ResolvedSide | null | undefined} x */
 export const immADodgeMod = (x) => (x?.weapon?.kind === 'dodge' && x.immA ? IMM_A_DODGE_MOD : 0);
 
+// No LoF (a chip on a Dodge; Alex, 2026-10-31): the attacker is outside the
+// Dodger's LoF (wiki, Dodge and Traits):
+// - -3 in ARO (the attacker inside its ZoC: outside both, it couldn't ARO),
+//   or against a Template Weapon in either turn. One -3 however many apply.
+// - Silent (X): the attacker's weapon adds X when it is inside the Dodger's
+//   ZoC, on top of the -3 (an active Dodger takes it alone).
+// Sixth Sense (or a Fireteam of 5) has a 360° LoF: never out of it, so no
+// chip. A Deployable's -3 (Mines) isn't modelled.
+export const NO_LOF_DODGE_MOD = -3;
+// Can No LoF change x's Dodge of `incoming` (the other side's weapon)? The
+// chip shows only then.
+/**
+ * @param {ResolvedSide | null | undefined} x
+ * @param {import('../types.js').Choice | null | undefined} incoming
+ * @param {boolean} reactive x Dodges in ARO
+ */
+export function noLofHelps(x, incoming, reactive) {
+  if (x?.weapon?.kind !== 'dodge' || hasSixthSense(x) || !incoming?.row || !evades(x, incoming)) return false;
+  return reactive || isTemplateWeapon(incoming.row) || silentMod(incoming.row) !== 0;
+}
+// The two MODs on x's Dodge with the chip on: the -3 (`lof`) and the
+// weapon's Silent (X) (`silent`), 0 where they don't apply.
+/**
+ * @param {ResolvedSide | null | undefined} x
+ * @param {import('../types.js').Choice | null | undefined} incoming
+ * @param {boolean} reactive x Dodges in ARO
+ * @param {boolean} inZoc the attacker is inside x's ZoC
+ */
+export function noLofDodgeMods(x, incoming, reactive, inZoc) {
+  if (!x?.noLof || !noLofHelps(x, incoming, reactive)) return {lof: 0, silent: 0};
+  const row = incoming?.row;
+  return {
+    lof: reactive || isTemplateWeapon(row) ? NO_LOF_DODGE_MOD : 0,
+    silent: inZoc ? silentMod(row) : 0,
+  };
+}
+
 // Bangbomb (+X): the X, 0 without the equipment.
 /** @param {MaybeTraits} traits */
 export function bangbombValue(traits) {
@@ -287,7 +324,7 @@ export function bangbombValue(traits) {
 // can't tell (a shot in the back), so the player chooses. Never against
 // Template Weapons, Direct or Impact.
 /** @param {MaybeRow} row */
-export const cancelsBangbomb = (row) => isTemplate(row) || isImpactTemplate(row);
+export const cancelsBangbomb = isTemplateWeapon;
 
 /**
  * @param {ResolvedSide | null | undefined} x

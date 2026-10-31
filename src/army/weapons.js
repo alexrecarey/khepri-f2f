@@ -46,6 +46,21 @@ export const rolls = (w) => w?.kind === 'bs' || w?.kind === 'cc' || w?.kind === 
 // the pipeline stops if another shape appears (scripts/army-validate.mjs).
 /** @param {MaybeRow} row */
 export const isImpactTemplate = (row) => (row?.props ?? []).some((p) => p.startsWith('Impact Template'));
+// A Template Weapon, Direct or Impact.
+/** @param {MaybeRow} row */
+export const isTemplateWeapon = (row) => isTemplate(row) || isImpactTemplate(row);
+
+// Silent (X) (wiki, Traits): X on the target's Face to Face Dodge against
+// the weapon's attack from inside its ZoC and outside its LoF; 0 without it.
+const SILENT = /^Silent \((-\d+)\)$/;
+/** @param {MaybeRow} row */
+export function silentMod(row) {
+  for (const p of row?.props ?? []) {
+    const m = SILENT.exec(p);
+    if (m) return Number(m[1]);
+  }
+  return 0;
+}
 
 // Close combat weapons: the CC Trait, or a Chest Mine's CC Mode ("CC Attack
 // (+3)"). They need a Saving Roll to cause anything: ARM / BTS, or PH for
