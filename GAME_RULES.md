@@ -121,6 +121,7 @@ Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Wa
 - Each Team-Ops trooper picks one option from its unit's Team-Ops Chart (Team-Ops chip) and, after Request TacBall, may hold one TacBall item (TacBall chip). Both charts come from the Army data (`unit.upgrades`).
 - A stat item changes the profile (shown in How the dice were built, e.g. "BS (Team-Ops: BS+1)"); a skill or piece of equipment joins the trooper's traits; a weapon joins its weapon list. MOV changes do nothing here.
 - Dropping a pick that gave the weapon in use goes back to the default weapon.
+- Fireteam: Team-Ops troopers are in no army's chart but may form a Haris together, so the Fireteam chip offers 2 or 3.
 - Spec-Ops charts and the SpecBall are not applied (Spec-Ops are not allowed in ITS 18).
 
 ## Wounds and states

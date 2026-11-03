@@ -174,15 +174,18 @@ export const FIRETEAM_MIN = 2;
 export const FIRETEAM_MAX = 5;
 // The largest fireteam a trooper can be in: army.json's unit.fireteam, the
 // most generous team it reaches in any army's chart (src/army/fireteams.js).
-// FTO loadouts may go further than the unit's other loadouts. 1 = none.
+// FTO loadouts may go further than the unit's other loadouts. A Team-Ops
+// trooper is in no chart but may form a Haris with its unit's other
+// troopers (ITS Season 18), so up to TEAM_OPS_FIRETEAM. 1 = none.
+export const TEAM_OPS_FIRETEAM = 3;
 /**
  * @param {import('../types.js').UnitRow | null | undefined} unit
  * @param {import('../types.js').OptionRow | null | undefined} option
+ * @param {boolean} [teamOps] the trooper has Infinity Team-Ops
  */
-export function fireteamMax(unit, option) {
+export function fireteamMax(unit, option, teamOps = false) {
   const ft = unit?.fireteam;
-  if (!ft) return 1;
-  const n = option?.fto ? ft.fto : ft.all;
+  const n = Math.max(ft ? (option?.fto ? ft.fto : ft.all) : 0, teamOps ? TEAM_OPS_FIRETEAM : 0);
   return n >= FIRETEAM_MIN ? n : 1;
 }
 
