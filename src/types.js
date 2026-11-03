@@ -628,8 +628,13 @@
  * @property {number[]} skills positions in index.skills
  */
 /**
- * One unit in the search index.
- * @typedef {{id: number, name: string, short: string, type: string | null, factions: number[], words: [string, number][]}} IndexUnit
+ * One profile group of a unit with several (search/buildIndex.js): its name,
+ * Troop Type and the words that tell it from the unit's other groups.
+ * @typedef {{id: number, name: string, type: string | null, words: string[]}} IndexGroup
+ */
+/**
+ * One unit in the search index. groups: only for a unit with several profile groups.
+ * @typedef {{id: number, name: string, short: string, type: string | null, factions: number[], words: [string, number][], groups?: IndexGroup[]}} IndexUnit
  */
 /**
  * The search index, built from army.json (search/buildIndex.js) at build time
@@ -668,8 +673,11 @@
  * @property {string[]} matched the index words each typed word matched
  */
 /**
- * A unit as the picker lists it (search/search.js unitHit).
- * @typedef {{unitId: number, name: string, short: string, type: string | null, factionIds: number[], profileCount: number, tier?: number, best?: ProfileHit}} UnitHit
+ * A unit as the picker lists it (search/search.js unitHit). group: the
+ * profile group the query named ("kaizoku heavy": JSA Team-Ops' HI), which
+ * its best match is in.
+ * @typedef {{unitId: number, name: string, short: string, type: string | null, factionIds: number[], profileCount: number, tier?: number, best?: ProfileHit,
+ *   group?: {id: number, name: string, type: string | null}}} UnitHit
  */
 /**
  * What a query finds (search/search.js search).

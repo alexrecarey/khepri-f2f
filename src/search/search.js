@@ -12,13 +12,13 @@ const TIER_COST = [0, 1, 3, 4, 6];
 /** @typedef {import('../types.js').ProfileHit} ProfileHit */
 /** One typed word's best match on a row.
  * @typedef {{tier: number, field: number, weapon: number, word: string, cost: number}} WordHit */
-/** A row matching the whole query, scored (lower ranks higher).
- * @typedef {{row: IndexRow, score?: number, tier: number, weapon: number, matched: string[]}} RowMatch */
+/** A row matching the whole query, scored (lower ranks higher). group: a typed word named its profile group.
+ * @typedef {{row: IndexRow, score?: number, tier: number, weapon: number, matched: string[], group?: boolean}} RowMatch */
 /** A word's postings: [rowId, field, weaponIndex] each.
  * @typedef {{postings: [number, number, number][], sound: string, best?: Map<number, [number, number, number]>}} Vocab */
 
 /** @type {Record<number, number>} */
-const FIELD_COST = {[FIELD.SHORT]: 0, [FIELD.NAME]: 1, [FIELD.LOADOUT]: 1, [FIELD.WEAPON]: 2, [FIELD.ALIAS]: 2, [FIELD.SKILL]: 3};
+const FIELD_COST = {[FIELD.SHORT]: 0, [FIELD.NAME]: 1, [FIELD.GROUP]: 1, [FIELD.LOADOUT]: 1, [FIELD.WEAPON]: 2, [FIELD.ALIAS]: 2, [FIELD.SKILL]: 3};
 const MAX_PROFILES = 30;
 
 /**
@@ -63,9 +63,14 @@ export function createSearch(index) {
     if (!rowsByUnit.has(row.unitId)) rowsByUnit.set(row.unitId, []);
     /** @type {IndexRow[]} */ (rowsByUnit.get(row.unitId)).push(row);
   }
+  // Profile groups by unit and group id (index units list only the groups with a name of their own).
+  /** @type {Map<string, import('../types.js').IndexGroup>} */
+  const groupOf = new Map();
   for (const unit of index.units) {
+    for (const g of unit.groups ?? []) groupOf.set(`${unit.id}:${g.id}`, g);
     for (const row of rowsByUnit.get(unit.id) ?? []) {
       for (const [w, field] of unit.words) post(w, row.id, field, -1);
+      for (const w of groupOf.get(`${unit.id}:${row.groupId}`)?.words ?? []) post(w, row.id, FIELD.GROUP, -1);
       for (const w of row.loadoutWords) post(w, row.id, FIELD.LOADOUT, -1);
       row.weapons.forEach((wid, i) => {
         for (const [w, field] of index.weapons[wid].words) post(w, row.id, field, i);
@@ -146,8 +151,9 @@ export function createSearch(index) {
       if (!ok) continue;
       const row = rows[rowId];
       let score = parts.reduce((s, p) => s + p.cost, 0);
-      // The whole query spells the unit's short name: rank it on top.
-      if (parts.every((p) => p.field === FIELD.SHORT) && parts.every((p) => p.tier <= TIER.PREFIX)) score -= 5;
+      // The whole query spells the unit's short name, or with its profile
+      // group's ("jsa team ops heavy", "kaizoku heavy"): rank it on top.
+      if (parts.every((p) => p.field === FIELD.SHORT || p.field === FIELD.GROUP) && parts.every((p) => p.tier <= TIER.PREFIX)) score -= 5;
       const weaponPart = parts.find((p) => p.weapon >= 0);
       out.push({
         row,
@@ -155,6 +161,7 @@ export function createSearch(index) {
         tier: Math.max(...parts.map((p) => p.tier)),
         weapon: weaponPart ? weaponPart.weapon : -1,
         matched: parts.map((p) => p.word),
+        group: parts.some((p) => p.field === FIELD.GROUP),
       });
     }
     out.sort((a, b) => a.score - b.score || a.row.points - b.row.points
@@ -268,7 +275,11 @@ export function createSearch(index) {
     for (const m of scoped) {
       if (seen.has(m.row.unitId)) continue;
       seen.add(m.row.unitId);
-      units.push({...unitHit(m.row.unitId, factionId), tier: m.tier, best: profileHit(m, factionId)});
+      // A query naming one of the unit's profile groups lists that trooper:
+      // Kaizoku Heavy Spec-Ops (HI), not JSA Team-Ops (its first group, MI).
+      const g = m.group ? groupOf.get(`${m.row.unitId}:${m.row.groupId}`) : null;
+      units.push({...unitHit(m.row.unitId, factionId), tier: m.tier, best: profileHit(m, factionId),
+        ...(g ? {group: {id: g.id, name: g.name, type: g.type}} : {})});
     }
 
     /** @type {import('../types.js').SearchResult['elsewhere']} */

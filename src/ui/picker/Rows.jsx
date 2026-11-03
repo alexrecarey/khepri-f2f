@@ -49,7 +49,8 @@ export function LoadoutRow({hit, onPick, color, army}) {
 export function UnitRow({u, onOpen}) {
   return (
     <button type="button" className="line-btn" onClick={() => onOpen(u)}>
-      <span>{u.short}</span><span className="r">{u.profileCount} ›</span>
+      {/* A query naming one of its profile groups ("kaizoku heavy"): that trooper, then the unit. */}
+      <span>{u.group ? <>{u.group.name}<span className="tag"> · {u.short}</span></> : u.short}</span><span className="r">{u.profileCount} ›</span>
     </button>
   );
 }

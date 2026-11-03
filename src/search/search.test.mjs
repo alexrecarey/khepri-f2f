@@ -212,3 +212,18 @@ test("a TAG's own loadout ranks above its Crabbot peripheral", () => {
     assert.ok(r.profiles.some((h) => h.loadout === 'CRABBOT'), `${query}: the Crabbot is still listed`);
   }
 });
+
+test('a query naming a Team-Ops profile lists that trooper: "jsa team ops heavy", "kaizoku heavy"', () => {
+  // JSA Team-Ops is three troopers (MI, HI, a remote); its unit row showed the first, MI.
+  for (const query of ['jsa team ops heavy', 'kaizoku heavy']) {
+    const u = searcher.search({query}).units[0];
+    assert.equal(u?.short, 'JSA Team-Ops', `${query}: top unit`);
+    assert.deepEqual(u.group && {name: u.group.name, type: u.group.type}, {name: 'Kaizoku Heavy Spec-Ops', type: 'HI'}, `${query}: the profile named`);
+    assert.equal(u.best?.groupId, u.group?.id, `${query}: Enter picks from that profile`);
+    assert.equal(u.best?.type, 'HI');
+  }
+  // Naming only the unit lists the unit, not one of its profiles.
+  assert.equal(searcher.search({query: 'jsa team ops'}).units[0]?.group, undefined);
+  // A unit of one profile group has none to name.
+  assert.equal(searcher.search({query: 'kaizoku'}).units.find((u) => u.short === 'Kaizoku Spec-Ops')?.group, undefined);
+});

@@ -56,6 +56,17 @@ test('weapon charts: bands per range column, main gun first', () => {
   assert.deepEqual(d.profiles[0].stats[0][1], [10, 10]); // cm; the pane shows 4-4 (inches) or 10-10 (cm)
 });
 
+test('unit detail of one profile group: a Team-Ops HI, not its first (MI) group', () => {
+  const jsa = army.units.find((u) => u.slug === 'jsa-team-ops');
+  assert.ok(jsa);
+  const [faction, entry] = Object.entries(jsa.byFaction)[0];
+  const heavy = entry.groups.find((g) => g.profiles[0].type === 'HI');
+  assert.ok(heavy);
+  assert.equal(unitDetail(army, jsa.id, Number(faction))?.profiles[0].type, 'MI');
+  assert.equal(unitDetail(army, jsa.id, Number(faction), heavy.id)?.profiles[0].type, 'HI');
+  assert.equal(unitDetail(army, jsa.id, null, heavy.id)?.profiles[0].name, heavy.profiles[0].name);
+});
+
 test('Swiss Guard: SWC loadouts first (longer reach first), main gun is the farthest-reaching weapon', async () => {
   const {createSearch: createSearcher} = await import('../search/search.js');
   const index = JSON.parse(readFileSync(new URL('../search/index.json', import.meta.url), 'utf8'));

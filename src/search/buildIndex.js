@@ -10,8 +10,9 @@ import {KIND_ALIASES, SEARCHABLE_SKILLS, UNIT_ALIASES, WEAPON_ALIASES} from './a
 import {indexWords, initials, words} from './text.js';
 
 // Where a word came from. Lower is a stronger match: a hit on the unit's
-// short name beats one on its weapon.
-export const FIELD = {SHORT: 0, NAME: 1, LOADOUT: 2, WEAPON: 3, ALIAS: 4, SKILL: 5};
+// short name beats one on its weapon. GROUP: the name of one of a unit's
+// profile groups ("Kaizoku Heavy Spec-Ops" in JSA Team-Ops).
+export const FIELD = {SHORT: 0, NAME: 1, GROUP: 2, LOADOUT: 3, WEAPON: 4, ALIAS: 5, SKILL: 6};
 
 /** @typedef {import('../types.js').IndexRow} IndexRow */
 /** @typedef {import('../types.js').TraitRef} TraitRef */
@@ -89,10 +90,32 @@ export function buildIndex(army) {
       }
     }
     const factionIds = [...new Set(Object.keys(unit.byFaction).map(vanillaOf))];
+    const groups = groupWords(unit, unitWords);
     units.push({id: unit.id, name: unit.isc, short, type, factions: factionIds,
-      words: [...unitWords]});
+      words: [...unitWords], ...(groups.length ? {groups} : {})});
   }
   return {version: 1, factions: vanillas, units, weapons, skills, rows};
+}
+
+// A unit of several profile groups (Team-Ops: MI, HI and a remote) is
+// several troopers, each with its own name: the words of each group's name
+// that tell it apart (not the unit's, not every group's). The picker shows
+// the group a query named ("kaizoku heavy") instead of the whole unit.
+/**
+ * @param {import('../types.js').UnitRow} unit
+ * @param {Map<string, number>} unitWords
+ * @returns {import('../types.js').IndexGroup[]}
+ */
+function groupWords(unit, unitWords) {
+  /** @type {Map<number, import('../types.js').GroupRow>} */
+  const byId = new Map();
+  for (const entry of Object.values(unit.byFaction)) for (const g of entry.groups) if (!byId.has(g.id)) byId.set(g.id, g);
+  if (byId.size < 2) return [];
+  const named = [...byId.values()].map((g) => ({g, words: indexWords(g.isc).filter((w) => !unitWords.has(w))}));
+  const everyGroup = new Set(named[0].words.filter((w) => named.every((x) => x.words.includes(w))));
+  return named.map(({g, words}) => ({id: g.id, name: /** @type {string} */ (g.isc), type: g.profiles[0]?.type ?? null,
+    words: words.filter((w) => !everyGroup.has(w))}))
+    .filter((g) => g.words.length);
 }
 
 // Lieutenant changes nothing on the table, so a Lieutenant loadout with the
