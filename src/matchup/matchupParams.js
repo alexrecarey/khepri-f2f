@@ -48,6 +48,7 @@ export function encodeMatchup({selA, selB, ftSize, rangeCm, rangeCmB, zones}) {
     if (sel.immA) out[`imma${side}`] = '1';
     if (sel.surpriseAttack) out[`surprise${side}`] = '1';
     if (sel.berserk) out[`berserk${side}`] = '1';
+    if (sel.supportware) out[`sw${side}`] = sel.supportware;
     // No ftSize compares as false.
     if (/** @type {number} */ (ftSize?.[side]) > 1) out[`ft${side}`] = String(/** @type {{A: number, B: number}} */ (ftSize)[side]);
     if (sel.ccAllies > 0) out[`allies${side}`] = String(sel.ccAllies);
@@ -92,6 +93,7 @@ export function decodeMatchup(params) {
     raw.immA = get(`imma${s}`) === '1';
     raw.surpriseAttack = get(`surprise${s}`) === '1';
     raw.berserk = get(`berserk${s}`) === '1';
+    raw.supportware = get(`sw${s}`);
     raw.ftSize = Number(get(`ft${s}`));
     // More allies than fit around a base are the most that fit.
     raw.ccAllies = Math.min(Number(get(`allies${s}`)), CC_ALLIES_MAX);
