@@ -286,6 +286,7 @@ export default {
   'chip.sapper': 'Zapador',
   'chip.fireteam': 'Fireteam',
   'chip.allies': 'Aliados',
+  'chip.supportware': 'Supportware',
   'chip.none': 'Sin {label}',
   'chip.surpriseAttackMod': 'Ataque Sorpresa ({mod})',
   'matchup.clearBoth': 'Quitar ambas tropas',

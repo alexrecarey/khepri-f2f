@@ -286,6 +286,7 @@ export default {
   'chip.sapper': 'Sapper',
   'chip.fireteam': 'Fireteam',
   'chip.allies': 'Allies',
+  'chip.supportware': 'Supportware',
   'chip.none': 'No {label}',
   'chip.surpriseAttackMod': 'Surprise attack ({mod})',
   'matchup.clearBoth': 'Clear both troopers',

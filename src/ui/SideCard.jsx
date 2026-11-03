@@ -129,11 +129,11 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
             <ToggleChip on={sel.berserk} label={t('skill.berserk')} color={color} onToggle={() => patch(side, {berserk: !sel.berserk})}
               onLabel={berserk.mod ? t('skill.berserkMod', {mod: `+${berserk.mod}`}) : t('skill.berserk')} />
           )}
-          {/* Supportware on a REM: one at a time, so turning one on replaces the other. */}
-          {supportware.map((id) => (
-            <ToggleChip key={id} on={sel.supportware === id} label={t(`supportware.${id}`)} color={color}
-              onToggle={() => patch(side, {supportware: sel.supportware === id ? null : id})} />
-          ))}
+          {/* Supportware on a REM: one chip, tapped it lists the programs
+              that change the pick and × for none (one at a time). */}
+          <PickChip side={side} chip="supportware" label={t('chip.supportware')} options={supportware.map((id) => t(`supportware.${id}`))}
+            value={sel.supportware && supportware.includes(sel.supportware) ? supportware.indexOf(sel.supportware) : null} color={color}
+            onPick={(i) => patch(side, {supportware: i == null ? null : supportware[i]})} />
           {surprise !== 0 && (
             <ToggleChip on={sel.surpriseAttack} label={t('roll.surpriseAttack')} onLabel={t('chip.surpriseAttackMod', {mod: surprise})} color={color}
               onToggle={() => patch(side, {surpriseAttack: !sel.surpriseAttack})} />

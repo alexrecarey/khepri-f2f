@@ -735,7 +735,7 @@
  * @property {null | 'menu' | 'results' | 'picker' | 'saved' | 'settings' | 'about'} overlay
  * @property {PickerState | null} picker while overlay is 'picker'
  * @property {boolean} rangeOpen
- * @property {{side: 'A' | 'B', chip: 'ftSize' | 'ccAllies' | 'upgrade' | 'ball'} | null} edit while a chip shows its inline editor
+ * @property {{side: 'A' | 'B', chip: 'ftSize' | 'ccAllies' | 'upgrade' | 'ball' | 'supportware'} | null} edit while a chip shows its inline editor
  * @property {'matchup' | 'basic' | null} savedTab which list Saved rolls shows
  * @property {string | null} swiped id of the saved roll swiped open to show its Delete button
  * @property {{text: string} | null} toast for a moment after Save, Share or Delete
