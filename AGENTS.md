@@ -22,6 +22,12 @@ that review found. Layout and commands: README.md and CLAUDE.md.
 - Each game rule is one function or constant in `src/rules/`. The engine input
   (`deriveInputs`) and the "How the dice were built" ledger both call it; the
   ledger never re-implements a rule. A new rule = a helper + both call sites.
+- A chip (or any option offered only when it matters) has one `...Helps`
+  in `src/rules/` that says when it can change the pick; the view shows the
+  chip from it and the MOD is built on it. Never restate the condition beside
+  it (`immAChip: kind === 'dodge'`): the chip and the roll would drift apart.
+- Bracketed values (`Silent (-6)`, `Dodge (+3)`, `BS Attack (-3)`) are read
+  with `extraNumbers` (`src/army/traits.js`), never with a hand-written loop.
 - Numbers from the rules or the engine are named constants (`MOD_CAP`,
   `LIMITS`, `COVER_BS_MOD`...), never typed again elsewhere.
 - Never classify things by their display label (`label.startsWith(...)`).
