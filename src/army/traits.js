@@ -77,3 +77,12 @@ export const traitLabel = (trait, t) =>
 // index leave it out when telling loadouts apart.
 /** @param {import('../types.js').TraitRef | null | undefined} skill */
 export const isLieutenant = (skill) => skill?.id === SKILL.LIEUTENANT;
+
+// A Team-Ops unit (every profile group has Infinity Team-Ops: an MI, an HI
+// and a remote or creature) is three troopers: the picker lists each on its
+// own. A Spec-Ops' SpecBots are its peripherals and stay with it.
+/** @param {import('../types.js').UnitRow} unit */
+export function isTeamOpsUnit(unit) {
+  const groups = Object.values(unit.byFaction)[0]?.groups ?? [];
+  return groups.length > 1 && groups.every((g) => g.profiles.some((p) => hasSkill(p, SKILL.TEAM_OPS)));
+}

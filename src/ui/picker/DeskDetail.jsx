@@ -26,7 +26,7 @@ function Stats({stats}) {
   );
 }
 
-// A unit with several profile groups (Team-Ops, a TAG and its peripheral): a
+// A unit with several profile groups (a TAG and its peripheral, a Spec-Ops and its SpecBots): a
 // section per group with its own name, type, stats and skills, then its
 // loadouts. The section names the profile, so a loadout's tag is its skills
 // (canvas, "Picker — a unit with several profiles", desktop).
@@ -60,11 +60,12 @@ function ProfileSections({m, lit}) {
 function UnitPane({m}) {
   const t = useT();
   // Drawn for a highlighted unit (DeskDetail checks both).
-  const {army, detail, profile, factionName, factionId, loadouts, pgroups, pane, lat, best, bestAt, color, pick, withProfile, hitFor, otherSet, otherName} =
+  const {army, detail, name, profile, factionName, factionId, loadouts, pgroups, pane, lat, best, bestAt, color, pick, withProfile, hitFor, otherSet, otherName} =
     /** @type {DeskPickerModel & {detail: NonNullable<DeskPickerModel['detail']>, profile: NonNullable<DeskPickerModel['profile']>}} */ (m);
   // The loadout Enter picks is the lit one: the keyboard's in the loadouts
   // pane, else the one the search matched ("fus ml") on a unit row.
   const lit = pane === 'loadouts' ? lat : best ? bestAt : -1;
+  const unitName = shortIsc(detail.unit.isc);
   useEffect(() => {
     if (lit >= 0) document.getElementById(`dp-lo-${lit}`)?.scrollIntoView({block: 'nearest'});
   }, [lit, detail]);
@@ -74,10 +75,11 @@ function UnitPane({m}) {
       <CardCrest slug={profile.crest} />
       <div className="dp-unit">
         <div>
-          <span className="dp-name">{shortIsc(detail.unit.isc)}</span>
+          <span className="dp-name">{name ?? unitName}</span>
+          {/* A Team-Ops trooper listed on its own names its unit after its type. */}
           <div className="note">{factionName(factionId)} · {pgroups
             ? `${t('picker.profiles', {count: pgroups.length})} · ${t('picker.loadoutCount', {count: loadouts.length})}`
-            : typeName(t, profile.type)}</div>
+            : typeName(t, profile.type)}{name && name !== unitName ? ` · ${unitName}` : ''}</div>
         </div>
         {!pgroups && detail.profiles.length > 1 && (
           <span className="dp-tabs" role="group" aria-label={t('picker.profile')}>

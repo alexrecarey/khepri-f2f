@@ -60,15 +60,21 @@ export default function useDeskPicker({searcher, army}) {
   // The unit in the right pane and its loadouts in scope.
   const unitId = current?.kind === 'unit' ? current.u.unitId : current?.kind === 'recent' ? current.hit.unitId : null;
   const factionId = current?.kind === 'unit' ? current.factionId : current?.kind === 'recent' ? current.hit.factionId : null;
-  const unitRows = useMemo(() => (searcher && unitId != null ? searcher.unitRows(unitId, factionId) : []), [searcher, unitId, factionId]);
-  // A unit with several profile groups (Team-Ops, a TAG and its peripheral):
+  // A Team-Ops trooper is listed on its own (search.js): its group's loadouts only.
+  // A recent's group picks its profile's stats and crest for any unit.
+  const groupId = current?.kind === 'unit' ? current.u.groupId ?? null : current?.kind === 'recent' ? current.hit.groupId : null;
+  const unitRows = useMemo(() => (searcher && unitId != null ? searcher.unitRows(unitId, factionId, groupId) : []), [searcher, unitId, factionId, groupId]);
+  // A unit with several profile groups (a TAG and its peripheral, a Spec-Ops and its SpecBots):
   // the pane shows a section per group, and the arrow keys walk the loadouts
   // in that order.
   const pgroups = useMemo(() => (army ? profileGroups(army, unitRows) : null), [army, unitRows]);
   const loadouts = useMemo(() => (pgroups ? pgroups.flatMap((g) => g.items.map((x) => x.hit)) : orderLoadouts(army, unitRows)),
     [army, unitRows, pgroups]);
   // A unit with rows has a loadout to take the faction from.
-  const detail = useMemo(() => (unitId != null ? unitDetail(army, unitId, /** @type {number} */ (loadouts[0]?.armyFactionId)) : null), [army, unitId, loadouts]);
+  const detail = useMemo(() => (unitId != null ? unitDetail(army, unitId, /** @type {number} */ (loadouts[0]?.armyFactionId), groupId) : null),
+    [army, unitId, loadouts, groupId]);
+  // The pane's title: the row's name (a Team-Ops trooper's own, "Kaizoku Heavy Spec-Ops").
+  const name = current?.kind === 'unit' ? current.u.short : current?.kind === 'recent' ? current.hit.unit : null;
   const profile = detail?.profiles.find((p) => p.id === picker.profileId) ?? detail?.profiles[0] ?? null;
   const lat = Math.min(lcursor, Math.max(0, loadouts.length - 1));
   // On a unit row while typing: the loadout the query matched ("fus ml").
@@ -114,7 +120,7 @@ export default function useDeskPicker({searcher, army}) {
 
   return {
     searcher, army, sides, side, color, query, scope, pane, typing, browsing, factionName, matched,
-    all, browse, items, rows, at, current, unitId, factionId, loadouts, pgroups, detail, profile, lat, best, bestAt,
+    all, browse, items, rows, at, current, unitId, name, factionId, loadouts, pgroups, detail, profile, lat, best, bestAt,
     withProfile, hitFor, pick, otherSide, otherSet, otherName, chips,
   };
 }

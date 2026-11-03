@@ -5,7 +5,7 @@
 import {SKILL} from '../army/ids.js';
 import {rootFaction} from '../army/factions.js';
 import {shortIsc} from '../army/names.js';
-import {isLieutenant} from '../army/traits.js';
+import {isLieutenant, isTeamOpsUnit} from '../army/traits.js';
 import {KIND_ALIASES, SEARCHABLE_SKILLS, UNIT_ALIASES, WEAPON_ALIASES} from './aliases.js';
 import {indexWords, initials, words} from './text.js';
 
@@ -59,17 +59,39 @@ export function buildIndex(army) {
     // In another language, the English ISC too: players know units by it.
     if (unit.code) add(indexWords(unit.code), FIELD.NAME);
 
+    // A Team-Ops unit is one entry per profile group (army/traits.js), each
+    // named and found by its group's name ("Kaizoku Heavy Spec-Ops"), then by
+    // the unit's; every other unit is one entry.
+    /** @type {Map<number | null, {group: import('../types.js').GroupRow | null, short: string, words: Map<string, number>, type: string | null, factions: Set<number>}>} */
+    const entries = new Map();
+    const split = isTeamOpsUnit(unit);
+    /** @param {import('../types.js').GroupRow} group */
+    const entryOf = (group) => {
+      const id = split ? group.id : null;
+      let e = entries.get(id);
+      if (!e) {
+        /** @type {Map<string, number>} */
+        let words = unitWords;
+        const name = split ? shortIsc(group.isc ?? unit.isc) : short;
+        if (split) {
+          words = new Map(indexWords(name).map((w) => [w, FIELD.SHORT]));
+          for (const [w, field] of unitWords) if (!words.has(w)) words.set(w, Math.max(field, FIELD.NAME));
+        }
+        entries.set(id, e = {group: split ? group : null, short: name, words, type: group.profiles[0]?.type ?? null, factions: new Set()});
+      }
+      return e;
+    };
+
     // The same loadout reached through several sectorials of one vanilla is
     // one row; `factions` remembers which real faction to load it from.
     /** @type {Map<string, IndexRow>} */
     const byKey = new Map();
-    /** @type {string | null} */
-    let type = null;
     for (const [factionId, entry] of Object.entries(unit.byFaction)) {
       const vanilla = vanillaOf(factionId);
       for (const group of entry.groups) {
         const profile = group.profiles[0];
-        type ??= profile?.type ?? null;
+        const e = entryOf(group);
+        e.factions.add(vanilla);
         const ltTwins = lieutenantTwins(group.options);
         for (const option of group.options) {
           if (ltTwins.has(option.id)) continue;
@@ -77,7 +99,7 @@ export function buildIndex(army) {
             option.weapons.map((w) => w.id).join('.')].join('|');
           let row = byKey.get(key);
           if (!row) {
-            row = makeRow(rows.length, army, unit, short, group, profile, option, unitWords, weapons, ({id, name}) => {
+            row = makeRow(rows.length, army, unit, e.short, group, profile, option, e.words, weapons, ({id, name}) => {
               if (!skillIds.has(id)) skillIds.set(id, skills.push({id, name, words: indexWords(name)}) - 1);
               return /** @type {number} */ (skillIds.get(id));
             });
@@ -88,9 +110,14 @@ export function buildIndex(army) {
         }
       }
     }
+    if (!entries.size) entries.set(null, {group: null, short, words: unitWords, type: null, factions: new Set()});
     const factionIds = [...new Set(Object.keys(unit.byFaction).map(vanillaOf))];
-    units.push({id: unit.id, name: unit.isc, short, type, factions: factionIds,
-      words: [...unitWords]});
+    for (const e of entries.values()) {
+      units.push(e.group
+        ? {id: unit.id, groupId: e.group.id, parent: short, name: e.group.isc ?? unit.isc, short: e.short, type: e.type,
+          factions: [...e.factions], words: [...e.words]}
+        : {id: unit.id, name: unit.isc, short, type: e.type, factions: factionIds, words: [...e.words]});
+    }
   }
   return {version: 1, factions: vanillas, units, weapons, skills, rows};
 }

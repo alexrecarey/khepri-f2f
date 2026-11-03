@@ -105,12 +105,16 @@ test('browse: type tiles and units A-Z for a faction', () => {
 });
 
 // The scoreboard floors. Raise them when the matcher improves; a drop means a
-// change made search worse for some names.
+// change made search worse for some names. Top 1 was 95%: listing each
+// Team-Ops trooper on its own added names whose first word names three
+// troopers ("kaizoku": Kaizoku Spec-Ops, Kaizoku-1, Kaizoku Heavy), so only
+// one of them can come first; the other units' top 1 held (95.5%).
+const TOP1_FLOOR = 0.945;
 test('scoreboard: generated typos and hard cases', () => {
   const typo = score(searcher, buildCorpus(index.units));
   assert.equal(typo.all.found, typo.all.n, 'every generated query finds its unit');
   assert.ok(typo.all.top5 / typo.all.n >= 0.99, `top5 ${typo.all.top5}/${typo.all.n}`);
-  assert.ok(typo.all.top1 / typo.all.n >= 0.95, `top1 ${typo.all.top1}/${typo.all.n}`);
+  assert.ok(typo.all.top1 / typo.all.n >= TOP1_FLOOR, `top1 ${typo.all.top1}/${typo.all.n}`);
   const h = score(searcher, hard.map((c) => ({...c, kind: 'hard'})));
   assert.deepEqual(h.misses, [], 'hand-written hard cases all in the top 5');
 });
@@ -124,7 +128,7 @@ test('scoreboard in Spanish: generated typos and hard cases', () => {
   const typo = score(esSearcher, buildCorpus(esIndex.units));
   assert.equal(typo.all.found, typo.all.n, 'every generated query finds its unit');
   assert.ok(typo.all.top5 / typo.all.n >= 0.99, `top5 ${typo.all.top5}/${typo.all.n}`);
-  assert.ok(typo.all.top1 / typo.all.n >= 0.95, `top1 ${typo.all.top1}/${typo.all.n}`);
+  assert.ok(typo.all.top1 / typo.all.n >= TOP1_FLOOR, `top1 ${typo.all.top1}/${typo.all.n}`);
   const h = score(esSearcher, read('./eval/hard-cases.es.json').map((c) => ({...c, kind: 'hard'})));
   assert.deepEqual(h.misses, [], 'hand-written hard cases all in the top 5');
 });
@@ -211,4 +215,33 @@ test("a TAG's own loadout ranks above its Crabbot peripheral", () => {
     assert.equal(r.units[0]?.best?.loadout, want, `${query}: the unit row's pick`);
     assert.ok(r.profiles.some((h) => h.loadout === 'CRABBOT'), `${query}: the Crabbot is still listed`);
   }
+});
+
+test('a Team-Ops unit is three troopers, each listed on its own', () => {
+  // JSA Team-Ops (MI, HI, a remote) was one unit row, typed by its first group (MI).
+  const heavy = (query) => searcher.search({query}).units.find((u) => u.short === 'Kaizoku Heavy Spec-Ops');
+  for (const query of ['kaizoku heavy', 'jsa team ops heavy']) {
+    const u = searcher.search({query}).units[0];
+    assert.equal(u?.short, 'Kaizoku Heavy Spec-Ops', `${query}: top unit`);
+    assert.equal(u.type, 'HI');
+    assert.equal(u.parent, 'JSA Team-Ops');
+    assert.equal(u.profileCount, 4);
+    assert.equal(u.best?.groupId, u.groupId, `${query}: Enter picks the HI`);
+  }
+  assert.ok(heavy('kaizoku'), '"kaizoku" lists the HI too');
+  // The unit's name lists all three, in the army's order: not the 7-point SpecBot first.
+  assert.deepEqual(searcher.search({query: 'jsa team ops'}).units.map((u) => [u.short, u.type]),
+    [['Kaizoku-1 Spec-Ops', 'MI'], ['Kaizoku Heavy Spec-Ops', 'HI'], ['Kobaruto SpecBots', 'REM']]);
+  // Its page holds only its own loadouts.
+  const u = /** @type {import('../types.js').UnitHit} */ (heavy('kaizoku heavy'));
+  const rows = searcher.unitRows(u.unitId, null, u.groupId);
+  assert.equal(rows.length, 4);
+  assert.ok(rows.every((r) => r.groupId === u.groupId && r.unit === 'Kaizoku Heavy Spec-Ops'));
+  // Browsing by type finds it under HI.
+  assert.ok(searcher.unitsOfType('HI').some((x) => x.short === 'Kaizoku Heavy Spec-Ops'));
+  // A Spec-Ops' SpecBots are its peripherals: still one unit.
+  const specOps = searcher.search({query: 'kaizoku spec ops'}).units.find((x) => x.short === 'Kaizoku Spec-Ops');
+  assert.ok(specOps);
+  assert.equal(specOps.groupId, undefined);
+  assert.equal(specOps.profileCount, 8);
 });

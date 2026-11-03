@@ -27,7 +27,7 @@
 .stat-line { display: flex; flex-wrap: wrap; gap: 4px 14px; font-family: var(--font-mono); font-size: 13px; color: var(--text); padding: 12px 12px 4px; }
 .stat-line b { font-weight: 400; color: var(--muted); }
 .line-btn.loadout { gap: 12px; font-size: 14px; }
-.line-btn.loadout .tag { color: var(--text-3); }
+.line-btn .tag { color: var(--text-3); }
 .line-btn.loadout .r { font-family: var(--font-mono); }
 .unit-page .page-head { position: relative; isolation: isolate; }
 .unit-page .page-head .card-crest img { top: -38px; right: -30px; width: 150px; height: 150px; opacity: .35; }

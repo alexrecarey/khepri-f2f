@@ -49,7 +49,8 @@ export function LoadoutRow({hit, onPick, color, army}) {
 export function UnitRow({u, onOpen}) {
   return (
     <button type="button" className="line-btn" onClick={() => onOpen(u)}>
-      <span>{u.short}</span><span className="r">{u.profileCount} ›</span>
+      {/* A Team-Ops trooper listed on its own: its unit after it. */}
+      <span>{u.short}{u.parent && <span className="tag"> · {u.parent}</span>}</span><span className="r">{u.profileCount} ›</span>
     </button>
   );
 }
