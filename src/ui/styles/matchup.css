@@ -46,6 +46,11 @@
 .btn-group.on.reactive .g-name, .btn-group.reactive .g-mode.on { background: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
 .btn-group.on.active .g-mode { border-left-color: var(--active); }
 .btn-group.on.reactive .g-mode { border-left-color: var(--reactive); }
+/* The picked Dodge's toggles (No LoF, IMM-A): on is the side's colour at
+   half strength, dimmer than the Dodge it belongs to. */
+.btn-group .g-toggle.on { font-weight: 600; color: var(--text); }
+.btn-group.active .g-toggle.on { background: var(--active-half); }
+.btn-group.reactive .g-toggle.on { background: var(--reactive-half); }
 
 .chip { all: unset; box-sizing: border-box; cursor: pointer; padding: 7px 12px; border-radius: 999px; border: 1px dashed var(--line-strong); color: var(--text-3); font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
 .chip.on { border-style: solid; color: var(--text); }
