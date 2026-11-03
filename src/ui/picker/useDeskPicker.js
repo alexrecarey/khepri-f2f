@@ -31,6 +31,9 @@ export default function useDeskPicker({searcher, army}) {
   const pane = picker.pane ?? 'list';
   const lcursor = picker.lcursor ?? 0;
   const color = ROLE[side];
+  // The lit row and the lit loadout: in the side's colour in the pane with
+  // the arrow keys, grey ('') in the other (← back to the list moves it).
+  const tint = {list: pane === 'list' ? color : '', loadouts: pane === 'loadouts' ? color : ''};
   const top = stack.at(-1) ?? null;
   const typing = query.trim().length > 0;
 
@@ -113,7 +116,7 @@ export default function useDeskPicker({searcher, army}) {
   }, [searcher, all, scope]);
 
   return {
-    searcher, army, sides, side, color, query, scope, pane, typing, browsing, factionName, matched,
+    searcher, army, sides, side, color, tint, query, scope, pane, typing, browsing, factionName, matched,
     all, browse, items, rows, at, current, unitId, factionId, loadouts, pgroups, detail, profile, lat, best, bestAt,
     withProfile, hitFor, pick, otherSide, otherSet, otherName, chips,
   };

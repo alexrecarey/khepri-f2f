@@ -34,14 +34,13 @@ export default function DeskPicker({searcher, army, loadError}) {
   useEffect(() => { inputRef.current?.focus(); }, [side]);
   useDialogFocus(dialogRef);
   const onKey = deskKeyHandler(m);
-  // The keys live on the search box, so a click anywhere else in the picker
-  // keeps the focus there: rows and loadouts aren't focusable, and a click on
-  // one would drop it to the body and ↑↓ ↵ would do nothing.
+  // The keys live on the search box. A mousedown on a row, a loadout or a
+  // button would take the focus from it (rows and loadouts to the body) and
+  // ↑↓ ↵ would do nothing: keep it there; the click still happens. Text
+  // elsewhere stays selectable.
   /** @param {import('react').MouseEvent} e */
   const keepFocus = (e) => {
-    if (e.target === inputRef.current) return;
-    e.preventDefault();
-    inputRef.current?.focus({preventScroll: true});
+    if (/** @type {Element} */ (e.target).closest('[role="option"], button')) e.preventDefault();
   };
 
   return (
