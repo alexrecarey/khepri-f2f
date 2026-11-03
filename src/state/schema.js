@@ -52,6 +52,8 @@ export const EMPTY_SIDE = {
   hackedReset: 0,
   immA: false,
   noLof: false,
+  // Bangbomb on its Dodge (troopers with it): +X, needs the attacker in LoF or ZoC.
+  bangbomb: false,
   // Use Surprise Attack (active side, units with the skill).
   surpriseAttack: false,
   // Declare Berserk (active side, units with the skill): a CC Attack.
@@ -82,7 +84,7 @@ const WEAPON_KEY_MAX = 64;
 const field = (key, schema) => v.fallback(schema, /** @type {v.InferOutput<S>} */ (EMPTY_SIDE[key]));
 
 // A Selection (types.js) as it comes from a share link or a saved roll.
-export const SelectionSchema = v.object({
+const SelectionFields = v.object({
   unitId: field('unitId', id),
   factionId: field('factionId', id),
   groupId: field('groupId', id),
@@ -100,6 +102,7 @@ export const SelectionSchema = v.object({
   hackedReset: field('hackedReset', v.picklist([...HACKED_RESET_MODS, 0])),
   immA: field('immA', v.boolean()),
   noLof: field('noLof', v.boolean()),
+  bangbomb: field('bangbomb', v.boolean()),
   surpriseAttack: field('surpriseAttack', v.boolean()),
   berserk: field('berserk', v.boolean()),
   // Assisted Fire or Enhanced Reaction, null for none
@@ -112,6 +115,11 @@ export const SelectionSchema = v.object({
   // allies in base contact with the target
   ccAllies: field('ccAllies', intIn([0, CC_ALLIES_MAX])),
 });
+// Bangbomb was a second Dodge (weapon key 'bangbomb') until it became a
+// toggle on the Dodge (2026-11-03): a link or saved roll from before reads
+// as the Dodge with Bangbomb on.
+const OLD_BANGBOMB_KEY = 'bangbomb';
+export const SelectionSchema = v.pipe(SelectionFields, v.transform((s) => (s.weaponKey === OLD_BANGBOMB_KEY ? {...s, weaponKey: 'dodge', bangbomb: true} : s)));
 
 // The distance both sides share, as the upper bound of a range band in cm
 // (rules/ranges.js RANGE_BANDS): 40 = 8-16". matchup.rangeCmB is null, or the

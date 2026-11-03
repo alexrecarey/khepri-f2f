@@ -5,7 +5,8 @@ import {createStore} from '@tanstack/store';
 import {DEFAULT_PARAMS} from '../engine/params.js';
 import {classicSave} from './classicView.js';
 import {reduce, uiDepth} from './reduce.js';
-import {EMPTY_SIDE, MAX_RECENTS, initialState, recentsFor} from './schema.js';
+import {EMPTY_SIDE, MAX_RECENTS, MatchupSchema, initialState, recentsFor} from './schema.js';
+import {parseOr} from '../lib/parse.js';
 import {STORAGE_KEY, loadPersisted, savePersisted} from './storage.js';
 import {bootState} from './store.js';
 import {startSync} from './sync.js';
@@ -560,4 +561,11 @@ test('a saved roll loads through its mode\'s schema: a field that can\'t be read
   const s = reduce({...initialState(), lists: {...initialState().lists, saved: [old]}}, {type: 'loadRoll', id: 'r9'});
   assert.equal(s.matchup.A.unitId, null);
   assert.equal(s.matchup.rangeCm, 40);
+});
+
+test('a link or saved roll from when Bangbomb was its own pick reads as the Dodge with Bangbomb on', () => {
+  const old = parseOr(MatchupSchema, {A: {unitId: 1, weaponKey: 'bangbomb'}}, null);
+  assert.equal(old?.A.weaponKey, 'dodge');
+  assert.equal(old?.A.bangbomb, true);
+  assert.equal(parseOr(MatchupSchema, {A: {unitId: 1, weaponKey: 'dodge'}}, null)?.A.bangbomb, false);
 });

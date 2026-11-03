@@ -111,6 +111,7 @@ const ownChips = (x, t) => [
   x.targetedChip && x.resolved.targeted && t('chip.targeted'),
   hackedResetMod(x.resolved) && `${t('chip.hacked')} (${hackedResetMod(x.resolved)})`,
   immADodgeMod(x.resolved) && t('chip.immA'),
+  x.bangbombChip && x.resolved.bangbomb && t('chip.bangbomb'),
   x.noLofChip && x.resolved.noLof && t('chip.noLof'),
 ];
 // Only while it gives the pick a bonus (the chip is hidden otherwise).

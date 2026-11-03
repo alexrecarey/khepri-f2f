@@ -13,7 +13,7 @@ import {defaultWeapon, sortWeapons} from '../rules/defaultWeapon.js';
 import {buildLedger, renderDerived} from '../rules/ledger.js';
 import {deriveInputs} from '../rules/matchup.js';
 import {
-  fireteamHelps, firewallMod, hackedHelps, hasNoCover, immAHelps, noLofHelps, surpriseAttackOffered, targetedHelps, targetedResetHelps,
+  bangbombHelps, fireteamHelps, firewallMod, hackedHelps, hasNoCover, immAHelps, noLofHelps, surpriseAttackOffered, targetedHelps, targetedResetHelps,
 } from '../rules/modifiers.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {visibility} from '../rules/visibility.js';
@@ -142,7 +142,7 @@ function sideView(army, side, {sel, resolved}, other) {
     // Hacked, the trooper's own Firewall can't be switched off.
     firewallRequired: firewallMod(resolved?.traits) !== 0,
     // Situation chips that follow the pick: Hacked for a Reset, IMM-A for a
-    // Dodge, No LoF for a Dodge it can change. Targeted: while the other side's shot or program gains from it,
+    // Dodge, No LoF for a Dodge it can change, Bangbomb for one who has it. Targeted: while the other side's shot or program gains from it,
     // or this side Resets (-3 to it).
     // Fireteam, only while the pick gets a bonus from it.
     fireteamChip: fireteamHelps(resolved),
@@ -150,6 +150,7 @@ function sideView(army, side, {sel, resolved}, other) {
     hackedChip: hackedHelps(resolved),
     immAChip: immAHelps(resolved),
     noLofChip: noLofHelps(resolved, other?.weapon, side === 'B'),
+    bangbombChip: bangbombHelps(resolved),
     // Surprise Attack's MOD, offered only on the active side.
     surprise: surpriseAttackOffered(resolved, side === 'A'),
     // Berserk's MOD, offered only on the active side (a Long Skill) while it
