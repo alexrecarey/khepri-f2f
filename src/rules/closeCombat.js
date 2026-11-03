@@ -91,12 +91,19 @@ export function berserkMod(traits) {
   const mods = extraNumbers(skillExtras(traits, SKILL.BERSERK), /^\+(\d+)$/);
   return mods.length ? Math.max(...mods) : 0;
 }
-// x declared Berserk: the chip is on, x is the active side and CC attacks.
+// Can x declare Berserk? It has the skill, is the active side (a Long Skill)
+// and CC attacks. The chip shows only then.
+/**
+ * @param {ResolvedSide | null | undefined} x
+ * @param {boolean} active
+ */
+export const berserkHelps = (x, active) => active && isCcAttack(x) && hasBerserk(x?.traits);
+// x declared Berserk: the chip is on and it can.
 /**
  * @param {ResolvedSide} x
  * @param {boolean} active
  */
-export const usesBerserk = (x, active) => active && isCcAttack(x) && Boolean(x.berserk) && hasBerserk(x.traits);
+export const usesBerserk = (x, active) => Boolean(x.berserk) && berserkHelps(x, active);
 
 // Is this side making a CC Attack?
 /**

@@ -31,9 +31,12 @@ export const capMods = (sum) => clamp(MOD_CAP, sum);
 /** @param {MaybeRow} row */
 export const ignoresCoverOnSaves = (row) => isTemplate(row) || isImpactTemplate(row);
 
-// Units with the No Cover skill (TAGs, bikes, Redeye...) get nothing from cover.
+// Units with the No Cover skill (TAGs, bikes, Redeye...) get nothing from cover,
+// so they get no Cover chip either.
+/** @param {{traits?: MaybeTraits} | null | undefined} side */
+export const hasNoCover = (side) => hasSkill(side?.traits, SKILL.NO_COVER);
 /** @param {ResolvedSide | null | undefined} side */
-export const benefitsFromCover = (side) => Boolean(side?.inCover) && !hasSkill(side?.traits, SKILL.NO_COVER);
+export const benefitsFromCover = (side) => Boolean(side?.inCover) && !hasNoCover(side);
 
 // Nanoscreen (wiki): -3 BS MOD on BS Attack Rolls against the user and +3 to
 // the user's Saving Rolls against BS Attacks, templates included. Treated as
@@ -269,13 +272,24 @@ export const targetedHelps = (x) => x?.weapon?.kind === 'bs' || x?.weapon?.kind 
  * @param {ResolvedSide | null | undefined} y
  */
 export const targetedMod = (x, y) => (y?.targeted && targetedHelps(x) ? TARGETED_MOD : 0);
-// x's own Reset while Targeted (Zero Pain is a program, not a Reset roll).
+// The chips on a side's own roll: a `...Helps` says whether the chip can
+// change x's pick (it shows only then) and the MOD reads it, so the two can't
+// disagree.
+// Targeted on x's own Reset (Zero Pain is a program, not a Reset roll).
 /** @param {ResolvedSide | null | undefined} x */
-export const targetedResetMod = (x) => (x?.targeted && x.weapon?.kind === 'reset' && !x.weapon.zeroPain ? TARGETED_RESET_MOD : 0);
+export const targetedResetHelps = (x) => x?.weapon?.kind === 'reset' && !x.weapon.zeroPain;
 /** @param {ResolvedSide | null | undefined} x */
-export const hackedResetMod = (x) => (x?.weapon?.kind === 'reset' && HACKED_RESET_MODS.includes(x.hackedReset) ? x.hackedReset : 0);
+export const targetedResetMod = (x) => (x?.targeted && targetedResetHelps(x) ? TARGETED_RESET_MOD : 0);
+// Hacked: a MOD to a Reset.
 /** @param {ResolvedSide | null | undefined} x */
-export const immADodgeMod = (x) => (x?.weapon?.kind === 'dodge' && x.immA ? IMM_A_DODGE_MOD : 0);
+export const hackedHelps = (x) => x?.weapon?.kind === 'reset';
+/** @param {ResolvedSide | null | undefined} x */
+export const hackedResetMod = (x) => (x && hackedHelps(x) && HACKED_RESET_MODS.includes(x.hackedReset) ? x.hackedReset : 0);
+// IMM-A: a MOD to a Dodge.
+/** @param {ResolvedSide | null | undefined} x */
+export const immAHelps = (x) => x?.weapon?.kind === 'dodge';
+/** @param {ResolvedSide | null | undefined} x */
+export const immADodgeMod = (x) => (x?.immA && immAHelps(x) ? IMM_A_DODGE_MOD : 0);
 
 // Bangbomb (+X): the X, 0 without the equipment.
 /** @param {MaybeTraits} traits */
@@ -320,6 +334,13 @@ function opponentMod(traits, skill) {
 }
 /** @param {MaybeTraits} traits */
 export const surpriseAttackMod = (traits) => opponentMod(traits, SKILL.SURPRISE_ATTACK);
+// The Surprise Attack MOD x may use: on the active side only (the chip shows
+// while it isn't 0).
+/**
+ * @param {{traits?: MaybeTraits} | null | undefined} x
+ * @param {boolean} active
+ */
+export const surpriseAttackOffered = (x, active) => (active ? surpriseAttackMod(x?.traits) : 0);
 /** @param {MaybeTraits} traits */
 export const bsAttackMod = (traits) => opponentMod(traits, SKILL.BS_ATTACK);
 
@@ -417,7 +438,7 @@ export function opposingMods(x, y, xActive) {
     const bs = bsAttackMod(x.traits);
     if (bs) out.push({value: bs, label: msg('skill.bsAttackMod', {mod: bs}), ignoredBy: hasSkill(y.traits, SKILL.WARHORSE) ? msg('skill.warhorse') : sixth});
   }
-  const surprise = xActive && x.surpriseAttack ? surpriseAttackMod(x.traits) : 0;
+  const surprise = x.surpriseAttack ? surpriseAttackOffered(x, xActive) : 0;
   if (surprise) {
     const ignoredBy = nbw ?? (hasSkill(y.traits, SKILL.COMBAT_INSTINCT) ? msg('skill.combatInstinct')
       : isCcAttack(x) && hasEquip(y.traits, EQUIP.MSV3) ? msg('equip.msv', {level: 3}) : sixth);

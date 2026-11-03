@@ -6,18 +6,18 @@
 // descriptors, i18n/message.js); renderMatchup(core, t) puts it in the
 // player's language. matchupView composes them; useMatchupView.js memoises
 // each pass for React.
-import {SKILL} from '../army/ids.js';
 import {extraLoadoutName, shortIsc, unitTag} from '../army/names.js';
-import {hasSkill} from '../army/traits.js';
 import {isCommsAttack, isPseudo, stateCaused} from '../army/weapons.js';
 import {fullParams} from '../engine/params.js';
 import {defaultWeapon, sortWeapons} from '../rules/defaultWeapon.js';
 import {buildLedger, renderDerived} from '../rules/ledger.js';
 import {deriveInputs} from '../rules/matchup.js';
-import {fireteamHelps, firewallMod, surpriseAttackMod, targetedHelps} from '../rules/modifiers.js';
+import {
+  fireteamHelps, firewallMod, hackedHelps, hasNoCover, immAHelps, surpriseAttackOffered, targetedHelps, targetedResetHelps,
+} from '../rules/modifiers.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {visibility} from '../rules/visibility.js';
-import {berserkMod, ccAllies, ccAlliesMax, hasBerserk, isCcAttack} from '../rules/closeCombat.js';
+import {berserkHelps, berserkMod, ccAllies, ccAlliesMax, isCcAttack} from '../rules/closeCombat.js';
 import {supportwareChips} from '../rules/supportware.js';
 import {resolveSelection, withWeapon} from '../rules/trooper.js';
 import {modeLabels, orderModes} from '../rules/weaponModes.js';
@@ -135,7 +135,7 @@ function sideView(army, side, {sel, resolved}, other) {
     // The allies the CC Attack counts: the chosen number, held to what fits.
     ccAllies: cc ? ccAllies(resolved, other) : 0,
     // No Cover: cover does nothing for it, so no Cover chip.
-    noCover: hasSkill(resolved?.traits, SKILL.NO_COVER),
+    noCover: hasNoCover(resolved),
     // The Cover chip is on, unless the side sits in its Foxhole (its cover).
     coverOn: Boolean(sel.inCover) && !resolved?.sapper,
     hacked,
@@ -146,15 +146,14 @@ function sideView(army, side, {sel, resolved}, other) {
     // or this side Resets (-3 to it).
     // Fireteam, only while the pick gets a bonus from it.
     fireteamChip: fireteamHelps(resolved),
-    targetedChip: targetedHelps(other) || (resolved?.weapon?.kind === 'reset' && !resolved.weapon.zeroPain),
-    hackedChip: resolved?.weapon?.kind === 'reset',
-    immAChip: resolved?.weapon?.kind === 'dodge',
+    targetedChip: targetedHelps(other) || targetedResetHelps(resolved),
+    hackedChip: hackedHelps(resolved),
+    immAChip: immAHelps(resolved),
     // Surprise Attack's MOD, offered only on the active side.
-    surprise: side === 'A' ? surpriseAttackMod(resolved?.traits) : 0,
+    surprise: surpriseAttackOffered(resolved, side === 'A'),
     // Berserk's MOD, offered only on the active side (a Long Skill) while it
     // has a CC weapon picked; null otherwise.
-    // cc: the side is resolved.
-    berserk: side === 'A' && cc && hasBerserk(resolved.traits) ? {mod: berserkMod(resolved.traits)} : null,
+    berserk: resolved && berserkHelps(resolved, side === 'A') ? {mod: berserkMod(resolved.traits)} : null,
     // Supportware an EVO hacker of its army can run on it (a REM), each only
     // while it can change the pick: Assisted Fire for a BS Attack, Enhanced
     // Reaction for one in ARO.
