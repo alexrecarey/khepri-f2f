@@ -34,10 +34,10 @@ const weaponTitle = (w, t) => `${w.name}${modeText(w, t)}`;
  */
 const pick = (side, w) => dispatch({type: 'pickWeapon', side, key: w.key, kind: w.kind, zoc: Boolean(w.zoc)});
 
-/** A situation toggle on the picked Dodge (No LoF, IMM-A).
+/** A toggle on the picked Dodge (Bangbomb, No LoF, IMM-A).
  * @typedef {{key: string, label: string, on: boolean, onToggle: () => void}} DodgeToggle */
 
-// The picked Dodge (or Bangbomb), expanded: [Dodge | No LoF | IMM-A]. The
+// The picked Dodge, expanded: [Dodge | Bangbomb | No LoF | IMM-A]. The
 // name is filled; a toggle that is on is filled at half strength, so it
 // reads as part of the Dodge, not a second pick.
 /** @param {{w: import('../types.js').Choice, toggles: DodgeToggle[], color: string, onPick: () => void}} props */

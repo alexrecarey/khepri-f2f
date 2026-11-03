@@ -62,7 +62,6 @@ export default {
 
   // Choices that are not weapons
   'pseudo.dodge': 'Dodge',
-  'pseudo.bangbomb': 'Bangbomb',
   'pseudo.reset': 'Reset',
   'pseudo.zeroPain': 'Zero Pain',
   'pseudo.zeroPainMod': 'Zero Pain ({mod})',
@@ -141,6 +140,7 @@ export default {
   'ledger.commsAttack': 'Comms Attack',
   'ledger.closeCombat': 'close combat',
   'ledger.template': 'template',
+  'ledger.outsideLofZoc': 'outside LoF and ZoC',
   'ledger.templateWeapon': 'Template',
   'ledger.modCap': 'MODs cap at ±{cap}',
   'ledger.belowZero': 'below 0: always fails',
@@ -285,6 +285,7 @@ export default {
   'chip.targeted': 'Targeted',
   'chip.hacked': 'Hacked',
   'chip.immA': 'IMM-A',
+  'chip.bangbomb': 'Bangbomb',
   'chip.noLof': 'No LoF',
   'chip.sapper': 'Sapper',
   'chip.fireteam': 'Fireteam',

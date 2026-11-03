@@ -7,7 +7,7 @@ import {unitById} from '../army/lookup.js';
 import {effectiveTraits, extraNumbers, hasSkill, skillExtras} from '../army/traits.js';
 import {ammoTypes, bsWeapons, ccWeapons, hasAmmo, hasShockAmmo, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
 import {ccAttackSkill} from './closeCombat.js';
-import {bangbombValue, fireteamMax, fireteamSize, firewallMod} from './modifiers.js';
+import {fireteamMax, fireteamSize, firewallMod} from './modifiers.js';
 import {assistedFireTraits, supportwareTarget} from './supportware.js';
 import {msg} from '../i18n/message.js';
 
@@ -83,8 +83,7 @@ export function trooperCcWeapons(option, weapons, traits) {
 
 // Choices that are not weapons.
 // Dodge is valid for both sides; "No ARO" only makes sense for the reactive one.
-// Bangbomb is a second Dodge, for the player to pick when its LoF/ZoC
-// restriction holds.
+// Bangbomb is a toggle on the Dodge (modifiers.js bangbombMod), not a choice.
 // Reset: every trooper has it; the card shows it only against a Comms Attack
 // (state/matchupView.js). Zero Pain is a better Reset, for hackers that run it
 // (army/hacking.js): shown the same way.
@@ -95,7 +94,6 @@ export function trooperCcWeapons(option, weapons, traits) {
 function allPseudoWeapons(traits) {
   /** @type {PseudoEntry[]} */
   const list = [{key: 'dodge', kind: 'dodge'}];
-  if (bangbombValue(traits)) list.push({key: 'bangbomb', kind: 'dodge', bangbomb: true});
   list.push({key: 'reset', kind: 'reset'});
   if (hasZeroPain(traits)) list.push({key: 'zeroPain', kind: 'reset', zeroPain: true});
   list.push({key: 'none', kind: 'none'});
@@ -129,10 +127,10 @@ const byKey = (lists, key) => lists.flatMap((l) => l).find((w) => w.key === key)
  */
 export const withWeapon = (r, key) => ({...r, weapon: byKey([r.weapons, r.ccWeapons, r.programs, r.pseudo], key)});
 
-// Name of a choice that is not a weapon: "Dodge", "Bangbomb", "Reset", "Zero
-// Pain", "No ARO" (a message descriptor, i18n/message.js).
+// Name of a choice that is not a weapon: "Dodge", "Reset", "Zero Pain", "No
+// ARO" (a message descriptor, i18n/message.js).
 /** @param {PseudoEntry} w */
-export const pseudoName = (w) => msg(`pseudo.${w.bangbomb ? 'bangbomb' : w.zeroPain ? 'zeroPain' : w.kind}`);
+export const pseudoName = (w) => msg(`pseudo.${w.zeroPain ? 'zeroPain' : w.kind}`);
 
 // The Firewall chip's values (the MOD to the Comms Attack). The chip starts
 // on the trooper's own Firewall, off without one (Alex, 2026-10-22): `sel.firewall`
@@ -212,11 +210,12 @@ export function resolveSelection(army, sel, side = 'B') {
     upgrades, unsupportedUpgradeWeapons,
     inCover: Boolean(sel.inCover) || sapper,
     // Situation chips on its own roll (modifiers.js targetedMod, hackedResetMod,
-    // immADodgeMod, noLofDodgeMods): read only while the weapon they need is picked.
+    // immADodgeMod, noLofDodgeMods, bangbombMod): read only while the weapon they need is picked.
     targeted: Boolean(sel.targeted),
     hackedReset: sel.hackedReset ?? 0,
     immA: Boolean(sel.immA),
     noLof: Boolean(sel.noLof),
+    bangbomb: Boolean(sel.bangbomb),
     // Its Firewall against a Comms Attack (the chip): -3, -6 or 0.
     firewall: firewallChip(sel.firewall, traits),
     canSapper,

@@ -6,9 +6,9 @@ import {decodeMatchup, encodeMatchup} from './matchupParams.js';
 /** @typedef {import('../types.js').Selection} Selection */
 
 const selA = /** @type {Selection} */ ({unitId: 42, factionId: 1102, groupId: 1, profileId: null, optionId: 3, weaponKey: '111:Hit Mode',
-  inCover: true, firewall: null, targeted: true, hackedReset: 0, immA: false, noLof: false, sapper: false, surpriseAttack: true, upgrade: 2, ball: null, ccAllies: 3, berserk: true, supportware: 'assistedFire'});
+  inCover: true, firewall: null, targeted: true, hackedReset: 0, immA: false, noLof: false, bangbomb: true, sapper: false, surpriseAttack: true, upgrade: 2, ball: null, ccAllies: 3, berserk: true, supportware: 'assistedFire'});
 const selB = /** @type {Selection} */ ({unitId: 7, factionId: 107, groupId: null, profileId: 2, optionId: 1, weaponKey: 'hack:carbonite',
-  inCover: false, firewall: -6, targeted: false, hackedReset: -9, immA: true, noLof: true, sapper: true, surpriseAttack: false, upgrade: null, ball: 0, ccAllies: 0, berserk: false, supportware: null});
+  inCover: false, firewall: -6, targeted: false, hackedReset: -9, immA: true, noLof: true, bangbomb: false, sapper: true, surpriseAttack: false, upgrade: null, ball: 0, ccAllies: 0, berserk: false, supportware: null});
 
 test('matchup round-trips through URL params', () => {
   const params = encodeMatchup({selA, selB, ftSize: {A: 3, B: 1}, rangeCm: 60});
@@ -28,6 +28,8 @@ test('matchup round-trips through URL params', () => {
   assert.equal(params.swB, undefined);
   assert.equal(params.nolofB, '1');
   assert.equal(params.nolofA, undefined);
+  assert.equal(params.bangbombA, '1');
+  assert.equal(params.bangbombB, undefined);
   assert.equal(params.firewallA, undefined);           // the trooper's own Firewall
   assert.equal(decodeMatchup(new URLSearchParams(encodeMatchup({selA: {...selA, firewall: 0}, selB: null})))?.A.firewall, 0);
   assert.equal(params.profileA, undefined);           // unset fields are left out
