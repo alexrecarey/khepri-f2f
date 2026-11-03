@@ -62,22 +62,23 @@ export function typeScreen({t, searcher, scope, top, factionName, pop, openUnit}
   const units = searcher.unitsOfType(top.type, scope);
   return (
     <Page title={typeName(t, top.type)} subtitle={`${factionName(scope)} · ${t('picker.units', {count: units.length})}`} onBack={pop}>
-      {units.map((u) => <UnitRow key={u.unitId} u={u} onOpen={openUnit} />)}
+      {units.map((u) => <UnitRow key={`${u.unitId}:${u.groupId ?? ''}`} u={u} onOpen={openUnit} />)}
     </Page>
   );
 }
 
 // top: {view: 'unit', unitId, name}. pick(hit) is the player's choice.
 /**
- * @param {{t: Translator, searcher: Searcher, army: Army | null, scope: number | null, color: string, top: {view: 'unit', unitId: number, name: string},
+ * @param {{t: Translator, searcher: Searcher, army: Army | null, scope: number | null, color: string, top: {view: 'unit', unitId: number, groupId?: number, name: string},
  *   factionName: FactionName, pop: () => void, pick: (hit: ProfileHit) => void}} props
  */
 export function unitScreen({t, searcher, army, scope, color, top, factionName, pop, pick}) {
-  const rows = searcher.unitRows(top.unitId, scope);
+  // A Team-Ops trooper (top.groupId): its own loadouts and stats.
+  const rows = searcher.unitRows(top.unitId, scope, top.groupId);
   const pgroups = army ? profileGroups(army, rows) : null;
   // The unit's crest behind the header, cut by its corner, like the side
   // cards (canvas, "Header crest B"): its first profile's, not the
-  // cheapest loadout's (a Team-Ops' Asklad).
+  // cheapest loadout's (a Spec-Ops' SpecBot).
   const crest = <CardCrest slug={army ? crestForRow(army, pgroups?.[0].items[0].hit ?? rows[0]) : null} />;
   if (pgroups) {
     return (
@@ -87,7 +88,7 @@ export function unitScreen({t, searcher, army, scope, color, top, factionName, p
       </Page>
     );
   }
-  const stats = statLine(army, top.unitId, rows[0]?.armyFactionId);
+  const stats = statLine(army, top.unitId, rows[0]?.armyFactionId, top.groupId);
   /** @type {{key: string, name?: null, items: ProfileHit[]}[]} */
   const groups = army ? groupLoadouts(army, orderLoadouts(army, rows)) : [{key: 'all', name: null, items: rows}];
   return (

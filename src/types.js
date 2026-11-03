@@ -628,13 +628,9 @@
  * @property {number[]} skills positions in index.skills
  */
 /**
- * One profile group of a unit with several (search/buildIndex.js): its name,
- * Troop Type and the words that tell it from the unit's other groups.
- * @typedef {{id: number, name: string, type: string | null, words: string[]}} IndexGroup
- */
-/**
- * One unit in the search index. groups: only for a unit with several profile groups.
- * @typedef {{id: number, name: string, short: string, type: string | null, factions: number[], words: [string, number][], groups?: IndexGroup[]}} IndexUnit
+ * One unit in the search index, or one profile group of a Team-Ops unit
+ * (groupId set; parent: the unit's short name), listed as a unit of its own.
+ * @typedef {{id: number, groupId?: number, parent?: string, name: string, short: string, type: string | null, factions: number[], words: [string, number][]}} IndexUnit
  */
 /**
  * The search index, built from army.json (search/buildIndex.js) at build time
@@ -673,11 +669,10 @@
  * @property {string[]} matched the index words each typed word matched
  */
 /**
- * A unit as the picker lists it (search/search.js unitHit). group: the
- * profile group the query named ("kaizoku heavy": JSA Team-Ops' HI), which
- * its best match is in.
- * @typedef {{unitId: number, name: string, short: string, type: string | null, factionIds: number[], profileCount: number, tier?: number, best?: ProfileHit,
- *   group?: {id: number, name: string, type: string | null}}} UnitHit
+ * A unit as the picker lists it (search/search.js unitHit). groupId, parent:
+ * a Team-Ops trooper (one profile group of the unit), as IndexUnit.
+ * @typedef {{unitId: number, groupId?: number, parent?: string, name: string, short: string, type: string | null, factionIds: number[], profileCount: number,
+ *   tier?: number, best?: ProfileHit}} UnitHit
  */
 /**
  * What a query finds (search/search.js search).
@@ -688,7 +683,7 @@
  * @typedef {object} Searcher
  * @property {(q?: {query?: string, factionId?: number | null, recentIds?: number[]}) => SearchResult} search
  * @property {(q?: {factionId?: number | null, recentIds?: number[]}) => {recent: ProfileHit[], types: {type: string, count: number}[], units: UnitHit[]}} browse the empty-box view
- * @property {(unitId: number, factionId?: number | null) => ProfileHit[]} unitRows every loadout of one unit in scope
+ * @property {(unitId: number, factionId?: number | null, groupId?: number | null) => ProfileHit[]} unitRows every loadout of one unit (or Team-Ops trooper) in scope
  * @property {(type: string, factionId?: number | null) => UnitHit[]} unitsOfType
  * @property {(pick: {unitId: number, groupId: number, optionId: number, armyFactionId: number}) => number | null} findRow a saved pick's row id today
  * @property {(factionId: number) => number} unitCount units per vanilla faction
@@ -715,7 +710,7 @@
  */
 
 /** A screen pushed inside the picker (state/reduce.js pickerPush).
- * @typedef {{view: 'factions'} | {view: 'type', type: string} | {view: 'unit', unitId: number, name: string}} PickerView */
+ * @typedef {{view: 'factions'} | {view: 'type', type: string} | {view: 'unit', unitId: number, groupId?: number, name: string}} PickerView */
 
 /**
  * The open picker (state/reduce.js openPicker): whose side it picks for, the

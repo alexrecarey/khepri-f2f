@@ -2,7 +2,7 @@ import {useT} from '../i18n.jsx';
 import {typeName} from './constants.js';
 import {loadoutTag} from '../../state/pickerView.js';
 
-// A unit with several profile groups (Team-Ops): one section per group, its
+// A unit with several profile groups (a TAG and its pilot, a Spec-Ops and its SpecBots): one section per group, its
 // name and type over its stats (label over value, as on desktop), the kit
 // every loadout in it carries once, then each loadout as only what sets it
 // apart. The side's colour stays on what the player picks (canvas Final,
