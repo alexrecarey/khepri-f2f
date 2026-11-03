@@ -265,19 +265,18 @@
  * @property {WeaponMods} mods
  * @property {Message} label "Combi Rifle · B3 · PS13 · N" once rendered (army/weapons.js weaponLabel); read by tests
  * @property {true} [zoc] reaches the Zone of Control instead of range bands
- * @property {undefined} [bangbomb] a PseudoEntry's: never set, so `w.bangbomb` tells the two apart
  * @property {undefined} [zeroPain]
  */
 
 /**
  * A choice that is not a weapon (rules/trooper.js pseudoWeapons): Dodge,
- * Bangbomb (a second Dodge), Reset, Zero Pain (a better Reset), No ARO. One
+ * Reset, Zero Pain (a better Reset), No ARO. One
  * variant per kind, so `w.kind` narrows (tsc only drops a variant whose
  * discriminant is one literal); `row`, `mods`... are never set, so `w.row`
  * tells a weapon apart from one of these.
- * @typedef {{kind: 'dodge', key: 'dodge' | 'bangbomb', bangbomb?: true, zeroPain?: undefined}
- *   | {kind: 'reset', key: 'reset' | 'zeroPain', zeroPain?: true, bangbomb?: undefined}
- *   | {kind: 'none', key: 'none', bangbomb?: undefined, zeroPain?: undefined}} PseudoKind
+ * @typedef {{kind: 'dodge', key: 'dodge', zeroPain?: undefined}
+ *   | {kind: 'reset', key: 'reset' | 'zeroPain', zeroPain?: true}
+ *   | {kind: 'none', key: 'none', zeroPain?: undefined}} PseudoKind
  * @typedef {PseudoKind & {row?: undefined, mods?: undefined, name?: undefined, id?: undefined, mode?: undefined, zoc?: undefined}} PseudoEntry
  */
 
@@ -308,6 +307,8 @@
  * @property {boolean} targeted the Targeted chip
  * @property {number} hackedReset the Hacked chip's MOD to a Reset (0 for none)
  * @property {boolean} immA the Immobilized-A chip
+ * @property {boolean} noLof the No LoF chip: the attacker is outside its LoF
+ * @property {boolean} bangbomb the Bangbomb toggle on its Dodge
  * @property {number} firewall its Firewall against a Comms Attack: -3, -6 or 0
  * @property {boolean} canSapper has Sapper, so may sit in a Foxhole
  * @property {boolean} sapper in a Foxhole
@@ -856,6 +857,8 @@
  * @property {boolean} targetedChip the other side's shot or program gains from Targeted, or this side Resets
  * @property {boolean} hackedChip the pick is a Reset
  * @property {boolean} immAChip the pick is a Dodge
+ * @property {boolean} noLofChip the pick is a Dodge that No LoF can change (modifiers.js noLofHelps)
+ * @property {boolean} bangbombChip the pick is a Dodge and the trooper has Bangbomb
  * @property {number} surprise Surprise Attack's MOD (active side), 0 without
  * @property {{mod: number} | null} berserk Berserk's MOD (active side, a CC weapon picked)
  * @property {import('./rules/supportware.js').Supportware[]} supportware the Supportware chips that can change the pick (rules/supportware.js)

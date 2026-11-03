@@ -10,6 +10,7 @@ import {attackStat, opposingMods, reaches} from './modifiers.js';
 import {SIDES, other} from '../lib/side.js';
 import {compact, line, note, section} from './lines.js';
 import {visibility, zoneName} from './visibility.js';
+import {rangeOf} from './ranges.js';
 import {hasNoEffect, noEffectBy} from './saves.js';
 import {isSpecOps} from './trooper.js';
 import {isCcAttack} from './closeCombat.js';
@@ -119,9 +120,7 @@ function sideRoll(x, y, s, ctx) {
       notes: [note(s, 'note.cantTarget', {program: w.row.name})],
     }};
   }
-  // Both shoot at rangeCm, unless the reactive answers from its own rangeCmB.
-  const rangeCm = active ? ctx.rangeCm : ctx.rangeCmB ?? ctx.rangeCm;
-  const roll = attackInputs(/** @type {Attacker} */ (x), y, rangeCm, s, ctx);
+  const roll = attackInputs(/** @type {Attacker} */ (x), y, rangeOf(s, ctx.rangeCm, ctx.rangeCmB), s, ctx);
   return {roll: {...roll, inputs: {...roll.inputs, [`template${s}`]: w.kind === 'template'}}};
 }
 

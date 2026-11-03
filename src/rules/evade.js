@@ -3,8 +3,11 @@
 // side that rolls nothing. ctx: matchup.js deriveInputs.
 import {ZERO_PAIN} from '../army/hacking.js';
 import {
-  LIMITS, bangbombMod, bangbombValue, cancelsBangbomb, dodgeExtras, evades, fireteamBonuses, hackedResetMod, immADodgeMod, targetedResetMod,
+  LIMITS, bangbombMod, dodgeExtras, evades, fireteamBonuses, hackedResetMod, immADodgeMod, noLofDodgeMods,
+  targetedResetMod,
 } from './modifiers.js';
+import {ZOC_CM, rangeOf} from './ranges.js';
+import {other} from '../lib/side.js';
 import {clamp} from '../lib/clamp.js';
 import {msg} from '../i18n/message.js';
 import {compact, line, note, section, statLabel, svSection} from './lines.js';
@@ -17,7 +20,7 @@ import {compact, line, note, section, statLabel, svSection} from './lines.js';
 /** @typedef {import('../types.js').Params} Params */
 /** @typedef {import('../types.js').Evader} Evader */
 
-// A Dodge: one PH roll (Dodge MODs, Bangbomb, IMM-A and the Fireteam's +1 included,
+// A Dodge: one PH roll (Dodge MODs, Bangbomb, IMM-A, No LoF and the Fireteam's +1 included,
 // Dodge (+1SD) as Special Dice) that causes no Saving Rolls. `incoming`: the
 // weapon being Dodged, if any (null when the attacker has no line of fire).
 /**
@@ -31,17 +34,21 @@ import {compact, line, note, section, statLabel, svSection} from './lines.js';
 function dodgeInputs(x, y, side, incoming, ctx) {
   const d = dodgeExtras(x.traits);
   const ft = fireteamBonuses(x.ftSize).dodge;
-  const bang = bangbombMod(x, incoming);
-  // The Bangbomb Dodge against a template: its MOD is struck.
-  const bangStruck = !bang && x.weapon.bangbomb && incoming?.row && cancelsBangbomb(incoming.row) ? bangbombValue(x.traits) : 0;
+  // The attacker shoots from its own distance (a split range: the reactive's).
+  const o = other(side);
+  const inZoc = rangeOf(o, ctx.rangeCm, ctx.rangeCmB) <= ZOC_CM;
+  // Bangbomb on: struck where it can't help (a template, beyond LoF and ZoC).
+  const bang = bangbombMod(x, incoming, side === 'B', inZoc);
+  const noLof = noLofDodgeMods(x, incoming, side === 'B', inZoc);
   const lines = compact([
     // Dodge (PH=14) replaces the Attribute, so it isn't a MOD (MOD_CAP).
     d.ph !== null ? line(d.ph, msg('ledger.dodgePh', {ph: d.ph}), side) : line(x.profile.ph ?? 0, statLabel(x, 'ph'), null),
     d.mod && line(d.mod, msg('skill.dodgeMod', {mod: `+${d.mod}`}), side),
     ft && line(ft, msg('ledger.fireteam', {size: x.ftSize}), side),
-    bang && line(bang, msg('equip.bangbombMod', {mod: `+${bang}`}), side),
-    bangStruck && line(bangStruck, msg('equip.bangbombMod', {mod: `+${bangStruck}`}), side, msg('ledger.templateWeapon')),
+    bang && line(bang.value, msg('equip.bangbombMod', {mod: `+${bang.value}`}), side, bang.struck),
     immADodgeMod(x) && line(immADodgeMod(x), msg('chip.immA'), side),
+    noLof.lof && line(noLof.lof, msg('chip.noLof'), side),
+    noLof.silent && line(noLof.silent, msg('trait.silentMod', {mod: noLof.silent}), o),
     ...(y && incoming ? ctx.opposing[side] : []),
   ]);
   const {sv, notes} = svSection(lines, side);
