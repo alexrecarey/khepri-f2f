@@ -67,8 +67,12 @@ export default function useDeskPicker({searcher, army}) {
   const pgroups = useMemo(() => (army ? profileGroups(army, unitRows) : null), [army, unitRows]);
   const loadouts = useMemo(() => (pgroups ? pgroups.flatMap((g) => g.items.map((x) => x.hit)) : orderLoadouts(army, unitRows)),
     [army, unitRows, pgroups]);
+  // The profile group the row names (a search for "kaizoku heavy", a recent
+  // HI pick): its crest in the pane's corner.
+  const groupId = current?.kind === 'unit' ? current.u.group?.id ?? null : current?.kind === 'recent' ? current.hit.groupId : null;
   // A unit with rows has a loadout to take the faction from.
-  const detail = useMemo(() => (unitId != null ? unitDetail(army, unitId, /** @type {number} */ (loadouts[0]?.armyFactionId)) : null), [army, unitId, loadouts]);
+  const detail = useMemo(() => (unitId != null ? unitDetail(army, unitId, /** @type {number} */ (loadouts[0]?.armyFactionId), groupId) : null),
+    [army, unitId, loadouts, groupId]);
   const profile = detail?.profiles.find((p) => p.id === picker.profileId) ?? detail?.profiles[0] ?? null;
   const lat = Math.min(lcursor, Math.max(0, loadouts.length - 1));
   // On a unit row while typing: the loadout the query matched ("fus ml").

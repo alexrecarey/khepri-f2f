@@ -179,8 +179,10 @@ export function orderLoadouts(army, hits) {
   return [...hits].sort((a, b) => swc(b) - swc(a) || reach(b) - reach(a) || a.points - b.points);
 }
 
-// Everything the desktop unit pane shows about a unit in one faction. The
-// desk list asks for one per row on every keystroke, so each is built once.
+// Everything the desktop unit pane shows about a unit in one faction: its
+// first profile group's profiles, or the group a search hit or recent pick is
+// in (a Team-Ops' HI). The desk list asks for one per row on every keystroke,
+// so each is built once.
 /** What the desktop unit pane shows about a unit in one faction.
  * @typedef {{unit: import('../types.js').UnitRow, profiles: {id: number, name: string, type: string, crest: string | null, stats: [string, number | number[]][], skills: import('../types.js').TraitRef[]}[]}} UnitDetail */
 
@@ -190,14 +192,15 @@ const details = new WeakMap();
  * @param {Army | null | undefined} army
  * @param {number} unitId
  * @param {number | null} armyFactionId null: the unit's first faction
+ * @param {number | null} [groupId] null: its first profile group
  * @returns {UnitDetail | null}
  */
-export function unitDetail(army, unitId, armyFactionId) {
+export function unitDetail(army, unitId, armyFactionId, groupId = null) {
   if (!army) return null;
   let cache = details.get(army);
   if (!cache) details.set(army, cache = new Map());
-  const key = `${unitId}:${armyFactionId}`;
-  if (!cache.has(key)) cache.set(key, buildUnitDetail(army, unitId, armyFactionId));
+  const key = `${unitId}:${armyFactionId}:${groupId}`;
+  if (!cache.has(key)) cache.set(key, buildUnitDetail(army, unitId, armyFactionId, groupId));
   // Set just above when missing.
   return /** @type {UnitDetail | null} */ (cache.get(key));
 }
@@ -206,14 +209,15 @@ export function unitDetail(army, unitId, armyFactionId) {
  * @param {Army} army
  * @param {number} unitId
  * @param {number | null} armyFactionId
+ * @param {number | null} groupId
  * @returns {UnitDetail | null}
  */
-function buildUnitDetail(army, unitId, armyFactionId) {
+function buildUnitDetail(army, unitId, armyFactionId, groupId) {
   const unit = unitById(army, unitId);
   if (!unit) return null;
   // A null faction reads nothing, falling back to the first.
   const faction = unit.byFaction[/** @type {number} */ (armyFactionId)] ?? Object.values(unit.byFaction)[0];
-  const group = faction?.groups[0];
+  const group = faction?.groups.find((g) => g.id === groupId) ?? faction?.groups[0];
   const profiles = (group?.profiles ?? []).map((p) => ({
     id: p.id,
     name: p.name,
