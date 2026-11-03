@@ -62,7 +62,6 @@ export default {
 
   // Choices that are not weapons
   'pseudo.dodge': 'Esquivar',
-  'pseudo.bangbomb': 'Bangbomb',
   'pseudo.reset': 'Reset',
   'pseudo.zeroPain': 'Zero Pain',
   'pseudo.zeroPainMod': 'Zero Pain ({mod})',
@@ -140,6 +139,7 @@ export default {
   'ledger.commsAttack': 'Ataque de Comunicaciones',
   'ledger.closeCombat': 'cuerpo a cuerpo',
   'ledger.template': 'plantilla',
+  'ledger.outsideLofZoc': 'fuera de LDT y ZdC',
   'ledger.templateWeapon': 'Plantilla',
   'ledger.modCap': 'los MOD llegan a ±{cap} como mucho',
   'ledger.belowZero': 'menos de 0: falla siempre',
@@ -284,6 +284,7 @@ export default {
   'chip.targeted': 'Marcado',
   'chip.hacked': 'Hackeado',
   'chip.immA': 'IMM-A',
+  'chip.bangbomb': 'Bangbomb',
   'chip.noLof': 'Sin LDT',
   'chip.sapper': 'Zapador',
   'chip.fireteam': 'Fireteam',

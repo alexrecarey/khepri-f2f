@@ -47,6 +47,7 @@ export function encodeMatchup({selA, selB, ftSize, rangeCm, rangeCmB, zones}) {
     if (HACKED_RESET_MODS.includes(sel.hackedReset)) out[`hacked${side}`] = String(-sel.hackedReset);
     if (sel.immA) out[`imma${side}`] = '1';
     if (sel.noLof) out[`nolof${side}`] = '1';
+    if (sel.bangbomb) out[`bangbomb${side}`] = '1';
     if (sel.surpriseAttack) out[`surprise${side}`] = '1';
     if (sel.berserk) out[`berserk${side}`] = '1';
     if (sel.supportware) out[`sw${side}`] = sel.supportware;
@@ -93,6 +94,7 @@ export function decodeMatchup(params) {
     raw.hackedReset = 0 - Number(get(`hacked${s}`));
     raw.immA = get(`imma${s}`) === '1';
     raw.noLof = get(`nolof${s}`) === '1';
+    raw.bangbomb = get(`bangbomb${s}`) === '1';
     raw.surpriseAttack = get(`surprise${s}`) === '1';
     raw.berserk = get(`berserk${s}`) === '1';
     raw.supportware = get(`sw${s}`);

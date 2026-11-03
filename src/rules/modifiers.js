@@ -321,21 +321,27 @@ export function bangbombValue(traits) {
   return m ? Number(m[1]) : 0;
 }
 
-// Bangbomb (+X) on x's Dodge against `incoming` (the attacker's weapon;
-// nothing when it isn't attacking). Only when the player picked the Bangbomb
-// Dodge: it needs the attacker in the user's LoF or ZoC, which the calculator
-// can't tell (a shot in the back), so the player chooses. Never against
-// Template Weapons, Direct or Impact.
-/** @param {MaybeRow} row */
-export const cancelsBangbomb = isTemplateWeapon;
-
+// Bangbomb (+X): a toggle on the Dodge of a trooper with it (Alex,
+// 2026-11-03), +X to its Dodge against `incoming` (the attacker's weapon;
+// nothing when it isn't attacking). Struck against a Template Weapon (Direct
+// or Impact), and with No LoF from beyond the ZoC: it needs the attacker in
+// the user's LoF or ZoC. A shot in the back that No LoF doesn't change (the
+// Active Turn) the calculator can't see: the player leaves Bangbomb off.
+/** @param {ResolvedSide | null | undefined} x */
+export const bangbombHelps = (x) => x?.weapon?.kind === 'dodge' && bangbombValue(x.traits) > 0;
 /**
  * @param {ResolvedSide | null | undefined} x
  * @param {import('../types.js').Choice | null | undefined} incoming
+ * @param {boolean} reactive x Dodges in ARO
+ * @param {boolean} inZoc the attacker is inside x's ZoC
+ * @returns {{value: number, struck: import('../types.js').Message | null} | null} null: off, or nothing to Dodge
  */
-export function bangbombMod(x, incoming) {
-  if (!x?.weapon?.bangbomb || !incoming?.row || cancelsBangbomb(incoming.row)) return 0;
-  return bangbombValue(x.traits);
+export function bangbombMod(x, incoming, reactive, inZoc) {
+  if (!x?.bangbomb || !bangbombHelps(x) || !incoming?.row) return null;
+  const blind = x.noLof && noLofHelps(x, incoming, reactive);
+  const struck = isTemplateWeapon(incoming.row) ? msg('ledger.templateWeapon')
+    : blind && !inZoc ? msg('ledger.outsideLofZoc') : null;
+  return {value: bangbombValue(x.traits), struck};
 }
 
 // BS Attack (-X): while the trooper makes a BS Attack that is rolled, the
