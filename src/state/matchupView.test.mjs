@@ -256,10 +256,14 @@ test('Supportware: the side card offers the chips that change the pick, the save
   assert.deepEqual(view.A.supportware, []);
   assert.equal(view.params?.burstB, 2);
   assert.match(matchupRollSummary(view, null).setup, /Enhanced Reaction/);
-  // Its Flash Pulse is B1: Enhanced Reaction can't raise it, so no chip, and it isn't named.
+  // Its B1 Flash Pulse is B2 in ARO too.
   const pulse = matchupView(army, {...matchup, B: {...pathfinder, weaponKey: '72:'}});
-  assert.deepEqual(pulse.B.supportware, ['assistedFire']);
-  assert.doesNotMatch(matchupRollSummary(pulse, null).setup, /Enhanced Reaction/);
+  assert.deepEqual(pulse.B.supportware, ['assistedFire', 'enhancedReaction']);
+  assert.equal(pulse.params?.burstB, 2);
+  // A Dodge: no chips, and the saved roll doesn't name the one left on.
+  const dodge = matchupView(army, {...matchup, B: {...pathfinder, weaponKey: 'dodge'}});
+  assert.deepEqual(dodge.B.supportware, []);
+  assert.doesNotMatch(matchupRollSummary(dodge, null).setup, /Enhanced Reaction/);
   // Ariadna has no EVO hacker: no chips.
   assert.deepEqual(matchupView(army, {...matchup, B: first(unitByIsc('Vystrel Mobile Artillery Regiment'), 301)}).B.supportware, []);
 });

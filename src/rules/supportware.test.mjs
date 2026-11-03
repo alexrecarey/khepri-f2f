@@ -39,15 +39,24 @@ test('Enhanced Reaction: a REM shooting in ARO rolls two dice', () => {
   assert.equal(duel(shooter, side(REM, combi, '1:')).inputs.burstB, 1);
 });
 
-test('Enhanced Reaction: nothing in the Active Turn, with Total Reaction, a B1 weapon or a Dodge', () => {
+test('Enhanced Reaction is always B2 in ARO: a B1 weapon rolls two dice too', () => {
+  const shooter = side(profile(), combi, '1:');
+  const r = duel(shooter, running(side(REM, missile, '9:Hit Mode'), 'enhancedReaction'));
+  assert.equal(r.inputs.burstB, 2);
+  assert.ok(labels(r.ledger.B?.burst).includes('Enhanced Reaction: B2 in ARO'));
+  assert.equal(duel(shooter, side(REM, missile, '9:Hit Mode')).inputs.burstB, 1);
+  // Total Reaction keeps a B1 weapon's one die; Enhanced Reaction makes it two.
+  const tr = profile({type: 'REM', skills: [TOTAL_REACTION]});
+  assert.equal(duel(shooter, running(side(tr, missile, '9:Hit Mode'), 'enhancedReaction')).inputs.burstB, 2);
+});
+
+test('Enhanced Reaction: nothing in the Active Turn, with Total Reaction on a B2+ weapon, or a Dodge', () => {
   const target = side(profile(), combi, '1:');
   // Active: the full Burst already.
   assert.equal(duel(running(side(REM, combi, '1:'), 'enhancedReaction'), target).inputs.burstA, 3);
   // Total Reaction keeps the full Burst: B3, not B2.
   const tr = profile({type: 'REM', skills: [TOTAL_REACTION]});
   assert.equal(duel(target, running(side(tr, combi, '1:'), 'enhancedReaction')).inputs.burstB, 3);
-  // A B1 Missile Launcher stays B1: never above the weapon's Burst.
-  assert.equal(duel(target, running(side(REM, missile, '9:Hit Mode'), 'enhancedReaction')).inputs.burstB, 1);
   // A Dodge rolls one die whatever.
   assert.equal(duel(target, running(side(REM, combi, 'dodge'), 'enhancedReaction')).inputs.burstB, 1);
 });
@@ -73,7 +82,9 @@ test('the chips: Assisted Fire for a BS Attack, Enhanced Reaction for one in ARO
   assert.deepEqual(supportwareChips(rem, 'A'), ['assistedFire']);
   assert.deepEqual(supportwareChips(rem, 'B'), ['assistedFire', 'enhancedReaction']);
   assert.deepEqual(supportwareChips(running(side(REM, combi, 'dodge'), 'assistedFire'), 'B'), []);
-  assert.deepEqual(supportwareChips(running(side(REM, missile, '9:Hit Mode'), 'assistedFire'), 'B'), ['assistedFire']);
+  assert.deepEqual(supportwareChips(running(side(REM, missile, '9:Hit Mode'), 'assistedFire'), 'B'), ['assistedFire', 'enhancedReaction']);
+  assert.deepEqual(supportwareChips(running(side(profile({type: 'REM', skills: [TOTAL_REACTION]}), missile, '9:Hit Mode'), 'assistedFire'), 'B'),
+    ['assistedFire', 'enhancedReaction']);
   const tr = profile({type: 'REM', skills: [TOTAL_REACTION]});
   assert.deepEqual(supportwareChips(running(side(tr, combi, '1:'), 'assistedFire'), 'B'), ['assistedFire']);
   // Marksmanship of its own: Assisted Fire adds nothing.

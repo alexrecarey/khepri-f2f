@@ -166,8 +166,9 @@ function burstLines(x, s) {
     aro && line(aro, msg('skill.neurocinetics'), s),
   ]);
   // In ARO a trooper rolls one die, whatever its burst (Total Reaction aside).
-  // Enhanced Reaction makes it two: the Supportware's line, in x's colour,
-  // even when it takes nothing off (a B2 weapon), so the ledger names it.
+  // Enhanced Reaction makes it two, whatever the weapon's Burst (a B1 weapon
+  // gains a die): the Supportware's line, in x's colour, even when it adds
+  // nothing (a B2 weapon), so the ledger names it.
   if (usesEnhancedReaction(x, s)) {
     const label = msg('supportware.enhancedReactionBurst', {burst: ENHANCED_REACTION_BURST});
     return {lines: [...base, line(ENHANCED_REACTION_BURST - sum(base), label, s)], notes: []};

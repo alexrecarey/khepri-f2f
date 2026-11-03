@@ -91,7 +91,7 @@ From the wiki (Assisted Fire, Enhanced Reaction, Supportware, Hacking Device). C
 - EVO Hacking Device programs, No Roll. Their target is a REM of the hacker's Army List, so a REM gets the chips only when its army list (the faction it is picked in) fields an EVO Hacking Device: not Ariadna and its sectorials, Tohaa, NA2 or Kosmoflot.
 - One Supportware per trooper at a time: the side holds one, and turning on the other replaces it.
 - Assisted Fire: the REM gains Marksmanship (both turns): it ignores the −3 from cover and Nanoscreen, and Albedo and White Noise now work against it. Chip only while it makes a BS Attack (not a Direct Template: no roll), and not for a REM with Marksmanship of its own.
-- Enhanced Reaction: the REM's BS Attack is B2 in ARO, never above the weapon's own Burst (a B1 Missile Launcher stays B1). Chip only on the reactive side while that changes the roll: not with Total Reaction or Neurocinetics (full Burst already), a B1 weapon, a Dodge or a CC Attack.
+- Enhanced Reaction: the REM's BS Attack is always B2 in ARO, whatever the weapon's Burst: a B1 Missile Launcher rolls two dice too (Brandon, 2026-11-03). Chip only on the reactive side while that changes the roll: not with Total Reaction or Neurocinetics on a B2+ weapon (full Burst already), a Dodge or a CC Attack.
 - Not modelled: Fairy Dust (Firewall (−3) against Comms Attacks: the Firewall chip already offers −3), Controlled Jump (Combat Jump only).
 
 ## Close combat

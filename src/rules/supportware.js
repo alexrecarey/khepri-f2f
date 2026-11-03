@@ -53,18 +53,19 @@ export const marksmanshipFromAssistedFire = (traits) => hasSkill(traits, SKILL.M
 /** @param {import('../types.js').ResolvedSide | null | undefined} x */
 export const assistedFireHelps = (x) => x?.weapon?.kind === 'bs' && !ownMarksmanship(x.traits);
 
-// Enhanced Reaction can change x's roll: a BS Attack in ARO that would roll
-// more than one die, by a REM whose Burst isn't kept already (Total
-// Reaction, Neurocinetics). It raises the ARO's one die to two, never above
-// the weapon's own Burst.
+// Enhanced Reaction can change x's roll: a BS Attack in ARO. It is always B2
+// in ARO, whatever the weapon's Burst, so a B1 weapon rolls two dice too
+// (Brandon, 2026-11-03). Only a full Burst of 2 or more that Total Reaction
+// or Neurocinetics keeps already gains nothing.
 /**
  * @param {import('../types.js').ResolvedSide | null | undefined} x
  * @param {import('../types.js').Side} side
  */
 export function enhancedReactionHelps(x, side) {
   const w = x?.weapon;
-  if (side !== 'B' || w?.kind !== 'bs' || keepsAroBurst(/** @type {import('../types.js').ResolvedSide} */ (x))) return false;
-  return (w.row.burst ?? 1) + attackBonuses(/** @type {import('../types.js').ResolvedSide} */ (x)).burst > 1;
+  if (side !== 'B' || w?.kind !== 'bs') return false;
+  const r = /** @type {import('../types.js').ResolvedSide} */ (x);
+  return !keepsAroBurst(r) || (w.row.burst ?? 1) + attackBonuses(r).burst < ENHANCED_REACTION_BURST;
 }
 
 // x rolls with Enhanced Reaction: chosen and it changes the roll.
