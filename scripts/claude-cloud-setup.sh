@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Prepares a Claude Code cloud session (claude.ai/code) to run khepri-f2f:
-# yarn 3.3.0 via corepack, node_modules from the committed .yarn/cache,
+# yarn 3.3.0 via corepack, node_modules from the npm registry,
 # and the engine's Rust toolchain and crates fetched so `yarn test` works offline-ish.
 # Runs from the SessionStart hook; a no-op on local machines.
 set -euo pipefail
