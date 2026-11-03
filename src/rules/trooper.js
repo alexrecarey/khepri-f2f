@@ -196,7 +196,7 @@ export function resolveSelection(army, sel, side = 'B') {
   // only the reactive side is offered it.
   const allPseudo = profile ? allPseudoWeapons(traits) : [];
   const weapon = option && profile && sel.weaponKey ? byKey([weapons, ccWeapons, programs, allPseudo], sel.weaponKey) : null;
-  const ftMax = fireteamMax(unit, baseOption);
+  const ftMax = fireteamMax(unit, baseOption, teamOps);
   return {
     unit, factionId, groups, group, profile, option, traits, weapon,
     weapons, ccWeapons, programs, pseudo: forRole(allPseudo, side),
