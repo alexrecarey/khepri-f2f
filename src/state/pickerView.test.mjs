@@ -119,4 +119,9 @@ test('a unit with several profile groups: one section each, shared kit once, row
   const fusiliers = army.units.find((u) => u.slug === 'fusiliers');
   assert.ok(fusiliers);
   assert.equal(profileGroups(army, searcher.unitRows(fusiliers.id)), null);
+  // A Team-Ops trooper is listed on its own: its page is its loadouts, no sections.
+  const heavyRows = searcher.unitRows(morat.id, null, heavy.key);
+  assert.equal(heavyRows.length, 4);
+  assert.equal(profileGroups(army, heavyRows), null);
+  assert.equal(statLine(army, morat.id, heavyRows[0].armyFactionId, heavy.key)?.find(([k]) => k === 'BTS')?.[1], heavy.stats.find(([k]) => k === 'BTS')?.[1]);
 });

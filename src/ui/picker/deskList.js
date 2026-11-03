@@ -56,5 +56,5 @@ export function listItems({searcher, typing, scope, top, all, scoped, browse, fa
 /** @param {Pick<DeskListInput, 'typing' | 'scope' | 'all' | 'scoped'>} input */
 export function matchedCount({typing, scope, all, scoped}) {
   if (!typing || !all || !scoped) return 0;
-  return scope != null ? new Set([...scoped.units, ...all.units].map((u) => u.unitId)).size : all.units.length;
+  return scope != null ? new Set([...scoped.units, ...all.units].map((u) => `${u.unitId}:${u.groupId ?? ''}`)).size : all.units.length;
 }

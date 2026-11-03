@@ -67,7 +67,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
   /** @param {ProfileHit} hit */
   const pick = (hit) => onPick(hit);
   /** @param {UnitHit} u */
-  const openUnit = (u) => push({view: 'unit', unitId: u.unitId, name: u.short});
+  const openUnit = (u) => push({view: 'unit', unitId: u.unitId, ...(u.groupId != null ? {groupId: u.groupId} : {}), name: u.short});
 
   // Enter takes the top result, but never a typo guess: the player confirms those.
   const firstHit = results?.mode === 'search' ? (results.recent[0] ?? results.profiles[0]) : null;
@@ -147,7 +147,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
             <ProfileRow army={army} color={color} key={h.rowId} hit={h} onPick={pick} first={!results.recent.length && i === 0} />
           ))}
           {results.units.length > 0 && <div className="list-head">{t('picker.unitsHead')}</div>}
-          {results.units.slice(0, 20).map((u) => <UnitRow key={u.unitId} u={u} onOpen={openUnit} />)}
+          {results.units.slice(0, 20).map((u) => <UnitRow key={`${u.unitId}:${u.groupId ?? ''}`} u={u} onOpen={openUnit} />)}
         </>
       )}
       {results?.mode === 'browse' && scope == null && (
@@ -183,7 +183,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
             </>
           )}
           <div className="list-head">{t('picker.allUnits')}</div>
-          {results.units.map((u) => <UnitRow key={u.unitId} u={u} onOpen={openUnit} />)}
+          {results.units.map((u) => <UnitRow key={`${u.unitId}:${u.groupId ?? ''}`} u={u} onOpen={openUnit} />)}
         </>
       )}
     </Page>

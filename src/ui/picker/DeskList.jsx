@@ -73,19 +73,17 @@ export default function DeskList({m, loadError}) {
             </div>
           );
         }
-        // A query naming one of the unit's profile groups ("kaizoku heavy"):
-        // that trooper's name, type, stats and crest, the unit's after it.
-        const g = x.u.group;
-        const d = unitDetail(army, x.u.unitId, null, g?.id);
+        // A Team-Ops trooper (one profile group): its own stats and crest, its unit after its type.
+        const d = unitDetail(army, x.u.unitId, null, x.u.groupId);
         // A unit from browsing has no tier: no reason.
         const reason = REASON[/** @type {number} */ (x.u.tier)] && t(REASON[/** @type {number} */ (x.u.tier)]);
         return (
-          <div key={`u${x.u.unitId}${x.away ? 'x' : ''}`} id={`dp-row-${idx}`} role="option" aria-selected={on}
+          <div key={`u${x.u.unitId}:${x.u.groupId ?? ''}${x.away ? 'x' : ''}`} id={`dp-row-${idx}`} role="option" aria-selected={on}
             className={`dp-row${on ? ' on' : ''}`} onClick={select} onDoubleClick={() => (x.u.best ? pick(x.u.best) : select())}>
             <RowCrest slug={d?.profiles[0]?.crest} />
-            <span className="t"><Highlight text={g?.name ?? x.u.short} query={query} />{x.away ? ` · ${factionName(x.factionId)}` : ''}</span>
+            <span className="t"><Highlight text={x.u.short} query={query} />{x.away ? ` · ${factionName(x.factionId)}` : ''}</span>
             <span className="s">{shortStats(d, t)}</span>
-            <span className="sub">{typeName(t, g ? g.type : x.u.type)}{g && ` · ${x.u.short}`}{reason && <span className="reason"> · {reason}</span>}</span>
+            <span className="sub">{typeName(t, x.u.type)}{x.u.parent && ` · ${x.u.parent}`}{reason && <span className="reason"> · {reason}</span>}</span>
           </div>
         );
       })}
