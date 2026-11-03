@@ -34,7 +34,7 @@ function Stats({stats}) {
 function ProfileSections({m, lit}) {
   const t = useT();
   // Drawn for a unit with several profile groups.
-  const {army, pgroups, color, pick} = /** @type {DeskPickerModel & {pgroups: NonNullable<DeskPickerModel['pgroups']>}} */ (m);
+  const {army, pgroups, tint, pick} = /** @type {DeskPickerModel & {pgroups: NonNullable<DeskPickerModel['pgroups']>}} */ (m);
   let start = 0;
   return pgroups.map((g) => {
     const first = start;
@@ -47,7 +47,7 @@ function ProfileSections({m, lit}) {
         {g.skills.length > 0 && <div className="dp-skills">{g.skills.map((sk) => traitLabel(sk, t)).join(' · ')}</div>}
         <div className="dp-loadouts" role="listbox" aria-label={g.name}>
           {g.items.map(({hit}, j) => (
-            <DeskLoadout key={hit.rowId} h={hit} i={first + j} tag={loadoutTag(army, hit)} on={first + j === lit} color={color} army={army} onPick={pick} />
+            <DeskLoadout key={hit.rowId} h={hit} i={first + j} tag={loadoutTag(army, hit)} on={first + j === lit} tint={tint.loadouts} army={army} onPick={pick} />
           ))}
         </div>
       </section>
@@ -60,7 +60,7 @@ function ProfileSections({m, lit}) {
 function UnitPane({m}) {
   const t = useT();
   // Drawn for a highlighted unit (DeskDetail checks both).
-  const {army, detail, profile, factionName, factionId, loadouts, pgroups, pane, lat, best, bestAt, color, pick, withProfile, hitFor, otherSet, otherName} =
+  const {army, detail, profile, factionName, factionId, loadouts, pgroups, pane, lat, best, bestAt, color, tint, pick, withProfile, hitFor, otherSet, otherName} =
     /** @type {DeskPickerModel & {detail: NonNullable<DeskPickerModel['detail']>, profile: NonNullable<DeskPickerModel['profile']>}} */ (m);
   // The loadout Enter picks is the lit one: the keyboard's in the loadouts
   // pane, else the one the search matched ("fus ml") on a unit row.
@@ -96,7 +96,7 @@ function UnitPane({m}) {
           <div className="dp-loadouts" id="dp-loadouts" role="listbox" aria-label={t('picker.loadouts')}>
             {loadouts.map((h, i) => (
               <DeskLoadout key={h.rowId} h={h} i={i} tag={extraLoadoutName(h.loadout, h.unit) ?? loadoutTag(army, h)} on={i === lit}
-                color={color} army={army} onPick={(x) => pick(withProfile(x))} />
+                tint={tint.loadouts} army={army} onPick={(x) => pick(withProfile(x))} />
             ))}
           </div>
         </>
