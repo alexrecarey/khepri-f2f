@@ -69,10 +69,14 @@ export const needsLof = (row) => !(row?.props ?? []).includes('No LoF');
 /** @param {MaybeRow} row */
 export const inZoneOfControl = (row) => (row?.props ?? []).includes('Zone of Control');
 
+// PARA (Adhesive Launcher Rifle, Riotstoppers) has no PS: the target rolls
+// PH-6 instead (save.attr 'PH').
 /** @param {MaybeRow} row */
 export function isBsAttackWeapon(row) {
-  if (!row || typeof row.dmg !== 'number') return false;
-  if (row.save?.attr !== 'ARM' && row.save?.attr !== 'BTS') return false;
+  if (!row) return false;
+  const para = row.save?.attr === 'PH';
+  if (!para && typeof row.dmg !== 'number') return false;
+  if (!para && row.save?.attr !== 'ARM' && row.save?.attr !== 'BTS') return false;
   if ((row.props ?? []).some((p) => EXCLUDED_PROPS.has(p))) return false;
   return Boolean(row.ranges) || isTemplate(row) || inZoneOfControl(row);
 }
@@ -176,13 +180,19 @@ export const causesStunned = (row) => (row?.props ?? []).some((p) => p.startsWit
 /** @param {MaybeRow} row */
 export const stuns = (row) => isNonLethal(row) && causesStunned(row);
 
+// PARA Ammunition: a failed PH-6 save leaves the target Immobilized-A (wiki,
+// Paralysis (PARA) Ammunition), whether or not the row says "State: IMM-A".
+/** @param {MaybeRow} row */
+export const paralyses = (row) => hasAmmo(row, 'PARA');
+
 // The State a failed save causes in place of wounds, or null. A Hacking
 // Program names its own (army/hacking.js): Immobilized-B, Targeted, Possessed.
 /**
  * @param {MaybeRow} row
  * @returns {string | null}
  */
-export const stateCaused = (row) => (row?.hack ? row.hack.state : isolates(row) ? 'Isolated' : stuns(row) ? 'Stunned' : null);
+export const stateCaused = (row) => (row?.hack ? row.hack.state : isolates(row) ? 'Isolated' : stuns(row) ? 'Stunned'
+  : paralyses(row) ? 'Immobilized-A' : null);
 
 // "Bioweapon (DA+SHOCK)" or null.
 /**

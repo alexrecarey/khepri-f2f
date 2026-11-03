@@ -8,8 +8,8 @@
 // failed save as one extra wound).
 //
 // A weapon whose failed save causes a State instead of wounds (Jammer:
-// Isolated, Flash Pulse: Stunned): that one state, for one failed save or
-// more (the engine counts each as a wound).
+// Isolated, Flash Pulse: Stunned, PARA: Immobilized-A): that one state, for
+// one failed save or more (the engine counts each as a wound).
 //
 // Each state: {key, label, wounds, glyph, outOfFight, shock?, state?}. `label`
 // is a message descriptor (i18n/message.js); `wounds` is how

@@ -51,6 +51,7 @@ export const W = weaponTable({
   19: [{name: 'Light Rocket Launcher', mode: 'Blast Mode', ammo: 'N', burst: 2, dmg: 6, saving: 'ARM', saves: '1', props: ['Continous Damage', 'Impact Template (Circular)'], ranges: RIFLE_RANGES}],
   20: [{name: 'Boarding Pistol', mode: 'Blast Mode', ammo: 'N', burst: 1, dmg: 7, saving: 'ARM', saves: '1', props: ['Intuitive Attack', 'Direct Template (Small Teardrop)'], ranges: null}],
   21: [{name: 'Jammer', mode: null, ammo: 'N', burst: 1, dmg: 7, saving: 'BTS', saves: '1', props: ['BS Weapon (WIP)', 'Comms. Attack', 'Intuitive Attack', 'Disposable (2)', 'State: Isolated', 'Non-lethal', 'No LoF', 'Zone of Control'], ranges: null}],
+  22: [{name: 'Adhesive Launcher Rifle', mode: null, ammo: 'PARA', burst: 2, dmg: null, saving: 'PH-6', saves: '1', props: ['Non-lethal'], ranges: [{to: 20, mod: 0}, ...RIFLE_RANGES]}],
   18: [{name: 'Sepsitor', mode: null, ammo: null, burst: 1, dmg: 4, saving: 'BTS', saves: '1', props: ['Intuitive Attack', 'Disposable (2)', 'State: Sepsitorized', 'Direct Template (Large Teardrop)', '[*]'], ranges: null}],
 });
 
