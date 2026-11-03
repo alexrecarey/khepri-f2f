@@ -61,10 +61,15 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
   const t = useT();
   const color = ROLE[side];
   // A side card is drawn for a picked trooper (MatchupScreen).
-  const {sel, resolved, groups, cc, ccAllies, ccAlliesMax, noCover, coverOn, hacked, firewallRequired, fireteamChip, targetedChip, hackedChip, immAChip, surprise,
+  const {sel, resolved, groups, cc, ccAllies, ccAlliesMax, noCover, coverOn, hacked, firewallRequired, fireteamChip, targetedChip, hackedChip, immAChip, noLofChip, surprise,
     berserk, supportware, teamOps, faction, crest, short, loadout} = /** @type {import('../types.js').SideView & {resolved: import('../types.js').ResolvedSide}} */ (view[side]);
   const unit = resolved?.unit;
   const option = resolved?.option;
+  // The picked Dodge's own toggles, where the view says they apply.
+  const dodgeToggles = [
+    noLofChip && {key: 'noLof', label: t('chip.noLof'), on: sel.noLof, onToggle: () => patch(side, {noLof: !sel.noLof})},
+    immAChip && {key: 'immA', label: t('chip.immA'), on: sel.immA, onToggle: () => patch(side, {immA: !sel.immA})},
+  ].filter((x) => x !== false);
 
   return (
     <section className="card" data-side={side} aria-label={t('side.trooper', {side: t(`side.${color}`)})}>
@@ -75,7 +80,7 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
           ? <span className="unit-name">{short}{loadout ? ` · ${loadout}` : ''} <span className="faction">{faction} ›</span></span>
           : <span className="unit-empty">{t('side.choose')} ›</span>}
       </button>
-      {option && <WeaponButtons side={side} groups={groups} selected={sel.weaponKey} color={color} />}
+      {option && <WeaponButtons side={side} groups={groups} selected={sel.weaponKey} color={color} dodgeToggles={dodgeToggles} />}
       {unit && (
         <div className="row-wrap">
           {/* Cover first, whenever it is there (Alex, 2026-10-22). Hacked:
@@ -95,15 +100,14 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
             <ToggleChip on={resolved.sapper} label={t('chip.sapper')} color={color} onToggle={() => dispatch({type: 'setSapper', side, on: !resolved.sapper})} />
           )}
           {/* States that matter to this pick: Targeted against a shot or
-              program or on a Reset, Hacked (-3 to -12) on a Reset, IMM-A on
-              a Dodge. */}
+              program or on a Reset, Hacked (-3 to -12) on a Reset. IMM-A and
+              No LoF are on the Dodge button itself (dodgeToggles). */}
           {targetedChip && <ToggleChip on={sel.targeted} label={t('chip.targeted')} color={color} onToggle={() => patch(side, {targeted: !sel.targeted})} />}
           {hackedChip && (
             <PickChip side={side} chip="hackedReset" label={t('chip.hacked')} options={HACKED_RESET_MODS.map(String)}
               value={HACKED_RESET_MODS.includes(sel.hackedReset) ? HACKED_RESET_MODS.indexOf(sel.hackedReset) : null} color={color}
               onPick={(i) => patch(side, {hackedReset: i == null ? 0 : HACKED_RESET_MODS[i]})} />
           )}
-          {immAChip && <ToggleChip on={sel.immA} label={t('chip.immA')} color={color} onToggle={() => patch(side, {immA: !sel.immA})} />}
           {/* Team-Ops: one pick from the unit's chart and one TacBall item;
               a weapon joins the weapon buttons, a skill or equipment shows
               on the chip. */}
