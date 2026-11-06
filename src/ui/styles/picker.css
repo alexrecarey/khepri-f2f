@@ -83,3 +83,5 @@
 .faction-head { all: unset; box-sizing: border-box; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
   padding: 10px 12px; margin: 4px 0; border-radius: 10px; background: var(--surface-2); font-size: 15px; }
 .faction-head > :last-child { font-size: var(--fs-small); }
+/* The loadout the arrow keys are on (usePickerCursor), on a unit's page. */
+.line-btn.loadout.on, .line-btn.loadout:hover { background: var(--surface-3); }

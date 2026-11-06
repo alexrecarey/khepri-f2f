@@ -378,21 +378,29 @@ export function createSearch(index) {
     // unit's name (Sforza, S.T.R.S.). Then the kit's loadouts lead.
     const kit = tokens.every(isKitWord);
     const others = scoped.filter((m) => !recentSet.has(m.row.id));
+    // The list keeps typo and sound-alike matches only when nothing matches
+    // as typed: "senku" is one letter off Aragoto Senkenbutai and Sekudroids,
+    // which crowded Senku's own row; "zhnashi" still finds Zhanshi.
+    const strict = scoped.some((m) => m.tier <= TIER.PREFIX);
+    const pool = strict ? scoped.filter((m) => m.tier <= TIER.PREFIX) : scoped;
+    const poolOthers = pool.filter((m) => !recentSet.has(m.row.id));
+    const poolIds = new Set(pool.map((m) => m.row.unitId));
+    const poolUnits = units.filter((u) => poolIds.has(u.unitId));
     /** @type {(m: RowMatch) => ResultItem} */
     const loadout = (m) => ({kind: 'loadout', hit: profileHit(m, scope)});
     /** @type {(u: import('../types.js').UnitHit) => ResultItem} */
     const unit = (u) => ({kind: 'unit', u});
     /** @type {ResultItem[]} */
     let items;
-    if (scoped.length <= FEW_LOADOUTS) items = others.map(loadout);
-    else if (units.length === 1) items = [unit(units[0]), ...others.map(loadout)];
+    if (pool.length <= FEW_LOADOUTS) items = poolOthers.map(loadout);
+    else if (poolUnits.length === 1) items = [unit(poolUnits[0]), ...poolOthers.map(loadout)];
     // Kit: its loadouts, then the units (those the words name first: "mine" still finds Minescorp).
-    else if (kit || !scoped.some((m) => m.named)) {
-      const named = new Set(scoped.filter((m) => m.named).map((m) => m.row.unitId));
-      const byName = [...units.filter((u) => named.has(u.unitId)), ...units.filter((u) => !named.has(u.unitId))];
-      items = [...others.filter((m) => !m.named).slice(0, MAX_ITEMS).map(loadout), ...byName.slice(0, MAX_ITEMS).map(unit)];
+    else if (kit || !pool.some((m) => m.named)) {
+      const named = new Set(pool.filter((m) => m.named).map((m) => m.row.unitId));
+      const byName = [...poolUnits.filter((u) => named.has(u.unitId)), ...poolUnits.filter((u) => !named.has(u.unitId))];
+      items = [...poolOthers.filter((m) => !m.named).slice(0, MAX_ITEMS).map(loadout), ...byName.slice(0, MAX_ITEMS).map(unit)];
     }
-    else items = units.slice(0, MAX_ITEMS).map(unit);
+    else items = poolUnits.slice(0, MAX_ITEMS).map(unit);
     // Recent picks that match go first, whatever the rule above.
     items = [...recent.map((hit) => /** @type {ResultItem} */ ({kind: 'loadout', hit, recent: true})), ...items];
 

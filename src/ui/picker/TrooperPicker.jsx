@@ -6,14 +6,15 @@
 // picked. ↑↓ move through the list, ↵ takes the highlighted row.
 // Query, faction and the drill-in stack are the state document's ui.picker,
 // so Back (button, Escape or the browser's) pops one screen.
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef} from 'react';
 import {ROLE} from '../../state/schema.js';
 import {dispatch, useAppState} from '../../state/store.js';
 import FactionLogo from '../factionLogo.jsx';
 import LoadFailed from '../LoadFailed.jsx';
 import {Page} from '../Sheet.jsx';
 import {TYPE_ORDER, typeName} from './constants.js';
-import {typeScreen, unitScreen} from './PickerScreens.jsx';
+import {drillIn, typeScreen, unitScreen} from './PickerScreens.jsx';
+import usePickerCursor from './usePickerCursor.js';
 import {LoadoutResult, UnitResult} from './Rows.jsx';
 import SearchBar from './SearchBar.jsx';
 import {factionNameOf, useRecentIds} from './useRecentIds.js';
@@ -58,57 +59,40 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError, 
   const typing = query.trim().length > 0;
   const results = useMemo(() => (searcher && typing ? searcher.search({query, recentIds}) : null), [searcher, typing, query, recentIds]);
   const browse = useMemo(() => (searcher && !typing ? searcher.browse({factionId: scope, recentIds}) : null), [searcher, typing, scope, recentIds]);
-  // The rows the arrow keys walk: the results, or the recent picks.
+  // Drilled in: what the screen lists (PickerScreens.jsx; it was pushed from the searcher's lists, so the searcher is there).
+  const s = /** @type {import('../../types.js').Searcher} */ (searcher);
+  // A unit opened from a search lists every faction's loadouts (the search covers them all); from a faction's browse, that faction's.
+  const drillScope = typing ? null : scope;
+  const drill = useMemo(() => (searcher && top ? drillIn(searcher, army, top, drillScope) : null), [searcher, army, top, drillScope]);
+  // The rows the arrow keys walk: the screen's list, the results, or the recent picks.
   /** @type {ResultItem[]} */
-  const rows = useMemo(() => results?.items ?? (browse?.recent ?? []).map((hit) => ({kind: 'loadout', hit, recent: true})), [results, browse]);
-
-  // The highlighted row: the first until an arrow key moves it; a new query starts again at the top.
-  const [cursor, setCursor] = useState({at: 0, moved: false});
-  useEffect(() => setCursor({at: 0, moved: false}), [query, scope]);
-  const at = Math.min(cursor.at, Math.max(0, rows.length - 1));
-  useEffect(() => {
-    if (cursor.moved) document.getElementById(`picker-row-${at}`)?.scrollIntoView({block: 'nearest'});
-  }, [at, cursor.moved]);
+  const rows = useMemo(() => drill?.items ?? results?.items ?? (browse?.recent ?? []).map((hit) => ({kind: 'loadout', hit, recent: true})),
+    [drill, results, browse]);
 
   /** @param {number | null | undefined} id */
   const factionName = (id) => factionNameOf(searcher, id, t);
   /** @param {UnitHit} u */
   const openUnit = (u) => push({view: 'unit', unitId: u.unitId, name: u.title});
-  /** @param {ResultItem | undefined} item */
-  const take = (item) => {
-    if (item?.kind === 'unit') openUnit(item.u);
-    else if (item) onPick(item.hit);
-  };
-  // Enter takes the highlighted row, but never an unasked-for typo guess: the player confirms those.
-  const submit = () => {
-    const item = rows[at];
-    if (item?.kind === 'loadout' && item.hit.loose && !cursor.moved) return;
-    take(item);
-  };
+  /** @param {ResultItem} item */
+  const take = (item) => (item.kind === 'unit' ? openUnit(item.u) : onPick(item.hit));
+  // A new query, faction or screen starts again at the top.
+  const {at, shown, arrows, submit, rowProps} = usePickerCursor(rows, `${query}|${scope}|${stack.length}`, take, {typing: typing && !top, drilled: top != null});
   /** @param {import('react').KeyboardEvent<HTMLInputElement>} e */
-  const keys = (e) => {
-    if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && rows.length) {
-      e.preventDefault();
-      setCursor({at: Math.max(0, Math.min(rows.length - 1, at + (e.key === 'ArrowDown' ? 1 : -1))), moved: true});
-    } else onKeyDown?.(e);
-  };
-  const showCursor = typing || cursor.moved;
+  const keys = (e) => { if (!arrows(e)) onKeyDown?.(e); };
   /** @param {ResultItem} item @param {number} i */
   const row = (item, i) => {
-    const common = {army, factionName, id: `picker-row-${i}`, on: showCursor && i === at};
+    const common = {army, factionName, ...rowProps(i)};
     return item.kind === 'unit'
       ? <UnitResult key={`u${item.u.unitId}`} u={item.u} onOpen={openUnit} {...common} />
       : <LoadoutResult key={`l${item.hit.rowId}`} hit={item.hit} recent={item.recent} onPick={onPick} {...common} />;
   };
 
-  // Drilled in: one of the screens in PickerScreens.jsx (they need the searcher: they were pushed from its lists).
-  const s = /** @type {import('../../types.js').Searcher} */ (searcher);
-  if (top?.view === 'type') return typeScreen({t, searcher: s, army, scope, top, factionName, pop: back, openUnit});
-  if (top?.view === 'unit') return unitScreen({t, searcher: s, army, scope, color, top, factionName, pop: back, pick: onPick});
+  if (top?.view === 'type' && drill) return typeScreen({t, army, scope: drillScope, top, drill, factionName, pop: back, openUnit, rowProps});
+  if (top?.view === 'unit' && drill) return unitScreen({t, army, scope: drillScope, color, top, drill, factionName, pop: back, pick: onPick, rowProps});
 
   const bar = (
     <SearchBar key={side} side={side} color={color} query={query} onQuery={setQuery} onSubmit={submit} onKeyDown={keys} onCancel={back}
-      inputRef={inputRef} activeId={showCursor && rows.length ? `picker-row-${at}` : undefined} />
+      inputRef={inputRef} activeId={shown && rows.length ? `picker-row-${at}` : undefined} />
   );
   const sideName = t(`side.${color}`);
   return (

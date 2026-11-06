@@ -141,6 +141,15 @@ test('items: a faction word narrows the search; alone it lists the faction', () 
   assert.ok(kinds('caled').some((i) => i.kind === 'unit' && /caledonian/i.test(i.u.name)));
 });
 
+test('items: typo matches only when nothing matches as typed', () => {
+  // "senku" is one letter off Aragoto Senkenbutai and Sekudroids.
+  const senku = kinds('senku');
+  assert.ok(senku.every((i) => (i.kind === 'unit' ? i.u.tier ?? 0 : i.hit.tier) <= TIER.PREFIX), JSON.stringify(senku.map((i) => i.kind === 'unit' && i.u.title)));
+  assert.ok(senku.some((i) => i.kind === 'unit' && i.u.title === 'Senku'));
+  // Nothing as typed: the typo guesses are the list.
+  assert.ok(kinds('zhnashi').some((i) => i.kind === 'unit' && i.u.title === 'Zhanshi'));
+});
+
 test('items: a matching recent pick goes first, marked', () => {
   const pick = searcher.search({query: 'fus ml'}).profiles[1];
   const [first] = kinds('fus', [pick.rowId]);

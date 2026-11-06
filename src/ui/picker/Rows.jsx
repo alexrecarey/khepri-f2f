@@ -6,6 +6,7 @@
 import {crestForRow, crestOf} from '../../army/crests.js';
 import {unitById} from '../../army/lookup.js';
 import {extraLoadoutName} from '../../army/names.js';
+import {TIER} from '../../search/search.js';
 import {ResultArt} from '../Crest.jsx';
 import {loadoutTag} from '../../state/pickerView.js';
 import {useT} from '../i18n.jsx';
@@ -40,7 +41,10 @@ export function UnitResult({u, onOpen, army, factionName, on, id}) {
       <ResultArt kind="unit" slug={slug} faction={u.factionIds[0]} />
       <span className="tx">
         <span className="t">{u.title}</span>
-        <span className="s">{t('picker.kindUnit')} · {factionsLabel(u.factionIds, factionName)} · {t('picker.loadoutCount', {count: u.profileCount})}</span>
+        <span className="s">
+          {t('picker.kindUnit')} · {factionsLabel(u.factionIds, factionName)} · {t('picker.loadoutCount', {count: u.profileCount})}
+          {(u.tier ?? TIER.EXACT) >= TIER.TYPO1 && ` · ${t('picker.closeMatch')}`}
+        </span>
       </span>
     </button>
   );
@@ -69,11 +73,11 @@ export function LoadoutResult({hit, onPick, army, factionName, recent, on, id}) 
 
 // A loadout on its unit's page: the unit name is the page title, so just the
 // weapons (and any loadout name), with the points on the right.
-/** @param {{hit: ProfileHit, onPick: (hit: ProfileHit) => void, color: string, army: Army | null}} props */
-export function LoadoutRow({hit, onPick, color, army}) {
+/** @param {{hit: ProfileHit, onPick: (hit: ProfileHit) => void, color: string, army: Army | null, on?: boolean, id?: string}} props */
+export function LoadoutRow({hit, onPick, color, army, on, id}) {
   const extra = extraLoadoutName(hit.loadout, hit.unit) ?? loadoutTag(army, hit);
   return (
-    <button type="button" className="line-btn loadout" onClick={() => onPick(hit)}>
+    <button type="button" id={id} className={`line-btn loadout${on ? ' on' : ''}`} onClick={() => onPick(hit)}>
       <span><span className={`c-${color}`}>{weaponList(hit)}</span>{extra && <span className="tag"> · {extra}</span>}</span>
       <span className="r">{hit.points}</span>
     </button>
