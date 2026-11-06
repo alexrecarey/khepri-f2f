@@ -84,10 +84,8 @@ test('a split range round-trips through the URL', () => {
 test('picker: open, drill in, back one screen at a time', () => {
   let s = run(initialState(), {type: 'openPicker', side: 'B', scope: 101});
   assert.equal(uiDepth(s.ui), 1);
-  s = run(s, {type: 'pickerQuery', query: 'fus'}, {type: 'pickerPush', view: {view: 'factions'}});
-  assert.equal(uiDepth(s.ui), 2);
-  // Choosing a faction leaves the faction list and remembers the faction.
-  s = run(s, {type: 'pickerScope', scope: 201});
+  // A faction tile: browse it, and remember it.
+  s = run(s, {type: 'pickerQuery', query: 'fus'}, {type: 'pickerScope', scope: 201});
   assert.deepEqual(s.ui.picker.stack, []);
   assert.equal(s.ui.picker.scope, 201);
   assert.equal(s.ui.picker.query, 'fus');
@@ -293,7 +291,7 @@ test('sync: the URL follows the state, each overlay layer is a history entry', (
   dispatch({type: 'setSide', side: 'A', sel: fennec});
   assert.match(win.entries[win.index].url, /unitA=10/);
   dispatch({type: 'openPicker', side: 'B'});
-  dispatch({type: 'pickerPush', view: {view: 'factions'}});
+  dispatch({type: 'pickerPush', view: {view: 'type', type: 'LI'}});
   assert.equal(win.index, 2);
   // Browser Back closes one layer.
   win.history.go(-1);
@@ -372,13 +370,8 @@ test('classic: the Opponent PS stepper keeps PS + ARM and PS + BTS right', async
   assert.equal(n.damageA + n.armB, 9);
 });
 
-test('desktop picker: cursor resets on a new query; pick then the other side', () => {
-  let s = run(initialState(), {type: 'openPicker', side: 'A', scope: 101},
-    {type: 'pickerCursor', cursor: {cursor: 3, pane: 'loadouts', lcursor: 2}});
-  assert.equal(s.ui.picker.lcursor, 2);
-  s = run(s, {type: 'pickerQuery', query: 'x'});
-  assert.equal(s.ui.picker.cursor, 0);
-  assert.equal(s.ui.picker.pane, 'list');
+test('desktop picker: pick, then the other side', () => {
+  let s = run(initialState(), {type: 'openPicker', side: 'A', scope: 101}, {type: 'pickerQuery', query: 'x'});
   s = run(s, {type: 'pickTrooper', side: 'A', sel: fennec, recent: {unitId: 10}, next: true});
   assert.equal(s.matchup.A.unitId, 10);
   assert.equal(s.ui.overlay, 'picker');

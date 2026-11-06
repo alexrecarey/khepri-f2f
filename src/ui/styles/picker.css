@@ -1,27 +1,11 @@
 /* ---------- picker ---------- */
 .list-head { font-size: var(--fs-label); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 12px 8px 6px; }
-.hit { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; gap: 3px; padding: 12px; border-radius: 10px;
-  position: relative; overflow: hidden; isolation: isolate; flex-shrink: 0; }
-.hit:active, .hit.first { background: var(--surface-3); }
-.hit .t { font-size: 16px; font-weight: 600; }
-.hit .t .tag { font-weight: 400; color: var(--text-3); }
-.hit .w { font-size: 14px; }
-.hit .m { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
-.hit .loose { font-size: var(--fs-small); color: var(--muted); font-family: var(--font-body); }
 .line-btn { all: unset; box-sizing: border-box; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 14px 12px; font-size: 15px; border-radius: 10px; }
 .line-btn .r { color: var(--muted); font-size: 14px; }
 .line-btn.danger { color: var(--danger); }
-/* "N in another faction" rows under a search with no match here: outlined. */
-.line-btn.boxed { border: 1px solid var(--line-control); margin: 4px 0; }
 .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0 4px; }
 .tile { all: unset; box-sizing: border-box; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 16px 12px; border-radius: 10px; background: var(--surface-2); font-size: 15px; }
 .tile .r { color: var(--muted); font-size: 13px; }
-.search-bar { background: #1e1e1e; border-top: 1px solid var(--line); padding: 10px 12px calc(14px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
-.search-input { all: unset; box-sizing: border-box; padding: 14px 16px; border-radius: 12px; font-size: max(16px, 1rem); background: #141414; border: 1px solid var(--line-strong); }
-.search-input.active { border-color: var(--active); }
-.search-input.reactive { border-color: var(--reactive); }
-.scope { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
-.scope > * { flex-shrink: 0; }
 .text-btn { all: unset; box-sizing: border-box; cursor: pointer; min-height: var(--tap); padding: 0 12px; display: grid; place-items: center; font-size: 15px; color: var(--text-2); border-radius: 8px; }
 .text-btn:focus-visible { outline: 2px solid var(--text-2); }
 .stat-line { display: flex; flex-wrap: wrap; gap: 4px 14px; font-family: var(--font-mono); font-size: 13px; color: var(--text); padding: 12px 12px 4px; }
@@ -36,7 +20,7 @@
 .pgroup-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; padding: 0 12px; }
 .pgroup-head h2 { margin: 0; font-size: 17px; font-weight: 600; }
 .pgroup-head span { font-size: var(--fs-small); color: var(--muted); white-space: nowrap; }
-/* The desk picker's stat strip (.dp-stats): each label over its value. */
+/* A profile group's stat strip: each label over its value. */
 .pgroup-stats { display: flex; justify-content: space-between; margin: 8px 4px 6px; padding: 7px 10px; border-radius: 10px; background: var(--bg); }
 .pgroup-stats span { display: flex; flex-direction: column; align-items: center; gap: 1px; }
 .pgroup-stats small { font-size: 11px; color: var(--muted); }
@@ -45,13 +29,57 @@
 .stats { padding: 12px 16px; font-family: var(--font-mono); font-size: 13px; color: var(--text-3); border-bottom: 1px solid var(--line); }
 .empty { padding: 18px 8px; color: var(--text-2); font-size: 15px; }
 
-/* A result row's unit crest (Crest.jsx RowCrest, canvas Crests D): cut by the
-   row's right edge and fading to the left, faint and grey (grayscale keeps
-   light parts light, so the crest still reads); in its own colours on the row
-   Enter or a tap picks (.hit.first, .dp-row.on) and on hover. The rows clip it
-   (.hit, .dp-row: overflow hidden; isolation keeps it behind their text), and
-   so must not shrink: a clipping flex item loses its content-height minimum. */
-.row-crest { position: absolute; z-index: -1; top: 50%; right: -14px; width: 104px; height: 104px; margin-top: -52px;
-  pointer-events: none; opacity: .2; filter: grayscale(1); transition: opacity .18s ease, filter .18s ease;
-  -webkit-mask-image: linear-gradient(270deg, #000 20%, transparent 88%); mask-image: linear-gradient(270deg, #000 20%, transparent 88%); }
-.hit.first .row-crest, .hit:hover .row-crest, .dp-row.on .row-crest, .dp-row:hover .row-crest { opacity: .45; filter: none; }
+/* The search box at the top of the picker (SearchBar.jsx), Spotify style: a
+   pill with the side's colour on its icon, a hint, a clear button; Cancel. */
+.page-head.bar-head { padding: 8px 10px 8px 12px; border-bottom: none; }
+.search-bar { flex-grow: 1; display: flex; align-items: center; gap: 6px; min-width: 0; }
+.search-field { flex-grow: 1; min-width: 0; position: relative; display: flex; align-items: center; gap: 7px; height: 36px; padding: 0 8px 0 11px;
+  border-radius: 999px; background: var(--surface-3); border: 1px solid transparent; transition: border-color .15s; }
+.search-field.active { --side: var(--active); }
+.search-field.reactive { --side: var(--reactive); }
+.search-field:focus-within { border-color: var(--side); }
+.search-field > svg { flex-shrink: 0; color: var(--side); }
+/* 16px: under that, iOS zooms the page in when the box is focused. */
+.search-field input { all: unset; flex-grow: 1; min-width: 0; font-size: max(16px, 1rem); color: var(--text); position: relative; z-index: 1; }
+.search-field input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+.search-field .hint { position: absolute; left: 34px; right: 30px; color: var(--muted); font-size: 14px; pointer-events: none;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.search-field.has-text .hint { visibility: hidden; }
+/* A grey disc with the × cut out of it: the field shows through the ×. */
+.search-field .clear { all: unset; cursor: pointer; flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--muted); visibility: hidden; z-index: 1;
+  -webkit-mask: var(--x-cut) center / 100% 100% no-repeat; mask: var(--x-cut) center / 100% 100% no-repeat;
+  --x-cut: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cmask id='m'%3E%3Crect width='20' height='20' fill='white'/%3E%3Cpath d='m7 7 6 6m0-6-6 6' stroke='black' stroke-width='1.8' stroke-linecap='round'/%3E%3C/mask%3E%3Ccircle cx='10' cy='10' r='10' mask='url(%23m)'/%3E%3C/svg%3E"); }
+.search-field.has-text .clear { visibility: visible; }
+.search-field .clear:focus-visible { outline: 2px solid var(--side); outline-offset: 2px; }
+.search-bar .text-btn { padding: 0 4px 0 6px; font-size: 14px; }
+
+/* Search results (Rows.jsx): one shape for units and loadouts. A title, and
+   a line under it saying what the row is; no end column, so it runs full width. */
+.results { display: flex; flex-direction: column; }
+.res { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: center; gap: 12px;
+  padding: 7px 10px; border-radius: 10px; min-height: 62px; flex-shrink: 0; }
+.res:hover, .res.on { background: var(--surface-3); }
+.res:focus-visible { outline: 2px solid var(--text-2); outline-offset: -2px; }
+.res .tx { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.res .t { display: flex; align-items: baseline; gap: 10px; font-size: 16px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.res .t .nm { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.res .t .cost { flex-shrink: 0; font-family: var(--font-mono); font-size: var(--fs-small); font-weight: 400; color: var(--text-2); }
+.res .s { font-size: 14px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.picker.active .res .rec { color: var(--active); }
+.picker.reactive .res .rec { color: var(--reactive); }
+/* The picture (Crest.jsx ResultArt): a unit is a coin; a loadout fills a
+   rounded square with its crest, fading into a band with its weapon's label. */
+.art { width: 48px; height: 48px; position: relative; display: block; overflow: hidden; background: var(--surface-3); }
+.art img { width: 100%; height: 100%; display: block; object-fit: contain; }
+.art.fallback img { padding: 22%; box-sizing: border-box; }
+.art.coin { border-radius: 50%; padding: 5px; box-sizing: border-box; }
+.art.fill { border-radius: 30%; }
+.art.fill img { transform: scale(1.18); -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 72%); mask-image: linear-gradient(to bottom, #000 40%, transparent 72%); }
+.art.fill b { position: absolute; left: 0; right: 0; bottom: 0; height: 25%; display: grid; place-items: center; font-family: var(--font-display);
+  font-size: 10px; font-weight: 700; line-height: 1; letter-spacing: .05em; }
+.picker.active .art.fill b { background: var(--active); color: var(--active-ink); }
+.picker.reactive .art.fill b { background: var(--reactive); color: var(--reactive-ink); }
+/* In a faction: its name, and the way back to all of them. */
+.faction-head { all: unset; box-sizing: border-box; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 12px; margin: 4px 0; border-radius: 10px; background: var(--surface-2); font-size: 15px; }
+.faction-head > :last-child { font-size: var(--fs-small); }

@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {groupLoadouts, loadoutCharts, loadoutTag, mainWeapon, orderLoadouts, profileGroups, reachGroup, statLine, unitDetail, weaponChart} from './pickerView.js';
+import {groupLoadouts, loadoutTag, mainWeapon, orderLoadouts, profileGroups, reachGroup, statLine} from './pickerView.js';
 import {createSearch} from '../search/search.js';
 import {lieutenantTwins} from '../search/buildIndex.js';
 import {SKILL} from '../army/ids.js';
@@ -42,20 +42,6 @@ test('a loadout is tagged with the skills it adds', () => {
   assert.equal(loadoutTag(army, hit(1)), null);
 });
 
-test('weapon charts: bands per range column, main gun first', () => {
-  const ml = weaponChart(army, idOf('Missile Launcher'));
-  assert.ok(ml);
-  assert.equal(ml.bands.length, 7);
-  assert.equal(ml.bands[3], 3);                        // 24-32" is +3
-  assert.equal(weaponChart(army, idOf('Chain Rifle'))?.bands.every((b) => b === null), true);
-  const charts = loadoutCharts(army, [idOf('Flash Pulse'), idOf('Combi Rifle'), idOf('Pistol')]);
-  assert.equal(charts[0].name, 'Combi Rifle');
-  const d = unitDetail(army, 1803, 101);
-  assert.ok(d);
-  assert.equal(d.profiles[0].stats[0][0], 'MOV');
-  assert.deepEqual(d.profiles[0].stats[0][1], [10, 10]); // cm; the pane shows 4-4 (inches) or 10-10 (cm)
-});
-
 test('Swiss Guard: SWC loadouts first (longer reach first), main gun is the farthest-reaching weapon', async () => {
   const {createSearch: createSearcher} = await import('../search/search.js');
   const index = JSON.parse(readFileSync(new URL('../search/index.json', import.meta.url), 'utf8'));
@@ -66,7 +52,6 @@ test('Swiss Guard: SWC loadouts first (longer reach first), main gun is the fart
   // Every Swiss Guard loadout has a main weapon.
   const mains = hits.map((h) => army.weapons[/** @type {number} */ (mainWeapon(army, h.weaponIds))][0].name);
   assert.deepEqual(mains.slice(0, 3), ['Missile Launcher', 'Heavy Machine Gun', 'MULTI Rifle']);
-  assert.equal(loadoutCharts(army, hits[0].weaponIds)[0].name, 'Missile Launcher');
 });
 
 test('Lieutenant: twins of a plain loadout are dropped, the skill is never a tag', () => {

@@ -25,7 +25,7 @@ const roll = /** @type {import('../types.js').SavedRoll} */ ({id: 'r1', mode: MO
 const busy = () => deepFreeze(/** @type {import('../types.js').AppState} */ ({
   ...initialState(),
   matchup: {...initialState().matchup, A: fennec, B: zhanshi, rangeCmB: 80},
-  ui: {...initialState().ui, overlay: 'picker', picker: {side: 'A', query: 'fus', scope: 101, stack: [{view: 'factions'}, {view: 'unit'}]}},
+  ui: {...initialState().ui, overlay: 'picker', picker: {side: 'A', query: 'fus', scope: 101, stack: [{view: 'type', type: 'LI'}, {view: 'unit'}]}},
   scopes: {A: 101},
   prefs: {headline: 'win'},
   lists: {recents: [{unitId: 10, groupId: 1, optionId: 2, armyFactionId: 101, side: 'A'}], recentFactions: [101], saved: [roll]},
@@ -65,10 +65,9 @@ const ACTIONS = [
   {type: 'toast', text: 'Saved'},
   {type: 'openPicker', side: 'B', scope: null},
   {type: 'pickerQuery', query: 'zh'},
-  {type: 'pickerCursor', cursor: {cursor: 2}},
   {type: 'pickerSide', side: 'B', scope: 201},
   {type: 'pickerScope', scope: 201},
-  {type: 'pickerPush', view: {view: 'factions'}},
+  {type: 'pickerPush', view: {view: 'type', type: 'LI'}},
   {type: 'pickTrooper', side: 'A', sel: zhanshi, ftMax: 5, scope: 201, next: true,
     recent: {unitId: 20, groupId: 1, optionId: 1, armyFactionId: 201}},
 ];

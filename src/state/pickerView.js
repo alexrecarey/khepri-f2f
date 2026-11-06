@@ -2,7 +2,6 @@
 // shows their stats (pure; the picker components render it). Needs the
 // army data (weapon range bands, profile stats); without it the unit page is a
 // plain list.
-import {crestOf} from '../army/crests.js';
 import {unitById} from '../army/lookup.js';
 import {isLieutenant} from '../army/traits.js';
 import {isNonLethal} from '../army/weapons.js';
@@ -99,32 +98,6 @@ export function loadoutTag(army, hit) {
   return skills.length ? skills.slice(0, 2).join(', ') : null;
 }
 
-// A weapon's chart line for the desktop picker: its first fire mode, the
-// Range MOD per band (null out of range; none at all for a Direct Template)
-// and B / PS / ammo.
-/** A weapon's chart line for the desktop picker.
- * @typedef {{id: number, name: string, support: boolean, bands: (number | null)[], burst: number | null, ps: number | null, ammo: string}} WeaponChart */
-
-/**
- * @param {Army | null | undefined} army
- * @param {number} weaponId
- * @returns {WeaponChart | null}
- */
-export function weaponChart(army, weaponId) {
-  const row = army?.weapons?.[weaponId]?.[0];
-  if (!row) return null;
-  const template = !row.ranges;
-  return {
-    id: weaponId,
-    name: row.name,
-    support: isSupport(row),
-    bands: RANGE_BANDS.map((b) => (template ? null : /** @type {NonNullable<WeaponRow['ranges']>} */ (row.ranges).find((r) => b.to <= r.to)?.mod ?? null)),
-    burst: row.burst ?? null,
-    ps: row.dmg ?? null,
-    ammo: (row.ammo ?? []).join('+') || (template ? 'template' : ''),
-  };
-}
-
 // A loadout's main gun: the lethal weapon that reaches farthest (the army
 // data lists a Swiss Guard ML's Light Shotgun first), leaving out Disposable
 // spares; else the first lethal one (templates, CC), else none.
@@ -151,19 +124,6 @@ export function mainWeapon(army, weaponIds) {
   return best ?? main[0] ?? lethal[0] ?? null;
 }
 
-// The loadout's weapons as chart lines, its main gun first.
-/**
- * @param {Army | null | undefined} army
- * @param {number[] | null | undefined} weaponIds
- * @returns {WeaponChart[]}
- */
-export function loadoutCharts(army, weaponIds) {
-  const charts = /** @type {WeaponChart[]} */ ((weaponIds ?? []).map((id) => weaponChart(army, id)).filter(Boolean));
-  const main = charts.findIndex((c) => c.id === mainWeapon(army, weaponIds));
-  if (main <= 0) return charts;
-  return [charts[main], ...charts.slice(0, main), ...charts.slice(main + 1)];
-}
-
 // One unit's loadouts, SWC weapons first (an HMG, an ML, a 0.5 SWC hacker),
 // then by how far the main gun reaches, then cheapest.
 /**
@@ -177,53 +137,6 @@ export function orderLoadouts(army, hits) {
   /** @param {ProfileHit} h */
   const swc = (h) => Number(h.swc ?? 0);
   return [...hits].sort((a, b) => swc(b) - swc(a) || reach(b) - reach(a) || a.points - b.points);
-}
-
-// Everything the desktop unit pane shows about a unit in one faction. The
-// desk list asks for one per row on every keystroke, so each is built once.
-/** What the desktop unit pane shows about a unit in one faction.
- * @typedef {{unit: import('../types.js').UnitRow, profiles: {id: number, name: string, type: string, crest: string | null, stats: [string, number | number[]][], skills: import('../types.js').TraitRef[]}[]}} UnitDetail */
-
-/** @type {WeakMap<Army, Map<string, UnitDetail | null>>} */
-const details = new WeakMap();
-/**
- * @param {Army | null | undefined} army
- * @param {number} unitId
- * @param {number | null} armyFactionId null: the unit's first faction
- * @returns {UnitDetail | null}
- */
-export function unitDetail(army, unitId, armyFactionId) {
-  if (!army) return null;
-  let cache = details.get(army);
-  if (!cache) details.set(army, cache = new Map());
-  const key = `${unitId}:${armyFactionId}`;
-  if (!cache.has(key)) cache.set(key, buildUnitDetail(army, unitId, armyFactionId));
-  // Set just above when missing.
-  return /** @type {UnitDetail | null} */ (cache.get(key));
-}
-
-/**
- * @param {Army} army
- * @param {number} unitId
- * @param {number | null} armyFactionId
- * @returns {UnitDetail | null}
- */
-function buildUnitDetail(army, unitId, armyFactionId) {
-  const unit = unitById(army, unitId);
-  if (!unit) return null;
-  // A null faction reads nothing, falling back to the first.
-  const faction = unit.byFaction[/** @type {number} */ (armyFactionId)] ?? Object.values(unit.byFaction)[0];
-  const group = faction?.groups[0];
-  const profiles = (group?.profiles ?? []).map((p) => ({
-    id: p.id,
-    name: p.name,
-    type: p.type,
-    crest: crestOf(unit, p),
-    stats: profileStats(p),
-    // The skills as the army lists them; army/traits.js traitLabel words them.
-    skills: p.skills ?? [],
-  }));
-  return {unit, profiles};
 }
 
 // A profile's stats as [name, value] pairs, the names English tokens (src/i18n

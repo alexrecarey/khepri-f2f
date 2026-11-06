@@ -657,11 +657,13 @@
  * @property {number | null} profileId
  * @property {number} optionId
  * @property {string} unit the short unit name
+ * @property {string} title what the list calls it: the loadout's short name ("Fennec", "Tanuki")
  * @property {string} loadout
  * @property {string | null} weapon the weapon the query matched, else the first
  * @property {number | null} weaponId the matched weapon's id, null when none matched
  * @property {string[]} weapons
  * @property {number[]} weaponIds
+ * @property {string | null} code that weapon's label on the loadout's art ("HMG")
  * @property {string | null} type
  * @property {number | null} bs
  * @property {number} points
@@ -671,12 +673,18 @@
  * @property {string[]} matched the index words each typed word matched
  */
 /**
- * A unit as the picker lists it (search/search.js unitHit).
- * @typedef {{unitId: number, name: string, short: string, type: string | null, factionIds: number[], profileCount: number, tier?: number, best?: ProfileHit}} UnitHit
+ * A unit as the picker lists it (search/search.js unitHit). `title`: what
+ * the list calls it, the name its loadouts share ("Fusilier").
+ * @typedef {{unitId: number, name: string, short: string, title: string, type: string | null, factionIds: number[], profileCount: number, tier?: number, best?: ProfileHit}} UnitHit
  */
 /**
- * What a query finds (search/search.js search).
- * @typedef {{recent: ProfileHit[], profiles: ProfileHit[], units: UnitHit[], elsewhere: {factionId: number, name: string | undefined, count: number}[], total: number}} SearchResult
+ * One row of the picker's results: a unit (opens its page) or a loadout (picks it).
+ * @typedef {{kind: 'unit', u: UnitHit} | {kind: 'loadout', hit: ProfileHit, recent?: boolean}} ResultItem
+ */
+/**
+ * What a query finds (search/search.js search). `items`: the picker's list,
+ * units and loadouts in the order search.js ranks them.
+ * @typedef {{items: ResultItem[], recent: ProfileHit[], profiles: ProfileHit[], units: UnitHit[], elsewhere: {factionId: number, name: string | undefined, count: number}[], total: number}} SearchResult
  */
 /**
  * The search over one index (search/search.js createSearch).
@@ -710,22 +718,16 @@
  */
 
 /** A screen pushed inside the picker (state/reduce.js pickerPush).
- * @typedef {{view: 'factions'} | {view: 'type', type: string} | {view: 'unit', unitId: number, name: string}} PickerView */
+ * @typedef {{view: 'type', type: string} | {view: 'unit', unitId: number, name: string}} PickerView */
 
 /**
  * The open picker (state/reduce.js openPicker): whose side it picks for, the
- * query, the faction it is scoped to, the screens pushed; and, for the
- * desktop picker, the highlighted list row and loadout, which pane has the
- * arrow keys and the profile tab (pickerCursor).
+ * query, the faction it browses, the screens pushed.
  * @typedef {object} PickerState
  * @property {Side} side
  * @property {string} query
  * @property {number | null} scope a vanilla faction id, null for All
  * @property {PickerView[]} stack
- * @property {number | null} [cursor] the highlighted list row
- * @property {'list' | 'loadouts'} [pane]
- * @property {number} [lcursor] the highlighted loadout
- * @property {number | null} [profileId]
  */
 
 /**
@@ -814,7 +816,6 @@
  *   | {type: 'toast', text?: string | null}
  *   | {type: 'openPicker' | 'pickerSide', side: Side, scope: number | null}
  *   | {type: 'pickerQuery', query: string}
- *   | {type: 'pickerCursor', cursor: Partial<PickerState>}
  *   | {type: 'pickerScope', scope: number | null}
  *   | {type: 'pickerPush', view: PickerView}
  *   | {type: 'pickTrooper', side: Side, sel: Partial<Selection>, ftMax?: number, recent?: Omit<Recent, 'side'>, scope?: number | null, next?: true, nextScope?: number | null}

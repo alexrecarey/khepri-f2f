@@ -96,11 +96,62 @@ test('recent picks that match come first and are not repeated', () => {
   assert.ok(!res.profiles.some((p) => p.rowId === pick.rowId));
 });
 
+// The picker's list (items): one shape per rule.
+const kinds = (q, recentIds = []) => searcher.search({query: q, recentIds}).items;
+
+test('items: two loadouts or fewer are listed alone', () => {
+  const items = kinds('tanuki hmg');
+  assert.ok(items.length >= 1 && items.length <= 2);
+  assert.ok(items.every((i) => i.kind === 'loadout' && i.hit.code === 'HMG'));
+  assert.ok(kinds('fus ml').every((i) => i.kind === 'loadout'), 'two units, two loadouts: loadouts only');
+});
+
+test('items: one unit leads its loadouts', () => {
+  const [first, ...rest] = kinds('tanuki');
+  assert.equal(first.kind, 'unit');
+  assert.equal(first.kind === 'unit' && first.u.title, 'Tanuki');
+  assert.ok(rest.length > 2 && rest.every((i) => i.kind === 'loadout' && i.hit.unitId === (first.kind === 'unit' && first.u.unitId)));
+});
+
+test('items: several units by name list only the units', () => {
+  const items = kinds('fus');
+  assert.ok(items.length > 1 && items.every((i) => i.kind === 'unit'));
+  assert.ok(items.some((i) => i.kind === 'unit' && i.u.title === 'Fusilier'), 'the shared loadout name, not "Fusiliers"');
+});
+
+test('items: kit alone lists its loadouts, then the units', () => {
+  for (const q of ['hmg', 'sf', 'hacker']) {
+    const items = kinds(q);
+    const firstUnit = items.findIndex((i) => i.kind === 'unit');
+    assert.ok(firstUnit > 10, `${q}: loadouts first`);
+    assert.ok(items.slice(firstUnit).every((i) => i.kind === 'unit'), `${q}: then units`);
+  }
+  // "sf" starts Sforza's name too; the Spitfires still lead.
+  const sf = kinds('sf')[0];
+  assert.ok(sf.kind === 'loadout' && /spitfire/i.test(sf.hit.weapon ?? ''));
+});
+
+test('items: a faction word narrows the search; alone it lists the faction', () => {
+  const JSA = 1101;
+  const jsa = kinds('jsa hmg');
+  assert.ok(jsa.length > 0 && jsa.every((i) => (i.kind === 'loadout' ? i.hit.factionId : i.u.factionIds.includes(JSA) && JSA) === JSA));
+  const ariadna = kinds('ariadna');
+  assert.ok(ariadna.length > 20 && ariadna.every((i) => i.kind === 'unit' && i.u.factionIds.includes(301)));
+  // A prefix is not a faction: "ca" still finds Caledonians.
+  assert.ok(kinds('caled').some((i) => i.kind === 'unit' && /caledonian/i.test(i.u.name)));
+});
+
+test('items: a matching recent pick goes first, marked', () => {
+  const pick = searcher.search({query: 'fus ml'}).profiles[1];
+  const [first] = kinds('fus', [pick.rowId]);
+  assert.ok(first.kind === 'loadout' && first.recent && first.hit.rowId === pick.rowId);
+});
+
 test('browse: type tiles and units A-Z for a faction', () => {
   const b = searcher.browse({factionId: PANO});
   assert.ok(b.types.some((t) => t.type === 'HI' && t.count > 0));
   assert.ok(b.types.every((t) => t.count > 0));
-  const names = b.units.map((u) => u.short);
+  const names = b.units.map((u) => u.title);
   assert.deepEqual(names, [...names].sort((a, c) => a.localeCompare(c)));
 });
 

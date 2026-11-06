@@ -56,6 +56,9 @@ export const ShareIcon = () => (
 export const CloseIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" {...stroke}><path d="M6 6l12 12M18 6L6 18" /></svg>
 );
+export const SearchIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" {...stroke} strokeWidth={2.6}><circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.5 15.5 5 5" /></svg>
+);
 export const TrashIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" {...stroke}><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" /></svg>
 );
