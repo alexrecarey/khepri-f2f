@@ -5,7 +5,7 @@
 // side while it is still empty, so two Enters fill both.
 import {pickTrooper, pickerSide} from '../../state/actions.js';
 import {other} from '../../state/schema.js';
-import {dispatch, getState, useAppState} from '../../state/store.js';
+import {dispatch, useAppState} from '../../state/store.js';
 import TrooperPicker from './TrooperPicker.jsx';
 import {back} from '../nav.js';
 
@@ -18,7 +18,7 @@ export default function DeskPicker({searcher, army, loadError}) {
   const onKeyDown = (e) => {
     if (e.key === 'Tab' && !e.shiftKey && query === '') {
       e.preventDefault();
-      dispatch(pickerSide(army, getState(), other(side)));
+      dispatch(pickerSide(other(side)));
     }
   };
   return (
@@ -26,7 +26,7 @@ export default function DeskPicker({searcher, army, loadError}) {
       <div className="desk-scrim" onClick={back} />
       <div className="desk-panel">
         <TrooperPicker side={side} searcher={searcher} army={army} loadError={loadError} onKeyDown={onKeyDown}
-          onPick={(hit) => dispatch(pickTrooper(army, side, hit, {next: !otherSet, state: getState()}))} />
+          onPick={(hit) => dispatch(pickTrooper(army, side, hit, {next: !otherSet}))} />
       </div>
     </>
   );

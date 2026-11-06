@@ -414,48 +414,19 @@ export function createSearch(index) {
     };
   }
 
-  // The empty-box view: recents, unit-type tiles, every unit A-Z.
-  /** @param {{factionId?: number | null, recentIds?: number[]}} [q] */
-  function browse({factionId = null, recentIds = []} = {}) {
-    const recent = recentIds.map((id) => rows[id]).filter((r) => r && inScope(r, factionId))
-      .map((row) => asHit(row, factionId));
-    const scopeUnits = index.units.filter((u) => factionId == null || u.factions.includes(factionId));
-    /** @type {Map<string, number>} */
-    const types = new Map();
-    for (const u of scopeUnits) if (u.type) types.set(u.type, (types.get(u.type) ?? 0) + 1);
-    return {
-      recent,
-      types: [...types].map(([type, count]) => ({type, count})),
-      units: scopeUnits.map((u) => unitHit(u.id, factionId)).sort((a, b) => a.title.localeCompare(b.title)),
-    };
-  }
+  /** @param {IndexRow} row */
+  const asHit = (row) => profileHit({row, weapon: -1, tier: TIER.EXACT, matched: []}, null);
 
-  /**
-   * @param {IndexRow} row
-   * @param {number | null} factionId
-   */
-  const asHit = (row, factionId) => profileHit({row, weapon: -1, tier: TIER.EXACT, matched: []}, factionId);
+  // The empty box: the side's recent picks (row ids), newest first.
+  /** @param {number[]} recentIds */
+  const recentHits = (recentIds) => recentIds.map((id) => rows[id]).filter(Boolean).map(asHit);
 
-  // Every loadout of one unit in scope, cheapest first: the unit drill-in page.
-  /**
-   * @param {number} unitId
-   * @param {number | null} [factionId]
-   */
-  function unitRows(unitId, factionId = null) {
-    return (rowsByUnit.get(unitId) ?? []).filter((r) => inScope(r, factionId))
+  // Every loadout of one unit, cheapest first: the unit's page.
+  /** @param {number} unitId */
+  function unitRows(unitId) {
+    return (rowsByUnit.get(unitId) ?? []).slice()
       .sort((a, b) => a.points - b.points || a.id - b.id)
-      .map((r) => asHit(r, factionId));
-  }
-
-  // Units of one type (LI, HI, TAG...) in scope, A-Z: a browse tile's list.
-  /**
-   * @param {string} type
-   * @param {number | null} [factionId]
-   */
-  function unitsOfType(type, factionId = null) {
-    return index.units.filter((u) => u.type === type && (factionId == null || u.factions.includes(factionId)))
-      .map((u) => unitHit(u.id, factionId))
-      .sort((a, b) => a.title.localeCompare(b.title));
+      .map(asHit);
   }
 
   // A saved pick -> its row id today. Row ids are positions in the index and
@@ -466,12 +437,5 @@ export function createSearch(index) {
       && Object.values(r.factions).includes(armyFactionId))?.id ?? null;
   }
 
-  // Units per vanilla faction, for the faction list.
-  /** @type {Map<number, number>} */
-  const unitCounts = new Map();
-  for (const u of index.units) for (const f of u.factions) unitCounts.set(f, (unitCounts.get(f) ?? 0) + 1);
-  /** @param {number} factionId */
-  const unitCount = (factionId) => unitCounts.get(factionId) ?? 0;
-
-  return {search, browse, unitRows, unitsOfType, findRow, unitCount, factions: index.factions};
+  return {search, recentHits, unitRows, findRow, factions: index.factions};
 }

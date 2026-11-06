@@ -1,6 +1,6 @@
 // Run with: yarn test:js
-// Trooper search: the index builder, the matcher's tiers, what search() and
-// browse() return, and the scoreboard floors (see scripts/search-eval.mjs).
+// Trooper search: the index builder, the matcher's tiers, what search()
+// returns, and the scoreboard floors (see scripts/search-eval.mjs).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -156,12 +156,10 @@ test('items: a matching recent pick goes first, marked', () => {
   assert.ok(first.kind === 'loadout' && first.recent && first.hit.rowId === pick.rowId);
 });
 
-test('browse: type tiles and units A-Z for a faction', () => {
-  const b = searcher.browse({factionId: PANO});
-  assert.ok(b.types.some((t) => t.type === 'HI' && t.count > 0));
-  assert.ok(b.types.every((t) => t.count > 0));
-  const names = b.units.map((u) => u.title);
-  assert.deepEqual(names, [...names].sort((a, c) => a.localeCompare(c)));
+test('recentHits: the empty box lists recent picks in order, any faction', () => {
+  const [a, b] = searcher.search({query: 'fus ml'}).profiles;
+  const zh = searcher.search({query: 'zhanshi'}).profiles[0];
+  assert.deepEqual(searcher.recentHits([zh.rowId, a.rowId, b.rowId]).map((h) => h.rowId), [zh.rowId, a.rowId, b.rowId]);
 });
 
 // The scoreboard floors. Raise them when the matcher improves; a drop means a
@@ -210,16 +208,13 @@ test('speed: typing stays well under a frame', () => {
   assert.ok(/** @type {number} */ (times.at(-2)) < 8, `slowest queries: ${times.slice(-3).map((t) => t.toFixed(1))} ms`);
 });
 
-test('unit drill-in, units of a type, and finding a saved pick again', () => {
+test('unit drill-in, and finding a saved pick again', () => {
   const fus = index.units.find((u) => u.short === 'Fusiliers');
   assert.ok(fus);
-  const rowsP = searcher.unitRows(fus.id, PANO);
+  const rowsP = searcher.unitRows(fus.id);
   assert.ok(rowsP.length > 3);
   assert.ok(rowsP.every((r, i) => i === 0 || rowsP[i - 1].points <= r.points));
   assert.ok(rowsP.every((r) => r.weapons.length > 0));
-  const li = searcher.unitsOfType('LI', PANO);
-  assert.ok(li.some((u) => u.short === 'Fusiliers'));
-  assert.ok(li.every((u) => u.type === 'LI'));
   const hit = rowsP[2];
   assert.equal(searcher.findRow(hit), hit.rowId);
 });

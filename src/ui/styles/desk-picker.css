@@ -6,4 +6,3 @@
 .desk-panel .page { position: absolute; inset: 0; height: auto; max-width: none; animation: none; }
 .desk-panel .page::after { content: none; }
 .desk-panel .page-head.bar-head { padding: 14px 14px 10px; }
-.desk-panel .tiles.three { grid-template-columns: repeat(4, minmax(0, 1fr)); }

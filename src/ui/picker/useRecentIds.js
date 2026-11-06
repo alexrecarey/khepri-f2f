@@ -18,10 +18,9 @@ export function useRecentIds(searcher, side) {
   );
 }
 
-// A vanilla faction's name, or 'All factions' for none.
+// A vanilla faction's name.
 /**
  * @param {import('../../types.js').Searcher | null} searcher
  * @param {number | null | undefined} id
- * @param {import('../../types.js').Translator} t
  */
-export const factionNameOf = (searcher, id, t) => searcher?.factions.find((f) => f.id === id)?.name ?? t('picker.allFactions');
+export const factionNameOf = (searcher, id) => searcher?.factions.find((f) => f.id === id)?.name ?? '';

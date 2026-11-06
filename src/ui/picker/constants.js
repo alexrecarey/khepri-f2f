@@ -1,6 +1,4 @@
-// Unit types in the order both pickers list them; their names are src/i18n's
-// typeName.<type>.
-export const TYPE_ORDER = ['LI', 'MI', 'HI', 'TAG', 'REM', 'SK', 'WB', 'VH'];
+// A unit type's name: src/i18n's typeName.<type>.
 /**
  * @param {import('../../types.js').Translator} t
  * @param {string | null | undefined} type

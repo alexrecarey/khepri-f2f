@@ -21,14 +21,13 @@ const zhanshi = {...EMPTY_SIDE, unitId: 20, factionId: 201, groupId: 1, optionId
 const roll = /** @type {import('../types.js').SavedRoll} */ ({id: 'r1', mode: MODES.matchup, savedAt: 1, setup: {A: fennec, B: zhanshi, rangeCm: 40}, summary: /** @type {import('../types.js').RollSummary} */ ({a: 'A', r: 'B'})});
 
 // A state with every slice filled: picker open two screens deep, a split
-// range, saved rolls, recents and scopes.
+// range, saved rolls and recents.
 const busy = () => deepFreeze(/** @type {import('../types.js').AppState} */ ({
   ...initialState(),
   matchup: {...initialState().matchup, A: fennec, B: zhanshi, rangeCmB: 80},
-  ui: {...initialState().ui, overlay: 'picker', picker: {side: 'A', query: 'fus', scope: 101, stack: [{view: 'type', type: 'LI'}, {view: 'unit'}]}},
-  scopes: {A: 101},
+  ui: {...initialState().ui, overlay: 'picker', picker: {side: 'A', query: 'fus', stack: [{view: 'unit', unitId: 10, name: 'Fusilier'}]}},
   prefs: {headline: 'win'},
-  lists: {recents: [{unitId: 10, groupId: 1, optionId: 2, armyFactionId: 101, side: 'A'}], recentFactions: [101], saved: [roll]},
+  lists: {recents: [{unitId: 10, groupId: 1, optionId: 2, armyFactionId: 101, side: 'A'}], saved: [roll]},
 }));
 
 // One action of every type reduce() knows.
@@ -63,12 +62,11 @@ const ACTIONS = [
   {type: 'clearSaved'},
   {type: 'setPref', key: 'headline', value: 'wpo'},
   {type: 'toast', text: 'Saved'},
-  {type: 'openPicker', side: 'B', scope: null},
+  {type: 'openPicker', side: 'B'},
   {type: 'pickerQuery', query: 'zh'},
-  {type: 'pickerSide', side: 'B', scope: 201},
-  {type: 'pickerScope', scope: 201},
-  {type: 'pickerPush', view: {view: 'type', type: 'LI'}},
-  {type: 'pickTrooper', side: 'A', sel: zhanshi, ftMax: 5, scope: 201, next: true,
+  {type: 'pickerSide', side: 'B'},
+  {type: 'pickerPush', view: {view: 'unit', unitId: 20, name: 'Zhanshi'}},
+  {type: 'pickTrooper', side: 'A', sel: zhanshi, ftMax: 5, next: true,
     recent: {unitId: 20, groupId: 1, optionId: 1, armyFactionId: 201}},
 ];
 
@@ -103,10 +101,8 @@ test('matchupView and the action creators never write to the army or the matchup
       for (const w of g.modes ?? [g.w]) matchupView(army, deepFreeze({...base, A: {...base.A, weaponKey: w.key}}));
     }
     const hit = /** @type {import('../types.js').ProfileHit} */ ({unitId: a.unitId, armyFactionId: a.factionId, factionId: a.factionId, groupId: a.groupId, profileId: a.profileId, optionId: a.optionId});
-    pickTrooper(army, 'A', hit, {next: true, state});
+    pickTrooper(army, 'A', hit, {next: true});
     setUpgrade(army, state, 'A', {upgrade: 0});
   }
-  openPicker(army, state, 'B');
-  pickerSide(army, state, 'A');
   assert.ok(sample.length > 40);
 });

@@ -44,7 +44,7 @@ test('Swiss Guard: cheapest first, a points tie goes to less SWC; main gun is th
   const searcher = createSearcher(index);
   const swiss = army.units.find((u) => u.isc === 'Swiss Guard');
   assert.ok(swiss);
-  const hits = orderLoadouts(army, searcher.unitRows(swiss.id, 101));
+  const hits = orderLoadouts(army, searcher.unitRows(swiss.id));
   // Every Swiss Guard loadout has a main weapon.
   const mains = hits.map((h) => army.weapons[/** @type {number} */ (mainWeapon(army, h.weaponIds))][0].name);
   assert.deepEqual(mains.slice(-3), ['MULTI Rifle', 'Heavy Machine Gun', 'Missile Launcher']);

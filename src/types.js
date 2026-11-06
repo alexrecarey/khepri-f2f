@@ -690,11 +690,9 @@
  * The search over one index (search/search.js createSearch).
  * @typedef {object} Searcher
  * @property {(q?: {query?: string, factionId?: number | null, recentIds?: number[]}) => SearchResult} search
- * @property {(q?: {factionId?: number | null, recentIds?: number[]}) => {recent: ProfileHit[], types: {type: string, count: number}[], units: UnitHit[]}} browse the empty-box view
- * @property {(unitId: number, factionId?: number | null) => ProfileHit[]} unitRows every loadout of one unit in scope
- * @property {(type: string, factionId?: number | null) => UnitHit[]} unitsOfType
+ * @property {(recentIds: number[]) => ProfileHit[]} recentHits the empty box: recent picks by row id
+ * @property {(unitId: number) => ProfileHit[]} unitRows every loadout of one unit
  * @property {(pick: {unitId: number, groupId: number, optionId: number, armyFactionId: number}) => number | null} findRow a saved pick's row id today
- * @property {(factionId: number) => number} unitCount units per vanilla faction
  * @property {{id: number, name: string}[]} factions
  */
 
@@ -717,16 +715,15 @@
  * @typedef {import('valibot').InferOutput<typeof import('./state/schema.js').MatchupSchema>} Matchup
  */
 
-/** A screen pushed inside the picker (state/reduce.js pickerPush).
- * @typedef {{view: 'type', type: string} | {view: 'unit', unitId: number, name: string}} PickerView */
+/** A screen pushed inside the picker (state/reduce.js pickerPush): a unit's page.
+ * @typedef {{view: 'unit', unitId: number, name: string}} PickerView */
 
 /**
  * The open picker (state/reduce.js openPicker): whose side it picks for, the
- * query, the faction it browses, the screens pushed.
+ * query, the screens pushed.
  * @typedef {object} PickerState
  * @property {Side} side
  * @property {string} query
- * @property {number | null} scope a vanilla faction id, null for All
  * @property {PickerView[]} stack
  */
 
@@ -772,7 +769,7 @@
 /**
  * What a 'replace' action brings: a fixture or a saved roll's slices, any of
  * them partial; the reducer fills the rest from initialState.
- * @typedef {{v?: number, mode?: string, matchup?: Partial<Matchup>, classic?: Partial<Params>, ui?: Partial<UiState>, prefs?: Prefs, lists?: AppState['lists'], scopes?: AppState['scopes']}} ReplaceState
+ * @typedef {{v?: number, mode?: string, matchup?: Partial<Matchup>, classic?: Partial<Params>, ui?: Partial<UiState>, prefs?: Prefs, lists?: AppState['lists']}} ReplaceState
  */
 
 /**
@@ -785,8 +782,7 @@
  * @property {Params} classic Basic mode's params, shareable too
  * @property {UiState} ui ephemeral
  * @property {Prefs} prefs persisted on this device
- * @property {{A?: number | null, B?: number | null}} scopes the vanilla faction each side's picker is scoped to (null: All)
- * @property {{recents: Recent[], recentFactions: number[], saved: SavedRoll[]}} lists persisted on this device
+ * @property {{recents: Recent[], saved: SavedRoll[]}} lists persisted on this device
  */
 
 /**
@@ -814,11 +810,10 @@
  *   | {type: 'setSwiped', id: string | null}
  *   | {type: 'setPref', key: keyof Prefs, value: Prefs[keyof Prefs]}
  *   | {type: 'toast', text?: string | null}
- *   | {type: 'openPicker' | 'pickerSide', side: Side, scope: number | null}
+ *   | {type: 'openPicker' | 'pickerSide', side: Side}
  *   | {type: 'pickerQuery', query: string}
- *   | {type: 'pickerScope', scope: number | null}
  *   | {type: 'pickerPush', view: PickerView}
- *   | {type: 'pickTrooper', side: Side, sel: Partial<Selection>, ftMax?: number, recent?: Omit<Recent, 'side'>, scope?: number | null, next?: true, nextScope?: number | null}
+ *   | {type: 'pickTrooper', side: Side, sel: Partial<Selection>, ftMax?: number, recent?: Omit<Recent, 'side'>, next?: true}
  * } Action
  */
 

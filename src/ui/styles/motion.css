@@ -53,11 +53,3 @@
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .slide-out { display: none; }
 }
-
-/* Faction crests (ui/factionLogo.jsx). */
-.faction-logo { flex-shrink: 0; display: block; }
-.with-logo { display: inline-flex; align-items: center; gap: 10px; }
-.tile.faction { justify-content: flex-start; gap: 10px; }
-.tile.faction .r { margin-left: auto; }
-.tiles.three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-.tile.faction-pick { flex-direction: column; justify-content: center; gap: 6px; padding: 10px 4px; font-size: var(--fs-small); text-align: center; }

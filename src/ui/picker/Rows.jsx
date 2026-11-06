@@ -29,7 +29,7 @@ function weaponList(hit) {
  * @param {number[]} ids
  * @param {FactionName} factionName
  */
-const factionsLabel = (ids, factionName) => `${factionName(ids[0])}${ids.length > 1 ? ` +${ids.length - 1}` : ''}`;
+export const factionsLabel = (ids, factionName) => `${factionName(ids[0])}${ids.length > 1 ? ` +${ids.length - 1}` : ''}`;
 
 // `on`: the row the arrow keys or Enter are on.
 /** @param {{u: UnitHit, onOpen: (u: UnitHit) => void, army: Army | null, factionName: FactionName, on?: boolean, id?: string}} props */

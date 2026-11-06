@@ -82,19 +82,14 @@ test('a split range round-trips through the URL', () => {
 });
 
 test('picker: open, drill in, back one screen at a time', () => {
-  let s = run(initialState(), {type: 'openPicker', side: 'B', scope: 101});
+  let s = run(initialState(), {type: 'openPicker', side: 'B'});
   assert.equal(uiDepth(s.ui), 1);
-  // A faction tile: browse it, and remember it.
-  s = run(s, {type: 'pickerQuery', query: 'fus'}, {type: 'pickerScope', scope: 201});
-  assert.deepEqual(s.ui.picker.stack, []);
-  assert.equal(s.ui.picker.scope, 201);
-  assert.equal(s.ui.picker.query, 'fus');
-  assert.deepEqual(s.lists.recentFactions, [201]);
-  s = run(s, {type: 'pickerPush', view: {view: 'type', type: 'LI'}}, {type: 'pickerPush', view: {view: 'unit', unitId: 10}});
-  assert.equal(uiDepth(s.ui), 3);
+  s = run(s, {type: 'pickerQuery', query: 'fus'}, {type: 'pickerPush', view: {view: 'unit', unitId: 10, name: 'Fusilier'}});
+  assert.equal(uiDepth(s.ui), 2);
   s = run(s, {type: 'back'});
-  assert.equal(s.ui.picker.stack.at(-1).view, 'type');
-  s = run(s, {type: 'backTo', depth: 0});
+  assert.deepEqual(s.ui.picker.stack, []);
+  assert.equal(s.ui.picker.query, 'fus');
+  s = run(s, {type: 'pickerPush', view: {view: 'unit', unitId: 10, name: 'Fusilier'}}, {type: 'backTo', depth: 0});
   assert.equal(s.ui.overlay, null);
   assert.equal(s.ui.picker, null);
 });
@@ -129,7 +124,7 @@ test('recents are capped per side', () => {
 test('untagged recents from before the side tag belong to both sides', () => {
   const old = /** @type {import('../types.js').Recent} */ ({unitId: 7, groupId: 1, optionId: 1});
   /** @type {AppState} */
-  let s = {...initialState(), lists: {recents: [old], recentFactions: [], saved: []}};
+  let s = {...initialState(), lists: {recents: [old], saved: []}};
   assert.deepEqual(recentsFor(s.lists.recents, 'A'), [old]);
   assert.deepEqual(recentsFor(s.lists.recents, 'B'), [old]);
   // Picking it again tags it for that side; the other side no longer sees it.
@@ -234,7 +229,7 @@ test('storage: reads the keys older builds wrote, survives junk', () => {
   const legacy = memStorage({calculatorMode: '"basic"'});
   assert.equal(loadPersisted(legacy).mode, 'basic');
   const junk = memStorage({[STORAGE_KEY]: '{not json', calculatorMode: 'nope'});
-  assert.deepEqual(loadPersisted(junk), {scopes: {}, prefs: {}, lists: {recents: [], recentFactions: [], saved: []}});
+  assert.deepEqual(loadPersisted(junk), {prefs: {}, lists: {recents: [], saved: []}});
   assert.deepEqual(loadPersisted(null).lists.recents, []);
 });
 
@@ -291,7 +286,7 @@ test('sync: the URL follows the state, each overlay layer is a history entry', (
   dispatch({type: 'setSide', side: 'A', sel: fennec});
   assert.match(win.entries[win.index].url, /unitA=10/);
   dispatch({type: 'openPicker', side: 'B'});
-  dispatch({type: 'pickerPush', view: {view: 'type', type: 'LI'}});
+  dispatch({type: 'pickerPush', view: {view: 'unit', unitId: 10, name: 'Fusilier'}});
   assert.equal(win.index, 2);
   // Browser Back closes one layer.
   win.history.go(-1);
@@ -343,9 +338,9 @@ test('saved rolls: save once per setup, load the whole setup, delete', async () 
   assert.deepEqual(s.lists.saved, []);
 });
 
-test('settings: start faction pref, clearing data', () => {
-  let s = run(initialState(), {type: 'setPref', key: 'startFaction', value: {A: 101, B: null}});
-  assert.equal(s.prefs.startFaction.A, 101);
+test('settings: a pref, clearing data', () => {
+  let s = run(initialState(), {type: 'setPref', key: 'headline', value: 'wpo'});
+  assert.equal(s.prefs.headline, 'wpo');
   s = run(s, {type: 'pickTrooper', side: 'A', sel: fennec, recent: {unitId: 1}}, {type: 'clearRecents'});
   assert.deepEqual(s.lists.recents, []);
   assert.equal(uiDepth(run(s, {type: 'openOverlay', overlay: 'settings'}).ui), 1);
@@ -371,7 +366,7 @@ test('classic: the Opponent PS stepper keeps PS + ARM and PS + BTS right', async
 });
 
 test('desktop picker: pick, then the other side', () => {
-  let s = run(initialState(), {type: 'openPicker', side: 'A', scope: 101}, {type: 'pickerQuery', query: 'x'});
+  let s = run(initialState(), {type: 'openPicker', side: 'A'}, {type: 'pickerQuery', query: 'x'});
   s = run(s, {type: 'pickTrooper', side: 'A', sel: fennec, recent: {unitId: 10}, next: true});
   assert.equal(s.matchup.A.unitId, 10);
   assert.equal(s.ui.overlay, 'picker');
@@ -379,50 +374,6 @@ test('desktop picker: pick, then the other side', () => {
   assert.equal(s.ui.picker.query, '');
   s = run(s, {type: 'pickerSide', side: 'A'});
   assert.equal(s.ui.picker.side, 'A');
-});
-
-test('each side keeps its own picker faction; clearing the troopers forgets both', async () => {
-  const {openPicker, pickTrooper, pickerSide, scopeFor} = await import('./actions.js');
-  const hit = (factionId) => /** @type {import('../types.js').ProfileHit} */ ({unitId: 10, armyFactionId: factionId, factionId, groupId: 1, optionId: 2});
-  let s = initialState();
-  // Nothing chosen yet: All factions, never the other side's.
-  assert.equal(scopeFor(null, s, 'A'), null);
-  s = run(s, openPicker(null, s, 'A'), {type: 'pickerScope', scope: 101});
-  assert.deepEqual(s.scopes, {A: 101});
-  s = run(s, {type: 'back'}, openPicker(null, s, 'B'));
-  assert.equal(s.ui.picker?.scope, null);                  // reactive doesn't inherit PanOceania
-  s = run(s, {type: 'pickerScope', scope: 201}, pickTrooper(null, 'B', hit(201)));
-  assert.deepEqual(s.scopes, {A: 101, B: 201});
-  assert.equal(run(s, openPicker(null, s, 'A')).ui.picker.scope, 101);
-  // All factions is a choice too.
-  s = run(s, openPicker(null, s, 'A'), {type: 'pickerScope', scope: null});
-  assert.equal(scopeFor(null, s, 'A'), null);
-  // Desktop: switching sides brings that side's faction.
-  s = run(s, pickerSide(null, s, 'B'));
-  assert.equal(s.ui.picker?.scope, 201);
-  s = run(s, {type: 'back'}, {type: 'swapSides'});
-  assert.deepEqual(s.scopes, {A: 201, B: null});
-  s = run(s, {type: 'clearSides'});
-  assert.deepEqual(s.scopes, {});
-  assert.equal(run(s, openPicker(null, s, 'A')).ui.picker.scope, null);
-});
-
-test('picking then the other side opens it on that side\'s faction', async () => {
-  const {openPicker, pickTrooper} = await import('./actions.js');
-  let s = {...initialState(), scopes: {B: 801}};
-  s = run(s, openPicker(null, s, 'A'));
-  s = run(s, pickTrooper(null, 'A', /** @type {import('../types.js').ProfileHit} */ ({unitId: 10, armyFactionId: 101, factionId: 101, groupId: 1, optionId: 2}), {next: true, state: s}));
-  assert.equal(s.ui.picker?.side, 'B');
-  assert.equal(s.ui.picker?.scope, 801);
-  assert.equal(s.scopes.A, 101);
-});
-
-test('scopes persist, but a share link with troopers starts fresh', () => {
-  const storage = memStorage();
-  savePersisted(storage, {...initialState(), scopes: {A: 101, B: null}});
-  assert.deepEqual(loadPersisted(storage).scopes, {A: 101, B: null});
-  assert.deepEqual(bootState({storage}).scopes, {A: 101, B: null});
-  assert.deepEqual(bootState({storage, search: '?mode=matchup&unitA=10'}).scopes, {});
 });
 
 test('a link with troopers and no mode opens Matchup, whatever mode was remembered', () => {
@@ -446,10 +397,10 @@ test('sync: a save waiting on its 200 ms is written when the page is hidden or c
   const win = fakeWindow('/');
   const storage = memStorage({});
   const stop = startSync(store, dispatch, {win, storage});
-  dispatch({type: 'setPref', key: 'startFaction', value: {A: 101}});
-  assert.equal(loadPersisted(storage).prefs.startFaction, undefined);   // still waiting
+  dispatch({type: 'setPref', key: 'headline', value: 'wpo'});
+  assert.equal(loadPersisted(storage).prefs.headline, undefined);   // still waiting
   win.fire('pagehide');
-  assert.deepEqual(loadPersisted(storage).prefs.startFaction, {A: 101});
+  assert.equal(loadPersisted(storage).prefs.headline, 'wpo');
   stop();
 });
 
@@ -516,23 +467,17 @@ test('storage: a bad field falls back, a bad list item is dropped, the rest is k
   const roll = {id: 'r2', mode: 'basic', savedAt: 5, setup: {burstA: 4}, summary: {a: 'Active', r: 'Reactive', ad: '', rd: '', setup: '', ap: '', rp: ''}};
   const storage = memStorage({[STORAGE_KEY]: JSON.stringify({
     v: 1, mode: 'nope',
-    prefs: {headline: 'odds', language: 3, startFaction: 'x'},
+    prefs: {headline: 'odds', language: 3},
     lists: {
       recents: [{groupId: 1, optionId: 1, armyFactionId: 101}, {...good, side: 'X'}, good, 'junk'],
-      recentFactions: [101, 'x', 1.5, 202],
       saved: [{id: 'x'}, {...roll, mode: 'odd'}, {...roll, summary: 'none'}, roll],
     },
-    scopes: {A: 'x', B: null},
   })});
   const back = loadPersisted(storage);
   assert.equal('mode' in back, false);
-  assert.deepEqual(back.prefs, {headline: 'wpo', language: null, startFaction: {}});
+  assert.deepEqual(back.prefs, {headline: 'wpo', language: null});
   assert.deepEqual(back.lists.recents, [good]);
-  assert.deepEqual(back.lists.recentFactions, [101, 202]);
   assert.deepEqual(back.lists.saved, [roll]);
-  assert.deepEqual(back.scopes, {});
-  // Per field: one side's bad faction is null, the other stays.
-  assert.deepEqual(loadPersisted(memStorage({[STORAGE_KEY]: JSON.stringify({prefs: {startFaction: {A: 'x', B: 202}}})})).prefs.startFaction, {A: null, B: 202});
 });
 
 test('a saved roll loads through its mode\'s schema: a field that can\'t be read gets its default', async () => {
