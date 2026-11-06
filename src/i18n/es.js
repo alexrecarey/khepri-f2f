@@ -446,8 +446,4 @@ export default {
   'picker.troopers': 'Tropas',
   'picker.loadoutCount_one': '{count} equipo',
   'picker.loadoutCount_other': '{count} equipos',
-  'reach.long': 'Larga distancia',
-  'reach.mid': 'Media distancia',
-  'reach.close': 'Corta distancia',
-  'reach.other': 'Sin arma a distancia',
 };

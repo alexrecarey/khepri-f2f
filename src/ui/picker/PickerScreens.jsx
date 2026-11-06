@@ -10,7 +10,7 @@ import {crestForRow} from '../../army/crests.js';
 import {CardCrest} from '../Crest.jsx';
 import {Page} from '../Sheet.jsx';
 import {typeName} from './constants.js';
-import {groupLoadouts, orderLoadouts, profileGroups, statLine} from '../../state/pickerView.js';
+import {orderLoadouts, profileGroups, statLine} from '../../state/pickerView.js';
 import ProfileGroup from './ProfileGroup.jsx';
 import {LoadoutRow, UnitResult} from './Rows.jsx';
 
@@ -55,20 +55,15 @@ export function unitScreen({t, searcher, army, scope, color, top, factionName, p
     );
   }
   const stats = statLine(army, top.unitId, rows[0]?.armyFactionId);
-  /** @type {{key: string, name?: null, items: ProfileHit[]}[]} */
-  const groups = army ? groupLoadouts(army, orderLoadouts(army, rows)) : [{key: 'all', name: null, items: rows}];
+  // In the Infinity Army app's order (cheapest first), no groups: what players know from building lists.
+  const loadouts = orderLoadouts(army, rows);
   return (
-    <Page title={top.name} subtitle={`${factionName(scope)} · ${t('picker.profiles', {count: rows.length})}`} onBack={pop}
+    <Page title={top.name} subtitle={`${factionName(scope)} · ${t('picker.loadoutCount', {count: rows.length})}`} onBack={pop}
       action={crest} className="unit-page">
       {stats && (
         <div className="stat-line">{stats.map(([k, v]) => <span key={k}><b>{t(`stat.${k.toLowerCase()}`)}</b> {v}</span>)}</div>
       )}
-      {groups.map((g) => (
-        <div key={g.key}>
-          {g.key !== 'all' && <div className="list-head">{t(`reach.${g.key}`)}</div>}
-          {g.items.map((h) => <LoadoutRow army={army} color={color} key={h.rowId} hit={h} onPick={pick} />)}
-        </div>
-      ))}
+      {loadouts.map((h) => <LoadoutRow army={army} color={color} key={h.rowId} hit={h} onPick={pick} />)}
     </Page>
   );
 }

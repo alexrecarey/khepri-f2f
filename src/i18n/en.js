@@ -446,8 +446,4 @@ export default {
   'picker.troopers': 'Troopers',
   'picker.loadoutCount_one': '{count} loadout',
   'picker.loadoutCount_other': '{count} loadouts',
-  'reach.long': 'Long range',
-  'reach.mid': 'Mid range',
-  'reach.close': 'Close',
-  'reach.other': 'No ranged weapon',
 };
