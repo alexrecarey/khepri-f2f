@@ -6,7 +6,7 @@
 import {useMemo} from 'react';
 import {dispatch, useAppState} from '../state/store.js';
 import {ARMY_DATE, AboutContact, AboutIntro, AboutLinks, VERSION} from './AboutPage.jsx';
-import {LanguageSetting, StartFaction, clearRecents, clearSaved} from './SettingsPage.jsx';
+import {LanguageSetting, clearRecents, clearSaved} from './SettingsPage.jsx';
 import DeskDialog from './DeskDialog.jsx';
 import {HEADLINES, headline} from '../results/headline.js';
 import {headlineChoice, setHeadline} from '../state/headlines.js';
@@ -52,8 +52,8 @@ export function HeaderButtons() {
 
 // results: {result, targets, params} of the roll on screen, so each choice
 // shows what the card would read with it (the active side's number).
-/** @param {{factions: {id: number, name: string}[], results: {result: import('../types.js').EngineResult | null, targets: import('../types.js').MatchupCore['targets'], params: import('../types.js').Params | null}}} props */
-export function SettingsDialog({factions, results}) {
+/** @param {{results: {result: import('../types.js').EngineResult | null, targets: import('../types.js').MatchupCore['targets'], params: import('../types.js').Params | null}}} props */
+export function SettingsDialog({results}) {
   const t = useT();
   const choice = useAppState((s) => headlineChoice(s.prefs));
   const s = useMemo(() => summarize(results.result, results.targets), [results.result, results.targets]);
@@ -74,11 +74,6 @@ export function SettingsDialog({factions, results}) {
           <span className="note">{t('settings.headlineNoteDesk')}</span>
         </div>
         <div className="ds-col">
-          <div className="ds-group">
-            <span className="label">{t('settings.startingFactions')}</span>
-            <StartFaction side="A" label={t('settings.activeSide')} factions={factions} className="c-active" />
-            <StartFaction side="B" label={t('settings.reactiveSide')} factions={factions} className="c-reactive" />
-          </div>
           <div className="ds-group">
             <span className="label">{t('settings.language')}</span>
             <LanguageSetting />

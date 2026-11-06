@@ -50,6 +50,11 @@
 .roll-vs { color: var(--faint); font-weight: 400; }
 .roll-setup { font-size: 12px; color: var(--muted); }
 
+/* Visually hidden, still read out. */
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+kbd { padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line-strong); font-family: var(--font-mono); font-size: var(--fs-small); color: var(--text-2); }
+/* Behind a desktop dialog or the desktop picker. */
+.desk-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 29; animation: fade .15s ease; }
 /* Desktop dialogs (DeskDialog.jsx): Saved rolls, Settings, About. */
 .desk-dialog { position: fixed; z-index: 30; left: 50%; top: max(24px, 10dvh); transform: translateX(-50%); max-height: min(720px, calc(100dvh - 48px));
   box-sizing: border-box; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; box-shadow: 0 24px 64px rgba(0,0,0,.6); animation: fade .15s ease; }

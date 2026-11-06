@@ -40,11 +40,11 @@
 .fade-in { animation: fade .2s ease; }
 .chip-group { animation: grow .2s cubic-bezier(.2,.8,.2,1); transform-origin: left center; }
 @keyframes grow { from { transform: scale(.85); opacity: .4; } to { transform: none; opacity: 1; } }
-.page-body .hit, .page-body .line-btn, .dp-row, .dp-loadout { animation: rise-in .25s cubic-bezier(.2,.8,.2,1) both; }
-.page-body > :nth-child(2), .dp-list > :nth-child(2) { animation-delay: .06s; }
-.page-body > :nth-child(3), .dp-list > :nth-child(3) { animation-delay: .12s; }
-.page-body > :nth-child(4), .dp-list > :nth-child(4) { animation-delay: .18s; }
-.page-body > :nth-child(n+5), .dp-list > :nth-child(n+5) { animation-delay: .22s; }
+.page-body .res, .page-body .line-btn { animation: rise-in .25s cubic-bezier(.2,.8,.2,1) both; }
+.page-body > :nth-child(2) { animation-delay: .06s; }
+.page-body > :nth-child(3) { animation-delay: .12s; }
+.page-body > :nth-child(4) { animation-delay: .18s; }
+.page-body > :nth-child(n+5) { animation-delay: .22s; }
 @keyframes rise-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 /* Menu pages open as a circle from the ⋯ button. */
 .page.from-menu { animation: reveal .35s cubic-bezier(.2,.8,.2,1); }
@@ -53,11 +53,3 @@
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .slide-out { display: none; }
 }
-
-/* Faction crests (ui/factionLogo.jsx). */
-.faction-logo { flex-shrink: 0; display: block; }
-.with-logo, .dp-faction { display: inline-flex; align-items: center; gap: 10px; }
-.tile.faction { justify-content: flex-start; gap: 10px; }
-.tile.faction .r { margin-left: auto; }
-.tiles.three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-.tile.faction-pick { flex-direction: column; justify-content: center; gap: 6px; padding: 10px 4px; font-size: var(--fs-small); text-align: center; }

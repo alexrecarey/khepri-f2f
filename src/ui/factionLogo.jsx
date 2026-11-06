@@ -11,10 +11,3 @@ const SLUG = {
 // The crest's path, or null for an id without one.
 /** @param {number | null | undefined} id */
 export const factionLogoSrc = (id) => (SLUG[/** @type {number} */ (id)] ? `/factions/${SLUG[/** @type {number} */ (id)]}.svg` : null);
-
-/** @param {{id?: number | null, size?: number}} props */
-export default function FactionLogo({id, size = 24}) {
-  const src = factionLogoSrc(id);
-  if (!src) return null;
-  return <img className="faction-logo" src={src} alt="" width={size} height={size} loading="lazy" />;
-}

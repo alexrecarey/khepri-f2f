@@ -9,7 +9,7 @@ import {MODES} from './modes.js';
 import {fullParams} from '../engine/params.js';
 import {classicSave} from './classicView.js';
 import {normalizeSetup, setupKey} from './rolls.js';
-import {EMPTY_SIDE, EMPTY_UI, MAX_RECENT_FACTIONS, MAX_RECENTS, initialState, other} from './schema.js';
+import {EMPTY_SIDE, EMPTY_UI, MAX_RECENTS, initialState, other} from './schema.js';
 
 // How many Back presses the open overlays take to close: the overlay itself,
 // plus each screen pushed inside the picker. Browser history mirrors this
@@ -61,24 +61,6 @@ const pushRecent = (list, pick) => {
     });
 };
 /**
- * @param {number[]} list
- * @param {number | null | undefined} id
- */
-const pushFaction = (list, id) => (id == null ? list : [id, ...list.filter((f) => f !== id)].slice(0, MAX_RECENT_FACTIONS));
-
-/**
- * @param {AppState['scopes']} scopes
- * @returns {AppState['scopes']}
- */
-function swapScopes(scopes) {
-  /** @type {AppState['scopes']} */
-  const out = {};
-  if ('A' in scopes) out.B = scopes.A;
-  if ('B' in scopes) out.A = scopes.B;
-  return out;
-}
-
-/**
  * @param {AppState} state
  * @param {Side} side
  * @param {import('../types.js').Selection} sel
@@ -99,8 +81,6 @@ function patchPicker(state, patch) {
   if (!picker) return state;
   return {...state, ui: {...state.ui, picker: {...picker, ...(typeof patch === 'function' ? patch(picker) : patch)}}};
 }
-// Back at the top of the picker's list, with the arrow keys on it.
-const LIST_TOP = /** @type {const} */ ({pane: 'list', lcursor: 0});
 
 /**
  * @param {AppState} state
@@ -123,7 +103,6 @@ export function reduce(state, action) {
         ui: {...EMPTY_UI, ...next.ui},
         prefs: next.prefs ?? state.prefs,
         lists: next.lists ?? state.lists,
-        scopes: next.scopes ?? {},
       };
     }
 
@@ -184,13 +163,10 @@ export function reduce(state, action) {
           // A split range follows the troopers too.
           ...(matchup.rangeCmB != null && {rangeCm: matchup.rangeCmB, rangeCmB: matchup.rangeCm}),
         },
-        // Each side's faction follows its trooper.
-        scopes: swapScopes(state.scopes ?? {}),
         ui: {...ui, edit: null},
       };
-    // Clearing the troopers also forgets each side's faction.
     case 'clearSides':
-      return {...state, matchup: {...matchup, A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}}, scopes: {}, ui: {...ui, edit: null}};
+      return {...state, matchup: {...matchup, A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}}, ui: {...ui, edit: null}};
     case 'setEdit':
       return {...state, ui: {...ui, edit: action.edit}};
 
@@ -231,7 +207,7 @@ export function reduce(state, action) {
       if (!roll) return state;
       const setup = normalizeSetup(roll.mode, roll.setup);
       // normalizeSetup returns the mode's own slice.
-      const slice = roll.mode === MODES.matchup ? {matchup: /** @type {import('../types.js').Matchup} */ (setup), scopes: {}} : {classic: /** @type {import('../types.js').Params} */ (setup)};
+      const slice = roll.mode === MODES.matchup ? {matchup: /** @type {import('../types.js').Matchup} */ (setup)} : {classic: /** @type {import('../types.js').Params} */ (setup)};
       return {...state, mode: roll.mode, ...slice, ui: {...EMPTY_UI}};
     }
     case 'setSavedTab':
@@ -239,7 +215,7 @@ export function reduce(state, action) {
     case 'setSwiped':
       return {...state, ui: {...ui, swiped: action.id}};
     case 'clearRecents':
-      return {...state, lists: {...state.lists, recents: [], recentFactions: []}};
+      return {...state, lists: {...state.lists, recents: []}};
     case 'clearSaved':
       return {...state, lists: {...state.lists, saved: []}};
     case 'setPref':
@@ -252,31 +228,15 @@ export function reduce(state, action) {
       return {
         ...state,
         ui: {...ui, overlay: 'picker', rangeOpen: false, edit: null,
-          picker: {side: action.side, query: '', scope: action.scope ?? null, stack: []}},
+          picker: {side: action.side, query: '', stack: []}},
       };
-    // A new query starts again at the top of the list.
     case 'pickerQuery':
-      return patchPicker(state, {query: action.query, cursor: 0, ...LIST_TOP, profileId: null});
-    // Desktop picker: the highlighted list row and loadout, which pane has the
-    // arrow keys, the profile tab.
-    case 'pickerCursor':
-      return patchPicker(state, action.cursor);
+      return patchPicker(state, {query: action.query});
+    // Desktop picker: Tab moves to the other side.
     case 'pickerSide':
-      return patchPicker(state, {side: action.side, scope: action.scope ?? null, cursor: null, ...LIST_TOP, profileId: null, stack: []});
-    // Choosing a faction from the faction list also leaves that list.
-    case 'pickerScope': {
-      if (!ui.picker) return state;
-      const top = ui.picker.stack.at(-1);
-      const stack = top?.view === 'factions' ? ui.picker.stack.slice(0, -1) : ui.picker.stack;
-      return {
-        ...state,
-        ui: {...ui, picker: {...ui.picker, scope: action.scope, stack, cursor: null, ...LIST_TOP}},
-        scopes: {...state.scopes, [ui.picker.side]: action.scope},
-        lists: {...state.lists, recentFactions: pushFaction(state.lists.recentFactions, action.scope)},
-      };
-    }
+      return patchPicker(state, {side: action.side, stack: []});
     case 'pickerPush':
-      return patchPicker(state, (p) => ({stack: [...p.stack, action.view], cursor: 0, ...LIST_TOP}));
+      return patchPicker(state, (p) => ({stack: [...p.stack, action.view]}));
     // The picked trooper goes into its side (fireteam size kept), joins
     // the recents, and the picker closes; with `next` it moves on to the other
     // side instead (desktop "Use, then pick Reactive").
@@ -285,11 +245,10 @@ export function reduce(state, action) {
       const {inCover, ftSize} = matchup[action.side];
       /** @type {UiState['picker']} */
       const picker = action.next && ui.picker
-        ? {...ui.picker, side: other(action.side), scope: action.nextScope ?? null, query: '', stack: [], cursor: null, ...LIST_TOP, profileId: null}
+        ? {...ui.picker, side: other(action.side), query: '', stack: []}
         : null;
       return {
         ...setSide(state, action.side, {...EMPTY_SIDE, ...action.sel, inCover: action.sel?.inCover ?? inCover, ftSize: fireteamSize(ftSize, action.ftMax ?? FIRETEAM_MAX)}),
-        scopes: action.scope === undefined ? state.scopes : {...state.scopes, [action.side]: action.scope},
         ui: picker ? {...ui, picker} : {...ui, overlay: null, picker: null},
         lists: action.recent ? {...state.lists, recents: pushRecent(state.lists.recents, {...action.recent, side: action.side})} : state.lists,
       };

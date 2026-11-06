@@ -30,12 +30,14 @@ export function Sheet({onClose, label, children, actions, sheetRef, scrimRef}) {
 }
 
 // `closeLabel` ("Cancel"): the page is the first of its stack, so it closes
-// with a text button on the right instead of a back arrow.
+// with a text button on the right instead of a back arrow. `bar`: the whole
+// head is that bar instead (the picker's search box, with its own Cancel).
 /**
- * @param {{title: import('react').ReactNode, subtitle?: import('react').ReactNode, onBack: () => void, children?: import('react').ReactNode,
- *   footer?: import('react').ReactNode, action?: import('react').ReactNode, closeLabel?: string, label?: string, className?: string}} props
+ * @param {{title?: import('react').ReactNode, subtitle?: import('react').ReactNode, onBack: () => void, children?: import('react').ReactNode,
+ *   footer?: import('react').ReactNode, action?: import('react').ReactNode, closeLabel?: string, label?: string, className?: string,
+ *   bar?: import('react').ReactNode}} props
  */
-export function Page({title, subtitle, onBack, children, footer, action, closeLabel, label, className = ''}) {
+export function Page({title, subtitle, onBack, children, footer, action, closeLabel, label, className = '', bar}) {
   const t = useT();
   useEscape(onBack);
   useVisualViewport();
@@ -43,7 +45,7 @@ export function Page({title, subtitle, onBack, children, footer, action, closeLa
   useDialogFocus(ref);
   return (
     <div ref={ref} className={`page ${className}`} role="dialog" aria-modal="true" aria-label={label ?? (typeof title === 'string' ? title : undefined)}>
-      <div className={`page-head${closeLabel ? ' no-back' : ''}`}>
+      {bar ? <div className="page-head bar-head">{bar}</div> : <div className={`page-head${closeLabel ? ' no-back' : ''}`}>
         {!closeLabel && <button type="button" className="icon-btn" aria-label={t('keys.back')} onClick={onBack}><BackIcon /></button>}
         <div className="page-titles">
           <span className="page-title">{title}</span>
@@ -51,7 +53,7 @@ export function Page({title, subtitle, onBack, children, footer, action, closeLa
         </div>
         {action}
         {closeLabel && <button type="button" className="text-btn" onClick={onBack}>{closeLabel}</button>}
-      </div>
+      </div>}
       <div className="page-body">{children}</div>
       {footer}
     </div>
