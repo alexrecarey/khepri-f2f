@@ -66,12 +66,14 @@ export function headline(s, choice, params = null, sides = null, t = tEn) {
   const per = (f) => /** @type {Record<Role, V>} */ (Object.fromEntries(roles.map((side) => [side, f(side)])));
   /** @param {Role} side */
   const letter = (side) => (side === 'active' ? 'A' : 'B');
-  // A Dodging or Resetting side's label ('dodges' / 'resets'), or null.
-  const evade = per((side) => (sides?.[letter(side)]?.kind === 'reset' ? t('headline.resets')
+  // A Dodging or Resetting side's label ('dodges' / 'resets'), or null. Not
+  // face to face (a Dodge against Smoke) it has its own roll: a State (Dodged).
+  const evade = per((side) => (s.unopposed ? null : sides?.[letter(side)]?.kind === 'reset' ? t('headline.resets')
     : params?.[`ammo${letter(side)}`] === 'DODGE' ? t('headline.dodges') : null));
   // The State's name (rendered by then: state/matchupView.js renderMatchup),
   // or null for a side that wounds.
-  const state = per((side) => (s.states?.[side]?.length === 1 && s.states[side][0].state ? /** @type {string} */ (s.states[side][0].label) : null));
+  const state = per((side) => /** @type {string | null} */ (s.unopposed ? /** @type {NonNullable<typeof s.attacks>} */ (s.attacks)[side].state
+    : s.states?.[side]?.length === 1 && s.states[side][0].state ? s.states[side][0].label : null));
   // Each side's big number and what it is. A Dodge causes no wounds, so it
   // shows its chance to dodge (rules/evade.js dodgeWinsByNone: against a
   // Direct Template that is the chance nobody wins).

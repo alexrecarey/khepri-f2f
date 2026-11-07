@@ -23,8 +23,9 @@ const top = (a) => [3, 2, 1].find((w) => shows(a.wounds[w - 1])) ?? 0;
 function AttackBar({a, side, thin = false, labels = false}) {
   const t = useT();
   /** @type {{key: string, chance: number, bg?: string, ink?: string, cls?: string, text: string}[]} */
+  // A State (Smoke placed) is one "wound": its name, not a count.
   const wounds = [3, 2, 1].map((w) => ({key: `w${w}`, chance: a.wounds[w - 1], bg: shade(side, w - 1, 3), ink: shadeInk(side, w - 1, 3),
-    text: w === top(a) ? `${w}+` : `${w}`}));
+    text: a.state ? /** @type {string} */ (a.state) : w === top(a) ? `${w}+` : `${w}`}));
   /** @type {typeof wounds} */
   const rest = [
     {key: 'saved', chance: a.saved, cls: 'seg-none', text: t('unopposed.saved')},
@@ -59,7 +60,9 @@ export function UnopposedCardBody({s, h, choice}) {
 function AttackDetail({a, side, name, dice}) {
   const t = useT();
   const most = top(a);
-  const rows = /** @type {[string, number][]} */ ([
+  // Rendered by then (state/matchupView.js renderMatchup).
+  const state = /** @type {string | null} */ (a.state);
+  const rows = /** @type {[string, number][]} */ (state ? [[state, a.wounded], [t('unopposed.misses'), a.miss]] : [
     ...[3, 2, 1].filter((w) => w <= most).map((w) => /** @type {[string, number]} */ ([w === most ? t('unopposed.atLeast', {count: w}) : t('state.wounds', {count: w}), a.wounds[w - 1]])),
     [t('unopposed.hitsAllSaved'), a.saved],
     [t('unopposed.misses'), a.miss],
@@ -70,7 +73,7 @@ function AttackDetail({a, side, name, dice}) {
       <AttackBar a={a} side={side} labels />
       <div className="pct-list">
         {rows.map(([k, p]) => <div key={k}><span>{k}</span><span>{pct(p)}</span></div>)}
-        <div className="muted"><span>{t('headline.wpoLabel')}</span><span>{a.wpo.toFixed(2)}</span></div>
+        {!state && <div className="muted"><span>{t('headline.wpoLabel')}</span><span>{a.wpo.toFixed(2)}</span></div>}
       </div>
     </div>
   );
@@ -81,11 +84,15 @@ function AttackDetail({a, side, name, dice}) {
 export function UnopposedSheetBody({s, names, diceLine}) {
   const t = useT();
   const {joint} = s;
+  // A side whose hit is a State (Smoke placed) says that, not "wounded".
+  /** @param {Role} side @param {string} name */
+  const only = (side, name) => (s.attacks[side].state ? t('unopposed.onlyState', {state: /** @type {string} */ (s.attacks[side].state)}) : t('unopposed.only', {name}));
+  const anyState = Boolean(s.attacks.active.state || s.attacks.reactive.state);
   const tiles = [
-    {k: 'both', p: joint.both, text: t('unopposed.both'), cls: 'c-both'},
-    {k: 'a', p: joint.onlyActive, text: t('unopposed.only', {name: names.B}), cls: 'c-active'},
-    {k: 'r', p: joint.onlyReactive, text: t('unopposed.only', {name: names.A}), cls: 'c-reactive'},
-    {k: 'n', p: joint.neither, text: t('unopposed.nobody'), cls: 'c-none'},
+    {k: 'both', p: joint.both, text: anyState ? t('unopposed.bothHappen') : t('unopposed.both'), cls: 'c-both'},
+    {k: 'a', p: joint.onlyActive, text: only('active', names.B), cls: 'c-active'},
+    {k: 'r', p: joint.onlyReactive, text: only('reactive', names.A), cls: 'c-reactive'},
+    {k: 'n', p: joint.neither, text: anyState ? t('unopposed.neither') : t('unopposed.nobody'), cls: 'c-none'},
   ].filter((x) => shows(x.p));
   return (
     <>

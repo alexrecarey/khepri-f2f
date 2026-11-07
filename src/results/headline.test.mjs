@@ -105,3 +105,11 @@ test('the not-face-to-face note goes with the first figure shown, even after a D
   const h = headline(unopposed, 'win', /** @type {import('../types.js').Params} */ ({ammoA: 'DODGE', ammoB: 'N'}));
   assert.deepEqual(h.small, ['', 'Not face to face · 0.50 wounds / order']);
 });
+
+test('not face to face, a side whose hit places Smoke shows the chance of Smoke placed', () => {
+  const smoke = /** @type {import('../types.js').Summary} */ ({...unopposed,
+    attacks: {active: {wpo: 1.2, wounded: 0.62, state: null}, reactive: {wpo: 0.55, wounded: 0.55, state: 'Smoke placed'}}});
+  const h = headline(smoke, 'wpo');
+  assert.deepEqual([h.text.reactive, h.label.reactive], ['55.0%', 'Smoke placed']);
+  assert.deepEqual([h.text.active, h.label.active], ['1.20', 'wounds / order']);
+});

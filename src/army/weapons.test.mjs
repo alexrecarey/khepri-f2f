@@ -24,7 +24,7 @@ test('every entry has a kind in WEAPON_KINDS; template iff a Direct Template, cc
       for (const g of groups) {
         for (const o of g.options) {
           const traits = effectiveTraits(g.profiles[0], o);
-          for (const w of bsWeapons(o, army.weapons)) check(w, ['bs', 'template']);
+          for (const w of bsWeapons(o, army.weapons)) check(w, ['bs', 'smoke', 'template']);
           for (const w of ccWeapons(o, army.weapons)) check(w, ['cc']);
           for (const w of trooperPrograms(traits, army.lang)) check(w, ['program']);
           for (const w of pseudoWeapons(traits, 'B')) check(w, ['dodge', 'reset', 'none']);
@@ -37,7 +37,7 @@ test('every entry has a kind in WEAPON_KINDS; template iff a Direct Template, cc
 
 test('isPseudo and rolls split the kinds', () => {
   assert.deepEqual(WEAPON_KINDS.filter((kind) => isPseudo(/** @type {import('../types.js').Choice} */ ({kind}))), ['dodge', 'reset', 'none']);
-  assert.deepEqual(WEAPON_KINDS.filter((kind) => rolls(/** @type {import('../types.js').Choice} */ ({kind}))), ['bs', 'cc', 'program', 'dodge', 'reset']);
+  assert.deepEqual(WEAPON_KINDS.filter((kind) => rolls(/** @type {import('../types.js').Choice} */ ({kind}))), ['bs', 'smoke', 'cc', 'program', 'dodge', 'reset']);
   assert.equal(isPseudo(undefined), false);
   assert.equal(rolls(null), false);
 });

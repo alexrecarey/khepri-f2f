@@ -27,6 +27,9 @@ export const AMMO = {
   // An attack whose hits do nothing to the target (e.g. E/M against Immunity
   // (BTS)): still rolled and opposed, but causes no Saving Rolls.
   NONE: {saves: 0},
+  // Smoke / Eclipse: winning the roll keeps the template on the table; it
+  // causes no Saving Rolls (rules/smoke.js).
+  SMOKE: {saves: 0},
 };
 
 // Keys of one side's engine input; the engine reads these with an A or B suffix.
@@ -85,10 +88,12 @@ export const engineInput = (p) => /** @type {EngineInput} */ ({...sideInput(p, '
  */
 const attacks = (p, s) => p[`template${s}`] || (p[`burst${s}`] > 0 && p[`ammo${s}`] !== 'DODGE');
 
-// A Direct Template against an attack: nothing is opposed, each side's attack
-// is its own roll (a Normal Roll, or the template's automatic hits).
+// A Direct Template against an attack, or two attacks that don't oppose each
+// other (p.unopposed: Smoke against a trooper whose Multispectral Visor sees
+// through it): nothing is opposed, each side's attack is its own roll (a
+// Normal Roll, or the template's automatic hits).
 /** @param {Params} p */
-export const isUnopposed = (p) => (p.templateA || p.templateB) && attacks(p, 'A') && attacks(p, 'B');
+export const isUnopposed = (p) => (p.unopposed || p.templateA || p.templateB) && attacks(p, 'A') && attacks(p, 'B');
 
 // Side s's attack on its own: the other side doesn't roll (a fixed roll
 // included, it only means anything against the active side's roll).
@@ -112,6 +117,19 @@ function applyShock(p, outcomes) {
   return outcomes.map((o) => (shock[o.player] && o.wounds > 0 ? {...o, wounds: o.wounds + 1} : o));
 }
 
+// Smoke: it causes no Saving Rolls, so every win has 0 wounds; a win places
+// the template, which the results count as one (the "Smoke placed" state,
+// rules/woundStates.js), the way a Jammer's failed save is one Isolated.
+/**
+ * @param {Params} p
+ * @param {import('../types.js').EngineOutput['outcomes']} outcomes
+ */
+function applySmoke(p, outcomes) {
+  /** @type {Partial<Record<Player, boolean>>} */
+  const smoke = {active: p.ammoA === 'SMOKE', reactive: p.ammoB === 'SMOKE'};
+  return outcomes.map((o) => (smoke[o.player] ? {...o, wounds: 1} : o));
+}
+
 /**
  * Engine output -> the result rows: who wins the Face to Face Roll, then the
  * wounds, active then fail then reactive. rawChance is the chance counted in
@@ -127,7 +145,7 @@ export function formatResult(p, {rolls: count, outcomes}) {
   const rolls = Number(count);
   /** @type {Record<Player, Map<number, number>>} */
   const chances = {active: new Map(), fail: new Map(), reactive: new Map()};
-  for (const o of applyShock(p, outcomes)) {
+  for (const o of applySmoke(p, applyShock(p, outcomes))) {
     const w = Math.min(o.wounds, MAX_WOUNDS);
     chances[o.player].set(w, (chances[o.player].get(w) ?? 0) + o.chance);
   }
@@ -157,8 +175,8 @@ export function formatResult(p, {rolls: count, outcomes}) {
  * Runs the calculator params through `runEngine` (engine input -> engine
  * output: the engine's calculate, see worker.js) and returns the result the display reads.
  *
- * A Direct Template against an attack (isUnopposed) is two engine runs, one
- * per side. The result then holds 'unopposed': {active, reactive}, one result
+ * A Direct Template against an attack, or two rolls nothing opposes
+ * (isUnopposed), is two engine runs, one per side. The result then holds 'unopposed': {active, reactive}, one result
  * per side, each without the other's rows; its top-level 'faceToFace' and
  * 'expectedWounds' keep only each side's own rows (no 'fail').
  * @param {Params} p

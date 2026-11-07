@@ -318,3 +318,21 @@ test('Dodge toggles: the view lists them for the picked Dodge, on or off; none f
   assert.deepEqual(dodging({immA: true}), [{key: 'immA', on: true}]);
   assert.deepEqual(matchupView(army, {A: corax, B: chaksa, rangeCm: 40}).B.dodgeToggles, []);
 });
+
+test('Yojimbo throws Smoke in ARO: a weapon button, Face to Face against a Fusilier, "Smoke placed"', () => {
+  const yojimbo = {...EMPTY_SIDE, unitId: 224, factionId: 904, groupId: 1, optionId: 741};
+  const fusilier = {...EMPTY_SIDE, unitId: 1, factionId: 101, groupId: 1, optionId: 1};
+  const nisse = {...EMPTY_SIDE, unitId: 3, factionId: 101, groupId: 1, optionId: 2};
+  const plain = matchupView(army, {A: fusilier, B: yojimbo, rangeCm: 20});
+  const smoke = plain.B.weapons.filter((w) => w.kind === 'smoke').map((w) => w.name);
+  assert.deepEqual(smoke, ['Smoke Grenades', 'Smoke Grenade Launcher']);
+  assert.notEqual(plain.B.resolved?.weapon?.kind, 'smoke', 'not the default weapon');
+  const v = matchupView(army, {A: fusilier, B: {...yojimbo, weaponKey: '45:'}, rangeCm: 20});
+  assert.ok(v.params && v.targets?.reactive && v.ledger);
+  assert.deepEqual([v.params.ammoB, v.params.burstB, v.params.successValueB, v.params.unopposed], ['SMOKE', 1, 14, false]);
+  assert.deepEqual(v.targets.reactive.map((t) => t.label), ['Smoke placed']);
+  assert.ok(v.bands.some((b) => b.B === 0), 'its range bands show on the range selector');
+  // A Nisse's MSV2 sees through: two Normal Rolls.
+  const n = matchupView(army, {A: nisse, B: {...yojimbo, weaponKey: '45:'}, rangeCm: 20});
+  assert.equal(n.params?.unopposed, true);
+});
