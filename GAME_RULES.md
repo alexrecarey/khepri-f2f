@@ -18,7 +18,7 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - X Visor: a −3 Range MOD becomes 0, a −6 becomes −3.
 
 ## Weapons the app picks for you
-- Default weapon. Active: highest Burst, then Impact Template (Circular), then ammo. Reactive: a +SD weapon, then the farthest best range band, then Impact Template, then ammo. Changing the range never swaps the weapon.
+- Default weapon. Never a Jammer or Smoke while there is another weapon. Active: highest Burst, then Impact Template (Circular), then ammo. Reactive: a +SD weapon, then the farthest best range band, then Impact Template, then ammo. Changing the range never swaps the weapon.
 - Ammo precedence: Plasma > EXP > DA > Viral > T2 > AP > Shock > N > E/M > Stun. Combined ammo ranks as its best part.
 - Fire modes: Burst matters more than ammo; an Impact Template ("Blast") mode comes before Hit; DA over AP, AP over Shock; Boarding Pistol starts on its Direct Template.
 
@@ -52,6 +52,17 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - Sixth Sense (the skill, or a Fireteam of 5): in N5 it does **not** ignore Surprise Attack, but a trooper with it who Dodges takes no negative MODs at all, so a Surprise Attack or BS Attack against its Dodge does nothing. The struck MOD reads "Sixth Sense". (Its 360° LoF and Zero Visibility parts don't change a single roll.)
 - Sapper: the trooper may be in a Foxhole (chip): Partial Cover (−3 / +3 like cover) and Mimetism (−3), which doesn't stack with its own Mimetism. One or the other: Foxhole or cover.
 - A trooper starts in cover when picked, unless cover can't help it (No Cover); a Sapper starts in its Foxhole.
+
+## Smoke and Eclipse Ammunition (thrown)
+From the wiki (Smoke Ammunition, Eclipse Ammunition, Multispectral Visor, Dodge, Traits: Targetless, Reflective). Code: `src/rules/smoke.js`, `src/army/weapons.js` (isSmoke, kind 'smoke'). Not the Smoke chip above: that is a zone already on the table; this is the roll that puts one there.
+- Smoke Grenades, Eclipse Grenades (BS Weapon (PH)), Smoke and Eclipse Grenade Launchers (BS) are weapon choices: a BS Attack, rolled, with the weapon's Range MODs. B1 in ARO like any shot.
+- Targetless: thrown at a point, not at the enemy. None of the target's MODs apply (Mimetism, Albedo, cover, Nanoscreen, Targeted); the ledger strikes them "Targetless". The user's own BS Attack MODs do: Fireteam +1 BS / +1 SD, loadout, BS Attack (−X) on the opponent, Surprise Attack.
+- Non-lethal, no PS: no Saving Roll. Winning keeps the template on the table; losing (or failing a Normal Roll) removes it. A Critical only wins. The results show "Smoke placed" (or "Eclipse placed") in place of wounds; it takes nobody out of the fight.
+- Face to Face against every enemy Attack that needs a Roll and LoF through the template: a rolled BS Attack. The enemy's shot still hits the thrower if it wins.
+- Not opposed (both roll, each a Normal Roll): a CC Attack or a Comms Attack (no LoF), and a trooper with a Multispectral Visor of any level against Smoke (it draws LoF through). Eclipse is Reflective: an MSV trooper is opposed by it.
+- A Direct Template doesn't roll: it hits, and the Smoke is a Normal Roll.
+- A Dodge against Smoke is a Normal Roll (Dodge under the template), not opposed: not rolled here; the throw is a Normal Roll. Same as No ARO.
+- Not modelled: Speculative Attack (Long Skill, −6, no LoF needed), a Smoke throw against several attackers, the zone it leaves for later orders (that is the Smoke chip). Disco Baller is not offered: it is a Deployable, a Normal Roll that places its Eclipse template in the Conclusion, not a Face to Face Roll.
 
 ## Comms Attacks
 Alex, 2026-10-20: Comms Attacks are opposed by Reset; the Jammer's success causes Isolated, after a BTS save. The rest from the wiki (Comms Attack label, Reset, Firewall, Mimetism, Nanoscreen). Code: `src/army/weapons.js` (isCommsAttack, needsLof, inZoneOfControl, isolates), `src/rules/modifiers.js` (evades, firewallMod).

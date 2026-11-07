@@ -19,18 +19,22 @@ const sum = (rows) => rows.reduce((s, r) => s + r.chance, 0);
 const woundsPerOrder = (rows) => rows.reduce((t, r) => t + r.wounds * r.chance, 0);
 
 // One side's attack when nothing opposes it (sideResult = result.unopposed.x).
+// `steps`: its target's states; one that is a State (Smoke placed, Isolated)
+// names what a "wound" is.
 /**
  * @param {import('../types.js').EngineResult} sideResult
  * @param {Role} player
+ * @param {WoundStep[] | null | undefined} steps
  * @returns {import('../types.js').AttackOnItsOwn}
  */
-function attackOnItsOwn(sideResult, player) {
+function attackOnItsOwn(sideResult, player, steps) {
   const rows = sideResult.expectedWounds.filter((r) => r.player === player);
   const hit = sum((sideResult.faceToFace ?? []).filter((r) => r.player === player));
   // BAR_WOUNDS entries: exactly 1, 2 and 3+.
   const wounds = /** @type {[number, number, number]} */ (Array.from({length: BAR_WOUNDS}, (_, i) => i + 1).map((w) => sum(rows.filter((r) => (w === BAR_WOUNDS ? r.wounds >= w : r.wounds === w)))));
   const wounded = wounds.reduce((a, b) => a + b, 0);
-  return {wpo: woundsPerOrder(rows), wounds, wounded, saved: Math.max(0, hit - wounded), miss: Math.max(0, 1 - hit)};
+  const state = steps?.length === 1 && steps[0].state ? steps[0].label : null;
+  return {wpo: woundsPerOrder(rows), wounds, wounded, saved: Math.max(0, hit - wounded), miss: Math.max(0, 1 - hit), state};
 }
 
 // Each side's ramp (ramp.js), mildest to deepest, cut into six steps (1
@@ -146,17 +150,18 @@ export function summarize(result, targets = null) {
       reactive: sum(of('reactive').filter((r) => r.wounds === 0)),
     },
     unopposed,
-    ...(unopposed ? unopposedParts(result) : {}),
+    ...(unopposed ? unopposedParts(result, targets) : {}),
   };
 }
 
 /**
  * @param {import('../types.js').EngineResult} result an unopposed one
+ * @param {{active: WoundStep[] | null, reactive: WoundStep[] | null} | null} targets
  * @returns {Pick<Required<import('../types.js').Summary>, 'attacks' | 'joint'>}
  */
-function unopposedParts(result) {
-  const a = attackOnItsOwn(/** @type {NonNullable<typeof result.unopposed>} */ (result.unopposed).active, 'active');
-  const r = attackOnItsOwn(/** @type {NonNullable<typeof result.unopposed>} */ (result.unopposed).reactive, 'reactive');
+function unopposedParts(result, targets) {
+  const a = attackOnItsOwn(/** @type {NonNullable<typeof result.unopposed>} */ (result.unopposed).active, 'active', targets?.active);
+  const r = attackOnItsOwn(/** @type {NonNullable<typeof result.unopposed>} */ (result.unopposed).reactive, 'reactive', targets?.reactive);
   return {
     attacks: {active: a, reactive: r},
     joint: {

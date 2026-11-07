@@ -5,15 +5,16 @@
 // closeCombat.js. ctx: matchup.js deriveInputs. Every builder here returns
 // its lines (and the notes it makes); nothing is pushed into a shared list.
 import {SKILL} from '../army/ids.js';
-import {hasSkill} from '../army/traits.js';
-import {attackAttribute, isCommsAttack, needsLof} from '../army/weapons.js';
+import {hasSkill, msvName} from '../army/traits.js';
+import {attackAttribute, isCommsAttack, needsLof, rolledBsAttack} from '../army/weapons.js';
 import {
-  COVER_BS_MOD, LIMITS, albedoMod, albedoValue, attackBonuses, attackStat, benefitsFromCover, coverBsMod, fireteamBonuses, firewallOf, hasNanoscreen, keepsAroBurst, mimetismMod, mimetismValue, msvName, neurocineticsAroBurst, programSvMods, targetedMod,
+  COVER_BS_MOD, LIMITS, albedoMod, albedoValue, attackBonuses, attackStat, benefitsFromCover, coverBsMod, fireteamBonuses, firewallOf, hasNanoscreen, keepsAroBurst, mimetismMod, mimetismValue, neurocineticsAroBurst, programSvMods, targetedMod,
 } from './modifiers.js';
 import {clamp} from '../lib/clamp.js';
 import {other} from '../lib/side.js';
 import {RANGE_BANDS, bandFrom, rangeModFor} from './ranges.js';
 import {ccAttackMods, ccBurst, ccSd} from './closeCombat.js';
+import {isSmokeAttack, smokeHit} from './smoke.js';
 import {ENHANCED_REACTION_BURST, marksmanshipFromAssistedFire, usesEnhancedReaction} from './supportware.js';
 import {distance, list, msg} from '../i18n/message.js';
 import {hitInputs} from './hit.js';
@@ -72,7 +73,8 @@ const marksmanshipName = (traits) =>
 
 // The MODs y's position and skills put on x's shot, in y's colour: Mimetism,
 // Albedo (both need LoF), cover or Nanoscreen, Firewall. A Comms Attack
-// takes the target's Firewall in place of cover.
+// takes the target's Firewall in place of cover. Smoke is thrown at a point
+// (Targetless): none of them, each struck with that.
 /**
  * @param {Attacker} x
  * @param {Trooper} y
@@ -82,6 +84,15 @@ const marksmanshipName = (traits) =>
 function targetSvLines(x, y, s) {
   const o = other(s);
   const {row} = x.weapon;
+  if (isSmokeAttack(x)) {
+    const why = msg('ledger.targetless');
+    const mim = mimetismValue(y.traits);
+    return compact([
+      mim && line(mim, mimetismLabel(y, mim), o, why),
+      albedoValue(y.traits) && line(albedoValue(y.traits), msg('equip.albedo'), o, why),
+      (benefitsFromCover(y) || hasNanoscreen(y)) && line(COVER_BS_MOD, coverLabel(y), o, why),
+    ]);
+  }
   const lof = needsLof(row);
   const albedo = lof ? albedoMod(y.traits, x.traits) : 0;
   const comms = isCommsAttack(row);
@@ -186,7 +197,7 @@ function burstLines(x, s) {
  * @returns {Line[]}
  */
 function sdLines(x, s) {
-  const ft = x.weapon.kind === 'bs' ? fireteamBonuses(x.ftSize).sd : 0;
+  const ft = rolledBsAttack(x.weapon) ? fireteamBonuses(x.ftSize).sd : 0;
   const own = attackBonuses(x).sd - ft;
   return compact([
     own && line(own, msg('ledger.loadoutOrBsAttack'), s),
@@ -194,8 +205,8 @@ function sdLines(x, s) {
   ]);
 }
 
-// A shot (a BS Attack, a Direct Template, a Hacking Program): Success Value,
-// Burst and Special Dice as lines, each summed into its input.
+// A shot (a BS Attack, a Direct Template, a Hacking Program, a Smoke throw):
+// Success Value, Burst and Special Dice as lines, each summed into its input.
 /**
  * @param {Attacker} x
  * @param {Trooper | null} y
@@ -209,7 +220,8 @@ export function attackInputs(x, y, rangeCm, side, ctx) {
   const b = burstLines(x, side);
   const burst = section(b.lines);
   const sd = section(sdLines(x, side));
-  const hit = hitInputs(x, y, side);
+  // Smoke hits nobody: nothing to save (rules/smoke.js).
+  const hit = isSmokeAttack(x) ? smokeHit(x, side) : hitInputs(x, y, side);
   // Computed keys: tsc sees an index signature, so the shape is stated. The
   // totals of these sections are numbers (lines.js sum).
   const inputs = /** @type {Partial<Params>} */ ({

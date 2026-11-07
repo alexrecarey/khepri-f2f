@@ -11,15 +11,16 @@ import {intIn, numberFromUrl, parseOr} from '../lib/parse.js';
 // Ammunition the calculator knows: the keys of AMMO in calculate.js. DODGE
 // stands for a Dodge, which wins the Face to Face Roll but causes no Saving
 // Rolls; NONE for an attack the target is immune to, rolled and opposed but
-// harmless.
+// harmless; SMOKE for Smoke / Eclipse, whose win puts the template on the
+// table and causes no Saving Rolls either.
 /** @typedef {import('../types.js').Params} Params */
 /** @typedef {import('../types.js').SideParams} SideParams */
 /** @typedef {import('../types.js').Ammo} Ammo */
-/** A param's key: a SideParams key with its side, or the fixed-roll flag.
- * @typedef {`${keyof SideParams}A` | `${keyof SideParams}B` | 'fixedFaceToFace'} ParamKey */
+/** A param's key: a SideParams key with its side, or one of the two flags on the roll.
+ * @typedef {`${keyof SideParams}A` | `${keyof SideParams}B` | 'fixedFaceToFace' | 'unopposed'} ParamKey */
 
 /** @type {Ammo[]} */
-export const AMMO_KEYS = ['N', 'DA', 'EXP', 'T2', 'PLASMA', 'DODGE', 'NONE'];
+export const AMMO_KEYS = ['N', 'DA', 'EXP', 'T2', 'PLASMA', 'DODGE', 'NONE', 'SMOKE'];
 
 /** [min, max] of each numeric param, per side.
  * @type {Record<'burst' | 'bonusBurst' | 'successValue' | 'damage' | 'arm' | 'bts', readonly [number, number]>} */
@@ -77,6 +78,9 @@ export const PARAMS = /** @type {Record<ParamKey, ParamSpec>} */ ({
   ...side('A', 3),
   ...side('B', 1),
   fixedFaceToFace: bool(),   // Reactive rolls a fixed value (e.g. AC2)
+  // Nothing is opposed although both sides roll: each roll is a Normal Roll
+  // (a Multispectral Visor against Smoke; calculate.js isUnopposed).
+  unopposed: bool(),
 });
 
 /** @type {ParamKey[]} */
@@ -89,7 +93,7 @@ export const DEFAULT_PARAMS = /** @type {Params} */ (Object.fromEntries(PARAM_KE
 // its limits). Each field falls back to its default, so a Params always
 // comes out whole. The entries' type is stated the way PARAMS's is: tsc sees
 // Object.fromEntries as an index signature.
-/** @typedef {{[K in keyof SideParams as `${K}A` | `${K}B`]: v.GenericSchema<unknown, SideParams[K]>} & {fixedFaceToFace: v.GenericSchema<unknown, boolean>}} ParamEntries */
+/** @typedef {{[K in keyof SideParams as `${K}A` | `${K}B`]: v.GenericSchema<unknown, SideParams[K]>} & {fixedFaceToFace: v.GenericSchema<unknown, boolean>, unopposed: v.GenericSchema<unknown, boolean>}} ParamEntries */
 /** @param {(spec: ParamSpec) => v.GenericSchema<unknown, number> | v.GenericSchema<unknown, boolean> | v.GenericSchema<unknown, Ammo>} schemaOf */
 const table = (schemaOf) => v.object(/** @type {ParamEntries} */ (Object.fromEntries(PARAM_KEYS.map((k) => [k, schemaOf(PARAMS[k])]))));
 

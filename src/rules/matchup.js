@@ -13,6 +13,7 @@ import {visibility, zoneName} from './visibility.js';
 import {hasNoEffect, noEffectBy} from './saves.js';
 import {isSpecOps} from './trooper.js';
 import {isCcAttack} from './closeCombat.js';
+import {smokeNotOpposed} from './smoke.js';
 import {msg} from '../i18n/message.js';
 import {attackInputs, ccAttackInputs} from './attack.js';
 import {evadeInputs, noLofInputs} from './evade.js';
@@ -52,7 +53,7 @@ function approximationWarnings(s, side, target) {
   // hasNoEffect read the target's traits: it is there.
   const weapon = !row ? null
     : hasNoEffect(target?.traits, row) ? note(s, 'warning.noEffect', {weapon: row.name, by: noEffectBy(/** @type {Trooper} */ (target).traits, row)})
-      // Not a warning: the results say Isolated / Stunned (rules/woundStates.js).
+      // Not a warning: the results say Isolated / Stunned / Smoke placed (rules/woundStates.js).
       : stateCaused(row) ? null
         : isNonLethal(row) ? note(s, 'warning.nonLethal', {weapon: row.name})
           : null;
@@ -189,6 +190,9 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
   const errors = compact(SIDES.map((s) => sides[s]?.error));
   // A side still waiting on its weapon: nothing to report, but not ready to apply.
   const incomplete = SIDES.some((s) => sides[s]?.incomplete);
+  // Smoke against an attack it doesn't oppose (an MSV sees through it, a CC
+  // or Comms Attack needs no LoF): both roll, each on its own (smoke.js).
+  const notOpposed = smokeNotOpposed(a, b) ?? smokeNotOpposed(b, a);
   const notes = [
     ...opposing.A.notes,
     ...opposing.B.notes,
@@ -200,6 +204,7 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
     // included (Alex, 2026-10-23); a template a zone blocks rolls nothing
     // (lines.kind 'none'), so it says nothing.
     ...(SIDES.some((s) => lines[s]?.kind === 'template') ? [note(null, 'note.directTemplate')] : []),
+    ...(notOpposed ? [note(null, 'note.text', {text: notOpposed})] : []),
   ];
   const warnings = [
     ...approximationWarnings('A', a, b),
@@ -207,6 +212,6 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
     ...(isSpecOps(a) || isSpecOps(b) ? [note(null, 'warning.specOps')] : []),
   ];
   /** @type {Partial<Params>} */
-  const inputs = {...sides.A?.inputs, ...sides.B?.inputs, ...((a || b) && {fixedFaceToFace: false})};
+  const inputs = {...sides.A?.inputs, ...sides.B?.inputs, ...((a || b) && {fixedFaceToFace: false, unopposed: Boolean(notOpposed)})};
   return {inputs, ok: errors.length === 0 && !incomplete && (a !== null || b !== null), errors, warnings, notes, lines};
 }

@@ -3,10 +3,11 @@
 import {LIMITS} from '../engine/params.js';
 import {clamp} from '../lib/clamp.js';
 import {EQUIP, SKILL} from '../army/ids.js';
-import {equipExtra, extraNumbers, hasEquip, hasSkill, skillExtra, skillExtras} from '../army/traits.js';
+import {equipExtra, extraNumbers, hasEquip, hasMsv, hasSkill, skillExtra, skillExtras} from '../army/traits.js';
 import {ZERO_PAIN, canTarget} from '../army/hacking.js';
-import {attackAttribute, isCommsAttack, isImpactTemplate, isPseudo, isTemplate, parseWeaponMods, rolls} from '../army/weapons.js';
+import {attackAttribute, isCommsAttack, isImpactTemplate, isPseudo, isTemplate, parseWeaponMods, rolledBsAttack, rolls} from '../army/weapons.js';
 import {ccOpposingMods, isCcAttack, naturalBornWarrior} from './closeCombat.js';
+import {smokeNotOpposed} from './smoke.js';
 import {msg} from '../i18n/message.js';
 
 /** @typedef {import('../types.js').Traits | null | undefined} MaybeTraits */
@@ -123,14 +124,6 @@ export function programSvMods(x, y) {
  */
 export const reaches = (x, y) => x?.weapon?.kind !== 'program' || canTarget(x.weapon.row, y);
 
-/** @param {MaybeTraits} traits */
-const hasMsv = (traits) => hasEquip(traits, EQUIP.MSV1) || hasEquip(traits, EQUIP.MSV2) || hasEquip(traits, EQUIP.MSV3);
-// The attacker's Multispectral Visor as players write it, or null.
-/** @param {MaybeTraits} traits */
-const msvLevel = (traits) => (hasEquip(traits, EQUIP.MSV3) ? 3 : hasEquip(traits, EQUIP.MSV2) ? 2 : hasEquip(traits, EQUIP.MSV1) ? 1 : null);
-/** @param {MaybeTraits} traits */
-export const msvName = (traits) => (msvLevel(traits) ? msg('equip.msv', {level: msvLevel(traits)}) : null);
-
 // A bracketed negative MOD (Mimetism (-6), Albedo (-3)); -3 when the data
 // gives none.
 /** @param {string | null} extra */
@@ -208,12 +201,13 @@ export const hasSixthSense = (side) => hasSkill(side?.traits, SKILL.SIXTH_SENSE)
 
 // Does the side's pick get anything from its Fireteam? Its bonuses are for a
 // BS Attack that is rolled (+1 SD, +1 BS; Sixth Sense against Poor
-// Visibility) and a Dodge (+1, Sixth Sense). Not a Hacking Program or Reset
-// (WIP rolls, Alex 2026-10-22), a CC Attack, a Direct Template or No ARO.
+// Visibility), a Smoke throw included, and a Dodge (+1, Sixth Sense). Not a
+// Hacking Program or Reset (WIP rolls, Alex 2026-10-22), a CC Attack, a
+// Direct Template or No ARO.
 /** @param {ResolvedSide | null | undefined} x */
 export function fireteamHelps(x) {
-  const kind = x?.weapon?.kind;
-  return kind === 'bs' || kind === 'dodge';
+  const w = x?.weapon;
+  return rolledBsAttack(w) || w?.kind === 'dodge';
 }
 
 /** @param {number} [size] */
@@ -263,7 +257,8 @@ export const TARGETED_RESET_MOD = -3;
 export const HACKED_RESET_MODS = [-3, -6, -9, -12];
 export const IMM_A_DODGE_MOD = -6;
 // Does x's pick gain from its target being Targeted? A rolled BS Attack or
-// Comms Attack (a Hacking Program, the Jammer).
+// Comms Attack (a Hacking Program, the Jammer). Not Smoke: Targetless, it is
+// an attack against nobody.
 /** @param {ResolvedSide | null | undefined} x */
 export const targetedHelps = (x) => x?.weapon?.kind === 'bs' || x?.weapon?.kind === 'program';
 // x attacking y: +3 when y is Targeted.
@@ -371,8 +366,10 @@ export function rollsDice(x) {
 
 // Does x's Dodge or Reset evade the attack `incoming` (the other side's
 // weapon)? Dodge evades anything but a Comms Attack; Reset only Comms Attacks
-// (wiki, Reset). Against no attack either one just rolls. An attack evades
-// nothing: it is opposed when both attack.
+// (wiki, Reset). Neither is rolled against Smoke: a trooper under the
+// template Dodges with a Normal Roll (wiki, Smoke Ammunition; rules/smoke.js).
+// Against no attack either one just rolls. An attack evades nothing: it is
+// opposed when both attack.
 /**
  * @param {ResolvedSide | null | undefined} x
  * @param {import('../types.js').Choice | null | undefined} incoming
@@ -381,6 +378,7 @@ export function evades(x, incoming) {
   const kind = x?.weapon?.kind;
   if (kind !== 'dodge' && kind !== 'reset') return false;
   if (!incoming || isPseudo(incoming)) return true;
+  if (incoming.kind === 'smoke') return false;
   return (kind === 'reset') === isCommsAttack(incoming.row);
 }
 
@@ -416,6 +414,9 @@ export function opposingMods(x, y, xActive) {
   // A Dodge or Reset that can't evade this attack isn't rolled against it.
   if (isPseudo(x.weapon) && !evades(x, y.weapon)) return [];
   if (isPseudo(y.weapon) && !evades(y, x.weapon)) return [];
+  // Smoke against an attack it doesn't oppose (an MSV sees through it, a CC
+  // or Comms Attack needs no LoF): two Normal Rolls, nothing opposed.
+  if (smokeNotOpposed(x, y) || smokeNotOpposed(y, x)) return [];
   // Zero Pain: -3 to the Comms Attack it evades.
   if (x.weapon.kind === 'reset') {
     return x.weapon.zeroPain ? [{value: ZERO_PAIN.opponent, label: msg('pseudo.zeroPainMod', {mod: ZERO_PAIN.opponent}), ignoredBy: null}] : [];

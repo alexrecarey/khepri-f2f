@@ -210,10 +210,11 @@
 
 /**
  * What a weapon entry is, as army/weapons.js WEAPON_KINDS explains it:
- * 'bs' a rolled BS Attack, 'template' a Direct Template (no roll), 'cc' a
+ * 'bs' a rolled BS Attack, 'smoke' a Smoke / Eclipse throw (rolled, hits
+ * nobody), 'template' a Direct Template (no roll), 'cc' a
  * CC Attack, 'program' a Hacking Program, 'dodge' / 'reset' / 'none' the
  * choices that are not weapons.
- * @typedef {'bs' | 'template' | 'cc' | 'program' | 'dodge' | 'reset' | 'none'} WeaponKind
+ * @typedef {'bs' | 'smoke' | 'template' | 'cc' | 'program' | 'dodge' | 'reset' | 'none'} WeaponKind
  */
 
 /**
@@ -257,7 +258,7 @@
  * trooperPrograms).
  * @typedef {object} WeaponEntry
  * @property {string} key `${id}:${mode}`; a program's is `hack:${id}`
- * @property {'bs' | 'template' | 'cc' | 'program'} kind
+ * @property {'bs' | 'smoke' | 'template' | 'cc' | 'program'} kind
  * @property {number | string} id the Army's weapon id, a number (a program's: its key)
  * @property {string} name the weapon's name, as `row.name`
  * @property {string | null} mode the firing mode
@@ -449,7 +450,7 @@
 // ---- The dice (engine/params.js, engine/calculate.js) ----
 
 /** Ammunition the calculator knows (engine/params.js AMMO_KEYS).
- * @typedef {'N' | 'DA' | 'EXP' | 'T2' | 'PLASMA' | 'DODGE' | 'NONE'} Ammo */
+ * @typedef {'N' | 'DA' | 'EXP' | 'T2' | 'PLASMA' | 'DODGE' | 'NONE' | 'SMOKE'} Ammo */
 
 /**
  * One side's calculator params (engine/params.js PARAMS, per side).
@@ -578,6 +579,7 @@
  * @property {number} wounded chance of any wound
  * @property {number} saved won the roll (or hit), but every hit was saved
  * @property {number} miss
+ * @property {Message | null} state what a hit causes instead of wounds (Smoke placed, Isolated), else null; rendered by then
  */
 
 /**

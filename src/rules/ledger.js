@@ -7,7 +7,7 @@
 // note and line into the player's language, and buildLedger lays the lines
 // out per side (types.js LedgerSide) and adds only display: the dice line,
 // the ammunition lines and note.
-import {ammoName, ammoTypes, bioweaponParts, hasContinuousDamage, isImpactTemplate, isPlasma, isPseudo} from '../army/weapons.js';
+import {ammoName, ammoTypes, bioweaponParts, hasContinuousDamage, isImpactTemplate, isPlasma, isPseudo, isSmoke} from '../army/weapons.js';
 import {AMMO} from '../engine/calculate.js';
 import {pseudoName} from './trooper.js';
 import {isCcAttack} from './closeCombat.js';
@@ -45,6 +45,7 @@ function ammoNote(inputs, s, t) {
 // shown; Plasma instead of its N+N; Bioweapon (DA+SHOCK) as "DA Shock"; then
 // Cont for Continuous Damage and Blast for an Impact Template (not ammo, but
 // it changes the roll). "AP EXP", "DA Cont", "EXP Blast", "" for plain N.
+// Smoke's template is the smoke itself, not a Blast: just "Smoke".
 /**
  * @param {import('../types.js').WeaponRow | null | undefined} row
  * @param {import('../types.js').WeaponMods} mods
@@ -58,7 +59,7 @@ export function ammoTag(row, mods, t = tEn) {
   tags.push(...bioweaponParts(row).map((a) => ammoName(a, t)));
   for (const a of ammoTypes(row, mods)) if (!tags.includes(ammoName(a, t))) tags.push(ammoName(a, t));
   if (hasContinuousDamage(row, mods)) tags.push(t('tag.cont'));
-  if (isImpactTemplate(row)) tags.push(t('tag.blast'));
+  if (isImpactTemplate(row) && !isSmoke(row)) tags.push(t('tag.blast'));
   return tags.length ? ` ${tags.join(' ')}` : '';
 }
 
@@ -105,23 +106,26 @@ function sideLedger(x, y, s, l, inputs, t) {
     // A Reset is a pseudo-weapon.
     return {kind: 'reset', dice: `${render(t, pseudoName(/** @type {import('../types.js').PseudoEntry} */ (w)))}${burst} ${svText(sv.total, t)}`, sv};
   }
-  const {burst, sd, save, ammo} = /** @type {Required<Pick<import('../types.js').SideLines, 'burst' | 'sd' | 'save' | 'ammo'>>} */ (l);
+  // Smoke has no save section: it causes no Saving Roll (rules/smoke.js).
+  const {burst, sd, save, ammo} = /** @type {Required<Pick<import('../types.js').SideLines, 'burst' | 'sd' | 'ammo'>> & Pick<import('../types.js').SideLines, 'save'>} */ (l);
   if (l.kind === 'dodge') {
     return {kind: 'dodge', dice: `${t('pseudo.dodge')}${sd.total ? ` +${sd.total}${t('abbr.SD')}` : ''} ${svText(sv.total, t)}`, sv, sd};
   }
   const b = burstText(burst.total, sd.total, t);
+  const ps = save ? ` ${t('abbr.PS')}${save.total}` : '';
   // The kinds left (attack, template) fire a weapon.
   const tag = ammoTag(w.row, /** @type {import('../types.js').WeaponMods} */ (w.mods), t);
   const note = ammoNote(inputs, s, t);
   if (isCcAttack(x)) {
     // PARA's save is the target's PH roll, not PS + ARM.
     const saveTag = /** @type {import('../types.js').WeaponRow} */ (w.row).save?.attr === 'PH' ? t('stat.ph') : t('abbr.PS');
-    return {kind: 'attack', dice: `${t('abbr.CC')} ${b} ${svText(sv.total, t)} ${saveTag}${save.total}${tag}`, burst, sd, sv, save, ammo, note};
+    // A CC Attack always has a save.
+    return {kind: 'attack', dice: `${t('abbr.CC')} ${b} ${svText(sv.total, t)} ${saveTag}${/** @type {import('../types.js').Section} */ (save).total}${tag}`, burst, sd, sv, save, ammo, note};
   }
   if (l.kind === 'template') {
-    return {kind: 'template', dice: `${b} ${t('ledger.template')} ${t('abbr.PS')}${save.total}${tag}`, burst, sd, save, ammo, note};
+    return {kind: 'template', dice: `${b} ${t('ledger.template')}${ps}${tag}`, burst, sd, save, ammo, note};
   }
-  return {kind: 'attack', dice: `${b} ${svText(sv.total, t)} ${t('abbr.PS')}${save.total}${tag}`, burst, sd, sv, save, ammo, note};
+  return {kind: 'attack', dice: `${b} ${svText(sv.total, t)}${ps}${tag}`, burst, sd, sv, save, ammo, note};
 }
 
 // A section ({lines, total, note?}) with its lines and note rendered.
