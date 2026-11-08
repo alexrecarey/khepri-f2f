@@ -468,6 +468,8 @@ test('saved rolls from older builds: missing fields default, key order does not 
   const old = /** @type {import('../types.js').SavedRoll} */ ({id: 'r1', mode: 'matchup', savedAt: 1, summary: /** @type {import('../types.js').RollSummary} */ ({a: 'x'}), setup: {B: {...EMPTY_SIDE}, rangeCm: 40, A: reordered}});
   const now = /** @type {import('../types.js').Matchup} */ ({A: {...EMPTY_SIDE, ...fennec}, B: {...EMPTY_SIDE}, rangeCm: 40});
   assert.equal(setupKey('matchup', old.setup), setupKey('matchup', now));
+  // Whose grenade split the range is no part of the roll.
+  assert.equal(setupKey('matchup', {...now, rangeCmB: 20, splitBy: 'B'}), setupKey('matchup', {...now, rangeCmB: 20, splitBy: null}));
   /** @type {AppState} */
   let s = {...initialState(), lists: {...initialState().lists, saved: [old]}};
   s = reduce(s, {type: 'loadRoll', id: 'r1'});
@@ -504,6 +506,61 @@ test('picking a CC weapon moves the range to the closest band, a split range too
 test('picking a Zone of Control weapon (Jammer) closes the range too', () => {
   const s = run(initialState(), {type: 'setRange', rangeCm: 80}, {type: 'pickWeapon', side: 'B', key: '87:', kind: 'bs', zoc: true});
   assert.deepEqual([s.matchup.B.weaponKey, s.matchup.rangeCm], ['87:', 20]);
+});
+
+test('picking a Smoke grenade splits the range: the thrower goes to 0-8", the other trooper keeps its own', () => {
+  const pick = (/** @type {'A' | 'B'} */ side) => ({type: 'pickWeapon', side, key: '45:', kind: 'smoke', throwsClose: true});
+  const s = run(initialState(), {type: 'setRange', rangeCm: 80});
+  // Reactive throws (Yojimbo in ARO): the active keeps 24-32".
+  const b = run(s, pick('B')).matchup;
+  assert.deepEqual([b.B.weaponKey, b.rangeCm, b.rangeCmB], ['45:', 80, 20]);
+  // Active throws: the reactive keeps the shared distance as its own.
+  const a = run(s, pick('A')).matchup;
+  assert.deepEqual([a.rangeCm, a.rangeCmB], [20, 80]);
+  // Already split: the other side's own distance stays.
+  const split = run(s, {type: 'setRangeSplit', on: true}, {type: 'setRange', side: 'B', rangeCm: 120}, pick('A')).matchup;
+  assert.deepEqual([split.rangeCm, split.rangeCmB], [20, 120]);
+  // A Smoke Grenade Launcher (no throwsClose) leaves the range alone.
+  const launcher = run(s, {type: 'pickWeapon', side: 'B', key: '195:', kind: 'smoke'}).matchup;
+  assert.deepEqual([launcher.rangeCm, launcher.rangeCmB], [80, null]);
+});
+
+test('leaving the Smoke grenade joins the range it split again, at the other trooper\'s distance', () => {
+  const smoke = (/** @type {'A' | 'B'} */ side) => ({type: 'pickWeapon', side, key: '45:', kind: 'smoke', throwsClose: true});
+  const rifle = (/** @type {'A' | 'B'} */ side) => ({type: 'pickWeapon', side, key: '1:', kind: 'bs'});
+  const s = run(initialState(), {type: 'setRange', rangeCm: 80});
+  // Reactive throws, then shoots: one distance, the active's 24-32".
+  const b = run(s, smoke('B'), {type: 'setRange', side: 'B', rangeCm: 40}, rifle('B')).matchup;
+  assert.deepEqual([b.B.weaponKey, b.rangeCm, b.rangeCmB, b.splitBy], ['1:', 80, null, null]);
+  // Active throws, then shoots: the reactive's distance, moved meanwhile, is the one kept.
+  const a = run(s, smoke('A'), {type: 'setRange', side: 'B', rangeCm: 120}, rifle('A')).matchup;
+  assert.deepEqual([a.rangeCm, a.rangeCmB, a.splitBy], [120, null, null]);
+  // The other side's pick doesn't join it.
+  const otherPick = run(s, smoke('B'), rifle('A')).matchup;
+  assert.deepEqual([otherPick.rangeCm, otherPick.rangeCmB, otherPick.splitBy], [80, 20, 'B']);
+  // Grenade to grenade (Smoke to Eclipse) keeps the split.
+  const eclipse = run(s, smoke('B'), {type: 'pickWeapon', side: 'B', key: '46:', kind: 'smoke', throwsClose: true}).matchup;
+  assert.deepEqual([eclipse.rangeCm, eclipse.rangeCmB, eclipse.splitBy], [80, 20, 'B']);
+  // To a CC weapon: joined, then closed as a CC pick does.
+  const cc = run(s, smoke('B'), {type: 'pickWeapon', side: 'B', key: '8:', kind: 'cc'}).matchup;
+  assert.deepEqual([cc.rangeCm, cc.rangeCmB], [20, null]);
+  // A new trooper on the throwing side leaves the grenade too; swapping keeps it with its trooper.
+  const swapped = run(s, smoke('B'), {type: 'swapSides'});
+  assert.deepEqual([swapped.matchup.rangeCm, swapped.matchup.rangeCmB, swapped.matchup.splitBy], [20, 80, 'A']);
+  assert.deepEqual([run(swapped, rifle('A')).matchup.rangeCm, run(swapped, rifle('A')).matchup.rangeCmB], [80, null]);
+  assert.equal(run(s, smoke('B'), {type: 'clearSides'}).matchup.rangeCmB, null);
+});
+
+test('a range the player had split stays split when the Smoke grenade is left', () => {
+  const s = run(initialState(), {type: 'setRange', rangeCm: 80}, {type: 'setRangeSplit', on: true}, {type: 'setRange', side: 'B', rangeCm: 120},
+    {type: 'pickWeapon', side: 'B', key: '45:', kind: 'smoke', throwsClose: true});
+  assert.deepEqual([s.matchup.rangeCm, s.matchup.rangeCmB, s.matchup.splitBy], [80, 20, null]);
+  const left = run(s, {type: 'pickWeapon', side: 'B', key: '1:', kind: 'bs'}).matchup;
+  assert.deepEqual([left.rangeCm, left.rangeCmB], [80, 20]);
+  // Splitting by hand after the grenade split it: the player's now.
+  const own = run(initialState(), {type: 'pickWeapon', side: 'B', key: '45:', kind: 'smoke', throwsClose: true},
+    {type: 'setRangeSplit', on: false}, {type: 'setRangeSplit', on: true}, {type: 'pickWeapon', side: 'B', key: '1:', kind: 'bs'}).matchup;
+  assert.notEqual(own.rangeCmB, null);
 });
 
 test('Berserk stays with the active side: swapping drops it', () => {

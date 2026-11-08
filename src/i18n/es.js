@@ -52,6 +52,8 @@ export default {
   'ammo.T2': 'T2',
   'ammo.SHOCK': 'Shock',
   'ammo.STUN': 'Aturdidora',
+  'ammo.SMOKE': 'Humo',
+  'ammo.ECLIPSE': 'Eclipse',
   'ammo.PLASMA': 'Plasma',
   'tag.cont': 'Cont',
   'tag.contUpper': 'CONT',
@@ -122,6 +124,8 @@ export default {
   'state.immobilized-b': 'Inmovilizado-B',
   'state.targeted': 'Marcado',
   'state.possessed': 'Poseído',
+  'state.smoke': 'Humo colocado',
+  'state.eclipse': 'Eclipse colocado',
 
   // "How the dice were built" (rules/ledger.js)
   'ledger.teamOpsStat': '{stat} (Team-Ops: {upgrade})',
@@ -133,6 +137,7 @@ export default {
   'ledger.loadoutOrBsAttack': 'equipo / Ataque CD',
   'ledger.noLof': 'Sin LDT',
   'ledger.cancelled': 'anulado',
+  'ledger.targetless': 'Sin Objetivo',
   'ledger.albedoOnly': 'solo contra VMS o Puntería',
   'ledger.cover': 'cobertura',
   'ledger.foxholeCover': 'cobertura del Pozo de Tirador',
@@ -168,6 +173,7 @@ export default {
   'ledger.programMod': '{program} ({mod})',
   'ledger.resetOnlyComms': 'Reset solo evita Ataques de Comunicaciones.',
   'ledger.dodgeNotComms': 'Esquivar no evita un Ataque de Comunicaciones; Reset sí.',
+  'ledger.dodgeNotSmoke': 'Contra {ammo}, Esquivar es una Tirada Normal, no Enfrentada.',
 
   // Notes, warnings and errors next to a matchup (rules/matchup.js)
   'note.side': '{side}: {text}',
@@ -182,6 +188,10 @@ export default {
   'note.vulnerability': 'el objetivo tiene Vulnerabilidad ({vulnerable}); la Inmunidad ({immunity}) no se aplica',
   'note.resetOnlyComms': 'Reset solo evita Ataques de Comunicaciones; {weapon} se tira sin oposición',
   'note.dodgeNotComms': 'Esquivar no evita un Ataque de Comunicaciones ({weapon}), solo Reset; se tira sin oposición',
+  'note.dodgeNotSmoke': 'Esquivar no se enfrenta a {weapon}; se tira sin oposición',
+  'note.smokeNoLof': '{by} no necesita LDT a través del {ammo}: sin Tirada Enfrentada, cada uno tira por separado',
+  'note.smokeMsv': '{msv} ve a través del {ammo}: sin Tirada Enfrentada, cada uno tira por separado',
+  'note.ccAttack': 'Un Ataque CC',
   'note.noLof': 'sin línea de tiro a través de {zone}; no puede declarar su ataque',
   'note.directTemplate': 'Plantilla Directa: no hay Tirada Enfrentada; cada ataque se tira por separado',
   'note.targetImmunity': 'el objetivo tiene Inmunidad ({what}); {effect}',
@@ -361,7 +371,10 @@ export default {
   'unopposed.both': 'los dos heridos',
   'unopposed.only': 'solo {name} herido',
   'unopposed.nobody': 'nadie herido',
-  'unopposed.explain': 'No es una Tirada Enfrentada. Una Plantilla Directa no tira, así que no hay oposición: cada ataque se resuelve por separado y <b>los dos pueden herir</b> en esta orden.',
+  'unopposed.onlyState': 'solo {state}',
+  'unopposed.bothHappen': 'ocurren los dos',
+  'unopposed.neither': 'no ocurre ninguno',
+  'unopposed.explain': 'No es una Tirada Enfrentada: no hay oposición, así que cada ataque se resuelve por separado y <b>los dos pueden tener éxito</b> en esta orden.',
   'unopposed.thisOrder': 'Qué pasa en esta orden',
 
   // The ledger cards

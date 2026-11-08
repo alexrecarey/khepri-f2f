@@ -14,10 +14,10 @@
 // nobody shoots. Albedo is not a visibility MOD and adds on top (modifiers.js).
 // A No LoF attack (Jammer) ignores both zones.
 import {EQUIP, SKILL} from '../army/ids.js';
-import {hasEquip, hasSkill} from '../army/traits.js';
+import {hasEquip, hasSkill, msvName} from '../army/traits.js';
 import {isPseudo, needsLof} from '../army/weapons.js';
 import {isCcAttack} from './closeCombat.js';
-import {hasSixthSense, msvName} from './modifiers.js';
+import {hasSixthSense} from './modifiers.js';
 import {msg} from '../i18n/message.js';
 
 /** @typedef {import('../types.js').Zone} Zone */

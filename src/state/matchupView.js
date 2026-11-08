@@ -7,7 +7,7 @@
 // player's language. matchupView composes them; useMatchupView.js memoises
 // each pass for React.
 import {extraLoadoutName, shortIsc, unitTag} from '../army/names.js';
-import {isCommsAttack, isPseudo, stateCaused} from '../army/weapons.js';
+import {isCommsAttack, isPseudo, rolledBsAttack, stateCaused} from '../army/weapons.js';
 import {fullParams} from '../engine/params.js';
 import {defaultWeapon, sortWeapons} from '../rules/defaultWeapon.js';
 import {buildLedger, renderDerived} from '../rules/ledger.js';
@@ -88,14 +88,14 @@ function weaponGroups(list, role) {
 
 // A side's Range MOD at a band: null out of range, undefined when it has no
 // range bands (nothing picked, Dodge, No ARO, Direct Template, CC Attack,
-// Hacking Program).
+// Hacking Program). A Smoke throw has them, like a shot.
 /**
  * @param {ResolvedSide | null} resolved
  * @param {number} to
  */
 function bandMod(resolved, to) {
   const w = resolved?.weapon;
-  if (w?.kind !== 'bs') return undefined;
+  if (!rolledBsAttack(w)) return undefined;
   // A weapon means a resolved side.
   return rangeModFor(w.row, to, /** @type {ResolvedSide} */ (resolved).traits);
 }

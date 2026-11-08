@@ -86,6 +86,20 @@ function swapScopes(scopes) {
  */
 const setSide = (state, side, sel) => ({...state, matchup: {...state.matchup, [side]: sel}});
 
+// The range a Smoke grenade split (matchup.splitBy), joined again once its
+// side leaves the grenade: one distance, the other trooper's. A split the
+// player made, or one split for the other side, stays.
+/** @typedef {import('../types.js').Matchup} Matchup */
+/**
+ * @param {Matchup} m
+ * @param {Side} side the side whose pick or trooper changes
+ * @returns {Matchup}
+ */
+function unsplit(m, side) {
+  if (m.splitBy !== side || m.rangeCmB == null) return m.splitBy === side ? {...m, splitBy: null} : m;
+  return {...m, rangeCm: side === 'A' ? m.rangeCmB : m.rangeCm, rangeCmB: null, splitBy: null};
+}
+
 // The open picker with `patch` applied (a patch, or a function of the picker
 // as it is); no picker, no change.
 /** @typedef {NonNullable<UiState['picker']>} Picker */
@@ -133,7 +147,7 @@ export function reduce(state, action) {
 
     // --- matchup
     case 'setSide':
-      return setSide(state, action.side, {...EMPTY_SIDE, ...action.sel});
+      return setSide({...state, matchup: unsplit(matchup, action.side)}, action.side, {...EMPTY_SIDE, ...action.sel});
     case 'patchSide':
       return setSide(state, action.side, {...matchup[action.side], ...action.patch});
     // Cover or, for Sapper, the Foxhole (its own cover): one or the other.
@@ -146,13 +160,25 @@ export function reduce(state, action) {
     // does so from there (Alex, 2026-10-19). The CC side has no range, so a
     // split range closes on both. Any other pick drops Berserk (a CC Attack).
     // A Zone of Control weapon (Jammer) reaches 8", so it closes the range too.
+    // A Smoke grenade (throwsClose, rules/smoke.js) is thrown within 8" of its
+    // user, wherever the other trooper stands: the range splits, the
+    // thrower's side goes to 0-8", the other side keeps the distance it had.
+    // Leaving the grenade joins the range again at the other trooper's
+    // distance, unless the player had split it before (unsplit).
     // `kind`: the picked entry's kind (army/weapons.js WEAPON_KINDS).
     case 'pickWeapon': {
       const cc = action.kind === 'cc';
-      const next = setSide(state, action.side, {...matchup[action.side], weaponKey: action.key, ...(!cc && {berserk: false})});
-      if (!cc && !action.zoc) return next;
       const close = RANGE_BANDS[0].to;
-      return {...next, matchup: {...next.matchup, rangeCm: close, ...(matchup.rangeCmB != null && {rangeCmB: close})}};
+      const sel = {...matchup[action.side], weaponKey: action.key, ...(!cc && {berserk: false})};
+      if (action.throwsClose) {
+        const otherRange = action.side === 'A' ? matchup.rangeCmB ?? matchup.rangeCm : matchup.rangeCm;
+        const ranges = action.side === 'A' ? {rangeCm: close, rangeCmB: otherRange} : {rangeCm: otherRange, rangeCmB: close};
+        const splitBy = matchup.rangeCmB == null ? action.side : matchup.splitBy;
+        return {...state, matchup: {...matchup, [action.side]: sel, ...ranges, splitBy}};
+      }
+      const m = {...unsplit(matchup, action.side), [action.side]: sel};
+      if (!cc && !action.zoc) return {...state, matchup: m};
+      return {...state, matchup: {...m, rangeCm: close, ...(m.rangeCmB != null && {rangeCmB: close})}};
     }
     // side 'B' sets the reactive's own distance (only once the range is split).
     case 'setRange': {
@@ -164,8 +190,9 @@ export function reduce(state, action) {
       };
     }
     // Splitting starts the reactive at the shared distance; joining keeps the active's.
+    // The player's own split (or join): no longer the grenade's.
     case 'setRangeSplit':
-      return {...state, matchup: {...matchup, rangeCmB: action.on ? matchup.rangeCm : null}};
+      return {...state, matchup: {...matchup, rangeCmB: action.on ? matchup.rangeCm : null, splitBy: null}};
     case 'setZone':
       return {...state, matchup: {...matchup, [action.zone]: Boolean(action.on)}};
     case 'setRangeOpen':
@@ -181,8 +208,9 @@ export function reduce(state, action) {
           ...matchup,
           A: {...matchup.B, weaponKey: matchup.B.weaponKey === 'none' ? null : matchup.B.weaponKey},
           B: {...matchup.A, surpriseAttack: false, berserk: false},
-          // A split range follows the troopers too.
+          // A split range follows the troopers too, and so does whose grenade split it.
           ...(matchup.rangeCmB != null && {rangeCm: matchup.rangeCmB, rangeCmB: matchup.rangeCm}),
+          splitBy: matchup.splitBy ? other(matchup.splitBy) : null,
         },
         // Each side's faction follows its trooper.
         scopes: swapScopes(state.scopes ?? {}),
@@ -190,7 +218,7 @@ export function reduce(state, action) {
       };
     // Clearing the troopers also forgets each side's faction.
     case 'clearSides':
-      return {...state, matchup: {...matchup, A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}}, scopes: {}, ui: {...ui, edit: null}};
+      return {...state, matchup: {...unsplit(unsplit(matchup, 'A'), 'B'), A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}}, scopes: {}, ui: {...ui, edit: null}};
     case 'setEdit':
       return {...state, ui: {...ui, edit: action.edit}};
 
@@ -287,8 +315,9 @@ export function reduce(state, action) {
       const picker = action.next && ui.picker
         ? {...ui.picker, side: other(action.side), scope: action.nextScope ?? null, query: '', stack: [], cursor: null, ...LIST_TOP, profileId: null}
         : null;
+      // A new trooper leaves the grenade too (unsplit).
       return {
-        ...setSide(state, action.side, {...EMPTY_SIDE, ...action.sel, inCover: action.sel?.inCover ?? inCover, ftSize: fireteamSize(ftSize, action.ftMax ?? FIRETEAM_MAX)}),
+        ...setSide({...state, matchup: unsplit(matchup, action.side)}, action.side, {...EMPTY_SIDE, ...action.sel, inCover: action.sel?.inCover ?? inCover, ftSize: fireteamSize(ftSize, action.ftMax ?? FIRETEAM_MAX)}),
         scopes: action.scope === undefined ? state.scopes : {...state.scopes, [action.side]: action.scope},
         ui: picker ? {...ui, picker} : {...ui, overlay: null, picker: null},
         lists: action.recent ? {...state.lists, recents: pushRecent(state.lists.recents, {...action.recent, side: action.side})} : state.lists,

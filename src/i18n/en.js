@@ -52,6 +52,8 @@ export default {
   'ammo.T2': 'T2',
   'ammo.SHOCK': 'Shock',
   'ammo.STUN': 'Stun',
+  'ammo.SMOKE': 'Smoke',
+  'ammo.ECLIPSE': 'Eclipse',
   'ammo.PLASMA': 'Plasma',
   'tag.cont': 'Cont',
   'tag.contUpper': 'CONT',
@@ -122,6 +124,9 @@ export default {
   'state.immobilized-b': 'Immobilized-B',
   'state.targeted': 'Targeted',
   'state.possessed': 'Possessed',
+  // Smoke / Eclipse: a won roll places the template (rules/smoke.js).
+  'state.smoke': 'Smoke placed',
+  'state.eclipse': 'Eclipse placed',
 
   // "How the dice were built" (rules/ledger.js)
   'ledger.teamOpsStat': '{stat} (Team-Ops: {upgrade})',
@@ -133,6 +138,7 @@ export default {
   'ledger.loadoutOrBsAttack': 'loadout / BS Attack',
   'ledger.noLof': 'No LoF',
   'ledger.cancelled': 'cancelled',
+  'ledger.targetless': 'Targetless',
   'ledger.albedoOnly': 'only vs MSV or Marksmanship',
   'ledger.cover': 'cover',
   'ledger.foxholeCover': 'Foxhole cover',
@@ -168,6 +174,7 @@ export default {
   'ledger.programMod': '{program} ({mod})',
   'ledger.resetOnlyComms': 'Reset only evades Comms Attacks.',
   'ledger.dodgeNotComms': 'Dodge can\'t evade a Comms Attack; Reset can.',
+  'ledger.dodgeNotSmoke': 'Against {ammo} a Dodge is a Normal Roll, not opposed.',
 
   // Notes, warnings and errors next to a matchup (rules/matchup.js)
   'note.side': '{side}: {text}',
@@ -182,6 +189,10 @@ export default {
   'note.vulnerability': 'target has Vulnerability ({vulnerable}); Immunity ({immunity}) does not apply',
   'note.resetOnlyComms': 'Reset only evades Comms Attacks; the {weapon} is rolled unopposed',
   'note.dodgeNotComms': 'Dodge can\'t evade a Comms Attack ({weapon}), only Reset can; it is rolled unopposed',
+  'note.dodgeNotSmoke': 'a Dodge is not opposed to the {weapon}; it is rolled unopposed',
+  'note.smokeNoLof': '{by} needs no LoF through the {ammo}: no Face to Face Roll, each side rolls on its own',
+  'note.smokeMsv': '{msv} sees through the {ammo}: no Face to Face Roll, each side rolls on its own',
+  'note.ccAttack': 'A CC Attack',
   'note.noLof': 'no line of fire through {zone}; its attack can\'t be declared',
   'note.directTemplate': 'Direct Template: no Face to Face Roll; each attack is rolled on its own',
   'note.targetImmunity': 'target has Immunity ({what}); {effect}',
@@ -361,7 +372,10 @@ export default {
   'unopposed.both': 'both are wounded',
   'unopposed.only': 'only {name} wounded',
   'unopposed.nobody': 'nobody wounded',
-  'unopposed.explain': 'Not a face to face roll. A Direct Template doesn\'t roll, so nothing is opposed: each attack is resolved on its own and <b>both can wound</b> this order.',
+  'unopposed.onlyState': 'only {state}',
+  'unopposed.bothHappen': 'both happen',
+  'unopposed.neither': 'neither happens',
+  'unopposed.explain': 'Not a face to face roll: nothing is opposed, so each attack is resolved on its own and <b>both can succeed</b> this order.',
   'unopposed.thisOrder': 'What happens this order',
 
   // The ledger cards

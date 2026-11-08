@@ -73,7 +73,8 @@ export function headline(s, choice, params = null, sides = null, t = tEn) {
    * @param {Role} side
    * @returns {string | null}
    */
-  const stateOf = (side) => (s.states?.[side]?.length === 1 && s.states[side][0].state ? /** @type {string} */ (s.states[side][0].label) : null);
+  const stateOf = (side) => /** @type {string | null} */ (s.unopposed ? /** @type {NonNullable<typeof s.attacks>} */ (s.attacks)[side].state
+    : s.states?.[side]?.length === 1 && s.states[side][0].state ? s.states[side][0].label : null);
   const value = per((side) => (kind === 'win' ? s.win[side] : stateOf(side) || kind === 'wound' ? wounded[side] : wpo[side]));
   /** @param {Role} side */
   const smallWpo = (side) => (stateOf(side) ? pct(wounded[side]) : wpoText(wpo[side]));

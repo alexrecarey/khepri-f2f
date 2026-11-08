@@ -13,34 +13,64 @@ import {list, msg, render} from '../i18n/message.js';
  * @typedef {WeaponRow | null | undefined} MaybeRow */
 
 // Comms Attacks are rolled (the Jammer); the Technical Weapons among them
-// (Tohaa programs) are not modelled yet.
-const EXCLUDED_PROPS = new Set(['CC', 'CC Attack (+3)', 'Deployable', 'Perimeter', 'Technical Weapon', 'Targetless']);
+// (Tohaa programs) are not modelled yet. Deployables fired as a BS Attack
+// (Disco Baller, Mine Dispenser, Pitcher) have no PS and no ammunition, so
+// isBsAttackWeapon drops them on that.
+const EXCLUDED_PROPS = new Set(['CC', 'CC Attack (+3)', 'Deployable', 'Perimeter', 'Technical Weapon']);
 
 /** @param {MaybeRow} row */
 export const isTemplate = (row) => (row?.props ?? []).some((p) => p.startsWith('Direct Template'));
+
+// Smoke and Eclipse Ammunition (wiki): a BS Attack that puts a Zero
+// Visibility Zone on the table instead of hitting anyone. Targetless and
+// Non-lethal: thrown at a point, no PS, no Saving Roll; still rolled, Face to
+// Face against the attacks that need LoF through it (rules/smoke.js). The
+// ammunition's name as the chart writes it ('Smoke', 'Eclipse'), or null.
+export const SMOKE_AMMO = ['Smoke', 'Eclipse'];
+/**
+ * @param {MaybeRow} row
+ * @returns {string | null}
+ */
+export const smokeAmmo = (row) => (row?.ammo ?? []).find((a) => SMOKE_AMMO.includes(a)) ?? null;
+/** @param {MaybeRow} row */
+export const isSmoke = (row) => smokeAmmo(row) !== null;
+// Reflective (wiki): the effect also applies to troopers with a Multispectral
+// Visor or Marksmanship (Eclipse, which an MSV can't see through).
+/** @param {MaybeRow} row */
+export const isReflective = (row) => (row?.props ?? []).includes('Reflective');
 
 // What a weapon entry is (types.js WeaponEntry / PseudoEntry), set once
 // where it is built and switched on everywhere else (bsWeapons / ccWeapons
 // here, army/hacking.js trooperPrograms, rules/trooper.js pseudoWeapons):
 //   bs        a BS Attack that is rolled (Impact Templates included: they roll)
+//   smoke     a BS Attack with Smoke / Eclipse Ammunition: rolled and opposed
+//             like a shot, but it places a template and causes no Saving Rolls
 //   template  a Direct Template: hits without a roll
 //   cc        a CC Attack
 //   program   a Hacking Program (a Comms Attack rolled on WIP)
 //   dodge     Dodge (Bangbomb too), reset  Reset (Zero Pain too), none  No ARO
 /** @type {import('../types.js').WeaponKind[]} */
-export const WEAPON_KINDS = ['bs', 'template', 'cc', 'program', 'dodge', 'reset', 'none'];
+export const WEAPON_KINDS = ['bs', 'smoke', 'template', 'cc', 'program', 'dodge', 'reset', 'none'];
 // A choice that is not a weapon.
 /**
  * @param {Choice | null | undefined} w
  * @returns {w is import('../types.js').PseudoEntry}
  */
 export const isPseudo = (w) => w?.kind === 'dodge' || w?.kind === 'reset' || w?.kind === 'none';
+// A rolled BS Attack: a shot or a Smoke throw. What is a BS Attack's (the
+// Fireteam's +1 SD and +1 BS, range bands) is theirs; what needs a target
+// (Targeted's +3) is the shot's alone.
+/**
+ * @param {Choice | null | undefined} w
+ * @returns {w is WeaponEntry & {kind: 'bs' | 'smoke'}}
+ */
+export const rolledBsAttack = (w) => w?.kind === 'bs' || w?.kind === 'smoke';
 // A choice that rolls dice: anything but a Direct Template or No ARO.
 /**
  * @param {Choice | null | undefined} w
  * @returns {w is WeaponEntry | (import('../types.js').PseudoEntry & {kind: 'dodge' | 'reset'})}
  */
-export const rolls = (w) => w?.kind === 'bs' || w?.kind === 'cc' || w?.kind === 'program' || w?.kind === 'dodge' || w?.kind === 'reset';
+export const rolls = (w) => rolledBsAttack(w) || w?.kind === 'cc' || w?.kind === 'program' || w?.kind === 'dodge' || w?.kind === 'reset';
 
 // Blast Mode weapons. The only Impact Template in the Army data is (Circular);
 // the pipeline stops if another shape appears (scripts/army-validate.mjs).
@@ -69,11 +99,15 @@ export const needsLof = (row) => !(row?.props ?? []).includes('No LoF');
 /** @param {MaybeRow} row */
 export const inZoneOfControl = (row) => (row?.props ?? []).includes('Zone of Control');
 
+// A weapon the calculator rolls as a BS Attack: one that hits (a PS and an
+// ARM / BTS save) with range bands, a Direct Template or a Zone of Control
+// reach; or Smoke / Eclipse, which hits nobody but has range bands.
 /** @param {MaybeRow} row */
 export function isBsAttackWeapon(row) {
-  if (!row || typeof row.dmg !== 'number') return false;
+  if (!row || (row.props ?? []).some((p) => EXCLUDED_PROPS.has(p))) return false;
+  if (isSmoke(row)) return Boolean(row.ranges);
+  if (typeof row.dmg !== 'number') return false;
   if (row.save?.attr !== 'ARM' && row.save?.attr !== 'BTS') return false;
-  if ((row.props ?? []).some((p) => EXCLUDED_PROPS.has(p))) return false;
   return Boolean(row.ranges) || isTemplate(row) || inZoneOfControl(row);
 }
 
@@ -178,11 +212,13 @@ export const stuns = (row) => isNonLethal(row) && causesStunned(row);
 
 // The State a failed save causes in place of wounds, or null. A Hacking
 // Program names its own (army/hacking.js): Immobilized-B, Targeted, Possessed.
+// Smoke / Eclipse: winning places the template ('Smoke', 'Eclipse'), which
+// the results show the way they show a State (engine/calculate.js).
 /**
  * @param {MaybeRow} row
  * @returns {string | null}
  */
-export const stateCaused = (row) => (row?.hack ? row.hack.state : isolates(row) ? 'Isolated' : stuns(row) ? 'Stunned' : null);
+export const stateCaused = (row) => (row?.hack ? row.hack.state : isolates(row) ? 'Isolated' : stuns(row) ? 'Stunned' : smokeAmmo(row));
 
 // "Bioweapon (DA+SHOCK)" or null.
 /**
@@ -287,11 +323,11 @@ export function weaponLabel(row, mods) {
   // weapon menu marks them "template" in place of the range MOD.
   const burst = (row.burst ?? 1) + mods.burst;
   const sd = mods.sd > 0 ? `+${mods.sd}SD` : '';
-  // PARA: no PS, the target rolls PH-6.
-  const dmg = row.save?.attr === 'PH' ? `PH${row.save.mod ?? ''}` : `PS${weaponPS(row, mods)}`;
+  // PARA: no PS, the target rolls PH-6. Smoke: no PS at all, nothing to save.
+  const dmg = isSmoke(row) ? [] : [row.save?.attr === 'PH' ? `PH${row.save.mod ?? ''}` : `PS${weaponPS(row, mods)}`];
   // As players write it: "AP+EXP", not the data's "AP+Exp" (ammoMsg).
   const ammo = ammoTypes(row, mods);
-  return list([`${row.name}${modeSuffix(row.mode)}`, `B${burst}${sd}`, dmg, ammo.length ? list(ammo.map(ammoMsg), '+') : 'N'], ' · ');
+  return list([`${row.name}${modeSuffix(row.mode)}`, `B${burst}${sd}`, ...dmg, ammo.length ? list(ammo.map(ammoMsg), '+') : 'N'], ' · ');
 }
 
 // Weapon menu order: single-mode first, then "Hit Mode", then other modes.
@@ -330,7 +366,7 @@ function loadoutWeapons(option, weapons, keep, cc) {
       const key = `${w.id}:${row.mode ?? ''}`;
       if (out.some((x) => x.key === key)) continue;
       /** @type {WeaponEntry['kind']} */
-      const kind = cc ? 'cc' : isTemplate(row) ? 'template' : 'bs';
+      const kind = cc ? 'cc' : isTemplate(row) ? 'template' : isSmoke(row) ? 'smoke' : 'bs';
       out.push({key, kind, id: w.id, name: row.name, mode: row.mode, row, mods, label: weaponLabel(row, mods),
         ...(inZoneOfControl(row) && {zoc: true})});
     }

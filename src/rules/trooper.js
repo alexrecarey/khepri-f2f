@@ -7,6 +7,7 @@ import {unitById} from '../army/lookup.js';
 import {effectiveTraits, extraNumbers, hasSkill, skillExtras} from '../army/traits.js';
 import {ammoTypes, bsWeapons, ccWeapons, hasAmmo, hasShockAmmo, isBsAttackWeapon, weaponLabel} from '../army/weapons.js';
 import {ccAttackSkill} from './closeCombat.js';
+import {throwsClose} from './smoke.js';
 import {bangbombValue, fireteamMax, fireteamSize, firewallMod} from './modifiers.js';
 import {assistedFireTraits, supportwareTarget} from './supportware.js';
 import {msg} from '../i18n/message.js';
@@ -46,9 +47,12 @@ export function bsAttackWeaponMods(traits) {
  * @param {MaybeTraits} traits
  * @returns {WeaponEntry[]}
  */
+// A Smoke grenade is marked `throwsClose` (rules/smoke.js), for the pick to
+// move its side's range.
 export function trooperWeapons(option, weapons, traits) {
   const bs = bsAttackWeaponMods(traits);
-  return withSkill(bsWeapons(option, weapons), {ap: bs.ap, cont: bs.cont, sr: bs.sr, ammo: bs.t2 ? 'T2' : null, hasAmmo: (row) => hasAmmo(row, 'T2')});
+  const list = withSkill(bsWeapons(option, weapons), {ap: bs.ap, cont: bs.cont, sr: bs.sr, ammo: bs.t2 ? 'T2' : null, hasAmmo: (row) => hasAmmo(row, 'T2')});
+  return list.map((w) => (throwsClose(w) ? {...w, throwsClose: /** @type {const} */ (true)} : w));
 }
 
 // `list` with what a BS Attack or CC Attack skill adds to every weapon: AP
