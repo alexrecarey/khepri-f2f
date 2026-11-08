@@ -4,6 +4,7 @@
 // under the bar carries what the headline gave up, so wounds per order never
 // leaves the card.
 import {tEn} from '../i18n/index.js';
+import {other} from '../lib/side.js';
 import {pct} from './summary.js';
 
 // The choices. Their names and hints are src/i18n's headline.<choice> /
@@ -32,7 +33,8 @@ const wpoText = (n) => (n == null ? '—' : n.toFixed(2));
 // What the card shows for summary s (summary.js summarize). A roll that is
 // not face to face (Direct Template vs a shot) has nobody to win, so "wins
 // face to face" falls back to at least one wound there and says so (fallback).
-// A Dodging side's win means it dodged: no wounds either way, so it says that.
+// A Dodging (or Resetting) side causes no wounds, so whatever the choice it
+// shows its chance to dodge, and the small line leaves it out.
 // params: the engine params, for who is dodging; may be null. sides: the
 // ledger's sides ({A, B}, rules/ledger.js), to tell a Reset from a Dodge.
 // A side whose hits cause a State instead of wounds (Jammer: Isolated, Flash
@@ -74,19 +76,34 @@ export function headline(s, choice, params = null, sides = null, t = tEn) {
    * @returns {string | null}
    */
   const stateOf = (side) => (s.states?.[side]?.length === 1 && s.states[side][0].state ? /** @type {string} */ (s.states[side][0].label) : null);
-  const value = per((side) => (kind === 'win' ? s.win[side] : stateOf(side) || kind === 'wound' ? wounded[side] : wpo[side]));
+  // Against a Direct Template nobody wins: the Dodge is cancelling the
+  // template's hits, which is when neither side "wins" (engine-rs template_roll).
+  /** @param {Role} side */
+  const dodged = (side) => (params?.[`template${other(letter(side))}`] ? s.win.none : s.win[side]);
+  /** @type {Record<Role, HeadlineChoice>} */
+  const kinds = per((side) => (evading(side) ? 'win' : kind));
+  const value = per((side) => (evading(side) ? dodged(side) : kind === 'win' ? s.win[side] : stateOf(side) || kind === 'wound' ? wounded[side] : wpo[side]));
   /** @param {Role} side */
   const smallWpo = (side) => (stateOf(side) ? pct(wounded[side]) : wpoText(wpo[side]));
+  /** @param {Role} side */
+  const smallValue = (side) => (kind === 'wpo' ? pct(wounded[side]) : smallWpo(side));
+  /** @param {Role} side */
+  const smallLabel = (side) => stateOf(side) ?? t(kind === 'wpo' ? 'headline.woundLabel' : 'headline.wpoLabel');
+  // The label goes with the first figure shown. A Dodge is never in an
+  // unopposed roll (calculate.js isUnopposed), so never falls back.
+  /** @type {[string, string]} */
+  const small = evading('active')
+    ? ['', evading('reactive') ? '' : `${smallValue('reactive')} ${smallLabel('reactive')}`]
+    : [`${fallback ? `${t('headline.notFaceToFace')} · ` : ''}${smallValue('active')} ${smallLabel('active')}`, evading('reactive') ? '' : smallValue('reactive')];
   return {
     kind,
+    kinds,
     fallback,
     value,
-    text: per((side) => (kind === 'wpo' && !stateOf(side) ? wpoText(value[side]) : pct(value[side]))),
-    label: per((side) => (kind === 'win' ? evading(side) ?? t('headline.winsLabel')
+    text: per((side) => (kinds[side] === 'wpo' && !stateOf(side) ? wpoText(value[side]) : pct(value[side]))),
+    label: per((side) => evading(side) ?? (kind === 'win' ? t('headline.winsLabel')
       : stateOf(side) ?? (kind === 'wpo' ? t('headline.wpoLabel') : t('headline.woundLabel')))),
     // The line under the bar: [left, right].
-    small: kind === 'wpo'
-      ? [`${pct(wounded.active)} ${stateOf('active') ?? t('headline.woundLabel')}`, pct(wounded.reactive)]
-      : [`${fallback ? `${t('headline.notFaceToFace')} · ` : ''}${smallWpo('active')} ${stateOf('active') ?? t('headline.wpoLabel')}`, smallWpo('reactive')],
+    small,
   };
 }
