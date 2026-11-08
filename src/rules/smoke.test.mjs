@@ -160,3 +160,9 @@ test('Smoke is never the default weapon while there is another; Disco Baller sta
   assert.deepEqual(bsWeapons(o(45, 195, 208), SW).map((w) => [w.key, w.kind]), [['45:', 'smoke'], ['195:', 'smoke']]);
   assert.equal(isBsAttackWeapon(SW[208][0]), false);
 });
+
+test('Smoke and Eclipse Grenades are thrown within 8": their pick moves the range; a Launcher\'s doesn\'t', () => {
+  const o = option([{id: 45, name: 'x'}, {id: 46, name: 'x'}, {id: 195, name: 'x'}, {id: 1, name: 'x'}]);
+  const ws = trooperWeapons(o, SW, effectiveTraits(profile(), o));
+  assert.deepEqual(ws.map((w) => [w.key, Boolean(w.throwsClose)]), [['45:', true], ['46:', true], ['195:', false], ['1:', false]]);
+});

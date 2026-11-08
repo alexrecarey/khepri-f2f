@@ -506,6 +506,23 @@ test('picking a Zone of Control weapon (Jammer) closes the range too', () => {
   assert.deepEqual([s.matchup.B.weaponKey, s.matchup.rangeCm], ['87:', 20]);
 });
 
+test('picking a Smoke grenade splits the range: the thrower goes to 0-8", the other trooper keeps its own', () => {
+  const pick = (/** @type {'A' | 'B'} */ side) => ({type: 'pickWeapon', side, key: '45:', kind: 'smoke', throwsClose: true});
+  const s = run(initialState(), {type: 'setRange', rangeCm: 80});
+  // Reactive throws (Yojimbo in ARO): the active keeps 24-32".
+  const b = run(s, pick('B')).matchup;
+  assert.deepEqual([b.B.weaponKey, b.rangeCm, b.rangeCmB], ['45:', 80, 20]);
+  // Active throws: the reactive keeps the shared distance as its own.
+  const a = run(s, pick('A')).matchup;
+  assert.deepEqual([a.rangeCm, a.rangeCmB], [20, 80]);
+  // Already split: the other side's own distance stays.
+  const split = run(s, {type: 'setRangeSplit', on: true}, {type: 'setRange', side: 'B', rangeCm: 120}, pick('A')).matchup;
+  assert.deepEqual([split.rangeCm, split.rangeCmB], [20, 120]);
+  // A Smoke Grenade Launcher (no throwsClose) leaves the range alone.
+  const launcher = run(s, {type: 'pickWeapon', side: 'B', key: '195:', kind: 'smoke'}).matchup;
+  assert.deepEqual([launcher.rangeCm, launcher.rangeCmB], [80, null]);
+});
+
 test('Berserk stays with the active side: swapping drops it', () => {
   const s = run(initialState(), {type: 'patchSide', side: 'A', patch: {unitId: 1, berserk: true}}, {type: 'swapSides'});
   assert.equal(s.matchup.B.berserk, false);
