@@ -602,6 +602,7 @@
  * What the card shows for a summary (results/headline.js headline).
  * @typedef {object} Headline
  * @property {HeadlineChoice} kind the choice shown ('wound' when 'win' falls back)
+ * @property {Record<'active' | 'reactive', HeadlineChoice>} kinds each side's: 'win' for a Dodging side
  * @property {boolean} fallback 'win' asked of a roll that is not face to face
  * @property {PerSide} value
  * @property {{active: string, reactive: string}} text the value as shown

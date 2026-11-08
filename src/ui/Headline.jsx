@@ -71,6 +71,6 @@ function Dots({choice, buttons}) {
 /** @param {{h: import('../types.js').Headline, choice: HeadlineChoice, size?: string, pending?: boolean, buttons?: boolean}} props */
 export default function Headline({h, choice, size = '', pending, buttons = false}) {
   /** @param {'active' | 'reactive'} side */
-  const num = (side) => <Num value={h.value[side]} text={h.text[side]} kind={h.kind} side={side} size={size} pending={pending} />;
+  const num = (side) => <Num value={h.value[side]} text={h.text[side]} kind={h.kinds[side]} side={side} size={size} pending={pending} />;
   return <WpoRow active={num('active')} reactive={num('reactive')} labels={h.label} middle={<Dots choice={choice} buttons={buttons} />} />;
 }
