@@ -34,7 +34,8 @@
 .btn.solid { border-color: transparent; background: var(--surface-3); }
 .chip.solid { border-style: solid; color: var(--text-2); }
 /* One weapon with fire modes: [MULTI Pistol | AP | Shock | DA]. Chosen: the
-   name and the chosen mode filled, the other modes outlined. */
+   name filled, the chosen mode at 70% (so it reads apart from the name; the
+   least that keeps the dark ink at 4.5:1 on --surface), the other modes outlined. */
 .btn-group { display: inline-flex; align-items: stretch; border: 1px solid var(--line-control); border-radius: 8px; font-size: 14px; color: var(--text-2); overflow: hidden; }
 .btn-group .g-name, .btn-group .g-mode { all: unset; box-sizing: border-box; cursor: pointer; }
 .btn-group .g-name { padding: 8px 8px 8px 12px; }
@@ -42,8 +43,10 @@
 .btn-group .g-name:focus-visible, .btn-group .g-mode:focus-visible { outline: 2px solid var(--text-2); outline-offset: -2px; }
 .btn-group.on.active { border-color: var(--active); }
 .btn-group.on.reactive { border-color: var(--reactive); }
-.btn-group.on.active .g-name, .btn-group.active .g-mode.on { background: var(--active); color: var(--active-ink); font-weight: 600; }
-.btn-group.on.reactive .g-name, .btn-group.reactive .g-mode.on { background: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
+.btn-group.on.active .g-name { background: var(--active); color: var(--active-ink); font-weight: 600; }
+.btn-group.on.reactive .g-name { background: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
+.btn-group.active .g-mode.on { background: color-mix(in srgb, var(--active) 70%, transparent); color: var(--active-ink); font-weight: 600; }
+.btn-group.reactive .g-mode.on { background: color-mix(in srgb, var(--reactive) 70%, transparent); color: var(--reactive-ink); font-weight: 600; }
 .btn-group.on.active .g-mode { border-left-color: var(--active); }
 .btn-group.on.reactive .g-mode { border-left-color: var(--reactive); }
 
