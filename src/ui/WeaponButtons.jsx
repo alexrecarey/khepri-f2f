@@ -32,7 +32,7 @@ const weaponTitle = (w, t) => `${w.name}${modeText(w, t)}`;
  * @param {import('../types.js').Side} side
  * @param {import('../types.js').Choice} w
  */
-const pick = (side, w) => dispatch({type: 'pickWeapon', side, key: w.key, kind: w.kind, zoc: Boolean(w.zoc)});
+const pick = (side, w) => dispatch({type: 'pickWeapon', side, key: w.key, kind: w.kind, zoc: Boolean(w.zoc), throwsClose: Boolean(w.throwsClose)});
 
 /**
  * @param {import('../types.js').Side} side

@@ -24,6 +24,7 @@ import {ammoMsg, isReflective, isPseudo, needsLof, rolls, smokeAmmo} from '../ar
 import {hasMsv, msvName} from '../army/traits.js';
 import {msg} from '../i18n/message.js';
 import {mark, section} from './lines.js';
+import {RANGE_BANDS, bestBandTo} from './ranges.js';
 
 /** @typedef {import('../types.js').ResolvedSide} ResolvedSide */
 /** @typedef {import('../types.js').Message} Message */
@@ -56,6 +57,13 @@ export function smokeNotOpposed(x, y) {
   if (!isReflective(x.weapon.row) && hasMsv(y.traits)) return msg('note.smokeMsv', {msv: msvName(y.traits), ammo});
   return null;
 }
+
+// Smoke Grenades and Eclipse Grenades are thrown at a point near the user:
+// their 0 MOD stops at 8", so picking one moves the user's own range there
+// (state/reduce.js pickWeapon), the other trooper's stays. A Launcher keeps
+// its 0 MOD to 24": its pick leaves the range alone.
+/** @param {import('../types.js').WeaponEntry} w */
+export const throwsClose = (w) => w.kind === 'smoke' && bestBandTo(w.row) <= RANGE_BANDS[0].to;
 
 // What x's smoke does to the target: nothing to save. The calculator's SMOKE
 // ammunition (no Saving Rolls), no PS lines (so no save section in the

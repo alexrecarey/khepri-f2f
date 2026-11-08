@@ -1,6 +1,6 @@
 // The weapon picked once a loadout is chosen.
 import {bioweaponProp, isCommsAttack, isImpactTemplate, isPlasma, isSmoke} from '../army/weapons.js';
-import {RANGE_BANDS} from './ranges.js';
+import {bestBandTo} from './ranges.js';
 import {orderModes} from './weaponModes.js';
 
 // Ammo precedence for the default weapon, best first. Plasma rows list N ammo
@@ -24,14 +24,8 @@ function ammoRank({row, mods}) {
 /** @param {WeaponEntry} w */
 const impactTemplate = ({row}) => isImpactTemplate(row);
 
-// Far edge (cm) of the band with the weapon's best range MOD, the farthest one
-// if several tie. Direct Templates reach about the first band (0-8").
 /** @param {WeaponEntry} w */
-function bestRangeBand({row}) {
-  if (!row.ranges?.length) return RANGE_BANDS[0].to;
-  const best = Math.max(...row.ranges.map((b) => b.mod));
-  return Math.max(...row.ranges.filter((b) => b.mod === best).map((b) => b.to));
-}
+const bestRangeBand = ({row}) => bestBandTo(row);
 
 // Sort keys per role, lower wins, ties keep menu order. Neither depends on the
 // shared range, so changing it never swaps the weapon. A Comms Attack (Jammer)

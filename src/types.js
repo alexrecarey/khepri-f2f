@@ -266,6 +266,7 @@
  * @property {WeaponMods} mods
  * @property {Message} label "Combi Rifle · B3 · PS13 · N" once rendered (army/weapons.js weaponLabel); read by tests
  * @property {true} [zoc] reaches the Zone of Control instead of range bands
+ * @property {true} [throwsClose] a Smoke grenade, thrown within 8": picking it moves its side's range there (rules/smoke.js)
  * @property {undefined} [zeroPain]
  */
 
@@ -278,7 +279,7 @@
  * @typedef {{kind: 'dodge', key: 'dodge', zeroPain?: undefined}
  *   | {kind: 'reset', key: 'reset' | 'zeroPain', zeroPain?: true}
  *   | {kind: 'none', key: 'none', zeroPain?: undefined}} PseudoKind
- * @typedef {PseudoKind & {row?: undefined, mods?: undefined, name?: undefined, id?: undefined, mode?: undefined, zoc?: undefined}} PseudoEntry
+ * @typedef {PseudoKind & {row?: undefined, mods?: undefined, name?: undefined, id?: undefined, mode?: undefined, zoc?: undefined, throwsClose?: undefined}} PseudoEntry
  */
 
 /** Anything a side can pick: a weapon or a pseudo-weapon (army/weapons.js isPseudo tells them apart).
@@ -811,7 +812,7 @@
  *   | {type: 'setSide', side: Side, sel: Partial<Selection>}
  *   | {type: 'patchSide', side: Side, patch: Partial<Selection>}
  *   | {type: 'setCover' | 'setSapper', side: Side, on: boolean}
- *   | {type: 'pickWeapon', side: Side, key: string, kind: WeaponKind, zoc?: boolean}
+ *   | {type: 'pickWeapon', side: Side, key: string, kind: WeaponKind, zoc?: boolean, throwsClose?: boolean}
  *   | {type: 'setRange', side?: Side, rangeCm: number, open?: boolean}
  *   | {type: 'setRangeSplit', on: boolean}
  *   | {type: 'setZone', zone: Zone, on: boolean}
