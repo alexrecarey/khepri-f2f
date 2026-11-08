@@ -60,11 +60,15 @@ const canonical = (x) => (Array.isArray(x) ? x.map(canonical)
   : x && typeof x === 'object' ? Object.fromEntries(Object.keys(x).sort().map((k) => [k, canonical(/** @type {Record<string, unknown>} */ (x)[k])])) : x);
 
 // The roll's identity: two rolls with the same setup are the same roll.
+// Whose grenade split the range (matchup.splitBy) is no part of the roll.
 /**
  * @param {string} mode
  * @param {import('../types.js').SavedRoll['setup']} setup
  */
-export const setupKey = (mode, setup) => JSON.stringify(canonical([mode, normalizeSetup(mode, setup)]));
+export const setupKey = (mode, setup) => {
+  const s = normalizeSetup(mode, setup);
+  return JSON.stringify(canonical([mode, 'splitBy' in s ? {...s, splitBy: null} : s]));
+};
 
 /** @param {import('../types.js').AppState} state */
 export function currentSetup(state) {

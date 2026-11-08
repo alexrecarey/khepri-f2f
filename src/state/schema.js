@@ -130,13 +130,17 @@ export const MatchupSchema = v.object({
   B: v.fallback(SelectionSchema, () => ({...EMPTY_SIDE})),   // the reactive trooper
   rangeCm: v.fallback(BandSchema, DEFAULT_RANGE_CM),         // the distance both share
   rangeCmB: v.fallback(v.nullable(BandSchema), null),        // the reactive's own distance when the range is split, else null
+  // The side whose Smoke grenade pick split the range (reduce.js
+  // pickWeapon), so leaving the grenade joins it again; null when the player
+  // split it, or it isn't split. Not in share links: a link's split is kept.
+  splitBy: v.fallback(v.nullable(v.picklist(SIDES)), null),
   smoke: v.fallback(v.boolean(), NO_ZONES.smoke),
   whiteNoise: v.fallback(v.boolean(), NO_ZONES.whiteNoise),
 });
 
 // An empty matchup: initialState's, and what a saved setup that isn't an
 // object at all loads as (rolls.js normalizeSetup).
-export const emptyMatchup = () => ({A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}, rangeCm: DEFAULT_RANGE_CM, rangeCmB: null, ...NO_ZONES});
+export const emptyMatchup = () => ({A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}, rangeCm: DEFAULT_RANGE_CM, rangeCmB: null, splitBy: null, ...NO_ZONES});
 
 export const MAX_RECENTS = 8; // per side
 

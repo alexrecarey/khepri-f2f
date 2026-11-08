@@ -62,6 +62,7 @@ From the wiki (Smoke Ammunition, Eclipse Ammunition, Multispectral Visor, Dodge,
 - Not opposed (both roll, each a Normal Roll): a CC Attack or a Comms Attack (no LoF), and a trooper with a Multispectral Visor of any level against Smoke (it draws LoF through). Eclipse is Reflective: an MSV trooper is opposed by it.
 - A Direct Template doesn't roll: it hits, and the Smoke is a Normal Roll.
 - Picking Smoke or Eclipse Grenades splits the range: the thrower's side goes to 0–8" (they are thrown near the user; their 0 MOD stops there), the other trooper keeps the distance it had (Brandon, 2026-11-08). A Launcher (0 MOD to 24") leaves the range alone.
+  - Leaving the grenade (another weapon, Dodge, a new trooper) joins the range again at the other trooper's distance, unless the player had split it before picking the grenade; then it stays split (Brandon, 2026-11-08).
 - A Dodge against Smoke is a Normal Roll (Dodge under the template), not opposed: not rolled here; the throw is a Normal Roll. Same as No ARO.
 - Not modelled: Speculative Attack (Long Skill, −6, no LoF needed), a Smoke throw against several attackers, the zone it leaves for later orders (that is the Smoke chip). Disco Baller is not offered: it is a Deployable, a Normal Roll that places its Eclipse template in the Conclusion, not a Face to Face Roll.
 
