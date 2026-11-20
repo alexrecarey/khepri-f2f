@@ -27,6 +27,8 @@ test('sheet gestures: tracker measures the velocity over the last five points', 
 test('sheet gestures: resting position and --open', () => {
   assert.equal(restingY(600, 150, 12), 438);
   assert.equal(restingY(100, 150, 12), 0);
+  // Hidden behind the picker (display: none): not measurable, not "fully up".
+  assert.equal(restingY(0, 0, 0), null);
   assert.equal(openFraction(0, 400), 1);
   assert.equal(openFraction(400, 400), 0);
   assert.equal(openFraction(100, 400), 0.75);
