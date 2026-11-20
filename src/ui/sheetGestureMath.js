@@ -27,13 +27,17 @@ export function tracker() {
 }
 
 // How far down the sheet rests when closed: its height minus the part that
-// shows (the top, measured at --open 0, plus the padding under it).
+// shows (the top, measured at --open 0, plus the padding under it). null
+// for a sheet with no height: hidden behind a full-screen page (display:
+// none), where it can't be measured. Taking that as 0 left the sheet fully
+// up over the whole screen once the page closed.
 /**
  * @param {number} sheetHeight
  * @param {number} topBottom
  * @param {number} paddingBottom
+ * @returns {number | null}
  */
-export const restingY = (sheetHeight, topBottom, paddingBottom) => Math.max(0, sheetHeight - (topBottom + paddingBottom));
+export const restingY = (sheetHeight, topBottom, paddingBottom) => (sheetHeight > 0 ? Math.max(0, sheetHeight - (topBottom + paddingBottom)) : null);
 
 // --open for a sheet y px down (0 = open, restY = resting low); 1 while
 // the resting position is unknown.
