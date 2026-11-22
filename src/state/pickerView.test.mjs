@@ -56,7 +56,20 @@ test('weapon charts: bands per range column, main gun first', () => {
   assert.deepEqual(d.profiles[0].stats[0][1], [10, 10]); // cm; the pane shows 4-4 (inches) or 10-10 (cm)
 });
 
-test('Swiss Guard: SWC loadouts first (longer reach first), main gun is the farthest-reaching weapon', async () => {
+test('loadouts: cheapest first, then least SWC ("+1" before 0, "-" as 0), then Lieutenant last, then army order', () => {
+  // Option 8 is the Lieutenant; a fake army is all the order reads of it.
+  const lt = /** @type {import('../types.js').Army} */ (/** @type {unknown} */ ({units: [{id: 1, byFaction: {101: {groups: [{id: 1,
+    options: [{id: 8, skills: [{id: SKILL.LIEUTENANT, name: 'Lieutenant'}]}]}]}}}]}));
+  const hits = /** @type {ProfileHit[]} */ ([
+    {optionId: 1, points: 9, swc: '0.5'}, {optionId: 2, points: 41, swc: '1.5'}, {optionId: 3, points: 9, swc: '0'},
+    {optionId: 4, points: 38, swc: '+1'}, {optionId: 5, points: 38, swc: '0'}, {optionId: 11, points: 34, swc: '0.5'},
+    {optionId: 10, points: 34, swc: '-'}, {optionId: 6, points: 34, swc: '0'},
+    {optionId: 8, points: 21, swc: '0'}, {optionId: 7, points: 21, swc: '0'}, {optionId: 9, points: 21, swc: '0'},
+  ].map((h) => ({...h, unitId: 1, armyFactionId: 101, groupId: 1})));
+  assert.deepEqual(orderLoadouts(lt, hits).map((h) => h.optionId), [3, 1, 7, 9, 8, 10, 6, 11, 4, 5, 2]);
+});
+
+test('Swiss Guard: cheapest first, a points tie goes to less SWC; main gun is the farthest-reaching weapon', async () => {
   const {createSearch: createSearcher} = await import('../search/search.js');
   const index = JSON.parse(readFileSync(new URL('../search/index.json', import.meta.url), 'utf8'));
   const searcher = createSearcher(index);
@@ -65,8 +78,9 @@ test('Swiss Guard: SWC loadouts first (longer reach first), main gun is the fart
   const hits = orderLoadouts(army, searcher.unitRows(swiss.id, 101));
   // Every Swiss Guard loadout has a main weapon.
   const mains = hits.map((h) => army.weapons[/** @type {number} */ (mainWeapon(army, h.weaponIds))][0].name);
-  assert.deepEqual(mains.slice(0, 3), ['Missile Launcher', 'Heavy Machine Gun', 'MULTI Rifle']);
-  assert.equal(loadoutCharts(army, hits[0].weaponIds)[0].name, 'Missile Launcher');
+  assert.deepEqual(mains.slice(-3), ['MULTI Rifle', 'Heavy Machine Gun', 'Missile Launcher']);
+  assert.deepEqual(hits.slice(-3).map((h) => h.points), [56, 56, 60]);
+  assert.equal(loadoutCharts(army, hits[hits.length - 1].weaponIds)[0].name, 'Missile Launcher');
 });
 
 test('Lieutenant: twins of a plain loadout are dropped, the skill is never a tag', () => {
@@ -94,7 +108,7 @@ test('a unit with several profile groups: one section each, shared kit once, row
     [['Treitak Spec-Ops', 'MI', 6], ['Treitak Heavy Spec-Ops', 'HI', 4], ['Asklad Creatures', 'LI', 2]]);
   const [treitak, heavy, asklad] = groups;
   assert.deepEqual(treitak.shared, ['Chain-colt', 'D-Charges', 'Heavy Pistol', 'CC Weapon']);
-  assert.deepEqual(treitak.items[0].own, ['AP Heavy Machine Gun']);
+  assert.ok(treitak.items.some(({own}) => own.join() === 'AP Heavy Machine Gun'));
   assert.ok(heavy.items.some(({own}) => own.join() === 'AP Red Fury'));
   // Each group has its own stats: the Heavy's BTS isn't the Treitak-1's.
   assert.notDeepEqual(heavy.stats, treitak.stats);
