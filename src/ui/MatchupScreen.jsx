@@ -50,7 +50,7 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
     params: view.params,
   };
   /** @param {Side} side */
-  const openSide = (side) => () => dispatch(openPicker(army, getState(), side));
+  const openSide = (side) => () => dispatch(openPicker(side));
   const picked = {A: view.A.resolved?.unit != null, B: view.B.resolved?.unit != null};
   resultProps.picked = picked;
   // Empty slots offer the side's last three picks; the same list as that
@@ -61,7 +61,7 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
     const hits = (side) => {
       if (!searcher) return [];
       const ids = /** @type {number[]} */ (recentsFor(recentList, side).map((r) => searcher.findRow(r)).filter((id) => id != null));
-      return searcher.browse({factionId: null, recentIds: ids}).recent.slice(0, 3);
+      return searcher.recentHits(ids).slice(0, 3);
     };
     return {A: hits('A'), B: hits('B')};
   }, [searcher, recentList]);
@@ -76,7 +76,7 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
       const side = /** @type {Record<string, Side | undefined>} */ ({a: 'A', r: 'B'})[e.key.toLowerCase()];
       if (!side) return;
       e.preventDefault();
-      dispatch(openPicker(army, getState(), side));
+      dispatch(openPicker(side));
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -86,7 +86,7 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
     ? <SideCard side={side} view={view} onOpenPicker={openSide(side)}
       onUpgrade={(pick) => dispatch(setUpgrade(army, getState(), side, pick))} />
     : <EmptySlot side={side} recents={recentHits[side]} hint={wide} onOpenPicker={openSide(side)}
-      onPick={(hit) => dispatch(pickTrooper(army, side, hit, {state: getState()}))} />);
+      onPick={(hit) => dispatch(pickTrooper(army, side, hit))} />);
   const cardA = sideBox('A');
   const cardB = sideBox('B');
   const range = <RangeSelector view={view} />;

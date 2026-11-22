@@ -45,12 +45,19 @@ export function CardCrest({slug}) {
   );
 }
 
-// A picker row's crest (design canvas: Crests D): behind the row's right
-// edge, faint and grey, in its own colours on the row Enter or a tap would
-// pick (picker.css). Decoration only, like CardCrest.
-/** @param {{slug?: string | null}} props */
-export function RowCrest({slug}) {
-  const [failed, setFailed] = useState(/** @type {string | null} */ (null));
-  if (!slug || failed === slug) return null;
-  return <img className="row-crest" src={`/crests/${slug}`} alt="" aria-hidden="true" loading="lazy" onError={() => setFailed(slug)} />;
+// A search result's picture (picker.css .art): a unit is a round coin
+// (Spotify's artist circle); a loadout fills a rounded square with the
+// crest, fading into a band with its weapon's label ("HMG"), so a unit's
+// loadouts still read apart. A missing crest shows the faction's instead.
+/** @param {{kind: 'unit' | 'loadout', slug?: string | null, faction?: number | null, code?: string | null}} props */
+export function ResultArt({kind, slug, faction, code}) {
+  const [failed, setFailed] = useState(/** @type {string | null | undefined} */ (null));
+  const unit = slug && failed !== slug ? `/crests/${slug}` : null;
+  const src = unit ?? factionLogoSrc(faction);
+  return (
+    <span className={`art ${kind === 'unit' ? 'coin' : 'fill'}${unit ? '' : ' fallback'}`} aria-hidden="true">
+      {src && <img src={src} alt="" loading="lazy" onError={() => setFailed(slug)} />}
+      {code && <b>{code}</b>}
+    </span>
+  );
 }

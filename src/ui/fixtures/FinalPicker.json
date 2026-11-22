@@ -34,7 +34,6 @@
     "picker": {
       "side": "B",
       "query": "fus",
-      "scope": 101,
       "stack": []
     }
   }

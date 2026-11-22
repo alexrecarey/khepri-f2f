@@ -20,24 +20,6 @@ const confirmThen = (ask, action, done) => /** @param {import('../types.js').Tra
 export const clearRecents = confirmThen('settings.clearRecentsAsk', {type: 'clearRecents'}, 'settings.recentsCleared');
 export const clearSaved = confirmThen('settings.deleteSavedAsk', {type: 'clearSaved'}, 'settings.savedDeleted');
 
-// The faction each side's picker starts on: "Last used" or a vanilla army.
-/** @param {{side: import('../types.js').Side, label: string, factions: {id: number, name: string}[], className?: string}} props */
-export function StartFaction({side, label, factions, className}) {
-  const t = useT();
-  const start = useAppState((s) => s.prefs.startFaction) ?? {};
-  /** @param {string} value */
-  const set = (value) => dispatch({type: 'setPref', key: 'startFaction', value: {...start, [side]: value === '' ? null : Number(value)}});
-  return (
-    <label className="setting">
-      <span>{label}</span>
-      <select className={className} value={start[side] ?? ''} onChange={(e) => set(e.target.value)}>
-        <option value="">{t('settings.lastUsed')}</option>
-        {factions.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
-      </select>
-    </label>
-  );
-}
-
 // Automatic follows the browser; the option says which language that is.
 export function LanguageSetting() {
   const t = useT();
@@ -58,8 +40,7 @@ export function LanguageSetting() {
   );
 }
 
-/** @param {{factions: {id: number, name: string}[]}} props */
-export function SettingsPage({factions}) {
+export function SettingsPage() {
   const t = useT();
   const prefs = useAppState((s) => s.prefs);
   return (
@@ -75,9 +56,6 @@ export function SettingsPage({factions}) {
         ))}
       </div>
       <span className="note settings-note">{t('settings.headlineNotePhone')}</span>
-      <div className="list-head">{t('settings.startingFactions')}</div>
-      <StartFaction side="A" label={t('settings.activeSide')} factions={factions} />
-      <StartFaction side="B" label={t('settings.reactiveSide')} factions={factions} />
       <div className="list-head">{t('settings.language')}</div>
       <div className="lang-page"><LanguageSetting /></div>
       <div className="list-head">{t('settings.yourData')}</div>

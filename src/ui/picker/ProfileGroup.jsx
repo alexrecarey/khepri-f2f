@@ -7,8 +7,12 @@ import {loadoutTag} from '../../state/pickerView.js';
 // every loadout in it carries once, then each loadout as only what sets it
 // apart. The side's colour stays on what the player picks (canvas Final,
 // "Picker — units with several profiles").
-/** @param {{g: import('../../state/pickerView.js').ProfileGroupView, onPick: (hit: import('../../types.js').ProfileHit) => void, color: string, army: import('../../types.js').Army | null}} props */
-export default function ProfileGroup({g, onPick, color, army}) {
+// rowProps(hit): the arrow keys' highlight on that loadout (usePickerCursor).
+/**
+ * @param {{g: import('../../state/pickerView.js').ProfileGroupView, onPick: (hit: import('../../types.js').ProfileHit) => void, color: string,
+ *   army: import('../../types.js').Army | null, rowProps: (hit: import('../../types.js').ProfileHit) => {id: string, on: boolean}}} props
+ */
+export default function ProfileGroup({g, onPick, color, army, rowProps}) {
   const t = useT();
   return (
     <section className="pgroup" aria-label={g.name}>
@@ -25,8 +29,9 @@ export default function ProfileGroup({g, onPick, color, army}) {
         // The section names the profile, so a row says what sets it apart:
         // its skills (Hacker, Forward Observer), not the loadout's name.
         const extra = loadoutTag(army, hit);
+        const {id, on} = rowProps(hit);
         return (
-          <button type="button" key={hit.rowId} className="line-btn loadout" onClick={() => onPick(hit)}>
+          <button type="button" key={hit.rowId} id={id} className={`line-btn loadout${on ? ' on' : ''}`} onClick={() => onPick(hit)}>
             <span><span className={`c-${color}`}>{own.join(', ')}</span>{extra && <span className="tag"> · {extra}</span>}</span>
             <span className="r">{hit.points}</span>
           </button>

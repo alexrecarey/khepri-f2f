@@ -146,23 +146,17 @@ export const MAX_RECENTS = 8; // per side
  * @param {import('../types.js').Side} side
  */
 export const recentsFor = (recents, side) => recents.filter((r) => r.side == null || r.side === side);
-export const MAX_RECENT_FACTIONS = 3;
 
 // ---- What this device keeps (storage.js), as stored data is read back ----
 
 // The results card's big number (headlines.js): a choice, else the default.
 export const HeadlineSchema = v.fallback(v.picklist(HEADLINES), DEFAULT_HEADLINE);
-// A vanilla faction id; null for All (scopes) or the last one used (startFaction).
-const factionOrNull = v.optional(v.fallback(v.nullable(intFrom(1)), null));
-
 // The player's preferences (types.js Prefs): each one optional, a bad one
 // read as never chosen.
 export const PrefsSchema = v.object({
   headline: v.optional(HeadlineSchema),
   // the language picked in Settings (language.js); null: automatic
   language: v.optional(v.fallback(v.nullable(v.string()), null)),
-  // the faction each side's picker opens on
-  startFaction: v.optional(v.fallback(v.object({A: factionOrNull, B: factionOrNull}), {})),
 });
 
 // A trooper picked before (types.js Recent): stable army ids plus the side
@@ -208,7 +202,6 @@ export const SavedRollSchema = v.object({
   summary: RollSummarySchema,
 });
 
-const integer = v.pipe(v.number(), v.integer());
 // The persisted slices (storage.js loadPersisted): a slice that can't be
 // read is empty, a list item that can't be read is dropped.
 export const PersistedSchema = v.object({
@@ -216,10 +209,8 @@ export const PersistedSchema = v.object({
   prefs: v.fallback(PrefsSchema, {}),
   lists: v.fallback(v.object({
     recents: v.fallback(v.pipe(arrayOf(RecentSchema), v.transform((xs) => xs.slice(0, MAX_RECENTS * 2))), []),
-    recentFactions: v.fallback(arrayOf(integer), []),
     saved: v.fallback(arrayOf(SavedRollSchema), []),
-  }), () => ({recents: [], recentFactions: [], saved: []})),
-  scopes: v.fallback(v.object({A: v.optional(v.nullable(integer)), B: v.optional(v.nullable(integer))}), {}),
+  }), () => ({recents: [], saved: []})),
 });
 
 // The ephemeral slice: overlays, the picker stack, a chip's inline editor,
@@ -235,18 +226,11 @@ export function initialState() {
     matchup: emptyMatchup(),
     classic: {...DEFAULT_PARAMS},
     ui: {...EMPTY_UI},
-    // startFaction: {A, B}, the faction the picker opens on for an empty side
-    // (null = the last one used)
     prefs: {},
-    // The faction each side's picker is scoped to, remembered per side: {A, B},
-    // a vanilla faction id or null for All factions; a missing side has no
-    // choice yet (actions.js scopeFor). Cleared with the troopers.
-    scopes: {},
     // recents: troopers picked, newest first, as stable army ids plus the
     //   side they were picked for: {unitId, groupId, optionId, armyFactionId, side}.
     //   Active and Reactive each keep their own MAX_RECENTS; entries saved
     //   before the tag existed have no side and count for both (recentsFor).
-    // recentFactions: vanilla faction ids scoped to in the picker, newest first
-    lists: {recents: [], recentFactions: [], saved: []},
+    lists: {recents: [], saved: []},
   };
 }

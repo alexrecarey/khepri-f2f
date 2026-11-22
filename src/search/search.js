@@ -3,17 +3,34 @@
 // list (under 2,000 distinct words) and never the rows themselves.
 import {SKILL} from '../army/ids.js';
 import {FIELD} from './buildIndex.js';
-import {prefixDistance, soundKey, typoBudget, words} from './text.js';
+import {sharedLoadoutName} from '../army/shortNames.js';
+import {initials, prefixDistance, soundKey, typoBudget, words} from './text.js';
 
 // Match tiers, strongest first. A row's rank comes from its weakest typed word.
 export const TIER = {EXACT: 0, PREFIX: 1, TYPO1: 2, SOUND: 3, TYPO2: 4};
 const TIER_COST = [0, 1, 3, 4, 6];
 /** @typedef {import('../types.js').IndexRow} IndexRow */
 /** @typedef {import('../types.js').ProfileHit} ProfileHit */
+/** @typedef {import('../types.js').ResultItem} ResultItem */
 /** One typed word's best match on a row.
  * @typedef {{tier: number, field: number, weapon: number, word: string, cost: number}} WordHit */
-/** A row matching the whole query, scored (lower ranks higher).
- * @typedef {{row: IndexRow, score?: number, tier: number, weapon: number, matched: string[]}} RowMatch */
+/** A row matching the whole query, scored (lower ranks higher). `named`: some
+ * typed word matched the unit's name, not only its kit.
+ * @typedef {{row: IndexRow, score?: number, tier: number, weapon: number, matched: string[], named?: boolean}} RowMatch */
+
+// The result list (search().items). Two loadouts or fewer: just those. One
+// unit: the unit, then its loadouts. Several units by name ("fus"): just the
+// units, the loadout is picked on the unit's page. A weapon or skill and no
+// unit name ("hmg"): the loadouts, then the units. Caps keep a one-letter
+// query from rendering hundreds of rows.
+export const FEW_LOADOUTS = 2;
+export const MAX_ITEMS = 40;
+
+// Faction words narrow a query to that faction ("jsa hmg"). Whole words only:
+// a prefix would turn "ca" into Combined Army while typing "caledonian".
+// Keyed by vanilla faction id; each faction's own name (glued) counts too.
+/** @type {Record<number, string[]>} */
+const FACTION_ALIASES = {101: ['pano'], 201: ['yj'], 401: ['haqq'], 901: ['na2', 'naa'], 1001: ['o12']};
 /** A word's postings: [rowId, field, weaponIndex] each.
  * @typedef {{postings: [number, number, number][], sound: string, best?: Map<number, [number, number, number]>}} Vocab */
 
@@ -33,6 +50,13 @@ export function createSearch(index) {
   /** @param {IndexRow} row */
   const isPeripheral = (row) => row.skills.includes(peripheralSkill);
   const factionName = new Map(index.factions.map((f) => [f.id, f.name]));
+  // Faction word -> vanilla faction id ("jsa", "panoceania", "pano").
+  /** @type {Map<string, number>} */
+  const factionWord = new Map();
+  for (const f of index.factions) {
+    factionWord.set(words(f.name).join(''), f.id);
+    for (const a of FACTION_ALIASES[f.id] ?? []) factionWord.set(a, f.id);
+  }
 
   // word -> postings [rowId, field, weaponIndex], plus its sound key. Unit and
   // weapon words are stored once in the index; here they fan out to rows.
@@ -75,6 +99,34 @@ export function createSearch(index) {
   }
   for (const v of vocab.values()) delete v.best;
   const vocabList = [...vocab.entries()];
+
+  // What a row is called in the list: the name its loadouts share ("FUSILIER",
+  // "FUSILIER HACKER" -> "Fusilier"), never the long ISC. A unit whose
+  // loadouts share nothing (Team-Ops) keeps its short ISC.
+  /** @type {Map<number, string>} */
+  const unitTitle = new Map(index.units.map((u) => [u.id,
+    sharedLoadoutName((rowsByUnit.get(u.id) ?? []).map((r) => r.loadout)) ?? u.short]));
+  /** @param {IndexRow} row */
+  const rowTitle = (row) => sharedLoadoutName([row.loadout]) ?? unitTitle.get(row.unitId) ?? row.unit;
+  // A weapon's label on a loadout's art ("HMG", "BSG", "SF"): its shortest
+  // shorthand players type (aliases.js), else its initials ("CR"), else its
+  // name when short ("RIFLE"), else its first letters.
+  /** @type {Map<number, string>} */
+  const codes = new Map();
+  /** @param {number} wid */
+  const weaponCode = (wid) => {
+    if (!codes.has(wid)) {
+      const w = index.weapons[wid];
+      const init = initials(w.name);
+      const alias = w.words.filter(([word, field]) => field === FIELD.ALIAS && word !== init && word.length <= 4)
+        .map(([word]) => word).sort((a, b) => a.length - b.length)[0];
+      const name = words(w.name);
+      const code = alias ?? (init && init.length <= 4 ? init : null)
+        ?? (name.length === 1 && name[0].length <= 6 ? name[0] : name.join('').slice(0, 4));
+      codes.set(wid, code.toUpperCase());
+    }
+    return /** @type {string} */ (codes.get(wid));
+  };
 
   // Typed word -> Map(rowId -> best {tier, field, weapon, word}). Memoised, so
   // the words already typed cost nothing when the next one is added.
@@ -155,6 +207,7 @@ export function createSearch(index) {
         tier: Math.max(...parts.map((p) => p.tier)),
         weapon: weaponPart ? weaponPart.weapon : -1,
         matched: parts.map((p) => p.word),
+        named: parts.some((p) => p.field === FIELD.SHORT || p.field === FIELD.NAME),
       });
     }
     out.sort((a, b) => a.score - b.score || a.row.points - b.row.points
@@ -201,11 +254,13 @@ export function createSearch(index) {
       profileId: row.profileId,
       optionId: row.optionId,
       unit: row.unit,
+      title: rowTitle(row),
       loadout: row.loadout,
       weapon: weapon?.name ?? null,
       weaponId: m.weapon >= 0 ? weapon?.id ?? null : null,
       weapons: row.weapons.map((id) => index.weapons[id].name),
       weaponIds: row.weapons,
+      code: wid != null ? weaponCode(wid) : null,
       type: row.type,
       bs: row.bs,
       points: row.points,
@@ -239,26 +294,63 @@ export function createSearch(index) {
   function unitHit(unitId, factionId) {
     // Every row's unit is in the index.
     const u = /** @type {import('../types.js').IndexUnit} */ (unitById.get(unitId));
-    return {unitId, name: u.name, short: u.short, type: u.type, factionIds: u.factions,
-      profileCount: countInScope(unitId, factionId)};
+    return {unitId, name: u.name, short: u.short, title: /** @type {string} */ (unitTitle.get(unitId)), type: u.type,
+      factionIds: u.factions, profileCount: countInScope(unitId, factionId)};
   }
 
-  // {query, factionId, recentIds} -> {recent, profiles, units, elsewhere, total}
+  // A typed word that is exactly some weapon, skill or kit shorthand.
+  /** @type {Map<string, boolean>} */
+  const kitWords = new Map();
+  /** @param {string} t */
+  const isKitWord = (t) => {
+    if (!kitWords.has(t)) {
+      const v = vocab.get(t);
+      kitWords.set(t, !!v && v.postings.some(([, field]) => field > FIELD.NAME));
+    }
+    return /** @type {boolean} */ (kitWords.get(t));
+  };
+
+  // Faction words out of the query: "jsa hmg" -> JSA and ["hmg"]. Two
+  // typed words can spell one faction ("yu jing").
+  /** @param {string[]} tokens */
+  function splitFaction(tokens) {
+    /** @type {number | null} */
+    let faction = null;
+    const rest = [];
+    for (let i = 0; i < tokens.length; i++) {
+      const pair = i + 1 < tokens.length ? factionWord.get(tokens[i] + tokens[i + 1]) : undefined;
+      if (pair != null) { faction = pair; i++; continue; }
+      const one = factionWord.get(tokens[i]);
+      if (one != null) faction = one;
+      else rest.push(tokens[i]);
+    }
+    return {faction, rest};
+  }
+
+  // {query, factionId, recentIds} -> {items, recent, profiles, units, elsewhere, total}
   /**
    * @param {{query?: string, factionId?: number | null, recentIds?: number[]}} [q]
    * @returns {import('../types.js').SearchResult}
    */
   function search({query = '', factionId = null, recentIds = []} = {}) {
-    const tokens = words(query);
-    if (!tokens.length) return {recent: [], profiles: [], units: [], elsewhere: [], total: 0};
+    const typed = words(query);
+    if (!typed.length) return {items: [], recent: [], profiles: [], units: [], elsewhere: [], total: 0};
+    const {faction, rest: tokens} = splitFaction(typed);
+    const scope = faction ?? factionId;
+    // Only a faction ("ariadna"): its units, A-Z.
+    if (!tokens.length) {
+      const units = index.units.filter((u) => u.factions.includes(/** @type {number} */ (scope)))
+        .map((u) => unitHit(u.id, scope)).sort((a, b) => a.title.localeCompare(b.title));
+      return {items: units.map((u) => ({kind: 'unit', u})), recent: [], profiles: [], units, elsewhere: [], total: 0};
+    }
     const all = matchRows(tokens);
-    const scoped = all.filter((m) => inScope(m.row, factionId));
+    const scoped = all.filter((m) => inScope(m.row, scope));
 
     const recentSet = new Set(recentIds);
     const recent = /** @type {RowMatch[]} */ (recentIds
       .map((id) => scoped.find((m) => m.row.id === id))
       .filter(Boolean))
-      .map((m) => profileHit(m, factionId));
+      .map((m) => profileHit(m, scope));
 
     /** @type {import('../types.js').UnitHit[]} */
     const units = [];
@@ -268,12 +360,12 @@ export function createSearch(index) {
     for (const m of scoped) {
       if (seen.has(m.row.unitId)) continue;
       seen.add(m.row.unitId);
-      units.push({...unitHit(m.row.unitId, factionId), tier: m.tier, best: profileHit(m, factionId)});
+      units.push({...unitHit(m.row.unitId, scope), tier: m.tier, best: profileHit(m, scope)});
     }
 
     /** @type {import('../types.js').SearchResult['elsewhere']} */
     let elsewhere = [];
-    if (factionId != null && !scoped.length && all.length) {
+    if (scope != null && !scoped.length && all.length) {
       /** @type {Map<number, number>} */
       const counts = new Map();
       for (const m of all) for (const f of Object.keys(m.row.factions)) counts.set(Number(f), (counts.get(Number(f)) ?? 0) + 1);
@@ -281,57 +373,60 @@ export function createSearch(index) {
         .map(([id, count]) => ({factionId: id, name: factionName.get(id), count}));
     }
 
+    // Kit, not a unit: every typed word is exactly a weapon, skill or their
+    // shorthand ("hmg", "sf", "tr", "hacker"), even when it also starts a
+    // unit's name (Sforza, S.T.R.S.). Then the kit's loadouts lead.
+    const kit = tokens.every(isKitWord);
+    const others = scoped.filter((m) => !recentSet.has(m.row.id));
+    // The list keeps typo and sound-alike matches only when nothing matches
+    // as typed: "senku" is one letter off Aragoto Senkenbutai and Sekudroids,
+    // which crowded Senku's own row; "zhnashi" still finds Zhanshi.
+    const strict = scoped.some((m) => m.tier <= TIER.PREFIX);
+    const pool = strict ? scoped.filter((m) => m.tier <= TIER.PREFIX) : scoped;
+    const poolOthers = pool.filter((m) => !recentSet.has(m.row.id));
+    const poolIds = new Set(pool.map((m) => m.row.unitId));
+    const poolUnits = units.filter((u) => poolIds.has(u.unitId));
+    /** @type {(m: RowMatch) => ResultItem} */
+    const loadout = (m) => ({kind: 'loadout', hit: profileHit(m, scope)});
+    /** @type {(u: import('../types.js').UnitHit) => ResultItem} */
+    const unit = (u) => ({kind: 'unit', u});
+    /** @type {ResultItem[]} */
+    let items;
+    if (pool.length <= FEW_LOADOUTS) items = poolOthers.map(loadout);
+    else if (poolUnits.length === 1) items = [unit(poolUnits[0]), ...poolOthers.map(loadout)];
+    // Kit: its loadouts, then the units (those the words name first: "mine" still finds Minescorp).
+    else if (kit || !pool.some((m) => m.named)) {
+      const named = new Set(pool.filter((m) => m.named).map((m) => m.row.unitId));
+      const byName = [...poolUnits.filter((u) => named.has(u.unitId)), ...poolUnits.filter((u) => !named.has(u.unitId))];
+      items = [...poolOthers.filter((m) => !m.named).slice(0, MAX_ITEMS).map(loadout), ...byName.slice(0, MAX_ITEMS).map(unit)];
+    }
+    else items = poolUnits.slice(0, MAX_ITEMS).map(unit);
+    // Recent picks that match go first, whatever the rule above.
+    items = [...recent.map((hit) => /** @type {ResultItem} */ ({kind: 'loadout', hit, recent: true})), ...items];
+
     return {
+      items,
       recent,
-      profiles: scoped.filter((m) => !recentSet.has(m.row.id)).slice(0, MAX_PROFILES).map((m) => profileHit(m, factionId)),
+      profiles: others.slice(0, MAX_PROFILES).map((m) => profileHit(m, scope)),
       units,
       elsewhere,
       total: scoped.length,
     };
   }
 
-  // The empty-box view: recents, unit-type tiles, every unit A-Z.
-  /** @param {{factionId?: number | null, recentIds?: number[]}} [q] */
-  function browse({factionId = null, recentIds = []} = {}) {
-    const recent = recentIds.map((id) => rows[id]).filter((r) => r && inScope(r, factionId))
-      .map((row) => asHit(row, factionId));
-    const scopeUnits = index.units.filter((u) => factionId == null || u.factions.includes(factionId));
-    /** @type {Map<string, number>} */
-    const types = new Map();
-    for (const u of scopeUnits) if (u.type) types.set(u.type, (types.get(u.type) ?? 0) + 1);
-    return {
-      recent,
-      types: [...types].map(([type, count]) => ({type, count})),
-      units: scopeUnits.map((u) => unitHit(u.id, factionId)).sort((a, b) => a.short.localeCompare(b.short)),
-    };
-  }
+  /** @param {IndexRow} row */
+  const asHit = (row) => profileHit({row, weapon: -1, tier: TIER.EXACT, matched: []}, null);
 
-  /**
-   * @param {IndexRow} row
-   * @param {number | null} factionId
-   */
-  const asHit = (row, factionId) => profileHit({row, weapon: -1, tier: TIER.EXACT, matched: []}, factionId);
+  // The empty box: the side's recent picks (row ids), newest first.
+  /** @param {number[]} recentIds */
+  const recentHits = (recentIds) => recentIds.map((id) => rows[id]).filter(Boolean).map(asHit);
 
-  // Every loadout of one unit in scope, cheapest first: the unit drill-in page.
-  /**
-   * @param {number} unitId
-   * @param {number | null} [factionId]
-   */
-  function unitRows(unitId, factionId = null) {
-    return (rowsByUnit.get(unitId) ?? []).filter((r) => inScope(r, factionId))
+  // Every loadout of one unit, cheapest first: the unit's page.
+  /** @param {number} unitId */
+  function unitRows(unitId) {
+    return (rowsByUnit.get(unitId) ?? []).slice()
       .sort((a, b) => a.points - b.points || a.id - b.id)
-      .map((r) => asHit(r, factionId));
-  }
-
-  // Units of one type (LI, HI, TAG...) in scope, A-Z: a browse tile's list.
-  /**
-   * @param {string} type
-   * @param {number | null} [factionId]
-   */
-  function unitsOfType(type, factionId = null) {
-    return index.units.filter((u) => u.type === type && (factionId == null || u.factions.includes(factionId)))
-      .map((u) => unitHit(u.id, factionId))
-      .sort((a, b) => a.short.localeCompare(b.short));
+      .map(asHit);
   }
 
   // A saved pick -> its row id today. Row ids are positions in the index and
@@ -342,12 +437,5 @@ export function createSearch(index) {
       && Object.values(r.factions).includes(armyFactionId))?.id ?? null;
   }
 
-  // Units per vanilla faction, for the faction list.
-  /** @type {Map<number, number>} */
-  const unitCounts = new Map();
-  for (const u of index.units) for (const f of u.factions) unitCounts.set(f, (unitCounts.get(f) ?? 0) + 1);
-  /** @param {number} factionId */
-  const unitCount = (factionId) => unitCounts.get(factionId) ?? 0;
-
-  return {search, browse, unitRows, unitsOfType, findRow, unitCount, factions: index.factions};
+  return {search, recentHits, unitRows, findRow, factions: index.factions};
 }

@@ -17,7 +17,6 @@ import {AboutDialog, HeaderButtons, SettingsDialog} from "./ui/DeskMenu.jsx";
 import SavedRolls from "./ui/SavedRolls.jsx";
 import {MoreIcon} from "./ui/icons.jsx";
 import {MODES} from './state/modes.js';
-import {useSearcher} from "./ui/picker/useTrooperSearch.js";
 import useLayout, {usesDialogs} from "./ui/useLayout.js";
 
 // The whole app is a function of the state document (src/state): the mode
@@ -90,12 +89,9 @@ function App() {
 /** @param {{dialogs: boolean, results: {result: import('./types.js').EngineResult | null, targets: import('./types.js').MatchupCore['targets'], params: import('./types.js').Params | null}}} props */
 function Overlays({dialogs, results}) {
   const overlay = useAppState((s) => s.ui.overlay);
-  // Settings lists the factions; the search index has them without the army data.
-  const {searcher} = useSearcher(overlay === 'settings', useLanguage());
-  const factions = searcher?.factions ?? [];
   if (overlay === 'menu') return <Menu />;
   if (overlay === 'saved') return <SavedRolls />;
-  if (overlay === 'settings') return dialogs ? <SettingsDialog factions={factions} results={results} /> : <SettingsPage factions={factions} />;
+  if (overlay === 'settings') return dialogs ? <SettingsDialog results={results} /> : <SettingsPage />;
   if (overlay === 'about') return dialogs ? <AboutDialog /> : <AboutPage />;
   return null;
 }

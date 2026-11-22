@@ -1,6 +1,5 @@
 // Actions whose payload needs the army data. The reducer stays pure; these
 // work out the payload first and return a plain action to dispatch.
-import {vanillaOf} from '../army/factions.js';
 import {hasBerserk} from '../rules/closeCombat.js';
 import {hasNoCover} from '../rules/modifiers.js';
 import {resolveSelection, trooperWeapons} from '../rules/trooper.js';
@@ -36,23 +35,7 @@ export function selectionFromHit(army, hit) {
   return matched ? {...sel, weaponKey: matched.key} : sel;
 }
 
-// Which faction a side's picker shows: the one last chosen for that side,
-// else the faction of its trooper, else its starting faction (Settings), else
-// All. Never the other side's: each side keeps its own.
-/**
- * @param {Army | null | undefined} army
- * @param {AppState} state
- * @param {Side} side
- * @returns {number | null}
- */
-export function scopeFor(army, state, side) {
-  // `in`: the side's scope is set (a faction id or null for All).
-  if (state.scopes && side in state.scopes) return /** @type {number | null} */ (state.scopes[side]);
-  return vanillaOf(army, state.matchup[side].factionId) ?? state.prefs.startFaction?.[side] ?? null;
-}
-
-// The picked trooper's faction becomes its side's scope. `next`: the picker
-// stays open on the other side, with that side's scope.
+// `next`: the picker stays open on the other side.
 // ftMax: the new trooper's largest fireteam, so a kept fireteam size shrinks
 // to fit (or goes) when the new trooper can't match it.
 // A new trooper starts in cover when cover can help it (not No Cover), or in
@@ -61,11 +44,10 @@ export function scopeFor(army, state, side) {
  * @param {Army | null | undefined} army
  * @param {Side} side
  * @param {ProfileHit} hit
- * @param {{next?: boolean, state?: AppState | null}} [opts]
+ * @param {{next?: boolean}} [opts]
  * @returns {Extract<import('../types.js').Action, {type: 'pickTrooper'}>}
  */
-export function pickTrooper(army, side, hit, {next = false, state = null} = {}) {
-  const otherSide = other(side);
+export function pickTrooper(army, side, hit, {next = false} = {}) {
   const base = selectionFromHit(army, hit);
   const r = resolveSelection(army, base);
   const sapper = Boolean(r?.canSapper);
@@ -77,27 +59,22 @@ export function pickTrooper(army, side, hit, {next = false, state = null} = {}) 
     sel,
     ftMax: r?.ftMax ?? 1,
     recent: {unitId: hit.unitId, groupId: hit.groupId, optionId: hit.optionId, armyFactionId: hit.armyFactionId},
-    scope: hit.factionId ?? null,
-    ...(next ? {next: true, nextScope: state ? scopeFor(army, state, otherSide) : null} : {}),
+    ...(next ? {next: true} : {}),
   };
 }
 
 /**
- * @param {Army | null | undefined} army
- * @param {AppState} state
  * @param {Side} side
  * @returns {import('../types.js').Action}
  */
-export const openPicker = (army, state, side) => ({type: 'openPicker', side, scope: scopeFor(army, state, side)});
+export const openPicker = (side) => ({type: 'openPicker', side});
 
-// Desktop picker: switch sides, each with its own scope.
+// Desktop picker: switch sides.
 /**
- * @param {Army | null | undefined} army
- * @param {AppState} state
  * @param {Side} side
  * @returns {import('../types.js').Action}
  */
-export const pickerSide = (army, state, side) => ({type: 'pickerSide', side, scope: scopeFor(army, state, side)});
+export const pickerSide = (side) => ({type: 'pickerSide', side});
 
 // A Team-Ops chart or TacBall pick ({upgrade} or {ball}: an index, or null).
 // Dropping an upgrade can take away the weapon in use (it falls back to the

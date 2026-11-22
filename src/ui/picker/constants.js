@@ -1,34 +1,29 @@
-// Unit types in the order both pickers list them; their names are src/i18n's
-// typeName.<type>.
-export const TYPE_ORDER = ['LI', 'MI', 'HI', 'TAG', 'REM', 'SK', 'WB', 'VH'];
+// A unit type's name: src/i18n's typeName.<type>.
 /**
  * @param {import('../../types.js').Translator} t
  * @param {string | null | undefined} type
  */
 export const typeName = (t, type) => (type && t.has(`typeName.${type}`) ? t(`typeName.${type}`) : type ?? '');
 
-// One tap fills the box with what players often look for on that side: big
-// burst for the active trooper, ARO picks for the reactive one. Each query
-// also finds the variants ("hmg": AP and MULTI HMG; "spitfire": AP / MULTI).
-// Per language: the search index is in the app's language, so the queries are
-// the words of that language's names.
-/** @type {Record<string, Record<import('../../types.js').Side, [string, string][]>>} */
-const QUICK = {
+// The search box's placeholder teaches the shorthand: one hint per opening,
+// picked at random, from what players look for on that side (burst for the
+// active trooper, ARO picks for the reactive one). [query, what it stands
+// for]; with no second part the query speaks for itself ("Try jsa hmg").
+// Kept to about 20 characters so the hint fits a phone's box. The shorthand
+// is the index's (aliases.js), the same in every language.
+/** @type {Record<string, Record<import('../../types.js').Side, [string, string | null][]>>} */
+const HINTS = {
   en: {
-    A: [['HMG', 'hmg'], ['Spitfire', 'spitfire'], ['Red Fury', 'red fury']],
-    B: [['+SD', '+SD'], ['Neurocinetics', 'neurocinetics'], ['Total Reaction', 'total reaction'],
-      ['Missile Launcher', 'missile launcher'], ['HRL', 'hrl'], ['Sniper Rifle', 'sniper rifle']],
+    A: [['sf', 'Spitfire'], ['msr', 'MULTI Sniper'], ['jsa hmg', null], ['fus ml', null], ['tanuki hmg', null]],
+    B: [['ml', 'missiles'], ['hrl', 'heavy rockets'], ['+sd', 'Special Dice'], ['tr', 'Total Reaction'], ['sniper', null]],
   },
   es: {
-    A: [['Ametralladora', 'ametralladora'], ['Spitfire', 'spitfire'], ['Red Fury', 'red fury']],
-    // "+DE" (Dado Especial) would search for "de", in every Spanish name;
-    // the index marks Special Dice as "sd" in every language.
-    B: [['+DE', '+SD'], ['Neurocinética', 'neurocinetica'], ['Reacción Total', 'reaccion total'],
-      ['Lanzamisiles', 'lanzamisiles'], ['Lanzacohetes Pesado', 'lanzacohetes pesado'], ['F. Francotirador', 'francotirador']],
+    A: [['sf', 'Spitfire'], ['msr', 'MULTI Franco'], ['jsa hmg', null], ['fus ml', null], ['tanuki hmg', null]],
+    B: [['ml', 'lanzamisiles'], ['hrl', 'lanzacohetes'], ['+sd', 'Dado Especial'], ['tr', 'Reacción Total'], ['francotirador', null]],
   },
 };
 /**
  * @param {string} lang
  * @param {import('../../types.js').Side} side
  */
-export const quickSearches = (lang, side) => (QUICK[lang] ?? QUICK.en)[side];
+export const searchHints = (lang, side) => (HINTS[lang] ?? HINTS.en)[side];

@@ -1,4 +1,4 @@
-// The persisted slices of the state document (mode, prefs, lists, scopes) in
+// The persisted slices of the state document (mode, prefs, lists) in
 // localStorage, under one versioned key. Reads the mode the old calculator
 // kept (calculatorMode) once, when the new key isn't there yet.
 // `storage` is anything with getItem/setItem (localStorage; a Map-like in tests).
@@ -45,13 +45,13 @@ const isObject = (x) => x !== null && typeof x === 'object' && !Array.isArray(x)
 
 // What loadPersisted gives when nothing readable was stored.
 /** @type {import('valibot').InferOutput<typeof PersistedSchema>} */
-const NOTHING = {prefs: {}, lists: {recents: [], recentFactions: [], saved: []}, scopes: {}};
+const NOTHING = {prefs: {}, lists: {recents: [], saved: []}};
 
-// Whatever was stored -> {mode?, prefs, lists, scopes}, read through
+// Whatever was stored -> {mode?, prefs, lists}, read through
 // PersistedSchema: a bad field falls back, a bad list item is dropped.
 /**
  * @param {StorageLike | null} storage
- * @returns {{scopes: import('../types.js').AppState['scopes'], mode?: string, prefs: import('../types.js').Prefs, lists: import('../types.js').AppState['lists']}}
+ * @returns {{mode?: string, prefs: import('../types.js').Prefs, lists: import('../types.js').AppState['lists']}}
  */
 export function loadPersisted(storage) {
   const stored = storage ? readJson(storage, STORAGE_KEY) : undefined;
@@ -62,7 +62,7 @@ export function loadPersisted(storage) {
 }
 
 /** @param {import('../types.js').AppState} state */
-export const persistedSlice = (state) => ({v: STATE_VERSION, mode: state.mode, prefs: state.prefs, lists: state.lists, scopes: state.scopes});
+export const persistedSlice = (state) => ({v: STATE_VERSION, mode: state.mode, prefs: state.prefs, lists: state.lists});
 
 /**
  * @param {StorageLike} storage
