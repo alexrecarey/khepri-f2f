@@ -16,7 +16,7 @@ import {isCcAttack} from './closeCombat.js';
 import {msg} from '../i18n/message.js';
 import {attackInputs, ccAttackInputs} from './attack.js';
 import {evadeInputs, noLofInputs} from './evade.js';
-import {defenseInputs} from './hit.js';
+import {armAgainst, defenseInputs, saveLines} from './hit.js';
 
 /** @typedef {import('../types.js').Side} Side */
 /** @typedef {import('../types.js').Ctx} Ctx */
@@ -52,7 +52,7 @@ function approximationWarnings(s, side, target) {
   // hasNoEffect read the target's traits: it is there.
   const weapon = !row ? null
     : hasNoEffect(target?.traits, row) ? note(s, 'warning.noEffect', {weapon: row.name, by: noEffectBy(/** @type {Trooper} */ (target).traits, row)})
-      // Not a warning: the results say Isolated / Stunned (rules/woundStates.js).
+      // Not a warning: the results say Isolated / Stunned / Immobilized-A (rules/woundStates.js).
       : stateCaused(row) ? null
         : isNonLethal(row) ? note(s, 'warning.nonLethal', {weapon: row.name})
           : null;
@@ -178,12 +178,12 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
   const sides = {A: a ? sideInputs(a, b, 'A', ctx) : null, B: b ? sideInputs(b, a, 'B', ctx) : null};
   // The save the target makes against a side's hits: the side's PS, then
   // the target's ARM (or BTS / PH) against that weapon, from the other pass.
-  // PS lines come from a roll, so the side has lines.
+  // PS lines come from a roll, so the side has lines. Never below 0 (hit.js saveLines).
   /** @param {Side} s */
   const sideLines = (s) => {
     const l = sides[s]?.lines ?? null;
     const ps = sides[s]?.ps;
-    return l && ps ? {...l, save: section([...ps, ...(sides[other(s)]?.arm ?? [])])} : l;
+    return l && ps ? {...l, save: section(saveLines(ps, sides[other(s)]?.arm ?? []))} : l;
   };
   const lines = {A: sideLines('A'), B: sideLines('B')};
   const errors = compact(SIDES.map((s) => sides[s]?.error));
@@ -207,6 +207,18 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
     ...(isSpecOps(a) || isSpecOps(b) ? [note(null, 'warning.specOps')] : []),
   ];
   /** @type {Partial<Params>} */
-  const inputs = {...sides.A?.inputs, ...sides.B?.inputs, ...((a || b) && {fixedFaceToFace: false})};
+  const merged = {...sides.A?.inputs, ...sides.B?.inputs, ...((a || b) && {fixedFaceToFace: false})};
+  // Each target's ARM input against the other side's hits: its own pass
+  // works it out without the attacker's PS, so a PS below 0 is added here
+  // (hit.js armAgainst), the same total as the ledger's save.
+  /** @param {Side} s */
+  const armFrom = (s) => {
+    const key = `arm${other(s)}`;
+    const arm = merged[/** @type {keyof Params} */ (key)];
+    const ps = sides[s]?.ps;
+    return typeof arm === 'number' && ps ? [[key, armAgainst(arm, ps)]] : [];
+  };
+  /** @type {Partial<Params>} */
+  const inputs = {...merged, ...Object.fromEntries(SIDES.flatMap(armFrom))};
   return {inputs, ok: errors.length === 0 && !incomplete && (a !== null || b !== null), errors, warnings, notes, lines};
 }
