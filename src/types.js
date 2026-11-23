@@ -843,6 +843,11 @@
  */
 
 /**
+ * A toggle on the picked Dodge: a key of the side's selection, and whether it is on.
+ * @typedef {{key: 'bangbomb' | 'immA', on: boolean}} DodgeToggle
+ */
+
+/**
  * What a side card shows besides the selection (state/matchupView.js
  * sideView): weapon buttons, which chips apply, the trooper's names. With no
  * army it is the empty side. Language-free until renderMatchup.
@@ -864,9 +869,8 @@
  * @property {boolean} fireteamChip the pick gets a bonus from a Fireteam
  * @property {boolean} targetedChip the other side's shot or program gains from Targeted, or this side Resets
  * @property {boolean} hackedChip the pick is a Reset
- * @property {boolean} immAChip the pick is a Dodge
  * @property {boolean} noLofChip No LoF can change the side's roll (rules/noLof.js noLofHelps)
- * @property {boolean} bangbombChip the pick is a Dodge and the trooper has Bangbomb
+ * @property {DodgeToggle[]} dodgeToggles the picked Dodge's toggles (Bangbomb for one who has it, IMM-A), in button order
  * @property {number} surprise Surprise Attack's MOD (active side), 0 without
  * @property {{mod: number} | null} berserk Berserk's MOD (active side, a CC weapon picked)
  * @property {import('./rules/supportware.js').Supportware[]} supportware the Supportware chips that can change the pick (rules/supportware.js)

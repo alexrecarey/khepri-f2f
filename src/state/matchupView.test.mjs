@@ -311,3 +311,10 @@ test('No LoF and a Fireteam: both chips stay, and a team of 5 (Sixth Sense) lift
   const lines = /** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (dodge.ledger?.ledger.B).sv).lines;
   assert.deepEqual(lines.find((l) => l.label === 'No LoF'), {value: -3, label: 'No LoF', by: 'B', struck: 'Sixth Sense (Dodge)'});
 });
+
+test('Dodge toggles: the view lists them for the picked Dodge, on or off; none for another pick', () => {
+  const dodging = (over = {}) => matchupView(army, {A: corax, B: {...chaksa, weaponKey: 'dodge', ...over}, rangeCm: 40}).B.dodgeToggles;
+  assert.deepEqual(dodging(), [{key: 'immA', on: false}]);
+  assert.deepEqual(dodging({immA: true}), [{key: 'immA', on: true}]);
+  assert.deepEqual(matchupView(army, {A: corax, B: chaksa, rangeCm: 40}).B.dodgeToggles, []);
+});

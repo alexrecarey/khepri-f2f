@@ -15,7 +15,6 @@ import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
 import {isCommsAttack, isTemplateWeapon, silentMod} from '../army/weapons.js';
 import {FIRETEAM_MAX, evades, hasSixthSense} from './modifiers.js';
-import {msg} from '../i18n/message.js';
 import {ZOC_CM, rangeOf} from './ranges.js';
 import {withWeapon} from './trooper.js';
 import {other} from '../lib/side.js';
@@ -74,8 +73,9 @@ export function noLofChoices(x, incoming, reactive, inZoc) {
 }
 
 // The two MODs on x's Dodge with the chip on: the -3 (`lof`) and the
-// weapon's Silent (X) (`silent`), 0 where they don't apply; `struck` when a
-// Fireteam of 5's Sixth Sense cancels them (its Dodge takes no negative MODs).
+// weapon's Silent (X) (`silent`), 0 where they don't apply; struckBy
+// 'sixthSense' when a Fireteam of 5's cancels them (its Dodge takes no
+// negative MODs).
 /**
  * @param {ResolvedSide | null | undefined} x
  * @param {Choice | null | undefined} incoming
@@ -83,12 +83,12 @@ export function noLofChoices(x, incoming, reactive, inZoc) {
  * @param {boolean} inZoc
  */
 export function noLofDodgeMods(x, incoming, reactive, inZoc) {
-  if (!x?.noLof || x.weapon?.kind !== 'dodge' || !evades(x, incoming) || !noLofHelps(x, incoming, reactive, inZoc)) return {lof: 0, silent: 0, struck: null};
+  if (!x?.noLof || x.weapon?.kind !== 'dodge' || !evades(x, incoming) || !noLofHelps(x, incoming, reactive, inZoc)) return {lof: 0, silent: 0, struckBy: null};
   const row = incoming?.row;
   return {
     lof: reactive || isTemplateWeapon(row) ? NO_LOF_DODGE_MOD : 0,
     silent: inZoc ? silentMod(row) : 0,
-    struck: hasSixthSense(x) ? msg('skill.sixthSenseDodge') : null,
+    struckBy: hasSixthSense(x) ? /** @type {const} */ ('sixthSense') : null,
   };
 }
 
