@@ -141,7 +141,7 @@ test('No LoF in ARO: beyond the ZoC against a shot, No ARO is all it has', () =>
 });
 
 test('No LoF: -3 to a Dodge in ARO or against a template, plus the weapon\'s Silent (X) inside ZoC', () => {
-  const silenced = option([{id: 22, name: 'Silenced Pistol'}]);
+  const silenced = option([{id: 23, name: 'Silenced Pistol'}]);
   const lrl = option([{id: 19, name: 'Light Rocket Launcher'}]);
   const jammer = option([{id: 21, name: 'Jammer'}]);
   /** @param {import('../types.js').Trooper} t */
@@ -165,27 +165,27 @@ test('No LoF: -3 to a Dodge in ARO or against a template, plus the weapon\'s Sil
   assert.equal(sv(blind(dodger), side(profile(), flamer, '3:'), 'A'), 9);
   assert.equal(sv(blind(dodger), side(profile(), lrl, '19:Blast Mode'), 'A'), 9);
   // Silent (-6) inside ZoC (0-8"): on top of the -3 in ARO, alone in the Active Turn.
-  assert.equal(sv(side(profile(), silenced, '22:'), blind(dodger), 'B', 20), 3);
-  assert.equal(sv(blind(dodger), side(profile(), silenced, '22:'), 'A', 20), 6);
+  assert.equal(sv(side(profile(), silenced, '23:'), blind(dodger), 'B', 20), 3);
+  assert.equal(sv(blind(dodger), side(profile(), silenced, '23:'), 'A', 20), 6);
   // Beyond ZoC: no Silent. A split range reads the attacker's own distance.
-  assert.equal(sv(blind(dodger), side(profile(), silenced, '22:'), 'A', 20, 40), 12);
+  assert.equal(sv(blind(dodger), side(profile(), silenced, '23:'), 'A', 20, 40), 12);
   // Sixth Sense (or a Fireteam of 5): 360° LoF, never out of it.
   const sixth = side(profile({ph: 12, skills: [{id: 67, name: 'Sixth Sense'}]}), combi, 'dodge');
-  assert.equal(sv(side(profile(), silenced, '22:'), blind(sixth), 'B', 20), 12);
+  assert.equal(sv(side(profile(), silenced, '23:'), blind(sixth), 'B', 20), 12);
   assert.equal(sv(side(profile(), combi, '1:'), {...blind(dodger), ftSize: 5}, 'B'), 13);  // +1 Dodge, no -3
   // A Dodge can't evade a Comms Attack: nothing to apply it to.
   assert.equal(derive({active: side(profile({wip: 13}), jammer, '21:'), reactive: blind(dodger), rangeCm: 20}).inputs.burstB, 0);
   // MODs: IMM-A (-6), No LoF (-3) and Silent (-6) cap at -12.
-  assert.equal(sv(side(profile(), silenced, '22:'), {...blind(side(profile({ph: 13}), combi, 'dodge')), immA: true}, 'B', 20), 1);
+  assert.equal(sv(side(profile(), silenced, '23:'), {...blind(side(profile({ph: 13}), combi, 'dodge')), immA: true}, 'B', 20), 1);
   // The ledger: the -3 is the Dodger's, Silent the attacker's.
-  const r = derive({active: side(profile(), silenced, '22:'), reactive: blind(dodger), rangeCm: 20});
+  const r = derive({active: side(profile(), silenced, '23:'), reactive: blind(dodger), rangeCm: 20});
   const lines = /** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (r.ledger.B).sv).lines;
   assert.deepEqual(lines.find((x) => x.label === 'No LoF'), {value: -3, label: 'No LoF', by: 'B'});
   assert.deepEqual(lines.find((x) => x.label === 'Silent (-6)'), {value: -6, label: 'Silent (-6)', by: 'A'});
 });
 
 test('No LoF chip: in ARO against a shot or template; in the Active Turn on a Dodge it changes', () => {
-  const silenced = option([{id: 22, name: 'Silenced Pistol'}]);
+  const silenced = option([{id: 23, name: 'Silenced Pistol'}]);
   const jammer = option([{id: 21, name: 'Jammer'}]);
   const dodger = side(profile(), combi, 'dodge');
   const shot = side(profile(), combi, '1:');
@@ -193,8 +193,8 @@ test('No LoF chip: in ARO against a shot or template; in the Active Turn on a Do
   assert.equal(noLofHelps(shot, shot.weapon, true, false), true);                             // shooting back: it limits that too
   assert.equal(noLofHelps(dodger, shot.weapon, false, true), false);                          // Active Turn, a shot
   assert.equal(noLofHelps(dodger, side(profile(), flamer, '3:').weapon, false, false), true);
-  assert.equal(noLofHelps(dodger, side(profile(), silenced, '22:').weapon, false, true), true);
-  assert.equal(noLofHelps(dodger, side(profile(), silenced, '22:').weapon, false, false), false); // Silent beyond ZoC
+  assert.equal(noLofHelps(dodger, side(profile(), silenced, '23:').weapon, false, true), true);
+  assert.equal(noLofHelps(dodger, side(profile(), silenced, '23:').weapon, false, false), false); // Silent beyond ZoC
   assert.equal(noLofHelps(dodger, side(profile(), combi, 'dodge').weapon, true, true), false);  // not attacked
   assert.equal(noLofHelps(dodger, side(profile({wip: 13}), jammer, '21:').weapon, true, true), false); // a Comms Attack
   assert.equal(noLofHelps(side(profile({skills: [{id: 67, name: 'Sixth Sense'}]}), combi, 'dodge'), shot.weapon, true, true), false);
