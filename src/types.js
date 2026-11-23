@@ -839,6 +839,7 @@
  * @property {Choice} w the first (or only) mode
  * @property {WeaponEntry[]} [modes] a weapon with several fire modes, in the role's order
  * @property {Map<string, Message>} [labels] the mode labels (rules/weaponModes.js modeLabels), by key
+ * @property {true} [off] can't be picked: No LoF leaves the reactive only No ARO or a Dodge (rules/noLof.js)
  */
 
 /**
@@ -864,7 +865,7 @@
  * @property {boolean} targetedChip the other side's shot or program gains from Targeted, or this side Resets
  * @property {boolean} hackedChip the pick is a Reset
  * @property {boolean} immAChip the pick is a Dodge
- * @property {boolean} noLofChip the pick is a Dodge that No LoF can change (modifiers.js noLofHelps)
+ * @property {boolean} noLofChip No LoF can change the side's roll (rules/noLof.js noLofHelps)
  * @property {boolean} bangbombChip the pick is a Dodge and the trooper has Bangbomb
  * @property {number} surprise Surprise Attack's MOD (active side), 0 without
  * @property {{mod: number} | null} berserk Berserk's MOD (active side, a CC weapon picked)

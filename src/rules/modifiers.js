@@ -5,7 +5,7 @@ import {clamp} from '../lib/clamp.js';
 import {EQUIP, SKILL} from '../army/ids.js';
 import {equipExtra, extraNumbers, hasEquip, hasSkill, skillExtra, skillExtras} from '../army/traits.js';
 import {ZERO_PAIN, canTarget} from '../army/hacking.js';
-import {attackAttribute, isCommsAttack, isPseudo, isTemplateWeapon, parseWeaponMods, rolls, silentMod} from '../army/weapons.js';
+import {attackAttribute, isCommsAttack, isPseudo, isTemplateWeapon, parseWeaponMods, rolls} from '../army/weapons.js';
 import {ccOpposingMods, isCcAttack, naturalBornWarrior} from './closeCombat.js';
 import {msg} from '../i18n/message.js';
 
@@ -291,43 +291,6 @@ export const immAHelps = (x) => x?.weapon?.kind === 'dodge';
 /** @param {ResolvedSide | null | undefined} x */
 export const immADodgeMod = (x) => (x?.immA && immAHelps(x) ? IMM_A_DODGE_MOD : 0);
 
-// No LoF (a chip on a Dodge; Alex, 2026-10-31): the attacker is outside the
-// Dodger's LoF (wiki, Dodge and Traits):
-// - -3 in ARO (the attacker inside its ZoC: outside both, it couldn't ARO),
-//   or against a Template Weapon in either turn. One -3 however many apply.
-// - Silent (X): the attacker's weapon adds X when it is inside the Dodger's
-//   ZoC, on top of the -3 (an active Dodger takes it alone).
-// Sixth Sense (or a Fireteam of 5) has a 360° LoF: never out of it, so no
-// chip. A Deployable's -3 (Mines) isn't modelled.
-export const NO_LOF_DODGE_MOD = -3;
-// Can No LoF change x's Dodge of `incoming` (the other side's weapon)? The
-// chip shows only then.
-/**
- * @param {ResolvedSide | null | undefined} x
- * @param {import('../types.js').Choice | null | undefined} incoming
- * @param {boolean} reactive x Dodges in ARO
- */
-export function noLofHelps(x, incoming, reactive) {
-  if (x?.weapon?.kind !== 'dodge' || hasSixthSense(x) || !incoming?.row || !evades(x, incoming)) return false;
-  return reactive || isTemplateWeapon(incoming.row) || silentMod(incoming.row) !== 0;
-}
-// The two MODs on x's Dodge with the chip on: the -3 (`lof`) and the
-// weapon's Silent (X) (`silent`), 0 where they don't apply.
-/**
- * @param {ResolvedSide | null | undefined} x
- * @param {import('../types.js').Choice | null | undefined} incoming
- * @param {boolean} reactive x Dodges in ARO
- * @param {boolean} inZoc the attacker is inside x's ZoC
- */
-export function noLofDodgeMods(x, incoming, reactive, inZoc) {
-  if (!x?.noLof || !noLofHelps(x, incoming, reactive)) return {lof: 0, silent: 0};
-  const row = incoming?.row;
-  return {
-    lof: reactive || isTemplateWeapon(row) ? NO_LOF_DODGE_MOD : 0,
-    silent: inZoc ? silentMod(row) : 0,
-  };
-}
-
 // Bangbomb (+X): the X, 0 without the equipment.
 /** @param {MaybeTraits} traits */
 export function bangbombValue(traits) {
@@ -338,24 +301,19 @@ export function bangbombValue(traits) {
 // Bangbomb (+X): a toggle on the Dodge of a trooper with it (Alex,
 // 2026-11-03), +X to its Dodge against `incoming` (the attacker's weapon;
 // nothing when it isn't attacking). Struck against a Template Weapon (Direct
-// or Impact), and with No LoF from beyond the ZoC: it needs the attacker in
-// the user's LoF or ZoC. A shot in the back that No LoF doesn't change (the
-// Active Turn) the calculator can't see: the player leaves Bangbomb off.
+// or Impact). It needs the attacker in the user's LoF or ZoC: with No LoF a
+// reactive Dodges only inside its ZoC (rules/noLof.js), and a shot in the
+// back in the Active Turn the calculator can't see: the player leaves it off.
 /** @param {ResolvedSide | null | undefined} x */
 export const bangbombHelps = (x) => x?.weapon?.kind === 'dodge' && bangbombValue(x.traits) > 0;
 /**
  * @param {ResolvedSide | null | undefined} x
  * @param {import('../types.js').Choice | null | undefined} incoming
- * @param {boolean} reactive x Dodges in ARO
- * @param {boolean} inZoc the attacker is inside x's ZoC
  * @returns {{value: number, struck: import('../types.js').Message | null} | null} null: off, or nothing to Dodge
  */
-export function bangbombMod(x, incoming, reactive, inZoc) {
+export function bangbombMod(x, incoming) {
   if (!x?.bangbomb || !bangbombHelps(x) || !incoming?.row) return null;
-  const blind = x.noLof && noLofHelps(x, incoming, reactive);
-  const struck = isTemplateWeapon(incoming.row) ? msg('ledger.templateWeapon')
-    : blind && !inZoc ? msg('ledger.outsideLofZoc') : null;
-  return {value: bangbombValue(x.traits), struck};
+  return {value: bangbombValue(x.traits), struck: isTemplateWeapon(incoming.row) ? msg('ledger.templateWeapon') : null};
 }
 
 // BS Attack (-X): while the trooper makes a BS Attack that is rolled, the

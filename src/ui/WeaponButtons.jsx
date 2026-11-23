@@ -34,10 +34,10 @@ const weaponTitle = (w, t) => `${w.name}${modeText(w, t)}`;
  */
 const pick = (side, w) => dispatch({type: 'pickWeapon', side, key: w.key, kind: w.kind, zoc: Boolean(w.zoc)});
 
-/** A toggle on the picked Dodge (Bangbomb, No LoF, IMM-A).
+/** A toggle on the picked Dodge (Bangbomb, IMM-A).
  * @typedef {{key: string, label: string, on: boolean, onToggle: () => void}} DodgeToggle */
 
-// The picked Dodge, expanded: [Dodge | Bangbomb | No LoF | IMM-A]. The
+// The picked Dodge, expanded: [Dodge | Bangbomb | IMM-A]. The
 // name is filled; a toggle that is on is filled at half strength, so it
 // reads as part of the Dodge, not a second pick.
 /** @param {{w: import('../types.js').Choice, toggles: DodgeToggle[], color: string, onPick: () => void}} props */
@@ -69,12 +69,12 @@ export default function WeaponButtons({side, groups, selected, color, dodgeToggl
           role="group" aria-label={shortWeaponName(g.name, t.lang)}>
           {/* A group with modes has their labels, rendered (renderMatchup). */}
           <button type="button" className="g-name" title={`${g.name}: ${/** @type {Map<string, string>} */ (g.labels).get(g.modes[0].key)}`}
-            aria-pressed={g.modes.some((w) => w.key === selected)} onClick={() => pick(side, /** @type {WeaponEntry[]} */ (g.modes)[0])}>
+            aria-pressed={g.modes.some((w) => w.key === selected)} disabled={g.off} onClick={() => pick(side, /** @type {WeaponEntry[]} */ (g.modes)[0])}>
             {shortWeaponName(g.name, t.lang)}
           </button>
           {/** @type {WeaponEntry[]} */ (g.modes).map((w) => (
             <button type="button" key={w.key} className={`g-mode${selected === w.key ? ' on' : ''}`}
-              aria-pressed={selected === w.key} title={weaponTitle(w, t)} onClick={() => pick(side, w)}>
+              aria-pressed={selected === w.key} title={weaponTitle(w, t)} disabled={g.off} onClick={() => pick(side, w)}>
               {/** @type {Map<string, string>} */ (g.labels).get(w.key)}
             </button>
           ))}
@@ -84,7 +84,7 @@ export default function WeaponButtons({side, groups, selected, color, dodgeToggl
       ) : (
         <button type="button" key={g.key} className={`btn${selected === g.w.key ? ` on ${color}` : ''}`}
           aria-pressed={selected === g.w.key} title={isPseudo(g.w) ? undefined : weaponTitle(g.w, t)}
-          onClick={() => pick(side, g.w)}>
+          disabled={g.off} onClick={() => pick(side, g.w)}>
           {isPseudo(g.w) ? render(t, pseudoName(g.w)) : weaponText(g.w, t)}
         </button>
       )))}

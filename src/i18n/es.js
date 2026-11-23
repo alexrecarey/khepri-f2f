@@ -140,7 +140,6 @@ export default {
   'ledger.commsAttack': 'Ataque de Comunicaciones',
   'ledger.closeCombat': 'cuerpo a cuerpo',
   'ledger.template': 'plantilla',
-  'ledger.outsideLofZoc': 'fuera de LDT y ZdC',
   'ledger.templateWeapon': 'Plantilla',
   'ledger.modCap': 'los MOD llegan a ±{cap} como mucho',
   'ledger.belowZero': 'menos de 0: falla siempre',
@@ -371,6 +370,7 @@ export default {
   // The ledger cards
   'ledger.mods': 'MOD del {side}',
   'ledger.noAro': 'Sin ORA: no tira.',
+  'ledger.noLofNoAro': 'El atacante está fuera de su LDT y su ZdC: no puede declarar ORA.',
   'ledger.successValue': 'Valor de Éxito',
   'ledger.saveTitle': 'Salvación del objetivo',
   'ledger.burstTitle': 'Ráfaga',

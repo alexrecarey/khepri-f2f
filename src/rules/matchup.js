@@ -14,6 +14,7 @@ import {rangeOf} from './ranges.js';
 import {hasNoEffect, noEffectBy} from './saves.js';
 import {isSpecOps} from './trooper.js';
 import {isCcAttack} from './closeCombat.js';
+import {attackerInZoc, noLofForcesNoAro} from './noLof.js';
 import {msg} from '../i18n/message.js';
 import {attackInputs, ccAttackInputs} from './attack.js';
 import {evadeInputs, noLofInputs} from './evade.js';
@@ -104,7 +105,10 @@ function sideRoll(x, y, s, ctx) {
     // No ARO exists only on the reactive side: no roll, no template. On the
     // active side it is a leftover (carried over by a swap; swapSides already
     // drops it), so the setup is not complete until a real choice is made.
-    return active ? {incomplete: true} : {roll: {inputs: noLofInputs(s), lines: {kind: 'none'}}};
+    if (active) return {incomplete: true};
+    // No LoF beyond the ZoC against a shot: No ARO is all it has (noLof.js).
+    const forced = noLofForcesNoAro(x, y?.weapon, attackerInZoc(s, ctx.rangeCm, ctx.rangeCmB));
+    return {roll: {inputs: noLofInputs(s), lines: {kind: 'none', ...(forced && {reason: msg('ledger.noLofNoAro')})}}};
   }
   if (attackStat(x.profile, w.row) <= 0) {
     // The error names the roll: an Attack in the Active Turn, an ARO otherwise.

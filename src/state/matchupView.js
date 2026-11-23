@@ -13,8 +13,9 @@ import {defaultWeapon, sortWeapons} from '../rules/defaultWeapon.js';
 import {buildLedger, renderDerived} from '../rules/ledger.js';
 import {deriveInputs} from '../rules/matchup.js';
 import {
-  bangbombHelps, fireteamHelps, firewallMod, hackedHelps, hasNoCover, immAHelps, noLofHelps, surpriseAttackOffered, targetedHelps, targetedResetHelps,
+  bangbombHelps, fireteamHelps, firewallMod, hackedHelps, hasNoCover, immAHelps, surpriseAttackOffered, targetedHelps, targetedResetHelps,
 } from '../rules/modifiers.js';
+import {attackerInZoc, noLofChoices, noLofHelps, withNoLofPick} from '../rules/noLof.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {visibility} from '../rules/visibility.js';
 import {berserkHelps, berserkMod, ccAllies, ccAlliesMax, isCcAttack} from '../rules/closeCombat.js';
@@ -53,6 +54,19 @@ function resolveSide(army, sel, side) {
   const key = resolved?.option && resolved.profile ? defaultWeapon(resolved.weapons, ROLE[side])?.key ?? 'dodge' : null;
   // A key means a resolved side with a loadout.
   return {sel: {...sel, weaponKey: key}, resolved: key ? withWeapon(/** @type {ResolvedSide} */ (resolved), key) : resolved};
+}
+
+// The reactive with the pick No LoF leaves it (rules/noLof.js), its key in
+// `sel` too, like a default weapon.
+/**
+ * @param {Resolution} resolution
+ * @param {ResolvedSide | null} other
+ * @param {boolean} inZoc
+ * @returns {Resolution}
+ */
+function noLofSide({sel, resolved}, other, inZoc) {
+  const r = withNoLofPick(resolved, other?.weapon, inZoc);
+  return r === resolved ? {sel, resolved} : {sel: {...sel, weaponKey: r?.weapon?.key ?? sel.weaponKey}, resolved: r};
 }
 
 // Weapon buttons in list order, a weapon's fire modes gathered into one group
@@ -111,9 +125,10 @@ function bandMod(resolved, to) {
  * @param {Side} side
  * @param {Resolution} resolution
  * @param {ResolvedSide | null} other
+ * @param {boolean} inZoc the other side attacks from inside this side's ZoC
  * @returns {SideView}
  */
-function sideView(army, side, {sel, resolved}, other) {
+function sideView(army, side, {sel, resolved}, other, inZoc) {
   const weapons = resolved?.weapons ?? [];
   const ccWeapons = resolved?.ccWeapons ?? [];
   const programs = resolved?.programs ?? [];
@@ -124,10 +139,13 @@ function sideView(army, side, {sel, resolved}, other) {
   // Team-Ops: the unit's chart and TacBall options (teamOps means it has them, rules/trooper.js).
   const upgrades = resolved?.teamOps ? resolved.unit.upgrades : null;
   const vanilla = resolved ? vanillaOf(army, resolved.factionId) : null;
+  // No LoF on the reactive: the buttons for what it can't declare are off.
+  const only = /** @type {string[] | null} */ (noLofChoices(resolved, other?.weapon, side === 'B', inZoc));
   return {
     sel, resolved, weapons, ccWeapons, programs, pseudo,
     // CC weapons and Hacking Programs are weapons like any other, after the BS ones.
-    groups: weaponGroups([...weapons, ...ccWeapons, ...programs, ...pseudo], ROLE[side]),
+    groups: weaponGroups([...weapons, ...ccWeapons, ...programs, ...pseudo], ROLE[side])
+      .map((g) => (only && !only.includes(g.w.kind) ? {...g, off: true} : g)),
     cc,
     // A side CC attacking may count allies in contact, as many as fit around
     // the other side's base.
@@ -142,14 +160,15 @@ function sideView(army, side, {sel, resolved}, other) {
     // Hacked, the trooper's own Firewall can't be switched off.
     firewallRequired: firewallMod(resolved?.traits) !== 0,
     // Situation chips that follow the pick: Hacked for a Reset, IMM-A for a
-    // Dodge, No LoF for a Dodge it can change, Bangbomb for one who has it. Targeted: while the other side's shot or program gains from it,
-    // or this side Resets (-3 to it).
+    // Dodge, Bangbomb for one who has it. Targeted: while the other side's
+    // shot or program gains from it, or this side Resets (-3 to it). No LoF:
+    // in ARO against a shot or template, or on a Dodge it changes.
     // Fireteam, only while the pick gets a bonus from it.
     fireteamChip: fireteamHelps(resolved),
     targetedChip: targetedHelps(other) || targetedResetHelps(resolved),
     hackedChip: hackedHelps(resolved),
     immAChip: immAHelps(resolved),
-    noLofChip: noLofHelps(resolved, other?.weapon, side === 'B'),
+    noLofChip: noLofHelps(resolved, other?.weapon, side === 'B', inZoc),
     bangbombChip: bangbombHelps(resolved),
     // Surprise Attack's MOD, offered only on the active side.
     surprise: surpriseAttackOffered(resolved, side === 'A'),
@@ -197,10 +216,11 @@ export function matchupCore(army, matchup) {
   const hasSelection = Boolean(matchup.A.unitId || matchup.B.unitId);
   // Each side resolved once; the views need both, for what follows the other
   // side's pick.
+  const zoc = {A: attackerInZoc('A', matchup.rangeCm, rangeCmB(matchup)), B: attackerInZoc('B', matchup.rangeCm, rangeCmB(matchup))};
   const a = resolveSide(army, matchup.A, 'A');
-  const b = resolveSide(army, matchup.B, 'B');
-  const A = sideView(army, 'A', a, b.resolved);
-  const B = sideView(army, 'B', b, a.resolved);
+  const b = noLofSide(resolveSide(army, matchup.B, 'B'), a.resolved, zoc.B);
+  const A = sideView(army, 'A', a, b.resolved, zoc.A);
+  const B = sideView(army, 'B', b, a.resolved, zoc.B);
   if (!army) {
     return {ready: false, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones, A, B,
       derived: null, params: null, ledger: null, bands: RANGE_BANDS.map((b) => ({to: b.to})), hasSelection, complete: false, targets: null};
