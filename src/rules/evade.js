@@ -19,6 +19,11 @@ import {compact, line, note, section, statLabel, svSection} from './lines.js';
 /** @typedef {import('../types.js').Params} Params */
 /** @typedef {import('../types.js').Evader} Evader */
 
+// Why a Dodge MOD is struck: the reason keys its rules return, worded.
+const STRUCK_BY = {template: msg('ledger.templateWeapon'), sixthSense: msg('skill.sixthSenseDodge')};
+/** @param {keyof typeof STRUCK_BY | null} key */
+const struckBy = (key) => (key ? STRUCK_BY[key] : null);
+
 // A Dodge: one PH roll (Dodge MODs, Bangbomb, IMM-A, No LoF and the Fireteam's +1 included,
 // Dodge (+1SD) as Special Dice) that causes no Saving Rolls. `incoming`: the
 // weapon being Dodged, if any (null when the attacker has no line of fire).
@@ -42,10 +47,10 @@ function dodgeInputs(x, y, side, incoming, ctx) {
     d.ph !== null ? line(d.ph, msg('ledger.dodgePh', {ph: d.ph}), side) : line(x.profile.ph ?? 0, statLabel(x, 'ph'), null),
     d.mod && line(d.mod, msg('skill.dodgeMod', {mod: `+${d.mod}`}), side),
     ft && line(ft, msg('ledger.fireteam', {size: x.ftSize}), side),
-    bang && line(bang.value, msg('equip.bangbombMod', {mod: `+${bang.value}`}), side, bang.struck),
+    bang && line(bang.value, msg('equip.bangbombMod', {mod: `+${bang.value}`}), side, struckBy(bang.struckBy)),
     immADodgeMod(x) && line(immADodgeMod(x), msg('chip.immA'), side),
-    noLof.lof && line(noLof.lof, msg('chip.noLof'), side, noLof.struck),
-    noLof.silent && line(noLof.silent, msg('trait.silentMod', {mod: noLof.silent}), o, noLof.struck),
+    noLof.lof && line(noLof.lof, msg('chip.noLof'), side, struckBy(noLof.struckBy)),
+    noLof.silent && line(noLof.silent, msg('trait.silentMod', {mod: noLof.silent}), o, struckBy(noLof.struckBy)),
     ...(y && incoming ? ctx.opposing[side] : []),
   ]);
   const {sv, notes} = svSection(lines, side);

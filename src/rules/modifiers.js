@@ -309,11 +309,11 @@ export const bangbombHelps = (x) => x?.weapon?.kind === 'dodge' && bangbombValue
 /**
  * @param {ResolvedSide | null | undefined} x
  * @param {import('../types.js').Choice | null | undefined} incoming
- * @returns {{value: number, struck: import('../types.js').Message | null} | null} null: off, or nothing to Dodge
+ * @returns {{value: number, struckBy: 'template' | null} | null} null: off, or nothing to Dodge
  */
 export function bangbombMod(x, incoming) {
   if (!x?.bangbomb || !bangbombHelps(x) || !incoming?.row) return null;
-  return {value: bangbombValue(x.traits), struck: isTemplateWeapon(incoming.row) ? msg('ledger.templateWeapon') : null};
+  return {value: bangbombValue(x.traits), struckBy: isTemplateWeapon(incoming.row) ? 'template' : null};
 }
 
 // BS Attack (-X): while the trooper makes a BS Attack that is rolled, the

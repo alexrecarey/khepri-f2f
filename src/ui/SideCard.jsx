@@ -61,15 +61,10 @@ export default function SideCard({side, view, onOpenPicker, onUpgrade}) {
   const t = useT();
   const color = ROLE[side];
   // A side card is drawn for a picked trooper (MatchupScreen).
-  const {sel, resolved, groups, cc, ccAllies, ccAlliesMax, noCover, coverOn, hacked, firewallRequired, fireteamChip, targetedChip, hackedChip, immAChip, noLofChip, bangbombChip, surprise,
+  const {sel, resolved, groups, cc, ccAllies, ccAlliesMax, noCover, coverOn, hacked, firewallRequired, fireteamChip, targetedChip, hackedChip, noLofChip, dodgeToggles, surprise,
     berserk, supportware, teamOps, faction, crest, short, loadout} = /** @type {import('../types.js').SideView & {resolved: import('../types.js').ResolvedSide}} */ (view[side]);
   const unit = resolved?.unit;
   const option = resolved?.option;
-  // The picked Dodge's own toggles, where the view says they apply.
-  const dodgeToggles = [
-    bangbombChip && {key: 'bangbomb', label: t('chip.bangbomb'), on: sel.bangbomb, onToggle: () => patch(side, {bangbomb: !sel.bangbomb})},
-    immAChip && {key: 'immA', label: t('chip.immA'), on: sel.immA, onToggle: () => patch(side, {immA: !sel.immA})},
-  ].filter((x) => x !== false);
 
   return (
     <section className="card" data-side={side} aria-label={t('side.trooper', {side: t(`side.${color}`)})}>

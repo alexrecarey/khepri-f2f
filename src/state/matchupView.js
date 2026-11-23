@@ -69,6 +69,17 @@ function noLofSide({sel, resolved}, other, inZoc) {
   return r === resolved ? {sel, resolved} : {sel: {...sel, weaponKey: r?.weapon?.key ?? sel.weaponKey}, resolved: r};
 }
 
+// The picked Dodge's own toggles, in button order, where they apply: each
+// a key of the side's selection and whether it is on.
+/**
+ * @param {ResolvedSide | null} resolved
+ * @returns {import('../types.js').DodgeToggle[]}
+ */
+const dodgeToggles = (resolved) => [
+  bangbombHelps(resolved) && {key: /** @type {const} */ ('bangbomb'), on: Boolean(resolved?.bangbomb)},
+  immAHelps(resolved) && {key: /** @type {const} */ ('immA'), on: Boolean(resolved?.immA)},
+].filter((x) => x !== false);
+
 // Weapon buttons in list order, a weapon's fire modes gathered into one group
 // (a CC Mode joins its weapon's BS Mode: Vorpal, Kobra Pistol) and put in
 // their order for the side's role:
@@ -168,9 +179,8 @@ function sideView(army, side, {sel, resolved}, other, inZoc) {
     fireteamChip: fireteamHelps(resolved) || (side === 'B' && fireteamLiftsNoLof(resolved, other?.weapon, inZoc)),
     targetedChip: targetedHelps(other) || targetedResetHelps(resolved),
     hackedChip: hackedHelps(resolved),
-    immAChip: immAHelps(resolved),
     noLofChip: noLofHelps(resolved, other?.weapon, side === 'B', inZoc),
-    bangbombChip: bangbombHelps(resolved),
+    dodgeToggles: dodgeToggles(resolved),
     // Surprise Attack's MOD, offered only on the active side.
     surprise: surpriseAttackOffered(resolved, side === 'A'),
     // Berserk's MOD, offered only on the active side (a Long Skill) while it

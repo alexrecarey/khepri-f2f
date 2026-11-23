@@ -34,29 +34,32 @@ const weaponTitle = (w, t) => `${w.name}${modeText(w, t)}`;
  */
 const pick = (side, w) => dispatch({type: 'pickWeapon', side, key: w.key, kind: w.kind, zoc: Boolean(w.zoc)});
 
-/** A toggle on the picked Dodge (Bangbomb, IMM-A).
- * @typedef {{key: string, label: string, on: boolean, onToggle: () => void}} DodgeToggle */
+/**
+ * @param {import('../types.js').Side} side
+ * @param {import('../types.js').DodgeToggle} x
+ */
+const toggle = (side, x) => dispatch({type: 'patchSide', side, patch: {[x.key]: !x.on}});
 
 // The picked Dodge, expanded: [Dodge | Bangbomb | IMM-A]. The
 // name is filled; a toggle that is on is filled at half strength, so it
 // reads as part of the Dodge, not a second pick.
-/** @param {{w: import('../types.js').Choice, toggles: DodgeToggle[], color: string, onPick: () => void}} props */
-function DodgeGroup({w, toggles, color, onPick}) {
+/** @param {{side: import('../types.js').Side, w: import('../types.js').Choice, toggles: import('../types.js').DodgeToggle[], color: string}} props */
+function DodgeGroup({side, w, toggles, color}) {
   const t = useT();
   const name = render(t, pseudoName(/** @type {import('../types.js').PseudoEntry} */ (w)));
   return (
     <span className={`btn-group on ${color}`} role="group" aria-label={name}>
-      <button type="button" className="g-name" aria-pressed onClick={onPick}>{name}</button>
+      <button type="button" className="g-name" aria-pressed onClick={() => pick(side, w)}>{name}</button>
       {toggles.map((x) => (
-        <button type="button" key={x.key} className={`g-mode g-toggle${x.on ? ' on' : ''}`} aria-pressed={x.on} onClick={x.onToggle}>
-          {x.label}
+        <button type="button" key={x.key} className={`g-mode g-toggle${x.on ? ' on' : ''}`} aria-pressed={x.on} onClick={() => toggle(side, x)}>
+          {t(`chip.${x.key}`)}
         </button>
       ))}
     </span>
   );
 }
 
-/** @param {{side: import('../types.js').Side, groups: import('../types.js').WeaponGroup[], selected: string | null, color: string, dodgeToggles?: DodgeToggle[]}} props */
+/** @param {{side: import('../types.js').Side, groups: import('../types.js').WeaponGroup[], selected: string | null, color: string, dodgeToggles?: import('../types.js').DodgeToggle[]}} props */
 export default function WeaponButtons({side, groups, selected, color, dodgeToggles = []}) {
   const t = useT();
   return (
@@ -80,7 +83,7 @@ export default function WeaponButtons({side, groups, selected, color, dodgeToggl
           ))}
         </span>
       ) : selected === g.w.key && g.w.kind === 'dodge' && dodgeToggles.length > 0 ? (
-        <DodgeGroup key={g.key} w={g.w} toggles={dodgeToggles} color={color} onPick={() => pick(side, g.w)} />
+        <DodgeGroup key={g.key} side={side} w={g.w} toggles={dodgeToggles} color={color} />
       ) : (
         <button type="button" key={g.key} className={`btn${selected === g.w.key ? ` on ${color}` : ''}`}
           aria-pressed={selected === g.w.key} title={isPseudo(g.w) ? undefined : weaponTitle(g.w, t)}
