@@ -105,9 +105,9 @@ test('browse: type tiles and units A-Z for a faction', () => {
 });
 
 // The scoreboard floors. Raise them when the matcher improves; a drop means a
-// change made search worse for some names. (English 97.8%, Spanish 96.7%
+// change made search worse for some names. (English 98.7%, Spanish 98.0%
 // when a query several units are named by counted for any of them.)
-const TOP1_FLOOR = 0.965;
+const TOP1_FLOOR = 0.975;
 test('scoreboard: generated typos and hard cases', () => {
   const typo = score(searcher, buildCorpus(index.units));
   assert.equal(typo.all.found, typo.all.n, 'every generated query finds its unit');
@@ -282,4 +282,14 @@ test('scoreboard: a query several units are named by is a top 1 for any of them'
 test('a unit of peripherals alone is found by its name', () => {
   assert.equal(searcher.search({query: 'chaksa servants'}).units[0]?.short, 'Chaksa Servants');
   assert.equal(searcher.search({query: 'chak'}).units.some((u) => u.short === 'Chaksa Servants'), true);
+});
+
+// With its SpecBots no longer winning on points, Kaizoku Spec-Ops tied with
+// the cheaper Team-Ops trooper Kaizoku-1 Spec-Ops, whose name also holds every
+// word typed. The query that spells a whole short name lists that unit first.
+test('a query spelling a whole short name beats a longer name holding it', () => {
+  for (const query of ['kaizoku spec ops', 'kaezoku spec ops', 'indigo spec ops']) {
+    assert.equal(firstUnit(query), query.startsWith('indigo') ? 'Índigo Spec-Ops' : 'Kaizoku Spec-Ops', query);
+  }
+  assert.equal(firstUnit('kaizoku 1 spec ops'), 'Kaizoku-1 Spec-Ops');
 });

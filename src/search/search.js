@@ -53,9 +53,12 @@ export function createSearch(index) {
   const peripheralSkill = index.skills.findIndex((sk) => sk.id === SKILL.PERIPHERAL);
   /** @param {IndexRow} row */
   const isPeripheral = (row) => row.skills.includes(peripheralSkill);
-  const hasController = new Set(rows.filter((r) => !isPeripheral(r)).map((r) => r.unitId));
+  const hasController = new Set(rows.filter((r) => !isPeripheral(r)).map(rowKey));
   /** @param {IndexRow} row */
-  const ridesAlong = (row) => isPeripheral(row) && hasController.has(row.unitId);
+  const ridesAlong = (row) => isPeripheral(row) && hasController.has(rowKey(row));
+  const shortWords = new Map(index.units.map((u) => [keyOfUnit(u), words(u.short).length]));
+  /** @param {IndexRow} row */
+  const shortLength = (row) => shortWords.get(rowKey(row)) ?? 0;
   const factionName = new Map(index.factions.map((f) => [f.id, f.name]));
 
   // word -> postings [rowId, field, weaponIndex], plus its sound key. Unit and
@@ -179,6 +182,9 @@ export function createSearch(index) {
       let score = parts.reduce((s, p) => s + p.cost, 0) + (ridesAlong(row) ? PERIPHERAL_COST : 0);
       // The whole query spells the unit's short name: rank it on top.
       if (parts.every((p) => p.field === FIELD.SHORT) && parts.every((p) => p.tier <= TIER.PREFIX)) score -= 5;
+      // A query as long as the short name, all of it in the name, names that unit and
+      // not a longer one: "kaizoku spec ops" is Kaizoku Spec-Ops, not Kaizoku-1 Spec-Ops.
+      if (parts.length >= shortLength(row) && parts.every((p) => p.field === FIELD.SHORT)) score -= 1;
       const weaponPart = parts.find((p) => p.weapon >= 0);
       out.push({
         row,
