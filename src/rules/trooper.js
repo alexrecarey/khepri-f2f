@@ -47,10 +47,10 @@ export function bsAttackWeaponMods(traits) {
  * @param {MaybeTraits} traits
  * @returns {WeaponEntry[]}
  */
-// A Smoke grenade is marked `throwsClose` (rules/smoke.js), for the pick to
-// move its side's range.
 export function trooperWeapons(option, weapons, traits) {
   const bs = bsAttackWeaponMods(traits);
+  // A Smoke grenade is marked `throwsClose` (rules/smoke.js), for the pick to
+  // move its side's range.
   const list = withSkill(bsWeapons(option, weapons), {ap: bs.ap, cont: bs.cont, sr: bs.sr, ammo: bs.t2 ? 'T2' : null, hasAmmo: (row) => hasAmmo(row, 'T2')});
   return list.map((w) => (throwsClose(w) ? {...w, throwsClose: /** @type {const} */ (true)} : w));
 }

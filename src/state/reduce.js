@@ -96,7 +96,8 @@ const setSide = (state, side, sel) => ({...state, matchup: {...state.matchup, [s
  * @returns {Matchup}
  */
 function unsplit(m, side) {
-  if (m.splitBy !== side || m.rangeCmB == null) return m.splitBy === side ? {...m, splitBy: null} : m;
+  if (m.splitBy !== side) return m;
+  if (m.rangeCmB == null) return {...m, splitBy: null};
   return {...m, rangeCm: side === 'A' ? m.rangeCmB : m.rangeCm, rangeCmB: null, splitBy: null};
 }
 

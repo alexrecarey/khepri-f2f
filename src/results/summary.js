@@ -19,9 +19,16 @@ const sum = (rows) => rows.reduce((s, r) => s + r.chance, 0);
 /** @param {WoundRow[]} rows */
 const woundsPerOrder = (rows) => rows.reduce((t, r) => t + r.wounds * r.chance, 0);
 
+// A target whose only step is a State (Smoke placed, Isolated): that State's
+// label, which names what a "wound" is; else null.
+/**
+ * @param {WoundStep[] | null | undefined} steps
+ * @returns {import('../types.js').Message | null}
+ */
+export const onlyState = (steps) => (steps?.length === 1 && steps[0].state ? steps[0].label : null);
+
 // One side's attack when nothing opposes it (sideResult = result.unopposed.x).
-// `steps`: its target's states; one that is a State (Smoke placed, Isolated)
-// names what a "wound" is.
+// `steps`: its target's states (onlyState).
 /**
  * @param {import('../types.js').EngineResult} sideResult
  * @param {Role} player
@@ -34,8 +41,7 @@ function attackOnItsOwn(sideResult, player, steps) {
   // BAR_WOUNDS entries: exactly 1, 2 and 3+.
   const wounds = /** @type {[number, number, number]} */ (Array.from({length: BAR_WOUNDS}, (_, i) => i + 1).map((w) => sum(rows.filter((r) => (w === BAR_WOUNDS ? r.wounds >= w : r.wounds === w)))));
   const wounded = wounds.reduce((a, b) => a + b, 0);
-  const state = steps?.length === 1 && steps[0].state ? steps[0].label : null;
-  return {wpo: woundsPerOrder(rows), wounds, wounded, saved: Math.max(0, hit - wounded), miss: Math.max(0, 1 - hit), state};
+  return {wpo: woundsPerOrder(rows), wounds, wounded, saved: Math.max(0, hit - wounded), miss: Math.max(0, 1 - hit), state: onlyState(steps)};
 }
 
 // Each side's ramp (ramp.js), mildest to deepest, cut into six steps (1

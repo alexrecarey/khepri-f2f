@@ -79,7 +79,7 @@ export const PARAMS = /** @type {Record<ParamKey, ParamSpec>} */ ({
   ...side('B', 1),
   fixedFaceToFace: bool(),   // Reactive rolls a fixed value (e.g. AC2)
   // Nothing is opposed although both sides roll: each roll is a Normal Roll
-  // (a Multispectral Visor against Smoke; calculate.js isUnopposed).
+  // (Smoke against an MSV, a CC or a Comms Attack; calculate.js isUnopposed).
   unopposed: bool(),
 });
 

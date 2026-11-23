@@ -24,9 +24,6 @@ function ammoRank({row, mods}) {
 /** @param {WeaponEntry} w */
 const impactTemplate = ({row}) => isImpactTemplate(row);
 
-/** @param {WeaponEntry} w */
-const bestRangeBand = ({row}) => bestBandTo(row);
-
 // Sort keys per role, lower wins, ties keep menu order. Neither depends on the
 // shared range, so changing it never swaps the weapon. A Comms Attack (Jammer)
 // or Smoke only when there's nothing else: they isolate or block LoF, they
@@ -39,7 +36,7 @@ const support = ({row}) => (isCommsAttack(row) || isSmoke(row) ? 1 : 0);
 /** @type {Record<Role, (w: WeaponEntry) => number[]>} */
 const DEFAULT_WEAPON_KEYS = {
   active: (w) => [support(w), -((w.row.burst ?? 1) + w.mods.burst), impactTemplate(w) ? 0 : 1, ammoRank(w)],
-  reactive: (w) => [support(w), w.mods.sd > 0 ? 0 : 1, -bestRangeBand(w), impactTemplate(w) ? 0 : 1, ammoRank(w)],
+  reactive: (w) => [support(w), w.mods.sd > 0 ? 0 : 1, -bestBandTo(w.row), impactTemplate(w) ? 0 : 1, ammoRank(w)],
 };
 
 // The list sorted best first for the role by the keys above.

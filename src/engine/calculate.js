@@ -89,8 +89,8 @@ export const engineInput = (p) => /** @type {EngineInput} */ ({...sideInput(p, '
 const attacks = (p, s) => p[`template${s}`] || (p[`burst${s}`] > 0 && p[`ammo${s}`] !== 'DODGE');
 
 // A Direct Template against an attack, or two attacks that don't oppose each
-// other (p.unopposed: Smoke against a trooper whose Multispectral Visor sees
-// through it): nothing is opposed, each side's attack is its own roll (a
+// other (p.unopposed: Smoke against a Multispectral Visor that sees through
+// it, or against a CC or Comms Attack, which needs no LoF): nothing is opposed, each side's attack is its own roll (a
 // Normal Roll, or the template's automatic hits).
 /** @param {Params} p */
 export const isUnopposed = (p) => (p.unopposed || p.templateA || p.templateB) && attacks(p, 'A') && attacks(p, 'B');
@@ -176,7 +176,8 @@ export function formatResult(p, {rolls: count, outcomes}) {
  * output: the engine's calculate, see worker.js) and returns the result the display reads.
  *
  * A Direct Template against an attack, or two rolls nothing opposes
- * (isUnopposed), is two engine runs, one per side. The result then holds 'unopposed': {active, reactive}, one result
+ * (isUnopposed), is two engine runs, one per side. The result then holds
+ * 'unopposed': {active, reactive}, one result
  * per side, each without the other's rows; its top-level 'faceToFace' and
  * 'expectedWounds' keep only each side's own rows (no 'fail').
  * @param {Params} p
