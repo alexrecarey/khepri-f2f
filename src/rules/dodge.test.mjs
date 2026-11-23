@@ -10,6 +10,7 @@ import {pseudoName, pseudoWeapons} from './trooper.js';
 import {bangbombHelps} from './modifiers.js';
 import {attackerInZoc, fireteamLiftsNoLof, noLofChoices, noLofHelps, withNoLofPick} from './noLof.js';
 import {side, combi, pick, label, warhorse, flamer, duel, dodgeSkill} from './testMatchups.mjs';
+import {dodgeWinsByNone, templateDodger} from './evade.js';
 
 /** @typedef {import('../types.js').TraitRef} TraitRef */
 /** @typedef {import('../types.js').LedgerSide} LedgerSide */
@@ -199,4 +200,19 @@ test('No LoF chip: in ARO against a shot or template; in the Active Turn on a Do
   assert.equal(noLofHelps(dodger, side(profile({wip: 13}), jammer, '21:').weapon, true, true), false); // a Comms Attack
   assert.equal(noLofHelps(side(profile({skills: [{id: 67, name: 'Sixth Sense'}]}), combi, 'dodge'), shot.weapon, true, true), false);
   assert.equal(noLofHelps({...dodger, ftSize: 5}, shot.weapon, true, false), true);           // Sixth Sense from the team: the chip stays
+});
+
+test('a Dodge against a Direct Template succeeds when nobody wins', () => {
+  assert.equal(dodgeWinsByNone({templateA: true}, 'B'), true);
+  assert.equal(dodgeWinsByNone({templateA: true}, 'A'), false);
+  assert.equal(dodgeWinsByNone({templateB: false}, 'A'), false);
+  assert.equal(dodgeWinsByNone(null, 'B'), false);
+});
+
+test('the side that Dodges a Direct Template', () => {
+  assert.equal(templateDodger({templateA: true, ammoB: 'DODGE'}), 'B');
+  assert.equal(templateDodger({templateB: true, ammoA: 'DODGE'}), 'A');
+  assert.equal(templateDodger({templateA: true, ammoB: 'N'}), null);
+  assert.equal(templateDodger({ammoA: 'N', ammoB: 'DODGE'}), null);
+  assert.equal(templateDodger(null), null);
 });

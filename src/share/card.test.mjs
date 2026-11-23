@@ -1,7 +1,7 @@
 // Run with: yarn test:js
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {decodeCard, encodeCard, numbersLine, previewDescription, previewTitle} from './card.js';
+import {decodeCard, encodeCard, leadingSide, numbersLine, previewDescription, previewTitle} from './card.js';
 
 const side = (n, u, w, s, c) => ({n, l: 'wounds / order', u, w, s, c});
 /** @type {import('./card.js').Card} */
@@ -52,4 +52,19 @@ test('hand-written cards, field by field: a side needs its number and unit, the 
   assert.equal(junk({...card, k: 'WPO'}), null);
   assert.equal(junk([card]), null);
   assert.equal(decodeCard('x'.repeat(2001)), null);
+});
+
+test('a side may say its number is another kind; an unknown one is dropped', () => {
+  const dodging = {...card, b: {...card.b, n: '35.6%', k: /** @type {const} */ ('win'), l: 'dodges'}};
+  assert.deepEqual(decodeCard(encodeCard(dodging)), dodging);
+  assert.equal(decodeCard(encodeCard(/** @type {import('./card.js').Card} */ (/** @type {unknown} */ ({...card, a: {...card.a, k: 'odds'}}))))?.a.k, undefined);
+});
+
+test('the leading side: the bigger number of the same kind, ties to a', () => {
+  assert.equal(leadingSide(card), 'a');
+  assert.equal(leadingSide({...card, b: {...card.b, n: '0.90'}}), 'b');
+  assert.equal(leadingSide({...card, b: {...card.b, n: '0.81'}}), 'a');
+  // A Dodger's 35.6% against 0.81 wounds per order: no comparison, a tie.
+  assert.equal(leadingSide({...card, b: {...card.b, n: '35.6%', k: 'win'}}), 'a');
+  assert.equal(leadingSide({...card, a: {...card.a, n: '35.6%', k: 'win'}, b: {...card.b, n: '0.46'}}), 'a');
 });

@@ -74,10 +74,10 @@ export function ClassicBody({s, woundBar = true}) {
         <span className="label">{t('results.faceToFace')}</span>
         <div className="bar labelled">
           <span className="seg-a2" style={{width: `${100 * s.win.active}%`}}>{big(s.win.active) ? pct(s.win.active) : ''}</span>
-          <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
+          <span className={s.dodger ? `seg-dodge-${s.dodger}` : 'seg-none'} style={{width: `${100 * s.win.none}%`}}>{s.dodger && big(s.win.none) ? pct(s.win.none) : ''}</span>
           <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`}}>{big(s.win.reactive) ? pct(s.win.reactive) : ''}</span>
         </div>
-        <div className="split"><span>{t('results.sideWins', {side: t('side.active')})}</span><span>{t('classic.nobody', {p: pct(s.win.none)})}</span>
+        <div className="split"><span>{t('results.sideWins', {side: t('side.active')})}</span><span>{t(s.dodger ? 'classic.dodgesP' : 'classic.nobody', {p: pct(s.win.none)})}</span>
           <span>{t('results.sideWins', {side: t('side.reactive')})}</span></div>
       </div>
       {woundBar && (
@@ -135,8 +135,11 @@ export function Breakdown({s}) {
     <div className="breakdown">
       {shows(s.win.active) && head(`${t('results.sideWinsRoll', {side: t('side.active')})} · ${pct(s.win.active)}`, 'c-active', true)}
       {shows(s.win.active) && ladder('active', 'seg-a')}
-      {shows(s.win.none) && head(`${t('results.nobodyWins')} · ${pct(s.win.none)}`, '', !shows(s.win.active))}
-      {row(t('results.bothFail'), s.win.none, 'seg-none n')}
+      {/* Against a Direct Template nobody wins exactly when the Dodger gets away. */}
+      {shows(s.win.none) && (s.dodger
+        ? head(`${t('results.sideDodges', {side: t(`side.${s.dodger}`)})} · ${pct(s.win.none)}`, `c-${s.dodger}`, !shows(s.win.active))
+        : head(`${t('results.nobodyWins')} · ${pct(s.win.none)}`, '', !shows(s.win.active)))}
+      {row(t(s.dodger ? 'results.noHits' : 'results.bothFail'), s.win.none, s.dodger ? `seg-dodge-${s.dodger} n` : 'seg-none n')}
       {shows(s.win.reactive) && head(`${t('results.sideWinsRoll', {side: t('side.reactive')})} · ${pct(s.win.reactive)}`, 'c-reactive', false)}
       {shows(s.win.reactive) && ladder('reactive', 'seg-r')}
       <span className="note overlap-note">{t('results.overlapNote')}</span>

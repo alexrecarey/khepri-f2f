@@ -6,7 +6,7 @@ import {
   LIMITS, bangbombMod, dodgeExtras, evades, fireteamBonuses, hackedResetMod, immADodgeMod, targetedResetMod,
 } from './modifiers.js';
 import {attackerInZoc, noLofDodgeMods} from './noLof.js';
-import {other} from '../lib/side.js';
+import {SIDES, other} from '../lib/side.js';
 import {clamp} from '../lib/clamp.js';
 import {msg} from '../i18n/message.js';
 import {compact, line, note, section, statLabel, svSection} from './lines.js';
@@ -132,3 +132,20 @@ export function evadeInputs(x, y, side, incoming, ctx) {
 export function noLofInputs(side) {
   return /** @type {Partial<Params>} */ ({[`burst${side}`]: 0, [`bonusBurst${side}`]: 0, [`shock${side}`]: false, [`template${side}`]: false});
 }
+
+// Whether side's Dodge succeeds when nobody wins: against a Direct Template
+// the Dodge rolls alone and only cancels the template's hits, which the
+// engine scores as neither side winning (engine-rs template_roll).
+/**
+ * @param {Partial<Params> | null | undefined} p the engine params
+ * @param {Side} side the Dodging side
+ */
+export const dodgeWinsByNone = (p, side) => Boolean(p?.[`template${other(side)}`]);
+
+// The side that Dodges the other's Direct Template, or null. Its chance to
+// dodge is the chance nobody wins (dodgeWinsByNone).
+/**
+ * @param {Partial<Params> | null | undefined} p the engine params
+ * @returns {Side | null}
+ */
+export const templateDodger = (p) => SIDES.find((side) => p?.[`ammo${side}`] === 'DODGE' && dodgeWinsByNone(p, side)) ?? null;
