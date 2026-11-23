@@ -180,11 +180,12 @@ export function createSearch(index) {
       if (!ok) continue;
       const row = rows[rowId];
       let score = parts.reduce((s, p) => s + p.cost, 0) + (ridesAlong(row) ? PERIPHERAL_COST : 0);
+      const allInShort = parts.every((p) => p.field === FIELD.SHORT);
       // The whole query spells the unit's short name: rank it on top.
-      if (parts.every((p) => p.field === FIELD.SHORT) && parts.every((p) => p.tier <= TIER.PREFIX)) score -= 5;
+      if (allInShort && parts.every((p) => p.tier <= TIER.PREFIX)) score -= 5;
       // A query as long as the short name, all of it in the name, names that unit and
       // not a longer one: "kaizoku spec ops" is Kaizoku Spec-Ops, not Kaizoku-1 Spec-Ops.
-      if (parts.length >= shortLength(row) && parts.every((p) => p.field === FIELD.SHORT)) score -= 1;
+      if (allInShort && parts.length >= shortLength(row)) score -= 1;
       const weaponPart = parts.find((p) => p.weapon >= 0);
       out.push({
         row,
