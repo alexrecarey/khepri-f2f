@@ -631,8 +631,9 @@
  * @property {number[]} skills positions in index.skills
  */
 /**
- * One unit in the search index.
- * @typedef {{id: number, name: string, short: string, type: string | null, factions: number[], words: [string, number][]}} IndexUnit
+ * One unit in the search index, or one profile group of a Team-Ops unit
+ * (groupId set; parent: the unit's short name), listed as a unit of its own.
+ * @typedef {{id: number, groupId?: number, parent?: string, name: string, short: string, type: string | null, factions: number[], words: [string, number][]}} IndexUnit
  */
 /**
  * The search index, built from army.json (search/buildIndex.js) at build time
@@ -650,6 +651,8 @@
  * selection needs, its names, and how well it matched.
  * @typedef {object} ProfileHit
  * @property {number} rowId
+ * @property {string} key the listed unit it belongs to (UnitHit.key)
+ * @property {string | null} parent a Team-Ops trooper's unit (UnitHit.parent), else null
  * @property {number} unitId
  * @property {number} factionId the vanilla faction it is listed under
  * @property {number} armyFactionId the real faction the selection loads it from
@@ -671,8 +674,12 @@
  * @property {string[]} matched the index words each typed word matched
  */
 /**
- * A unit as the picker lists it (search/search.js unitHit).
- * @typedef {{unitId: number, name: string, short: string, type: string | null, factionIds: number[], profileCount: number, tier?: number, best?: ProfileHit}} UnitHit
+ * A unit as the picker lists it (search/search.js unitHit). key: what tells
+ * listed units apart ("unitId", or "unitId:groupId" for a Team-Ops trooper,
+ * one profile group listed on its own); groupId and parent (the unit's short
+ * name) are set for such a trooper only.
+ * @typedef {{key: string, unitId: number, groupId: number | null, parent: string | null, name: string, short: string, type: string | null, factionIds: number[],
+ *   profileCount: number, tier?: number, best?: ProfileHit}} UnitHit
  */
 /**
  * What a query finds (search/search.js search).
@@ -683,7 +690,7 @@
  * @typedef {object} Searcher
  * @property {(q?: {query?: string, factionId?: number | null, recentIds?: number[]}) => SearchResult} search
  * @property {(q?: {factionId?: number | null, recentIds?: number[]}) => {recent: ProfileHit[], types: {type: string, count: number}[], units: UnitHit[]}} browse the empty-box view
- * @property {(unitId: number, factionId?: number | null) => ProfileHit[]} unitRows every loadout of one unit in scope
+ * @property {(key: string | number, factionId?: number | null) => ProfileHit[]} unitRows every loadout of one listed unit (a UnitHit's key, or a unit id) in scope
  * @property {(type: string, factionId?: number | null) => UnitHit[]} unitsOfType
  * @property {(pick: {unitId: number, groupId: number, optionId: number, armyFactionId: number}) => number | null} findRow a saved pick's row id today
  * @property {(factionId: number) => number} unitCount units per vanilla faction
@@ -710,7 +717,7 @@
  */
 
 /** A screen pushed inside the picker (state/reduce.js pickerPush).
- * @typedef {{view: 'factions'} | {view: 'type', type: string} | {view: 'unit', unitId: number, name: string}} PickerView */
+ * @typedef {{view: 'factions'} | {view: 'type', type: string} | {view: 'unit', key: string, unitId: number, name: string}} PickerView */
 
 /**
  * The open picker (state/reduce.js openPicker): whose side it picks for, the

@@ -6,7 +6,7 @@ import {useMemo} from 'react';
 import {pickTrooper} from '../../state/actions.js';
 import {ROLE, other} from '../../state/schema.js';
 import {dispatch, getState, useAppState} from '../../state/store.js';
-import {listItems, matchedCount} from './deskList.js';
+import {listItems, matchedCount, paneTarget} from './deskList.js';
 import {orderLoadouts, profileGroups, unitDetail} from '../../state/pickerView.js';
 import {factionNameOf, useRecentIds} from './useRecentIds.js';
 import {useT} from '../i18n.jsx';
@@ -57,18 +57,24 @@ export default function useDeskPicker({searcher, army}) {
   const browsing = !typing && top?.view !== 'type';
   const current = browsing && picker.cursor == null ? null : rows[at] ?? null;
 
-  // The unit in the right pane and its loadouts in scope.
-  const unitId = current?.kind === 'unit' ? current.u.unitId : current?.kind === 'recent' ? current.hit.unitId : null;
-  const factionId = current?.kind === 'unit' ? current.factionId : current?.kind === 'recent' ? current.hit.factionId : null;
-  const unitRows = useMemo(() => (searcher && unitId != null ? searcher.unitRows(unitId, factionId) : []), [searcher, unitId, factionId]);
-  // A unit with several profile groups (Team-Ops, a TAG and its peripheral):
+  // The unit in the right pane (a Team-Ops trooper: its own loadouts only) and its loadouts in scope.
+  const target = paneTarget(current);
+  const unitId = target?.unitId ?? null;
+  const factionId = target?.factionId ?? null;
+  const unitKey = target?.key ?? null;
+  const groupId = target?.groupId ?? null;
+  const unitRows = useMemo(() => (searcher && unitKey != null ? searcher.unitRows(unitKey, factionId) : []), [searcher, unitKey, factionId]);
+  // A unit with several profile groups (a TAG and its peripheral, a Spec-Ops and its SpecBots):
   // the pane shows a section per group, and the arrow keys walk the loadouts
   // in that order.
   const pgroups = useMemo(() => (army ? profileGroups(army, unitRows) : null), [army, unitRows]);
   const loadouts = useMemo(() => (pgroups ? pgroups.flatMap((g) => g.items.map((x) => x.hit)) : orderLoadouts(army, unitRows)),
     [army, unitRows, pgroups]);
   // A unit with rows has a loadout to take the faction from.
-  const detail = useMemo(() => (unitId != null ? unitDetail(army, unitId, /** @type {number} */ (loadouts[0]?.armyFactionId)) : null), [army, unitId, loadouts]);
+  const detail = useMemo(() => (unitId != null ? unitDetail(army, unitId, /** @type {number} */ (loadouts[0]?.armyFactionId), groupId) : null),
+    [army, unitId, loadouts, groupId]);
+  const name = target?.name ?? null;
+  const parent = target?.parent ?? null;
   const profile = detail?.profiles.find((p) => p.id === picker.profileId) ?? detail?.profiles[0] ?? null;
   const lat = Math.min(lcursor, Math.max(0, loadouts.length - 1));
   // On a unit row while typing: the loadout the query matched ("fus ml").
@@ -114,7 +120,7 @@ export default function useDeskPicker({searcher, army}) {
 
   return {
     searcher, army, sides, side, color, query, scope, pane, typing, browsing, factionName, matched,
-    all, browse, items, rows, at, current, unitId, factionId, loadouts, pgroups, detail, profile, lat, best, bestAt,
+    all, browse, items, rows, at, current, unitId, name, parent, factionId, loadouts, pgroups, detail, profile, lat, best, bestAt,
     withProfile, hitFor, pick, otherSide, otherSet, otherName, chips,
   };
 }

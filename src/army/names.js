@@ -17,6 +17,11 @@ export const shortIsc = (isc) => (isc ?? '').split(',')[0].trim();
  */
 export const unitTag = (unit, option) => sharedLoadoutName([option?.name ?? '']) ?? shortIsc(unit?.isc);
 
+// "INTEL-1 SPEC-OPS" -> "Intel-1 Spec-Ops": the Army's capitalised profile
+// names, cased like its unit names.
+/** @param {string} name */
+export const titleCase = (name) => name.toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (_, sep, c) => sep + c.toUpperCase());
+
 // The loadout's own name when it says something the unit name doesn't
 // ("BIPANDRA", "Hacker"), else null. Army names most loadouts after the unit
 // in capitals ("FENNEC" for Fennec Fusiliers, "FUSILIER" for Fusiliers), which

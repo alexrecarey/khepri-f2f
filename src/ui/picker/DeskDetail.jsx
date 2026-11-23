@@ -1,7 +1,7 @@
 // The desk picker's right pane: the highlighted unit with its stats and every
 // loadout as a chart line, or, before typing, factions and unit types to browse.
 import {useEffect} from 'react';
-import {extraLoadoutName, shortIsc} from '../../army/names.js';
+import {shortIsc} from '../../army/names.js';
 import {dispatch} from '../../state/store.js';
 import {CardCrest} from '../Crest.jsx';
 import FactionLogo from '../factionLogo.jsx';
@@ -9,7 +9,7 @@ import {typeName} from './constants.js';
 import {traitLabel} from '../../army/traits.js';
 import {useT} from '../i18n.jsx';
 import DeskLoadout from './DeskLoadout.jsx';
-import {loadoutTag} from '../../state/pickerView.js';
+import {loadoutLabel, loadoutTag} from '../../state/pickerView.js';
 import {setCursor} from './useDeskPicker.js';
 
 // A profile's stats, each label over its value.
@@ -26,7 +26,7 @@ function Stats({stats}) {
   );
 }
 
-// A unit with several profile groups (Team-Ops, a TAG and its peripheral): a
+// A unit with several profile groups (a TAG and its peripheral, a Spec-Ops and its SpecBots): a
 // section per group with its own name, type, stats and skills, then its
 // loadouts. The section names the profile, so a loadout's tag is its skills
 // (canvas, "Picker — a unit with several profiles", desktop).
@@ -60,7 +60,7 @@ function ProfileSections({m, lit}) {
 function UnitPane({m}) {
   const t = useT();
   // Drawn for a highlighted unit (DeskDetail checks both).
-  const {army, detail, profile, factionName, factionId, loadouts, pgroups, pane, lat, best, bestAt, color, pick, withProfile, hitFor, otherSet, otherName} =
+  const {army, detail, name, parent, profile, factionName, factionId, loadouts, pgroups, pane, lat, best, bestAt, color, pick, withProfile, hitFor, otherSet, otherName} =
     /** @type {DeskPickerModel & {detail: NonNullable<DeskPickerModel['detail']>, profile: NonNullable<DeskPickerModel['profile']>}} */ (m);
   // The loadout Enter picks is the lit one: the keyboard's in the loadouts
   // pane, else the one the search matched ("fus ml") on a unit row.
@@ -74,10 +74,11 @@ function UnitPane({m}) {
       <CardCrest slug={profile.crest} />
       <div className="dp-unit">
         <div>
-          <span className="dp-name">{shortIsc(detail.unit.isc)}</span>
+          <span className="dp-name">{name ?? shortIsc(detail.unit.isc)}</span>
+          {/* A Team-Ops trooper listed on its own names its unit after its type. */}
           <div className="note">{factionName(factionId)} · {pgroups
             ? `${t('picker.profiles', {count: pgroups.length})} · ${t('picker.loadoutCount', {count: loadouts.length})}`
-            : typeName(t, profile.type)}</div>
+            : typeName(t, profile.type)}{parent && ` · ${parent}`}</div>
         </div>
         {!pgroups && detail.profiles.length > 1 && (
           <span className="dp-tabs" role="group" aria-label={t('picker.profile')}>
@@ -95,7 +96,7 @@ function UnitPane({m}) {
           <span className="dp-head flush">{t('picker.loadouts')}</span>
           <div className="dp-loadouts" id="dp-loadouts" role="listbox" aria-label={t('picker.loadouts')}>
             {loadouts.map((h, i) => (
-              <DeskLoadout key={h.rowId} h={h} i={i} tag={extraLoadoutName(h.loadout, h.unit) ?? loadoutTag(army, h)} on={i === lit}
+              <DeskLoadout key={h.rowId} h={h} i={i} tag={loadoutLabel(army, h)} on={i === lit}
                 color={color} army={army} onPick={(x) => pick(withProfile(x))} />
             ))}
           </div>

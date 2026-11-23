@@ -56,5 +56,26 @@ export function listItems({searcher, typing, scope, top, all, scoped, browse, fa
 /** @param {Pick<DeskListInput, 'typing' | 'scope' | 'all' | 'scoped'>} input */
 export function matchedCount({typing, scope, all, scoped}) {
   if (!typing || !all || !scoped) return 0;
-  return scope != null ? new Set([...scoped.units, ...all.units].map((u) => u.unitId)).size : all.units.length;
+  return scope != null ? new Set([...scoped.units, ...all.units].map((u) => u.key)).size : all.units.length;
+}
+
+// What the right pane shows for the highlighted row, null for none:
+//   key       the listed unit whose loadouts it lists (a Team-Ops trooper's own)
+//   groupId   the profile group heading it: a unit row's trooper (else the
+//             first group, null), a recent's own group
+//   name, parent  its title, and a Team-Ops trooper's unit after its type
+/**
+ * @param {DeskItem | null} current
+ * @returns {{key: string, unitId: number, factionId: number, groupId: number | null, name: string, parent: string | null} | null}
+ */
+export function paneTarget(current) {
+  if (current?.kind === 'unit') {
+    const {u, factionId} = current;
+    return {key: u.key, unitId: u.unitId, factionId, groupId: u.groupId, name: u.short, parent: u.parent};
+  }
+  if (current?.kind === 'recent') {
+    const {hit} = current;
+    return {key: hit.key, unitId: hit.unitId, factionId: hit.factionId, groupId: hit.groupId, name: hit.unit, parent: hit.parent};
+  }
+  return null;
 }
