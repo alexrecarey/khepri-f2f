@@ -13,11 +13,14 @@ import {useT} from './i18n.jsx';
 /** @param {{s: import('../types.js').Summary, className?: string}} props */
 export function F2FBar({s, className = ''}) {
   const t = useT();
+  const p = {active: pct(s.win.active), none: pct(s.win.none), reactive: pct(s.win.reactive)};
+  // Against a Direct Template nobody wins exactly when the Dodger gets away:
+  // that part is the Dodger's.
   return (
     <div className={`bar${className ? ` ${className}` : ''}`} role="img"
-      aria-label={t('results.f2fBar', {active: pct(s.win.active), none: pct(s.win.none), reactive: pct(s.win.reactive)})}>
+      aria-label={s.dodger ? t('results.f2fBarDodge', {...p, side: t(`side.${s.dodger}`)}) : t('results.f2fBar', p)}>
       <span className="seg-a2" style={{width: `${100 * s.win.active}%`}} />
-      <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
+      <span className={s.dodger ? `seg-dodge-${s.dodger}` : 'seg-none'} style={{width: `${100 * s.win.none}%`}} />
       <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`}} />
     </div>
   );

@@ -165,15 +165,16 @@ function StateRow({st, side, ui, cur}) {
   );
 }
 
-// A row that hurts nobody: grey, and nothing in the bar to point at.
-/** @param {{glyph: string, label: string, p: number, dim?: boolean}} props */
-function PlainRow({glyph, label, p, dim}) {
+// A row that hurts nobody: grey (seg: the Dodger's colour for a Dodge), and
+// nothing in the bar to point at.
+/** @param {{glyph: string, label: string, p: number, dim?: boolean, seg?: string}} props */
+function PlainRow({glyph, label, p, dim, seg = 'seg-none'}) {
   if (!shows(p)) return null;
   return (
     <div className={`srow plain${dim ? ' dim' : ''}`}>
       <span><StateGlyph glyph={glyph} /></span>
       <span className="k">{label}</span>
-      <span className="track"><span className="b seg-none" style={{width: `max(2px, ${100 * p}%)`}} /></span>
+      <span className="track"><span className={`b ${seg}`} style={{width: `max(2px, ${100 * p}%)`}} /></span>
       <span className="ex">{pct(p)}</span>
       <span className="p">{pct(p)}</span>
     </div>
@@ -205,8 +206,12 @@ export function StateList({s, ui}) {
       {shows(s.win.active) && head('active', `${t('results.sideWins', {side: t('side.active')})} · ${pct(s.win.active)}`)}
       {shows(s.win.active) && rows('active')}
       {shows(s.win.active) && saves('active')}
-      {shows(s.win.none) && <div className={`shead static${cur.focus ? ' dim' : ''}`}><span className="t">{t('results.nobodyWins')} · {pct(s.win.none)}</span></div>}
-      {shows(s.win.none) && <PlainRow glyph="tie" label={t('results.bothMissOrTie')} p={s.win.none} dim={Boolean(cur.focus)} />}
+      {/* Against a Direct Template nobody wins exactly when the Dodger gets away. */}
+      {shows(s.win.none) && <div className={`shead static${cur.focus ? ' dim' : ''}`}>
+        <span className={`t${s.dodger ? ` c-${s.dodger}` : ''}`}>{s.dodger ? t('results.sideDodges', {side: t(`side.${s.dodger}`)}) : t('results.nobodyWins')} · {pct(s.win.none)}</span>
+      </div>}
+      {shows(s.win.none) && <PlainRow glyph="tie" label={t(s.dodger ? 'results.noHits' : 'results.bothMissOrTie')} p={s.win.none} dim={Boolean(cur.focus)}
+        seg={s.dodger ? `seg-dodge-${s.dodger}` : 'seg-none'} />}
       {shows(s.win.reactive) && head('reactive', `${t('results.sideWins', {side: t('side.reactive')})} · ${pct(s.win.reactive)}`)}
       {shows(s.win.reactive) && rows('reactive')}
       {shows(s.win.reactive) && saves('reactive')}

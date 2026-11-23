@@ -258,7 +258,7 @@ export function matchupShareCard(view, h, t = tEn) {
     const s = situationOf(x, /** @type {FilledSide} */ (view[other(role)]), role, t);
     const situation = [s.foxhole, s.cover, s.firewall, ...s.chips, s.fireteam, s.allies, s.surprise, s.berserk, s.supportware, ...s.teamOps];
     return {
-      n: h.text[key], l: h.label[key],
+      n: h.text[key], ...(h.kinds[key] !== h.kind && {k: h.kinds[key]}), l: h.label[key],
       u: shortUnit(x.resolved.unit), w: weaponShort(x.resolved.weapon, t), s: situation.filter(Boolean).join(', '),
       c: x.crest ?? '',
     };

@@ -10,7 +10,7 @@
 // words, canvas ShareText T1, and its image), so anyone landing there is in
 // the app, which moves its address to /?<setup> itself. Images live under
 // /og/, drawn from the card in their URL.
-import {CARD_PARAM, decodeCard, encodeCard, previewDescription, previewTitle} from '../src/share/card.js';
+import {CARD_PARAM, decodeCard, encodeCard, leadingSide, previewDescription, previewTitle} from '../src/share/card.js';
 import {initSync, calculate as wasmCalculate} from '../src/engine/wasm/khepri_engine.js';
 import engineWasm from '../src/engine/wasm/khepri_engine_bg.wasm';
 import {CARD_H, CARD_W, renderCard, renderDefault} from './card.js';
@@ -32,9 +32,9 @@ const IMMUTABLE = 'public, max-age=31536000, immutable';
 /** @param {unknown} s */
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-// Which side the stripe goes to: the bigger headline number (ties go active).
+// Which side the stripe goes to (src/share/card.js leadingSide).
 /** @param {Card} card */
-const leader = (card) => (parseFloat(card.b.n) > parseFloat(card.a.n) ? REACTIVE : ACTIVE);
+const leader = (card) => (leadingSide(card) === 'b' ? REACTIVE : ACTIVE);
 
 // link: the address the preview stands for (og:url, where a click goes).
 /**

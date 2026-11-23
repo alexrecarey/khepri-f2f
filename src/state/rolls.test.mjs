@@ -28,7 +28,7 @@ test('rolls saved before the crests still make a row, from "Unit · Weapon"', ()
 
 test('the share card puts each side\'s own situation under it, with the headline the sender sees', () => {
   const v = matchupView(army, {A: {...corax, surpriseAttack: true}, B: chaksa, rangeCm: 40});
-  const h = /** @type {import('../types.js').Headline} */ ({kind: 'win', fallback: false, text: {active: '61%', reactive: '22%'}, label: {active: 'wins face to face', reactive: 'dodges'}});
+  const h = /** @type {import('../types.js').Headline} */ ({kind: 'win', kinds: {active: 'win', reactive: 'win'}, fallback: false, text: {active: '61%', reactive: '22%'}, label: {active: 'wins face to face', reactive: 'dodges'}});
   const card = matchupShareCard(v, h);
   assert.equal(card.k, 'win');
   assert.deepEqual([card.a.n, card.a.l, card.b.n, card.b.l], ['61%', 'wins face to face', '22%', 'dodges']);
@@ -41,8 +41,11 @@ test('the share card puts each side\'s own situation under it, with the headline
 test('Smoke is part of the saved setup line and the share card', () => {
   const v = matchupView(army, {A: corax, B: chaksa, rangeCm: 40, smoke: true});
   assert.match(matchupRollSummary(v, null).setup, /Smoke/);
-  const h = /** @type {import('../types.js').Headline} */ ({kind: 'wpo', fallback: false, text: {active: '1', reactive: '2'}, label: {active: 'a', reactive: 'r'}});
+  const h = /** @type {import('../types.js').Headline} */ ({kind: 'wpo', kinds: {active: 'wpo', reactive: 'win'}, fallback: false, text: {active: '1', reactive: '2'}, label: {active: 'a', reactive: 'r'}});
   assert.match(matchupShareCard(v, h).x, / · Smoke$/);
+  // The reactive side's number is a chance to dodge, not wounds per order.
+  assert.equal(matchupShareCard(v, h).b.k, 'win');
+  assert.equal(matchupShareCard(v, h).a.k, undefined);
 });
 
 test('Team-Ops picks go in the saved line and on the share card', () => {
@@ -51,6 +54,6 @@ test('Team-Ops picks go in the saved line and on the share card', () => {
   const pick = `Team-Ops: ${v.A.teamOps.chart[1]}, TacBall: ${v.A.teamOps.ball[1]}`;
   const {setup} = matchupRollSummary(v, null);
   assert.ok(setup.includes(pick.replace(', ', ' · ')), setup);
-  const h = /** @type {import('../types.js').Headline} */ ({kind: 'win', fallback: false, text: {active: '', reactive: ''}, label: {active: '', reactive: ''}});
+  const h = /** @type {import('../types.js').Headline} */ ({kind: 'win', kinds: {active: 'win', reactive: 'win'}, fallback: false, text: {active: '', reactive: ''}, label: {active: '', reactive: ''}});
   assert.equal(matchupShareCard(v, h).a.s, pick);
 });

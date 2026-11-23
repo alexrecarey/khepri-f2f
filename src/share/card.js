@@ -11,6 +11,8 @@
 //    nf: true,                    not face to face (headline fell back)
 //    x: '16-24"',                 range band
 //    a / b: {n: '0.81',           headline number
+//            k: 'win',            what that number is, when not k (a Dodger's
+//                                 chance to dodge); missing on older cards
 //            l: 'wounds / order', its label
 //            u: 'Squalos Mk-II',  unit
 //            w: 'HMG',            weapon
@@ -47,6 +49,7 @@ const slug = v.fallback(v.pipe(v.string(), v.regex(CREST_SLUG)), '');
 const CardSideSchema = v.pipe(
   v.object({
     n: text,     // headline number
+    k: v.fallback(v.optional(v.picklist(HEADLINES)), undefined), // what n is, when not the card's k
     l: text,     // its label
     u: text,     // unit
     w: text,     // weapon
@@ -117,3 +120,12 @@ export const previewTitle = (card) => `${card.a.u} vs ${card.b.u}`;
 /** @param {Card} card */
 export const previewDescription = (card) =>
   [numbersLine(card), footerLine(card), `${detailLine(card.a, ', ')} vs ${detailLine(card.b, ', ')}`].filter(Boolean).join(' · ');
+
+// The side that does better: the bigger headline number, ties to a. One side's
+// chance to dodge against the other's wounds per order don't compare (each
+// side's k), so they count as a tie.
+/**
+ * @param {Card} card
+ * @returns {'a' | 'b'}
+ */
+export const leadingSide = (card) => ((card.a.k ?? card.k) === (card.b.k ?? card.k) && parseFloat(card.b.n) > parseFloat(card.a.n) ? 'b' : 'a');

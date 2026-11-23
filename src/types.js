@@ -586,7 +586,8 @@
  * @typedef {object} Summary
  * @property {PerSide} wpo expected wounds per order
  * @property {{active: number, reactive: number, none: number}} win chance each side wins the Face to Face Roll (none = both fail, or a tie)
- * @property {BarSegment[]} bar 7 segments: active 3+ / 2 / 1, nobody wounded, reactive 1 / 2 / 3+
+ * @property {'active' | 'reactive' | null} dodger the side that Dodges a Direct Template: nobody wins exactly when it gets away (win.none)
+ * @property {BarSegment[]} bar 7 segments: active 3+ / 2 / 1, nobody wounded (a Dodge included: it causes no wounds), reactive 1 / 2 / 3+
  * @property {{active: [number, number, number], reactive: [number, number, number]}} atLeast chance of 1+, 2+, 3+ wounds
  * @property {PerSide} saved won the roll, but every hit was saved
  * @property {boolean} unopposed each side rolled on its own (Direct Template vs attack)
@@ -603,6 +604,7 @@
  * What the card shows for a summary (results/headline.js headline).
  * @typedef {object} Headline
  * @property {HeadlineChoice} kind the choice shown ('wound' when 'win' falls back)
+ * @property {Record<'active' | 'reactive', HeadlineChoice>} kinds each side's: 'win' for a Dodging side
  * @property {boolean} fallback 'win' asked of a roll that is not face to face
  * @property {PerSide} value
  * @property {{active: string, reactive: string}} text the value as shown

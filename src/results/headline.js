@@ -4,6 +4,7 @@
 // under the bar carries what the headline gave up, so wounds per order never
 // leaves the card.
 import {tEn} from '../i18n/index.js';
+import {dodgeWinsByNone} from '../rules/evade.js';
 import {pct} from './summary.js';
 
 // The choices. Their names and hints are src/i18n's headline.<choice> /
@@ -32,7 +33,8 @@ const wpoText = (n) => (n == null ? '—' : n.toFixed(2));
 // What the card shows for summary s (summary.js summarize). A roll that is
 // not face to face (Direct Template vs a shot) has nobody to win, so "wins
 // face to face" falls back to at least one wound there and says so (fallback).
-// A Dodging side's win means it dodged: no wounds either way, so it says that.
+// A Dodging (or Resetting) side causes no wounds, so whatever the choice it
+// shows its chance to dodge, and the small line leaves it out.
 // params: the engine params, for who is dodging; may be null. sides: the
 // ledger's sides ({A, B}, rules/ledger.js), to tell a Reset from a Dodge.
 // A side whose hits cause a State instead of wounds (Jammer: Isolated, Flash
@@ -64,29 +66,47 @@ export function headline(s, choice, params = null, sides = null, t = tEn) {
   const per = (f) => /** @type {Record<Role, V>} */ (Object.fromEntries(roles.map((side) => [side, f(side)])));
   /** @param {Role} side */
   const letter = (side) => (side === 'active' ? 'A' : 'B');
-  /** @param {Role} side */
-  const evading = (side) => (sides?.[letter(side)]?.kind === 'reset' ? t('headline.resets')
-    : params?.[`ammo${letter(side)}`] === 'DODGE' ? t('headline.dodges') : null);
-  // The State's name, or null for a side that wounds.
+  // A Dodging or Resetting side's label ('dodges' / 'resets'), or null.
+  const evade = per((side) => (sides?.[letter(side)]?.kind === 'reset' ? t('headline.resets')
+    : params?.[`ammo${letter(side)}`] === 'DODGE' ? t('headline.dodges') : null));
+  // The State's name (rendered by then: state/matchupView.js renderMatchup),
+  // or null for a side that wounds.
+  const state = per((side) => (s.states?.[side]?.length === 1 && s.states[side][0].state ? /** @type {string} */ (s.states[side][0].label) : null));
+  // Each side's big number and what it is. A Dodge causes no wounds, so it
+  // shows its chance to dodge (rules/evade.js dodgeWinsByNone: against a
+  // Direct Template that is the chance nobody wins).
   /**
-   * The State's name, rendered by then (state/matchupView.js renderMatchup).
    * @param {Role} side
-   * @returns {string | null}
+   * @returns {{kind: HeadlineChoice, value: number}}
    */
-  const stateOf = (side) => (s.states?.[side]?.length === 1 && s.states[side][0].state ? /** @type {string} */ (s.states[side][0].label) : null);
-  const value = per((side) => (kind === 'win' ? s.win[side] : stateOf(side) || kind === 'wound' ? wounded[side] : wpo[side]));
+  const shown = (side) => {
+    if (evade[side]) return {kind: 'win', value: dodgeWinsByNone(params, letter(side)) ? s.win.none : s.win[side]};
+    if (kind === 'win') return {kind, value: s.win[side]};
+    return {kind, value: state[side] || kind === 'wound' ? wounded[side] : wpo[side]};
+  };
+  const big = per(shown);
+  const kinds = per((side) => big[side].kind);
+  const value = per((side) => big[side].value);
+  // The small line: what the headline gave up, per side. A Dodger has nothing
+  // to give up, so its half is empty; the label (and the not-face-to-face
+  // note) goes with the first figure shown.
   /** @param {Role} side */
-  const smallWpo = (side) => (stateOf(side) ? pct(wounded[side]) : wpoText(wpo[side]));
+  const smallFigure = (side) => (evade[side] ? ''
+    : kind === 'wpo' || state[side] ? pct(wounded[side]) : wpoText(wpo[side]));
+  /** @param {Role} side */
+  const smallLabel = (side) => state[side] ?? t(kind === 'wpo' ? 'headline.woundLabel' : 'headline.wpoLabel');
+  const first = evade.active ? 'reactive' : 'active';
+  const note = fallback ? `${t('headline.notFaceToFace')} · ` : '';
+  const small = per((side) => (smallFigure(side) && side === first ? `${note}${smallFigure(side)} ${smallLabel(side)}` : smallFigure(side)));
   return {
     kind,
+    kinds,
     fallback,
     value,
-    text: per((side) => (kind === 'wpo' && !stateOf(side) ? wpoText(value[side]) : pct(value[side]))),
-    label: per((side) => (kind === 'win' ? evading(side) ?? t('headline.winsLabel')
-      : stateOf(side) ?? (kind === 'wpo' ? t('headline.wpoLabel') : t('headline.woundLabel')))),
+    text: per((side) => (kinds[side] === 'wpo' && !state[side] ? wpoText(value[side]) : pct(value[side]))),
+    label: per((side) => evade[side] ?? (kind === 'win' ? t('headline.winsLabel')
+      : state[side] ?? (kind === 'wpo' ? t('headline.wpoLabel') : t('headline.woundLabel')))),
     // The line under the bar: [left, right].
-    small: kind === 'wpo'
-      ? [`${pct(wounded.active)} ${stateOf('active') ?? t('headline.woundLabel')}`, pct(wounded.reactive)]
-      : [`${fallback ? `${t('headline.notFaceToFace')} · ` : ''}${smallWpo('active')} ${stateOf('active') ?? t('headline.wpoLabel')}`, smallWpo('reactive')],
+    small: [small.active, small.reactive],
   };
 }

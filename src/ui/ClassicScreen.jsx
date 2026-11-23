@@ -144,7 +144,7 @@ export default function ClassicScreen({params, engine}) {
   const t = useT();
   const summaryOf = useCallback(/** @param {import('../types.js').Summary} s */ (s) => classicRollSummary(params, s, t), [params, t]);
   const status = engineStatus(t, engine.status);
-  const {s, save} = useRollResults({result: engine.result, summaryOf, pending: engine.pending});
+  const {s, save} = useRollResults({result: engine.result, params, summaryOf, pending: engine.pending});
   const layout = useLayout();
   if (layout === 'phone') {
     return (

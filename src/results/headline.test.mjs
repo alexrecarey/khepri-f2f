@@ -48,6 +48,28 @@ test('a Dodging side wins by dodging', () => {
   assert.equal(headline(s, 'win', /** @type {import('../types.js').Params} */ ({ammoA: 'N', ammoB: 'DODGE'})).label.active, 'wins face to face');
 });
 
+test('a Dodging side shows its chance to dodge whatever the headline, and the small line leaves it out', () => {
+  const dodgeB = /** @type {import('../types.js').Params} */ ({ammoA: 'N', ammoB: 'DODGE'});
+  const w = headline(s, 'wpo', dodgeB);
+  assert.deepEqual(w.text, {active: '0.81', reactive: '35.6%'});
+  assert.deepEqual(w.label, {active: 'wounds / order', reactive: 'dodges'});
+  assert.deepEqual(w.kinds, {active: 'wpo', reactive: 'win'});
+  assert.deepEqual(w.small, ['47.7% at least one wound', '']);
+  const one = headline(s, 'wound', dodgeB);
+  assert.deepEqual(one.text, {active: '47.7%', reactive: '35.6%'});
+  assert.deepEqual(one.small, ['0.81 wounds / order', '']);
+  // An active Dodge: the reactive figure carries the label.
+  const a = headline(s, 'wpo', /** @type {import('../types.js').Params} */ ({ammoA: 'DODGE', ammoB: 'N'}));
+  assert.deepEqual(a.text, {active: '56.8%', reactive: '0.46'});
+  assert.deepEqual(a.small, ['', '28.6% at least one wound']);
+});
+
+test('a Dodge against a Direct Template: the chance nobody hits', () => {
+  const h = headline({...s, win: {active: 0.4, reactive: 0, none: 0.6}}, 'wpo', /** @type {import('../types.js').Params} */ ({templateA: true, ammoB: 'DODGE'}));
+  assert.equal(h.text.reactive, '60.0%');
+  assert.equal(headline({...s, win: {active: 0.4, reactive: 0, none: 0.6}}, 'win', /** @type {import('../types.js').Params} */ ({templateA: true, ammoB: 'DODGE'})).text.reactive, '60.0%');
+});
+
 test('not face to face: wins face to face falls back to at least one wound', () => {
   const h = headline(unopposed, 'win');
   assert.equal(h.kind, 'wound');
@@ -69,4 +91,17 @@ test('a side whose hits only Isolate shows the chance of Isolated, and a Reset "
   const r = headline(s, 'win', /** @type {import('../types.js').Params} */ ({ammoA: 'N', ammoB: 'DODGE'}), /** @type {import('../types.js').Ledger} */ ({A: {kind: 'attack'}, B: {kind: 'reset'}}));
   assert.equal(r.label.reactive, 'resets');
   assert.equal(headline(s, 'win', /** @type {import('../types.js').Params} */ ({ammoA: 'N', ammoB: 'DODGE'})).label.reactive, 'dodges');
+});
+
+test('a Resetting side is labelled resets, with the same chance to dodge', () => {
+  const sides = /** @type {import('../types.js').Ledger} */ (/** @type {unknown} */ ({A: {kind: 'attack'}, B: {kind: 'reset'}}));
+  const h = headline(s, 'wound', /** @type {import('../types.js').Params} */ ({ammoA: 'N', ammoB: 'DODGE'}), sides);
+  assert.deepEqual(h.label, {active: 'at least one wound', reactive: 'resets'});
+  assert.equal(h.text.reactive, '35.6%');
+  assert.deepEqual(h.small, ['0.81 wounds / order', '']);
+});
+
+test('the not-face-to-face note goes with the first figure shown, even after a Dodge', () => {
+  const h = headline(unopposed, 'win', /** @type {import('../types.js').Params} */ ({ammoA: 'DODGE', ammoB: 'N'}));
+  assert.deepEqual(h.small, ['', 'Not face to face · 0.50 wounds / order']);
 });
