@@ -182,33 +182,32 @@ test('classic state round-trips through the URL, defaults left out', () => {
   assert.deepEqual(stateFromUrl(url).classic, s.classic);
 });
 
-test('classic links carry the save as one number, never PS and ARM apart', () => {
-  let c = /** @type {Params} */ ({...DEFAULT_PARAMS, ammoA: 'PLASMA'});
-  c = classicSave(c, 'A', 'arm', 14);
-  c = classicSave(c, 'A', 'bts', 11);
-  c = classicSave(c, 'B', 'arm', 9);
+test('classic links carry weapon PS, ARM and BTS apart, and come back the same', () => {
+  const c = /** @type {Params} */ ({...DEFAULT_PARAMS, ammoA: 'PLASMA', damageA: 10, armB: 3, btsB: 2, damageB: 13, armA: 1});
   const s = run(initialState(), {type: 'setMode', mode: 'basic'}, {type: 'replace', state: {mode: 'basic', classic: c}});
   const url = urlFromState(s);
-  assert.doesNotMatch(url, /damage|arm[AB]|bts[AB]/);
-  assert.match(url, /psA=14/);
-  assert.match(url, /psBtsA=11/);
-  assert.match(url, /psB=9/);
-  const back = stateFromUrl(url).classic;
+  assert.doesNotMatch(url, /ps[AB]|psBts/);
+  assert.match(url, /damageA=10/);
+  assert.match(url, /armB=3/);
+  assert.match(url, /btsB=2/);
+  // The split survives: PS 10 + ARM 3 does not come back as PS 13 + ARM 0.
+  assert.deepEqual(stateFromUrl(url).classic, c);
+});
+
+test('links with the save as one number (psA, psBtsA) still load', () => {
+  const back = stateFromUrl('?mode=basic&ammoA=PLASMA&psA=14&psBtsA=11&psB=9').classic;
   assert.ok(back);
   assert.equal(back.damageA + back.armB, 14);
   assert.equal(back.damageA + back.btsB, 11);
   assert.equal(back.damageB + back.armA, 9);
+  // ...and come back out with each number apart.
+  assert.doesNotMatch(urlFromState({...initialState(), mode: 'basic', classic: back}), /ps[AB]/);
 });
 
-test('old classic links with weapon PS, ARM and BTS apart still load', () => {
-  const c = stateFromUrl('?mode=basic&damageA=8&armB=4&btsB=2&ammoA=PLASMA&damageB=6&armA=3').classic;
-  assert.ok(c);
-  assert.equal(c.damageA + c.armB, 12);
-  assert.equal(c.damageA + c.btsB, 10);
-  assert.equal(c.damageB + c.armA, 9);
-  // ...and come back out in the new form.
-  const url = urlFromState({...initialState(), mode: 'basic', classic: c});
-  assert.equal(url, '?mode=basic&ammoA=PLASMA&psA=12&psBtsA=10&psB=9');
+test('a unified-save pref is kept and defaults to split', () => {
+  assert.equal(initialState().prefs.classicUnifiedSave, undefined);
+  const s = run(initialState(), {type: 'setPref', key: 'classicUnifiedSave', value: true});
+  assert.equal(s.prefs.classicUnifiedSave, true);
 });
 
 test('an old classic link without a mode opens the classic calculator', () => {
@@ -353,7 +352,7 @@ test('settings: start faction pref, clearing data', () => {
   assert.equal(uiDepth(run(s, {type: 'openOverlay', overlay: 'settings'}).ui), 1);
 });
 
-test('classic: the Opponent PS stepper keeps PS + ARM and PS + BTS right', async () => {
+test('classic: the Opponent Save stepper keeps PS + ARM and PS + BTS right', async () => {
   const c = {...DEFAULT_PARAMS, damageA: 7, armB: 2, btsB: 3};
   let n = classicSave(c, 'A', 'arm', 12);
   assert.equal(n.damageA + n.armB, 12);

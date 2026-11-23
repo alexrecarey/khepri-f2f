@@ -6,7 +6,7 @@
 import {useMemo} from 'react';
 import {dispatch, useAppState} from '../state/store.js';
 import {ARMY_DATE, AboutContact, AboutIntro, AboutLinks, VERSION} from './AboutPage.jsx';
-import {LanguageSetting, StartFaction, clearRecents, clearSaved} from './SettingsPage.jsx';
+import {LanguageSetting, StartFaction, UnifiedSaveSetting, clearRecents, clearSaved} from './SettingsPage.jsx';
 import DeskDialog from './DeskDialog.jsx';
 import {HEADLINES, headline} from '../results/headline.js';
 import {headlineChoice, setHeadline} from '../state/headlines.js';
@@ -78,6 +78,10 @@ export function SettingsDialog({factions, results}) {
             <span className="label">{t('settings.startingFactions')}</span>
             <StartFaction side="A" label={t('settings.activeSide')} factions={factions} className="c-active" />
             <StartFaction side="B" label={t('settings.reactiveSide')} factions={factions} className="c-reactive" />
+          </div>
+          <div className="ds-group">
+            <span className="label">{t('settings.classic')}</span>
+            <div className="ds-choices"><UnifiedSaveSetting className="ds-choice" /></div>
           </div>
           <div className="ds-group">
             <span className="label">{t('settings.language')}</span>
