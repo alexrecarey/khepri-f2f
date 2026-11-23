@@ -69,14 +69,15 @@ export const needsLof = (row) => !(row?.props ?? []).includes('No LoF');
 /** @param {MaybeRow} row */
 export const inZoneOfControl = (row) => (row?.props ?? []).includes('Zone of Control');
 
-// PARA (Adhesive Launcher Rifle, Riotstoppers) has no PS: the target rolls
-// PH-6 instead (save.attr 'PH').
+// A BS weapon needs a Saving Roll: PS + ARM / BTS, or PH for PARA
+// (Adhesive Launcher Rifle, Riotstoppers), which has no PS: the target
+// rolls PH-6 instead.
 /** @param {MaybeRow} row */
 export function isBsAttackWeapon(row) {
   if (!row) return false;
-  const para = row.save?.attr === 'PH';
-  if (!para && typeof row.dmg !== 'number') return false;
-  if (!para && row.save?.attr !== 'ARM' && row.save?.attr !== 'BTS') return false;
+  const attr = saveAttribute(row);
+  const saves = attr === 'PH' || (typeof row.dmg === 'number' && row.save?.attr === attr);
+  if (!saves) return false;
   if ((row.props ?? []).some((p) => EXCLUDED_PROPS.has(p))) return false;
   return Boolean(row.ranges) || isTemplate(row) || inZoneOfControl(row);
 }
@@ -185,14 +186,17 @@ export const stuns = (row) => isNonLethal(row) && causesStunned(row);
 /** @param {MaybeRow} row */
 export const paralyses = (row) => hasAmmo(row, 'PARA');
 
+// Weapons whose failed save causes a State, and that State.
+/** @type {Array<[(row: MaybeRow) => boolean, string]>} */
+const STATE_CAUSED = [[isolates, 'Isolated'], [stuns, 'Stunned'], [paralyses, 'Immobilized-A']];
+
 // The State a failed save causes in place of wounds, or null. A Hacking
 // Program names its own (army/hacking.js): Immobilized-B, Targeted, Possessed.
 /**
  * @param {MaybeRow} row
  * @returns {string | null}
  */
-export const stateCaused = (row) => (row?.hack ? row.hack.state : isolates(row) ? 'Isolated' : stuns(row) ? 'Stunned'
-  : paralyses(row) ? 'Immobilized-A' : null);
+export const stateCaused = (row) => (row?.hack ? row.hack.state : STATE_CAUSED.find(([causes]) => causes(row))?.[1] ?? null);
 
 // "Bioweapon (DA+SHOCK)" or null.
 /**

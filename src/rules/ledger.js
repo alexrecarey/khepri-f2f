@@ -7,7 +7,7 @@
 // note and line into the player's language, and buildLedger lays the lines
 // out per side (types.js LedgerSide) and adds only display: the dice line,
 // the ammunition lines and note.
-import {ammoName, ammoTypes, bioweaponParts, hasContinuousDamage, isImpactTemplate, isPlasma, isPseudo} from '../army/weapons.js';
+import {ammoName, ammoTypes, bioweaponParts, hasContinuousDamage, isImpactTemplate, isPlasma, isPseudo, saveAttribute} from '../army/weapons.js';
 import {AMMO} from '../engine/calculate.js';
 import {pseudoName} from './trooper.js';
 import {isCcAttack} from './closeCombat.js';
@@ -114,7 +114,7 @@ function sideLedger(x, y, s, l, inputs, t) {
   const tag = ammoTag(w.row, /** @type {import('../types.js').WeaponMods} */ (w.mods), t);
   const note = ammoNote(inputs, s, t);
   // PARA's save is the target's PH roll, not PS + ARM.
-  const saveTag = /** @type {import('../types.js').WeaponRow} */ (w.row).save?.attr === 'PH' ? t('stat.ph') : t('abbr.PS');
+  const saveTag = saveAttribute(w.row) === 'PH' ? t('stat.ph') : t('abbr.PS');
   if (isCcAttack(x)) {
     return {kind: 'attack', dice: `${t('abbr.CC')} ${b} ${svText(sv.total, t)} ${saveTag}${save.total}${tag}`, burst, sd, sv, save, ammo, note};
   }
