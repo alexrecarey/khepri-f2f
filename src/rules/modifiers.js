@@ -367,8 +367,8 @@ export function rollsDice(x) {
 
 // Does x's Dodge or Reset evade the attack `incoming` (the other side's
 // weapon)? Dodge evades anything but a Comms Attack; Reset only Comms Attacks
-// (wiki, Reset). Neither is rolled against Smoke: a trooper under the
-// template Dodges with a Normal Roll (wiki, Smoke Ammunition; rules/smoke.js).
+// (wiki, Reset). Neither evades Smoke: a trooper under the template Dodges
+// with a Normal Roll, not opposed to it (wiki, Smoke Ammunition; evade.js).
 // Against no attack either one just rolls. An attack evades nothing: it is
 // opposed when both attack.
 /**

@@ -10,7 +10,6 @@ import {SIDES, other} from '../lib/side.js';
 import {clamp} from '../lib/clamp.js';
 import {msg} from '../i18n/message.js';
 import {compact, line, note, section, statLabel, svSection} from './lines.js';
-import {smokeName} from './smoke.js';
 
 /** @typedef {import('../types.js').Side} Side */
 /** @typedef {import('../types.js').Ctx} Ctx */
@@ -100,9 +99,9 @@ function resetInputs(x, y, side, ctx) {
 }
 
 // A Dodge or Reset that can't evade the attack it faces (modifiers.js
-// evades) isn't rolled against it: the attack is a Normal Roll. Against
-// Smoke a Dodge is a Normal Roll with nothing to evade (rules/smoke.js), so
-// nothing here either.
+// evades) isn't rolled against it: the attack is a Normal Roll. Except a
+// Dodge against Smoke: a Normal Roll under the template, rolled on its own
+// next to the throw's (rules/smoke.js smokeNotOpposed), so no opposing MODs.
 /**
  * @param {Evader} x
  * @param {Trooper | null} y
@@ -112,22 +111,17 @@ function resetInputs(x, y, side, ctx) {
  * @returns {import('../types.js').Roll}
  */
 export function evadeInputs(x, y, side, incoming, ctx) {
-  if (!evades(x, incoming)) {
-    const reset = x.weapon.kind === 'reset';
+  const reset = x.weapon.kind === 'reset';
+  if (!evades(x, incoming) && (reset || incoming?.kind !== 'smoke')) {
     // Only an attack (a weapon) can't be evaded.
-    const w = /** @type {import('../types.js').WeaponEntry} */ (incoming);
-    const weapon = w.row.name;
-    if (w.kind === 'smoke' && !reset) {
-      const ammo = smokeName(w);
-      return {inputs: noLofInputs(side), lines: {kind: 'none', reason: msg('ledger.dodgeNotSmoke', {ammo})}, notes: [note(side, 'note.dodgeNotSmoke', {weapon})]};
-    }
+    const weapon = /** @type {import('../types.js').WeaponEntry} */ (incoming).row.name;
     return {
       inputs: noLofInputs(side),
       lines: {kind: 'none', reason: msg(reset ? 'ledger.resetOnlyComms' : 'ledger.dodgeNotComms')},
       notes: [note(side, reset ? 'note.resetOnlyComms' : 'note.dodgeNotComms', {weapon})],
     };
   }
-  if (x.weapon.kind === 'reset') return resetInputs(x, y, side, ctx);
+  if (reset) return resetInputs(x, y, side, ctx);
   return dodgeInputs(x, y, side, incoming, ctx);
 }
 

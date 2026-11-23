@@ -127,6 +127,7 @@ export default {
   'state.possessed': 'Poseído',
   'state.smoke': 'Humo colocado',
   'state.eclipse': 'Eclipse colocado',
+  'state.dodged': 'Esquivado',
 
   // "How the dice were built" (rules/ledger.js)
   'ledger.teamOpsStat': '{stat} (Team-Ops: {upgrade})',
@@ -174,7 +175,6 @@ export default {
   'ledger.programMod': '{program} ({mod})',
   'ledger.resetOnlyComms': 'Reset solo evita Ataques de Comunicaciones.',
   'ledger.dodgeNotComms': 'Esquivar no evita un Ataque de Comunicaciones; Reset sí.',
-  'ledger.dodgeNotSmoke': 'Contra {ammo}, Esquivar es una Tirada Normal, no Enfrentada.',
 
   // Notes, warnings and errors next to a matchup (rules/matchup.js)
   'note.side': '{side}: {text}',
@@ -189,9 +189,9 @@ export default {
   'note.vulnerability': 'el objetivo tiene Vulnerabilidad ({vulnerable}); la Inmunidad ({immunity}) no se aplica',
   'note.resetOnlyComms': 'Reset solo evita Ataques de Comunicaciones; {weapon} se tira sin oposición',
   'note.dodgeNotComms': 'Esquivar no evita un Ataque de Comunicaciones ({weapon}), solo Reset; se tira sin oposición',
-  'note.dodgeNotSmoke': 'Esquivar no se enfrenta a {weapon}; se tira sin oposición',
   'note.smokeNoLof': '{by} no necesita LDT a través del {ammo}: sin Tirada Enfrentada, cada uno tira por separado',
   'note.smokeMsv': '{msv} ve a través del {ammo}: sin Tirada Enfrentada, cada uno tira por separado',
+  'note.smokeDodge': 'Esquivar no se enfrenta al {ammo}: sin Tirada Enfrentada, cada uno tira por separado',
   'note.ccAttack': 'Un Ataque CC',
   'note.noLof': 'sin línea de tiro a través de {zone}; no puede declarar su ataque',
   'note.directTemplate': 'Plantilla Directa: no hay Tirada Enfrentada; cada ataque se tira por separado',

@@ -64,14 +64,14 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 ## Smoke and Eclipse Ammunition (thrown)
 From the wiki (Smoke Ammunition, Eclipse Ammunition, Multispectral Visor, Dodge, Traits: Targetless, Reflective). Code: `src/rules/smoke.js`, `src/army/weapons.js` (isSmoke, kind 'smoke'). Not the Smoke chip above: that is a zone already on the table; this is the roll that puts one there.
 - Smoke Grenades, Eclipse Grenades (BS Weapon (PH)), Smoke and Eclipse Grenade Launchers (BS) are weapon choices: a BS Attack, rolled, with the weapon's Range MODs. B1 in ARO like any shot.
-- Targetless: thrown at a point, not at the enemy. None of the target's MODs apply (Mimetism, Albedo, cover, Nanoscreen, Targeted); the ledger strikes them "Targetless". The user's own BS Attack MODs do: Fireteam +1 BS / +1 SD, loadout, BS Attack (−X) on the opponent, Surprise Attack.
+- Targetless: thrown at a point, not at the enemy. None of the target's MODs apply (Mimetism, Albedo, cover, Nanoscreen, Targeted); the ledger strikes them "Targetless". The user's own BS Attack MODs do: Fireteam +1 BS / +1 SD (it is a BS Attack with a BS Weapon; Alex, 2026-11-23), loadout, BS Attack (−X) on the opponent, Surprise Attack.
 - Non-lethal, no PS: no Saving Roll. Winning keeps the template on the table; losing (or failing a Normal Roll) removes it. A Critical only wins. The results show "Smoke placed" (or "Eclipse placed") in place of wounds; it takes nobody out of the fight.
 - Face to Face against every enemy Attack that needs a Roll and LoF through the template: a rolled BS Attack. The enemy's shot still hits the thrower if it wins.
 - Not opposed (both roll, each a Normal Roll): a CC Attack or a Comms Attack (no LoF), and a trooper with a Multispectral Visor of any level against Smoke (it draws LoF through). Eclipse is Reflective: an MSV trooper is opposed by it.
 - A Direct Template doesn't roll: it hits, and the Smoke is a Normal Roll.
 - Picking Smoke or Eclipse Grenades splits the range: the thrower's side goes to 0–8" (they are thrown near the user; their 0 MOD stops there), the other trooper keeps the distance it had (Brandon, 2026-11-08). A Launcher (0 MOD to 24") leaves the range alone.
   - Leaving the grenade (another weapon, Dodge, a new trooper) joins the range again at the other trooper's distance, unless the player had split it before picking the grenade; then it stays split (Brandon, 2026-11-08).
-- A Dodge against Smoke is a Normal Roll (Dodge under the template), not opposed: not rolled here; the throw is a Normal Roll. Same as No ARO.
+- A Dodge against Smoke is a Normal Roll (Dodge under the template), not opposed: each side rolls on its own, the throw and the Dodge two Normal Rolls (Alex, 2026-11-23). A successful Dodge shows as "Dodged", like "Smoke placed". A Reset isn't rolled (it evades only Comms Attacks); No ARO leaves the throw alone.
 - Not modelled: Speculative Attack (Long Skill, −6, no LoF needed), a Smoke throw against several attackers, the zone it leaves for later orders (that is the Smoke chip). Disco Baller is not offered: it is a Deployable, a Normal Roll that places its Eclipse template in the Conclusion, not a Face to Face Roll.
 
 ## Comms Attacks

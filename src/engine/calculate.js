@@ -88,12 +88,21 @@ export const engineInput = (p) => /** @type {EngineInput} */ ({...sideInput(p, '
  */
 const attacks = (p, s) => p[`template${s}`] || (p[`burst${s}`] > 0 && p[`ammo${s}`] !== 'DODGE');
 
-// A Direct Template against an attack, or two attacks that don't oppose each
-// other (p.unopposed: Smoke against a Multispectral Visor that sees through
-// it, or against a CC or Comms Attack, which needs no LoF): nothing is opposed, each side's attack is its own roll (a
-// Normal Roll, or the template's automatic hits).
+// Does side s roll (or fire a template) at all? A Dodge included.
+/**
+ * @param {Params} p
+ * @param {import('../types.js').Side} s
+ */
+const acts = (p, s) => p[`template${s}`] || p[`burst${s}`] > 0;
+
+// Nothing is opposed, each side's roll is its own (a Normal Roll, or the
+// template's automatic hits): a Direct Template against an attack, or two
+// rolls that don't oppose each other (p.unopposed, rules/smoke.js: Smoke
+// against a Multispectral Visor that sees through it, a CC or Comms Attack,
+// which needs no LoF, or a Dodge, which is a Normal Roll under the template).
 /** @param {Params} p */
-export const isUnopposed = (p) => (p.unopposed || p.templateA || p.templateB) && attacks(p, 'A') && attacks(p, 'B');
+export const isUnopposed = (p) => (p.unopposed ? acts(p, 'A') && acts(p, 'B')
+  : (p.templateA || p.templateB) && attacks(p, 'A') && attacks(p, 'B'));
 
 // Side s's attack on its own: the other side doesn't roll (a fixed roll
 // included, it only means anything against the active side's roll).
@@ -117,17 +126,24 @@ function applyShock(p, outcomes) {
   return outcomes.map((o) => (shock[o.player] && o.wounds > 0 ? {...o, wounds: o.wounds + 1} : o));
 }
 
-// Smoke: it causes no Saving Rolls, so every win has 0 wounds; a win places
-// the template, which the results count as one (the "Smoke placed" state,
-// rules/woundStates.js), the way a Jammer's failed save is one Isolated.
+// Wins that cause no Saving Rolls but still do something, so the results
+// count each as one (a State, rules/woundStates.js), the way a Jammer's
+// failed save is one Isolated: a Smoke throw places its template ("Smoke
+// placed"), and a Dodge rolled on its own against it (p.unopposed) succeeds
+// ("Dodged"). A Dodge opposed to an attack is the win itself: left as it is.
+/**
+ * @param {Params} p
+ * @param {import('../types.js').Side} s
+ */
+const winCounts = (p, s) => p[`ammo${s}`] === 'SMOKE' || (p.unopposed && p[`ammo${s}`] === 'DODGE');
 /**
  * @param {Params} p
  * @param {import('../types.js').EngineOutput['outcomes']} outcomes
  */
-function applySmoke(p, outcomes) {
+function applyStateWins(p, outcomes) {
   /** @type {Partial<Record<Player, boolean>>} */
-  const smoke = {active: p.ammoA === 'SMOKE', reactive: p.ammoB === 'SMOKE'};
-  return outcomes.map((o) => (smoke[o.player] ? {...o, wounds: 1} : o));
+  const counts = {active: winCounts(p, 'A'), reactive: winCounts(p, 'B')};
+  return outcomes.map((o) => (counts[o.player] ? {...o, wounds: 1} : o));
 }
 
 /**
@@ -145,7 +161,7 @@ export function formatResult(p, {rolls: count, outcomes}) {
   const rolls = Number(count);
   /** @type {Record<Player, Map<number, number>>} */
   const chances = {active: new Map(), fail: new Map(), reactive: new Map()};
-  for (const o of applySmoke(p, applyShock(p, outcomes))) {
+  for (const o of applyStateWins(p, applyShock(p, outcomes))) {
     const w = Math.min(o.wounds, MAX_WOUNDS);
     chances[o.player].set(w, (chances[o.player].get(w) ?? 0) + o.chance);
   }

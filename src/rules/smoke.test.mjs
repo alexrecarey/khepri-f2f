@@ -110,14 +110,17 @@ test('a Multispectral Visor sees through Smoke: two Normal Rolls; Eclipse is Ref
   assert.equal(at8(rifle(), thrower()).inputs.unopposed, false, 'no MSV: opposed');
 });
 
-test('a Dodge is not opposed to Smoke: it isn\'t rolled, the throw is a Normal Roll', () => {
+test('a Dodge is not opposed to Smoke: each side rolls on its own (Alex, 2026-11-23)', () => {
   const r = at8(thrower(), side(profile(), combi, 'dodge'));
   assert.equal(r.ok, true);
-  assert.equal(r.inputs.burstB, 0);
-  assert.equal(r.inputs.burstA, 1);
-  assert.ok(r.notes.includes('Reactive: a Dodge is not opposed to the Smoke Grenades; it is rolled unopposed'), r.notes.join(' | '));
-  assert.equal(/** @type {LedgerSide} */ (r.ledger.B).reason, 'Against Smoke a Dodge is a Normal Roll, not opposed.');
-  // No ARO: the same Normal Roll.
+  assert.deepEqual([r.inputs.burstA, r.inputs.ammoA, r.inputs.burstB, r.inputs.ammoB, r.inputs.unopposed], [1, 'SMOKE', 1, 'DODGE', true]);
+  assert.equal(isUnopposed(fullParams(r.inputs)), true);
+  assert.ok(r.notes.includes('A Dodge is not opposed to the Smoke: no Face to Face Roll, each side rolls on its own'), r.notes.join(' | '));
+  assert.equal(/** @type {LedgerSide} */ (r.ledger.B).kind, 'dodge');
+  // A Reset evades only Comms Attacks: not rolled, the throw is a Normal Roll.
+  const reset = at8(thrower(), side(hacker(), combi, 'reset'));
+  assert.deepEqual([reset.inputs.burstB, reset.inputs.unopposed], [0, false]);
+  // No ARO: the throw alone.
   assert.equal(at8(thrower(), side(profile(), combi, 'none')).inputs.burstA, 1);
 });
 

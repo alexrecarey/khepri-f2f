@@ -128,6 +128,7 @@ export default {
   // Smoke / Eclipse: a won roll places the template (rules/smoke.js).
   'state.smoke': 'Smoke placed',
   'state.eclipse': 'Eclipse placed',
+  'state.dodged': 'Dodged',
 
   // "How the dice were built" (rules/ledger.js)
   'ledger.teamOpsStat': '{stat} (Team-Ops: {upgrade})',
@@ -175,7 +176,6 @@ export default {
   'ledger.programMod': '{program} ({mod})',
   'ledger.resetOnlyComms': 'Reset only evades Comms Attacks.',
   'ledger.dodgeNotComms': 'Dodge can\'t evade a Comms Attack; Reset can.',
-  'ledger.dodgeNotSmoke': 'Against {ammo} a Dodge is a Normal Roll, not opposed.',
 
   // Notes, warnings and errors next to a matchup (rules/matchup.js)
   'note.side': '{side}: {text}',
@@ -190,9 +190,9 @@ export default {
   'note.vulnerability': 'target has Vulnerability ({vulnerable}); Immunity ({immunity}) does not apply',
   'note.resetOnlyComms': 'Reset only evades Comms Attacks; the {weapon} is rolled unopposed',
   'note.dodgeNotComms': 'Dodge can\'t evade a Comms Attack ({weapon}), only Reset can; it is rolled unopposed',
-  'note.dodgeNotSmoke': 'a Dodge is not opposed to the {weapon}; it is rolled unopposed',
   'note.smokeNoLof': '{by} needs no LoF through the {ammo}: no Face to Face Roll, each side rolls on its own',
   'note.smokeMsv': '{msv} sees through the {ammo}: no Face to Face Roll, each side rolls on its own',
+  'note.smokeDodge': 'A Dodge is not opposed to the {ammo}: no Face to Face Roll, each side rolls on its own',
   'note.ccAttack': 'A CC Attack',
   'note.noLof': 'no line of fire through {zone}; its attack can\'t be declared',
   'note.directTemplate': 'Direct Template: no Face to Face Roll; each attack is rolled on its own',
