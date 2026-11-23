@@ -28,7 +28,7 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - Cover: −3 to the attacker's SV, +3 to the target's saves. Direct and Blast templates ignore the +3.
 - Nanoscreen = cover's MOD (doesn't stack with it). Limited Cover keeps only the +3 save. No Cover gets nothing.
 - Marksmanship ignores the −3 from cover/Nanoscreen, not the +3 save.
-- Immunity (ARM) / (BTS): on a save with that Attribute the hit is Normal Ammunition (one save, one wound, no halving, no ARM=0 or Continuous Damage). Immunity (Enhanced) = both. A hit it fully negates is still rolled and opposed, it just causes no saves; State: Stunned still applies.
+- Immunity (ARM) / (BTS): on a save with that Attribute the hit is Normal Ammunition (one save, one wound, no halving, no ARM=0 or Continuous Damage). Immunity (Enhanced) = both, so not a PH save (PARA). A hit it fully negates is still rolled and opposed, it just causes no saves; State: Stunned still applies.
 - Vulnerability (X): no Immunity against that weapon.
 
 ## Skills and MODs

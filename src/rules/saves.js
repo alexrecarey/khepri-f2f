@@ -54,8 +54,9 @@ export const hasImmunity = (targetTraits, kind, row) =>
  */
 export function immunityFor(targetTraits, row) {
   if (!row || isCommsAttack(row)) return null;
-  if (hasSkill(targetTraits, SKILL.IMMUNITY, 'Enhanced')) return 'Enhanced';
   const attr = saveAttribute(row);
+  // Enhanced is ARM + BTS: a PH save (PARA) is neither.
+  if (attr !== 'PH' && hasSkill(targetTraits, SKILL.IMMUNITY, 'Enhanced')) return 'Enhanced';
   return hasSkill(targetTraits, SKILL.IMMUNITY, attr) ? attr : null;
 }
 

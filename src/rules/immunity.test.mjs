@@ -110,6 +110,16 @@ test('Immunity (Enhanced) includes Immunity (ARM), and covers BTS saves too', ()
   assert.equal(shotAt(hoplite, 5, '5:Hit Mode').inputs.ammoA, 'PLASMA');
 });
 
+test('Immunity (Enhanced) is ARM + BTS: no help against PARA, saved on PH', () => {
+  // Adhesive Launcher Rifle: PH-6, Immobilized-A when it fails.
+  const plain = shotAt(profile({ph: 12}), 22, '22:');
+  const hoplite = shotAt(immune('Enhanced', {ph: 12}), 22, '22:');
+  assert.deepEqual(hoplite.warnings, []);
+  assert.deepEqual(hoplite.notes, plain.notes);
+  assert.equal(hoplite.inputs.ammoA, plain.inputs.ammoA);
+  assert.equal(hoplite.inputs.armB, 12 - 6);
+});
+
 test('Immunity (BTS): BTS-save ammo is treated as N, BTS not halved', () => {
   const jinwei = immune('BTS', {bts: 5});
   const breaker = shotAt(jinwei, 15, '15:');
