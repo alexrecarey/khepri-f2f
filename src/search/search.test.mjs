@@ -105,11 +105,9 @@ test('browse: type tiles and units A-Z for a faction', () => {
 });
 
 // The scoreboard floors. Raise them when the matcher improves; a drop means a
-// change made search worse for some names. Top 1 was 95%: listing each
-// Team-Ops trooper on its own added names whose first word names three
-// troopers ("kaizoku": Kaizoku Spec-Ops, Kaizoku-1, Kaizoku Heavy), so only
-// one of them can come first; the other units' top 1 held (95.5%).
-const TOP1_FLOOR = 0.945;
+// change made search worse for some names. (English 97.8%, Spanish 96.7%
+// when a query several units are named by counted for any of them.)
+const TOP1_FLOOR = 0.965;
 test('scoreboard: generated typos and hard cases', () => {
   const typo = score(searcher, buildCorpus(index.units));
   assert.equal(typo.all.found, typo.all.n, 'every generated query finds its unit');
@@ -266,4 +264,15 @@ test("a Team-Ops HI's HMG is listed for a weapon search", () => {
   for (const unit of ['Confessor Heavy Spec-Ops', 'Indigo Heavy Spec-Ops']) {
     assert.ok(hmg.some((h) => h.unit === unit), `${unit} in "hmg"`);
   }
+});
+
+// "kaizoku" is the first word of three troopers' names: whichever is listed
+// first, the query found what it named.
+test('scoreboard: a query several units are named by is a top 1 for any of them', () => {
+  const fake = /** @type {import('../types.js').Searcher} */ (/** @type {unknown} */ ({
+    search: () => ({units: [{short: 'Kaizoku Heavy Spec-Ops'}, {short: 'Kaizoku-1 Spec-Ops'}]}),
+  }));
+  const cases = [{query: 'kaizoku', kind: 'firstWord', expect: 'kaizoku 1 spec ops'}, {query: 'kaizoku', kind: 'firstWord', expect: 'kaizoku heavy spec ops'}];
+  assert.equal(score(fake, cases).all.top1, 2);
+  assert.equal(score(fake, cases.slice(0, 1)).all.top1, 0, 'alone, only its own unit counts');
 });
