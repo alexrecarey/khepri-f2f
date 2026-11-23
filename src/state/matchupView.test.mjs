@@ -293,3 +293,21 @@ test('No LoF on the reactive: beyond its ZoC only No ARO can be picked; inside i
   // The active side's chip only shows on a Dodge it changes (not against a shot).
   assert.equal(matchupView(army, {A: {...corax, weaponKey: 'dodge'}, B: chaksa, rangeCm: 20}).A.noLofChip, false);
 });
+
+test('No LoF and a Fireteam: both chips stay, and a team of 5 (Sixth Sense) lifts the limits', () => {
+  // Zhanshi can join a Core of 5. Corax shoots it from beyond its ZoC.
+  const zhanshi = first(unitByIsc('Zhanshi'), 201, {noLof: true});
+  const alone = matchupView(army, {A: corax, B: zhanshi, rangeCm: 40});
+  assert.equal(alone.B.sel.weaponKey, 'none');
+  assert.ok(alone.B.noLofChip);
+  assert.ok(alone.B.fireteamChip, 'No ARO gets nothing from the team, but a team of 5 would lift No LoF');
+  const team = matchupView(army, {A: corax, B: {...zhanshi, ftSize: 5}, rangeCm: 40});
+  assert.ok(team.B.noLofChip);
+  assert.ok(team.B.fireteamChip);
+  assert.ok(team.B.groups.every((g) => !g.off));
+  assert.notEqual(team.B.sel.weaponKey, 'none');
+  // Its Dodge: no -3 (struck by Sixth Sense).
+  const dodge = matchupView(army, {A: corax, B: {...zhanshi, ftSize: 5, weaponKey: 'dodge'}, rangeCm: 40});
+  const lines = /** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (dodge.ledger?.ledger.B).sv).lines;
+  assert.deepEqual(lines.find((l) => l.label === 'No LoF'), {value: -3, label: 'No LoF', by: 'B', struck: 'Sixth Sense (Dodge)'});
+});

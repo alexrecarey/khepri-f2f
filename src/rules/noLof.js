@@ -6,10 +6,16 @@
 // - Its Dodge takes -3 (in ARO, or against a template in either turn; one -3
 //   however many apply), and the weapon's Silent (X) while the attacker is
 //   inside its ZoC, on top of the -3 (an active Dodger takes Silent alone).
-// Sixth Sense (or a Fireteam of 5) has a 360° LoF: never out of it, so no
-// chip. A Deployable's -3 (Mines) isn't modelled.
+// Sixth Sense has a 360° LoF against attackers: never out of it. A trooper
+// with the skill gets no chip. One that gets it from a Fireteam of 5 keeps
+// the chip, which then limits nothing and its MODs are struck: the team's
+// size is a chip too, and either can be set first (Alex, 2026-11-23).
+// A Deployable's -3 (Mines) isn't modelled.
+import {SKILL} from '../army/ids.js';
+import {hasSkill} from '../army/traits.js';
 import {isCommsAttack, isTemplateWeapon, silentMod} from '../army/weapons.js';
-import {evades, hasSixthSense} from './modifiers.js';
+import {FIRETEAM_MAX, evades, hasSixthSense} from './modifiers.js';
+import {msg} from '../i18n/message.js';
 import {ZOC_CM, rangeOf} from './ranges.js';
 import {withWeapon} from './trooper.js';
 import {other} from '../lib/side.js';
@@ -45,7 +51,7 @@ const lofAttack = (incoming) => Boolean(incoming?.row) && (incoming?.kind === 'b
  * @param {boolean} inZoc the attacker is inside x's ZoC
  */
 export function noLofHelps(x, incoming, reactive, inZoc) {
-  if (!x || hasSixthSense(x) || !lofAttack(incoming)) return false;
+  if (!x || hasSkill(x.traits, SKILL.SIXTH_SENSE) || !lofAttack(incoming)) return false;
   if (reactive) return true;
   const row = incoming?.row;
   return evades(x, incoming) && (isTemplateWeapon(row) || (inZoc && silentMod(row) !== 0));
@@ -54,7 +60,7 @@ export function noLofHelps(x, incoming, reactive, inZoc) {
 // With the chip on, the only choices x has left (pseudo-weapon keys, which
 // are also their kinds), the first being what its pick reads as otherwise;
 // null when No LoF limits nothing. Only the reactive is limited: the active
-// trooper's chip shows only on a Dodge.
+// trooper's chip shows only on a Dodge. A Fireteam of 5 lifts it all.
 /**
  * @param {ResolvedSide | null | undefined} x
  * @param {Choice | null | undefined} incoming
@@ -63,12 +69,13 @@ export function noLofHelps(x, incoming, reactive, inZoc) {
  * @returns {('none' | 'dodge')[] | null}
  */
 export function noLofChoices(x, incoming, reactive, inZoc) {
-  if (!reactive || !x?.noLof || !noLofHelps(x, incoming, reactive, inZoc)) return null;
+  if (!reactive || !x?.noLof || hasSixthSense(x) || !noLofHelps(x, incoming, reactive, inZoc)) return null;
   return inZoc || isTemplateWeapon(incoming?.row) ? ['dodge', 'none'] : ['none'];
 }
 
 // The two MODs on x's Dodge with the chip on: the -3 (`lof`) and the
-// weapon's Silent (X) (`silent`), 0 where they don't apply.
+// weapon's Silent (X) (`silent`), 0 where they don't apply; `struck` when a
+// Fireteam of 5's Sixth Sense cancels them (its Dodge takes no negative MODs).
 /**
  * @param {ResolvedSide | null | undefined} x
  * @param {Choice | null | undefined} incoming
@@ -76,13 +83,25 @@ export function noLofChoices(x, incoming, reactive, inZoc) {
  * @param {boolean} inZoc
  */
 export function noLofDodgeMods(x, incoming, reactive, inZoc) {
-  if (!x?.noLof || x.weapon?.kind !== 'dodge' || !evades(x, incoming) || !noLofHelps(x, incoming, reactive, inZoc)) return {lof: 0, silent: 0};
+  if (!x?.noLof || x.weapon?.kind !== 'dodge' || !evades(x, incoming) || !noLofHelps(x, incoming, reactive, inZoc)) return {lof: 0, silent: 0, struck: null};
   const row = incoming?.row;
   return {
     lof: reactive || isTemplateWeapon(row) ? NO_LOF_DODGE_MOD : 0,
     silent: inZoc ? silentMod(row) : 0,
+    struck: hasSixthSense(x) ? msg('skill.sixthSenseDodge') : null,
   };
 }
+
+// Would a Fireteam of 5 (its Sixth Sense) lift the limits No LoF puts on x,
+// the reactive? Then the Fireteam chip shows even while the pick No LoF
+// leaves it (No ARO) gets no other bonus from the team.
+/**
+ * @param {ResolvedSide | null | undefined} x
+ * @param {Choice | null | undefined} incoming
+ * @param {boolean} inZoc
+ */
+export const fireteamLiftsNoLof = (x, incoming, inZoc) => Boolean(x) && (x?.ftMax ?? 1) >= FIRETEAM_MAX
+  && noLofChoices(x && {...x, ftSize: 1}, incoming, true, inZoc) !== null;
 
 // Does No LoF leave x (the reactive) nothing but No ARO?
 /**

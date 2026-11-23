@@ -8,7 +8,7 @@ import {tEn} from '../i18n/index.js';
 import {render} from '../i18n/message.js';
 import {pseudoName, pseudoWeapons} from './trooper.js';
 import {bangbombHelps} from './modifiers.js';
-import {attackerInZoc, noLofChoices, noLofHelps, withNoLofPick} from './noLof.js';
+import {attackerInZoc, fireteamLiftsNoLof, noLofChoices, noLofHelps, withNoLofPick} from './noLof.js';
 import {side, combi, pick, label, warhorse, flamer, duel, dodgeSkill} from './testMatchups.mjs';
 
 /** @typedef {import('../types.js').TraitRef} TraitRef */
@@ -131,6 +131,13 @@ test('No LoF in ARO: beyond the ZoC against a shot, No ARO is all it has', () =>
   assert.deepEqual(noLofChoices(blind(dodger), side(profile(), lrl, '19:Blast Mode').weapon, true, false), ['dodge', 'none']);
   assert.equal(noLofChoices(dodger, shot.weapon, true, false), null);                       // chip off
   assert.equal(noLofChoices(blind(dodger), shot.weapon, false, false), null);               // the active side
+  // A Fireteam of 5 (Sixth Sense) lifts it: it may Dodge from beyond its ZoC, the -3 struck.
+  const team = {...blind(dodger), ftSize: 5, ftMax: 5};
+  assert.equal(noLofChoices(team, shot.weapon, true, false), null);
+  assert.equal(run(shot, team, 40).inputs.successValueB, 13);                              // PH 12, Fireteam +1
+  assert.equal(fireteamLiftsNoLof({...team, ftSize: 1}, shot.weapon, false), true);
+  assert.equal(fireteamLiftsNoLof({...team, ftMax: 4}, shot.weapon, false), false);          // can't reach 5
+  assert.equal(fireteamLiftsNoLof({...team, noLof: false}, shot.weapon, false), false);      // chip off
 });
 
 test('No LoF: -3 to a Dodge in ARO or against a template, plus the weapon\'s Silent (X) inside ZoC', () => {
@@ -191,4 +198,5 @@ test('No LoF chip: in ARO against a shot or template; in the Active Turn on a Do
   assert.equal(noLofHelps(dodger, side(profile(), combi, 'dodge').weapon, true, true), false);  // not attacked
   assert.equal(noLofHelps(dodger, side(profile({wip: 13}), jammer, '21:').weapon, true, true), false); // a Comms Attack
   assert.equal(noLofHelps(side(profile({skills: [{id: 67, name: 'Sixth Sense'}]}), combi, 'dodge'), shot.weapon, true, true), false);
+  assert.equal(noLofHelps({...dodger, ftSize: 5}, shot.weapon, true, false), true);           // Sixth Sense from the team: the chip stays
 });

@@ -49,7 +49,8 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
   - Inside the ZoC, or under a template, it can't shoot back without LoF: only Dodge or No ARO; another pick reads as the Dodge. Derived, like a default weapon: the chip off gives the pick back.
   - Its Dodge takes −3 in ARO, or against a Template Weapon (Direct or Impact) in either turn. Only one −3, however many apply. Not in the Active Turn against a shot.
   - Silent (X) (Silenced Pistol, Tactical Bow: −6): the attacker's weapon adds X while it is inside the Dodger's ZoC (the 0–8" band), on top of the −3: −9 in ARO.
-  - Shown on the reactive card while the active side shoots or uses a template (not a Comms or CC Attack); on the active card only on a Dodge it changes (a template, or a Silent weapon inside the ZoC). Not for a trooper with Sixth Sense (or a Fireteam of 5): its LoF is 360°.
+  - Shown on the reactive card while the active side shoots or uses a template (not a Comms or CC Attack); on the active card only on a Dodge it changes (a template, or a Silent weapon inside the ZoC). Not for a trooper with the Sixth Sense skill: its LoF is 360°.
+  - A Fireteam of 5 gives Sixth Sense too, but both chips stay (Alex, 2026-11-23): with the team at 5 the No LoF chip limits nothing (any ARO, from any distance) and its −3 and Silent are struck by Sixth Sense's Dodge. While No LoF leaves only No ARO, the Fireteam chip still shows for a trooper that can join a team of 5.
   - MODs: they count toward the ±12 cap. A Deployable's −3 (Mines) isn't modelled.
 - BS Attack (−X): the opponent takes −X whatever it does, while the attack is rolled. Warhorse ignores it.
 - Surprise Attack (−X): the opponent takes −X on its Face to Face Roll in ARO. A player's choice (chip), active side only.

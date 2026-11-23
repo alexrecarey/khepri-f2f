@@ -44,8 +44,8 @@ function dodgeInputs(x, y, side, incoming, ctx) {
     ft && line(ft, msg('ledger.fireteam', {size: x.ftSize}), side),
     bang && line(bang.value, msg('equip.bangbombMod', {mod: `+${bang.value}`}), side, bang.struck),
     immADodgeMod(x) && line(immADodgeMod(x), msg('chip.immA'), side),
-    noLof.lof && line(noLof.lof, msg('chip.noLof'), side),
-    noLof.silent && line(noLof.silent, msg('trait.silentMod', {mod: noLof.silent}), o),
+    noLof.lof && line(noLof.lof, msg('chip.noLof'), side, noLof.struck),
+    noLof.silent && line(noLof.silent, msg('trait.silentMod', {mod: noLof.silent}), o, noLof.struck),
     ...(y && incoming ? ctx.opposing[side] : []),
   ]);
   const {sv, notes} = svSection(lines, side);

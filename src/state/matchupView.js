@@ -15,7 +15,7 @@ import {deriveInputs} from '../rules/matchup.js';
 import {
   bangbombHelps, fireteamHelps, firewallMod, hackedHelps, hasNoCover, immAHelps, surpriseAttackOffered, targetedHelps, targetedResetHelps,
 } from '../rules/modifiers.js';
-import {attackerInZoc, noLofChoices, noLofHelps, withNoLofPick} from '../rules/noLof.js';
+import {attackerInZoc, fireteamLiftsNoLof, noLofChoices, noLofHelps, withNoLofPick} from '../rules/noLof.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {visibility} from '../rules/visibility.js';
 import {berserkHelps, berserkMod, ccAllies, ccAlliesMax, isCcAttack} from '../rules/closeCombat.js';
@@ -163,8 +163,9 @@ function sideView(army, side, {sel, resolved}, other, inZoc) {
     // Dodge, Bangbomb for one who has it. Targeted: while the other side's
     // shot or program gains from it, or this side Resets (-3 to it). No LoF:
     // in ARO against a shot or template, or on a Dodge it changes.
-    // Fireteam, only while the pick gets a bonus from it.
-    fireteamChip: fireteamHelps(resolved),
+    // Fireteam, only while the pick gets a bonus from it, or its Sixth Sense
+    // would lift No LoF.
+    fireteamChip: fireteamHelps(resolved) || (side === 'B' && fireteamLiftsNoLof(resolved, other?.weapon, inZoc)),
     targetedChip: targetedHelps(other) || targetedResetHelps(resolved),
     hackedChip: hackedHelps(resolved),
     immAChip: immAHelps(resolved),
