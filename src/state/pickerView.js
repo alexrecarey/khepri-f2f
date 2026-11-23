@@ -4,6 +4,7 @@
 // plain list.
 import {crestOf} from '../army/crests.js';
 import {unitById} from '../army/lookup.js';
+import {extraLoadoutName} from '../army/names.js';
 import {isLieutenant} from '../army/traits.js';
 import {isNonLethal} from '../army/weapons.js';
 import {RANGE_BANDS} from '../rules/ranges.js';
@@ -66,6 +67,14 @@ export function groupLoadouts(army, hits) {
   return REACH_GROUPS.map((key) => ({key, items: /** @type {ProfileHit[]} */ (by.get(key))})).filter((g) => g.items.length);
 }
 
+// A unit's profile group in one faction: the one asked for (a Team-Ops
+// trooper, a recent's), else its first.
+/**
+ * @param {import('../types.js').FactionEntry | undefined} faction
+ * @param {number | null} groupId
+ */
+const groupOf = (faction, groupId) => faction?.groups.find((g) => g.id === groupId) ?? faction?.groups[0];
+
 // [['CC', 13], ['BS', 12], ...] for a unit's first profile in a faction (or
 // its group's, a Team-Ops trooper); the names are English tokens, shown as
 // src/i18n's stat.<name lower-cased>.
@@ -81,7 +90,7 @@ export function statLine(army, unitId, armyFactionId, groupId = null) {
   if (!unit) return null;
   // No faction id reads nothing, falling back to the first.
   const faction = unit.byFaction[/** @type {number} */ (armyFactionId)] ?? Object.values(unit.byFaction)[0];
-  const p = (faction?.groups.find((g) => g.id === groupId) ?? faction?.groups[0])?.profiles[0];
+  const p = groupOf(faction, groupId)?.profiles[0];
   if (!p) return null;
   return [['CC', p.cc], ['BS', p.bs], ['PH', p.ph], ['WIP', p.wip], ['ARM', p.arm], ['BTS', p.bts], [p.str ? 'STR' : 'W', p.w]];
 }
@@ -89,6 +98,16 @@ export function statLine(army, unitId, armyFactionId, groupId = null) {
 // What tells a loadout apart from its siblings with the same weapons: the
 // skills it adds ("Forward Observer", "Hacker"), at most two. Lieutenant is
 // left out: it doesn't change a roll and only cluttered the list.
+// What a loadout row adds after its unit's name: the loadout's own name when
+// it says something the unit's doesn't ("BIPANDRA"), else its skills. A
+// Team-Ops trooper's loadouts are all named after it ("TREITAK-1"): its
+// skills tell them apart, as in a unit's profile sections.
+/**
+ * @param {Army | null | undefined} army
+ * @param {ProfileHit} hit
+ */
+export const loadoutLabel = (army, hit) => (hit.parent ? null : extraLoadoutName(hit.loadout, hit.unit)) ?? loadoutTag(army, hit);
+
 /**
  * @param {Army | null | undefined} army
  * @param {ProfileHit} hit
@@ -219,7 +238,7 @@ function buildUnitDetail(army, unitId, armyFactionId, groupId) {
   if (!unit) return null;
   // A null faction reads nothing, falling back to the first.
   const faction = unit.byFaction[/** @type {number} */ (armyFactionId)] ?? Object.values(unit.byFaction)[0];
-  const group = faction?.groups.find((g) => g.id === groupId) ?? faction?.groups[0];
+  const group = groupOf(faction, groupId);
   const profiles = (group?.profiles ?? []).map((p) => ({
     id: p.id,
     name: p.name,

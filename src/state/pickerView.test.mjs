@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {groupLoadouts, loadoutCharts, loadoutTag, mainWeapon, orderLoadouts, profileGroups, reachGroup, statLine, unitDetail, weaponChart} from './pickerView.js';
+import {groupLoadouts, loadoutCharts, loadoutLabel, loadoutTag, mainWeapon, orderLoadouts, profileGroups, reachGroup, statLine, unitDetail, weaponChart} from './pickerView.js';
 import {createSearch} from '../search/search.js';
 import {lieutenantTwins} from '../search/buildIndex.js';
 import {SKILL} from '../army/ids.js';
@@ -120,8 +120,25 @@ test('a unit with several profile groups: one section each, shared kit once, row
   assert.ok(fusiliers);
   assert.equal(profileGroups(army, searcher.unitRows(fusiliers.id)), null);
   // A Team-Ops trooper is listed on its own: its page is its loadouts, no sections.
-  const heavyRows = searcher.unitRows(morat.id, null, heavy.key);
+  const heavyRows = searcher.unitRows(`${morat.id}:${heavy.key}`);
   assert.equal(heavyRows.length, 4);
   assert.equal(profileGroups(army, heavyRows), null);
   assert.equal(statLine(army, morat.id, heavyRows[0].armyFactionId, heavy.key)?.find(([k]) => k === 'BTS')?.[1], heavy.stats.find(([k]) => k === 'BTS')?.[1]);
+});
+
+// A Team-Ops trooper listed on its own: its loadouts are all named after it
+// ("TREITAK-1"), so each row says its skills, as its profile section did.
+test("loadout labels: a Team-Ops trooper's skills, another unit's own loadout name", () => {
+  const searcher = createSearch(JSON.parse(readFileSync(new URL('../search/index.json', import.meta.url), 'utf8')));
+  const morat = army.units.find((u) => u.slug === 'morat-team-ops');
+  assert.ok(morat);
+  // Its MI: the Spec-Ops of the same name is a unit of its own.
+  const treitak = searcher.search({query: 'morat team ops'}).units.find((u) => u.unitId === morat.id && u.type === 'MI');
+  assert.equal(treitak?.parent, 'Morat Team-Ops');
+  const labels = searcher.unitRows(treitak.key).map((h) => loadoutLabel(army, h));
+  assert.ok(labels.every((l) => l == null || !/TREITAK/i.test(l)), labels.join(' | '));
+  assert.ok(labels.some((l) => l === 'Forward Observer'), labels.join(' | '));
+  // A TAG's Crabbot still reads as its loadout's name.
+  const cutters = /** @type {import('../types.js').UnitRow} */ (army.units.find((u) => u.slug === 'cutters-varuna-naval-chasseurs'));
+  assert.ok(searcher.unitRows(cutters.id).some((h) => loadoutLabel(army, h) === 'CRABBOT'));
 });

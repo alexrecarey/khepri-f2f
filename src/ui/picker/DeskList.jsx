@@ -78,7 +78,7 @@ export default function DeskList({m, loadError}) {
         // A unit from browsing has no tier: no reason.
         const reason = REASON[/** @type {number} */ (x.u.tier)] && t(REASON[/** @type {number} */ (x.u.tier)]);
         return (
-          <div key={`u${x.u.unitId}:${x.u.groupId ?? ''}${x.away ? 'x' : ''}`} id={`dp-row-${idx}`} role="option" aria-selected={on}
+          <div key={`u${x.u.key}${x.away ? 'x' : ''}`} id={`dp-row-${idx}`} role="option" aria-selected={on}
             className={`dp-row${on ? ' on' : ''}`} onClick={select} onDoubleClick={() => (x.u.best ? pick(x.u.best) : select())}>
             <RowCrest slug={d?.profiles[0]?.crest} />
             <span className="t"><Highlight text={x.u.short} query={query} />{x.away ? ` · ${factionName(x.factionId)}` : ''}</span>

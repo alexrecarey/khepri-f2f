@@ -2,9 +2,8 @@
 // hit with its crest and stats, a loadout on its unit's page, a unit to drill
 // into.
 import {crestForRow} from '../../army/crests.js';
-import {extraLoadoutName} from '../../army/names.js';
 import {RowCrest} from '../Crest.jsx';
-import {loadoutTag} from '../../state/pickerView.js';
+import {loadoutLabel} from '../../state/pickerView.js';
 import {useT} from '../i18n.jsx';
 
 // The loadout's weapons, the one the query matched first: several loadouts
@@ -21,7 +20,7 @@ function weaponList(hit) {
 /** @param {{hit: ProfileHit, onPick: (hit: ProfileHit) => void, first?: boolean, color: string, army: Army | null}} props */
 export function ProfileRow({hit, onPick, first, color, army}) {
   const t = useT();
-  const extra = extraLoadoutName(hit.loadout, hit.unit) ?? loadoutTag(army, hit);
+  const extra = loadoutLabel(army, hit);
   return (
     <button type="button" className={`hit${first ? ' first' : ''}`} onClick={() => onPick(hit)}>
       <RowCrest slug={crestForRow(army, hit)} />
@@ -36,7 +35,7 @@ export function ProfileRow({hit, onPick, first, color, army}) {
 // weapons (and any loadout name), with the points on the right.
 /** @param {{hit: ProfileHit, onPick: (hit: ProfileHit) => void, color: string, army: Army | null}} props */
 export function LoadoutRow({hit, onPick, color, army}) {
-  const extra = extraLoadoutName(hit.loadout, hit.unit) ?? loadoutTag(army, hit);
+  const extra = loadoutLabel(army, hit);
   return (
     <button type="button" className="line-btn loadout" onClick={() => onPick(hit)}>
       <span><span className={`c-${color}`}>{weaponList(hit)}</span>{extra && <span className="tag"> · {extra}</span>}</span>

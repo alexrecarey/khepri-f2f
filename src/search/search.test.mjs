@@ -234,7 +234,7 @@ test('a Team-Ops unit is three troopers, each listed on its own', () => {
     [['Kaizoku-1 Spec-Ops', 'MI'], ['Kaizoku Heavy Spec-Ops', 'HI'], ['Kobaruto SpecBots', 'REM']]);
   // Its page holds only its own loadouts.
   const u = /** @type {import('../types.js').UnitHit} */ (heavy('kaizoku heavy'));
-  const rows = searcher.unitRows(u.unitId, null, u.groupId);
+  const rows = searcher.unitRows(u.key);
   assert.equal(rows.length, 4);
   assert.ok(rows.every((r) => r.groupId === u.groupId && r.unit === 'Kaizoku Heavy Spec-Ops'));
   // Browsing by type finds it under HI.
@@ -242,6 +242,28 @@ test('a Team-Ops unit is three troopers, each listed on its own', () => {
   // A Spec-Ops' SpecBots are its peripherals: still one unit.
   const specOps = searcher.search({query: 'kaizoku spec ops'}).units.find((x) => x.short === 'Kaizoku Spec-Ops');
   assert.ok(specOps);
-  assert.equal(specOps.groupId, undefined);
+  assert.equal(specOps.groupId, null);
+  assert.equal(specOps.parent, null);
   assert.equal(specOps.profileCount, 8);
+  // Its loadouts say which listed unit they belong to.
+  assert.ok(rows.every((r) => r.key === u.key && r.parent === 'JSA Team-Ops'));
+  assert.ok(searcher.unitRows(specOps.key).every((r) => r.key === specOps.key && r.parent === null));
+});
+
+// Ariadna's MI group is named after its unit ("ARIADNA TEAM-OPS"): its row
+// would read the unit twice, so it takes its profile's name.
+test("a Team-Ops trooper named after its unit takes its profile's name", () => {
+  const troopers = index.units.filter((u) => u.groupId != null && u.parent === 'AriadnaTeam-Ops');
+  assert.deepEqual(troopers.map((u) => [u.short, u.type]), [['Intel-1 Spec-Ops', 'MI'], ['Intel Heavy Spec-Ops', 'HI'], ['B2M SpecBots', 'REM']]);
+  assert.equal(searcher.search({query: 'intel 1'}).units[0]?.short, 'Intel-1 Spec-Ops');
+});
+
+// A tie-break putting each Team-Ops trooper in the army's order applied to every
+// equal score, so Team-Ops HIs sank below the capped profile list: "hmg" in
+// PanOceania lost the Confessor and Indigo Heavy HMGs.
+test("a Team-Ops HI's HMG is listed for a weapon search", () => {
+  const hmg = searcher.search({query: 'hmg', factionId: PANO}).profiles;
+  for (const unit of ['Confessor Heavy Spec-Ops', 'Indigo Heavy Spec-Ops']) {
+    assert.ok(hmg.some((h) => h.unit === unit), `${unit} in "hmg"`);
+  }
 });

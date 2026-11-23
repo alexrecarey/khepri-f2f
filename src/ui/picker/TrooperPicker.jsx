@@ -45,7 +45,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
   // Shown while the picker is open (ui.picker set).
   const {query, scope, stack} = useAppState((s) => /** @type {import('../../types.js').PickerState} */ (s.ui.picker));
   const recentFactions = useAppState((s) => s.lists.recentFactions);
-  // Drill-in stack: {view: 'factions'} | {view: 'type', type} | {view: 'unit', unitId, name}
+  // Drill-in stack: {view: 'factions'} | {view: 'type', type} | {view: 'unit', key, unitId, name}
   const top = stack.at(-1) ?? null;
   const pop = back;
   const onClose = back;
@@ -67,7 +67,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
   /** @param {ProfileHit} hit */
   const pick = (hit) => onPick(hit);
   /** @param {UnitHit} u */
-  const openUnit = (u) => push({view: 'unit', unitId: u.unitId, ...(u.groupId != null ? {groupId: u.groupId} : {}), name: u.short});
+  const openUnit = (u) => push({view: 'unit', key: u.key, unitId: u.unitId, name: u.short});
 
   // Enter takes the top result, but never a typo guess: the player confirms those.
   const firstHit = results?.mode === 'search' ? (results.recent[0] ?? results.profiles[0]) : null;
@@ -147,7 +147,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
             <ProfileRow army={army} color={color} key={h.rowId} hit={h} onPick={pick} first={!results.recent.length && i === 0} />
           ))}
           {results.units.length > 0 && <div className="list-head">{t('picker.unitsHead')}</div>}
-          {results.units.slice(0, 20).map((u) => <UnitRow key={`${u.unitId}:${u.groupId ?? ''}`} u={u} onOpen={openUnit} />)}
+          {results.units.slice(0, 20).map((u) => <UnitRow key={u.key} u={u} onOpen={openUnit} />)}
         </>
       )}
       {results?.mode === 'browse' && scope == null && (
@@ -183,7 +183,7 @@ export default function TrooperPicker({side, searcher, army, onPick, loadError})
             </>
           )}
           <div className="list-head">{t('picker.allUnits')}</div>
-          {results.units.map((u) => <UnitRow key={`${u.unitId}:${u.groupId ?? ''}`} u={u} onOpen={openUnit} />)}
+          {results.units.map((u) => <UnitRow key={u.key} u={u} onOpen={openUnit} />)}
         </>
       )}
     </Page>

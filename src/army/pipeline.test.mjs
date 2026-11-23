@@ -6,6 +6,8 @@ import assert from 'node:assert/strict';
 import {UnknownValue, fixName, normalizeAmmo, normalizeSave, normalizeWeaponRow, statOverrides} from './normalize.js';
 import {validateArmy} from '../../scripts/army-validate.mjs';
 import {army} from './testArmy.mjs';
+import {SKILL} from './ids.js';
+import {hasSkill, isTeamOpsUnit} from './traits.js';
 
 
 test('Saving Roll columns become {attr, halved, armZero, alsoBts} and a roll count', () => {
@@ -80,4 +82,19 @@ test('validation catches what a new release could change under the rules', () =>
   // A new bracketed value on a skill the rules read.
   const immunity = problemsAfter((a) => firstProfile(a).skills.push({id: 162, name: 'Immunity', extra: ['Plasma']}));
   assert.ok(immunity.some((p) => p.startsWith('Immunity (Plasma)')), immunity.join('\n'));
+});
+
+// isTeamOpsUnit reads one faction's groups, and the picker lists each group
+// of a Team-Ops unit on its own: a release putting Infinity Team-Ops on only
+// some groups, or in only some factions, would list them wrongly.
+test('Infinity Team-Ops is on every profile group of its unit, in every faction', () => {
+  const teamOps = army.units.filter((u) => Object.values(u.byFaction)
+    .some((f) => f.groups.some((g) => g.profiles.some((p) => hasSkill(p, SKILL.TEAM_OPS)))));
+  assert.ok(teamOps.length >= 15, `${teamOps.length} Team-Ops units`);
+  for (const unit of teamOps) {
+    assert.ok(isTeamOpsUnit(unit), unit.slug);
+    for (const [factionId, f] of Object.entries(unit.byFaction)) {
+      assert.ok(f.groups.length > 1 && f.groups.every((g) => g.profiles.some((p) => hasSkill(p, SKILL.TEAM_OPS))), `${unit.slug} in ${factionId}`);
+    }
+  }
 });
