@@ -30,6 +30,7 @@
 .btn.on.active { background: var(--active); border-color: var(--active); color: var(--active-ink); font-weight: 600; }
 .btn.on.reactive { background: var(--reactive); border-color: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
 .btn:disabled { opacity: .4; cursor: default; }
+.btn-group button:disabled { opacity: .4; cursor: default; }
 /* Classic's ammo: filled tiles, no outline. */
 .btn.solid { border-color: transparent; background: var(--surface-3); }
 .chip.solid { border-style: solid; color: var(--text-2); }
@@ -46,9 +47,10 @@
 .btn-group.on.reactive .g-name, .btn-group.reactive .g-mode.on { background: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
 .btn-group.on.active .g-mode { border-left-color: var(--active); }
 .btn-group.on.reactive .g-mode { border-left-color: var(--reactive); }
-/* The picked Dodge's toggles (No LoF, IMM-A): on is the side's colour at
-   half strength, dimmer than the Dodge it belongs to. */
-.btn-group .g-toggle.on { font-weight: 600; color: var(--text); }
+/* The picked Dodge's toggles (Bangbomb, IMM-A): on is the side's colour at
+   half strength, dimmer than the Dodge it belongs to, with light text (dark
+   ink is ~3:1 on it). As specific as the .g-mode.on rule above, so it wins. */
+.btn-group.active .g-toggle.on, .btn-group.reactive .g-toggle.on { font-weight: 600; color: var(--text); }
 .btn-group.active .g-toggle.on { background: var(--active-half); }
 .btn-group.reactive .g-toggle.on { background: var(--reactive-half); }
 

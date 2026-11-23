@@ -65,8 +65,10 @@ export const W = weaponTable({
  */
 export const side = (p, o, weaponKey, inCover = false) => {
   const traits = effectiveTraits(p, o);
-  const weapon = [...trooperWeapons(o, W, traits), ...trooperCcWeapons(o, W, traits), ...pseudoWeapons(traits)].find((w) => w.key === weaponKey) ?? null;
-  return /** @type {Trooper} */ ({profile: p, option: o, traits, weapon, inCover});
+  // The lists too, as resolveSelection gives them: withWeapon picks from them.
+  const lists = {weapons: trooperWeapons(o, W, traits), ccWeapons: trooperCcWeapons(o, W, traits), programs: [], pseudo: pseudoWeapons(traits)};
+  const weapon = Object.values(lists).flat().find((w) => w.key === weaponKey) ?? null;
+  return /** @type {Trooper} */ (/** @type {unknown} */ ({profile: p, option: o, traits, weapon, inCover, ...lists}));
 };
 
 export const combi = option([{id: 1, name: 'Combi Rifle'}, {id: 8, name: 'CC Weapon'}]);

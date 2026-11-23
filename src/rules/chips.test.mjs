@@ -6,6 +6,7 @@ import {
   hackedHelps, hackedResetMod, hasNoCover, immADodgeMod, immAHelps, surpriseAttackOffered, targetedResetHelps, targetedResetMod,
 } from './modifiers.js';
 import {berserkHelps, usesBerserk} from './closeCombat.js';
+import {noLofChoices, noLofDodgeMods, noLofHelps} from './noLof.js';
 import {profile} from './testFixtures.mjs';
 import {combi, flamer, side} from './testMatchups.mjs';
 
@@ -52,4 +53,22 @@ test('Surprise Attack: offered on the active side only; No Cover: no cover, no c
   assert.equal(surpriseAttackOffered(side(surprise, combi, '1:'), false), 0);
   assert.equal(hasNoCover(side(profile({skills: [{id: 264, name: 'No Cover'}]}), combi, '1:')), true);
   assert.equal(hasNoCover(shot), false);
+});
+
+test('No LoF: on the reactive card whenever it limits the choices; on the active card when it changes the Dodge', () => {
+  for (const [name, x] of picks) {
+    for (const [by, y] of picks) {
+      for (const inZoc of [true, false]) {
+        const on = {...x, noLof: true};
+        const where = `${name} vs ${by}, ${inZoc ? 'inside' : 'beyond'} ZoC`;
+        assert.equal(noLofHelps(x, y.weapon, true, inZoc), noLofChoices(on, y.weapon, true, inZoc) !== null, `reactive ${where}`);
+        const mods = noLofDodgeMods(on, y.weapon, false, inZoc);
+        assert.equal(noLofHelps(x, y.weapon, false, inZoc), mods.lof !== 0 || mods.silent !== 0, `active ${where}`);
+      }
+    }
+  }
+  // The deterministic cases: the reactive gets it against a shot or a
+  // template, whatever it picked; the active trooper Dodging a template.
+  assert.deepEqual(picks.filter(([, y]) => noLofHelps(PICKS.dodge, y.weapon, true, true)).map(([n]) => n), ['shot', 'template']);
+  assert.deepEqual(picks.filter(([, x]) => noLofHelps(x, PICKS.template.weapon, false, true)).map(([n]) => n), ['dodge']);
 });

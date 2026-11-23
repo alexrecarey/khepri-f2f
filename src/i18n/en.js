@@ -140,7 +140,6 @@ export default {
   'ledger.commsAttack': 'Comms Attack',
   'ledger.closeCombat': 'close combat',
   'ledger.template': 'template',
-  'ledger.outsideLofZoc': 'outside LoF and ZoC',
   'ledger.templateWeapon': 'Template',
   'ledger.modCap': 'MODs cap at ±{cap}',
   'ledger.belowZero': 'below 0: always fails',
@@ -371,6 +370,7 @@ export default {
   // The ledger cards
   'ledger.mods': '{side} mods',
   'ledger.noAro': 'No ARO: does not roll.',
+  'ledger.noLofNoAro': 'The attacker is outside its LoF and ZoC: it can\'t ARO.',
   'ledger.successValue': 'Success Value',
   'ledger.saveTitle': 'Save the target makes',
   'ledger.burstTitle': 'Burst',

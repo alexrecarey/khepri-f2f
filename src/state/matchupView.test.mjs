@@ -267,3 +267,29 @@ test('Supportware: the side card offers the chips that change the pick, the save
   // Ariadna has no EVO hacker: no chips.
   assert.deepEqual(matchupView(army, {...matchup, B: first(unitByIsc('Vystrel Mobile Artillery Regiment'), 301)}).B.supportware, []);
 });
+
+test('No LoF on the reactive: beyond its ZoC only No ARO can be picked; inside it, a Dodge or No ARO', () => {
+  // Chaksa shoots its Combi Rifle at Corax, who can't see it. (Chaksa has
+  // Sixth Sense: as the reactive it would get no chip.)
+  const blind = {...corax, noLof: true};
+  const far = matchupView(army, {A: chaksa, B: blind, rangeCm: 40});
+  assert.equal(far.A.resolved?.weapon?.kind, 'bs');
+  assert.ok(far.B.noLofChip);
+  assert.equal(far.B.sel.weaponKey, 'none');
+  assert.deepEqual(far.B.groups.filter((g) => !g.off).map((g) => g.key), ['none']);
+  assert.equal(far.params?.burstB, 0);
+  assert.equal(/** @type {LedgerSide} */ (far.ledger?.ledger.B).dice, 'No ARO: not rolled');
+  // Derived, like a default weapon: the document keeps what was picked.
+  assert.equal(blind.weaponKey, null);
+  const close = matchupView(army, {A: chaksa, B: blind, rangeCm: 20});
+  assert.equal(close.B.sel.weaponKey, 'dodge');
+  assert.deepEqual(close.B.groups.filter((g) => !g.off).map((g) => g.key), ['dodge', 'none']);
+  // Chip off: every button, and the default weapon.
+  const seen = matchupView(army, {A: chaksa, B: corax, rangeCm: 40});
+  assert.ok(seen.B.groups.every((g) => !g.off));
+  assert.notEqual(seen.B.sel.weaponKey, 'none');
+  // Sixth Sense: never out of LoF, no chip.
+  assert.equal(matchupView(army, {A: corax, B: {...chaksa, noLof: true}, rangeCm: 40}).B.noLofChip, false);
+  // The active side's chip only shows on a Dodge it changes (not against a shot).
+  assert.equal(matchupView(army, {A: {...corax, weaponKey: 'dodge'}, B: chaksa, rangeCm: 20}).A.noLofChip, false);
+});

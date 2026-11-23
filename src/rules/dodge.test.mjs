@@ -7,7 +7,8 @@ import {derive, option, profile} from './testFixtures.mjs';
 import {tEn} from '../i18n/index.js';
 import {render} from '../i18n/message.js';
 import {pseudoName, pseudoWeapons} from './trooper.js';
-import {bangbombHelps, noLofHelps} from './modifiers.js';
+import {bangbombHelps} from './modifiers.js';
+import {attackerInZoc, noLofChoices, noLofHelps, withNoLofPick} from './noLof.js';
 import {side, combi, pick, label, warhorse, flamer, duel, dodgeSkill} from './testMatchups.mjs';
 
 /** @typedef {import('../types.js').TraitRef} TraitRef */
@@ -90,14 +91,46 @@ test('Bangbomb (+X) is a toggle on the Dodge: +X, struck against a template or f
   const bangLine = (r) => /** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (r.ledger.B).sv).lines.find((x) => x.label === 'Bangbomb (+4)');
   assert.deepEqual(bangLine(vsFlamer), {value: 4, label: 'Bangbomb (+4)', by: 'B', struck: 'Template'});
   assert.equal(dodgeVs([{id: 19, name: 'Light Rocket Launcher'}], '19:Blast Mode').inputs.successValueB, 13);
-  // No LoF: still +4 inside ZoC (with the -3); struck beyond it.
+  // No LoF: still +4 inside ZoC (with the -3); beyond it there is no ARO to add it to.
   assert.equal(dodgeVs(rifle, '1:', {bangbomb: true, noLof: true}).inputs.successValueB, 14);
-  const far = dodgeVs(rifle, '1:', {bangbomb: true, noLof: true}, 40);
-  assert.equal(far.inputs.successValueB, 10);
-  assert.deepEqual(bangLine(far), {value: 4, label: 'Bangbomb (+4)', by: 'B', struck: 'outside LoF and ZoC'});
+  const far = derive({active: side(profile(), option(rifle), '1:'), reactive: withNoLofPick({...dodger, bangbomb: true, noLof: true}, side(profile(), option(rifle), '1:').weapon, false), rangeCm: 40});
+  assert.equal(far.inputs.burstB, 0);
   // In the Active Turn against a shot.
   const r = derive({active: {...dodger, bangbomb: true}, reactive: side(profile(), combi, '1:'), rangeCm: 20});
   assert.equal(r.inputs.successValueA, 17);
+});
+
+test('No LoF in ARO: beyond the ZoC against a shot, No ARO is all it has', () => {
+  const lrl = option([{id: 19, name: 'Light Rocket Launcher'}]);
+  /** @param {import('../types.js').Trooper} t */
+  const blind = (t) => ({...t, noLof: true});
+  const shot = side(profile(), combi, '1:');
+  // The reactive's pick as the view leaves it (matchupView.js), then the roll.
+  /** @param {import('../types.js').Trooper} a @param {import('../types.js').Trooper} b @param {number} rangeCm */
+  const run = (a, b, rangeCm) => derive({active: a, reactive: withNoLofPick(b, a.weapon, attackerInZoc('B', rangeCm, null)), rangeCm});
+  const dodger = side(profile({ph: 12}), combi, 'dodge');
+  // 8-16": no ARO, whatever it picked; the ledger says why.
+  for (const pickB of [dodger, side(profile({ph: 12}), combi, '1:')]) {
+    const r = run(shot, blind(pickB), 40);
+    assert.equal(r.inputs.burstB, 0);
+    assert.equal(r.inputs.ammoB, undefined);
+    assert.deepEqual(r.ledger.B, {kind: 'none', dice: 'No ARO: not rolled', reason: 'The attacker is outside its LoF and ZoC: it can\'t ARO.'});
+  }
+  // Chip off: a Dodge as usual.
+  assert.equal(run(shot, dodger, 40).inputs.successValueB, 12);
+  // Inside the ZoC it can't shoot back: a rifle reads as the Dodge, at -3.
+  const close = run(shot, blind(side(profile({ph: 12}), combi, '1:')), 20);
+  assert.equal(close.inputs.ammoB, 'DODGE');
+  assert.equal(close.inputs.successValueB, 9);
+  // Under a template it Dodges at -3 from any distance.
+  assert.equal(run(side(profile(), lrl, '19:Blast Mode'), blind(dodger), 40).inputs.successValueB, 9);
+  assert.equal(run(side(profile(), flamer, '3:'), blind(dodger), 40).inputs.successValueB, 9);
+  // What the reactive may pick with the chip on.
+  assert.deepEqual(noLofChoices(blind(dodger), shot.weapon, true, false), ['none']);
+  assert.deepEqual(noLofChoices(blind(dodger), shot.weapon, true, true), ['dodge', 'none']);
+  assert.deepEqual(noLofChoices(blind(dodger), side(profile(), lrl, '19:Blast Mode').weapon, true, false), ['dodge', 'none']);
+  assert.equal(noLofChoices(dodger, shot.weapon, true, false), null);                       // chip off
+  assert.equal(noLofChoices(blind(dodger), shot.weapon, false, false), null);               // the active side
 });
 
 test('No LoF: -3 to a Dodge in ARO or against a template, plus the weapon\'s Silent (X) inside ZoC', () => {
@@ -116,9 +149,9 @@ test('No LoF: -3 to a Dodge in ARO or against a template, plus the weapon\'s Sil
    */
   const sv = (a, b, s, rangeCm = 40, rangeCmB = null) => derive({active: a, reactive: b, rangeCm, rangeCmB}).inputs[`successValue${s}`];
   const dodger = side(profile({ph: 12}), combi, 'dodge');
-  // ARO against a shot: -3, and nothing without the chip.
-  assert.equal(sv(side(profile(), combi, '1:'), blind(dodger), 'B'), 9);
-  assert.equal(sv(side(profile(), combi, '1:'), dodger, 'B'), 12);
+  // ARO against a shot inside ZoC: -3, and nothing without the chip.
+  assert.equal(sv(side(profile(), combi, '1:'), blind(dodger), 'B', 20), 9);
+  assert.equal(sv(side(profile(), combi, '1:'), dodger, 'B', 20), 12);
   // Active Turn against a shot: no -3 (it is for AROs).
   assert.equal(sv(blind(dodger), side(profile(), combi, '1:'), 'A'), 12);
   // Against a template, either turn: -3. Direct or Impact.
@@ -128,7 +161,6 @@ test('No LoF: -3 to a Dodge in ARO or against a template, plus the weapon\'s Sil
   assert.equal(sv(side(profile(), silenced, '22:'), blind(dodger), 'B', 20), 3);
   assert.equal(sv(blind(dodger), side(profile(), silenced, '22:'), 'A', 20), 6);
   // Beyond ZoC: no Silent. A split range reads the attacker's own distance.
-  assert.equal(sv(side(profile(), silenced, '22:'), blind(dodger), 'B', 40), 9);
   assert.equal(sv(blind(dodger), side(profile(), silenced, '22:'), 'A', 20, 40), 12);
   // Sixth Sense (or a Fireteam of 5): 360° LoF, never out of it.
   const sixth = side(profile({ph: 12, skills: [{id: 67, name: 'Sixth Sense'}]}), combi, 'dodge');
@@ -145,15 +177,18 @@ test('No LoF: -3 to a Dodge in ARO or against a template, plus the weapon\'s Sil
   assert.deepEqual(lines.find((x) => x.label === 'Silent (-6)'), {value: -6, label: 'Silent (-6)', by: 'A'});
 });
 
-test('No LoF chip: only on a Dodge it can change', () => {
+test('No LoF chip: in ARO against a shot or template; in the Active Turn on a Dodge it changes', () => {
   const silenced = option([{id: 22, name: 'Silenced Pistol'}]);
+  const jammer = option([{id: 21, name: 'Jammer'}]);
   const dodger = side(profile(), combi, 'dodge');
   const shot = side(profile(), combi, '1:');
-  assert.equal(noLofHelps(dodger, shot.weapon, true), true);
-  assert.equal(noLofHelps(dodger, shot.weapon, false), false);
-  assert.equal(noLofHelps(dodger, side(profile(), flamer, '3:').weapon, false), true);
-  assert.equal(noLofHelps(dodger, side(profile(), silenced, '22:').weapon, false), true);
-  assert.equal(noLofHelps(dodger, side(profile(), combi, 'dodge').weapon, true), false);     // not attacked
-  assert.equal(noLofHelps(shot, shot.weapon, true), false);                                    // shooting back
-  assert.equal(noLofHelps(side(profile({skills: [{id: 67, name: 'Sixth Sense'}]}), combi, 'dodge'), shot.weapon, true), false);
+  assert.equal(noLofHelps(dodger, shot.weapon, true, false), true);
+  assert.equal(noLofHelps(shot, shot.weapon, true, false), true);                             // shooting back: it limits that too
+  assert.equal(noLofHelps(dodger, shot.weapon, false, true), false);                          // Active Turn, a shot
+  assert.equal(noLofHelps(dodger, side(profile(), flamer, '3:').weapon, false, false), true);
+  assert.equal(noLofHelps(dodger, side(profile(), silenced, '22:').weapon, false, true), true);
+  assert.equal(noLofHelps(dodger, side(profile(), silenced, '22:').weapon, false, false), false); // Silent beyond ZoC
+  assert.equal(noLofHelps(dodger, side(profile(), combi, 'dodge').weapon, true, true), false);  // not attacked
+  assert.equal(noLofHelps(dodger, side(profile({wip: 13}), jammer, '21:').weapon, true, true), false); // a Comms Attack
+  assert.equal(noLofHelps(side(profile({skills: [{id: 67, name: 'Sixth Sense'}]}), combi, 'dodge'), shot.weapon, true, true), false);
 });

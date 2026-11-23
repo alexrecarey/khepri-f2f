@@ -43,11 +43,13 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
   - A trooper with no LoF rolls nothing ("No LoF" in How the dice were built). A Direct Template needs LoF too: blocked unless attacked through the zone; once it can fire it rolls nothing, so no visibility MOD touches it (Alex, 2026-10-14). Dodging is unaffected.
 - Dodge: PH (or PH=14), plus its bracketed MODs (+3 to itself, −3 to the opponent, +1SD, ARM +3 while Dodging).
   - A weapon's ARM = 0 wins over the Dodge's ARM +3.
-- Bangbomb (+X): +X to Dodge Rolls, except against Template Weapons (Direct or Impact). It only counts against attackers in the user's LoF or ZoC (not a shot in the back). A toggle on the Dodge, for troopers with it (Alex, 2026-11-03): struck against a template, and with No LoF from beyond the ZoC; a shot in the back No LoF doesn't change (the Active Turn), the player leaves it off.
-- No LoF (chip on a Dodge; Alex, 2026-10-31): the attacker is outside the Dodger's LoF (wiki, Dodge and Traits).
-  - −3 in ARO (the attacker inside its ZoC), or against a Template Weapon (Direct or Impact) in either turn. Only one −3, however many apply. Not in the Active Turn against a shot.
+- Bangbomb (+X): +X to Dodge Rolls, except against Template Weapons (Direct or Impact). It only counts against attackers in the user's LoF or ZoC (not a shot in the back). A toggle on the Dodge, for troopers with it (Alex, 2026-11-03): struck against a template. With No LoF a reactive only Dodges inside its ZoC (or under a template), where Bangbomb holds; a shot in the back in the Active Turn the calculator can't see, so the player leaves it off.
+- No LoF (a side chip; Alex, 2026-10-31 and 2026-11-22): the attacker is outside the trooper's LoF (wiki: ARO, Dodge, Template Weapons, Traits).
+  - ARO needs the attacker in the reactive's LoF or ZoC. So in ARO, against a shot from beyond the ZoC (8"), No ARO is the only choice: every other button is off and the pick reads as No ARO. Under a template it can still Dodge, from any distance.
+  - Inside the ZoC, or under a template, it can't shoot back without LoF: only Dodge or No ARO; another pick reads as the Dodge. Derived, like a default weapon: the chip off gives the pick back.
+  - Its Dodge takes −3 in ARO, or against a Template Weapon (Direct or Impact) in either turn. Only one −3, however many apply. Not in the Active Turn against a shot.
   - Silent (X) (Silenced Pistol, Tactical Bow: −6): the attacker's weapon adds X while it is inside the Dodger's ZoC (the 0–8" band), on top of the −3: −9 in ARO.
-  - On the Dodge button with Bangbomb and IMM-A: [Dodge | Bangbomb | No LoF | IMM-A]. It shows only while it can change the Dodge: in ARO, or against a template or a Silent weapon. Not for a trooper with Sixth Sense (or a Fireteam of 5): its LoF is 360°.
+  - Shown on the reactive card while the active side shoots or uses a template (not a Comms or CC Attack); on the active card only on a Dodge it changes (a template, or a Silent weapon inside the ZoC). Not for a trooper with Sixth Sense (or a Fireteam of 5): its LoF is 360°.
   - MODs: they count toward the ±12 cap. A Deployable's −3 (Mines) isn't modelled.
 - BS Attack (−X): the opponent takes −X whatever it does, while the attack is rolled. Warhorse ignores it.
 - Surprise Attack (−X): the opponent takes −X on its Face to Face Roll in ARO. A player's choice (chip), active side only.

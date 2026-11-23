@@ -3,10 +3,9 @@
 // side that rolls nothing. ctx: matchup.js deriveInputs.
 import {ZERO_PAIN} from '../army/hacking.js';
 import {
-  LIMITS, bangbombMod, dodgeExtras, evades, fireteamBonuses, hackedResetMod, immADodgeMod, noLofDodgeMods,
-  targetedResetMod,
+  LIMITS, bangbombMod, dodgeExtras, evades, fireteamBonuses, hackedResetMod, immADodgeMod, targetedResetMod,
 } from './modifiers.js';
-import {ZOC_CM, rangeOf} from './ranges.js';
+import {attackerInZoc, noLofDodgeMods} from './noLof.js';
 import {other} from '../lib/side.js';
 import {clamp} from '../lib/clamp.js';
 import {msg} from '../i18n/message.js';
@@ -34,12 +33,10 @@ import {compact, line, note, section, statLabel, svSection} from './lines.js';
 function dodgeInputs(x, y, side, incoming, ctx) {
   const d = dodgeExtras(x.traits);
   const ft = fireteamBonuses(x.ftSize).dodge;
-  // The attacker shoots from its own distance (a split range: the reactive's).
   const o = other(side);
-  const inZoc = rangeOf(o, ctx.rangeCm, ctx.rangeCmB) <= ZOC_CM;
-  // Bangbomb on: struck where it can't help (a template, beyond LoF and ZoC).
-  const bang = bangbombMod(x, incoming, side === 'B', inZoc);
-  const noLof = noLofDodgeMods(x, incoming, side === 'B', inZoc);
+  // Bangbomb on: struck where it can't help (a template).
+  const bang = bangbombMod(x, incoming);
+  const noLof = noLofDodgeMods(x, incoming, side === 'B', attackerInZoc(side, ctx.rangeCm, ctx.rangeCmB));
   const lines = compact([
     // Dodge (PH=14) replaces the Attribute, so it isn't a MOD (MOD_CAP).
     d.ph !== null ? line(d.ph, msg('ledger.dodgePh', {ph: d.ph}), side) : line(x.profile.ph ?? 0, statLabel(x, 'ph'), null),
