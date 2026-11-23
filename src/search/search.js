@@ -20,6 +20,13 @@ const TIER_COST = [0, 1, 3, 4, 6];
 /** @type {Record<number, number>} */
 const FIELD_COST = {[FIELD.SHORT]: 0, [FIELD.NAME]: 1, [FIELD.LOADOUT]: 1, [FIELD.WEAPON]: 2, [FIELD.ALIAS]: 2, [FIELD.SKILL]: 3};
 const MAX_PROFILES = 30;
+// A peripheral riding in its controller's unit (a TAG's Crabbot, a Spec-Ops'
+// SpecBots) is almost never what a search is for, but shares the unit's name:
+// a cheap, weaponless Crabbot matching only "squalo" outranked the Squalo.
+// The penalty is above any one word's tier and field cost, so it falls under
+// every other match; a query only it matches still lists it. A unit that is
+// only peripherals (Chaksa Servants, sold on their own) gets none.
+const PERIPHERAL_COST = 80;
 
 /**
  * @param {import('../types.js').SearchIndex} index
@@ -42,10 +49,13 @@ export function createSearch(index) {
   /** @param {import('../types.js').IndexUnit} u */
   const keyOfUnit = (u) => entryKey(u.id, u.groupId);
   const unitByKey = new Map(index.units.map((u) => [keyOfUnit(u), u]));
-  // Peripherals (Crabbots, Auxbots...) ride in their controller's unit entry (see matchRows).
+  // Peripherals (Crabbots, Auxbots...) score PERIPHERAL_COST more (matchRows).
   const peripheralSkill = index.skills.findIndex((sk) => sk.id === SKILL.PERIPHERAL);
   /** @param {IndexRow} row */
   const isPeripheral = (row) => row.skills.includes(peripheralSkill);
+  const hasController = new Set(rows.filter((r) => !isPeripheral(r)).map((r) => r.unitId));
+  /** @param {IndexRow} row */
+  const ridesAlong = (row) => isPeripheral(row) && hasController.has(row.unitId);
   const factionName = new Map(index.factions.map((f) => [f.id, f.name]));
 
   // word -> postings [rowId, field, weaponIndex], plus its sound key. Unit and
@@ -166,7 +176,7 @@ export function createSearch(index) {
       }
       if (!ok) continue;
       const row = rows[rowId];
-      let score = parts.reduce((s, p) => s + p.cost, 0);
+      let score = parts.reduce((s, p) => s + p.cost, 0) + (ridesAlong(row) ? PERIPHERAL_COST : 0);
       // The whole query spells the unit's short name: rank it on top.
       if (parts.every((p) => p.field === FIELD.SHORT) && parts.every((p) => p.tier <= TIER.PREFIX)) score -= 5;
       const weaponPart = parts.find((p) => p.weapon >= 0);
@@ -180,21 +190,7 @@ export function createSearch(index) {
     }
     out.sort((a, b) => a.score - b.score || a.row.points - b.row.points
       || a.row.unit.localeCompare(b.row.unit) || a.row.id - b.row.id);
-    // Within the places one unit's rows already hold, its own loadouts come before its peripherals: a cheap,
-    // weaponless Crabbot matching only the unit's name scored best and became the pick. Units keep their rank.
-    /** @type {Map<number, number[]>} */
-    const slots = new Map();
-    out.forEach((m, i) => {
-      if (!slots.has(m.row.unitId)) slots.set(m.row.unitId, []);
-      /** @type {number[]} */ (slots.get(m.row.unitId)).push(i);
-    });
-    const reordered = [...out];
-    for (const places of slots.values()) {
-      const mine = places.map((i) => out[i]);
-      const own = [...mine.filter((m) => !isPeripheral(m.row)), ...mine.filter((m) => isPeripheral(m.row))];
-      places.forEach((i, k) => { reordered[i] = own[k]; });
-    }
-    return reordered;
+    return out;
   }
 
   /**

@@ -206,7 +206,7 @@ test("each unit carries its best match: the loadout Enter picks, past the profil
 
 test("a TAG's own loadout ranks above its Crabbot peripheral", () => {
   // The Crabbot (2 pts, no weapons) used to be the cheapest match, so Enter or the unit row picked it and the
-  // trooper could only Dodge. Peripherals now follow their unit's own loadouts on equal matches.
+  // trooper could only Dodge. Peripherals score PERIPHERAL_COST more than any other match.
   for (const [query, want] of [['squalo', 'SQUALO Mk-II'], ['jotum', 'JOTUM'], ['cutter', 'CUTTER']]) {
     const r = searcher.search({query});
     assert.equal(r.profiles[0]?.loadout, want, `${query}: top profile`);
@@ -275,4 +275,11 @@ test('scoreboard: a query several units are named by is a top 1 for any of them'
   const cases = [{query: 'kaizoku', kind: 'firstWord', expect: 'kaizoku 1 spec ops'}, {query: 'kaizoku', kind: 'firstWord', expect: 'kaizoku heavy spec ops'}];
   assert.equal(score(fake, cases).all.top1, 2);
   assert.equal(score(fake, cases.slice(0, 1)).all.top1, 0, 'alone, only its own unit counts');
+});
+
+// Only a peripheral riding in its controller's unit is pushed down: a unit
+// that is only peripherals is still found by its own name.
+test('a unit of peripherals alone is found by its name', () => {
+  assert.equal(searcher.search({query: 'chaksa servants'}).units[0]?.short, 'Chaksa Servants');
+  assert.equal(searcher.search({query: 'chak'}).units.some((u) => u.short === 'Chaksa Servants'), true);
 });
