@@ -186,6 +186,7 @@ export default {
   'note.neurocinetics': 'Neurocinetics; Burst reduced to 1 in the Active Turn',
   'note.shock': 'Shock against VITA 1; a failed save is Dead (no Unconscious, NWI or Dogged)',
   'note.stateCaused': '{weapon}; a failed save leaves the target {state}, not wounded',
+  'note.stateOnHit': '{weapon}; a hit leaves the target {state}, with no Saving Roll',
   'note.cantTarget': '{program} can\'t target this trooper; it isn\'t rolled',
   'note.contImmune': 'target has Immunity (Continuous Damage); Continuous Damage ignored',
   'note.vulnerability': 'target has Vulnerability ({vulnerable}); Immunity ({immunity}) does not apply',

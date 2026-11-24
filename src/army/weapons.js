@@ -233,9 +233,13 @@ export const stuns = (row) => isNonLethal(row) && causesStunned(row);
 /** @param {MaybeRow} row */
 export const paralyses = (row) => hasAmmo(row, 'PARA');
 
-// Weapons whose failed save causes a State, and that State.
+// Leaves the target in Targeted State (Forward Observer, army/forwardObserver.js).
+/** @param {MaybeRow} row */
+export const marksTargeted = (row) => isNonLethal(row) && (row?.props ?? []).includes('State: Targeted');
+
+// Weapons that cause a State in place of wounds, and that State.
 /** @type {Array<[(row: MaybeRow) => boolean, string]>} */
-const STATE_CAUSED = [[isolates, 'Isolated'], [stuns, 'Stunned'], [paralyses, 'Immobilized-A']];
+const STATE_CAUSED = [[isolates, 'Isolated'], [stuns, 'Stunned'], [paralyses, 'Immobilized-A'], [marksTargeted, 'Targeted']];
 
 // The State a failed save causes in place of wounds, or null. A Hacking
 // Program names its own (army/hacking.js): Immobilized-B, Targeted, Possessed.
@@ -246,6 +250,11 @@ const STATE_CAUSED = [[isolates, 'Isolated'], [stuns, 'Stunned'], [paralyses, 'I
  * @returns {string | null}
  */
 export const stateCaused = (row) => (row?.hack ? row.hack.state : STATE_CAUSED.find(([causes]) => causes(row))?.[1] ?? smokeAmmo(row));
+
+// A success that asks for no Saving Roll: the win itself is the State.
+// Smoke / Eclipse (it hits nobody) and Forward Observer (the hit is Targeted).
+/** @param {MaybeRow} row */
+export const noSavingRoll = (row) => isSmoke(row) || (Boolean(row) && !row?.save && stateCaused(row) !== null);
 
 // "Bioweapon (DA+SHOCK)" or null.
 /**
@@ -350,11 +359,15 @@ export function weaponLabel(row, mods) {
   // weapon menu marks them "template" in place of the range MOD.
   const burst = (row.burst ?? 1) + mods.burst;
   const sd = mods.sd > 0 ? `+${mods.sd}SD` : '';
-  // PARA: no PS, the target rolls PH-6. Smoke: no PS at all, nothing to save.
-  const dmg = isSmoke(row) ? [] : [row.save?.attr === 'PH' ? `PH${row.save.mod ?? ''}` : `PS${weaponPS(row, mods)}`];
+  // PARA: no PS, the target rolls PH-6. Smoke, Forward Observer: no PS at all,
+  // nothing to save.
+  const dmg = noSavingRoll(row) ? [] : [row.save?.attr === 'PH' ? `PH${row.save.mod ?? ''}` : `PS${weaponPS(row, mods)}`];
   // As players write it: "AP+EXP", not the data's "AP+Exp" (ammoMsg).
   const ammo = ammoTypes(row, mods);
-  return list([`${row.name}${modeSuffix(row.mode)}`, `B${burst}${sd}`, ...dmg, ammo.length ? list(ammo.map(ammoMsg), '+') : 'N'], ' · ');
+  // No ammunition and no save (Forward Observer): the State it causes.
+  const state = noSavingRoll(row) && !ammo.length ? stateCaused(row) : null;
+  const effect = state ? msg(`state.${state.toLowerCase()}`) : ammo.length ? list(ammo.map(ammoMsg), '+') : 'N';
+  return list([`${row.name}${modeSuffix(row.mode)}`, `B${burst}${sd}`, ...dmg, effect], ' · ');
 }
 
 // Weapon menu order: single-mode first, then "Hit Mode", then other modes.

@@ -257,9 +257,9 @@
  * applied by rules/trooper.js) and Hacking Programs (army/hacking.js
  * trooperPrograms).
  * @typedef {object} WeaponEntry
- * @property {string} key `${id}:${mode}`; a program's is `hack:${id}`
+ * @property {string} key `${id}:${mode}`; a program's is `hack:${id}`, Forward Observer's `fo`
  * @property {'bs' | 'smoke' | 'template' | 'cc' | 'program'} kind
- * @property {number | string} id the Army's weapon id, a number (a program's: its key)
+ * @property {number | string} id the Army's weapon id, a number (a program's or Forward Observer's: its key)
  * @property {string} name the weapon's name, as `row.name`
  * @property {string | null} mode the firing mode
  * @property {WeaponRow} row as fired: the loadout's ammo extra applied
@@ -452,7 +452,7 @@
 // ---- The dice (engine/params.js, engine/calculate.js) ----
 
 /** Ammunition the calculator knows (engine/params.js AMMO_KEYS).
- * @typedef {'N' | 'DA' | 'EXP' | 'T2' | 'PLASMA' | 'DODGE' | 'NONE' | 'SMOKE'} Ammo */
+ * @typedef {'N' | 'DA' | 'EXP' | 'T2' | 'PLASMA' | 'DODGE' | 'NONE' | 'SMOKE' | 'STATE'} Ammo */
 
 /**
  * One side's calculator params (engine/params.js PARAMS, per side).

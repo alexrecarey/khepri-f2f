@@ -6,7 +6,7 @@
 // its lines (and the notes it makes); nothing is pushed into a shared list.
 import {SKILL} from '../army/ids.js';
 import {hasSkill, msvName} from '../army/traits.js';
-import {attackAttribute, isCommsAttack, needsLof, rolledBsAttack} from '../army/weapons.js';
+import {attackAttribute, isCommsAttack, needsLof, noSavingRoll, rolledBsAttack} from '../army/weapons.js';
 import {
   COVER_BS_MOD, LIMITS, albedoMod, albedoValue, attackBonuses, attackStat, benefitsFromCover, coverBsMod, fireteamBonuses, firewallOf, hasNanoscreen, keepsAroBurst, mimetismMod, mimetismValue, neurocineticsAroBurst, programSvMods, targetedMod,
 } from './modifiers.js';
@@ -17,7 +17,7 @@ import {ccAttackMods, ccBurst, ccSd} from './closeCombat.js';
 import {isSmokeAttack, smokeHit} from './smoke.js';
 import {ENHANCED_REACTION_BURST, marksmanshipFromAssistedFire, usesEnhancedReaction} from './supportware.js';
 import {distance, list, msg} from '../i18n/message.js';
-import {hitInputs} from './hit.js';
+import {hitInputs, stateHit} from './hit.js';
 import {compact, coverLabel, line, mark, note, section, statLabel, sum, svSection} from './lines.js';
 
 /** @typedef {import('../types.js').Side} Side */
@@ -205,7 +205,8 @@ function sdLines(x, s) {
   ]);
 }
 
-// A shot (a BS Attack, a Direct Template, a Hacking Program, a Smoke throw):
+// A shot (a BS Attack, a Direct Template, a Hacking Program, a Smoke throw,
+// Forward Observer):
 // Success Value, Burst and Special Dice as lines, each summed into its input.
 /**
  * @param {Attacker} x
@@ -220,8 +221,9 @@ export function attackInputs(x, y, rangeCm, side, ctx) {
   const b = burstLines(x, side);
   const burst = section(b.lines);
   const sd = section(sdLines(x, side));
-  // Smoke hits nobody: nothing to save (rules/smoke.js).
-  const hit = isSmokeAttack(x) ? smokeHit(x, side) : hitInputs(x, y, side);
+  // Smoke hits nobody: nothing to save (rules/smoke.js). Nor against a hit
+  // that is the State itself (Forward Observer).
+  const hit = isSmokeAttack(x) ? smokeHit(x, side) : noSavingRoll(x.weapon.row) ? stateHit(x, side) : hitInputs(x, y, side);
   // Computed keys: tsc sees an index signature, so the shape is stated. The
   // totals of these sections are numbers (lines.js sum).
   const inputs = /** @type {Partial<Params>} */ ({

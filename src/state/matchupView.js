@@ -254,7 +254,8 @@ export function matchupCore(army, matchup) {
   // The states each side's hits push its target through. The active side's
   // results are what it does to the reactive trooper, so they follow B's
   // states (and the other way round).
-  // A Jammer's failed save is Isolated, a Flash Pulse's Stunned, not a wound
+  // A Jammer's failed save is Isolated, a Flash Pulse's Stunned, a Forward
+  // Observer's hit Targeted, not a wound
   // (rules/smoke.js winState).
   /**
    * @param {ResolvedSide | null} target
