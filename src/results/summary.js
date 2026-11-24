@@ -135,6 +135,13 @@ export function summarize(result, targets = null, params = null) {
   const dodgerSide = unopposed ? null : templateDodger(params);
   /** @type {Role | null} */
   const dodger = dodgerSide && (dodgerSide === 'A' ? 'active' : 'reactive');
+  // Who wins the Face to Face Roll, left to right; every screen draws these.
+  /** @type {import('../types.js').Summary['f2f']} */
+  const f2f = [
+    {side: 'active', chance: win.active, seg: 'seg-a2', dodger: null},
+    {side: 'none', chance: win.none, seg: dodger ? `seg-dodge-${dodger}` : 'seg-none', dodger},
+    {side: 'reactive', chance: win.reactive, seg: 'seg-r3', dodger: null},
+  ];
 
   const states = !unopposed && targets?.active && targets?.reactive
     ? {active: byState(of('active'), targets.active, 'active'), reactive: byState(of('reactive'), targets.reactive, 'reactive')}
@@ -151,7 +158,7 @@ export function summarize(result, targets = null, params = null) {
     stateBar,
     wpo: {active: woundsPerOrder(of('active')), reactive: woundsPerOrder(of('reactive'))},
     win,
-    dodger,
+    f2f,
     bar,
     atLeast: {active: atLeast('active'), reactive: atLeast('reactive')},
     saved: {

@@ -11,6 +11,7 @@ import {useState, useSyncExternalStore} from 'react';
 import {StateGlyph} from './icons.jsx';
 import {pct, shows} from '../results/summary.js';
 import {useT} from './i18n.jsx';
+import {noneText} from './ResultBars.jsx';
 
 /** @typedef {'active' | 'reactive'} Role */
 /** @typedef {import('../types.js').Summary} Summary */
@@ -197,6 +198,8 @@ export function StateList({s, ui}) {
   );
   /** @param {Role} side */
   const rows = (side) => s.states[side].filter((st) => shows(st.atLeast)).map((st) => <StateRow key={st.key} st={st} side={side} ui={ui} cur={cur} />);
+  const none = s.f2f[1];
+  const nt = noneText(none, t);
   // Won, every hit saved: under the side that won, grey like nobody wounded
   // in the bar (extra information, not always important).
   /** @param {Role} side */
@@ -206,12 +209,10 @@ export function StateList({s, ui}) {
       {shows(s.win.active) && head('active', `${t('results.sideWins', {side: t('side.active')})} · ${pct(s.win.active)}`)}
       {shows(s.win.active) && rows('active')}
       {shows(s.win.active) && saves('active')}
-      {/* Against a Direct Template nobody wins exactly when the Dodger gets away. */}
-      {shows(s.win.none) && <div className={`shead static${cur.focus ? ' dim' : ''}`}>
-        <span className={`t${s.dodger ? ` c-${s.dodger}` : ''}`}>{s.dodger ? t('results.sideDodges', {side: t(`side.${s.dodger}`)}) : t('results.nobodyWins')} · {pct(s.win.none)}</span>
+      {shows(none.chance) && <div className={`shead static${cur.focus ? ' dim' : ''}`}>
+        <span className={`t${none.dodger ? ` c-${none.dodger}` : ''}`}>{nt.title} · {pct(none.chance)}</span>
       </div>}
-      {shows(s.win.none) && <PlainRow glyph="tie" label={t(s.dodger ? 'results.noHits' : 'results.bothMissOrTie')} p={s.win.none} dim={Boolean(cur.focus)}
-        seg={s.dodger ? `seg-dodge-${s.dodger}` : 'seg-none'} />}
+      {shows(none.chance) && <PlainRow glyph="tie" label={nt.row ?? t('results.bothMissOrTie')} p={none.chance} dim={Boolean(cur.focus)} seg={none.seg} />}
       {shows(s.win.reactive) && head('reactive', `${t('results.sideWins', {side: t('side.reactive')})} · ${pct(s.win.reactive)}`)}
       {shows(s.win.reactive) && rows('reactive')}
       {shows(s.win.reactive) && saves('reactive')}
