@@ -94,9 +94,15 @@ export function UnopposedSheetBody({s, ledger, diceLine}) {
     return kind === 'dodge' || kind === 'reset' ? kind : null;
   };
   const {joint} = s;
-  // A side whose hit is a State (Smoke placed) says that, not "wounded".
-  /** @param {Role} side @param {string} name */
-  const only = (side, name) => (s.attacks[side].state ? t('unopposed.onlyState', {state: /** @type {string} */ (s.attacks[side].state)}) : t('unopposed.only', {name}));
+  // A side whose hit is a State (Smoke placed) says that, not "wounded"; the
+  // trooper's name too when both sides' States read the same (two Dodges).
+  const sameState = s.attacks.active.state != null && s.attacks.active.state === s.attacks.reactive.state;
+  /** @param {Role} side @param {string} target */
+  const only = (side, target) => {
+    const state = /** @type {string | null} */ (s.attacks[side].state);
+    if (!state) return t('unopposed.only', {name: target});
+    return sameState ? t('unopposed.onlyStateBy', {state, name: side === 'active' ? names.A : names.B}) : t('unopposed.onlyState', {state});
+  };
   const anyState = Boolean(s.attacks.active.state || s.attacks.reactive.state);
   const tiles = [
     {k: 'both', p: joint.both, text: anyState ? t('unopposed.bothHappen') : t('unopposed.both'), cls: 'c-both'},

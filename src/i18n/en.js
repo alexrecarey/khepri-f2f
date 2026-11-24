@@ -385,6 +385,7 @@ export default {
   'unopposed.only': 'only {name} wounded',
   'unopposed.nobody': 'nobody wounded',
   'unopposed.onlyState': 'only {state}',
+  'unopposed.onlyStateBy': 'only {name}: {state}',
   'unopposed.bothHappen': 'both happen',
   'unopposed.neither': 'neither happens',
   'unopposed.explain': 'Not a face to face roll: nothing is opposed, so each attack is resolved on its own and <b>both can succeed</b> this order.',

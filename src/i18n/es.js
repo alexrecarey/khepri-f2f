@@ -384,6 +384,7 @@ export default {
   'unopposed.only': 'solo {name} herido',
   'unopposed.nobody': 'nadie herido',
   'unopposed.onlyState': 'solo {state}',
+  'unopposed.onlyStateBy': 'solo {name}: {state}',
   'unopposed.bothHappen': 'ocurren los dos',
   'unopposed.neither': 'no ocurre ninguno',
   'unopposed.explain': 'No es una Tirada Enfrentada: no hay oposición, así que cada ataque se resuelve por separado y <b>los dos pueden tener éxito</b> en esta orden.',
