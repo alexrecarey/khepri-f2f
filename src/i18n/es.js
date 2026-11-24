@@ -386,6 +386,8 @@ export default {
   'classic.specialDice': 'Dados especiales',
   'classic.burstZero': 'Ráfaga 0: no tira, el otro bando tira sin oposición',
   'classic.successValue': 'Valor de Éxito',
+  'classic.oneSave': 'Un solo número de salvación',
+  'classic.splitSave': 'Separar PS / BLI',
   'classic.weaponPs': 'PS del arma',
   'classic.armBts': 'BLI / PB',
   'classic.opponentSave': 'Salvación del rival',

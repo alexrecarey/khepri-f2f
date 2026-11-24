@@ -386,6 +386,8 @@ export default {
   'classic.specialDice': 'Special dice',
   'classic.burstZero': 'Burst 0: no roll, the other side is unopposed',
   'classic.successValue': 'Success Value',
+  'classic.oneSave': 'One save number',
+  'classic.splitSave': 'Split PS / ARM',
   'classic.weaponPs': 'Weapon PS',
   'classic.armBts': 'ARM / BTS',
   'classic.opponentSave': 'Opponent Save',

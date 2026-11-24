@@ -71,6 +71,18 @@ export function UnifiedSaveSetting({className}) {
   );
 }
 
+// The same setting as a small link under the Classic results: names the view
+// it switches to.
+export function UnifiedSaveLink() {
+  const t = useT();
+  const on = useAppState((s) => Boolean(s.prefs.classicUnifiedSave));
+  return (
+    <button type="button" className="link-btn save-view-link" onClick={() => dispatch({type: 'setPref', key: 'classicUnifiedSave', value: !on})}>
+      {on ? t('classic.splitSave') : t('classic.oneSave')}
+    </button>
+  );
+}
+
 /** @param {{factions: {id: number, name: string}[]}} props */
 export function SettingsPage({factions}) {
   const t = useT();

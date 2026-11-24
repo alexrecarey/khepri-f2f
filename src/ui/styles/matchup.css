@@ -65,6 +65,8 @@
 .chip-group.reactive .opt.on { background: var(--reactive); color: var(--reactive-ink); font-weight: 600; }
 .note { font-size: var(--fs-small); color: var(--muted); }
 .link-btn { all: unset; cursor: pointer; color: var(--text-2); text-decoration: underline; }
+.save-view-link { align-self: flex-start; font-size: 13px; padding: 8px 0; }
+.save-view-link:focus-visible { outline: 2px solid var(--active); outline-offset: 2px; border-radius: 4px; }
 
 /* ---------- range selector ----------
    One row of band buttons, the same size and place open or closed; opening
