@@ -81,7 +81,7 @@ Alex, 2026-10-20: Comms Attacks are opposed by Reset; the Jammer's success cause
 - Dodge can't evade a Comms Attack: it isn't rolled and the attack is a Normal Roll. Reset evades nothing else: against a shot it isn't rolled. Shooting back at the Jammer user is a Face to Face Roll as usual.
 - Every pairing is one of three shapes (Alex, 2026-11-23; `src/rules/opposed.js`, `src/state/rollShape.test.mjs`):
   - A Face to Face Roll: both roll and one roll affects the other (two attacks, or an attack and the Dodge or Reset that evades it).
-  - Two rolls, each on its own (not face to face): both roll and neither affects the other. A Direct Template against an attack; Smoke against a roll it doesn't oppose (an MSV, a CC or Comms Attack, a Dodge or a Reset); two evasions (Dodge or Reset against Dodge or Reset: nobody attacks).
+  - Two rolls, each on its own (not face to face): both roll and neither affects the other. A Direct Template against an attack; Smoke against a roll it doesn't oppose (an MSV, a CC or Comms Attack, a Dodge or a Reset); two evasions (Dodge or Reset against Dodge or Reset: nobody attacks; Alex, 2026-11-24).
   - One roll alone: the other side rolls nothing (No ARO, a Dodge against a Comms Attack, a Reset against anything but a Comms Attack or Smoke), or a Direct Template against a Dodge (only the Dodge rolls).
 - No LoF: Mimetism, Albedo, Smoke and White Noise don't touch it. Partial Cover and Nanoscreen do nothing against a Comms Attack (neither the −3 nor the +3 save).
 - Firewall is its cover: −X to the attacker (Hacking Device "UPGRADE: Firewall (−3)", "Firewall −6", TinBot: Firewall (−3) / (−6); the best one counts) and +3 to the target's saves.
