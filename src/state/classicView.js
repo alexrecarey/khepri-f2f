@@ -14,7 +14,7 @@ export const CLASSIC_AMMO = [['N', 'ammo.N'], ['DA', 'ammo.DA'], ['EXP', 'ammo.E
 /** @param {string} ammo */
 export const classicAmmoKey = (ammo) => CLASSIC_AMMO.find(([key]) => key === ammo)?.[1] ?? null;
 
-// The highest Opponent PS the steppers reach: weapon PS + ARM (or BTS) limits.
+// The highest Opponent Save the unified steppers reach: weapon PS + ARM (or BTS) limits.
 /** @type {Record<'arm' | 'bts', readonly [number, number]>} */
 export const SAVE_LIMIT = {arm: [0, LIMITS.damage[1] + LIMITS.arm[1]], bts: [0, LIMITS.damage[1] + LIMITS.bts[1]]};
 

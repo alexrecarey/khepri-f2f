@@ -6,6 +6,7 @@ import {EngineLoading, WaitPanel} from './ResultsWait.jsx';
 import useResultsView from './useResultsView.js';
 import {useStatesUi} from './WoundStates.jsx';
 import {useT} from './i18n.jsx';
+import {UnifiedSaveLink} from './SettingsPage.jsx';
 
 /** @param {import('../types.js').ResultsProps} props */
 export default function ResultsPanel({s, status, diceLine, classic, ledger, save, pending, picked, params}) {
@@ -19,6 +20,7 @@ export default function ResultsPanel({s, status, diceLine, classic, ledger, save
         : s ? <ResultsBody s={s} h={h} choice={choice} b={b} classic={classic} ledger={ledger} diceLine={diceLine} pending={pending} ui={ui} />
         : pending ? <EngineLoading label={status} /> : <span className="empty">{status}</span>}
       {s && status && <span className="status">{status}</span>}
+      {classic && <UnifiedSaveLink />}
     </section>
   );
 }

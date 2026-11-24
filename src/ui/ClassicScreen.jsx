@@ -5,8 +5,8 @@ import {useCallback} from 'react';
 import {LIMITS} from '../engine/params.js';
 import {clamp} from '../lib/clamp.js';
 import {CLASSIC_AMMO, SAVE_LIMIT, armSave, btsSave, classicSide} from '../state/classicView.js';
-import {ROLE} from '../state/schema.js';
-import {dispatch} from '../state/store.js';
+import {ROLE, other} from '../state/schema.js';
+import {dispatch, useAppState} from '../state/store.js';
 import {D20} from './icons.jsx';
 import ResultsCard from './ResultsCard.jsx';
 import ResultsPanel from './ResultsPanel.jsx';
@@ -82,6 +82,8 @@ function ClassicSide({side, params, setParam}) {
   const burst = /** @type {number} */ (v('burst'));
   const ammo = v('ammo');
   const {rollsDice, causesSaves, plasma} = classicSide(params, side);
+  const opponent = classicSide(params, other(side));
+  const unified = useAppState((st) => Boolean(st.prefs.classicUnifiedSave));
   /**
    * @param {'critImmune' | 'template'} k
    * @param {string} name
@@ -100,15 +102,31 @@ function ClassicSide({side, params, setParam}) {
       <DiceInput label={t('classic.specialDice')} value={/** @type {number} */ (v('bonusBurst'))} min={0} max={3} color={color} onChange={set('bonusBurst')} />
       <div className="steppers">
         {rollsDice && <Stepper name={t('classic.successValue')} value={/** @type {number} */ (v('successValue'))} limit={LIMITS.successValue} color={color} onChange={set('successValue')} />}
-        {/* The save the opponent makes against this side: weapon PS + their ARM
-            (cover included); Plasma also makes them save with BTS. */}
-        {causesSaves && (
-          <Stepper name={plasma ? t('classic.opponentPsArm') : t('classic.opponentPs')} value={armSave(params, side)}
-            limit={SAVE_LIMIT.arm} color={color} onChange={(total) => dispatch({type: 'setClassicSave', side, which: 'arm', total})} />
-        )}
-        {causesSaves && plasma && (
-          <Stepper name={t('classic.opponentPsBts')} value={btsSave(params, side)} limit={SAVE_LIMIT.bts} color={color}
-            onChange={(total) => dispatch({type: 'setClassicSave', side, which: 'bts', total})} />
+        {unified ? (
+          <>
+            {/* One number for the save the opponent makes against this side:
+                weapon PS + their ARM (cover included); Plasma also makes them
+                save with BTS. */}
+            {causesSaves && (
+              <Stepper name={plasma ? t('classic.opponentSaveArm') : t('classic.opponentSave')} value={armSave(params, side)}
+                limit={SAVE_LIMIT.arm} color={color} onChange={(total) => dispatch({type: 'setClassicSave', side, which: 'arm', total})} />
+            )}
+            {causesSaves && plasma && (
+              <Stepper name={t('classic.opponentSaveBts')} value={btsSave(params, side)} limit={SAVE_LIMIT.bts} color={color}
+                onChange={(total) => dispatch({type: 'setClassicSave', side, which: 'bts', total})} />
+            )}
+          </>
+        ) : (
+          <>
+            {/* Split, as the N5 classic calculator had it: this side's weapon
+                PS, and its own ARM (BTS against Plasma) for the opponent's shots. */}
+            {causesSaves && <Stepper name={t('classic.weaponPs')} value={params[`damage${side}`]} limit={LIMITS.damage} color={color}
+              onChange={setParam(`damage${side}`)} />}
+            {opponent.causesSaves && <Stepper name={opponent.plasma ? t('stat.arm') : t('classic.armBts')} value={params[`arm${side}`]}
+              limit={LIMITS.arm} color={color} onChange={setParam(`arm${side}`)} />}
+            {opponent.causesSaves && opponent.plasma && <Stepper name={t('stat.bts')} value={params[`bts${side}`]} limit={LIMITS.bts}
+              color={color} onChange={setParam(`bts${side}`)} />}
+          </>
         )}
       </div>
       <div className="field">

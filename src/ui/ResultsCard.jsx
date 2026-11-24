@@ -21,6 +21,7 @@ import {UnopposedCardBody, UnopposedSheetBody} from './Unopposed.jsx';
 import WpoRow from './WpoRow.jsx';
 import {StateBar, StateList, useStatesUi} from './WoundStates.jsx';
 import {useT} from './i18n.jsx';
+import {UnifiedSaveLink} from './SettingsPage.jsx';
 
 // The top of the phone sheet, which is all that shows while it rests low (the
 // results card): both sides' headline numbers (wounds per order unless the
@@ -119,6 +120,7 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
           {s && ledger && !s.unopposed && <div className="mods-sep" />}
           {s && ledger && <Ledger {...ledger} />}
           {s && status && <span className="status">{status}</span>}
+          {classic && <UnifiedSaveLink />}
         </div>
       </section>
     </>

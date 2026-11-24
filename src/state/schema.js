@@ -178,6 +178,9 @@ export const PrefsSchema = v.object({
   language: v.optional(v.fallback(v.nullable(v.string()), null)),
   // the faction each side's picker opens on
   startFaction: v.optional(v.fallback(v.object({A: factionOrNull, B: factionOrNull}), {})),
+  // Classic: weapon PS + the target's ARM / BTS as one Opponent Save number
+  // (ClassicScreen.jsx); absent: split, each on its own card
+  classicUnifiedSave: v.optional(v.fallback(v.boolean(), false)),
 });
 
 // A trooper picked before (types.js Recent): stable army ids plus the side

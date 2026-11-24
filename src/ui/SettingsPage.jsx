@@ -58,6 +58,31 @@ export function LanguageSetting() {
   );
 }
 
+// Classic: weapon PS and the target's ARM / BTS as one Opponent Save number.
+/** @param {{className: string}} props */
+export function UnifiedSaveSetting({className}) {
+  const t = useT();
+  const on = useAppState((s) => Boolean(s.prefs.classicUnifiedSave));
+  return (
+    <label className={className}>
+      <input type="checkbox" checked={on} onChange={(e) => dispatch({type: 'setPref', key: 'classicUnifiedSave', value: e.target.checked})} />
+      <span className="radio-text"><span>{t('settings.unifiedSave')}</span><span className="note">{t('settings.unifiedSaveHint')}</span></span>
+    </label>
+  );
+}
+
+// The same setting as a small link under the Classic results: names the view
+// it switches to.
+export function UnifiedSaveLink() {
+  const t = useT();
+  const on = useAppState((s) => Boolean(s.prefs.classicUnifiedSave));
+  return (
+    <button type="button" className="link-btn save-view-link" onClick={() => dispatch({type: 'setPref', key: 'classicUnifiedSave', value: !on})}>
+      {on ? t('classic.splitSave') : t('classic.oneSave')}
+    </button>
+  );
+}
+
 /** @param {{factions: {id: number, name: string}[]}} props */
 export function SettingsPage({factions}) {
   const t = useT();
@@ -75,6 +100,8 @@ export function SettingsPage({factions}) {
         ))}
       </div>
       <span className="note settings-note">{t('settings.headlineNotePhone')}</span>
+      <div className="list-head">{t('settings.classic')}</div>
+      <UnifiedSaveSetting className="setting radio" />
       <div className="list-head">{t('settings.startingFactions')}</div>
       <StartFaction side="A" label={t('settings.activeSide')} factions={factions} />
       <StartFaction side="B" label={t('settings.reactiveSide')} factions={factions} />

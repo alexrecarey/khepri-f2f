@@ -3,23 +3,22 @@
 //   Matchup:  ?mode=matchup&unitA=..&weaponA=..&range=..&headline=wpo  (matchup/matchupParams.js;
 //             headline: the card's big number, for the link's preview (headlines.js),
 //             once a trooper is picked)
-//   Classic:  ?mode=basic&burstA=4&successValueA=14&psA=12..  (engine/params.js; defaults left out)
-// Classic links carry the save each side forces as one number, the way the
-// Classic screen shows it: psA = A's weapon PS + B's ARM, psBtsA = PS + B's
-// BTS (Plasma only). Older links with damageA / armB / btsB still load.
+//   Classic:  ?mode=basic&burstA=4&successValueA=14&damageA=12&armB=3..  (engine/params.js; defaults left out)
+// Classic links carry each number on its own (damageA, armB, btsB), whichever
+// way the reader's Classic screen shows them. Links from when it only showed
+// the save as one number (psA = A's weapon PS + B's ARM, psBtsA = PS + B's
+// BTS) still load.
 import {DEFAULT_PARAMS, PARAM_KEYS, parseParams} from '../engine/params.js';
 import {decodeMatchup, encodeMatchup} from '../matchup/matchupParams.js';
 import {HEADLINE_PARAM, headlineChoice} from './headlines.js';
 import {SIDES} from '../lib/side.js';
 import {MODES} from './modes.js';
-import {armSave, btsSave, classicSave} from './classicView.js';
+import {classicSave} from './classicView.js';
 import {DEFAULT_RANGE_CM, EMPTY_SIDE} from './schema.js';
 
-// Engine params the ps keys replace in new links.
 /** @typedef {import('../types.js').Side} Side */
 /** @typedef {import('../types.js').AppState} AppState */
 
-const SPLIT_KEYS = new Set(['A', 'B'].flatMap((s) => [`damage${s}`, `arm${s}`, `bts${s}`]));
 /** @param {Side} s */
 const psKey = (s) => `ps${s}`;
 /** @param {Side} s */
@@ -90,12 +89,7 @@ export function urlFromState(state) {
   } else {
     const c = state.classic;
     for (const k of PARAM_KEYS) {
-      if (!SPLIT_KEYS.has(k) && c[k] !== DEFAULT_PARAMS[k]) q.set(k, String(c[k]));
-    }
-    for (const s of SIDES) {
-      if (armSave(c, s) !== armSave(DEFAULT_PARAMS, s)) q.set(psKey(s), String(armSave(c, s)));
-      // Only Plasma makes the target save with BTS.
-      if (c[`ammo${s}`] === 'PLASMA' && btsSave(c, s) !== btsSave(DEFAULT_PARAMS, s)) q.set(psBtsKey(s), String(btsSave(c, s)));
+      if (c[k] !== DEFAULT_PARAMS[k]) q.set(k, String(c[k]));
     }
   }
   return `?${q}`;
