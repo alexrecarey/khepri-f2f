@@ -35,7 +35,7 @@ export function SheetActions({save, onShare}) {
 export default function ResultsBody({s, h, choice, b, classic, ledger, diceLine, pending, ui}) {
   const t = useT();
   const [view, setView] = useBreakdownView();
-  if (s.unopposed) return <UnopposedSheetBody s={/** @type {import('./Unopposed.jsx').UnopposedSummary} */ (s)} names={ledger?.names ?? {A: t('side.active'), B: t('side.reactive')}} diceLine={diceLine} />;
+  if (s.unopposed) return <UnopposedSheetBody s={/** @type {import('./Unopposed.jsx').UnopposedSummary} */ (s)} ledger={ledger} diceLine={diceLine} />;
   if (classic) return <ClassicBody s={s} />;
   const showF2F = view === 'f2f' && Boolean(b);
   return (
