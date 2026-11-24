@@ -16,8 +16,9 @@
 /**
  * A skill, equipment or weapon as a profile or loadout lists it: the Army id,
  * its name in the army's language and the bracketed extras ("+1B", "Shock").
- * @typedef {{id: number, name: string, extra?: string[], foxhole?: true}} TraitRef
+ * @typedef {{id: number, name: string, extra?: string[], foxhole?: true, supportware?: 'assistedFire'}} TraitRef
  * `foxhole`: the Mimetism (-3) a Foxhole adds (rules/trooper.js foxholeTraits), so the ledger can say why.
+ * `supportware`: the Marksmanship Assisted Fire adds (rules/supportware.js), the same.
  */
 
 /** Skills and equipment of a trooper: the profile's plus the loadout's (army/traits.js).
@@ -209,10 +210,11 @@
 
 /**
  * What a weapon entry is, as army/weapons.js WEAPON_KINDS explains it:
- * 'bs' a rolled BS Attack, 'template' a Direct Template (no roll), 'cc' a
+ * 'bs' a rolled BS Attack, 'smoke' a Smoke / Eclipse throw (rolled, hits
+ * nobody), 'template' a Direct Template (no roll), 'cc' a
  * CC Attack, 'program' a Hacking Program, 'dodge' / 'reset' / 'none' the
  * choices that are not weapons.
- * @typedef {'bs' | 'template' | 'cc' | 'program' | 'dodge' | 'reset' | 'none'} WeaponKind
+ * @typedef {'bs' | 'smoke' | 'template' | 'cc' | 'program' | 'dodge' | 'reset' | 'none'} WeaponKind
  */
 
 /**
@@ -256,7 +258,7 @@
  * trooperPrograms).
  * @typedef {object} WeaponEntry
  * @property {string} key `${id}:${mode}`; a program's is `hack:${id}`
- * @property {'bs' | 'template' | 'cc' | 'program'} kind
+ * @property {'bs' | 'smoke' | 'template' | 'cc' | 'program'} kind
  * @property {number | string} id the Army's weapon id, a number (a program's: its key)
  * @property {string} name the weapon's name, as `row.name`
  * @property {string | null} mode the firing mode
@@ -264,20 +266,20 @@
  * @property {WeaponMods} mods
  * @property {Message} label "Combi Rifle · B3 · PS13 · N" once rendered (army/weapons.js weaponLabel); read by tests
  * @property {true} [zoc] reaches the Zone of Control instead of range bands
- * @property {undefined} [bangbomb] a PseudoEntry's: never set, so `w.bangbomb` tells the two apart
+ * @property {true} [throwsClose] a Smoke grenade, thrown within 8": picking it moves its side's range there (rules/smoke.js)
  * @property {undefined} [zeroPain]
  */
 
 /**
  * A choice that is not a weapon (rules/trooper.js pseudoWeapons): Dodge,
- * Bangbomb (a second Dodge), Reset, Zero Pain (a better Reset), No ARO. One
+ * Reset, Zero Pain (a better Reset), No ARO. One
  * variant per kind, so `w.kind` narrows (tsc only drops a variant whose
  * discriminant is one literal); `row`, `mods`... are never set, so `w.row`
  * tells a weapon apart from one of these.
- * @typedef {{kind: 'dodge', key: 'dodge' | 'bangbomb', bangbomb?: true, zeroPain?: undefined}
- *   | {kind: 'reset', key: 'reset' | 'zeroPain', zeroPain?: true, bangbomb?: undefined}
- *   | {kind: 'none', key: 'none', bangbomb?: undefined, zeroPain?: undefined}} PseudoKind
- * @typedef {PseudoKind & {row?: undefined, mods?: undefined, name?: undefined, id?: undefined, mode?: undefined, zoc?: undefined}} PseudoEntry
+ * @typedef {{kind: 'dodge', key: 'dodge', zeroPain?: undefined}
+ *   | {kind: 'reset', key: 'reset' | 'zeroPain', zeroPain?: true}
+ *   | {kind: 'none', key: 'none', zeroPain?: undefined}} PseudoKind
+ * @typedef {PseudoKind & {row?: undefined, mods?: undefined, name?: undefined, id?: undefined, mode?: undefined, zoc?: undefined, throwsClose?: undefined}} PseudoEntry
  */
 
 /** Anything a side can pick: a weapon or a pseudo-weapon (army/weapons.js isPseudo tells them apart).
@@ -307,11 +309,15 @@
  * @property {boolean} targeted the Targeted chip
  * @property {number} hackedReset the Hacked chip's MOD to a Reset (0 for none)
  * @property {boolean} immA the Immobilized-A chip
+ * @property {boolean} noLof the No LoF chip: the attacker is outside its LoF
+ * @property {boolean} bangbomb the Bangbomb toggle on its Dodge
  * @property {number} firewall its Firewall against a Comms Attack: -3, -6 or 0
  * @property {boolean} canSapper has Sapper, so may sit in a Foxhole
  * @property {boolean} sapper in a Foxhole
  * @property {boolean} surpriseAttack uses Surprise Attack (active side)
  * @property {boolean} berserk declared Berserk (active side)
+ * @property {boolean} [canSupportware] a REM of an army list with an EVO hacker (rules/supportware.js)
+ * @property {import('./rules/supportware.js').Supportware | null} [supportware] the Supportware it runs; null when it can't take any
  * @property {number} ftMax the largest Fireteam it can join
  * @property {number} ftSize the Fireteam size in use (1 = none)
  * @property {number} ccAllies allies in contact with the target (CC Attack +1 B each)
@@ -446,7 +452,7 @@
 // ---- The dice (engine/params.js, engine/calculate.js) ----
 
 /** Ammunition the calculator knows (engine/params.js AMMO_KEYS).
- * @typedef {'N' | 'DA' | 'EXP' | 'T2' | 'PLASMA' | 'DODGE' | 'NONE'} Ammo */
+ * @typedef {'N' | 'DA' | 'EXP' | 'T2' | 'PLASMA' | 'DODGE' | 'NONE' | 'SMOKE'} Ammo */
 
 /**
  * One side's calculator params (engine/params.js PARAMS, per side).
@@ -561,6 +567,11 @@
 /** A wound state as the rules list it (rules/woundStates.js), before results/summary.js adds its share of the rolls.
  * @typedef {Pick<WoundState, 'key' | 'label' | 'wounds' | 'glyph' | 'outOfFight' | 'shock' | 'state'>} WoundStep */
 
+/** One part of the face to face bar, left to right. dodger: on the nobody
+ * part, the side that Dodges a Direct Template; nobody wins exactly when it
+ * gets away, so the part is that side's (its colour, "<side> dodges").
+ * @typedef {{side: 'active' | 'none' | 'reactive', chance: number, seg: string, dodger: 'active' | 'reactive' | null}} F2FPart */
+
 /** One segment of the wound bar, left to right.
  * @typedef {{side: 'active' | 'none' | 'reactive', wounds: number, chance: number}} BarSegment */
 
@@ -575,6 +586,7 @@
  * @property {number} wounded chance of any wound
  * @property {number} saved won the roll (or hit), but every hit was saved
  * @property {number} miss
+ * @property {Message | null} state what a hit causes instead of wounds (Smoke placed, Isolated), else null; rendered by then
  */
 
 /**
@@ -582,7 +594,8 @@
  * @typedef {object} Summary
  * @property {PerSide} wpo expected wounds per order
  * @property {{active: number, reactive: number, none: number}} win chance each side wins the Face to Face Roll (none = both fail, or a tie)
- * @property {BarSegment[]} bar 7 segments: active 3+ / 2 / 1, nobody wounded, reactive 1 / 2 / 3+
+ * @property {[F2FPart, F2FPart, F2FPart]} f2f who wins the Face to Face Roll: active, nobody, reactive (results/summary.js)
+ * @property {BarSegment[]} bar 7 segments: active 3+ / 2 / 1, nobody wounded (a Dodge included: it causes no wounds), reactive 1 / 2 / 3+
  * @property {{active: [number, number, number], reactive: [number, number, number]}} atLeast chance of 1+, 2+, 3+ wounds
  * @property {PerSide} saved won the roll, but every hit was saved
  * @property {boolean} unopposed each side rolled on its own (Direct Template vs attack)
@@ -599,6 +612,7 @@
  * What the card shows for a summary (results/headline.js headline).
  * @typedef {object} Headline
  * @property {HeadlineChoice} kind the choice shown ('wound' when 'win' falls back)
+ * @property {Record<'active' | 'reactive', HeadlineChoice>} kinds each side's: 'win' for a Dodging side
  * @property {boolean} fallback 'win' asked of a roll that is not face to face
  * @property {PerSide} value
  * @property {{active: string, reactive: string}} text the value as shown
@@ -628,8 +642,9 @@
  * @property {number[]} skills positions in index.skills
  */
 /**
- * One unit in the search index.
- * @typedef {{id: number, name: string, short: string, type: string | null, factions: number[], words: [string, number][]}} IndexUnit
+ * One unit in the search index, or one profile group of a Team-Ops unit
+ * (groupId set; parent: the unit's short name), listed as a unit of its own.
+ * @typedef {{id: number, groupId?: number, parent?: string, name: string, short: string, type: string | null, factions: number[], words: [string, number][]}} IndexUnit
  */
 /**
  * The search index, built from army.json (search/buildIndex.js) at build time
@@ -647,6 +662,8 @@
  * selection needs, its names, and how well it matched.
  * @typedef {object} ProfileHit
  * @property {number} rowId
+ * @property {string} key the listed unit it belongs to (UnitHit.key)
+ * @property {string | null} parent a Team-Ops trooper's unit (UnitHit.parent), else null
  * @property {number} unitId
  * @property {number} factionId the vanilla faction it is listed under
  * @property {number} armyFactionId the real faction the selection loads it from
@@ -668,8 +685,12 @@
  * @property {string[]} matched the index words each typed word matched
  */
 /**
- * A unit as the picker lists it (search/search.js unitHit).
- * @typedef {{unitId: number, name: string, short: string, type: string | null, factionIds: number[], profileCount: number, tier?: number, best?: ProfileHit}} UnitHit
+ * A unit as the picker lists it (search/search.js unitHit). key: what tells
+ * listed units apart ("unitId", or "unitId:groupId" for a Team-Ops trooper,
+ * one profile group listed on its own); groupId and parent (the unit's short
+ * name) are set for such a trooper only.
+ * @typedef {{key: string, unitId: number, groupId: number | null, parent: string | null, name: string, short: string, type: string | null, factionIds: number[],
+ *   profileCount: number, tier?: number, best?: ProfileHit}} UnitHit
  */
 /**
  * What a query finds (search/search.js search).
@@ -680,7 +701,7 @@
  * @typedef {object} Searcher
  * @property {(q?: {query?: string, factionId?: number | null, recentIds?: number[]}) => SearchResult} search
  * @property {(q?: {factionId?: number | null, recentIds?: number[]}) => {recent: ProfileHit[], types: {type: string, count: number}[], units: UnitHit[]}} browse the empty-box view
- * @property {(unitId: number, factionId?: number | null) => ProfileHit[]} unitRows every loadout of one unit in scope
+ * @property {(key: string | number, factionId?: number | null) => ProfileHit[]} unitRows every loadout of one listed unit (a UnitHit's key, or a unit id) in scope
  * @property {(type: string, factionId?: number | null) => UnitHit[]} unitsOfType
  * @property {(pick: {unitId: number, groupId: number, optionId: number, armyFactionId: number}) => number | null} findRow a saved pick's row id today
  * @property {(factionId: number) => number} unitCount units per vanilla faction
@@ -707,7 +728,7 @@
  */
 
 /** A screen pushed inside the picker (state/reduce.js pickerPush).
- * @typedef {{view: 'factions'} | {view: 'type', type: string} | {view: 'unit', unitId: number, name: string}} PickerView */
+ * @typedef {{view: 'factions'} | {view: 'type', type: string} | {view: 'unit', key: string, unitId: number, name: string}} PickerView */
 
 /**
  * The open picker (state/reduce.js openPicker): whose side it picks for, the
@@ -732,7 +753,7 @@
  * @property {null | 'menu' | 'results' | 'picker' | 'saved' | 'settings' | 'about'} overlay
  * @property {PickerState | null} picker while overlay is 'picker'
  * @property {boolean} rangeOpen
- * @property {{side: 'A' | 'B', chip: 'ftSize' | 'ccAllies' | 'upgrade' | 'ball'} | null} edit while a chip shows its inline editor
+ * @property {{side: 'A' | 'B', chip: 'ftSize' | 'ccAllies' | 'upgrade' | 'ball' | 'supportware'} | null} edit while a chip shows its inline editor
  * @property {'matchup' | 'basic' | null} savedTab which list Saved rolls shows
  * @property {string | null} swiped id of the saved roll swiped open to show its Delete button
  * @property {{text: string} | null} toast for a moment after Save, Share or Delete
@@ -791,7 +812,7 @@
  *   | {type: 'setSide', side: Side, sel: Partial<Selection>}
  *   | {type: 'patchSide', side: Side, patch: Partial<Selection>}
  *   | {type: 'setCover' | 'setSapper', side: Side, on: boolean}
- *   | {type: 'pickWeapon', side: Side, key: string, kind: WeaponKind, zoc?: boolean}
+ *   | {type: 'pickWeapon', side: Side, key: string, kind: WeaponKind, zoc?: boolean, throwsClose?: boolean}
  *   | {type: 'setRange', side?: Side, rangeCm: number, open?: boolean}
  *   | {type: 'setRangeSplit', on: boolean}
  *   | {type: 'setZone', zone: Zone, on: boolean}
@@ -828,6 +849,12 @@
  * @property {Choice} w the first (or only) mode
  * @property {WeaponEntry[]} [modes] a weapon with several fire modes, in the role's order
  * @property {Map<string, Message>} [labels] the mode labels (rules/weaponModes.js modeLabels), by key
+ * @property {true} [off] can't be picked: No LoF leaves the reactive only No ARO or a Dodge (rules/noLof.js)
+ */
+
+/**
+ * A toggle on the picked Dodge: a key of the side's selection, and whether it is on.
+ * @typedef {{key: 'bangbomb' | 'immA', on: boolean}} DodgeToggle
  */
 
 /**
@@ -852,9 +879,11 @@
  * @property {boolean} fireteamChip the pick gets a bonus from a Fireteam
  * @property {boolean} targetedChip the other side's shot or program gains from Targeted, or this side Resets
  * @property {boolean} hackedChip the pick is a Reset
- * @property {boolean} immAChip the pick is a Dodge
+ * @property {boolean} noLofChip No LoF can change the side's roll (rules/noLof.js noLofHelps)
+ * @property {DodgeToggle[]} dodgeToggles the picked Dodge's toggles (Bangbomb for one who has it, IMM-A), in button order
  * @property {number} surprise Surprise Attack's MOD (active side), 0 without
  * @property {{mod: number} | null} berserk Berserk's MOD (active side, a CC weapon picked)
+ * @property {import('./rules/supportware.js').Supportware[]} supportware the Supportware chips that can change the pick (rules/supportware.js)
  * @property {{chart: string[], ball: string[]} | null} teamOps the Team-Ops options by label (the Army's, in inches until rendered)
  * @property {string | null} faction the vanilla faction's name
  * @property {number | null} vanilla the vanilla faction id (its crest stands in for a missing unit crest)

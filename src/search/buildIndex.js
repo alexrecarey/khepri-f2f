@@ -4,8 +4,8 @@
 // of the whole army; tests call it directly on army.json.
 import {SKILL} from '../army/ids.js';
 import {rootFaction} from '../army/factions.js';
-import {shortIsc} from '../army/names.js';
-import {isLieutenant} from '../army/traits.js';
+import {shortIsc, titleCase} from '../army/names.js';
+import {isLieutenant, isTeamOpsUnit} from '../army/traits.js';
 import {KIND_ALIASES, SEARCHABLE_SKILLS, UNIT_ALIASES, WEAPON_ALIASES} from './aliases.js';
 import {indexWords, initials, words} from './text.js';
 
@@ -59,17 +59,19 @@ export function buildIndex(army) {
     // In another language, the English ISC too: players know units by it.
     if (unit.code) add(indexWords(unit.code), FIELD.NAME);
 
+    // What the picker lists: the unit, or a Team-Ops unit's troopers.
+    const entries = unitEntries(unit, short, unitWords, vanillaOf);
+
     // The same loadout reached through several sectorials of one vanilla is
     // one row; `factions` remembers which real faction to load it from.
     /** @type {Map<string, IndexRow>} */
     const byKey = new Map();
-    /** @type {string | null} */
-    let type = null;
     for (const [factionId, entry] of Object.entries(unit.byFaction)) {
       const vanilla = vanillaOf(factionId);
       for (const group of entry.groups) {
         const profile = group.profiles[0];
-        type ??= profile?.type ?? null;
+        // Keyed by group id for a Team-Ops unit, null for every other.
+        const e = /** @type {UnitEntry} */ (entries.get(group.id) ?? entries.get(null));
         const ltTwins = lieutenantTwins(group.options);
         for (const option of group.options) {
           if (ltTwins.has(option.id)) continue;
@@ -77,7 +79,7 @@ export function buildIndex(army) {
             option.weapons.map((w) => w.id).join('.')].join('|');
           let row = byKey.get(key);
           if (!row) {
-            row = makeRow(rows.length, army, unit, short, group, profile, option, unitWords, weapons, ({id, name}) => {
+            row = makeRow(rows.length, army, unit, e.unit.short, group, profile, option, e.words, weapons, ({id, name}) => {
               if (!skillIds.has(id)) skillIds.set(id, skills.push({id, name, words: indexWords(name)}) - 1);
               return /** @type {number} */ (skillIds.get(id));
             });
@@ -88,11 +90,59 @@ export function buildIndex(army) {
         }
       }
     }
-    const factionIds = [...new Set(Object.keys(unit.byFaction).map(vanillaOf))];
-    units.push({id: unit.id, name: unit.isc, short, type, factions: factionIds,
-      words: [...unitWords]});
+    for (const e of entries.values()) units.push(e.unit);
   }
   return {version: 1, factions: vanillas, units, weapons, skills, rows};
+}
+
+/** An index unit, and its words as a map for telling loadout words apart.
+ * @typedef {{unit: import('../types.js').IndexUnit, words: Map<string, number>}} UnitEntry */
+
+// What the picker lists for a unit: the unit itself (keyed null), or for a
+// Team-Ops unit (army/traits.js) each profile group (keyed by its id), named
+// and found by the group's name ("Kaizoku Heavy Spec-Ops"), then the unit's.
+/**
+ * @param {import('../types.js').UnitRow} unit
+ * @param {string} short
+ * @param {Map<string, number>} unitWords
+ * @param {(id: string | number) => number} vanillaOf
+ * @returns {Map<number | null, UnitEntry>}
+ */
+function unitEntries(unit, short, unitWords, vanillaOf) {
+  const placed = Object.entries(unit.byFaction)
+    .flatMap(([factionId, entry]) => entry.groups.map((group) => ({group, vanilla: vanillaOf(factionId)})));
+  if (!isTeamOpsUnit(unit)) {
+    const type = placed[0]?.group.profiles[0]?.type ?? null;
+    const factions = [...new Set(Object.keys(unit.byFaction).map(vanillaOf))];
+    return new Map([[null, {unit: {id: unit.id, name: unit.isc, short, type, factions, words: [...unitWords]}, words: unitWords}]]);
+  }
+  const groupIds = [...new Set(placed.map((p) => p.group.id))];
+  return new Map(groupIds.map((groupId) => {
+    const here = placed.filter((p) => p.group.id === groupId);
+    const {group} = here[0];
+    const full = trooperName(group, unit);
+    const name = shortIsc(full);
+    const own = indexWords(name);
+    // Its own name first; the unit's words after, never stronger than a name.
+    const words = new Map([...own.map((w) => /** @type {[string, number]} */ ([w, FIELD.SHORT])),
+      ...[...unitWords].filter(([w]) => !own.includes(w)).map(([w, field]) => /** @type {[string, number]} */ ([w, Math.max(field, FIELD.NAME)]))]);
+    return [groupId, {words, unit: {id: unit.id, groupId, parent: short, name: full, short: name,
+      type: group.profiles[0]?.type ?? null, factions: [...new Set(here.map((p) => p.vanilla))], words: [...words]}}];
+  }));
+}
+
+// A Team-Ops trooper's name: its group's, unless that only repeats the unit's
+// (Ariadna's MI is "ARIADNA TEAM-OPS"), then its first profile's.
+/**
+ * @param {import('../types.js').GroupRow} group
+ * @param {import('../types.js').UnitRow} unit
+ */
+function trooperName(group, unit) {
+  /** @param {string} s */
+  const bare = (s) => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+  const profile = group.profiles[0]?.name;
+  if (group.isc && bare(group.isc) !== bare(unit.isc)) return group.isc;
+  return profile ? titleCase(profile) : unit.isc;
 }
 
 // Lieutenant changes nothing on the table, so a Lieutenant loadout with the

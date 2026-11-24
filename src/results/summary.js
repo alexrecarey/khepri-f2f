@@ -2,6 +2,7 @@
 // Summary). Pure, so the card, the sheet and the Worker's share card read the
 // same figures.
 import {RAMP} from './ramp.js';
+import {templateDodger} from '../rules/evade.js';
 
 /** @typedef {import('../types.js').WoundRow} WoundRow */
 /** @typedef {import('../types.js').Player} Player */
@@ -18,19 +19,29 @@ const sum = (rows) => rows.reduce((s, r) => s + r.chance, 0);
 /** @param {WoundRow[]} rows */
 const woundsPerOrder = (rows) => rows.reduce((t, r) => t + r.wounds * r.chance, 0);
 
+// A target whose only step is a State (Smoke placed, Isolated): that State's
+// label, which names what a "wound" is; else null.
+/**
+ * @param {WoundStep[] | null | undefined} steps
+ * @returns {import('../types.js').Message | null}
+ */
+export const onlyState = (steps) => (steps?.length === 1 && steps[0].state ? steps[0].label : null);
+
 // One side's attack when nothing opposes it (sideResult = result.unopposed.x).
+// `steps`: its target's states (onlyState).
 /**
  * @param {import('../types.js').EngineResult} sideResult
  * @param {Role} player
+ * @param {WoundStep[] | null | undefined} steps
  * @returns {import('../types.js').AttackOnItsOwn}
  */
-function attackOnItsOwn(sideResult, player) {
+function attackOnItsOwn(sideResult, player, steps) {
   const rows = sideResult.expectedWounds.filter((r) => r.player === player);
   const hit = sum((sideResult.faceToFace ?? []).filter((r) => r.player === player));
   // BAR_WOUNDS entries: exactly 1, 2 and 3+.
   const wounds = /** @type {[number, number, number]} */ (Array.from({length: BAR_WOUNDS}, (_, i) => i + 1).map((w) => sum(rows.filter((r) => (w === BAR_WOUNDS ? r.wounds >= w : r.wounds === w)))));
   const wounded = wounds.reduce((a, b) => a + b, 0);
-  return {wpo: woundsPerOrder(rows), wounds, wounded, saved: Math.max(0, hit - wounded), miss: Math.max(0, 1 - hit)};
+  return {wpo: woundsPerOrder(rows), wounds, wounded, saved: Math.max(0, hit - wounded), miss: Math.max(0, 1 - hit), state: onlyState(steps)};
 }
 
 // Each side's ramp (ramp.js), mildest to deepest, cut into six steps (1
@@ -87,9 +98,10 @@ function byState(rows, states, side) {
 /**
  * @param {import('../types.js').EngineResult | null | undefined} result
  * @param {{active: WoundStep[] | null, reactive: WoundStep[] | null} | null} [targets] each side's target's wound states (rules/woundStates.js)
+ * @param {Partial<import('../types.js').Params> | null} [params] the engine params, for who Dodges a Direct Template
  * @returns {import('../types.js').Summary | null}
  */
-export function summarize(result, targets = null) {
+export function summarize(result, targets = null, params = null) {
   if (!result?.expectedWounds) return null;
   const rows = result.expectedWounds;
   /** @param {Player} player */
@@ -112,16 +124,34 @@ export function summarize(result, targets = null) {
   const win = /** @type {import('../types.js').Summary['win']} */ ({active: won('active'), reactive: won('reactive')});
   win.none = Math.max(0, 1 - win.active - win.reactive);
 
-  /** @type {import('../types.js').BarSegment[]} */
-  const bar = [];
-  for (let w = BAR_WOUNDS; w >= 1; w--) bar.push({side: 'active', wounds: w, chance: exactly('active', w)});
   const woundedA = sum(of('active').filter((r) => r.wounds > 0));
   const woundedB = sum(of('reactive').filter((r) => r.wounds > 0));
   // In an unopposed result both sides can wound in the same order, so "nobody"
   // is not the remainder there; the card then shows each side's own chance.
   const unopposed = Boolean(result.unopposed);
-  bar.push({side: 'none', wounds: 0, chance: unopposed ? 0 : Math.max(0, 1 - woundedA - woundedB)});
-  for (let w = 1; w <= BAR_WOUNDS; w++) bar.push({side: 'reactive', wounds: w, chance: exactly('reactive', w)});
+  /** @type {import('../types.js').BarSegment} */
+  const nobody = {side: 'none', wounds: 0, chance: unopposed ? 0 : Math.max(0, 1 - woundedA - woundedB)};
+  // 1 .. BAR_WOUNDS (3+).
+  const ws = Array.from({length: BAR_WOUNDS}, (_, i) => i + 1);
+  /** @type {import('../types.js').BarSegment[]} */
+  const bar = [
+    ...[...ws].reverse().map((w) => ({side: /** @type {const} */ ('active'), wounds: w, chance: exactly('active', w)})),
+    nobody,
+    ...ws.map((w) => ({side: /** @type {const} */ ('reactive'), wounds: w, chance: exactly('reactive', w)})),
+  ];
+  // A Dodge against a Direct Template isn't face to face: nobody wins exactly
+  // when the Dodger gets away, so the face-to-face parts show win.none as its
+  // Dodge. A Dodge causes no wounds, so the wound bars leave it in nobody wounded.
+  const dodgerSide = unopposed ? null : templateDodger(params);
+  /** @type {Role | null} */
+  const dodger = dodgerSide && (dodgerSide === 'A' ? 'active' : 'reactive');
+  // Who wins the Face to Face Roll, left to right; every screen draws these.
+  /** @type {import('../types.js').Summary['f2f']} */
+  const f2f = [
+    {side: 'active', chance: win.active, seg: 'seg-a2', dodger: null},
+    {side: 'none', chance: win.none, seg: dodger ? `seg-dodge-${dodger}` : 'seg-none', dodger},
+    {side: 'reactive', chance: win.reactive, seg: 'seg-r3', dodger: null},
+  ];
 
   const states = !unopposed && targets?.active && targets?.reactive
     ? {active: byState(of('active'), targets.active, 'active'), reactive: byState(of('reactive'), targets.reactive, 'reactive')}
@@ -129,8 +159,7 @@ export function summarize(result, targets = null) {
   /** @type {import('../types.js').StateBarSegment[] | null} */
   const stateBar = states && [
     ...[...states.active].reverse().map((st) => ({side: /** @type {const} */ ('active'), key: st.key, index: st.index, chance: st.exactly, shade: st.shade})),
-    // The bar always has its 'none' segment (pushed above).
-    {side: /** @type {const} */ ('none'), key: 'none', index: 0, chance: /** @type {import('../types.js').BarSegment} */ (bar.find((b) => b.side === 'none')).chance, shade: null},
+    {side: /** @type {const} */ ('none'), key: 'none', index: 0, chance: nobody.chance, shade: null},
     ...states.reactive.map((st) => ({side: /** @type {const} */ ('reactive'), key: st.key, index: st.index, chance: st.exactly, shade: st.shade})),
   ];
 
@@ -139,6 +168,7 @@ export function summarize(result, targets = null) {
     stateBar,
     wpo: {active: woundsPerOrder(of('active')), reactive: woundsPerOrder(of('reactive'))},
     win,
+    f2f,
     bar,
     atLeast: {active: atLeast('active'), reactive: atLeast('reactive')},
     saved: {
@@ -146,17 +176,18 @@ export function summarize(result, targets = null) {
       reactive: sum(of('reactive').filter((r) => r.wounds === 0)),
     },
     unopposed,
-    ...(unopposed ? unopposedParts(result) : {}),
+    ...(unopposed ? unopposedParts(result, targets) : {}),
   };
 }
 
 /**
  * @param {import('../types.js').EngineResult} result an unopposed one
+ * @param {{active: WoundStep[] | null, reactive: WoundStep[] | null} | null} targets
  * @returns {Pick<Required<import('../types.js').Summary>, 'attacks' | 'joint'>}
  */
-function unopposedParts(result) {
-  const a = attackOnItsOwn(/** @type {NonNullable<typeof result.unopposed>} */ (result.unopposed).active, 'active');
-  const r = attackOnItsOwn(/** @type {NonNullable<typeof result.unopposed>} */ (result.unopposed).reactive, 'reactive');
+function unopposedParts(result, targets) {
+  const a = attackOnItsOwn(/** @type {NonNullable<typeof result.unopposed>} */ (result.unopposed).active, 'active', targets?.active);
+  const r = attackOnItsOwn(/** @type {NonNullable<typeof result.unopposed>} */ (result.unopposed).reactive, 'reactive', targets?.reactive);
   return {
     attacks: {active: a, reactive: r},
     joint: {

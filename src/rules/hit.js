@@ -217,3 +217,26 @@ export function defenseInputs(y, incoming, s, dodging) {
   });
   return {inputs, lines};
 }
+
+// The save against x's hits: x's PS lines (psLines), then the target's
+// Saving Roll lines (defenseInputs). A save below 0 is 0, like the
+// Attribute under it: PARA has PS 0, so a skill's SR-1 (BS Attack (SR-1))
+// takes it below 0.
+/**
+ * @param {Line[]} ps
+ * @param {Line[]} saving
+ * @returns {Line[]}
+ */
+export function saveLines(ps, saving) {
+  const save = [...ps, ...saving];
+  return sum(save) < 0 ? [...save, line(-sum(save), msg('ledger.notBelowZero'), null)] : save;
+}
+
+// The target's ARM input against x's hits. The calculator saves on PS + ARM
+// and its PS input stops at 0, so a PS below 0 comes off the ARM input
+// (`arm`, defenseInputs), which stops at 0 too: the same total as saveLines.
+/**
+ * @param {number} arm
+ * @param {Line[]} ps
+ */
+export const armAgainst = (arm, ps) => clamp(LIMITS.arm, arm + Math.min(0, sum(ps)));

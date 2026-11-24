@@ -1,9 +1,8 @@
 // Actions whose payload needs the army data. The reducer stays pure; these
 // work out the payload first and return a plain action to dispatch.
 import {vanillaOf} from '../army/factions.js';
-import {SKILL} from '../army/ids.js';
-import {hasSkill} from '../army/traits.js';
 import {hasBerserk} from '../rules/closeCombat.js';
+import {hasNoCover} from '../rules/modifiers.js';
 import {resolveSelection, trooperWeapons} from '../rules/trooper.js';
 import {EMPTY_SIDE, other} from './schema.js';
 
@@ -71,7 +70,7 @@ export function pickTrooper(army, side, hit, {next = false, state = null} = {}) 
   const r = resolveSelection(army, base);
   const sapper = Boolean(r?.canSapper);
   // r has traits, so r is there.
-  const sel = {...base, sapper, inCover: !sapper && Boolean(r?.traits) && !hasSkill(/** @type {NonNullable<typeof r>} */ (r).traits, SKILL.NO_COVER)};
+  const sel = {...base, sapper, inCover: !sapper && Boolean(r?.traits) && !hasNoCover(r)};
   return {
     type: 'pickTrooper',
     side,

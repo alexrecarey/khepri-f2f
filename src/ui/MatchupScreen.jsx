@@ -35,7 +35,7 @@ export default function MatchupScreen({army, armyError, retryArmy, view, engine}
   const result = view.complete ? engine.result : null;
   // Summarized once here; the card, the panel and Save all read it.
   const summaryOf = useCallback(/** @param {import('../types.js').Summary} s */ (s) => (view.complete ? matchupRollSummary(view, s, t) : null), [view, t]);
-  const {s, save} = useRollResults({result, targets: view.targets, summaryOf, pending: engine.pending});
+  const {s, save} = useRollResults({result, targets: view.targets, params: view.params, summaryOf, pending: engine.pending});
 
   const layout = useLayout();
   /** @type {import('../types.js').ResultsProps} */

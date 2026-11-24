@@ -36,6 +36,8 @@
   --reactive-2: #d06fa0;
   /* Face to face breakdown: the part of a best-die bar that doesn't win. */
   --active-dim: #2c4d41;
+  --active-half: color-mix(in srgb, var(--active) 50%, transparent);
+  --reactive-half: color-mix(in srgb, var(--reactive) 50%, transparent);
   --reactive-dim: #4a3640;
   --none: #2e2e2e;
   --danger: #f08a7a;

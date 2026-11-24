@@ -14,9 +14,11 @@ import {MODELED_IMMUNITIES, STATE_IMMUNITIES} from '../src/rules/matchup.js';
 const KNOWN_AMMO = ['N', 'AP', 'DA', 'Exp', 'T2', 'Shock', 'E/M', 'PARA', 'Stun', 'Eclipse', 'Smoke'];
 
 // Weapon properties. Read by army/weapons.js: templates, BS Weapon (PH/WIP),
-// Bioweapon, Continuous Damage, Non-lethal, State: Stunned, and the ones that
-// make a weapon not a BS Attack (CC, Deployable, Perimeter, Comms. Attack,
-// Technical Weapon, Targetless). The others don't change a single BS Attack.
+// Bioweapon, Continuous Damage, Non-lethal, State: Stunned, Reflective
+// (Eclipse), and the ones that make a weapon not a BS Attack (CC, Deployable,
+// Perimeter, Technical Weapon). Targetless weapons are BS Attacks only with
+// Smoke / Eclipse ammo (army/weapons.js isSmoke). The others don't change a
+// single BS Attack.
 const KNOWN_PROPS = [
   'Direct Template (Small Teardrop)', 'Direct Template (Large Teardrop)', 'Impact Template (Circular)',
   'BS Weapon (PH)', 'BS Weapon (WIP)', 'Bioweapon (DA+SHOCK)', 'Continuous Damage', 'Non-lethal',

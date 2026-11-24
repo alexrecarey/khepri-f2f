@@ -47,11 +47,16 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, onSwip
     if (!s || !top || s.style.transform) return;
     s.classList.add('measuring');
     s.style.setProperty('--open', '0');
-    restY.current = restingY(s.offsetHeight, top.offsetTop + top.offsetHeight, parseFloat(getComputedStyle(s).paddingBottom));
+    const y = restingY(s.offsetHeight, top.offsetTop + top.offsetHeight, parseFloat(getComputedStyle(s).paddingBottom));
     s.style.removeProperty('--open');
     void s.offsetHeight; // apply the real --open with transitions still off
     s.classList.remove('measuring');
-    s.style.setProperty('--rest-y', `${restY.current}px`);
+    // Hidden behind a full-screen page: keep the last good position (Firefox
+    // for Android resizes the window when the keyboard closes over the
+    // picker). It is measured again when it shows (below).
+    if (y === null) return;
+    restY.current = y;
+    s.style.setProperty('--rest-y', `${y}px`);
   }, []);
 
   // y: how far down the sheet is (0 = open, restY = resting low).
@@ -197,6 +202,20 @@ export default function useSheetGestures({open, canOpen, onOpen, onClose, onSwip
   // Not on every render: measuring turns transitions off for a moment, which
   // made a tap's open / close jump instead of animating.
   useLayoutEffect(measure, [measure, measureKey]);
+  // And when the sheet shows again after a full-screen page closes: what
+  // changed while it was hidden (new numbers, a resize) wasn't measured.
+  useEffect(() => {
+    const s = sheetRef.current;
+    if (!s || typeof ResizeObserver === 'undefined') return undefined;
+    let shown = s.offsetHeight > 0;
+    const ro = new ResizeObserver(() => {
+      const now = s.offsetHeight > 0;
+      if (now && !shown) measure();
+      shown = now;
+    });
+    ro.observe(s);
+    return () => ro.disconnect();
+  }, [measure]);
   // Resize fires often (iOS while the URL bar collapses): once per frame.
   useEffect(() => {
     let frame = 0;

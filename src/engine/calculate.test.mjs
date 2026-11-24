@@ -122,6 +122,23 @@ test('a Direct Template against an attack: one engine run per side, each alone',
     [[0, 'active'], [1, 'active'], [2, 'reactive']]);
 });
 
+test('a Dodge against Smoke (unopposed): two runs, each success counts as one', () => {
+  /** @type {import('../types.js').EngineInput[]} */
+  const runs = [];
+  /** @type {import('../types.js').RunEngine} */
+  const engine = (e) => {
+    runs.push(e);
+    const player = e.burstA > 0 ? 'active' : 'reactive';
+    return {rolls: 20, outcomes: [{player, wounds: 0, chance: 0.7}, {player: 'fail', wounds: 0, chance: 0.3}]};
+  };
+  const r = calculate({...P, ammoA: 'SMOKE', burstA: 1, bonusBurstA: 0, ammoB: 'DODGE', unopposed: true}, engine);
+  assert.equal(runs.length, 2);
+  assert.deepEqual(r.expectedWounds.map((x) => [x.player, x.wounds, x.chance]), [['active', 1, 0.7], ['reactive', 1, 0.7]]);
+  // Opposed, a Dodge's win stays a win with no wounds.
+  const opposed = calculate({...P, ammoB: 'DODGE'}, () => ({rolls: 1, outcomes: [{player: 'reactive', wounds: 0, chance: 1}]}));
+  assert.deepEqual(opposed.expectedWounds.map((x) => x.wounds), [0]);
+});
+
 test('a Direct Template against a Dodge or No ARO is one run', () => {
   for (const p of /** @type {Partial<import('../types.js').Params>[]} */ ([{ammoB: 'DODGE'}, {burstB: 0}])) {
     let n = 0;

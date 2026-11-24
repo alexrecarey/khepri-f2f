@@ -2,6 +2,9 @@
 // expected unit the first unit listed (top 1), or among the first five
 // (top 5), or listed at all (found)? A short prefix like "shas" lists all
 // fifteen Shasvastii units, so missing the top 5 there is not a failure.
+// A query the corpus makes from several units' names ("kaizoku", the first
+// word of three Kaizoku troopers) names them all equally: any of them listed
+// first is a top 1.
 // Shared by scripts/search-eval.mjs (the report) and the tests (the floor the
 // scores must not drop below).
 import {words} from '../text.js';
@@ -20,6 +23,11 @@ export function score(searcher, cases) {
   const misses = [];
   /** @type {number[]} */
   const times = [];
+  /** @param {import('./corpus.js').SearchCase} c */
+  const caseKey = (c) => `${c.kind}|${c.factionId ?? ''}|${c.query}`;
+  /** @type {Map<string, Set<string>>} */
+  const named = new Map();
+  for (const c of cases) (named.get(caseKey(c)) ?? named.set(caseKey(c), new Set()).get(caseKey(c)))?.add(c.expect);
   for (const c of cases) {
     const t0 = performance.now();
     const res = searcher.search({query: c.query, factionId: c.factionId ?? null});
@@ -31,7 +39,7 @@ export function score(searcher, cases) {
     k.n++;
     k.results += res.units.length;
     if (rank >= 0) k.found++;
-    if (rank === 0) k.top1++;
+    if (rank >= 0 && named.get(caseKey(c))?.has(shorts[0])) k.top1++;
     if (rank >= 0 && rank < 5) k.top5++;
     else misses.push({...c, got: shorts.slice(0, 3)});
   }

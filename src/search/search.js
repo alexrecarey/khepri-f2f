@@ -20,6 +20,13 @@ const TIER_COST = [0, 1, 3, 4, 6];
 /** @type {Record<number, number>} */
 const FIELD_COST = {[FIELD.SHORT]: 0, [FIELD.NAME]: 1, [FIELD.LOADOUT]: 1, [FIELD.WEAPON]: 2, [FIELD.ALIAS]: 2, [FIELD.SKILL]: 3};
 const MAX_PROFILES = 30;
+// A peripheral riding in its controller's unit (a TAG's Crabbot, a Spec-Ops'
+// SpecBots) is almost never what a search is for, but shares the unit's name:
+// a cheap, weaponless Crabbot matching only "squalo" outranked the Squalo.
+// The penalty is above any one word's tier and field cost, so it falls under
+// every other match; a query only it matches still lists it. A unit that is
+// only peripherals (Chaksa Servants, sold on their own) gets none.
+const PERIPHERAL_COST = 80;
 
 /**
  * @param {import('../types.js').SearchIndex} index
@@ -27,11 +34,31 @@ const MAX_PROFILES = 30;
  */
 export function createSearch(index) {
   const rows = index.rows;
-  const unitById = new Map(index.units.map((u) => [u.id, u]));
-  // Peripherals (Crabbots, Auxbots...) ride in their controller's unit entry (see matchRows).
+  // What the picker lists as a unit: the unit, or for a Team-Ops unit each
+  // of its profile groups, keyed "unitId" or "unitId:groupId". buildIndex.js
+  // decides which units split (army/traits.js isTeamOpsUnit); hits carry the
+  // key and parent, so nothing downstream asks again.
+  const split = new Set(index.units.filter((u) => u.groupId != null).map((u) => u.id));
+  /**
+   * @param {number} unitId
+   * @param {number | null | undefined} groupId
+   */
+  const entryKey = (unitId, groupId) => (split.has(unitId) && groupId != null ? `${unitId}:${groupId}` : `${unitId}`);
+  /** @param {IndexRow} row */
+  const rowKey = (row) => entryKey(row.unitId, row.groupId);
+  /** @param {import('../types.js').IndexUnit} u */
+  const keyOfUnit = (u) => entryKey(u.id, u.groupId);
+  const unitByKey = new Map(index.units.map((u) => [keyOfUnit(u), u]));
+  // Peripherals (Crabbots, Auxbots...) score PERIPHERAL_COST more (matchRows).
   const peripheralSkill = index.skills.findIndex((sk) => sk.id === SKILL.PERIPHERAL);
   /** @param {IndexRow} row */
   const isPeripheral = (row) => row.skills.includes(peripheralSkill);
+  const hasController = new Set(rows.filter((r) => !isPeripheral(r)).map(rowKey));
+  /** @param {IndexRow} row */
+  const ridesAlong = (row) => isPeripheral(row) && hasController.has(rowKey(row));
+  const shortWords = new Map(index.units.map((u) => [keyOfUnit(u), words(u.short).length]));
+  /** @param {IndexRow} row */
+  const shortLength = (row) => shortWords.get(rowKey(row)) ?? 0;
   const factionName = new Map(index.factions.map((f) => [f.id, f.name]));
 
   // word -> postings [rowId, field, weaponIndex], plus its sound key. Unit and
@@ -57,14 +84,21 @@ export function createSearch(index) {
     /** @type {NonNullable<Vocab['best']>} */ (v.best).set(rowId, p);
     v.postings.push(p);
   };
-  /** @type {Map<number, IndexRow[]>} */
-  const rowsByUnit = new Map();
+  // Rows by entry key. A Team-Ops unit's are also all filed under its bare
+  // id, so unitRows(unitId) is the whole unit for any unit (by section).
+  /** @type {Map<string, IndexRow[]>} */
+  const rowsByEntry = new Map();
+  /**
+   * @param {string} key
+   * @param {IndexRow} row
+   */
+  const file = (key, row) => /** @type {IndexRow[]} */ (rowsByEntry.get(key) ?? rowsByEntry.set(key, []).get(key)).push(row);
   for (const row of rows) {
-    if (!rowsByUnit.has(row.unitId)) rowsByUnit.set(row.unitId, []);
-    /** @type {IndexRow[]} */ (rowsByUnit.get(row.unitId)).push(row);
+    file(rowKey(row), row);
+    if (split.has(row.unitId)) file(`${row.unitId}`, row);
   }
   for (const unit of index.units) {
-    for (const row of rowsByUnit.get(unit.id) ?? []) {
+    for (const row of rowsByEntry.get(keyOfUnit(unit)) ?? []) {
       for (const [w, field] of unit.words) post(w, row.id, field, -1);
       for (const w of row.loadoutWords) post(w, row.id, FIELD.LOADOUT, -1);
       row.weapons.forEach((wid, i) => {
@@ -145,9 +179,13 @@ export function createSearch(index) {
       }
       if (!ok) continue;
       const row = rows[rowId];
-      let score = parts.reduce((s, p) => s + p.cost, 0);
+      let score = parts.reduce((s, p) => s + p.cost, 0) + (ridesAlong(row) ? PERIPHERAL_COST : 0);
+      const allInShort = parts.every((p) => p.field === FIELD.SHORT);
       // The whole query spells the unit's short name: rank it on top.
-      if (parts.every((p) => p.field === FIELD.SHORT) && parts.every((p) => p.tier <= TIER.PREFIX)) score -= 5;
+      if (allInShort && parts.every((p) => p.tier <= TIER.PREFIX)) score -= 5;
+      // A query as long as the short name, all of it in the name, names that unit and
+      // not a longer one: "kaizoku spec ops" is Kaizoku Spec-Ops, not Kaizoku-1 Spec-Ops.
+      if (allInShort && parts.length >= shortLength(row)) score -= 1;
       const weaponPart = parts.find((p) => p.weapon >= 0);
       out.push({
         row,
@@ -159,21 +197,7 @@ export function createSearch(index) {
     }
     out.sort((a, b) => a.score - b.score || a.row.points - b.row.points
       || a.row.unit.localeCompare(b.row.unit) || a.row.id - b.row.id);
-    // Within the places one unit's rows already hold, its own loadouts come before its peripherals: a cheap,
-    // weaponless Crabbot matching only the unit's name scored best and became the pick. Units keep their rank.
-    /** @type {Map<number, number[]>} */
-    const slots = new Map();
-    out.forEach((m, i) => {
-      if (!slots.has(m.row.unitId)) slots.set(m.row.unitId, []);
-      /** @type {number[]} */ (slots.get(m.row.unitId)).push(i);
-    });
-    const reordered = [...out];
-    for (const places of slots.values()) {
-      const mine = places.map((i) => out[i]);
-      const own = [...mine.filter((m) => !isPeripheral(m.row)), ...mine.filter((m) => isPeripheral(m.row))];
-      places.forEach((i, k) => { reordered[i] = own[k]; });
-    }
-    return reordered;
+    return out;
   }
 
   /**
@@ -192,8 +216,11 @@ export function createSearch(index) {
     const scope = factionId ?? Number(Object.keys(row.factions)[0]);
     const wid = row.weapons[m.weapon >= 0 ? m.weapon : 0];
     const weapon = wid != null ? {id: wid, name: index.weapons[wid].name} : null;
+    const key = rowKey(row);
     return {
       rowId: row.id,
+      key,
+      parent: unitByKey.get(key)?.parent ?? null,
       unitId: row.unitId,
       factionId: scope,
       armyFactionId: row.factions[scope],
@@ -216,31 +243,32 @@ export function createSearch(index) {
     };
   }
 
-  // Loadouts per unit, overall and per vanilla faction, counted once up front.
-  /** @type {Map<number, Record<string, number>>} */
+  // Loadouts per unit entry, overall and per vanilla faction, counted once up front.
+  /** @type {Map<string, Record<string, number>>} */
   const counts = new Map();
   for (const r of rows) {
+    const key = rowKey(r);
     // set() then get(): the count is there.
-    const c = /** @type {Record<string, number>} */ (counts.get(r.unitId) ?? counts.set(r.unitId, {all: 0}).get(r.unitId));
+    const c = /** @type {Record<string, number>} */ (counts.get(key) ?? counts.set(key, {all: 0}).get(key));
     c.all++;
     for (const f of Object.keys(r.factions)) c[f] = (c[f] ?? 0) + 1;
   }
   /**
-   * @param {number} unitId
+   * @param {string} key
    * @param {number | null} factionId
    */
-  const countInScope = (unitId, factionId) => counts.get(unitId)?.[factionId ?? 'all'] ?? 0;
+  const countInScope = (key, factionId) => counts.get(key)?.[factionId ?? 'all'] ?? 0;
 
   /**
-   * @param {number} unitId
+   * @param {string} key an entryKey
    * @param {number | null} factionId
    * @returns {import('../types.js').UnitHit}
    */
-  function unitHit(unitId, factionId) {
-    // Every row's unit is in the index.
-    const u = /** @type {import('../types.js').IndexUnit} */ (unitById.get(unitId));
-    return {unitId, name: u.name, short: u.short, type: u.type, factionIds: u.factions,
-      profileCount: countInScope(unitId, factionId)};
+  function unitHit(key, factionId) {
+    // Every row's entry is in the index.
+    const u = /** @type {import('../types.js').IndexUnit} */ (unitByKey.get(key));
+    return {key, unitId: u.id, groupId: u.groupId ?? null, parent: u.parent ?? null,
+      name: u.name, short: u.short, type: u.type, factionIds: u.factions, profileCount: countInScope(key, factionId)};
   }
 
   // {query, factionId, recentIds} -> {recent, profiles, units, elsewhere, total}
@@ -266,9 +294,10 @@ export function createSearch(index) {
     // `scoped` is best first, so a unit's first match is its best loadout:
     // the one Enter on the unit row picks (the profiles list is capped).
     for (const m of scoped) {
-      if (seen.has(m.row.unitId)) continue;
-      seen.add(m.row.unitId);
-      units.push({...unitHit(m.row.unitId, factionId), tier: m.tier, best: profileHit(m, factionId)});
+      const key = rowKey(m.row);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      units.push({...unitHit(key, factionId), tier: m.tier, best: profileHit(m, factionId)});
     }
 
     /** @type {import('../types.js').SearchResult['elsewhere']} */
@@ -302,7 +331,7 @@ export function createSearch(index) {
     return {
       recent,
       types: [...types].map(([type, count]) => ({type, count})),
-      units: scopeUnits.map((u) => unitHit(u.id, factionId)).sort((a, b) => a.short.localeCompare(b.short)),
+      units: scopeUnits.map((u) => unitHit(keyOfUnit(u), factionId)).sort((a, b) => a.short.localeCompare(b.short)),
     };
   }
 
@@ -312,13 +341,14 @@ export function createSearch(index) {
    */
   const asHit = (row, factionId) => profileHit({row, weapon: -1, tier: TIER.EXACT, matched: []}, factionId);
 
-  // Every loadout of one unit in scope, cheapest first: the unit drill-in page.
+  // Every loadout of one listed unit in scope, cheapest first: the unit
+  // drill-in page. A Team-Ops trooper's key gives only that trooper's.
   /**
-   * @param {number} unitId
+   * @param {string | number} key a UnitHit's key, or a unit id (the whole unit)
    * @param {number | null} [factionId]
    */
-  function unitRows(unitId, factionId = null) {
-    return (rowsByUnit.get(unitId) ?? []).filter((r) => inScope(r, factionId))
+  function unitRows(key, factionId = null) {
+    return (rowsByEntry.get(`${key}`) ?? []).filter((r) => inScope(r, factionId))
       .sort((a, b) => a.points - b.points || a.id - b.id)
       .map((r) => asHit(r, factionId));
   }
@@ -330,7 +360,7 @@ export function createSearch(index) {
    */
   function unitsOfType(type, factionId = null) {
     return index.units.filter((u) => u.type === type && (factionId == null || u.factions.includes(factionId)))
-      .map((u) => unitHit(u.id, factionId))
+      .map((u) => unitHit(keyOfUnit(u), factionId))
       .sort((a, b) => a.short.localeCompare(b.short));
   }
 

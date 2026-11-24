@@ -3,6 +3,7 @@
 // Classic ladders.
 import {pct, shows} from '../results/summary.js';
 import {useT} from './i18n.jsx';
+import {F2FBar, noneText} from './ResultBars.jsx';
 
 /** @typedef {import('../types.js').Summary} Summary */
 /** @typedef {'active' | 'reactive'} Role */
@@ -66,18 +67,13 @@ export function ClassicBody({s, woundBar = true}) {
       ) : null))}
     </div>
   );
-  /** @param {number} p */
-  const big = (p) => p > 0.12;
+  const none = s.f2f[1];
   return (
     <>
       <div className="field">
         <span className="label">{t('results.faceToFace')}</span>
-        <div className="bar labelled">
-          <span className="seg-a2" style={{width: `${100 * s.win.active}%`}}>{big(s.win.active) ? pct(s.win.active) : ''}</span>
-          <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
-          <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`}}>{big(s.win.reactive) ? pct(s.win.reactive) : ''}</span>
-        </div>
-        <div className="split"><span>{t('results.sideWins', {side: t('side.active')})}</span><span>{t('classic.nobody', {p: pct(s.win.none)})}</span>
+        <F2FBar s={s} labels className="labelled" />
+        <div className="split"><span>{t('results.sideWins', {side: t('side.active')})}</span><span>{t(none.dodger ? 'classic.dodgesP' : 'classic.nobody', {p: pct(none.chance)})}</span>
           <span>{t('results.sideWins', {side: t('side.reactive')})}</span></div>
       </div>
       {woundBar && (
@@ -131,12 +127,14 @@ export function Breakdown({s}) {
    * @param {boolean} first
    */
   const head = (text, cls, first) => <div className={`label head${first ? ' first' : ''}${cls ? ` ${cls}` : ''}`}>{text}</div>;
+  const none = s.f2f[1];
+  const nt = noneText(none, t);
   return (
     <div className="breakdown">
       {shows(s.win.active) && head(`${t('results.sideWinsRoll', {side: t('side.active')})} · ${pct(s.win.active)}`, 'c-active', true)}
       {shows(s.win.active) && ladder('active', 'seg-a')}
-      {shows(s.win.none) && head(`${t('results.nobodyWins')} · ${pct(s.win.none)}`, '', !shows(s.win.active))}
-      {row(t('results.bothFail'), s.win.none, 'seg-none n')}
+      {shows(none.chance) && head(`${nt.title} · ${pct(none.chance)}`, none.dodger ? `c-${none.dodger}` : '', !shows(s.win.active))}
+      {row(nt.row ?? t('results.bothFail'), none.chance, `${none.seg} n`)}
       {shows(s.win.reactive) && head(`${t('results.sideWinsRoll', {side: t('side.reactive')})} · ${pct(s.win.reactive)}`, 'c-reactive', false)}
       {shows(s.win.reactive) && ladder('reactive', 'seg-r')}
       <span className="note overlap-note">{t('results.overlapNote')}</span>

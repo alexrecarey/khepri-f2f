@@ -13,6 +13,7 @@ import {DEFAULT_HEADLINE, HEADLINES} from '../results/headline.js';
 import {CC_ALLIES_MAX} from '../rules/closeCombat.js';
 import {FIRETEAM_MAX, HACKED_RESET_MODS} from '../rules/modifiers.js';
 import {RANGE_BANDS} from '../rules/ranges.js';
+import {SUPPORTWARE} from '../rules/supportware.js';
 import {FIREWALL_CHIPS} from '../rules/trooper.js';
 import {MODES} from './modes.js';
 
@@ -45,14 +46,21 @@ export const EMPTY_SIDE = {
   sapper: false,
   // Situation chips on the side's own roll (rules/modifiers.js): the target is
   // Targeted (+3 to a shot or program against it, -3 to its Reset), Hacked (-3 to -12 to a Reset, 0 for
-  // none), Immobilized-A (-6 to a Dodge).
+  // none), Immobilized-A (-6 to a Dodge), No LoF (the attacker outside its
+  // LoF: -3 and Silent (X) to a Dodge).
   targeted: false,
   hackedReset: 0,
   immA: false,
+  noLof: false,
+  // Bangbomb on its Dodge (troopers with it): +X, needs the attacker in LoF or ZoC.
+  bangbomb: false,
   // Use Surprise Attack (active side, units with the skill).
   surpriseAttack: false,
   // Declare Berserk (active side, units with the skill): a CC Attack.
   berserk: false,
+  // The Supportware an EVO hacker runs on it (a REM): 'assistedFire',
+  // 'enhancedReaction', or null. One at a time.
+  supportware: null,
   // Team-Ops: index into unit.upgrades.chart / .ball, or null.
   upgrade: null,
   ball: null,
@@ -76,7 +84,7 @@ const WEAPON_KEY_MAX = 64;
 const field = (key, schema) => v.fallback(schema, /** @type {v.InferOutput<S>} */ (EMPTY_SIDE[key]));
 
 // A Selection (types.js) as it comes from a share link or a saved roll.
-export const SelectionSchema = v.object({
+const SelectionFields = v.object({
   unitId: field('unitId', id),
   factionId: field('factionId', id),
   groupId: field('groupId', id),
@@ -93,8 +101,12 @@ export const SelectionSchema = v.object({
   // the Hacked chip's MOD to a Reset, 0 for none
   hackedReset: field('hackedReset', v.picklist([...HACKED_RESET_MODS, 0])),
   immA: field('immA', v.boolean()),
+  noLof: field('noLof', v.boolean()),
+  bangbomb: field('bangbomb', v.boolean()),
   surpriseAttack: field('surpriseAttack', v.boolean()),
   berserk: field('berserk', v.boolean()),
+  // Assisted Fire or Enhanced Reaction, null for none
+  supportware: field('supportware', v.nullable(v.picklist(SUPPORTWARE))),
   // Team-Ops: index into unit.upgrades.chart / .ball
   upgrade: field('upgrade', v.nullable(intFrom(0))),
   ball: field('ball', v.nullable(intFrom(0))),
@@ -103,6 +115,11 @@ export const SelectionSchema = v.object({
   // allies in base contact with the target
   ccAllies: field('ccAllies', intIn([0, CC_ALLIES_MAX])),
 });
+// Bangbomb was a second Dodge (weapon key 'bangbomb') until it became a
+// toggle on the Dodge (2026-11-03): a link or saved roll from before reads
+// as the Dodge with Bangbomb on.
+const OLD_BANGBOMB_KEY = 'bangbomb';
+export const SelectionSchema = v.pipe(SelectionFields, v.transform((s) => (s.weaponKey === OLD_BANGBOMB_KEY ? {...s, weaponKey: 'dodge', bangbomb: true} : s)));
 
 // The distance both sides share, as the upper bound of a range band in cm
 // (rules/ranges.js RANGE_BANDS): 40 = 8-16". matchup.rangeCmB is null, or the
@@ -124,13 +141,17 @@ export const MatchupSchema = v.object({
   B: v.fallback(SelectionSchema, () => ({...EMPTY_SIDE})),   // the reactive trooper
   rangeCm: v.fallback(BandSchema, DEFAULT_RANGE_CM),         // the distance both share
   rangeCmB: v.fallback(v.nullable(BandSchema), null),        // the reactive's own distance when the range is split, else null
+  // The side whose Smoke grenade pick split the range (reduce.js
+  // pickWeapon), so leaving the grenade joins it again; null when the player
+  // split it, or it isn't split. Not in share links: a link's split is kept.
+  splitBy: v.fallback(v.nullable(v.picklist(SIDES)), null),
   smoke: v.fallback(v.boolean(), NO_ZONES.smoke),
   whiteNoise: v.fallback(v.boolean(), NO_ZONES.whiteNoise),
 });
 
 // An empty matchup: initialState's, and what a saved setup that isn't an
 // object at all loads as (rolls.js normalizeSetup).
-export const emptyMatchup = () => ({A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}, rangeCm: DEFAULT_RANGE_CM, rangeCmB: null, ...NO_ZONES});
+export const emptyMatchup = () => ({A: {...EMPTY_SIDE}, B: {...EMPTY_SIDE}, rangeCm: DEFAULT_RANGE_CM, rangeCmB: null, splitBy: null, ...NO_ZONES});
 
 export const MAX_RECENTS = 8; // per side
 

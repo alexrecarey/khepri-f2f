@@ -10,18 +10,38 @@ import {useT} from './i18n.jsx';
 /** Which breakdown shows under the bars.
  * @typedef {'wounds' | 'f2f'} BreakdownView */
 
-/** @param {{s: import('../types.js').Summary, className?: string}} props */
-export function F2FBar({s, className = ''}) {
+// A part wide enough for its percentage (labels).
+const LABEL_FITS = 0.12;
+
+// labels: each part's percentage written in (Classic), the plain grey nobody
+// part left blank.
+/** @param {{s: import('../types.js').Summary, labels?: boolean, className?: string}} props */
+export function F2FBar({s, labels = false, className = ''}) {
   const t = useT();
+  const [active, none, reactive] = s.f2f;
+  const p = {active: pct(active.chance), none: pct(none.chance), reactive: pct(reactive.chance)};
   return (
     <div className={`bar${className ? ` ${className}` : ''}`} role="img"
-      aria-label={t('results.f2fBar', {active: pct(s.win.active), none: pct(s.win.none), reactive: pct(s.win.reactive)})}>
-      <span className="seg-a2" style={{width: `${100 * s.win.active}%`}} />
-      <span className="seg-none" style={{width: `${100 * s.win.none}%`}} />
-      <span className="seg-r3" style={{width: `${100 * s.win.reactive}%`}} />
+      aria-label={none.dodger ? t('results.f2fBarDodge', {...p, side: t(`side.${none.dodger}`)}) : t('results.f2fBar', p)}>
+      {s.f2f.map((part) => (
+        <span key={part.side} className={part.seg} style={{width: `${100 * part.chance}%`}}>
+          {labels && part.seg !== 'seg-none' && part.chance > LABEL_FITS ? pct(part.chance) : ''}
+        </span>
+      ))}
     </div>
   );
 }
+
+// The nobody part's title in the lists under the bars, and its row's label
+// when the list's own ("both fail") doesn't fit: a Dodger that got away.
+/**
+ * @param {import('../types.js').F2FPart} none
+ * @param {import('../types.js').Translator} t
+ * @returns {{title: string, row: string | null}}
+ */
+export const noneText = (none, t) => (none.dodger
+  ? {title: t('results.sideDodges', {side: t(`side.${none.dodger}`)}), row: t('results.noHits')}
+  : {title: t('results.nobodyWins'), row: null});
 
 // 'wounds' | 'f2f': the breakdown under the bars. Back to the wounds when
 // `reset` turns true (the phone sheet closing). Set during the render, not in

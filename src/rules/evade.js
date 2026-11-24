@@ -3,8 +3,10 @@
 // side that rolls nothing. ctx: matchup.js deriveInputs.
 import {ZERO_PAIN} from '../army/hacking.js';
 import {
-  LIMITS, bangbombMod, bangbombValue, cancelsBangbomb, dodgeExtras, evades, fireteamBonuses, hackedResetMod, immADodgeMod, targetedResetMod,
+  LIMITS, bangbombMod, dodgeExtras, evades, fireteamBonuses, hackedResetMod, immADodgeMod, targetedResetMod,
 } from './modifiers.js';
+import {attackerInZoc, noLofDodgeMods} from './noLof.js';
+import {SIDES, other} from '../lib/side.js';
 import {clamp} from '../lib/clamp.js';
 import {msg} from '../i18n/message.js';
 import {compact, line, note, section, statLabel, svSection} from './lines.js';
@@ -17,7 +19,12 @@ import {compact, line, note, section, statLabel, svSection} from './lines.js';
 /** @typedef {import('../types.js').Params} Params */
 /** @typedef {import('../types.js').Evader} Evader */
 
-// A Dodge: one PH roll (Dodge MODs, Bangbomb, IMM-A and the Fireteam's +1 included,
+// Why a Dodge MOD is struck: the reason keys its rules return, worded.
+const STRUCK_BY = {template: msg('ledger.templateWeapon'), sixthSense: msg('skill.sixthSenseDodge')};
+/** @param {keyof typeof STRUCK_BY | null} key */
+const struckBy = (key) => (key ? STRUCK_BY[key] : null);
+
+// A Dodge: one PH roll (Dodge MODs, Bangbomb, IMM-A, No LoF and the Fireteam's +1 included,
 // Dodge (+1SD) as Special Dice) that causes no Saving Rolls. `incoming`: the
 // weapon being Dodged, if any (null when the attacker has no line of fire).
 /**
@@ -31,17 +38,19 @@ import {compact, line, note, section, statLabel, svSection} from './lines.js';
 function dodgeInputs(x, y, side, incoming, ctx) {
   const d = dodgeExtras(x.traits);
   const ft = fireteamBonuses(x.ftSize).dodge;
+  const o = other(side);
+  // Bangbomb on: struck where it can't help (a template).
   const bang = bangbombMod(x, incoming);
-  // The Bangbomb Dodge against a template: its MOD is struck.
-  const bangStruck = !bang && x.weapon.bangbomb && incoming?.row && cancelsBangbomb(incoming.row) ? bangbombValue(x.traits) : 0;
+  const noLof = noLofDodgeMods(x, incoming, side === 'B', attackerInZoc(side, ctx.rangeCm, ctx.rangeCmB));
   const lines = compact([
     // Dodge (PH=14) replaces the Attribute, so it isn't a MOD (MOD_CAP).
     d.ph !== null ? line(d.ph, msg('ledger.dodgePh', {ph: d.ph}), side) : line(x.profile.ph ?? 0, statLabel(x, 'ph'), null),
     d.mod && line(d.mod, msg('skill.dodgeMod', {mod: `+${d.mod}`}), side),
     ft && line(ft, msg('ledger.fireteam', {size: x.ftSize}), side),
-    bang && line(bang, msg('equip.bangbombMod', {mod: `+${bang}`}), side),
-    bangStruck && line(bangStruck, msg('equip.bangbombMod', {mod: `+${bangStruck}`}), side, msg('ledger.templateWeapon')),
+    bang && line(bang.value, msg('equip.bangbombMod', {mod: `+${bang.value}`}), side, struckBy(bang.struckBy)),
     immADodgeMod(x) && line(immADodgeMod(x), msg('chip.immA'), side),
+    noLof.lof && line(noLof.lof, msg('chip.noLof'), side, struckBy(noLof.struckBy)),
+    noLof.silent && line(noLof.silent, msg('trait.silentMod', {mod: noLof.silent}), o, struckBy(noLof.struckBy)),
     ...(y && incoming ? ctx.opposing[side] : []),
   ]);
   const {sv, notes} = svSection(lines, side);
@@ -90,7 +99,9 @@ function resetInputs(x, y, side, ctx) {
 }
 
 // A Dodge or Reset that can't evade the attack it faces (modifiers.js
-// evades) isn't rolled against it: the attack is a Normal Roll.
+// evades) isn't rolled against it: the attack is a Normal Roll. Except
+// against Smoke: a Normal Roll under the template, rolled on its own next to
+// the throw's (rules/smoke.js smokeNotOpposed), so no opposing MODs.
 /**
  * @param {Evader} x
  * @param {Trooper | null} y
@@ -100,8 +111,8 @@ function resetInputs(x, y, side, ctx) {
  * @returns {import('../types.js').Roll}
  */
 export function evadeInputs(x, y, side, incoming, ctx) {
-  if (!evades(x, incoming)) {
-    const reset = x.weapon.kind === 'reset';
+  const reset = x.weapon.kind === 'reset';
+  if (!evades(x, incoming) && incoming?.kind !== 'smoke') {
     // Only an attack (a weapon) can't be evaded.
     const weapon = /** @type {import('../types.js').WeaponEntry} */ (incoming).row.name;
     return {
@@ -110,7 +121,7 @@ export function evadeInputs(x, y, side, incoming, ctx) {
       notes: [note(side, reset ? 'note.resetOnlyComms' : 'note.dodgeNotComms', {weapon})],
     };
   }
-  if (x.weapon.kind === 'reset') return resetInputs(x, y, side, ctx);
+  if (reset) return resetInputs(x, y, side, ctx);
   return dodgeInputs(x, y, side, incoming, ctx);
 }
 
@@ -123,3 +134,20 @@ export function evadeInputs(x, y, side, incoming, ctx) {
 export function noLofInputs(side) {
   return /** @type {Partial<Params>} */ ({[`burst${side}`]: 0, [`bonusBurst${side}`]: 0, [`shock${side}`]: false, [`template${side}`]: false});
 }
+
+// Whether side's Dodge succeeds when nobody wins: against a Direct Template
+// the Dodge rolls alone and only cancels the template's hits, which the
+// engine scores as neither side winning (engine-rs template_roll).
+/**
+ * @param {Partial<Params> | null | undefined} p the engine params
+ * @param {Side} side the Dodging side
+ */
+export const dodgeWinsByNone = (p, side) => Boolean(p?.[`template${other(side)}`]);
+
+// The side that Dodges the other's Direct Template, or null. Its chance to
+// dodge is the chance nobody wins (dodgeWinsByNone).
+/**
+ * @param {Partial<Params> | null | undefined} p the engine params
+ * @returns {Side | null}
+ */
+export const templateDodger = (p) => SIDES.find((side) => p?.[`ammo${side}`] === 'DODGE' && dodgeWinsByNone(p, side)) ?? null;

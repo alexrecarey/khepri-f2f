@@ -62,6 +62,8 @@ export function stateFromUrl(search) {
       B: {...EMPTY_SIDE, ...m.B, ftSize: m.ftSize.B},
       rangeCm: m.rangeCm ?? DEFAULT_RANGE_CM,
       rangeCmB: m.rangeCmB,
+      // A link's split is the sender's: kept when the grenade is left (reduce.js unsplit).
+      splitBy: null,
       ...m.zones,
     };
   }

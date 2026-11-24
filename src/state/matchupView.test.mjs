@@ -8,7 +8,8 @@ import es from '../i18n/es.js';
 import {reduce} from './reduce.js';
 import {EMPTY_SIDE, initialState} from './schema.js';
 import {unitById} from '../army/lookup.js';
-import {army} from '../army/testArmy.mjs';
+import {army, unitByIsc} from '../army/testArmy.mjs';
+import {matchupRollSummary} from './rolls.js';
 
 /** @typedef {import('../types.js').MatchupView} MatchupView */
 /** @typedef {import('../types.js').LedgerSide} LedgerSide */
@@ -232,4 +233,106 @@ test('the side view holds the allies in contact to what fits, as the CC Attack c
   assert.equal(v.ccAllies, v.ccAlliesMax);
   // Not CC attacking: no allies count.
   assert.equal(matchupCore(army, {A: {...corax, ccAllies: 3}, B: chaksa, rangeCm: 40}).A.ccAllies, 0);
+});
+
+// Supportware (rules/supportware.js): a Pathfinder Dronbot (REM) in
+// PanOceania, which fields EVO hackers; a Vystrel (REM) in Ariadna, which
+// doesn't; a Fusilier (no REM).
+/**
+ * @param {import('../types.js').UnitRow} unit
+ * @param {number} factionId
+ * @param {Partial<import('../types.js').Selection>} [over]
+ */
+const first = (unit, factionId, over = {}) => {
+  const group = unit.byFaction[factionId].groups[0];
+  return {...EMPTY_SIDE, unitId: unit.id, factionId, groupId: group.id, profileId: group.profiles[0].id, optionId: group.options[0].id, ...over};
+};
+
+test('Supportware: the side card offers the chips that change the pick, the saved roll names the one in use', () => {
+  const pathfinder = first(unitByIsc('Pathfinder Dronbot'), 101, {weaponKey: '33:', supportware: 'enhancedReaction'});
+  const matchup = {A: first(unitByIsc('Fusiliers'), 101), B: pathfinder, rangeCm: 40};
+  const view = matchupView(army, matchup);
+  assert.deepEqual(view.B.supportware, ['assistedFire', 'enhancedReaction']);
+  assert.deepEqual(view.A.supportware, []);
+  assert.equal(view.params?.burstB, 2);
+  assert.match(matchupRollSummary(view, null).setup, /Enhanced Reaction/);
+  // Its B1 Flash Pulse is B2 in ARO too.
+  const pulse = matchupView(army, {...matchup, B: {...pathfinder, weaponKey: '72:'}});
+  assert.deepEqual(pulse.B.supportware, ['assistedFire', 'enhancedReaction']);
+  assert.equal(pulse.params?.burstB, 2);
+  // A Dodge: no chips, and the saved roll doesn't name the one left on.
+  const dodge = matchupView(army, {...matchup, B: {...pathfinder, weaponKey: 'dodge'}});
+  assert.deepEqual(dodge.B.supportware, []);
+  assert.doesNotMatch(matchupRollSummary(dodge, null).setup, /Enhanced Reaction/);
+  // Ariadna has no EVO hacker: no chips.
+  assert.deepEqual(matchupView(army, {...matchup, B: first(unitByIsc('Vystrel Mobile Artillery Regiment'), 301)}).B.supportware, []);
+});
+
+test('No LoF on the reactive: beyond its ZoC only No ARO can be picked; inside it, a Dodge or No ARO', () => {
+  // Chaksa shoots its Combi Rifle at Corax, who can't see it. (Chaksa has
+  // Sixth Sense: as the reactive it would get no chip.)
+  const blind = {...corax, noLof: true};
+  const far = matchupView(army, {A: chaksa, B: blind, rangeCm: 40});
+  assert.equal(far.A.resolved?.weapon?.kind, 'bs');
+  assert.ok(far.B.noLofChip);
+  assert.equal(far.B.sel.weaponKey, 'none');
+  assert.deepEqual(far.B.groups.filter((g) => !g.off).map((g) => g.key), ['none']);
+  assert.equal(far.params?.burstB, 0);
+  assert.equal(/** @type {LedgerSide} */ (far.ledger?.ledger.B).dice, 'No ARO: not rolled');
+  // Derived, like a default weapon: the document keeps what was picked.
+  assert.equal(blind.weaponKey, null);
+  const close = matchupView(army, {A: chaksa, B: blind, rangeCm: 20});
+  assert.equal(close.B.sel.weaponKey, 'dodge');
+  assert.deepEqual(close.B.groups.filter((g) => !g.off).map((g) => g.key), ['dodge', 'none']);
+  // Chip off: every button, and the default weapon.
+  const seen = matchupView(army, {A: chaksa, B: corax, rangeCm: 40});
+  assert.ok(seen.B.groups.every((g) => !g.off));
+  assert.notEqual(seen.B.sel.weaponKey, 'none');
+  // Sixth Sense: never out of LoF, no chip.
+  assert.equal(matchupView(army, {A: corax, B: {...chaksa, noLof: true}, rangeCm: 40}).B.noLofChip, false);
+  // The active side's chip only shows on a Dodge it changes (not against a shot).
+  assert.equal(matchupView(army, {A: {...corax, weaponKey: 'dodge'}, B: chaksa, rangeCm: 20}).A.noLofChip, false);
+});
+
+test('No LoF and a Fireteam: both chips stay, and a team of 5 (Sixth Sense) lifts the limits', () => {
+  // Zhanshi can join a Core of 5. Corax shoots it from beyond its ZoC.
+  const zhanshi = first(unitByIsc('Zhanshi'), 201, {noLof: true});
+  const alone = matchupView(army, {A: corax, B: zhanshi, rangeCm: 40});
+  assert.equal(alone.B.sel.weaponKey, 'none');
+  assert.ok(alone.B.noLofChip);
+  assert.ok(alone.B.fireteamChip, 'No ARO gets nothing from the team, but a team of 5 would lift No LoF');
+  const team = matchupView(army, {A: corax, B: {...zhanshi, ftSize: 5}, rangeCm: 40});
+  assert.ok(team.B.noLofChip);
+  assert.ok(team.B.fireteamChip);
+  assert.ok(team.B.groups.every((g) => !g.off));
+  assert.notEqual(team.B.sel.weaponKey, 'none');
+  // Its Dodge: no -3 (struck by Sixth Sense).
+  const dodge = matchupView(army, {A: corax, B: {...zhanshi, ftSize: 5, weaponKey: 'dodge'}, rangeCm: 40});
+  const lines = /** @type {import('../types.js').Section} */ (/** @type {LedgerSide} */ (dodge.ledger?.ledger.B).sv).lines;
+  assert.deepEqual(lines.find((l) => l.label === 'No LoF'), {value: -3, label: 'No LoF', by: 'B', struck: 'Sixth Sense (Dodge)'});
+});
+
+test('Dodge toggles: the view lists them for the picked Dodge, on or off; none for another pick', () => {
+  const dodging = (over = {}) => matchupView(army, {A: corax, B: {...chaksa, weaponKey: 'dodge', ...over}, rangeCm: 40}).B.dodgeToggles;
+  assert.deepEqual(dodging(), [{key: 'immA', on: false}]);
+  assert.deepEqual(dodging({immA: true}), [{key: 'immA', on: true}]);
+  assert.deepEqual(matchupView(army, {A: corax, B: chaksa, rangeCm: 40}).B.dodgeToggles, []);
+});
+
+test('Yojimbo throws Smoke in ARO: a weapon button, Face to Face against a Fusilier, "Smoke placed"', () => {
+  const yojimbo = {...EMPTY_SIDE, unitId: 224, factionId: 904, groupId: 1, optionId: 741};
+  const fusilier = {...EMPTY_SIDE, unitId: 1, factionId: 101, groupId: 1, optionId: 1};
+  const nisse = {...EMPTY_SIDE, unitId: 3, factionId: 101, groupId: 1, optionId: 2};
+  const plain = matchupView(army, {A: fusilier, B: yojimbo, rangeCm: 20});
+  const smoke = plain.B.weapons.filter((w) => w.kind === 'smoke').map((w) => w.name);
+  assert.deepEqual(smoke, ['Smoke Grenades', 'Smoke Grenade Launcher']);
+  assert.notEqual(plain.B.resolved?.weapon?.kind, 'smoke', 'not the default weapon');
+  const v = matchupView(army, {A: fusilier, B: {...yojimbo, weaponKey: '45:'}, rangeCm: 20});
+  assert.ok(v.params && v.targets?.reactive && v.ledger);
+  assert.deepEqual([v.params.ammoB, v.params.burstB, v.params.successValueB, v.params.unopposed], ['SMOKE', 1, 14, false]);
+  assert.deepEqual(v.targets.reactive.map((t) => t.label), ['Smoke placed']);
+  assert.ok(v.bands.some((b) => b.B === 0), 'its range bands show on the range selector');
+  // A Nisse's MSV2 sees through: two Normal Rolls.
+  const n = matchupView(army, {A: nisse, B: {...yojimbo, weaponKey: '45:'}, rangeCm: 20});
+  assert.equal(n.params?.unopposed, true);
 });

@@ -38,6 +38,16 @@ test('units in no chart, or only in Duos they cannot make pure, get none', () =>
   assert.equal(fireteamMax(dogs, options(dogs)[0]), 1);
 });
 
+test('a Team-Ops trooper, in no chart, may form a Haris (up to 3)', () => {
+  const ops = unit('JSA Team-Ops');
+  assert.equal(ops.fireteam, undefined);
+  for (const o of options(ops)) {
+    const r = /** @type {import('../types.js').ResolvedSide} */ (resolveSelection(army, sel(ops, o, {ftSize: 5})));
+    assert.equal(r.ftMax, 3);
+    assert.equal(r.ftSize, 3);
+  }
+});
+
 test("a size above the trooper's max drops to it", () => {
   const squalos = unit('Squalos');
   const r = /** @type {import('../types.js').ResolvedSide} */ (resolveSelection(army, sel(squalos, options(squalos)[0], {ftSize: 5})));

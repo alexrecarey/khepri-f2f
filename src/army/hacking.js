@@ -5,8 +5,11 @@
 // (`hack`) isn't kept in army.json. The programs the calculator rolls are
 // few and fixed, so they live here, from that chart and the wiki's (Hacking
 // Programs Chart, PDF 5.3). Supportware (Fairy Dust, Assisted Fire...),
-// Cybermask and White Noise roll nothing face to face: not offered.
+// Cybermask and White Noise roll nothing face to face: not offered as
+// programs. Assisted Fire and Enhanced Reaction change a REM's roll, so the
+// REM gets a chip for them (rules/supportware.js) when its army runs them.
 import {EQUIP, SKILL} from './ids.js';
+import {effectiveTraits, hasEquip} from './traits.js';
 import {parseWeaponMods, weaponLabel} from './weapons.js';
 
 // Troop Types with the Hackable Characteristic.
@@ -55,6 +58,36 @@ const DEVICE_PROGRAMS = {
   [EQUIP.KILLER_HACKING_DEVICE]: ['trinity'],
   [EQUIP.EVO_HACKING_DEVICE]: [],
 };
+
+// The factions where some trooper carries an EVO Hacking Device, the device
+// that runs Supportware, by army object (the scan runs once per army).
+/** @type {WeakMap<object, Set<number>>} */
+const evoFactions = new WeakMap();
+
+/** @param {import('../types.js').Army} army */
+function scanEvoFactions(army) {
+  const out = new Set();
+  for (const u of army.units) {
+    for (const [f, {groups}] of Object.entries(u.byFaction)) {
+      const evo = groups.some((g) => g.profiles.some((p) =>
+        hasEquip(effectiveTraits(p, null), EQUIP.EVO_HACKING_DEVICE) || g.options.some((o) => hasEquip(effectiveTraits(p, o), EQUIP.EVO_HACKING_DEVICE))));
+      if (evo) out.add(Number(f));
+    }
+  }
+  return out;
+}
+
+// Can the army list `factionId` field a Supportware hacker (an EVO Hacking
+// Device)? Its Programs only target troopers of the user's army list.
+/**
+ * @param {import('../types.js').Army} army
+ * @param {number} factionId
+ */
+export function runsSupportware(army, factionId) {
+  let set = evoFactions.get(army);
+  if (!set) evoFactions.set(army, set = scanEvoFactions(army));
+  return set.has(factionId);
+}
 
 // Extras on a device or the Hacker skill that change nothing face to face:
 // programs that roll nothing, a Firewall (rules/modifiers.js reads it), the

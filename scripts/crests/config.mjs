@@ -11,6 +11,6 @@ export const CREST_CACHE_CONTROL = 'public, max-age=2592000, stale-while-revalid
 // very long paths. R2 holds one file per crest, <slug>.svg or <slug>.webp,
 // and the Worker serves whichever exists at /crests/<slug>.
 export const WEBP_OVER_BYTES = 60_000;
-// wrangler isn't a dependency (its runtime is ~100 MB in the zero-install
-// cache); scripts and CI run this pinned version through npx.
+// wrangler isn't a dependency (its runtime is ~100 MB, too much for every
+// install); scripts and CI run this pinned version through npx.
 export const WRANGLER = 'wrangler@4.149.0';

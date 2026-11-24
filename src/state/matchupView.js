@@ -6,21 +6,24 @@
 // descriptors, i18n/message.js); renderMatchup(core, t) puts it in the
 // player's language. matchupView composes them; useMatchupView.js memoises
 // each pass for React.
-import {SKILL} from '../army/ids.js';
 import {extraLoadoutName, shortIsc, unitTag} from '../army/names.js';
-import {hasSkill} from '../army/traits.js';
-import {isCommsAttack, isPseudo, stateCaused} from '../army/weapons.js';
+import {isCommsAttack, isPseudo, rolledBsAttack} from '../army/weapons.js';
 import {fullParams} from '../engine/params.js';
 import {defaultWeapon, sortWeapons} from '../rules/defaultWeapon.js';
 import {buildLedger, renderDerived} from '../rules/ledger.js';
 import {deriveInputs} from '../rules/matchup.js';
-import {fireteamHelps, firewallMod, surpriseAttackMod, targetedHelps} from '../rules/modifiers.js';
+import {
+  bangbombHelps, fireteamHelps, firewallMod, hackedHelps, hasNoCover, immAHelps, surpriseAttackOffered, targetedHelps, targetedResetHelps,
+} from '../rules/modifiers.js';
+import {attackerInZoc, fireteamLiftsNoLof, noLofChoices, noLofHelps, withNoLofPick} from '../rules/noLof.js';
 import {RANGE_BANDS, rangeModFor} from '../rules/ranges.js';
 import {visibility} from '../rules/visibility.js';
-import {berserkMod, ccAllies, ccAlliesMax, hasBerserk, isCcAttack} from '../rules/closeCombat.js';
+import {berserkHelps, berserkMod, ccAllies, ccAlliesMax, isCcAttack} from '../rules/closeCombat.js';
+import {supportwareChips} from '../rules/supportware.js';
 import {resolveSelection, withWeapon} from '../rules/trooper.js';
 import {modeLabels, orderModes} from '../rules/weaponModes.js';
 import {woundStates} from '../rules/woundStates.js';
+import {winState} from '../rules/smoke.js';
 import {ROLE} from './schema.js';
 import {crestOf} from '../army/crests.js';
 import {vanillaOf} from '../army/factions.js';
@@ -53,6 +56,30 @@ function resolveSide(army, sel, side) {
   // A key means a resolved side with a loadout.
   return {sel: {...sel, weaponKey: key}, resolved: key ? withWeapon(/** @type {ResolvedSide} */ (resolved), key) : resolved};
 }
+
+// The reactive with the pick No LoF leaves it (rules/noLof.js), its key in
+// `sel` too, like a default weapon.
+/**
+ * @param {Resolution} resolution
+ * @param {ResolvedSide | null} other
+ * @param {boolean} inZoc
+ * @returns {Resolution}
+ */
+function noLofSide({sel, resolved}, other, inZoc) {
+  const r = withNoLofPick(resolved, other?.weapon, inZoc);
+  return r === resolved ? {sel, resolved} : {sel: {...sel, weaponKey: r?.weapon?.key ?? sel.weaponKey}, resolved: r};
+}
+
+// The picked Dodge's own toggles, in button order, where they apply: each
+// a key of the side's selection and whether it is on.
+/**
+ * @param {ResolvedSide | null} resolved
+ * @returns {import('../types.js').DodgeToggle[]}
+ */
+const dodgeToggles = (resolved) => [
+  bangbombHelps(resolved) && {key: /** @type {const} */ ('bangbomb'), on: Boolean(resolved?.bangbomb)},
+  immAHelps(resolved) && {key: /** @type {const} */ ('immA'), on: Boolean(resolved?.immA)},
+].filter((x) => x !== false);
 
 // Weapon buttons in list order, a weapon's fire modes gathered into one group
 // (a CC Mode joins its weapon's BS Mode: Vorpal, Kobra Pistol) and put in
@@ -87,14 +114,14 @@ function weaponGroups(list, role) {
 
 // A side's Range MOD at a band: null out of range, undefined when it has no
 // range bands (nothing picked, Dodge, No ARO, Direct Template, CC Attack,
-// Hacking Program).
+// Hacking Program). A Smoke throw has them, like a shot.
 /**
  * @param {ResolvedSide | null} resolved
  * @param {number} to
  */
 function bandMod(resolved, to) {
   const w = resolved?.weapon;
-  if (w?.kind !== 'bs') return undefined;
+  if (!rolledBsAttack(w)) return undefined;
   // A weapon means a resolved side.
   return rangeModFor(w.row, to, /** @type {ResolvedSide} */ (resolved).traits);
 }
@@ -110,9 +137,10 @@ function bandMod(resolved, to) {
  * @param {Side} side
  * @param {Resolution} resolution
  * @param {ResolvedSide | null} other
+ * @param {boolean} inZoc the other side attacks from inside this side's ZoC
  * @returns {SideView}
  */
-function sideView(army, side, {sel, resolved}, other) {
+function sideView(army, side, {sel, resolved}, other, inZoc) {
   const weapons = resolved?.weapons ?? [];
   const ccWeapons = resolved?.ccWeapons ?? [];
   const programs = resolved?.programs ?? [];
@@ -123,10 +151,13 @@ function sideView(army, side, {sel, resolved}, other) {
   // Team-Ops: the unit's chart and TacBall options (teamOps means it has them, rules/trooper.js).
   const upgrades = resolved?.teamOps ? resolved.unit.upgrades : null;
   const vanilla = resolved ? vanillaOf(army, resolved.factionId) : null;
+  // No LoF on the reactive: the buttons for what it can't declare are off.
+  const only = /** @type {string[] | null} */ (noLofChoices(resolved, other?.weapon, side === 'B', inZoc));
   return {
     sel, resolved, weapons, ccWeapons, programs, pseudo,
     // CC weapons and Hacking Programs are weapons like any other, after the BS ones.
-    groups: weaponGroups([...weapons, ...ccWeapons, ...programs, ...pseudo], ROLE[side]),
+    groups: weaponGroups([...weapons, ...ccWeapons, ...programs, ...pseudo], ROLE[side])
+      .map((g) => (only && !only.includes(g.w.kind) ? {...g, off: true} : g)),
     cc,
     // A side CC attacking may count allies in contact, as many as fit around
     // the other side's base.
@@ -134,26 +165,32 @@ function sideView(army, side, {sel, resolved}, other) {
     // The allies the CC Attack counts: the chosen number, held to what fits.
     ccAllies: cc ? ccAllies(resolved, other) : 0,
     // No Cover: cover does nothing for it, so no Cover chip.
-    noCover: hasSkill(resolved?.traits, SKILL.NO_COVER),
+    noCover: hasNoCover(resolved),
     // The Cover chip is on, unless the side sits in its Foxhole (its cover).
     coverOn: Boolean(sel.inCover) && !resolved?.sapper,
     hacked,
     // Hacked, the trooper's own Firewall can't be switched off.
     firewallRequired: firewallMod(resolved?.traits) !== 0,
     // Situation chips that follow the pick: Hacked for a Reset, IMM-A for a
-    // Dodge. Targeted: while the other side's shot or program gains from it,
-    // or this side Resets (-3 to it).
-    // Fireteam, only while the pick gets a bonus from it.
-    fireteamChip: fireteamHelps(resolved),
-    targetedChip: targetedHelps(other) || (resolved?.weapon?.kind === 'reset' && !resolved.weapon.zeroPain),
-    hackedChip: resolved?.weapon?.kind === 'reset',
-    immAChip: resolved?.weapon?.kind === 'dodge',
+    // Dodge, Bangbomb for one who has it. Targeted: while the other side's
+    // shot or program gains from it, or this side Resets (-3 to it). No LoF:
+    // in ARO against a shot or template, or on a Dodge it changes.
+    // Fireteam, only while the pick gets a bonus from it, or its Sixth Sense
+    // would lift No LoF.
+    fireteamChip: fireteamHelps(resolved) || (side === 'B' && fireteamLiftsNoLof(resolved, other?.weapon, inZoc)),
+    targetedChip: targetedHelps(other) || targetedResetHelps(resolved),
+    hackedChip: hackedHelps(resolved),
+    noLofChip: noLofHelps(resolved, other?.weapon, side === 'B', inZoc),
+    dodgeToggles: dodgeToggles(resolved),
     // Surprise Attack's MOD, offered only on the active side.
-    surprise: side === 'A' ? surpriseAttackMod(resolved?.traits) : 0,
+    surprise: surpriseAttackOffered(resolved, side === 'A'),
     // Berserk's MOD, offered only on the active side (a Long Skill) while it
     // has a CC weapon picked; null otherwise.
-    // cc: the side is resolved.
-    berserk: side === 'A' && cc && hasBerserk(resolved.traits) ? {mod: berserkMod(resolved.traits)} : null,
+    berserk: resolved && berserkHelps(resolved, side === 'A') ? {mod: berserkMod(resolved.traits)} : null,
+    // Supportware an EVO hacker of its army can run on it (a REM), each only
+    // while it can change the pick: Assisted Fire for a BS Attack, Enhanced
+    // Reaction for one in ARO.
+    supportware: supportwareChips(resolved, side),
     // Team-Ops: the chart and TacBall options, by label (the Army's, in
     // inches: renderMatchup puts them in the language's unit), for their chips.
     // teamOps: the unit has upgrades (rules/trooper.js). A unit means a
@@ -191,10 +228,11 @@ export function matchupCore(army, matchup) {
   const hasSelection = Boolean(matchup.A.unitId || matchup.B.unitId);
   // Each side resolved once; the views need both, for what follows the other
   // side's pick.
+  const zoc = {A: attackerInZoc('A', matchup.rangeCm, rangeCmB(matchup)), B: attackerInZoc('B', matchup.rangeCm, rangeCmB(matchup))};
   const a = resolveSide(army, matchup.A, 'A');
-  const b = resolveSide(army, matchup.B, 'B');
-  const A = sideView(army, 'A', a, b.resolved);
-  const B = sideView(army, 'B', b, a.resolved);
+  const b = noLofSide(resolveSide(army, matchup.B, 'B'), a.resolved, zoc.B);
+  const A = sideView(army, 'A', a, b.resolved, zoc.A);
+  const B = sideView(army, 'B', b, a.resolved, zoc.B);
   if (!army) {
     return {ready: false, rangeCm: matchup.rangeCm, rangeCmB: rangeCmB(matchup), zones, A, B,
       derived: null, params: null, ledger: null, bands: RANGE_BANDS.map((b) => ({to: b.to})), hasSelection, complete: false, targets: null};
@@ -216,14 +254,15 @@ export function matchupCore(army, matchup) {
   // The states each side's hits push its target through. The active side's
   // results are what it does to the reactive trooper, so they follow B's
   // states (and the other way round).
-  // A Jammer's failed save is Isolated, a Flash Pulse's Stunned, not a wound.
+  // A Jammer's failed save is Isolated, a Flash Pulse's Stunned, not a wound
+  // (rules/smoke.js winState).
   /**
    * @param {ResolvedSide | null} target
    * @param {boolean} shock
    * @param {ResolvedSide | null} attacker
    */
   const statesOf = (target, shock, attacker) => (target?.profile
-    ? woundStates(target.profile, target.traits, {shock, state: stateCaused(attacker?.weapon?.row)}) : null);
+    ? woundStates(target.profile, target.traits, {shock, state: winState(attacker, Boolean(/** @type {import('../types.js').Params} */ (params).unopposed))}) : null);
   const targets = complete
     ? {active: statesOf(B.resolved, /** @type {import('../types.js').Params} */ (params).shockA, A.resolved), reactive: statesOf(A.resolved, /** @type {import('../types.js').Params} */ (params).shockB, B.resolved)} : null;
   // Each band's Range MOD per side, for the range selector's stripes.

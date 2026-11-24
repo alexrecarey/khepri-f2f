@@ -3,7 +3,7 @@
 import {shortWeaponName} from '../army/names.js';
 import {isPseudo} from '../army/weapons.js';
 import {dispatch} from '../state/store.js';
-import {pseudoName} from '../rules/trooper.js';
+import {pseudoName} from '../army/weapons.js';
 import {render} from '../i18n/message.js';
 import {useT} from './i18n.jsx';
 
@@ -32,10 +32,35 @@ const weaponTitle = (w, t) => `${w.name}${modeText(w, t)}`;
  * @param {import('../types.js').Side} side
  * @param {import('../types.js').Choice} w
  */
-const pick = (side, w) => dispatch({type: 'pickWeapon', side, key: w.key, kind: w.kind, zoc: Boolean(w.zoc)});
+const pick = (side, w) => dispatch({type: 'pickWeapon', side, key: w.key, kind: w.kind, zoc: Boolean(w.zoc), throwsClose: Boolean(w.throwsClose)});
 
-/** @param {{side: import('../types.js').Side, groups: import('../types.js').WeaponGroup[], selected: string | null, color: string}} props */
-export default function WeaponButtons({side, groups, selected, color}) {
+/**
+ * @param {import('../types.js').Side} side
+ * @param {import('../types.js').DodgeToggle} x
+ */
+const toggle = (side, x) => dispatch({type: 'patchSide', side, patch: {[x.key]: !x.on}});
+
+// The picked Dodge, expanded: [Dodge | Bangbomb | IMM-A]. The
+// name is filled; a toggle that is on is filled at half strength, so it
+// reads as part of the Dodge, not a second pick.
+/** @param {{side: import('../types.js').Side, w: import('../types.js').Choice, toggles: import('../types.js').DodgeToggle[], color: string}} props */
+function DodgeGroup({side, w, toggles, color}) {
+  const t = useT();
+  const name = render(t, pseudoName(/** @type {import('../types.js').PseudoEntry} */ (w)));
+  return (
+    <span className={`btn-group on ${color}`} role="group" aria-label={name}>
+      <button type="button" className="g-name" aria-pressed onClick={() => pick(side, w)}>{name}</button>
+      {toggles.map((x) => (
+        <button type="button" key={x.key} className={`g-mode g-toggle${x.on ? ' on' : ''}`} aria-pressed={x.on} onClick={() => toggle(side, x)}>
+          {t(`chip.${x.key}`)}
+        </button>
+      ))}
+    </span>
+  );
+}
+
+/** @param {{side: import('../types.js').Side, groups: import('../types.js').WeaponGroup[], selected: string | null, color: string, dodgeToggles?: import('../types.js').DodgeToggle[]}} props */
+export default function WeaponButtons({side, groups, selected, color, dodgeToggles = []}) {
   const t = useT();
   return (
     <div className="row-wrap" role="group" aria-label={t('side.weapon')}>
@@ -47,20 +72,22 @@ export default function WeaponButtons({side, groups, selected, color}) {
           role="group" aria-label={shortWeaponName(g.name, t.lang)}>
           {/* A group with modes has their labels, rendered (renderMatchup). */}
           <button type="button" className="g-name" title={`${g.name}: ${/** @type {Map<string, string>} */ (g.labels).get(g.modes[0].key)}`}
-            aria-pressed={g.modes.some((w) => w.key === selected)} onClick={() => pick(side, /** @type {WeaponEntry[]} */ (g.modes)[0])}>
+            aria-pressed={g.modes.some((w) => w.key === selected)} disabled={g.off} onClick={() => pick(side, /** @type {WeaponEntry[]} */ (g.modes)[0])}>
             {shortWeaponName(g.name, t.lang)}
           </button>
           {/** @type {WeaponEntry[]} */ (g.modes).map((w) => (
             <button type="button" key={w.key} className={`g-mode${selected === w.key ? ' on' : ''}`}
-              aria-pressed={selected === w.key} title={weaponTitle(w, t)} onClick={() => pick(side, w)}>
+              aria-pressed={selected === w.key} title={weaponTitle(w, t)} disabled={g.off} onClick={() => pick(side, w)}>
               {/** @type {Map<string, string>} */ (g.labels).get(w.key)}
             </button>
           ))}
         </span>
+      ) : selected === g.w.key && g.w.kind === 'dodge' && dodgeToggles.length > 0 ? (
+        <DodgeGroup key={g.key} side={side} w={g.w} toggles={dodgeToggles} color={color} />
       ) : (
         <button type="button" key={g.key} className={`btn${selected === g.w.key ? ` on ${color}` : ''}`}
           aria-pressed={selected === g.w.key} title={isPseudo(g.w) ? undefined : weaponTitle(g.w, t)}
-          onClick={() => pick(side, g.w)}>
+          disabled={g.off} onClick={() => pick(side, g.w)}>
           {isPseudo(g.w) ? render(t, pseudoName(g.w)) : weaponText(g.w, t)}
         </button>
       )))}

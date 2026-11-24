@@ -23,6 +23,24 @@ export const bandLabel = (i, t) => t('dist.band', {from: t.distance(bandFrom(i))
 // Zone of Control: 8" around the trooper, the first band.
 export const ZOC_CM = RANGE_BANDS[0].to;
 
+// The distance side s attacks from: the shared one, or the reactive's own
+// when the range is split (it answers from somewhere else).
+/**
+ * @param {import('../types.js').Side} s
+ * @param {number} rangeCm
+ * @param {number | null | undefined} rangeCmB
+ */
+export const rangeOf = (s, rangeCm, rangeCmB) => (s === 'A' ? rangeCm : rangeCmB ?? rangeCm);
+
+// Far edge (cm) of the band with the weapon's best range MOD, the farthest one
+// if several tie. Direct Templates reach about the first band (0-8").
+/** @param {import('../types.js').WeaponRow} row */
+export function bestBandTo(row) {
+  if (!row.ranges?.length) return RANGE_BANDS[0].to;
+  const best = Math.max(...row.ranges.map((b) => b.mod));
+  return Math.max(...row.ranges.filter((b) => b.mod === best).map((b) => b.to));
+}
+
 // BS MOD of a weapon at the chosen distance; null when out of range.
 // X Visor (shooter's traits) turns a -3 Range MOD into 0 and a -6 into -3.
 // A Zone of Control weapon (Jammer) has no Range MOD inside it. A Hacking

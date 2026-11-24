@@ -1,4 +1,5 @@
-import {SKILL} from './ids.js';
+import {EQUIP, SKILL} from './ids.js';
+import {msg} from '../i18n/message.js';
 
 // Skills and equipment of a trooper: the profile's plus the loadout's.
 // A trait is {id, name, extra?: [...]}, as in the Army data.
@@ -29,6 +30,17 @@ export const hasSkill = (traits, id, extra) =>
  * @param {number} id
  */
 export const hasEquip = (traits, id) => (traits?.equip ?? []).some((e) => e.id === id);
+// The trooper's Multispectral Visor: its level (1-3) or null, and its name
+// as players write it ("MSV2"). hasMsv: any level.
+/** @param {MaybeTraits} traits */
+export const msvLevel = (traits) => (hasEquip(traits, EQUIP.MSV3) ? 3 : hasEquip(traits, EQUIP.MSV2) ? 2 : hasEquip(traits, EQUIP.MSV1) ? 1 : null);
+/** @param {MaybeTraits} traits */
+export const hasMsv = (traits) => msvLevel(traits) !== null;
+/**
+ * @param {MaybeTraits} traits
+ * @returns {import('../types.js').Message | null}
+ */
+export const msvName = (traits) => (msvLevel(traits) ? msg('equip.msv', {level: msvLevel(traits)}) : null);
 /**
  * @param {MaybeTraits} traits
  * @param {number} id
@@ -77,3 +89,12 @@ export const traitLabel = (trait, t) =>
 // index leave it out when telling loadouts apart.
 /** @param {import('../types.js').TraitRef | null | undefined} skill */
 export const isLieutenant = (skill) => skill?.id === SKILL.LIEUTENANT;
+
+// A Team-Ops unit (every profile group has Infinity Team-Ops: an MI, an HI
+// and a remote or creature) is three troopers: the picker lists each on its
+// own. A Spec-Ops' SpecBots are its peripherals and stay with it.
+/** @param {import('../types.js').UnitRow} unit */
+export function isTeamOpsUnit(unit) {
+  const groups = Object.values(unit.byFaction)[0]?.groups ?? [];
+  return groups.length > 1 && groups.every((g) => g.profiles.some((p) => hasSkill(p, SKILL.TEAM_OPS)));
+}

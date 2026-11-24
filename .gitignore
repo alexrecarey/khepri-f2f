@@ -13,9 +13,8 @@ dist-ssr
 dev-dist
 *.local
 
-# zero install ignores
+# Yarn: only config-like files are committed; the package cache is per machine.
 .yarn/*
-!.yarn/cache
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases

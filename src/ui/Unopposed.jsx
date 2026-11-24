@@ -9,6 +9,7 @@ import {Rich, useT} from './i18n.jsx';
 
 /** @typedef {import('../types.js').AttackOnItsOwn} AttackOnItsOwn */
 /** @typedef {'active' | 'reactive'} Role */
+/** @typedef {'dodge' | 'reset'} Evasion */
 /** An unopposed summary: each attack on its own and the four joint outcomes.
  * @typedef {import('../types.js').Summary & Pick<Required<import('../types.js').Summary>, 'attacks' | 'joint'>} UnopposedSummary */
 
@@ -19,16 +20,17 @@ const top = (a) => [3, 2, 1].find((w) => shows(a.wounds[w - 1])) ?? 0;
 // reactive), then saved, then missed. Nothing for outcomes that can't happen.
 // 1, 2 and 3+ wounds take the face-to-face shades for three states (steps 3,
 // 5, 6), so the deepest is the most wounds here too.
-/** @param {{a: AttackOnItsOwn, side: Role, thin?: boolean, labels?: boolean}} props */
-function AttackBar({a, side, thin = false, labels = false}) {
+/** @param {{a: AttackOnItsOwn, side: Role, thin?: boolean, labels?: boolean, evade?: Evasion | null}} props */
+function AttackBar({a, side, thin = false, labels = false, evade = null}) {
   const t = useT();
   /** @type {{key: string, chance: number, bg?: string, ink?: string, cls?: string, text: string}[]} */
+  // A State (Smoke placed) is one "wound": its name, not a count.
   const wounds = [3, 2, 1].map((w) => ({key: `w${w}`, chance: a.wounds[w - 1], bg: shade(side, w - 1, 3), ink: shadeInk(side, w - 1, 3),
-    text: w === top(a) ? `${w}+` : `${w}`}));
+    text: a.state ? /** @type {string} */ (a.state) : w === top(a) ? `${w}+` : `${w}`}));
   /** @type {typeof wounds} */
   const rest = [
     {key: 'saved', chance: a.saved, cls: 'seg-none', text: t('unopposed.saved')},
-    {key: 'miss', chance: a.miss, cls: 'seg-miss', text: t('unopposed.miss')},
+    {key: 'miss', chance: a.miss, cls: 'seg-miss', text: t(evade ? 'unopposed.fail' : 'unopposed.miss')},
   ];
   const segs = (side === 'active' ? [...wounds, ...rest] : [...[...rest].reverse(), ...[...wounds].reverse()]).filter((x) => shows(x.chance));
   return (
@@ -55,37 +57,58 @@ export function UnopposedCardBody({s, h, choice}) {
   );
 }
 
-/** @param {{a: AttackOnItsOwn, side: Role, name: string, dice?: string}} props */
-function AttackDetail({a, side, name, dice}) {
+// A Dodge or Reset (against Smoke, or another evasion) is not an attack: it
+// succeeds or fails.
+/** @param {{a: AttackOnItsOwn, side: Role, name: string, dice?: string, evade: Evasion | null}} props */
+function AttackDetail({a, side, name, dice, evade}) {
   const t = useT();
   const most = top(a);
-  const rows = /** @type {[string, number][]} */ ([
+  const fails = t(evade ? 'unopposed.fails' : 'unopposed.misses');
+  // Rendered by then (state/matchupView.js renderMatchup).
+  const state = /** @type {string | null} */ (a.state);
+  const rows = /** @type {[string, number][]} */ (state ? [[state, a.wounded], [fails, a.miss]] : [
     ...[3, 2, 1].filter((w) => w <= most).map((w) => /** @type {[string, number]} */ ([w === most ? t('unopposed.atLeast', {count: w}) : t('state.wounds', {count: w}), a.wounds[w - 1]])),
     [t('unopposed.hitsAllSaved'), a.saved],
-    [t('unopposed.misses'), a.miss],
+    [fails, a.miss],
   ]).filter(([, p]) => shows(p));
   return (
     <div className="attack">
-      <div className={`ledger-top c-${side}`}><span>{t('unopposed.attack', {name})}</span><span>{dice}</span></div>
-      <AttackBar a={a} side={side} labels />
+      <div className={`ledger-top c-${side}`}><span>{t(evade ? `unopposed.${evade}` : 'unopposed.attack', {name})}</span><span>{dice}</span></div>
+      <AttackBar a={a} side={side} labels evade={evade} />
       <div className="pct-list">
         {rows.map(([k, p]) => <div key={k}><span>{k}</span><span>{pct(p)}</span></div>)}
-        <div className="muted"><span>{t('headline.wpoLabel')}</span><span>{a.wpo.toFixed(2)}</span></div>
+        {!state && <div className="muted"><span>{t('headline.wpoLabel')}</span><span>{a.wpo.toFixed(2)}</span></div>}
       </div>
     </div>
   );
 }
 
 // Sheet body: why it's two attacks, how the order can end, each attack in detail.
-/** @param {{s: UnopposedSummary, names: {A: string, B: string}, diceLine?: {active?: string, reactive?: string} | null}} props */
-export function UnopposedSheetBody({s, names, diceLine}) {
+/** @param {{s: UnopposedSummary, ledger?: import('../types.js').MatchupView['ledger'], diceLine?: {active?: string, reactive?: string} | null}} props */
+export function UnopposedSheetBody({s, ledger, diceLine}) {
   const t = useT();
+  const names = ledger?.names ?? {A: t('side.active'), B: t('side.reactive')};
+  /** @param {'A' | 'B'} side @returns {Evasion | null} */
+  const evasion = (side) => {
+    const kind = ledger?.ledger[side]?.kind;
+    return kind === 'dodge' || kind === 'reset' ? kind : null;
+  };
   const {joint} = s;
+  // A side whose hit is a State (Smoke placed) says that, not "wounded"; the
+  // trooper's name too when both sides' States read the same (two Dodges).
+  const sameState = s.attacks.active.state != null && s.attacks.active.state === s.attacks.reactive.state;
+  /** @param {Role} side @param {string} target */
+  const only = (side, target) => {
+    const state = /** @type {string | null} */ (s.attacks[side].state);
+    if (!state) return t('unopposed.only', {name: target});
+    return sameState ? t('unopposed.onlyStateBy', {state, name: side === 'active' ? names.A : names.B}) : t('unopposed.onlyState', {state});
+  };
+  const anyState = Boolean(s.attacks.active.state || s.attacks.reactive.state);
   const tiles = [
-    {k: 'both', p: joint.both, text: t('unopposed.both'), cls: 'c-both'},
-    {k: 'a', p: joint.onlyActive, text: t('unopposed.only', {name: names.B}), cls: 'c-active'},
-    {k: 'r', p: joint.onlyReactive, text: t('unopposed.only', {name: names.A}), cls: 'c-reactive'},
-    {k: 'n', p: joint.neither, text: t('unopposed.nobody'), cls: 'c-none'},
+    {k: 'both', p: joint.both, text: anyState ? t('unopposed.bothHappen') : t('unopposed.both'), cls: 'c-both'},
+    {k: 'a', p: joint.onlyActive, text: only('active', names.B), cls: 'c-active'},
+    {k: 'r', p: joint.onlyReactive, text: only('reactive', names.A), cls: 'c-reactive'},
+    {k: 'n', p: joint.neither, text: anyState ? t('unopposed.neither') : t('unopposed.nobody'), cls: 'c-none'},
   ].filter((x) => shows(x.p));
   return (
     <>
@@ -99,8 +122,8 @@ export function UnopposedSheetBody({s, names, diceLine}) {
           </div>
         ))}
       </div>
-      <AttackDetail a={s.attacks.active} side="active" name={names.A} dice={diceLine?.active} />
-      <AttackDetail a={s.attacks.reactive} side="reactive" name={names.B} dice={diceLine?.reactive} />
+      <AttackDetail a={s.attacks.active} side="active" name={names.A} dice={diceLine?.active} evade={evasion('A')} />
+      <AttackDetail a={s.attacks.reactive} side="reactive" name={names.B} dice={diceLine?.reactive} evade={evasion('B')} />
     </>
   );
 }

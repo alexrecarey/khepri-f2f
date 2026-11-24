@@ -36,6 +36,12 @@ jobs:
         with:
           node-version-file: .nvmrc
       - run: corepack enable && corepack prepare yarn@3.3.0 --activate
+      # Yarn's package cache isn't committed; keep it between runs.
+      - uses: actions/cache@v4
+        with:
+          path: .yarn/cache
+          key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: yarn-${{ runner.os }}-
       - run: yarn install --immutable
 
       # Production: upload crests army.json names that R2 doesn't have yet

@@ -18,7 +18,7 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - X Visor: a −3 Range MOD becomes 0, a −6 becomes −3.
 
 ## Weapons the app picks for you
-- Default weapon. Active: highest Burst, then Impact Template (Circular), then ammo. Reactive: a +SD weapon, then the farthest best range band, then Impact Template, then ammo. Changing the range never swaps the weapon.
+- Default weapon. Never a Jammer or Smoke while there is another weapon. Active: highest Burst, then Impact Template (Circular), then ammo. Reactive: a +SD weapon, then the farthest best range band, then Impact Template, then ammo. Changing the range never swaps the weapon.
 - Ammo precedence: Plasma > EXP > DA > Viral > T2 > AP > Shock > N > E/M > Stun. Combined ammo ranks as its best part.
 - Fire modes: Burst matters more than ammo; an Impact Template ("Blast") mode comes before Hit; DA over AP, AP over Shock; Boarding Pistol starts on its Direct Template.
 
@@ -28,7 +28,7 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - Cover: −3 to the attacker's SV, +3 to the target's saves. Direct and Blast templates ignore the +3.
 - Nanoscreen = cover's MOD (doesn't stack with it). Limited Cover keeps only the +3 save. No Cover gets nothing.
 - Marksmanship ignores the −3 from cover/Nanoscreen, not the +3 save.
-- Immunity (ARM) / (BTS): on a save with that Attribute the hit is Normal Ammunition (one save, one wound, no halving, no ARM=0 or Continuous Damage). Immunity (Enhanced) = both. A hit it fully negates is still rolled and opposed, it just causes no saves; State: Stunned still applies.
+- Immunity (ARM) / (BTS): on a save with that Attribute the hit is Normal Ammunition (one save, one wound, no halving, no ARM=0 or Continuous Damage). Immunity (Enhanced) = both, so not a PH save (PARA). A hit it fully negates is still rolled and opposed, it just causes no saves; State: Stunned still applies.
 - Vulnerability (X): no Immunity against that weapon.
 
 ## Skills and MODs
@@ -43,7 +43,15 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
   - A trooper with no LoF rolls nothing ("No LoF" in How the dice were built). A Direct Template needs LoF too: blocked unless attacked through the zone; once it can fire it rolls nothing, so no visibility MOD touches it (Alex, 2026-10-14). Dodging is unaffected.
 - Dodge: PH (or PH=14), plus its bracketed MODs (+3 to itself, −3 to the opponent, +1SD, ARM +3 while Dodging).
   - A weapon's ARM = 0 wins over the Dodge's ARM +3.
-- Bangbomb (+X): +X to Dodge Rolls, except against Template Weapons (Direct or Impact). It only counts against attackers in the user's LoF or ZoC (not a shot in the back), so it is a separate choice next to Dodge.
+- Bangbomb (+X): +X to Dodge Rolls, except against Template Weapons (Direct or Impact). It only counts against attackers in the user's LoF or ZoC (not a shot in the back). A toggle on the Dodge, for troopers with it (Alex, 2026-11-03): struck against a template. With No LoF a reactive only Dodges inside its ZoC (or under a template), where Bangbomb holds; a shot in the back in the Active Turn the calculator can't see, so the player leaves it off.
+- No LoF (a side chip; Alex, 2026-10-31 and 2026-11-22): the attacker is outside the trooper's LoF (wiki: ARO, Dodge, Template Weapons, Traits).
+  - ARO needs the attacker in the reactive's LoF or ZoC. So in ARO, against a shot from beyond the ZoC (8"), No ARO is the only choice: every other button is off and the pick reads as No ARO. Under a template it can still Dodge, from any distance.
+  - Inside the ZoC, or under a template, it can't shoot back without LoF: only Dodge or No ARO; another pick reads as the Dodge. Derived, like a default weapon: the chip off gives the pick back.
+  - Its Dodge takes −3 in ARO, or against a Template Weapon (Direct or Impact) in either turn. Only one −3, however many apply. Not in the Active Turn against a shot.
+  - Silent (X) (Silenced Pistol, Tactical Bow: −6): the attacker's weapon adds X while it is inside the Dodger's ZoC (the 0–8" band), on top of the −3: −9 in ARO.
+  - Shown on the reactive card while the active side shoots or uses a template (not a Comms or CC Attack); on the active card only on a Dodge it changes (a template, or a Silent weapon inside the ZoC). Not for a trooper with the Sixth Sense skill: its LoF is 360°.
+  - A Fireteam of 5 gives Sixth Sense too, but both chips stay (Alex, 2026-11-23): with the team at 5 the No LoF chip limits nothing (any ARO, from any distance) and its −3 and Silent are struck by Sixth Sense's Dodge. While No LoF leaves only No ARO, the Fireteam chip still shows for a trooper that can join a team of 5.
+  - MODs: they count toward the ±12 cap. A Deployable's −3 (Mines) isn't modelled.
 - BS Attack (−X): the opponent takes −X whatever it does, while the attack is rolled. Warhorse ignores it.
 - Surprise Attack (−X): the opponent takes −X on its Face to Face Roll in ARO. A player's choice (chip), active side only.
   - Combat Instinct ignores it (N5; in N4 this was part of Sixth Sense).
@@ -53,11 +61,28 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - Sapper: the trooper may be in a Foxhole (chip): Partial Cover (−3 / +3 like cover) and Mimetism (−3), which doesn't stack with its own Mimetism. One or the other: Foxhole or cover.
 - A trooper starts in cover when picked, unless cover can't help it (No Cover); a Sapper starts in its Foxhole.
 
+## Smoke and Eclipse Ammunition (thrown)
+From the wiki (Smoke Ammunition, Eclipse Ammunition, Multispectral Visor, Dodge, Traits: Targetless, Reflective). Code: `src/rules/smoke.js`, `src/army/weapons.js` (isSmoke, kind 'smoke'). Not the Smoke chip above: that is a zone already on the table; this is the roll that puts one there.
+- Smoke Grenades, Eclipse Grenades (BS Weapon (PH)), Smoke and Eclipse Grenade Launchers (BS) are weapon choices: a BS Attack, rolled, with the weapon's Range MODs. B1 in ARO like any shot.
+- Targetless: thrown at a point, not at the enemy. None of the target's MODs apply (Mimetism, Albedo, cover, Nanoscreen, Targeted); the ledger strikes them "Targetless". The user's own BS Attack MODs do: Fireteam +1 BS / +1 SD (it is a BS Attack with a BS Weapon; Alex, 2026-11-23), loadout, BS Attack (−X) on the opponent, Surprise Attack.
+- Non-lethal, no PS: no Saving Roll. Winning keeps the template on the table; losing (or failing a Normal Roll) removes it. A Critical only wins. The results show "Smoke placed" (or "Eclipse placed") in place of wounds; it takes nobody out of the fight.
+- Face to Face against every enemy Attack that needs a Roll and LoF through the template: a rolled BS Attack. The enemy's shot still hits the thrower if it wins.
+- Not opposed (both roll, each a Normal Roll): a CC Attack or a Comms Attack (no LoF), and a trooper with a Multispectral Visor of any level against Smoke (it draws LoF through). Eclipse is Reflective: an MSV trooper is opposed by it.
+- A Direct Template doesn't roll: it hits, and the Smoke is a Normal Roll.
+- Picking Smoke or Eclipse Grenades splits the range: the thrower's side goes to 0–8" (they are thrown near the user; their 0 MOD stops there), the other trooper keeps the distance it had (Brandon, 2026-11-08). A Launcher (0 MOD to 24") leaves the range alone.
+  - Leaving the grenade (another weapon, Dodge, a new trooper) joins the range again at the other trooper's distance, unless the player had split it before picking the grenade; then it stays split (Brandon, 2026-11-08).
+- A Dodge or a Reset against Smoke is a Normal Roll under the template, not opposed: each side rolls on its own, two Normal Rolls (Alex, 2026-11-23). A success shows as "Dodged" / "Reset passed", like "Smoke placed". No ARO leaves the throw alone.
+- Not modelled: Speculative Attack (Long Skill, −6, no LoF needed), a Smoke throw against several attackers, the zone it leaves for later orders (that is the Smoke chip). Disco Baller is not offered: it is a Deployable, a Normal Roll that places its Eclipse template in the Conclusion, not a Face to Face Roll.
+
 ## Comms Attacks
 Alex, 2026-10-20: Comms Attacks are opposed by Reset; the Jammer's success causes Isolated, after a BTS save. The rest from the wiki (Comms Attack label, Reset, Firewall, Mimetism, Nanoscreen). Code: `src/army/weapons.js` (isCommsAttack, needsLof, inZoneOfControl, isolates), `src/rules/modifiers.js` (evades, firewallMod).
 - The Jammer is a weapon choice: BS Weapon (WIP), so it rolls WIP with the BS MODs (Fireteam +1 BS and +1 SD included). It reaches the user's Zone of Control (8", the first band) with no Range MOD; beyond that it is out of range. Picking it moves the range to 0–8".
 - Reset (a button against a Comms Attack): a WIP roll, Face to Face against the Comms Attack, causing no saves. The attacker's BS Attack (−X) and Surprise Attack go on it. No Fireteam bonus.
 - Dodge can't evade a Comms Attack: it isn't rolled and the attack is a Normal Roll. Reset evades nothing else: against a shot it isn't rolled. Shooting back at the Jammer user is a Face to Face Roll as usual.
+- Every pairing is one of three shapes (Alex, 2026-11-23; `src/rules/opposed.js`, `src/state/rollShape.test.mjs`):
+  - A Face to Face Roll: both roll and one roll affects the other (two attacks, or an attack and the Dodge or Reset that evades it).
+  - Two rolls, each on its own (not face to face): both roll and neither affects the other. A Direct Template against an attack; Smoke against a roll it doesn't oppose (an MSV, a CC or Comms Attack, a Dodge or a Reset); two evasions (Dodge or Reset against Dodge or Reset: nobody attacks; Alex, 2026-11-24).
+  - One roll alone: the other side rolls nothing (No ARO, a Dodge against a Comms Attack, a Reset against anything but a Comms Attack or Smoke), or a Direct Template against a Dodge (only the Dodge rolls).
 - No LoF: Mimetism, Albedo, Smoke and White Noise don't touch it. Partial Cover and Nanoscreen do nothing against a Comms Attack (neither the −3 nor the +3 save).
 - Firewall is its cover: −X to the attacker (Hacking Device "UPGRADE: Firewall (−3)", "Firewall −6", TinBot: Firewall (−3) / (−6); the best one counts) and +3 to the target's saves.
 - A failed save is Isolated, not a wound: the results show Isolated.
@@ -67,7 +92,7 @@ Alex, 2026-10-20: Comms Attacks are opposed by Reset; the Jammer's success cause
 
 ## Hacking Programs
 Alex, 2026-10-22; the rest from the wiki (Hacking, Hacking Device, Hacking Programs Chart, Firewall, ECM, Zero Pain). Code: `src/army/hacking.js` (the chart, devices, upgrades, targets), `src/rules/modifiers.js` (firewallOf, ecmHackerMod, programSvMods, reaches).
-- Programs rolled: Carbonite, Oblivion, Spotlight, Total Control (Hacking Device, Hacking Device Plus), Trinity (Killer Hacking Device), each a weapon choice. Extra programs come from an UPGRADE on the device ("UPGRADE: Trinity", "UPGRADES: Carbonite, Firewall (−3)") or are listed on the Hacker skill ("Hacker (Carbonite, Spotlight)"). Supportware (Fairy Dust, Assisted Fire, Enhanced Reaction, Controlled Jump), Cybermask and White Noise roll nothing face to face: not offered.
+- Programs rolled: Carbonite, Oblivion, Spotlight, Total Control (Hacking Device, Hacking Device Plus), Trinity (Killer Hacking Device), each a weapon choice. Extra programs come from an UPGRADE on the device ("UPGRADE: Trinity", "UPGRADES: Carbonite, Firewall (−3)") or are listed on the Hacker skill ("Hacker (Carbonite, Spotlight)"). Supportware (Fairy Dust, Assisted Fire, Enhanced Reaction, Controlled Jump), Cybermask and White Noise roll nothing face to face: not offered as programs (Supportware below).
 - A program is a Comms Attack: a WIP roll with its Attack MOD (Trinity +3), Burst in the Active Turn, B1 in ARO (Total Reaction and Neurocinetics are for BS Attacks). BTS save against its PS: DA two saves (Carbonite, Total Control), AP halves BTS (Oblivion, Spotlight), a Critical adds one.
 - Results: Carbonite Immobilized-B, Oblivion Isolated, Spotlight Targeted, Total Control Possessed (one State, like the Jammer); Trinity a Wound per failed save. Immunity (IMM-B) stops Carbonite, Immunity (Isolated) or Warhorse Oblivion, Immunity (POS) Total Control.
 - Upgrade MODs, on one program ("Trinity (AP)") or on every program (a device's "+1B", "PS=6", "UPGRADE: SR-1"): +1B, +1SD, PS=X, AP, SR−X (−X to the target's Saving Rolls), (−X) (a MOD to the opponent's Face to Face Roll).
@@ -85,6 +110,14 @@ Alex, 2026-10-22; the rest from the wiki (Hacking, Hacking Device, Hacking Progr
   - IMM-A (−6): on a Dodge, the trooper is Immobilized-A.
   - All are MODs: they count toward the ±12 cap.
 - Not modelled: Repeaters' reach is assumed, a Possessed TAG's Total Control back to Normal.
+
+## Supportware
+From the wiki (Assisted Fire, Enhanced Reaction, Supportware, Hacking Device). Code: `src/rules/supportware.js`, `src/army/hacking.js` (runsSupportware).
+- EVO Hacking Device programs, No Roll. Their target is a REM of the hacker's Army List, so a REM gets the chips only when its army list (the faction it is picked in) fields an EVO Hacking Device: not Ariadna and its sectorials, Tohaa, NA2 or Kosmoflot.
+- One Supportware per trooper at a time: the side holds one, and turning on the other replaces it.
+- Assisted Fire: the REM gains Marksmanship (both turns): it ignores the −3 from cover and Nanoscreen, and Albedo and White Noise now work against it. Chip only while it makes a BS Attack (not a Direct Template: no roll), and not for a REM with Marksmanship of its own.
+- Enhanced Reaction: the REM's BS Attack is always B2 in ARO, whatever the weapon's Burst: a B1 Missile Launcher rolls two dice too (Brandon, 2026-11-03). Chip only on the reactive side while that changes the roll: not with Total Reaction or Neurocinetics on a B2+ weapon (full Burst already), a Dodge or a CC Attack.
+- Not modelled: Fairy Dust (Firewall (−3) against Comms Attacks: the Firewall chip already offers −3), Controlled Jump (Combat Jump only).
 
 ## Close combat
 Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Warrior, Weapon Chart). Code: `src/rules/closeCombat.js`.
@@ -121,6 +154,7 @@ Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Wa
 - Each Team-Ops trooper picks one option from its unit's Team-Ops Chart (Team-Ops chip) and, after Request TacBall, may hold one TacBall item (TacBall chip). Both charts come from the Army data (`unit.upgrades`).
 - A stat item changes the profile (shown in How the dice were built, e.g. "BS (Team-Ops: BS+1)"); a skill or piece of equipment joins the trooper's traits; a weapon joins its weapon list. MOV changes do nothing here.
 - Dropping a pick that gave the weapon in use goes back to the default weapon.
+- Fireteam: Team-Ops troopers are in no army's chart but may form a Haris together, so the Fireteam chip offers 2 or 3.
 - Spec-Ops charts and the SpecBall are not applied (Spec-Ops are not allowed in ITS 18).
 
 ## Wounds and states
@@ -132,6 +166,7 @@ Checked against the wiki (Close Combat, CC Attack, Martial Arts, Natural Born Wa
 - Weapons that cause a State instead of wounds show one result, that State, for one failed save or more:
   - Stunned: Stun Ammunition (Flash Pulse, Stun Pistol). Immunity never stops it (Non-Lethal and State: Stunned always apply); with Immunity (BTS) the hit is Normal Ammunition, one save per hit.
   - Isolated: Jammer. Immunity (Isolated) and Warhorse stop it.
+  - Immobilized-A: PARA Ammunition (Adhesive Launcher Rifle, Riotstoppers, PARA CC Weapon). The target saves on PH−6, PS 0; a SR−X MOD (BS Attack (SR−1)) lowers that roll, not below 0.
   - Cybermines (Stunned, or Immobilized-B for hackable troopers) are Deployables, which the app doesn't offer.
 
 ## Not modelled yet

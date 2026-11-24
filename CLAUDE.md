@@ -10,7 +10,7 @@ rules are in README.md ("How it's put together").
 
 ## Commands
 
-- Node 24 LTS (`.nvmrc`, Volta pin); `yarn` installs (yarn 3.3.0, zero-install cache in `.yarn/cache`)
+- Node 24 LTS (`.nvmrc`, Volta pin); `yarn` installs (yarn 3.3.0; packages come from the registry, `.yarn/cache` is not committed)
 - `yarn test` — type check + JS tests (`node --test` over src/ and worker/, including the WASM engine against
   engine.golden.json) + engine tests (`cargo test` in engine-rs/; needs rustup)
 - `yarn typecheck` / `yarn test:js` / `yarn test:engine` — one part only (`typecheck` = `tsc --noEmit` over src/ and worker/, strict, JSDoc-typed; `tsconfig.json`).

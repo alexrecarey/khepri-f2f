@@ -10,13 +10,16 @@ import {attackStat, opposingMods, reaches} from './modifiers.js';
 import {SIDES, other} from '../lib/side.js';
 import {compact, line, note, section} from './lines.js';
 import {visibility, zoneName} from './visibility.js';
+import {rangeOf} from './ranges.js';
 import {hasNoEffect, noEffectBy} from './saves.js';
 import {isSpecOps} from './trooper.js';
 import {isCcAttack} from './closeCombat.js';
+import {attackerInZoc, noLofForcesNoAro} from './noLof.js';
+import {notOpposed as rollsNotOpposed} from './opposed.js';
 import {msg} from '../i18n/message.js';
 import {attackInputs, ccAttackInputs} from './attack.js';
 import {evadeInputs, noLofInputs} from './evade.js';
-import {defenseInputs} from './hit.js';
+import {armAgainst, defenseInputs, saveLines} from './hit.js';
 
 /** @typedef {import('../types.js').Side} Side */
 /** @typedef {import('../types.js').Ctx} Ctx */
@@ -52,7 +55,7 @@ function approximationWarnings(s, side, target) {
   // hasNoEffect read the target's traits: it is there.
   const weapon = !row ? null
     : hasNoEffect(target?.traits, row) ? note(s, 'warning.noEffect', {weapon: row.name, by: noEffectBy(/** @type {Trooper} */ (target).traits, row)})
-      // Not a warning: the results say Isolated / Stunned (rules/woundStates.js).
+      // Not a warning: the results say Isolated / Stunned / Immobilized-A / Smoke placed (rules/woundStates.js).
       : stateCaused(row) ? null
         : isNonLethal(row) ? note(s, 'warning.nonLethal', {weapon: row.name})
           : null;
@@ -103,7 +106,10 @@ function sideRoll(x, y, s, ctx) {
     // No ARO exists only on the reactive side: no roll, no template. On the
     // active side it is a leftover (carried over by a swap; swapSides already
     // drops it), so the setup is not complete until a real choice is made.
-    return active ? {incomplete: true} : {roll: {inputs: noLofInputs(s), lines: {kind: 'none'}}};
+    if (active) return {incomplete: true};
+    // No LoF beyond the ZoC against a shot: No ARO is all it has (noLof.js).
+    const forced = noLofForcesNoAro(x, y?.weapon, attackerInZoc(s, ctx.rangeCm, ctx.rangeCmB));
+    return {roll: {inputs: noLofInputs(s), lines: {kind: 'none', ...(forced && {reason: msg('ledger.noLofNoAro')})}}};
   }
   if (attackStat(x.profile, w.row) <= 0) {
     // The error names the roll: an Attack in the Active Turn, an ARO otherwise.
@@ -119,9 +125,7 @@ function sideRoll(x, y, s, ctx) {
       notes: [note(s, 'note.cantTarget', {program: w.row.name})],
     }};
   }
-  // Both shoot at rangeCm, unless the reactive answers from its own rangeCmB.
-  const rangeCm = active ? ctx.rangeCm : ctx.rangeCmB ?? ctx.rangeCm;
-  const roll = attackInputs(/** @type {Attacker} */ (x), y, rangeCm, s, ctx);
+  const roll = attackInputs(/** @type {Attacker} */ (x), y, rangeOf(s, ctx.rangeCm, ctx.rangeCmB), s, ctx);
   return {roll: {...roll, inputs: {...roll.inputs, [`template${s}`]: w.kind === 'template'}}};
 }
 
@@ -178,17 +182,19 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
   const sides = {A: a ? sideInputs(a, b, 'A', ctx) : null, B: b ? sideInputs(b, a, 'B', ctx) : null};
   // The save the target makes against a side's hits: the side's PS, then
   // the target's ARM (or BTS / PH) against that weapon, from the other pass.
-  // PS lines come from a roll, so the side has lines.
+  // PS lines come from a roll, so the side has lines. Never below 0 (hit.js saveLines).
   /** @param {Side} s */
   const sideLines = (s) => {
     const l = sides[s]?.lines ?? null;
     const ps = sides[s]?.ps;
-    return l && ps ? {...l, save: section([...ps, ...(sides[other(s)]?.arm ?? [])])} : l;
+    return l && ps ? {...l, save: section(saveLines(ps, sides[other(s)]?.arm ?? []))} : l;
   };
   const lines = {A: sideLines('A'), B: sideLines('B')};
   const errors = compact(SIDES.map((s) => sides[s]?.error));
   // A side still waiting on its weapon: nothing to report, but not ready to apply.
   const incomplete = SIDES.some((s) => sides[s]?.incomplete);
+  // Two rolls that don't oppose each other: both roll, each on its own (opposed.js).
+  const notOpposed = rollsNotOpposed(a, b);
   const notes = [
     ...opposing.A.notes,
     ...opposing.B.notes,
@@ -200,6 +206,7 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
     // included (Alex, 2026-10-23); a template a zone blocks rolls nothing
     // (lines.kind 'none'), so it says nothing.
     ...(SIDES.some((s) => lines[s]?.kind === 'template') ? [note(null, 'note.directTemplate')] : []),
+    ...(notOpposed ? [note(null, 'note.text', {text: notOpposed})] : []),
   ];
   const warnings = [
     ...approximationWarnings('A', a, b),
@@ -207,6 +214,18 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
     ...(isSpecOps(a) || isSpecOps(b) ? [note(null, 'warning.specOps')] : []),
   ];
   /** @type {Partial<Params>} */
-  const inputs = {...sides.A?.inputs, ...sides.B?.inputs, ...((a || b) && {fixedFaceToFace: false})};
+  const merged = {...sides.A?.inputs, ...sides.B?.inputs, ...((a || b) && {fixedFaceToFace: false, unopposed: Boolean(notOpposed)})};
+  // Each target's ARM input against the other side's hits: its own pass
+  // works it out without the attacker's PS, so a PS below 0 is added here
+  // (hit.js armAgainst), the same total as the ledger's save.
+  /** @param {Side} s */
+  const armFrom = (s) => {
+    const key = `arm${other(s)}`;
+    const arm = merged[/** @type {keyof Params} */ (key)];
+    const ps = sides[s]?.ps;
+    return typeof arm === 'number' && ps ? [[key, armAgainst(arm, ps)]] : [];
+  };
+  /** @type {Partial<Params>} */
+  const inputs = {...merged, ...Object.fromEntries(SIDES.flatMap(armFrom))};
   return {inputs, ok: errors.length === 0 && !incomplete && (a !== null || b !== null), errors, warnings, notes, lines};
 }
