@@ -15,6 +15,7 @@ import {hasNoEffect, noEffectBy} from './saves.js';
 import {isSpecOps} from './trooper.js';
 import {isCcAttack} from './closeCombat.js';
 import {attackerInZoc, noLofForcesNoAro} from './noLof.js';
+import {notOpposed as rollsNotOpposed} from './opposed.js';
 import {msg} from '../i18n/message.js';
 import {attackInputs, ccAttackInputs} from './attack.js';
 import {evadeInputs, noLofInputs} from './evade.js';
@@ -54,7 +55,7 @@ function approximationWarnings(s, side, target) {
   // hasNoEffect read the target's traits: it is there.
   const weapon = !row ? null
     : hasNoEffect(target?.traits, row) ? note(s, 'warning.noEffect', {weapon: row.name, by: noEffectBy(/** @type {Trooper} */ (target).traits, row)})
-      // Not a warning: the results say Isolated / Stunned / Immobilized-A (rules/woundStates.js).
+      // Not a warning: the results say Isolated / Stunned / Immobilized-A / Smoke placed (rules/woundStates.js).
       : stateCaused(row) ? null
         : isNonLethal(row) ? note(s, 'warning.nonLethal', {weapon: row.name})
           : null;
@@ -192,6 +193,8 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
   const errors = compact(SIDES.map((s) => sides[s]?.error));
   // A side still waiting on its weapon: nothing to report, but not ready to apply.
   const incomplete = SIDES.some((s) => sides[s]?.incomplete);
+  // Two rolls that don't oppose each other: both roll, each on its own (opposed.js).
+  const notOpposed = rollsNotOpposed(a, b);
   const notes = [
     ...opposing.A.notes,
     ...opposing.B.notes,
@@ -203,6 +206,7 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
     // included (Alex, 2026-10-23); a template a zone blocks rolls nothing
     // (lines.kind 'none'), so it says nothing.
     ...(SIDES.some((s) => lines[s]?.kind === 'template') ? [note(null, 'note.directTemplate')] : []),
+    ...(notOpposed ? [note(null, 'note.text', {text: notOpposed})] : []),
   ];
   const warnings = [
     ...approximationWarnings('A', a, b),
@@ -210,7 +214,7 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
     ...(isSpecOps(a) || isSpecOps(b) ? [note(null, 'warning.specOps')] : []),
   ];
   /** @type {Partial<Params>} */
-  const merged = {...sides.A?.inputs, ...sides.B?.inputs, ...((a || b) && {fixedFaceToFace: false})};
+  const merged = {...sides.A?.inputs, ...sides.B?.inputs, ...((a || b) && {fixedFaceToFace: false, unopposed: Boolean(notOpposed)})};
   // Each target's ARM input against the other side's hits: its own pass
   // works it out without the attacker's PS, so a PS below 0 is added here
   // (hit.js armAgainst), the same total as the ledger's save.

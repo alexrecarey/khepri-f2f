@@ -110,7 +110,7 @@ export default function ResultsCard({s, status, diceLine, classic, ledger, save,
         {/* Below the top: only there for screen readers and keys while open. */}
         <div className={`rs-rest${showF2F ? ' f2f-view' : ''}`} {...(open ? {} : {inert: '', 'aria-hidden': true})}>
           {s && (s.unopposed
-            ? <UnopposedSheetBody s={/** @type {import('./Unopposed.jsx').UnopposedSummary} */ (s)} names={ledger?.names ?? {A: t('side.active'), B: t('side.reactive')}} diceLine={diceLine} />
+            ? <UnopposedSheetBody s={/** @type {import('./Unopposed.jsx').UnopposedSummary} */ (s)} ledger={ledger} diceLine={diceLine} />
             : classic ? <ClassicBody s={s} woundBar={false} />
               : <>
                 {s.states && <StateBar s={/** @type {import('./WoundStates.jsx').StatesSummary} */ (s)} ui={ui} glyphs="only" />}

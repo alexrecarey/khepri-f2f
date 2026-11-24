@@ -99,7 +99,9 @@ function resetInputs(x, y, side, ctx) {
 }
 
 // A Dodge or Reset that can't evade the attack it faces (modifiers.js
-// evades) isn't rolled against it: the attack is a Normal Roll.
+// evades) isn't rolled against it: the attack is a Normal Roll. Except
+// against Smoke: a Normal Roll under the template, rolled on its own next to
+// the throw's (rules/smoke.js smokeNotOpposed), so no opposing MODs.
 /**
  * @param {Evader} x
  * @param {Trooper | null} y
@@ -109,8 +111,8 @@ function resetInputs(x, y, side, ctx) {
  * @returns {import('../types.js').Roll}
  */
 export function evadeInputs(x, y, side, incoming, ctx) {
-  if (!evades(x, incoming)) {
-    const reset = x.weapon.kind === 'reset';
+  const reset = x.weapon.kind === 'reset';
+  if (!evades(x, incoming) && incoming?.kind !== 'smoke') {
     // Only an attack (a weapon) can't be evaded.
     const weapon = /** @type {import('../types.js').WeaponEntry} */ (incoming).row.name;
     return {
@@ -119,7 +121,7 @@ export function evadeInputs(x, y, side, incoming, ctx) {
       notes: [note(side, reset ? 'note.resetOnlyComms' : 'note.dodgeNotComms', {weapon})],
     };
   }
-  if (x.weapon.kind === 'reset') return resetInputs(x, y, side, ctx);
+  if (reset) return resetInputs(x, y, side, ctx);
   return dodgeInputs(x, y, side, incoming, ctx);
 }
 

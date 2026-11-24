@@ -210,10 +210,11 @@
 
 /**
  * What a weapon entry is, as army/weapons.js WEAPON_KINDS explains it:
- * 'bs' a rolled BS Attack, 'template' a Direct Template (no roll), 'cc' a
+ * 'bs' a rolled BS Attack, 'smoke' a Smoke / Eclipse throw (rolled, hits
+ * nobody), 'template' a Direct Template (no roll), 'cc' a
  * CC Attack, 'program' a Hacking Program, 'dodge' / 'reset' / 'none' the
  * choices that are not weapons.
- * @typedef {'bs' | 'template' | 'cc' | 'program' | 'dodge' | 'reset' | 'none'} WeaponKind
+ * @typedef {'bs' | 'smoke' | 'template' | 'cc' | 'program' | 'dodge' | 'reset' | 'none'} WeaponKind
  */
 
 /**
@@ -257,7 +258,7 @@
  * trooperPrograms).
  * @typedef {object} WeaponEntry
  * @property {string} key `${id}:${mode}`; a program's is `hack:${id}`
- * @property {'bs' | 'template' | 'cc' | 'program'} kind
+ * @property {'bs' | 'smoke' | 'template' | 'cc' | 'program'} kind
  * @property {number | string} id the Army's weapon id, a number (a program's: its key)
  * @property {string} name the weapon's name, as `row.name`
  * @property {string | null} mode the firing mode
@@ -265,6 +266,7 @@
  * @property {WeaponMods} mods
  * @property {Message} label "Combi Rifle · B3 · PS13 · N" once rendered (army/weapons.js weaponLabel); read by tests
  * @property {true} [zoc] reaches the Zone of Control instead of range bands
+ * @property {true} [throwsClose] a Smoke grenade, thrown within 8": picking it moves its side's range there (rules/smoke.js)
  * @property {undefined} [zeroPain]
  */
 
@@ -277,7 +279,7 @@
  * @typedef {{kind: 'dodge', key: 'dodge', zeroPain?: undefined}
  *   | {kind: 'reset', key: 'reset' | 'zeroPain', zeroPain?: true}
  *   | {kind: 'none', key: 'none', zeroPain?: undefined}} PseudoKind
- * @typedef {PseudoKind & {row?: undefined, mods?: undefined, name?: undefined, id?: undefined, mode?: undefined, zoc?: undefined}} PseudoEntry
+ * @typedef {PseudoKind & {row?: undefined, mods?: undefined, name?: undefined, id?: undefined, mode?: undefined, zoc?: undefined, throwsClose?: undefined}} PseudoEntry
  */
 
 /** Anything a side can pick: a weapon or a pseudo-weapon (army/weapons.js isPseudo tells them apart).
@@ -450,7 +452,7 @@
 // ---- The dice (engine/params.js, engine/calculate.js) ----
 
 /** Ammunition the calculator knows (engine/params.js AMMO_KEYS).
- * @typedef {'N' | 'DA' | 'EXP' | 'T2' | 'PLASMA' | 'DODGE' | 'NONE'} Ammo */
+ * @typedef {'N' | 'DA' | 'EXP' | 'T2' | 'PLASMA' | 'DODGE' | 'NONE' | 'SMOKE'} Ammo */
 
 /**
  * One side's calculator params (engine/params.js PARAMS, per side).
@@ -584,6 +586,7 @@
  * @property {number} wounded chance of any wound
  * @property {number} saved won the roll (or hit), but every hit was saved
  * @property {number} miss
+ * @property {Message | null} state what a hit causes instead of wounds (Smoke placed, Isolated), else null; rendered by then
  */
 
 /**
@@ -809,7 +812,7 @@
  *   | {type: 'setSide', side: Side, sel: Partial<Selection>}
  *   | {type: 'patchSide', side: Side, patch: Partial<Selection>}
  *   | {type: 'setCover' | 'setSapper', side: Side, on: boolean}
- *   | {type: 'pickWeapon', side: Side, key: string, kind: WeaponKind, zoc?: boolean}
+ *   | {type: 'pickWeapon', side: Side, key: string, kind: WeaponKind, zoc?: boolean, throwsClose?: boolean}
  *   | {type: 'setRange', side?: Side, rangeCm: number, open?: boolean}
  *   | {type: 'setRangeSplit', on: boolean}
  *   | {type: 'setZone', zone: Zone, on: boolean}

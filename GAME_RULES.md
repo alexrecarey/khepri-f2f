@@ -18,7 +18,7 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - X Visor: a −3 Range MOD becomes 0, a −6 becomes −3.
 
 ## Weapons the app picks for you
-- Default weapon. Active: highest Burst, then Impact Template (Circular), then ammo. Reactive: a +SD weapon, then the farthest best range band, then Impact Template, then ammo. Changing the range never swaps the weapon.
+- Default weapon. Never a Jammer or Smoke while there is another weapon. Active: highest Burst, then Impact Template (Circular), then ammo. Reactive: a +SD weapon, then the farthest best range band, then Impact Template, then ammo. Changing the range never swaps the weapon.
 - Ammo precedence: Plasma > EXP > DA > Viral > T2 > AP > Shock > N > E/M > Stun. Combined ammo ranks as its best part.
 - Fire modes: Burst matters more than ammo; an Impact Template ("Blast") mode comes before Hit; DA over AP, AP over Shock; Boarding Pistol starts on its Direct Template.
 
@@ -61,11 +61,28 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - Sapper: the trooper may be in a Foxhole (chip): Partial Cover (−3 / +3 like cover) and Mimetism (−3), which doesn't stack with its own Mimetism. One or the other: Foxhole or cover.
 - A trooper starts in cover when picked, unless cover can't help it (No Cover); a Sapper starts in its Foxhole.
 
+## Smoke and Eclipse Ammunition (thrown)
+From the wiki (Smoke Ammunition, Eclipse Ammunition, Multispectral Visor, Dodge, Traits: Targetless, Reflective). Code: `src/rules/smoke.js`, `src/army/weapons.js` (isSmoke, kind 'smoke'). Not the Smoke chip above: that is a zone already on the table; this is the roll that puts one there.
+- Smoke Grenades, Eclipse Grenades (BS Weapon (PH)), Smoke and Eclipse Grenade Launchers (BS) are weapon choices: a BS Attack, rolled, with the weapon's Range MODs. B1 in ARO like any shot.
+- Targetless: thrown at a point, not at the enemy. None of the target's MODs apply (Mimetism, Albedo, cover, Nanoscreen, Targeted); the ledger strikes them "Targetless". The user's own BS Attack MODs do: Fireteam +1 BS / +1 SD (it is a BS Attack with a BS Weapon; Alex, 2026-11-23), loadout, BS Attack (−X) on the opponent, Surprise Attack.
+- Non-lethal, no PS: no Saving Roll. Winning keeps the template on the table; losing (or failing a Normal Roll) removes it. A Critical only wins. The results show "Smoke placed" (or "Eclipse placed") in place of wounds; it takes nobody out of the fight.
+- Face to Face against every enemy Attack that needs a Roll and LoF through the template: a rolled BS Attack. The enemy's shot still hits the thrower if it wins.
+- Not opposed (both roll, each a Normal Roll): a CC Attack or a Comms Attack (no LoF), and a trooper with a Multispectral Visor of any level against Smoke (it draws LoF through). Eclipse is Reflective: an MSV trooper is opposed by it.
+- A Direct Template doesn't roll: it hits, and the Smoke is a Normal Roll.
+- Picking Smoke or Eclipse Grenades splits the range: the thrower's side goes to 0–8" (they are thrown near the user; their 0 MOD stops there), the other trooper keeps the distance it had (Brandon, 2026-11-08). A Launcher (0 MOD to 24") leaves the range alone.
+  - Leaving the grenade (another weapon, Dodge, a new trooper) joins the range again at the other trooper's distance, unless the player had split it before picking the grenade; then it stays split (Brandon, 2026-11-08).
+- A Dodge or a Reset against Smoke is a Normal Roll under the template, not opposed: each side rolls on its own, two Normal Rolls (Alex, 2026-11-23). A success shows as "Dodged" / "Reset passed", like "Smoke placed". No ARO leaves the throw alone.
+- Not modelled: Speculative Attack (Long Skill, −6, no LoF needed), a Smoke throw against several attackers, the zone it leaves for later orders (that is the Smoke chip). Disco Baller is not offered: it is a Deployable, a Normal Roll that places its Eclipse template in the Conclusion, not a Face to Face Roll.
+
 ## Comms Attacks
 Alex, 2026-10-20: Comms Attacks are opposed by Reset; the Jammer's success causes Isolated, after a BTS save. The rest from the wiki (Comms Attack label, Reset, Firewall, Mimetism, Nanoscreen). Code: `src/army/weapons.js` (isCommsAttack, needsLof, inZoneOfControl, isolates), `src/rules/modifiers.js` (evades, firewallMod).
 - The Jammer is a weapon choice: BS Weapon (WIP), so it rolls WIP with the BS MODs (Fireteam +1 BS and +1 SD included). It reaches the user's Zone of Control (8", the first band) with no Range MOD; beyond that it is out of range. Picking it moves the range to 0–8".
 - Reset (a button against a Comms Attack): a WIP roll, Face to Face against the Comms Attack, causing no saves. The attacker's BS Attack (−X) and Surprise Attack go on it. No Fireteam bonus.
 - Dodge can't evade a Comms Attack: it isn't rolled and the attack is a Normal Roll. Reset evades nothing else: against a shot it isn't rolled. Shooting back at the Jammer user is a Face to Face Roll as usual.
+- Every pairing is one of three shapes (Alex, 2026-11-23; `src/rules/opposed.js`, `src/state/rollShape.test.mjs`):
+  - A Face to Face Roll: both roll and one roll affects the other (two attacks, or an attack and the Dodge or Reset that evades it).
+  - Two rolls, each on its own (not face to face): both roll and neither affects the other. A Direct Template against an attack; Smoke against a roll it doesn't oppose (an MSV, a CC or Comms Attack, a Dodge or a Reset); two evasions (Dodge or Reset against Dodge or Reset: nobody attacks; Alex, 2026-11-24).
+  - One roll alone: the other side rolls nothing (No ARO, a Dodge against a Comms Attack, a Reset against anything but a Comms Attack or Smoke), or a Direct Template against a Dodge (only the Dodge rolls).
 - No LoF: Mimetism, Albedo, Smoke and White Noise don't touch it. Partial Cover and Nanoscreen do nothing against a Comms Attack (neither the −3 nor the +3 save).
 - Firewall is its cover: −X to the attacker (Hacking Device "UPGRADE: Firewall (−3)", "Firewall −6", TinBot: Firewall (−3) / (−6); the best one counts) and +3 to the target's saves.
 - A failed save is Isolated, not a wound: the results show Isolated.

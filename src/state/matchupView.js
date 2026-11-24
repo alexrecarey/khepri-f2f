@@ -7,7 +7,7 @@
 // player's language. matchupView composes them; useMatchupView.js memoises
 // each pass for React.
 import {extraLoadoutName, shortIsc, unitTag} from '../army/names.js';
-import {isCommsAttack, isPseudo, stateCaused} from '../army/weapons.js';
+import {isCommsAttack, isPseudo, rolledBsAttack} from '../army/weapons.js';
 import {fullParams} from '../engine/params.js';
 import {defaultWeapon, sortWeapons} from '../rules/defaultWeapon.js';
 import {buildLedger, renderDerived} from '../rules/ledger.js';
@@ -23,6 +23,7 @@ import {supportwareChips} from '../rules/supportware.js';
 import {resolveSelection, withWeapon} from '../rules/trooper.js';
 import {modeLabels, orderModes} from '../rules/weaponModes.js';
 import {woundStates} from '../rules/woundStates.js';
+import {winState} from '../rules/smoke.js';
 import {ROLE} from './schema.js';
 import {crestOf} from '../army/crests.js';
 import {vanillaOf} from '../army/factions.js';
@@ -113,14 +114,14 @@ function weaponGroups(list, role) {
 
 // A side's Range MOD at a band: null out of range, undefined when it has no
 // range bands (nothing picked, Dodge, No ARO, Direct Template, CC Attack,
-// Hacking Program).
+// Hacking Program). A Smoke throw has them, like a shot.
 /**
  * @param {ResolvedSide | null} resolved
  * @param {number} to
  */
 function bandMod(resolved, to) {
   const w = resolved?.weapon;
-  if (w?.kind !== 'bs') return undefined;
+  if (!rolledBsAttack(w)) return undefined;
   // A weapon means a resolved side.
   return rangeModFor(w.row, to, /** @type {ResolvedSide} */ (resolved).traits);
 }
@@ -253,14 +254,15 @@ export function matchupCore(army, matchup) {
   // The states each side's hits push its target through. The active side's
   // results are what it does to the reactive trooper, so they follow B's
   // states (and the other way round).
-  // A Jammer's failed save is Isolated, a Flash Pulse's Stunned, not a wound.
+  // A Jammer's failed save is Isolated, a Flash Pulse's Stunned, not a wound
+  // (rules/smoke.js winState).
   /**
    * @param {ResolvedSide | null} target
    * @param {boolean} shock
    * @param {ResolvedSide | null} attacker
    */
   const statesOf = (target, shock, attacker) => (target?.profile
-    ? woundStates(target.profile, target.traits, {shock, state: stateCaused(attacker?.weapon?.row)}) : null);
+    ? woundStates(target.profile, target.traits, {shock, state: winState(attacker, Boolean(/** @type {import('../types.js').Params} */ (params).unopposed))}) : null);
   const targets = complete
     ? {active: statesOf(B.resolved, /** @type {import('../types.js').Params} */ (params).shockA, A.resolved), reactive: statesOf(A.resolved, /** @type {import('../types.js').Params} */ (params).shockB, B.resolved)} : null;
   // Each band's Range MOD per side, for the range selector's stripes.

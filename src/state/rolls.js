@@ -22,7 +22,7 @@ import {other} from '../lib/side.js';
 import {MODES} from './modes.js';
 import {classicAmmoKey} from './classicView.js';
 import {ZONES, zoneName} from '../rules/visibility.js';
-import {pseudoName} from '../rules/trooper.js';
+import {pseudoName} from '../army/weapons.js';
 import {MatchupSchema, emptyMatchup} from './schema.js';
 import {tEn} from '../i18n/index.js';
 import {render} from '../i18n/message.js';
@@ -60,11 +60,15 @@ const canonical = (x) => (Array.isArray(x) ? x.map(canonical)
   : x && typeof x === 'object' ? Object.fromEntries(Object.keys(x).sort().map((k) => [k, canonical(/** @type {Record<string, unknown>} */ (x)[k])])) : x);
 
 // The roll's identity: two rolls with the same setup are the same roll.
+// Whose grenade split the range (matchup.splitBy) is no part of the roll.
 /**
  * @param {string} mode
  * @param {import('../types.js').SavedRoll['setup']} setup
  */
-export const setupKey = (mode, setup) => JSON.stringify(canonical([mode, normalizeSetup(mode, setup)]));
+export const setupKey = (mode, setup) => {
+  const s = normalizeSetup(mode, setup);
+  return JSON.stringify(canonical([mode, 'splitBy' in s ? {...s, splitBy: null} : s]));
+};
 
 /** @param {import('../types.js').AppState} state */
 export function currentSetup(state) {
