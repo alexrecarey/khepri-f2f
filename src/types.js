@@ -565,6 +565,11 @@
 /** A wound state as the rules list it (rules/woundStates.js), before results/summary.js adds its share of the rolls.
  * @typedef {Pick<WoundState, 'key' | 'label' | 'wounds' | 'glyph' | 'outOfFight' | 'shock' | 'state'>} WoundStep */
 
+/** One part of the face to face bar, left to right. dodger: on the nobody
+ * part, the side that Dodges a Direct Template; nobody wins exactly when it
+ * gets away, so the part is that side's (its colour, "<side> dodges").
+ * @typedef {{side: 'active' | 'none' | 'reactive', chance: number, seg: string, dodger: 'active' | 'reactive' | null}} F2FPart */
+
 /** One segment of the wound bar, left to right.
  * @typedef {{side: 'active' | 'none' | 'reactive', wounds: number, chance: number}} BarSegment */
 
@@ -586,7 +591,7 @@
  * @typedef {object} Summary
  * @property {PerSide} wpo expected wounds per order
  * @property {{active: number, reactive: number, none: number}} win chance each side wins the Face to Face Roll (none = both fail, or a tie)
- * @property {'active' | 'reactive' | null} dodger the side that Dodges a Direct Template: nobody wins exactly when it gets away (win.none)
+ * @property {[F2FPart, F2FPart, F2FPart]} f2f who wins the Face to Face Roll: active, nobody, reactive (results/summary.js)
  * @property {BarSegment[]} bar 7 segments: active 3+ / 2 / 1, nobody wounded (a Dodge included: it causes no wounds), reactive 1 / 2 / 3+
  * @property {{active: [number, number, number], reactive: [number, number, number]}} atLeast chance of 1+, 2+, 3+ wounds
  * @property {PerSide} saved won the roll, but every hit was saved
