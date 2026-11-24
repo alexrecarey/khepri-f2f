@@ -20,7 +20,7 @@ import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
 import {msg} from '../i18n/message.js';
 import {SMOKE_AMMO} from '../army/weapons.js';
-import {DODGED} from './smoke.js';
+import {EVADED} from './smoke.js';
 
 // `state` is the State's English name (weapons.js stateCaused); its key and
 // label follow from it.
@@ -33,8 +33,8 @@ import {DODGED} from './smoke.js';
  * @returns {WoundStep[]}
  */
 export function woundStates(profile, traits, {shock = false, state = null} = {}) {
-  // Smoke placed and Dodged take nobody out of the fight.
-  const harmless = SMOKE_AMMO.includes(state ?? '') || state === DODGED;
+  // Smoke placed, Dodged and Reset take nobody out of the fight.
+  const harmless = SMOKE_AMMO.includes(state ?? '') || Object.values(EVADED).includes(state ?? '');
   if (state) return [{key: state.toLowerCase(), label: msg(`state.${state.toLowerCase()}`), wounds: 1, glyph: null, outOfFight: !harmless, state: true}];
   if (shock) return [{key: 'dead', label: msg('state.dead'), wounds: 1, glyph: 'dead', outOfFight: true, shock: true}];
   const n = Math.max(1, profile?.w ?? 1);

@@ -15,13 +15,13 @@
 //   through the template: a rolled BS Attack. Not a Direct Template (no
 //   roll: the template hits, the smoke is a Normal Roll, matchup.js), a CC
 //   Attack or a Comms Attack (no LoF needed): then each side rolls on its own
-//   (params.unopposed). A trooper under the template Dodges with a Normal
-//   Roll, not against the smoke: both roll on their own too (Alex,
-//   2026-11-23), and a successful Dodge shows as "Dodged" (DODGED).
+//   (params.unopposed). A trooper under the template Dodges or Resets with a
+//   Normal Roll, not against the smoke: both roll on their own too (Alex,
+//   2026-11-23), and a success shows as "Dodged" / "Reset" (EVADED).
 // - A Multispectral Visor of any level draws LoF through Smoke, so its user
 //   makes no Face to Face Roll against it. Eclipse is Reflective: it does.
 // Not modelled: Speculative Attack (a Long Skill at -6 without LoF).
-import {ammoMsg, isReflective, isPseudo, needsLof, rolls, smokeAmmo, stateCaused} from '../army/weapons.js';
+import {ammoMsg, isReflective, isPseudo, needsLof, pseudoName, rolls, smokeAmmo, stateCaused} from '../army/weapons.js';
 import {hasMsv, msvName} from '../army/traits.js';
 import {msg} from '../i18n/message.js';
 import {mark, section} from './lines.js';
@@ -42,8 +42,9 @@ export const smokeName = (w) => ammoMsg(/** @type {string} */ (smokeAmmo(w.row))
 
 // Why y's roll is not opposed by x's smoke, as the matchup note says it; null
 // when it is (a rolled attack that needs LoF, by a trooper the ammunition
-// affects), or when there is no smoke or nothing rolled against it. A Reset
-// evades only Comms Attacks: it isn't rolled at all (evade.js).
+// affects), or when there is no smoke or nothing rolled against it. A Dodge
+// or Reset is a Normal Roll under the template, rolled on its own (Alex,
+// 2026-11-23).
 /**
  * @param {ResolvedSide | null | undefined} x
  * @param {ResolvedSide | null | undefined} y
@@ -53,8 +54,7 @@ export function smokeNotOpposed(x, y) {
   if (!isSmokeAttack(x) || !rolls(y?.weapon)) return null;
   const w = y.weapon;
   const ammo = smokeName(x.weapon);
-  if (w.kind === 'dodge') return msg('note.smokeDodge', {ammo});
-  if (isPseudo(w)) return null;
+  if (isPseudo(w)) return msg('note.smokeEvade', {choice: pseudoName(w), ammo});
   if (w.kind === 'cc') return msg('note.smokeNoLof', {by: msg('note.ccAttack'), ammo});
   if (!needsLof(w.row)) return msg('note.smokeNoLof', {by: w.row.name, ammo});
   if (!isReflective(x.weapon.row) && hasMsv(y.traits)) return msg('note.smokeMsv', {msv: msvName(y.traits), ammo});
@@ -88,16 +88,21 @@ export function smokeHit(x, side) {
   return {inputs, ps: undefined, ammo: section([mark('', ammo, null)], ammo), notes: []};
 }
 
-// A Dodge rolled on its own against Smoke: its success, shown in place of
-// wounds the way a Smoke win is "Smoke placed" (rules/woundStates.js).
-export const DODGED = 'Dodged';
+// A Dodge or Reset rolled on its own (rules/opposed.js): its success, shown
+// in place of wounds the way a Smoke win is "Smoke placed" (rules/woundStates.js).
+/** @type {Record<'dodge' | 'reset', string>} */
+export const EVADED = {dodge: 'Dodged', reset: 'Reset'};
 
 // The State x's win shows in place of wounds, or null for wounds: the
-// weapon's (army/weapons.js stateCaused: Isolated, Smoke...), or Dodged for a
-// Dodge rolled on its own (params.unopposed: only ever against Smoke).
+// weapon's (army/weapons.js stateCaused: Isolated, Smoke...), or Dodged /
+// Reset for an evasion rolled on its own (params.unopposed).
 /**
  * @param {ResolvedSide | null | undefined} x
  * @param {boolean} unopposed
  * @returns {string | null}
  */
-export const winState = (x, unopposed) => (x?.weapon?.kind === 'dodge' ? (unopposed ? DODGED : null) : stateCaused(x?.weapon?.row));
+export function winState(x, unopposed) {
+  const kind = x?.weapon?.kind;
+  if (kind === 'dodge' || kind === 'reset') return unopposed ? EVADED[kind] : null;
+  return stateCaused(x?.weapon?.row);
+}

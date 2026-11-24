@@ -3,7 +3,7 @@
 import {shortWeaponName} from '../army/names.js';
 import {isPseudo} from '../army/weapons.js';
 import {dispatch} from '../state/store.js';
-import {pseudoName} from '../rules/trooper.js';
+import {pseudoName} from '../army/weapons.js';
 import {render} from '../i18n/message.js';
 import {useT} from './i18n.jsx';
 

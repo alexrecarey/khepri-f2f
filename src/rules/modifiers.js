@@ -7,7 +7,7 @@ import {equipExtra, extraNumbers, hasEquip, hasMsv, hasSkill, skillExtra, skillE
 import {ZERO_PAIN, canTarget} from '../army/hacking.js';
 import {attackAttribute, isCommsAttack, isPseudo, isTemplateWeapon, parseWeaponMods, rolledBsAttack, rolls} from '../army/weapons.js';
 import {ccOpposingMods, isCcAttack, naturalBornWarrior} from './closeCombat.js';
-import {smokeNotOpposed} from './smoke.js';
+import {notOpposed} from './opposed.js';
 import {msg} from '../i18n/message.js';
 
 /** @typedef {import('../types.js').Traits | null | undefined} MaybeTraits */
@@ -415,9 +415,8 @@ export function opposingMods(x, y, xActive) {
   // A Dodge or Reset that can't evade this attack isn't rolled against it.
   if (isPseudo(x.weapon) && !evades(x, y.weapon)) return [];
   if (isPseudo(y.weapon) && !evades(y, x.weapon)) return [];
-  // Smoke against an attack it doesn't oppose (an MSV sees through it, a CC
-  // or Comms Attack needs no LoF): two Normal Rolls, nothing opposed.
-  if (smokeNotOpposed(x, y) || smokeNotOpposed(y, x)) return [];
+  // Two rolls that don't oppose each other (opposed.js): nothing opposed.
+  if (notOpposed(x, y)) return [];
   // Zero Pain: -3 to the Comms Attack it evades.
   if (x.weapon.kind === 'reset') {
     return x.weapon.zeroPain ? [{value: ZERO_PAIN.opponent, label: msg('pseudo.zeroPainMod', {mod: ZERO_PAIN.opponent}), ignoredBy: null}] : [];

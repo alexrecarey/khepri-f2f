@@ -22,7 +22,7 @@ import {other} from '../lib/side.js';
 import {MODES} from './modes.js';
 import {classicAmmoKey} from './classicView.js';
 import {ZONES, zoneName} from '../rules/visibility.js';
-import {pseudoName} from '../rules/trooper.js';
+import {pseudoName} from '../army/weapons.js';
 import {MatchupSchema, emptyMatchup} from './schema.js';
 import {tEn} from '../i18n/index.js';
 import {render} from '../i18n/message.js';

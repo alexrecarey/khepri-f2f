@@ -12,6 +12,7 @@ import {tEn} from '../i18n/index.js';
 import {defaultWeapon} from './defaultWeapon.js';
 import {fireteamHelps, targetedHelps} from './modifiers.js';
 import {derive, option, profile, weaponTable} from './testFixtures.mjs';
+import {winState} from './smoke.js';
 import {W, combi, immune, jammer, mimetic, msv, flamer, hacker, minus3} from './testMatchups.mjs';
 import {pseudoWeapons, trooperCcWeapons, trooperWeapons} from './trooper.js';
 import {woundStates} from './woundStates.js';
@@ -110,16 +111,17 @@ test('a Multispectral Visor sees through Smoke: two Normal Rolls; Eclipse is Ref
   assert.equal(at8(rifle(), thrower()).inputs.unopposed, false, 'no MSV: opposed');
 });
 
-test('a Dodge is not opposed to Smoke: each side rolls on its own (Alex, 2026-11-23)', () => {
+test('a Dodge or Reset is not opposed to Smoke: each side rolls on its own (Alex, 2026-11-23)', () => {
   const r = at8(thrower(), side(profile(), combi, 'dodge'));
   assert.equal(r.ok, true);
   assert.deepEqual([r.inputs.burstA, r.inputs.ammoA, r.inputs.burstB, r.inputs.ammoB, r.inputs.unopposed], [1, 'SMOKE', 1, 'DODGE', true]);
   assert.equal(isUnopposed(fullParams(r.inputs)), true);
   assert.ok(r.notes.includes('A Dodge is not opposed to the Smoke: no Face to Face Roll, each side rolls on its own'), r.notes.join(' | '));
   assert.equal(/** @type {LedgerSide} */ (r.ledger.B).kind, 'dodge');
-  // A Reset evades only Comms Attacks: not rolled, the throw is a Normal Roll.
+  // A Reset under the template too: both roll, each on its own.
   const reset = at8(thrower(), side(hacker(), combi, 'reset'));
-  assert.deepEqual([reset.inputs.burstB, reset.inputs.unopposed], [0, false]);
+  assert.deepEqual([reset.inputs.burstB, reset.inputs.ammoB, reset.inputs.unopposed], [1, 'DODGE', true]);
+  assert.ok(reset.notes.includes('A Reset is not opposed to the Smoke: no Face to Face Roll, each side rolls on its own'), reset.notes.join(' | '));
   // No ARO: the throw alone.
   assert.equal(at8(thrower(), side(profile(), combi, 'none')).inputs.burstA, 1);
 });
@@ -168,4 +170,12 @@ test('Smoke and Eclipse Grenades are thrown within 8": their pick moves the rang
   const o = option([{id: 45, name: 'x'}, {id: 46, name: 'x'}, {id: 195, name: 'x'}, {id: 1, name: 'x'}]);
   const ws = trooperWeapons(o, SW, effectiveTraits(profile(), o));
   assert.deepEqual(ws.map((w) => [w.key, Boolean(w.throwsClose)]), [['45:', true], ['46:', true], ['195:', false], ['1:', false]]);
+});
+
+test('an evasion rolled on its own shows its success as a State that takes nobody out of the fight', () => {
+  const dodge = /** @type {import('../types.js').ResolvedSide} */ (/** @type {unknown} */ ({weapon: {kind: 'dodge'}}));
+  const reset = /** @type {import('../types.js').ResolvedSide} */ (/** @type {unknown} */ ({weapon: {kind: 'reset'}}));
+  assert.deepEqual([winState(dodge, true), winState(reset, true), winState(dodge, false), winState(reset, false)], ['Dodged', 'Reset', null, null]);
+  const [step] = woundStates(profile(), null, {state: 'Reset'});
+  assert.deepEqual([render(tEn, step.label), step.outOfFight], ['Reset passed', false]);
 });

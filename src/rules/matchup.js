@@ -15,7 +15,7 @@ import {hasNoEffect, noEffectBy} from './saves.js';
 import {isSpecOps} from './trooper.js';
 import {isCcAttack} from './closeCombat.js';
 import {attackerInZoc, noLofForcesNoAro} from './noLof.js';
-import {smokeNotOpposed} from './smoke.js';
+import {notOpposed as rollsNotOpposed} from './opposed.js';
 import {msg} from '../i18n/message.js';
 import {attackInputs, ccAttackInputs} from './attack.js';
 import {evadeInputs, noLofInputs} from './evade.js';
@@ -193,9 +193,8 @@ export function deriveInputs({active, reactive, rangeCm, rangeCmB, zones}) {
   const errors = compact(SIDES.map((s) => sides[s]?.error));
   // A side still waiting on its weapon: nothing to report, but not ready to apply.
   const incomplete = SIDES.some((s) => sides[s]?.incomplete);
-  // Smoke against an attack it doesn't oppose (an MSV sees through it, a CC
-  // or Comms Attack needs no LoF): both roll, each on its own (smoke.js).
-  const notOpposed = smokeNotOpposed(a, b) ?? smokeNotOpposed(b, a);
+  // Two rolls that don't oppose each other: both roll, each on its own (opposed.js).
+  const notOpposed = rollsNotOpposed(a, b);
   const notes = [
     ...opposing.A.notes,
     ...opposing.B.notes,

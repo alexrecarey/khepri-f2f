@@ -10,7 +10,6 @@ import {ccAttackSkill} from './closeCombat.js';
 import {throwsClose} from './smoke.js';
 import {fireteamMax, fireteamSize, firewallMod} from './modifiers.js';
 import {assistedFireTraits, supportwareTarget} from './supportware.js';
-import {msg} from '../i18n/message.js';
 
 /** @typedef {import('../types.js').Traits | null | undefined} MaybeTraits */
 /** @typedef {import('../types.js').WeaponEntry} WeaponEntry */
@@ -130,11 +129,6 @@ const byKey = (lists, key) => lists.flatMap((l) => l).find((w) => w.key === key)
  * @returns {import('../types.js').ResolvedSide}
  */
 export const withWeapon = (r, key) => ({...r, weapon: byKey([r.weapons, r.ccWeapons, r.programs, r.pseudo], key)});
-
-// Name of a choice that is not a weapon: "Dodge", "Reset", "Zero Pain", "No
-// ARO" (a message descriptor, i18n/message.js).
-/** @param {PseudoEntry} w */
-export const pseudoName = (w) => msg(`pseudo.${w.zeroPain ? 'zeroPain' : w.kind}`);
 
 // The Firewall chip's values (the MOD to the Comms Attack). The chip starts
 // on the trooper's own Firewall, off without one (Alex, 2026-10-22): `sel.firewall`

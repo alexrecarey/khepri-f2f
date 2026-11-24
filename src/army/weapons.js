@@ -58,6 +58,11 @@ export const WEAPON_KINDS = ['bs', 'smoke', 'template', 'cc', 'program', 'dodge'
  * @returns {w is import('../types.js').PseudoEntry}
  */
 export const isPseudo = (w) => w?.kind === 'dodge' || w?.kind === 'reset' || w?.kind === 'none';
+
+// Name of a choice that is not a weapon: "Dodge", "Reset", "Zero Pain", "No
+// ARO" (a message descriptor, i18n/message.js).
+/** @param {import('../types.js').PseudoEntry} w */
+export const pseudoName = (w) => msg(`pseudo.${w.zeroPain ? 'zeroPain' : w.kind}`);
 // A rolled BS Attack: a shot or a Smoke throw. What is a BS Attack's (the
 // Fireteam's +1 SD and +1 BS, range bands) is theirs; what needs a target
 // (Targeted's +3) is the shot's alone.

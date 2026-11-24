@@ -129,6 +129,7 @@ export default {
   'state.smoke': 'Smoke placed',
   'state.eclipse': 'Eclipse placed',
   'state.dodged': 'Dodged',
+  'state.reset': 'Reset passed',
 
   // "How the dice were built" (rules/ledger.js)
   'ledger.teamOpsStat': '{stat} (Team-Ops: {upgrade})',
@@ -192,7 +193,8 @@ export default {
   'note.dodgeNotComms': 'Dodge can\'t evade a Comms Attack ({weapon}), only Reset can; it is rolled unopposed',
   'note.smokeNoLof': '{by} needs no LoF through the {ammo}: no Face to Face Roll, each side rolls on its own',
   'note.smokeMsv': '{msv} sees through the {ammo}: no Face to Face Roll, each side rolls on its own',
-  'note.smokeDodge': 'A Dodge is not opposed to the {ammo}: no Face to Face Roll, each side rolls on its own',
+  'note.smokeEvade': 'A {choice} is not opposed to the {ammo}: no Face to Face Roll, each side rolls on its own',
+  'note.nobodyAttacks': 'Nobody attacks: no Face to Face Roll, each side rolls on its own',
   'note.ccAttack': 'A CC Attack',
   'note.noLof': 'no line of fire through {zone}; its attack can\'t be declared',
   'note.directTemplate': 'Direct Template: no Face to Face Roll; each attack is rolled on its own',
@@ -376,6 +378,7 @@ export default {
   'unopposed.misses': 'misses',
   'unopposed.attack': '{name} attack',
   'unopposed.dodge': '{name} Dodge',
+  'unopposed.reset': '{name} Reset',
   'unopposed.fails': 'fails',
   'unopposed.fail': 'fail',
   'unopposed.both': 'both are wounded',

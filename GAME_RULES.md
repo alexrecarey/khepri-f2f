@@ -71,7 +71,7 @@ From the wiki (Smoke Ammunition, Eclipse Ammunition, Multispectral Visor, Dodge,
 - A Direct Template doesn't roll: it hits, and the Smoke is a Normal Roll.
 - Picking Smoke or Eclipse Grenades splits the range: the thrower's side goes to 0–8" (they are thrown near the user; their 0 MOD stops there), the other trooper keeps the distance it had (Brandon, 2026-11-08). A Launcher (0 MOD to 24") leaves the range alone.
   - Leaving the grenade (another weapon, Dodge, a new trooper) joins the range again at the other trooper's distance, unless the player had split it before picking the grenade; then it stays split (Brandon, 2026-11-08).
-- A Dodge against Smoke is a Normal Roll (Dodge under the template), not opposed: each side rolls on its own, the throw and the Dodge two Normal Rolls (Alex, 2026-11-23). A successful Dodge shows as "Dodged", like "Smoke placed". A Reset isn't rolled (it evades only Comms Attacks); No ARO leaves the throw alone.
+- A Dodge or a Reset against Smoke is a Normal Roll under the template, not opposed: each side rolls on its own, two Normal Rolls (Alex, 2026-11-23). A success shows as "Dodged" / "Reset passed", like "Smoke placed". No ARO leaves the throw alone.
 - Not modelled: Speculative Attack (Long Skill, −6, no LoF needed), a Smoke throw against several attackers, the zone it leaves for later orders (that is the Smoke chip). Disco Baller is not offered: it is a Deployable, a Normal Roll that places its Eclipse template in the Conclusion, not a Face to Face Roll.
 
 ## Comms Attacks
@@ -79,6 +79,10 @@ Alex, 2026-10-20: Comms Attacks are opposed by Reset; the Jammer's success cause
 - The Jammer is a weapon choice: BS Weapon (WIP), so it rolls WIP with the BS MODs (Fireteam +1 BS and +1 SD included). It reaches the user's Zone of Control (8", the first band) with no Range MOD; beyond that it is out of range. Picking it moves the range to 0–8".
 - Reset (a button against a Comms Attack): a WIP roll, Face to Face against the Comms Attack, causing no saves. The attacker's BS Attack (−X) and Surprise Attack go on it. No Fireteam bonus.
 - Dodge can't evade a Comms Attack: it isn't rolled and the attack is a Normal Roll. Reset evades nothing else: against a shot it isn't rolled. Shooting back at the Jammer user is a Face to Face Roll as usual.
+- Every pairing is one of three shapes (Alex, 2026-11-23; `src/rules/opposed.js`, `src/state/rollShape.test.mjs`):
+  - A Face to Face Roll: both roll and one roll affects the other (two attacks, or an attack and the Dodge or Reset that evades it).
+  - Two rolls, each on its own (not face to face): both roll and neither affects the other. A Direct Template against an attack; Smoke against a roll it doesn't oppose (an MSV, a CC or Comms Attack, a Dodge or a Reset); two evasions (Dodge or Reset against Dodge or Reset: nobody attacks).
+  - One roll alone: the other side rolls nothing (No ARO, a Dodge against a Comms Attack, a Reset against anything but a Comms Attack or Smoke), or a Direct Template against a Dodge (only the Dodge rolls).
 - No LoF: Mimetism, Albedo, Smoke and White Noise don't touch it. Partial Cover and Nanoscreen do nothing against a Comms Attack (neither the −3 nor the +3 save).
 - Firewall is its cover: −X to the attacker (Hacking Device "UPGRADE: Firewall (−3)", "Firewall −6", TinBot: Firewall (−3) / (−6); the best one counts) and +3 to the target's saves.
 - A failed save is Isolated, not a wound: the results show Isolated.

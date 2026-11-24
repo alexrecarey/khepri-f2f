@@ -1,7 +1,7 @@
 // The shared distance between the two side cards, and the swap button.
 import {isPseudo} from '../army/weapons.js';
 import {RANGE_BANDS, bandFrom, bandLabel} from '../rules/ranges.js';
-import {pseudoName} from '../rules/trooper.js';
+import {pseudoName} from '../army/weapons.js';
 import {render} from '../i18n/message.js';
 import {dispatch, useAppState} from '../state/store.js';
 import {bandColor, signedMod as signed} from './bands.js';

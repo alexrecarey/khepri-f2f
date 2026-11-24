@@ -128,6 +128,7 @@ export default {
   'state.smoke': 'Humo colocado',
   'state.eclipse': 'Eclipse colocado',
   'state.dodged': 'Esquivado',
+  'state.reset': 'Reset superado',
 
   // "How the dice were built" (rules/ledger.js)
   'ledger.teamOpsStat': '{stat} (Team-Ops: {upgrade})',
@@ -191,7 +192,8 @@ export default {
   'note.dodgeNotComms': 'Esquivar no evita un Ataque de Comunicaciones ({weapon}), solo Reset; se tira sin oposición',
   'note.smokeNoLof': '{by} no necesita LDT a través del {ammo}: sin Tirada Enfrentada, cada uno tira por separado',
   'note.smokeMsv': '{msv} ve a través del {ammo}: sin Tirada Enfrentada, cada uno tira por separado',
-  'note.smokeDodge': 'Esquivar no se enfrenta al {ammo}: sin Tirada Enfrentada, cada uno tira por separado',
+  'note.smokeEvade': '{choice} no se enfrenta al {ammo}: sin Tirada Enfrentada, cada uno tira por separado',
+  'note.nobodyAttacks': 'Nadie ataca: sin Tirada Enfrentada, cada uno tira por separado',
   'note.ccAttack': 'Un Ataque CC',
   'note.noLof': 'sin línea de tiro a través de {zone}; no puede declarar su ataque',
   'note.directTemplate': 'Plantilla Directa: no hay Tirada Enfrentada; cada ataque se tira por separado',
@@ -375,6 +377,7 @@ export default {
   'unopposed.misses': 'fallos',
   'unopposed.attack': 'Ataque de {name}',
   'unopposed.dodge': 'Esquiva de {name}',
+  'unopposed.reset': 'Reset de {name}',
   'unopposed.fails': 'falla',
   'unopposed.fail': 'falla',
   'unopposed.both': 'los dos heridos',

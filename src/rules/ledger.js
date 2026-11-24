@@ -7,9 +7,8 @@
 // note and line into the player's language, and buildLedger lays the lines
 // out per side (types.js LedgerSide) and adds only display: the dice line,
 // the ammunition lines and note.
-import {ammoName, ammoTypes, bioweaponParts, hasContinuousDamage, isImpactTemplate, isPlasma, isPseudo, isSmoke, saveAttribute} from '../army/weapons.js';
+import {ammoName, ammoTypes, bioweaponParts, hasContinuousDamage, isImpactTemplate, isPlasma, isPseudo, isSmoke, pseudoName, saveAttribute} from '../army/weapons.js';
 import {AMMO} from '../engine/calculate.js';
-import {pseudoName} from './trooper.js';
 import {isCcAttack} from './closeCombat.js';
 import {zoneName} from './visibility.js';
 import {tEn} from '../i18n/index.js';
