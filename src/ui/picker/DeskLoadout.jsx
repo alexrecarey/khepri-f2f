@@ -32,14 +32,14 @@ function ChartLine({c, sub}) {
 
 // One loadout as chart lines: its main gun (with `tag`), the rest once it is
 // the lit one, then points and SWC. i is its place in the pane's loadouts,
-// which the arrow keys walk.
-/** @param {{h: import('../../types.js').ProfileHit, i: number, tag?: string | null, on?: boolean, color: string, army: import('../../types.js').Army | null, onPick: (hit: import('../../types.js').ProfileHit) => void}} props */
-export default function DeskLoadout({h, i, tag, on, color, army, onPick}) {
+// which the arrow keys walk; tint is the colour it takes when lit ('' grey).
+/** @param {{h: import('../../types.js').ProfileHit, i: number, tag?: string | null, on?: boolean, tint: string, army: import('../../types.js').Army | null, onPick: (hit: import('../../types.js').ProfileHit) => void}} props */
+export default function DeskLoadout({h, i, tag, on, tint, army, onPick}) {
   const t = useT();
   const charts = loadoutCharts(army, h.weaponIds);
   const main = charts[0];
   return (
-    <div id={`dp-lo-${i}`} role="option" aria-selected={on} className={`dp-loadout${on ? ` on ${color}` : ''}`}
+    <div id={`dp-lo-${i}`} role="option" aria-selected={on} className={`dp-loadout${on ? ` on ${tint}` : ''}`}
       onClick={() => setCursor({pane: 'loadouts', lcursor: i})} onDoubleClick={() => onPick(h)}>
       {/* A peripheral with no weapon (Cutters' Crabbot) is named by its loadout. */}
       {main ? <ChartLine c={{...main, name: `${main.name}${tag ? ` · ${tag}` : ''}`}} /> : <span>{h.weapons.join(', ') || h.loadout}{tag ? ` · ${tag}` : ''}</span>}
