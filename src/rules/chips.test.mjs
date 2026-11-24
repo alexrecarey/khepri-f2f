@@ -7,8 +7,8 @@ import {
 } from './modifiers.js';
 import {berserkHelps, usesBerserk} from './closeCombat.js';
 import {noLofChoices, noLofDodgeMods, noLofHelps} from './noLof.js';
-import {profile} from './testFixtures.mjs';
-import {combi, flamer, side} from './testMatchups.mjs';
+import {option, profile} from './testFixtures.mjs';
+import {combi, flamer, jammer, side} from './testMatchups.mjs';
 
 /** @typedef {import('../types.js').ResolvedSide} ResolvedSide */
 
@@ -71,4 +71,26 @@ test('No LoF: on the reactive card whenever it limits the choices; on the active
   // template, whatever it picked; the active trooper Dodging a template.
   assert.deepEqual(picks.filter(([, y]) => noLofHelps(PICKS.dodge, y.weapon, true, true)).map(([n]) => n), ['shot', 'template']);
   assert.deepEqual(picks.filter(([, x]) => noLofHelps(x, PICKS.template.weapon, false, true)).map(([n]) => n), ['dodge']);
+});
+
+test('No LoF: the chip shows exactly when it changes something, in either turn', () => {
+  const dodger = side(profile(), combi, 'dodge');
+  const xs = /** @type {[string, ResolvedSide][]} */ ([['dodge', dodger], ['shot', shot], ['none', side(profile(), combi, 'none')]]);
+  const incoming = /** @type {[string, import('../types.js').Choice | null][]} */ ([
+    ['shot', shot.weapon], ['template', side(profile(), flamer, '3:').weapon],
+    ['silent', side(profile(), option([{id: 23, name: 'Silenced Pistol'}]), '23:').weapon],
+    ['comms', side(profile(), jammer, '21:').weapon], ['dodge', dodger.weapon], ['nothing', null],
+  ]);
+  /** @type {string[]} */
+  const shown = [];
+  for (const [xName, x] of xs) for (const [inName, w] of incoming) for (const reactive of [true, false]) for (const inZoc of [true, false]) {
+    const on = {...x, noLof: true};
+    const mods = noLofDodgeMods(on, w, reactive, inZoc);
+    const changes = noLofChoices(on, w, reactive, inZoc) !== null || mods.lof !== 0 || mods.silent !== 0;
+    const at = `${xName} vs ${inName}, ${reactive ? 'ARO' : 'active'}, ${inZoc ? 'in' : 'beyond'} ZoC`;
+    assert.equal(noLofHelps(x, w, reactive, inZoc), changes, at);
+    if (changes && !reactive) shown.push(at);
+  }
+  // The Active Turn's two cases: a Dodge of a template (any distance), of a Silent weapon inside the ZoC.
+  assert.deepEqual(shown, ['dodge vs template, active, in ZoC', 'dodge vs template, active, beyond ZoC', 'dodge vs silent, active, in ZoC']);
 });
