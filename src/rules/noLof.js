@@ -39,27 +39,49 @@ export const attackerInZoc = (s, rangeCm, rangeCmB) => rangeOf(other(s), rangeCm
 const lofAttack = (incoming) => Boolean(incoming?.row) && (incoming?.kind === 'bs' || incoming?.kind === 'template')
   && !isCommsAttack(incoming?.row);
 
-// Can the No LoF chip change x's roll against `incoming` (the other side's
-// pick)? The chip shows only then. In ARO it always does (it limits the
-// choices); in the Active Turn only a Dodge of a template, or of a Silent
-// weapon inside the ZoC.
+// What No LoF does to x against `incoming` (the other side's pick), whether
+// the chip is on or not. The one place the rule's conditions are written:
+// the chip (noLofHelps), the reactive's choices (noLofChoices) and the Dodge
+// MODs (noLofDodgeMods) all read it.
+// - choices: what the reactive may still do (pseudo-weapon keys, which are
+//   also their kinds), the first being what its pick reads as otherwise;
+//   null for the active trooper, which always acts.
+// - lof, silent: the MODs on x's Dodge of it, 0 when x doesn't Dodge it.
 /**
  * @param {ResolvedSide | null | undefined} x
  * @param {Choice | null | undefined} incoming
  * @param {boolean} reactive x is the reactive side
  * @param {boolean} inZoc the attacker is inside x's ZoC
+ * @returns {{choices: ('none' | 'dodge')[] | null, lof: number, silent: number}}
  */
-export function noLofHelps(x, incoming, reactive, inZoc) {
-  if (!x || hasSkill(x.traits, SKILL.SIXTH_SENSE) || !lofAttack(incoming)) return false;
-  if (reactive) return true;
+function noLofEffect(x, incoming, reactive, inZoc) {
+  if (!x || hasSkill(x.traits, SKILL.SIXTH_SENSE) || !lofAttack(incoming)) return {choices: null, lof: 0, silent: 0};
   const row = incoming?.row;
-  return evades(x, incoming) && (isTemplateWeapon(row) || (inZoc && silentMod(row) !== 0));
+  const template = isTemplateWeapon(row);
+  const dodges = evades(x, incoming);
+  return {
+    choices: reactive ? (inZoc || template ? ['dodge', 'none'] : ['none']) : null,
+    lof: dodges && (reactive || template) ? NO_LOF_DODGE_MOD : 0,
+    silent: dodges && inZoc ? silentMod(row) : 0,
+  };
 }
 
-// With the chip on, the only choices x has left (pseudo-weapon keys, which
-// are also their kinds), the first being what its pick reads as otherwise;
-// null when No LoF limits nothing. Only the reactive is limited: the active
-// trooper's chip shows only on a Dodge. A Fireteam of 5 lifts it all.
+// Can the No LoF chip change x's roll? The chip shows only then. In ARO it
+// always does (it limits the choices); in the Active Turn only a Dodge of a
+// template, or of a Silent weapon inside the ZoC.
+/**
+ * @param {ResolvedSide | null | undefined} x
+ * @param {Choice | null | undefined} incoming
+ * @param {boolean} reactive
+ * @param {boolean} inZoc
+ */
+export function noLofHelps(x, incoming, reactive, inZoc) {
+  const e = noLofEffect(x, incoming, reactive, inZoc);
+  return e.choices !== null || e.lof !== 0 || e.silent !== 0;
+}
+
+// With the chip on, the only choices x (the reactive) has left; null when
+// No LoF limits nothing. A Fireteam of 5 lifts it all.
 /**
  * @param {ResolvedSide | null | undefined} x
  * @param {Choice | null | undefined} incoming
@@ -68,8 +90,8 @@ export function noLofHelps(x, incoming, reactive, inZoc) {
  * @returns {('none' | 'dodge')[] | null}
  */
 export function noLofChoices(x, incoming, reactive, inZoc) {
-  if (!reactive || !x?.noLof || hasSixthSense(x) || !noLofHelps(x, incoming, reactive, inZoc)) return null;
-  return inZoc || isTemplateWeapon(incoming?.row) ? ['dodge', 'none'] : ['none'];
+  if (!x?.noLof || hasSixthSense(x)) return null;
+  return noLofEffect(x, incoming, reactive, inZoc).choices;
 }
 
 // The two MODs on x's Dodge with the chip on: the -3 (`lof`) and the
@@ -83,13 +105,9 @@ export function noLofChoices(x, incoming, reactive, inZoc) {
  * @param {boolean} inZoc
  */
 export function noLofDodgeMods(x, incoming, reactive, inZoc) {
-  if (!x?.noLof || x.weapon?.kind !== 'dodge' || !evades(x, incoming) || !noLofHelps(x, incoming, reactive, inZoc)) return {lof: 0, silent: 0, struckBy: null};
-  const row = incoming?.row;
-  return {
-    lof: reactive || isTemplateWeapon(row) ? NO_LOF_DODGE_MOD : 0,
-    silent: inZoc ? silentMod(row) : 0,
-    struckBy: hasSixthSense(x) ? /** @type {const} */ ('sixthSense') : null,
-  };
+  if (!x?.noLof) return {lof: 0, silent: 0, struckBy: null};
+  const {lof, silent} = noLofEffect(x, incoming, reactive, inZoc);
+  return {lof, silent, struckBy: hasSixthSense(x) ? /** @type {const} */ ('sixthSense') : null};
 }
 
 // Would a Fireteam of 5 (its Sixth Sense) lift the limits No LoF puts on x,
