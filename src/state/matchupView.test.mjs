@@ -319,6 +319,22 @@ test('Dodge toggles: the view lists them for the picked Dodge, on or off; none f
   assert.deepEqual(matchupView(army, {A: corax, B: chaksa, rangeCm: 40}).B.dodgeToggles, []);
 });
 
+test('a Fusilier Forward Observer: a weapon button from the skill, Face to Face, "Targeted"', () => {
+  const observer = {...EMPTY_SIDE, unitId: 1, factionId: 101, groupId: 1, optionId: 8};
+  const fusilier = {...EMPTY_SIDE, unitId: 1, factionId: 101, groupId: 1, optionId: 1};
+  const plain = matchupView(army, {A: observer, B: fusilier, rangeCm: 40});
+  assert.deepEqual(plain.A.weapons.filter((w) => w.key === 'fo').map((w) => [w.name, w.kind]), [['Forward Observer', 'bs']]);
+  assert.notEqual(plain.A.resolved?.weapon?.key, 'fo', 'not the default weapon');
+  assert.equal(plain.B.weapons.some((w) => w.key === 'fo'), false, 'no skill, no button');
+  const v = matchupView(army, {A: {...observer, weaponKey: 'fo'}, B: fusilier, rangeCm: 40});
+  assert.ok(v.params && v.targets?.active && v.ledger);
+  // WIP 12, no Range MOD at 16".
+  assert.deepEqual([v.params.ammoA, v.params.burstA, v.params.successValueA, v.params.unopposed], ['STATE', 2, 12, false]);
+  assert.deepEqual(v.targets.active.map((t) => t.label), ['Targeted']);
+  assert.equal(v.ledger.weapons.A, 'Forward Observer');
+  assert.ok(v.bands.some((b) => b.A === -6), 'its range bands show on the range selector');
+});
+
 test('Yojimbo throws Smoke in ARO: a weapon button, Face to Face against a Fusilier, "Smoke placed"', () => {
   const yojimbo = {...EMPTY_SIDE, unitId: 224, factionId: 904, groupId: 1, optionId: 741};
   const fusilier = {...EMPTY_SIDE, unitId: 1, factionId: 101, groupId: 1, optionId: 1};

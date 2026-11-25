@@ -30,6 +30,8 @@ export const AMMO = {
   // Smoke / Eclipse: winning the roll keeps the template on the table; it
   // causes no Saving Rolls (rules/smoke.js).
   SMOKE: {saves: 0},
+  // A hit that is a State with no Saving Roll (Forward Observer: Targeted).
+  STATE: {saves: 0},
 };
 
 // Keys of one side's engine input; the engine reads these with an A or B suffix.
@@ -129,13 +131,14 @@ function applyShock(p, outcomes) {
 // Wins that cause no Saving Rolls but still do something, so the results
 // count each as one (a State, rules/woundStates.js), the way a Jammer's
 // failed save is one Isolated: a Smoke throw places its template ("Smoke
-// placed"), and a Dodge rolled on its own against it (p.unopposed) succeeds
-// ("Dodged"). A Dodge opposed to an attack is the win itself: left as it is.
+// placed"), a Forward Observer's hit is Targeted, and a Dodge rolled on its
+// own against Smoke (p.unopposed) succeeds ("Dodged"). A Dodge opposed to an
+// attack is the win itself: left as it is.
 /**
  * @param {Params} p
  * @param {import('../types.js').Side} s
  */
-const winCounts = (p, s) => p[`ammo${s}`] === 'SMOKE' || (p.unopposed && p[`ammo${s}`] === 'DODGE');
+const winCounts = (p, s) => p[`ammo${s}`] === 'SMOKE' || p[`ammo${s}`] === 'STATE' || (p.unopposed && p[`ammo${s}`] === 'DODGE');
 /**
  * @param {Params} p
  * @param {import('../types.js').EngineOutput['outcomes']} outcomes

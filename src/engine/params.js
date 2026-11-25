@@ -12,7 +12,8 @@ import {intIn, numberFromUrl, parseOr} from '../lib/parse.js';
 // stands for a Dodge, which wins the Face to Face Roll but causes no Saving
 // Rolls; NONE for an attack the target is immune to, rolled and opposed but
 // harmless; SMOKE for Smoke / Eclipse, whose win puts the template on the
-// table and causes no Saving Rolls either.
+// table and causes no Saving Rolls either; STATE for a hit that is a State
+// with no Saving Roll (Forward Observer).
 /** @typedef {import('../types.js').Params} Params */
 /** @typedef {import('../types.js').SideParams} SideParams */
 /** @typedef {import('../types.js').Ammo} Ammo */
@@ -20,7 +21,7 @@ import {intIn, numberFromUrl, parseOr} from '../lib/parse.js';
  * @typedef {`${keyof SideParams}A` | `${keyof SideParams}B` | 'fixedFaceToFace' | 'unopposed'} ParamKey */
 
 /** @type {Ammo[]} */
-export const AMMO_KEYS = ['N', 'DA', 'EXP', 'T2', 'PLASMA', 'DODGE', 'NONE', 'SMOKE'];
+export const AMMO_KEYS = ['N', 'DA', 'EXP', 'T2', 'PLASMA', 'DODGE', 'NONE', 'SMOKE', 'STATE'];
 
 /** [min, max] of each numeric param, per side.
  * @type {Record<'burst' | 'bonusBurst' | 'successValue' | 'damage' | 'arm' | 'bts', readonly [number, number]>} */

@@ -46,6 +46,8 @@ const TRAIT_EXTRAS = [
   {kind: 'skill', id: SKILL.BS_ATTACK, name: 'BS Attack', read: /^(\+\d+(B|SD)|AP|T2|SR-\d+|Continuous Damage|-\d+)$/,
     known: ['Shock', 'Guided']},
   {kind: 'skill', id: SKILL.BERSERK, name: 'Berserk', read: /^\+\d+$/, known: []},
+  // Its MODs as a weapon's (src/army/forwardObserver.js).
+  {kind: 'skill', id: SKILL.FORWARD_OBSERVER, name: 'Forward Observer', read: /^\+\d+(B|SD)$/, known: []},
   // Antimaterial only matters against scenery.
   {kind: 'skill', id: SKILL.CC_ATTACK, name: 'CC Attack', read: /^([+-]\d+|\+\d+B|AP|Shock|Continuous Damage)$/,
     known: ['Antimaterial']},

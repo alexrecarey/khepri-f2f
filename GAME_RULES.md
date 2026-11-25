@@ -18,7 +18,7 @@ Short notes; keep them current as rules come up. Code lives in `src/rules/`
 - X Visor: a −3 Range MOD becomes 0, a −6 becomes −3.
 
 ## Weapons the app picks for you
-- Default weapon. Never a Jammer or Smoke while there is another weapon. Active: highest Burst, then Impact Template (Circular), then ammo. Reactive: a +SD weapon, then the farthest best range band, then Impact Template, then ammo. Changing the range never swaps the weapon.
+- Default weapon. Never a Jammer, Smoke or Forward Observer while there is another weapon. Active: highest Burst, then Impact Template (Circular), then ammo. Reactive: a +SD weapon, then the farthest best range band, then Impact Template, then ammo. Changing the range never swaps the weapon.
 - Ammo precedence: Plasma > EXP > DA > Viral > T2 > AP > Shock > N > E/M > Stun. Combined ammo ranks as its best part.
 - Fire modes: Burst matters more than ammo; an Impact Template ("Blast") mode comes before Hit; DA over AP, AP over Shock; Boarding Pistol starts on its Direct Template.
 
@@ -73,6 +73,16 @@ From the wiki (Smoke Ammunition, Eclipse Ammunition, Multispectral Visor, Dodge,
   - Leaving the grenade (another weapon, Dodge, a new trooper) joins the range again at the other trooper's distance, unless the player had split it before picking the grenade; then it stays split (Brandon, 2026-11-08).
 - A Dodge or a Reset against Smoke is a Normal Roll under the template, not opposed: each side rolls on its own, two Normal Rolls (Alex, 2026-11-23). A success shows as "Dodged" / "Reset passed", like "Smoke placed". No ARO leaves the throw alone.
 - Not modelled: Speculative Attack (Long Skill, −6, no LoF needed), a Smoke throw against several attackers, the zone it leaves for later orders (that is the Smoke chip). Disco Baller is not offered: it is a Deployable, a Normal Roll that places its Eclipse template in the Conclusion, not a Face to Face Roll.
+
+## Forward Observer
+From the wiki (Forward Observer, Targeted State, BS Weapon (WIP); N5 FAQ on Skills with the BS Attack Label). Code: `src/army/forwardObserver.js`, `src/army/weapons.js` (noSavingRoll), `src/rules/hit.js` (stateHit).
+- A skill, not a weapon in the Army data: troopers with it get a Forward Observer weapon choice, built from the wiki's chart. B2, no PS, Range MODs 0 to 24", −3 to 48", −6 to 96".
+- A BS Attack with a BS Weapon (WIP): it rolls WIP with every BS Attack MOD (range, cover, Mimetism, Albedo, Smoke and White Noise, Fireteam +1 BS / +1 SD, BS Attack (+1B / +1SD / −X), Surprise Attack; the +3 against a Targeted target too). It needs LoF. B1 in ARO like any shot.
+- No Saving Roll: a hit is Targeted. The results show Targeted in place of wounds. No Immunity stops it (none is to Targeted, and Immunity (ARM) / (BTS) have no save to change). A Critical only wins.
+- Face to Face like a shot: against an attack, or the Dodge that evades it. A Reset doesn't evade it.
+- Forward Observer (+1SD): the bracketed MOD is the weapon's.
+- Never the default weapon while there is another.
+- Not modelled: what Targeted does to later orders (that is the Targeted chip).
 
 ## Comms Attacks
 Alex, 2026-10-20: Comms Attacks are opposed by Reset; the Jammer's success causes Isolated, after a BTS save. The rest from the wiki (Comms Attack label, Reset, Firewall, Mimetism, Nanoscreen). Code: `src/army/weapons.js` (isCommsAttack, needsLof, inZoneOfControl, isolates), `src/rules/modifiers.js` (evades, firewallMod).

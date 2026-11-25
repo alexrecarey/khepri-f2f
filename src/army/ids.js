@@ -8,6 +8,7 @@ const SKILLS = {
   DODGE: [40, 'Dodge'],
   TOTAL_REACTION: [61, 'Total Reaction'],
   SIXTH_SENSE: [67, 'Sixth Sense'],
+  FORWARD_OBSERVER: [59, 'Forward Observer'],
   SAPPER: [89, 'Sapper'],
   NEUROCINETICS: [109, 'Neurocinetics'],
   MARKSMANSHIP: [156, 'Marksmanship'],

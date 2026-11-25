@@ -16,7 +16,7 @@ import {calcAmmo, hasImmunity, hasNoEffect, immunityAgainst, immunityFor, immuni
 import {bsAttackWeaponMods} from './trooper.js';
 import {ccAttackSkill, isCcAttack} from './closeCombat.js';
 import {list, msg, term} from '../i18n/message.js';
-import {compact, coverLabel, line, mark, note, statLabel, sum} from './lines.js';
+import {compact, coverLabel, line, mark, note, section, statLabel, sum} from './lines.js';
 
 /** @typedef {import('../types.js').Side} Side */
 /** @typedef {import('../types.js').Trooper} Trooper */
@@ -216,6 +216,29 @@ export function defenseInputs(y, incoming, s, dodging) {
     [`critImmune${s}`]: hasImmunity(y.traits, 'Critical', row),
   });
   return {inputs, lines};
+}
+
+// A hit that is the State itself (army/weapons.js noSavingRoll: Forward
+// Observer, Targeted): nothing to save. The calculator's STATE ammunition, no
+// PS lines (so no save section in the ledger), the ammunition section naming
+// the State.
+/**
+ * @param {Attacker} x
+ * @param {Side} side
+ * @returns {{inputs: Partial<Params>, ps: undefined, ammo: import('../types.js').Section, notes: Message[]}}
+ */
+export function stateHit(x, side) {
+  const {row} = x.weapon;
+  // noSavingRoll: the row causes a State.
+  const state = msg(`state.${/** @type {string} */ (stateCaused(row)).toLowerCase()}`);
+  // Computed keys: tsc sees an index signature, so the shape is stated.
+  const inputs = /** @type {Partial<Params>} */ ({
+    [`damage${side}`]: 0,
+    [`ammo${side}`]: 'STATE',
+    [`cont${side}`]: false,
+    [`shock${side}`]: false,
+  });
+  return {inputs, ps: undefined, ammo: section([mark('', state, null)], state), notes: [note(side, 'note.stateOnHit', {weapon: row.name, state})]};
 }
 
 // The save against x's hits: x's PS lines (psLines), then the target's

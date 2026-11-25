@@ -1,5 +1,6 @@
 // One side of a matchup: the picker's selection (ids) resolved against the
 // Army data into the trooper that rolls.
+import {trooperForwardObserver} from '../army/forwardObserver.js';
 import {hasZeroPain, trooperPrograms} from '../army/hacking.js';
 import {SKILL} from '../army/ids.js';
 import {applyStatOverrides, applyUpgrades, pickedUpgrades} from '../army/loadouts.js';
@@ -39,7 +40,9 @@ export function bsAttackWeaponMods(traits) {
 }
 
 // The weapons a trooper can make a BS Attack with (army/weapons.js bsWeapons),
-// with its BS Attack skill applied. `traits` are effectiveTraits().
+// with its BS Attack skill applied, then its Forward Observer skill
+// (army/forwardObserver.js): no ammunition or PS for the skill to change.
+// `traits` are effectiveTraits().
 /**
  * @param {import('../types.js').OptionRow} option
  * @param {Record<string, import('../types.js').WeaponRow[]>} weapons
@@ -51,7 +54,7 @@ export function trooperWeapons(option, weapons, traits) {
   // A Smoke grenade is marked `throwsClose` (rules/smoke.js), for the pick to
   // move its side's range.
   const list = withSkill(bsWeapons(option, weapons), {ap: bs.ap, cont: bs.cont, sr: bs.sr, ammo: bs.t2 ? 'T2' : null, hasAmmo: (row) => hasAmmo(row, 'T2')});
-  return list.map((w) => (throwsClose(w) ? {...w, throwsClose: /** @type {const} */ (true)} : w));
+  return [...list.map((w) => (throwsClose(w) ? {...w, throwsClose: /** @type {const} */ (true)} : w)), ...trooperForwardObserver(traits)];
 }
 
 // `list` with what a BS Attack or CC Attack skill adds to every weapon: AP

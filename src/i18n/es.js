@@ -185,6 +185,7 @@ export default {
   'note.neurocinetics': 'Neurocinética; Ráfaga 1 en el Turno Activo',
   'note.shock': 'Shock contra VITA 1; una salvación fallada es Muerto (sin Inconsciente, SIH ni Tenaz)',
   'note.stateCaused': '{weapon}; una salvación fallada deja al objetivo {state}, no herido',
+  'note.stateOnHit': '{weapon}; un impacto deja al objetivo {state}, sin Tirada de Salvación',
   'note.cantTarget': '{program} no puede tener como objetivo a esta tropa; no tira',
   'note.contImmune': 'el objetivo tiene Inmunidad (Daño Continuo); se ignora el Daño Continuo',
   'note.vulnerability': 'el objetivo tiene Vulnerabilidad ({vulnerable}); la Inmunidad ({immunity}) no se aplica',

@@ -4,7 +4,7 @@ import {hasSkill} from '../army/traits.js';
 import {list, msg, term} from '../i18n/message.js';
 import {
   ammoMsg, ammoTypes, bioweaponAmmo, bioweaponProp, causesStunned, causesWounds, hasAmmo, hasContinuousDamage, hasShockAmmo,
-  isCommsAttack, isPlasma, isSmoke, saveAttribute, stateCaused,
+  isCommsAttack, isPlasma, noSavingRoll, saveAttribute, stateCaused,
 } from '../army/weapons.js';
 
 /** @typedef {import('../types.js').Traits | null | undefined} MaybeTraits */
@@ -100,8 +100,9 @@ export const hasNoEffect = (targetTraits, row) => Boolean(noEffectBy(targetTrait
  * @returns {import('../types.js').Message | null}
  */
 export function noEffectBy(targetTraits, row) {
-  // Smoke hits nobody: no Immunity has anything to stop (rules/smoke.js).
-  if (isSmoke(row)) return null;
+  // No Saving Roll, so no Immunity has anything to stop: Smoke hits nobody
+  // (rules/smoke.js), Forward Observer's hit is Targeted (no Immunity to it).
+  if (noSavingRoll(row)) return null;
   /** @param {string} what */
   const immune = (what) => msg('skill.immunity', {what: term('extras', what)});
   const state = isCommsAttack(row) ? stateCaused(row) : null;

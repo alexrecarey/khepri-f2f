@@ -1,5 +1,5 @@
 // The weapon picked once a loadout is chosen.
-import {bioweaponProp, isCommsAttack, isImpactTemplate, isPlasma, isSmoke} from '../army/weapons.js';
+import {bioweaponProp, isCommsAttack, isImpactTemplate, isPlasma, noSavingRoll} from '../army/weapons.js';
 import {bestBandTo} from './ranges.js';
 import {orderModes} from './weaponModes.js';
 
@@ -25,14 +25,14 @@ function ammoRank({row, mods}) {
 const impactTemplate = ({row}) => isImpactTemplate(row);
 
 // Sort keys per role, lower wins, ties keep menu order. Neither depends on the
-// shared range, so changing it never swaps the weapon. A Comms Attack (Jammer)
-// or Smoke only when there's nothing else: they isolate or block LoF, they
-// don't wound. Then active:
+// shared range, so changing it never swaps the weapon. A Comms Attack (Jammer),
+// Smoke or Forward Observer only when there's nothing else: they isolate,
+// block LoF or mark, they don't wound. Then active:
 // highest burst, then Impact Template (Circular), then ammo. Reactive: a +SD
 // weapon, then the farthest best range band, then Impact Template
 // (Circular), then ammo.
 /** @param {WeaponEntry} w */
-const support = ({row}) => (isCommsAttack(row) || isSmoke(row) ? 1 : 0);
+const support = ({row}) => (isCommsAttack(row) || noSavingRoll(row) ? 1 : 0);
 /** @type {Record<Role, (w: WeaponEntry) => number[]>} */
 const DEFAULT_WEAPON_KEYS = {
   active: (w) => [support(w), -((w.row.burst ?? 1) + w.mods.burst), impactTemplate(w) ? 0 : 1, ammoRank(w)],
