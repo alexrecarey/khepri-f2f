@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-20T20:39:40.407Z",
+ "generatedAt": "2026-11-25T15:39:11.921Z",
  "source": "https://api.corvusbelli.com/army (Corvus Belli, Infinity Army). Unofficial snapshot.",
  "factions": {
   "101": {
@@ -8,7 +8,7 @@
    "slug": "panoceania",
    "parent": 101,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/panoceania.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.478"
   },
   "102": {
    "id": 102,
@@ -16,7 +16,7 @@
    "slug": "shock-army-of-acontecimento",
    "parent": 101,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/shock-army-of-acontecimento.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.478"
   },
   "103": {
    "id": 103,
@@ -24,7 +24,7 @@
    "slug": "military-orders",
    "parent": 101,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/military-orders.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.478"
   },
   "104": {
    "id": 104,
@@ -32,7 +32,7 @@
    "slug": "neoterran-capitaline-army",
    "parent": 101,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/neoterran-capitaline-army.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.478"
   },
   "105": {
    "id": 105,
@@ -40,7 +40,7 @@
    "slug": "varuna-immediate-reaction-division",
    "parent": 101,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/varuna-immediate-reaction-division.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.478"
   },
   "106": {
    "id": 106,
@@ -48,7 +48,7 @@
    "slug": "svalarheima-s-winter-force",
    "parent": 101,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/svalarheima-s-winter-force.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.478"
   },
   "107": {
    "id": 107,
@@ -56,7 +56,7 @@
    "slug": "kestrel-colonial-force",
    "parent": 101,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/kestrel-colonial-force.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.478"
   },
   "201": {
    "id": 201,
@@ -64,7 +64,7 @@
    "slug": "yu-jing",
    "parent": 201,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/yu-jing.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.478"
   },
   "202": {
    "id": 202,
@@ -72,7 +72,7 @@
    "slug": "imperial-service",
    "parent": 201,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/imperial-service.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.478"
   },
   "204": {
    "id": 204,
@@ -80,7 +80,7 @@
    "slug": "invincible-army",
    "parent": 201,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/invincible-army.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.478"
   },
   "205": {
    "id": 205,
@@ -88,7 +88,7 @@
    "slug": "white-banner",
    "parent": 201,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/white-banner.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.478"
   },
   "301": {
    "id": 301,
@@ -96,7 +96,7 @@
    "slug": "ariadna",
    "parent": 301,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/ariadna.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "302": {
    "id": 302,
@@ -104,7 +104,7 @@
    "slug": "caledonian-highlander-army",
    "parent": 301,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/caledonian-highlander-army.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "303": {
    "id": 303,
@@ -112,7 +112,7 @@
    "slug": "force-de-reponse-rapide-merovingienne",
    "parent": 301,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/force-de-reponse-rapide-merovingienne.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "304": {
    "id": 304,
@@ -120,7 +120,7 @@
    "slug": "usariadna",
    "parent": 301,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/usariadna.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "305": {
    "id": 305,
@@ -128,7 +128,7 @@
    "slug": "tartary",
    "parent": 301,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/tartary.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "306": {
    "id": 306,
@@ -136,7 +136,7 @@
    "slug": "kosmoflot",
    "parent": 301,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/kosmoflot.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "401": {
    "id": 401,
@@ -144,7 +144,7 @@
    "slug": "haqqislam",
    "parent": 401,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/haqqislam.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.506"
   },
   "402": {
    "id": 402,
@@ -152,7 +152,7 @@
    "slug": "hassassin-bahram",
    "parent": 401,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/hassassin-bahram.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "403": {
    "id": 403,
@@ -160,7 +160,7 @@
    "slug": "qapu-khalqi",
    "parent": 401,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/qapu-khalqi.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.506"
   },
   "404": {
    "id": 404,
@@ -168,7 +168,7 @@
    "slug": "ramah-taskforce",
    "parent": 401,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/ramah-taskforce.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "501": {
    "id": 501,
@@ -176,7 +176,7 @@
    "slug": "nomads",
    "parent": 501,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/nomads.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "502": {
    "id": 502,
@@ -184,7 +184,7 @@
    "slug": "corregidor",
    "parent": 501,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/corregidor.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "503": {
    "id": 503,
@@ -192,7 +192,7 @@
    "slug": "bakunin",
    "parent": 501,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/bakunin.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "504": {
    "id": 504,
@@ -200,7 +200,7 @@
    "slug": "tunguska",
    "parent": 501,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/tunguska.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "601": {
    "id": 601,
@@ -208,7 +208,7 @@
    "slug": "combined-army",
    "parent": 601,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/combined-army.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "602": {
    "id": 602,
@@ -216,7 +216,7 @@
    "slug": "morat",
    "parent": 601,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/morat.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "603": {
    "id": 603,
@@ -224,7 +224,7 @@
    "slug": "shasvastii",
    "parent": 601,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/shasvastii.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "604": {
    "id": 604,
@@ -232,7 +232,7 @@
    "slug": "onyx",
    "parent": 601,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/onyx.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "605": {
    "id": 605,
@@ -240,7 +240,7 @@
    "slug": "next-wave",
    "parent": 601,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/next-wave.svg",
-   "version": "7.26246.158"
+   "version": "7.26329.479"
   },
   "701": {
    "id": 701,
@@ -248,7 +248,7 @@
    "slug": "aleph",
    "parent": 701,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/aleph.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.508"
   },
   "702": {
    "id": 702,
@@ -256,7 +256,7 @@
    "slug": "steel-phalanx",
    "parent": 701,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/steel-phalanx.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.480"
   },
   "703": {
    "id": 703,
@@ -264,7 +264,7 @@
    "slug": "operations",
    "parent": 701,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/operations.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.480"
   },
   "801": {
    "id": 801,
@@ -272,7 +272,7 @@
    "slug": "tohaa",
    "parent": 801,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/tohaa.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.480"
   },
   "901": {
    "id": 901,
@@ -280,7 +280,7 @@
    "slug": "non-aligned-armies",
    "parent": 900,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/non-aligned-armies.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.480"
   },
   "902": {
    "id": 902,
@@ -288,7 +288,7 @@
    "slug": "druze",
    "parent": 901,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/druze.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.480"
   },
   "904": {
    "id": 904,
@@ -296,7 +296,7 @@
    "slug": "ikari",
    "parent": 901,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/ikari.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.480"
   },
   "905": {
    "id": 905,
@@ -304,7 +304,7 @@
    "slug": "starco-free-company-of-the-star",
    "parent": 901,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/starco-free-company-of-the-star.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.480"
   },
   "908": {
    "id": 908,
@@ -312,7 +312,7 @@
    "slug": "dahshat",
    "parent": 901,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/dahshat.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.480"
   },
   "909": {
    "id": 909,
@@ -320,7 +320,7 @@
    "slug": "white-company",
    "parent": 901,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/white-company.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.480"
   },
   "1001": {
    "id": 1001,
@@ -328,7 +328,7 @@
    "slug": "o-12",
    "parent": 1001,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/o-12.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.512"
   },
   "1002": {
    "id": 1002,
@@ -336,7 +336,7 @@
    "slug": "starmada",
    "parent": 1001,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/starmada.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.512"
   },
   "1003": {
    "id": 1003,
@@ -344,7 +344,7 @@
    "slug": "torchlight-brigade",
    "parent": 1001,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/torchlight-brigade.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.512"
   },
   "1101": {
    "id": 1101,
@@ -352,7 +352,7 @@
    "slug": "jsa",
    "parent": 1101,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/jsa.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.480"
   },
   "1102": {
    "id": 1102,
@@ -360,7 +360,7 @@
    "slug": "shindenbutai",
    "parent": 1101,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/shindenbutai.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.480"
   },
   "1103": {
    "id": 1103,
@@ -368,7 +368,7 @@
    "slug": "oban",
    "parent": 1101,
    "logo": "https://assets.corvusbelli.net/army/img/logo/factions/oban.svg",
-   "version": "7.26246.159"
+   "version": "7.26329.480"
   }
  },
  "units": [
@@ -5886,7 +5886,7 @@
           10,
           10
          ],
-         "cc": 19,
+         "cc": 21,
          "bs": 12,
          "ph": 11,
          "wip": 13,
@@ -5924,6 +5924,13 @@
            ]
           },
           {
+           "id": 56,
+           "name": "Minelayer",
+           "extra": [
+            "2"
+           ]
+          },
+          {
            "id": 237,
            "name": "Shasvastii"
           },
@@ -5940,7 +5947,7 @@
         {
          "id": 1,
          "name": "AÏDA SWANSON",
-         "points": 24,
+         "points": 25,
          "swc": "0.5",
          "weapons": [
           {
@@ -5959,23 +5966,26 @@
            "name": "Viral Pistol"
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
+           "id": 13,
+           "name": "Viral CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
          "skills": [
           {
-           "id": 56,
-           "name": "Minelayer"
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
           },
           {
-           "id": 215,
-           "name": "Decoy",
+           "id": 29,
+           "name": "Camouflage",
            "extra": [
-            "2"
+            "1 Use"
            ]
           }
          ],
@@ -6000,19 +6010,14 @@
            "name": "Viral Pistol"
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
+           "id": 13,
+           "name": "Viral CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
-         "skills": [
-          {
-           "id": 56,
-           "name": "Minelayer"
-          }
-         ],
+         "skills": [],
          "equip": [],
          "fto": true
         }
@@ -6035,7 +6040,7 @@
           10,
           10
          ],
-         "cc": 19,
+         "cc": 21,
          "bs": 12,
          "ph": 11,
          "wip": 13,
@@ -6073,6 +6078,13 @@
            ]
           },
           {
+           "id": 56,
+           "name": "Minelayer",
+           "extra": [
+            "2"
+           ]
+          },
+          {
            "id": 237,
            "name": "Shasvastii"
           },
@@ -6089,7 +6101,7 @@
         {
          "id": 1,
          "name": "AÏDA SWANSON",
-         "points": 24,
+         "points": 25,
          "swc": "0.5",
          "weapons": [
           {
@@ -6108,23 +6120,26 @@
            "name": "Viral Pistol"
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
+           "id": 13,
+           "name": "Viral CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
          "skills": [
           {
-           "id": 56,
-           "name": "Minelayer"
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
           },
           {
-           "id": 215,
-           "name": "Decoy",
+           "id": 29,
+           "name": "Camouflage",
            "extra": [
-            "2"
+            "1 Use"
            ]
           }
          ],
@@ -6149,19 +6164,14 @@
            "name": "Viral Pistol"
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
+           "id": 13,
+           "name": "Viral CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
-         "skills": [
-          {
-           "id": 56,
-           "name": "Minelayer"
-          }
-         ],
+         "skills": [],
          "equip": [],
          "fto": true
         }
@@ -6184,7 +6194,7 @@
           10,
           10
          ],
-         "cc": 19,
+         "cc": 21,
          "bs": 12,
          "ph": 11,
          "wip": 13,
@@ -6222,6 +6232,13 @@
            ]
           },
           {
+           "id": 56,
+           "name": "Minelayer",
+           "extra": [
+            "2"
+           ]
+          },
+          {
            "id": 237,
            "name": "Shasvastii"
           },
@@ -6238,7 +6255,7 @@
         {
          "id": 1,
          "name": "AÏDA SWANSON",
-         "points": 24,
+         "points": 25,
          "swc": "0.5",
          "weapons": [
           {
@@ -6257,23 +6274,26 @@
            "name": "Viral Pistol"
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
+           "id": 13,
+           "name": "Viral CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
          "skills": [
           {
-           "id": 56,
-           "name": "Minelayer"
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
           },
           {
-           "id": 215,
-           "name": "Decoy",
+           "id": 29,
+           "name": "Camouflage",
            "extra": [
-            "2"
+            "1 Use"
            ]
           }
          ],
@@ -6298,19 +6318,14 @@
            "name": "Viral Pistol"
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
+           "id": 13,
+           "name": "Viral CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
-         "skills": [
-          {
-           "id": 56,
-           "name": "Minelayer"
-          }
-         ],
+         "skills": [],
          "equip": [],
          "fto": true
         }
@@ -6333,7 +6348,7 @@
           10,
           10
          ],
-         "cc": 19,
+         "cc": 21,
          "bs": 12,
          "ph": 11,
          "wip": 13,
@@ -6371,6 +6386,13 @@
            ]
           },
           {
+           "id": 56,
+           "name": "Minelayer",
+           "extra": [
+            "2"
+           ]
+          },
+          {
            "id": 237,
            "name": "Shasvastii"
           },
@@ -6387,7 +6409,7 @@
         {
          "id": 1,
          "name": "AÏDA SWANSON",
-         "points": 24,
+         "points": 25,
          "swc": "0.5",
          "weapons": [
           {
@@ -6406,23 +6428,26 @@
            "name": "Viral Pistol"
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
+           "id": 13,
+           "name": "Viral CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
          "skills": [
           {
-           "id": 56,
-           "name": "Minelayer"
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
           },
           {
-           "id": 215,
-           "name": "Decoy",
+           "id": 29,
+           "name": "Camouflage",
            "extra": [
-            "2"
+            "1 Use"
            ]
           }
          ],
@@ -6447,19 +6472,14 @@
            "name": "Viral Pistol"
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
+           "id": 13,
+           "name": "Viral CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
-         "skills": [
-          {
-           "id": 56,
-           "name": "Minelayer"
-          }
-         ],
+         "skills": [],
          "equip": [],
          "fto": true
         }
@@ -6482,7 +6502,7 @@
           10,
           10
          ],
-         "cc": 19,
+         "cc": 21,
          "bs": 12,
          "ph": 11,
          "wip": 13,
@@ -6520,6 +6540,13 @@
            ]
           },
           {
+           "id": 56,
+           "name": "Minelayer",
+           "extra": [
+            "2"
+           ]
+          },
+          {
            "id": 237,
            "name": "Shasvastii"
           },
@@ -6536,7 +6563,7 @@
         {
          "id": 1,
          "name": "AÏDA SWANSON",
-         "points": 24,
+         "points": 25,
          "swc": "0.5",
          "weapons": [
           {
@@ -6555,23 +6582,26 @@
            "name": "Viral Pistol"
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
+           "id": 13,
+           "name": "Viral CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
          "skills": [
           {
-           "id": 56,
-           "name": "Minelayer"
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
           },
           {
-           "id": 215,
-           "name": "Decoy",
+           "id": 29,
+           "name": "Camouflage",
            "extra": [
-            "2"
+            "1 Use"
            ]
           }
          ],
@@ -6596,19 +6626,14 @@
            "name": "Viral Pistol"
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
+           "id": 13,
+           "name": "Viral CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
-         "skills": [
-          {
-           "id": 56,
-           "name": "Minelayer"
-          }
-         ],
+         "skills": [],
          "equip": [],
          "fto": true
         }
@@ -31576,6 +31601,13 @@
          ],
          "skills": [
           {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 29,
            "name": "Camouflage",
            "extra": [
@@ -31613,6 +31645,13 @@
          ],
          "skills": [
           {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 29,
            "name": "Camouflage",
            "extra": [
@@ -31646,6 +31685,13 @@
           }
          ],
          "skills": [
+          {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
+          },
           {
            "id": 29,
            "name": "Camouflage",
@@ -31823,6 +31869,13 @@
          ],
          "skills": [
           {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 29,
            "name": "Camouflage",
            "extra": [
@@ -31860,6 +31913,13 @@
          ],
          "skills": [
           {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 29,
            "name": "Camouflage",
            "extra": [
@@ -31893,6 +31953,13 @@
           }
          ],
          "skills": [
+          {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
+          },
           {
            "id": 29,
            "name": "Camouflage",
@@ -31955,7 +32022,7 @@
          "w": 1,
          "str": false,
          "s": 2,
-         "ava": 2,
+         "ava": 1,
          "skills": [
           {
            "id": 191,
@@ -39298,6 +39365,13 @@
            "name": "Engineer"
           },
           {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 161,
            "name": "Forward Deployment",
            "extra": [
@@ -39350,6 +39424,13 @@
           {
            "id": 49,
            "name": "Engineer"
+          },
+          {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
           },
           {
            "id": 33,
@@ -39539,6 +39620,13 @@
            "name": "Engineer"
           },
           {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 161,
            "name": "Forward Deployment",
            "extra": [
@@ -39591,6 +39679,13 @@
           {
            "id": 49,
            "name": "Engineer"
+          },
+          {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
           },
           {
            "id": 33,
@@ -39780,6 +39875,13 @@
            "name": "Engineer"
           },
           {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 161,
            "name": "Forward Deployment",
            "extra": [
@@ -39832,6 +39934,13 @@
           {
            "id": 49,
            "name": "Engineer"
+          },
+          {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
           },
           {
            "id": 33,
@@ -40021,6 +40130,13 @@
            "name": "Engineer"
           },
           {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 161,
            "name": "Forward Deployment",
            "extra": [
@@ -40073,6 +40189,13 @@
           {
            "id": 49,
            "name": "Engineer"
+          },
+          {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
           },
           {
            "id": 33,
@@ -45483,7 +45606,7 @@
          "id": 2,
          "name": "BURKUT",
          "points": 30,
-         "swc": "0.5",
+         "swc": "0",
          "weapons": [
           {
            "id": 77,
@@ -45523,6 +45646,17 @@
            "name": "Submachine Gun"
           },
           {
+           "id": 23,
+           "name": "E/Marat",
+           "extra": [
+            "+1B"
+           ]
+          },
+          {
+           "id": 72,
+           "name": "Flash Pulse"
+          },
+          {
            "id": 199,
            "name": "AP Mine"
           },
@@ -45537,13 +45671,6 @@
           {
            "id": 5,
            "name": "CC Weapon"
-          },
-          {
-           "id": 23,
-           "name": "E/Marat",
-           "extra": [
-            "+1B"
-           ]
           }
          ],
          "skills": [],
@@ -45567,8 +45694,8 @@
            ]
           },
           {
-           "id": 199,
-           "name": "AP Mine"
+           "id": 82,
+           "name": "Flammenspeer"
           },
           {
            "id": 17,
@@ -45712,7 +45839,7 @@
          "id": 2,
          "name": "BURKUT",
          "points": 30,
-         "swc": "0.5",
+         "swc": "0",
          "weapons": [
           {
            "id": 77,
@@ -45752,6 +45879,17 @@
            "name": "Submachine Gun"
           },
           {
+           "id": 23,
+           "name": "E/Marat",
+           "extra": [
+            "+1B"
+           ]
+          },
+          {
+           "id": 72,
+           "name": "Flash Pulse"
+          },
+          {
            "id": 199,
            "name": "AP Mine"
           },
@@ -45766,13 +45904,6 @@
           {
            "id": 5,
            "name": "CC Weapon"
-          },
-          {
-           "id": 23,
-           "name": "E/Marat",
-           "extra": [
-            "+1B"
-           ]
           }
          ],
          "skills": [],
@@ -45796,8 +45927,8 @@
            ]
           },
           {
-           "id": 199,
-           "name": "AP Mine"
+           "id": 82,
+           "name": "Flammenspeer"
           },
           {
            "id": 17,
@@ -45941,7 +46072,7 @@
          "id": 2,
          "name": "BURKUT",
          "points": 30,
-         "swc": "0.5",
+         "swc": "0",
          "weapons": [
           {
            "id": 77,
@@ -45981,6 +46112,17 @@
            "name": "Submachine Gun"
           },
           {
+           "id": 23,
+           "name": "E/Marat",
+           "extra": [
+            "+1B"
+           ]
+          },
+          {
+           "id": 72,
+           "name": "Flash Pulse"
+          },
+          {
            "id": 199,
            "name": "AP Mine"
           },
@@ -45995,13 +46137,6 @@
           {
            "id": 5,
            "name": "CC Weapon"
-          },
-          {
-           "id": 23,
-           "name": "E/Marat",
-           "extra": [
-            "+1B"
-           ]
           }
          ],
          "skills": [],
@@ -46025,8 +46160,8 @@
            ]
           },
           {
-           "id": 199,
-           "name": "AP Mine"
+           "id": 82,
+           "name": "Flammenspeer"
           },
           {
            "id": 17,
@@ -48965,7 +49100,7 @@
           10,
           10
          ],
-         "cc": 22,
+         "cc": 23,
          "bs": 13,
          "ph": 11,
          "wip": 13,
@@ -48979,6 +49114,13 @@
           {
            "id": 20,
            "name": "Martial Arts L2"
+          },
+          {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
           },
           {
            "id": 84,
@@ -49021,7 +49163,7 @@
            "id": 215,
            "name": "Decoy",
            "extra": [
-            "1"
+            "2"
            ]
           }
          ],
@@ -49033,7 +49175,7 @@
         {
          "id": 1,
          "name": "CASANOVA",
-         "points": 31,
+         "points": 30,
          "swc": "0",
          "weapons": [
           {
@@ -49048,8 +49190,19 @@
            ]
           },
           {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
            "id": 197,
            "name": "E/M Mine"
+          },
+          {
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=5"
+           ]
           },
           {
            "id": 9,
@@ -49057,10 +49210,6 @@
            "extra": [
             "-3"
            ]
-          },
-          {
-           "id": 211,
-           "name": "Silenced Pistol"
           }
          ],
          "skills": [
@@ -49081,7 +49230,7 @@
         {
          "id": 2,
          "name": "CASANOVA",
-         "points": 31,
+         "points": 30,
          "swc": "0",
          "weapons": [
           {
@@ -49096,8 +49245,19 @@
            ]
           },
           {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
            "id": 196,
            "name": "Shock Mine"
+          },
+          {
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=5"
+           ]
           },
           {
            "id": 9,
@@ -49105,10 +49265,6 @@
            "extra": [
             "-3"
            ]
-          },
-          {
-           "id": 211,
-           "name": "Silenced Pistol"
           }
          ],
          "skills": [
@@ -49144,8 +49300,19 @@
            ]
           },
           {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
            "id": 197,
            "name": "E/M Mine"
+          },
+          {
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=5"
+           ]
           },
           {
            "id": 9,
@@ -49153,10 +49320,6 @@
            "extra": [
             "-3"
            ]
-          },
-          {
-           "id": 211,
-           "name": "Silenced Pistol"
           }
          ],
          "skills": [
@@ -49164,7 +49327,7 @@
            "id": 47,
            "name": "Infiltration",
            "extra": [
-            "PH=15"
+            "PH=16"
            ]
           }
          ],
@@ -73613,7 +73776,7 @@
         {
          "id": 2,
          "name": "DASYU",
-         "points": 28,
+         "points": 29,
          "swc": "0",
          "weapons": [
           {
@@ -73629,6 +73792,10 @@
            "name": "D-Charges"
           },
           {
+           "id": 72,
+           "name": "Flash Pulse"
+          },
+          {
            "id": 211,
            "name": "Silenced Pistol",
            "extra": [
@@ -73640,7 +73807,12 @@
            "name": "CC Weapon"
           }
          ],
-         "skills": [],
+         "skills": [
+          {
+           "id": 189,
+           "name": "Specialist Operative"
+          }
+         ],
          "equip": []
         },
         {
@@ -73716,49 +73888,6 @@
          ]
         },
         {
-         "id": 5,
-         "name": "DASYU",
-         "points": 33,
-         "swc": "0.5",
-         "weapons": [
-          {
-           "id": 214,
-           "name": "AP Submachine Gun"
-          },
-          {
-           "id": 145,
-           "name": "Pulzar"
-          },
-          {
-           "id": 17,
-           "name": "D-Charges"
-          },
-          {
-           "id": 211,
-           "name": "Silenced Pistol",
-           "extra": [
-            "PS=7"
-           ]
-          },
-          {
-           "id": 5,
-           "name": "CC Weapon"
-          }
-         ],
-         "skills": [
-          {
-           "id": 1000,
-           "name": "Hacker"
-          }
-         ],
-         "equip": [
-          {
-           "id": 100,
-           "name": "Hacking Device"
-          }
-         ]
-        },
-        {
          "id": 6,
          "name": "DASYU",
          "points": 29,
@@ -73808,8 +73937,8 @@
         {
          "id": 8,
          "name": "DASYU",
-         "points": 30,
-         "swc": "0.5",
+         "points": 31,
+         "swc": "1",
          "weapons": [
           {
            "id": 214,
@@ -73846,6 +73975,48 @@
            "extra": [
             "2"
            ]
+          }
+         ],
+         "equip": []
+        },
+        {
+         "id": 9,
+         "name": "DASYU",
+         "points": 30,
+         "swc": "0.5",
+         "weapons": [
+          {
+           "id": 214,
+           "name": "AP Submachine Gun"
+          },
+          {
+           "id": 145,
+           "name": "Pulzar"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 63,
+           "name": "Viral Mine"
+          },
+          {
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=7"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 56,
+           "name": "Minelayer"
           }
          ],
          "equip": []
@@ -73947,7 +74118,7 @@
         {
          "id": 2,
          "name": "DASYU",
-         "points": 28,
+         "points": 29,
          "swc": "0",
          "weapons": [
           {
@@ -73963,6 +74134,10 @@
            "name": "D-Charges"
           },
           {
+           "id": 72,
+           "name": "Flash Pulse"
+          },
+          {
            "id": 211,
            "name": "Silenced Pistol",
            "extra": [
@@ -73974,7 +74149,12 @@
            "name": "CC Weapon"
           }
          ],
-         "skills": [],
+         "skills": [
+          {
+           "id": 189,
+           "name": "Specialist Operative"
+          }
+         ],
          "equip": []
         },
         {
@@ -74050,49 +74230,6 @@
          ]
         },
         {
-         "id": 5,
-         "name": "DASYU",
-         "points": 33,
-         "swc": "0.5",
-         "weapons": [
-          {
-           "id": 214,
-           "name": "AP Submachine Gun"
-          },
-          {
-           "id": 145,
-           "name": "Pulzar"
-          },
-          {
-           "id": 17,
-           "name": "D-Charges"
-          },
-          {
-           "id": 211,
-           "name": "Silenced Pistol",
-           "extra": [
-            "PS=7"
-           ]
-          },
-          {
-           "id": 5,
-           "name": "CC Weapon"
-          }
-         ],
-         "skills": [
-          {
-           "id": 1000,
-           "name": "Hacker"
-          }
-         ],
-         "equip": [
-          {
-           "id": 100,
-           "name": "Hacking Device"
-          }
-         ]
-        },
-        {
          "id": 6,
          "name": "DASYU",
          "points": 29,
@@ -74142,8 +74279,8 @@
         {
          "id": 8,
          "name": "DASYU",
-         "points": 30,
-         "swc": "0.5",
+         "points": 31,
+         "swc": "1",
          "weapons": [
           {
            "id": 214,
@@ -74180,6 +74317,48 @@
            "extra": [
             "2"
            ]
+          }
+         ],
+         "equip": []
+        },
+        {
+         "id": 9,
+         "name": "DASYU",
+         "points": 30,
+         "swc": "0.5",
+         "weapons": [
+          {
+           "id": 214,
+           "name": "AP Submachine Gun"
+          },
+          {
+           "id": 145,
+           "name": "Pulzar"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 63,
+           "name": "Viral Mine"
+          },
+          {
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=7"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 56,
+           "name": "Minelayer"
           }
          ],
          "equip": []
@@ -75097,31 +75276,9 @@
        ],
        "options": [
         {
-         "id": 1,
+         "id": 7,
          "name": "DAYLAMI",
-         "points": 5,
-         "swc": "0",
-         "weapons": [
-          {
-           "id": 28,
-           "name": "Light Shotgun"
-          },
-          {
-           "id": 212,
-           "name": "Boarding Pistol"
-          },
-          {
-           "id": 5,
-           "name": "CC Weapon"
-          }
-         ],
-         "skills": [],
-         "equip": []
-        },
-        {
-         "id": 2,
-         "name": "DAYLAMI",
-         "points": 10,
+         "points": 11,
          "swc": "0.5",
          "weapons": [
           {
@@ -75141,39 +75298,18 @@
            "name": "CC Weapon"
           }
          ],
-         "skills": [],
-         "equip": []
-        },
-        {
-         "id": 3,
-         "name": "DAYLAMI",
-         "points": 6,
-         "swc": "0",
-         "weapons": [
+         "skills": [
           {
-           "id": 28,
-           "name": "Light Shotgun"
-          },
-          {
-           "id": 68,
-           "name": "Panzerfaust"
-          },
-          {
-           "id": 212,
-           "name": "Boarding Pistol"
-          },
-          {
-           "id": 5,
-           "name": "CC Weapon"
+           "id": 258,
+           "name": "Regular"
           }
          ],
-         "skills": [],
          "equip": []
         },
         {
-         "id": 4,
+         "id": 8,
          "name": "DAYLAMI",
-         "points": 10,
+         "points": 12,
          "swc": "0",
          "weapons": [
           {
@@ -75189,13 +75325,18 @@
            "name": "CC Weapon"
           }
          ],
-         "skills": [],
+         "skills": [
+          {
+           "id": 258,
+           "name": "Regular"
+          }
+         ],
          "equip": []
         },
         {
-         "id": 5,
+         "id": 9,
          "name": "DAYLAMI",
-         "points": 9,
+         "points": 13,
          "swc": "0",
          "weapons": [
           {
@@ -75226,14 +75367,18 @@
           {
            "id": 47,
            "name": "Infiltration"
+          },
+          {
+           "id": 258,
+           "name": "Regular"
           }
          ],
          "equip": []
         },
         {
-         "id": 6,
+         "id": 10,
          "name": "DAYLAMI",
-         "points": 8,
+         "points": 11,
          "swc": "0",
          "weapons": [
           {
@@ -75264,6 +75409,10 @@
           {
            "id": 47,
            "name": "Infiltration"
+          },
+          {
+           "id": 258,
+           "name": "Regular"
           }
          ],
          "equip": []
@@ -75296,7 +75445,7 @@
          "w": 1,
          "str": false,
          "s": 2,
-         "ava": 5,
+         "ava": 2,
          "skills": [
           {
            "id": 58,
@@ -75479,6 +75628,148 @@
           {
            "id": 47,
            "name": "Infiltration"
+          }
+         ],
+         "equip": []
+        },
+        {
+         "id": 7,
+         "name": "DAYLAMI",
+         "points": 11,
+         "swc": "0.5",
+         "weapons": [
+          {
+           "id": 31,
+           "name": "Rifle"
+          },
+          {
+           "id": 194,
+           "name": "Grenade Launcher"
+          },
+          {
+           "id": 212,
+           "name": "Boarding Pistol"
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 258,
+           "name": "Regular"
+          }
+         ],
+         "equip": []
+        },
+        {
+         "id": 8,
+         "name": "DAYLAMI",
+         "points": 12,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 84,
+           "name": "Marksman Rifle"
+          },
+          {
+           "id": 212,
+           "name": "Boarding Pistol"
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 258,
+           "name": "Regular"
+          }
+         ],
+         "equip": []
+        },
+        {
+         "id": 9,
+         "name": "DAYLAMI",
+         "points": 13,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 31,
+           "name": "Rifle"
+          },
+          {
+           "id": 28,
+           "name": "Light Shotgun"
+          },
+          {
+           "id": 212,
+           "name": "Boarding Pistol"
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 29,
+           "name": "Camouflage",
+           "extra": [
+            "1 Use"
+           ]
+          },
+          {
+           "id": 47,
+           "name": "Infiltration"
+          },
+          {
+           "id": 258,
+           "name": "Regular"
+          }
+         ],
+         "equip": []
+        },
+        {
+         "id": 10,
+         "name": "DAYLAMI",
+         "points": 11,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 28,
+           "name": "Light Shotgun"
+          },
+          {
+           "id": 68,
+           "name": "Panzerfaust"
+          },
+          {
+           "id": 212,
+           "name": "Boarding Pistol"
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 29,
+           "name": "Camouflage",
+           "extra": [
+            "1 Use"
+           ]
+          },
+          {
+           "id": 47,
+           "name": "Infiltration"
+          },
+          {
+           "id": 258,
+           "name": "Regular"
           }
          ],
          "equip": []
@@ -95941,7 +96232,7 @@
          "ph": 12,
          "wip": 13,
          "arm": 3,
-         "bts": 3,
+         "bts": 6,
          "w": 2,
          "str": true,
          "s": 7,
@@ -95999,13 +96290,6 @@
            ]
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 275,
            "name": "Tech-recovery"
           }
@@ -96018,7 +96302,7 @@
         {
          "id": 1,
          "name": "FĒIQUÁN",
-         "points": 28,
+         "points": 34,
          "swc": "0",
          "weapons": [
           {
@@ -96055,7 +96339,7 @@
         {
          "id": 2,
          "name": "FĒIQUÁN",
-         "points": 27,
+         "points": 33,
          "swc": "0",
          "weapons": [
           {
@@ -96067,7 +96351,10 @@
           },
           {
            "id": 1,
-           "name": "Akrylat-Kanone"
+           "name": "Akrylat-Kanone",
+           "extra": [
+            "+1SD"
+           ]
           },
           {
            "id": 14,
@@ -96075,12 +96362,28 @@
           }
          ],
          "skills": [],
-         "equip": [
+         "equip": []
+        },
+        {
+         "id": 3,
+         "name": "FĒIQUÁN",
+         "points": 34,
+         "swc": "1.5",
+         "weapons": [
           {
-           "id": 117,
-           "name": "X Visor"
+           "id": 74,
+           "name": "Spitfire"
+          },
+          {
+           "id": 1,
+           "name": "Akrylat-Kanone",
+           "extra": [
+            "+1SD"
+           ]
           }
-         ]
+         ],
+         "skills": [],
+         "equip": []
         }
        ]
       }
@@ -96106,7 +96409,7 @@
          "ph": 12,
          "wip": 13,
          "arm": 3,
-         "bts": 3,
+         "bts": 6,
          "w": 2,
          "str": true,
          "s": 7,
@@ -96164,13 +96467,6 @@
            ]
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 275,
            "name": "Tech-recovery"
           }
@@ -96183,7 +96479,7 @@
         {
          "id": 1,
          "name": "FĒIQUÁN",
-         "points": 28,
+         "points": 34,
          "swc": "0",
          "weapons": [
           {
@@ -96220,7 +96516,7 @@
         {
          "id": 2,
          "name": "FĒIQUÁN",
-         "points": 27,
+         "points": 33,
          "swc": "0",
          "weapons": [
           {
@@ -96232,7 +96528,10 @@
           },
           {
            "id": 1,
-           "name": "Akrylat-Kanone"
+           "name": "Akrylat-Kanone",
+           "extra": [
+            "+1SD"
+           ]
           },
           {
            "id": 14,
@@ -96240,12 +96539,28 @@
           }
          ],
          "skills": [],
-         "equip": [
+         "equip": []
+        },
+        {
+         "id": 3,
+         "name": "FĒIQUÁN",
+         "points": 34,
+         "swc": "1.5",
+         "weapons": [
           {
-           "id": 117,
-           "name": "X Visor"
+           "id": 74,
+           "name": "Spitfire"
+          },
+          {
+           "id": 1,
+           "name": "Akrylat-Kanone",
+           "extra": [
+            "+1SD"
+           ]
           }
-         ]
+         ],
+         "skills": [],
+         "equip": []
         }
        ]
       }
@@ -96271,7 +96586,7 @@
          "ph": 12,
          "wip": 13,
          "arm": 3,
-         "bts": 3,
+         "bts": 6,
          "w": 2,
          "str": true,
          "s": 7,
@@ -96329,13 +96644,6 @@
            ]
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 275,
            "name": "Tech-recovery"
           }
@@ -96348,7 +96656,7 @@
         {
          "id": 1,
          "name": "FĒIQUÁN",
-         "points": 28,
+         "points": 34,
          "swc": "0",
          "weapons": [
           {
@@ -96385,7 +96693,7 @@
         {
          "id": 2,
          "name": "FĒIQUÁN",
-         "points": 27,
+         "points": 33,
          "swc": "0",
          "weapons": [
           {
@@ -96397,7 +96705,10 @@
           },
           {
            "id": 1,
-           "name": "Akrylat-Kanone"
+           "name": "Akrylat-Kanone",
+           "extra": [
+            "+1SD"
+           ]
           },
           {
            "id": 14,
@@ -96405,12 +96716,28 @@
           }
          ],
          "skills": [],
-         "equip": [
+         "equip": []
+        },
+        {
+         "id": 3,
+         "name": "FĒIQUÁN",
+         "points": 34,
+         "swc": "1.5",
+         "weapons": [
           {
-           "id": 117,
-           "name": "X Visor"
+           "id": 74,
+           "name": "Spitfire"
+          },
+          {
+           "id": 1,
+           "name": "Akrylat-Kanone",
+           "extra": [
+            "+1SD"
+           ]
           }
-         ]
+         ],
+         "skills": [],
+         "equip": []
         }
        ]
       }
@@ -99370,13 +99697,6 @@
            ]
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 201,
            "name": "BS Attack",
            "extra": [
@@ -99400,7 +99720,7 @@
         {
          "id": 1,
          "name": "FIREBAT",
-         "points": 36,
+         "points": 38,
          "swc": "0",
          "weapons": [
           {
@@ -99408,15 +99728,15 @@
            "name": "AP Submachine Gun"
           },
           {
-           "id": 207,
-           "name": "Thunderbolt"
-          },
-          {
            "id": 88,
            "name": "Light Rocket Launcher",
            "extra": [
             "PS=6"
            ]
+          },
+          {
+           "id": 1,
+           "name": "Akrylat-Kanone"
           }
          ],
          "skills": [],
@@ -99425,24 +99745,44 @@
         {
          "id": 2,
          "name": "FIREBAT",
-         "points": 35,
+         "points": 42,
          "swc": "0",
          "weapons": [
           {
            "id": 41,
-           "name": "MULTI Rifle"
+           "name": "MULTI Rifle",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
            "id": 188,
            "name": "Heavy Riotstopper"
           },
           {
-           "id": 1,
-           "name": "Akrylat-Kanone"
+           "id": 25,
+           "name": "E/Mitter"
+          }
+         ],
+         "skills": [],
+         "equip": []
+        },
+        {
+         "id": 3,
+         "name": "FIREBAT",
+         "points": 42,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 214,
+           "name": "AP Submachine Gun"
           },
           {
-           "id": 14,
-           "name": "Blitzen"
+           "id": 230,
+           "name": "AP Thunderbolt",
+           "extra": [
+            "Continuous Damage"
+           ]
           }
          ],
          "skills": [],
@@ -99526,13 +99866,6 @@
            ]
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 201,
            "name": "BS Attack",
            "extra": [
@@ -99556,7 +99889,7 @@
         {
          "id": 1,
          "name": "FIREBAT",
-         "points": 36,
+         "points": 38,
          "swc": "0",
          "weapons": [
           {
@@ -99564,15 +99897,15 @@
            "name": "AP Submachine Gun"
           },
           {
-           "id": 207,
-           "name": "Thunderbolt"
-          },
-          {
            "id": 88,
            "name": "Light Rocket Launcher",
            "extra": [
             "PS=6"
            ]
+          },
+          {
+           "id": 1,
+           "name": "Akrylat-Kanone"
           }
          ],
          "skills": [],
@@ -99581,24 +99914,44 @@
         {
          "id": 2,
          "name": "FIREBAT",
-         "points": 35,
+         "points": 42,
          "swc": "0",
          "weapons": [
           {
            "id": 41,
-           "name": "MULTI Rifle"
+           "name": "MULTI Rifle",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
            "id": 188,
            "name": "Heavy Riotstopper"
           },
           {
-           "id": 1,
-           "name": "Akrylat-Kanone"
+           "id": 25,
+           "name": "E/Mitter"
+          }
+         ],
+         "skills": [],
+         "equip": []
+        },
+        {
+         "id": 3,
+         "name": "FIREBAT",
+         "points": 42,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 214,
+           "name": "AP Submachine Gun"
           },
           {
-           "id": 14,
-           "name": "Blitzen"
+           "id": 230,
+           "name": "AP Thunderbolt",
+           "extra": [
+            "Continuous Damage"
+           ]
           }
          ],
          "skills": [],
@@ -99682,13 +100035,6 @@
            ]
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 201,
            "name": "BS Attack",
            "extra": [
@@ -99712,7 +100058,7 @@
         {
          "id": 1,
          "name": "FIREBAT",
-         "points": 36,
+         "points": 38,
          "swc": "0",
          "weapons": [
           {
@@ -99720,15 +100066,15 @@
            "name": "AP Submachine Gun"
           },
           {
-           "id": 207,
-           "name": "Thunderbolt"
-          },
-          {
            "id": 88,
            "name": "Light Rocket Launcher",
            "extra": [
             "PS=6"
            ]
+          },
+          {
+           "id": 1,
+           "name": "Akrylat-Kanone"
           }
          ],
          "skills": [],
@@ -99737,24 +100083,44 @@
         {
          "id": 2,
          "name": "FIREBAT",
-         "points": 35,
+         "points": 42,
          "swc": "0",
          "weapons": [
           {
            "id": 41,
-           "name": "MULTI Rifle"
+           "name": "MULTI Rifle",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
            "id": 188,
            "name": "Heavy Riotstopper"
           },
           {
-           "id": 1,
-           "name": "Akrylat-Kanone"
+           "id": 25,
+           "name": "E/Mitter"
+          }
+         ],
+         "skills": [],
+         "equip": []
+        },
+        {
+         "id": 3,
+         "name": "FIREBAT",
+         "points": 42,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 214,
+           "name": "AP Submachine Gun"
           },
           {
-           "id": 14,
-           "name": "Blitzen"
+           "id": 230,
+           "name": "AP Thunderbolt",
+           "extra": [
+            "Continuous Damage"
+           ]
           }
          ],
          "skills": [],
@@ -111316,13 +111682,6 @@
            ]
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 275,
            "name": "Tech-recovery"
           }
@@ -111335,7 +111694,7 @@
         {
          "id": 1,
          "name": "GO-POD",
-         "points": 33,
+         "points": 37,
          "swc": "0",
          "weapons": [
           {
@@ -111353,7 +111712,7 @@
         {
          "id": 2,
          "name": "GO-POD",
-         "points": 32,
+         "points": 34,
          "swc": "1.5",
          "weapons": [
           {
@@ -111365,15 +111724,7 @@
            "name": "AP Submachine Gun"
           }
          ],
-         "skills": [
-          {
-           "id": 201,
-           "name": "BS Attack",
-           "extra": [
-            "SR-1"
-           ]
-          }
-         ],
+         "skills": [],
          "equip": []
         }
        ]
@@ -111454,13 +111805,6 @@
            "name": "Terrain",
            "extra": [
             "Total"
-           ]
-          },
-          {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
            ]
           },
           {
@@ -111577,13 +111921,6 @@
            ]
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 275,
            "name": "Tech-recovery"
           }
@@ -111596,7 +111933,7 @@
         {
          "id": 1,
          "name": "GO-POD",
-         "points": 33,
+         "points": 37,
          "swc": "0",
          "weapons": [
           {
@@ -111614,7 +111951,7 @@
         {
          "id": 2,
          "name": "GO-POD",
-         "points": 32,
+         "points": 34,
          "swc": "1.5",
          "weapons": [
           {
@@ -111626,15 +111963,7 @@
            "name": "AP Submachine Gun"
           }
          ],
-         "skills": [
-          {
-           "id": 201,
-           "name": "BS Attack",
-           "extra": [
-            "SR-1"
-           ]
-          }
-         ],
+         "skills": [],
          "equip": []
         }
        ]
@@ -111715,13 +112044,6 @@
            "name": "Terrain",
            "extra": [
             "Total"
-           ]
-          },
-          {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
            ]
           },
           {
@@ -111838,13 +112160,6 @@
            ]
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 275,
            "name": "Tech-recovery"
           }
@@ -111857,7 +112172,7 @@
         {
          "id": 1,
          "name": "GO-POD",
-         "points": 33,
+         "points": 37,
          "swc": "0",
          "weapons": [
           {
@@ -111875,7 +112190,7 @@
         {
          "id": 2,
          "name": "GO-POD",
-         "points": 32,
+         "points": 34,
          "swc": "1.5",
          "weapons": [
           {
@@ -111887,15 +112202,7 @@
            "name": "AP Submachine Gun"
           }
          ],
-         "skills": [
-          {
-           "id": 201,
-           "name": "BS Attack",
-           "extra": [
-            "SR-1"
-           ]
-          }
-         ],
+         "skills": [],
          "equip": []
         }
        ]
@@ -111976,13 +112283,6 @@
            "name": "Terrain",
            "extra": [
             "Total"
-           ]
-          },
-          {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
            ]
           },
           {
@@ -131254,13 +131554,6 @@
            ]
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 201,
            "name": "BS Attack",
            "extra": [
@@ -131285,16 +131578,12 @@
         {
          "id": 1,
          "name": "HAYTHAM",
-         "points": 33,
+         "points": 36,
          "swc": "1.5",
          "weapons": [
           {
            "id": 152,
            "name": "Red Fury"
-          },
-          {
-           "id": 68,
-           "name": "Panzerfaust"
           },
           {
            "id": 100,
@@ -131310,7 +131599,7 @@
         {
          "id": 2,
          "name": "HAYTHAM",
-         "points": 29,
+         "points": 33,
          "swc": "0",
          "weapons": [
           {
@@ -131403,13 +131692,6 @@
            ]
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 201,
            "name": "BS Attack",
            "extra": [
@@ -131432,34 +131714,9 @@
        ],
        "options": [
         {
-         "id": 1,
-         "name": "HAYTHAM",
-         "points": 33,
-         "swc": "1.5",
-         "weapons": [
-          {
-           "id": 152,
-           "name": "Red Fury"
-          },
-          {
-           "id": 68,
-           "name": "Panzerfaust"
-          },
-          {
-           "id": 100,
-           "name": "AP Heavy Pistol",
-           "extra": [
-            "+1B"
-           ]
-          }
-         ],
-         "skills": [],
-         "equip": []
-        },
-        {
          "id": 2,
          "name": "HAYTHAM",
-         "points": 29,
+         "points": 33,
          "swc": "0",
          "weapons": [
           {
@@ -131476,6 +131733,31 @@
           {
            "id": 68,
            "name": "Panzerfaust"
+          }
+         ],
+         "skills": [],
+         "equip": []
+        },
+        {
+         "id": 3,
+         "name": "HAYTHAM",
+         "points": 37,
+         "swc": "1.5",
+         "weapons": [
+          {
+           "id": 152,
+           "name": "Red Fury"
+          },
+          {
+           "id": 68,
+           "name": "Panzerfaust"
+          },
+          {
+           "id": 100,
+           "name": "AP Heavy Pistol",
+           "extra": [
+            "+1B"
+           ]
           }
          ],
          "skills": [],
@@ -138414,7 +138696,7 @@
          "w": 1,
          "str": false,
          "s": 2,
-         "ava": 2,
+         "ava": 1,
          "skills": [
           {
            "id": 191,
@@ -156359,7 +156641,7 @@
          "ph": 16,
          "wip": 13,
          "arm": 4,
-         "bts": 6,
+         "bts": 3,
          "w": 3,
          "str": false,
          "s": 6,
@@ -156427,7 +156709,7 @@
            "id": 18,
            "name": "Chain Rifle",
            "extra": [
-            "+1B"
+            "PS=6"
            ]
           },
           {
@@ -156558,7 +156840,7 @@
          "ph": 16,
          "wip": 13,
          "arm": 4,
-         "bts": 6,
+         "bts": 3,
          "w": 3,
          "str": false,
          "s": 6,
@@ -156626,7 +156908,7 @@
            "id": 18,
            "name": "Chain Rifle",
            "extra": [
-            "+1B"
+            "PS=6"
            ]
           },
           {
@@ -156757,7 +157039,7 @@
          "ph": 16,
          "wip": 13,
          "arm": 4,
-         "bts": 6,
+         "bts": 3,
          "w": 3,
          "str": false,
          "s": 6,
@@ -156818,14 +157100,14 @@
         {
          "id": 2,
          "name": "IOANN BANN",
-         "points": 30,
+         "points": 33,
          "swc": "0",
          "weapons": [
           {
            "id": 18,
            "name": "Chain Rifle",
            "extra": [
-            "+1B"
+            "PS=6"
            ]
           },
           {
@@ -156959,7 +157241,7 @@
          "ph": 16,
          "wip": 13,
          "arm": 4,
-         "bts": 6,
+         "bts": 3,
          "w": 3,
          "str": false,
          "s": 6,
@@ -157018,16 +157300,16 @@
        ],
        "options": [
         {
-         "id": 1,
+         "id": 2,
          "name": "IOANN BANN",
-         "points": 32,
+         "points": 33,
          "swc": "0",
          "weapons": [
           {
            "id": 18,
            "name": "Chain Rifle",
            "extra": [
-            "+1B"
+            "PS=6"
            ]
           },
           {
@@ -157038,8 +157320,11 @@
            ]
           },
           {
-           "id": 45,
-           "name": "Smoke Grenades"
+           "id": 44,
+           "name": "Grenades",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
            "id": 100,
@@ -157158,7 +157443,7 @@
          "ph": 16,
          "wip": 13,
          "arm": 4,
-         "bts": 6,
+         "bts": 3,
          "w": 3,
          "str": false,
          "s": 6,
@@ -157226,7 +157511,7 @@
            "id": 18,
            "name": "Chain Rifle",
            "extra": [
-            "+1B"
+            "PS=6"
            ]
           },
           {
@@ -157357,7 +157642,7 @@
          "ph": 16,
          "wip": 13,
          "arm": 4,
-         "bts": 6,
+         "bts": 3,
          "w": 3,
          "str": false,
          "s": 6,
@@ -157425,7 +157710,7 @@
            "id": 18,
            "name": "Chain Rifle",
            "extra": [
-            "+1B"
+            "PS=6"
            ]
           },
           {
@@ -157556,7 +157841,7 @@
          "ph": 16,
          "wip": 13,
          "arm": 4,
-         "bts": 6,
+         "bts": 3,
          "w": 3,
          "str": false,
          "s": 6,
@@ -157617,14 +157902,14 @@
         {
          "id": 2,
          "name": "IOANN BANN",
-         "points": 30,
+         "points": 33,
          "swc": "0",
          "weapons": [
           {
            "id": 18,
            "name": "Chain Rifle",
            "extra": [
-            "+1B"
+            "PS=6"
            ]
           },
           {
@@ -157758,7 +158043,7 @@
          "ph": 16,
          "wip": 13,
          "arm": 4,
-         "bts": 6,
+         "bts": 3,
          "w": 3,
          "str": false,
          "s": 6,
@@ -157819,14 +158104,14 @@
         {
          "id": 2,
          "name": "IOANN BANN",
-         "points": 30,
+         "points": 33,
          "swc": "0",
          "weapons": [
           {
            "id": 18,
            "name": "Chain Rifle",
            "extra": [
-            "+1B"
+            "PS=6"
            ]
           },
           {
@@ -159610,9 +159895,9 @@
           15,
           5
          ],
-         "cc": 22,
+         "cc": 24,
          "bs": 13,
-         "ph": 14,
+         "ph": 13,
          "wip": 14,
          "arm": 4,
          "bts": 9,
@@ -159624,6 +159909,13 @@
           {
            "id": 19,
            "name": "Martial Arts L1"
+          },
+          {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
           },
           {
            "id": 84,
@@ -159644,6 +159936,10 @@
            ]
           },
           {
+           "id": 267,
+           "name": "Warhorse"
+          },
+          {
            "id": 247,
            "name": "Guard"
           },
@@ -159655,6 +159951,13 @@
            ]
           },
           {
+           "id": 263,
+           "name": "Jump",
+           "extra": [
+            "+3\""
+           ]
+          },
+          {
            "id": 215,
            "name": "Decoy",
            "extra": [
@@ -159662,25 +159965,18 @@
            ]
           },
           {
-           "id": 58,
-           "name": "Terrain",
-           "extra": [
-            "Total"
-           ]
-          },
-          {
            "id": 164,
            "name": "Stealth"
           },
           {
-           "id": 211,
-           "name": "NCO"
+           "id": 213,
+           "name": "Tactical Awareness"
           },
           {
-           "id": 263,
-           "name": "Jump",
+           "id": 58,
+           "name": "Terrain",
            "extra": [
-            "+3\""
+            "Total"
            ]
           }
          ],
@@ -159762,7 +160058,7 @@
         {
          "id": 3,
          "name": "JAMIE HANDLER",
-         "points": 49,
+         "points": 53,
          "swc": "0",
          "weapons": [
           {
@@ -159796,6 +160092,44 @@
            "extra": [
             "+1 Order"
            ]
+          }
+         ],
+         "equip": []
+        },
+        {
+         "id": 4,
+         "name": "JAMIE HANDLER",
+         "points": 49,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 40,
+           "name": "Plasma Rifle"
+          },
+          {
+           "id": 1,
+           "name": "Akrylat-Kanone"
+          },
+          {
+           "id": 65,
+           "name": "Nanopulser"
+          },
+          {
+           "id": 211,
+           "name": "Silenced Pistol"
+          },
+          {
+           "id": 6,
+           "name": "AP CC Weapon",
+           "extra": [
+            "PS=5"
+           ]
+          }
+         ],
+         "skills": [
+          {
+           "id": 119,
+           "name": "Lieutenant"
           }
          ],
          "equip": []
@@ -159831,9 +160165,9 @@
           15,
           5
          ],
-         "cc": 22,
+         "cc": 24,
          "bs": 13,
-         "ph": 14,
+         "ph": 13,
          "wip": 14,
          "arm": 4,
          "bts": 9,
@@ -159858,6 +160192,10 @@
            ]
           },
           {
+           "id": 267,
+           "name": "Warhorse"
+          },
+          {
            "id": 28,
            "name": "Mimetism",
            "extra": [
@@ -159876,8 +160214,8 @@
            "name": "Stealth"
           },
           {
-           "id": 211,
-           "name": "NCO"
+           "id": 213,
+           "name": "Tactical Awareness"
           },
           {
            "id": 58,
@@ -159895,7 +160233,7 @@
         {
          "id": 1,
          "name": "JAMIE ROVER FTO",
-         "points": 47,
+         "points": 46,
          "swc": "0",
          "weapons": [
           {
@@ -159923,18 +160261,13 @@
           }
          ],
          "skills": [],
-         "equip": [
-          {
-           "id": 117,
-           "name": "X Visor"
-          }
-         ],
+         "equip": [],
          "fto": true
         },
         {
          "id": 2,
          "name": "JAMIE ROVER",
-         "points": 53,
+         "points": 52,
          "swc": "0",
          "weapons": [
           {
@@ -159970,15 +160303,19 @@
          ],
          "skills": [
           {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 33,
            "name": "Parachutist"
           },
           {
            "id": 215,
-           "name": "Decoy",
-           "extra": [
-            "1"
-           ]
+           "name": "Decoy"
           }
          ],
          "equip": []
@@ -159986,7 +160323,7 @@
         {
          "id": 3,
          "name": "JAMIE ROVER FTO",
-         "points": 49,
+         "points": 50,
          "swc": "0",
          "weapons": [
           {
@@ -160022,12 +160359,46 @@
            ]
           }
          ],
-         "equip": [
+         "equip": [],
+         "fto": true
+        },
+        {
+         "id": 4,
+         "name": "JAMIE ROVER FTO",
+         "points": 46,
+         "swc": "0",
+         "weapons": [
           {
-           "id": 117,
-           "name": "X Visor"
+           "id": 40,
+           "name": "Plasma Rifle"
+          },
+          {
+           "id": 1,
+           "name": "Akrylat-Kanone"
+          },
+          {
+           "id": 65,
+           "name": "Nanopulser"
+          },
+          {
+           "id": 211,
+           "name": "Silenced Pistol"
+          },
+          {
+           "id": 6,
+           "name": "AP CC Weapon",
+           "extra": [
+            "PS=5"
+           ]
           }
          ],
+         "skills": [
+          {
+           "id": 119,
+           "name": "Lieutenant"
+          }
+         ],
+         "equip": [],
          "fto": true
         }
        ]
@@ -186724,35 +187095,6 @@
        ],
        "options": [
         {
-         "id": 1,
-         "name": "KORSAN FTO",
-         "points": 14,
-         "swc": "0",
-         "weapons": [
-          {
-           "id": 18,
-           "name": "Chain Rifle",
-           "extra": [
-            "+2B"
-           ]
-          },
-          {
-           "id": 107,
-           "name": "Heavy Pistol"
-          },
-          {
-           "id": 10,
-           "name": "Shock CC Weapon",
-           "extra": [
-            "PS=7"
-           ]
-          }
-         ],
-         "skills": [],
-         "equip": [],
-         "fto": true
-        },
-        {
          "id": 2,
          "name": "KORSAN FTO",
          "points": 18,
@@ -186777,7 +187119,7 @@
            "id": 10,
            "name": "Shock CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
@@ -186788,12 +187130,19 @@
         {
          "id": 3,
          "name": "KORSAN FTO",
-         "points": 13,
+         "points": 14,
          "swc": "0",
          "weapons": [
           {
            "id": 18,
-           "name": "Chain Rifle"
+           "name": "Chain Rifle",
+           "extra": [
+            "+1B"
+           ]
+          },
+          {
+           "id": 96,
+           "name": "Drop Bears"
           },
           {
            "id": 107,
@@ -186803,12 +187152,8 @@
            "id": 10,
            "name": "Shock CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
-          },
-          {
-           "id": 96,
-           "name": "Drop Bears"
           }
          ],
          "skills": [],
@@ -186822,6 +187167,10 @@
          "swc": "0",
          "weapons": [
           {
+           "id": 26,
+           "name": "Boarding Shotgun"
+          },
+          {
            "id": 107,
            "name": "Heavy Pistol"
           },
@@ -186829,12 +187178,8 @@
            "id": 10,
            "name": "Shock CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
-          },
-          {
-           "id": 26,
-           "name": "Boarding Shotgun"
           }
          ],
          "skills": [],
@@ -186863,7 +187208,7 @@
            "id": 10,
            "name": "Shock CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
@@ -186896,7 +187241,7 @@
            "id": 10,
            "name": "Shock CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
@@ -186929,7 +187274,7 @@
            "id": 10,
            "name": "Shock CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
@@ -187021,35 +187366,6 @@
        ],
        "options": [
         {
-         "id": 1,
-         "name": "KORSAN FTO",
-         "points": 14,
-         "swc": "0",
-         "weapons": [
-          {
-           "id": 18,
-           "name": "Chain Rifle",
-           "extra": [
-            "+2B"
-           ]
-          },
-          {
-           "id": 107,
-           "name": "Heavy Pistol"
-          },
-          {
-           "id": 10,
-           "name": "Shock CC Weapon",
-           "extra": [
-            "PS=7"
-           ]
-          }
-         ],
-         "skills": [],
-         "equip": [],
-         "fto": true
-        },
-        {
          "id": 2,
          "name": "KORSAN FTO",
          "points": 18,
@@ -187074,7 +187390,7 @@
            "id": 10,
            "name": "Shock CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
@@ -187085,12 +187401,19 @@
         {
          "id": 3,
          "name": "KORSAN FTO",
-         "points": 13,
+         "points": 14,
          "swc": "0",
          "weapons": [
           {
            "id": 18,
-           "name": "Chain Rifle"
+           "name": "Chain Rifle",
+           "extra": [
+            "+1B"
+           ]
+          },
+          {
+           "id": 96,
+           "name": "Drop Bears"
           },
           {
            "id": 107,
@@ -187100,12 +187423,8 @@
            "id": 10,
            "name": "Shock CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
-          },
-          {
-           "id": 96,
-           "name": "Drop Bears"
           }
          ],
          "skills": [],
@@ -187119,6 +187438,10 @@
          "swc": "0",
          "weapons": [
           {
+           "id": 26,
+           "name": "Boarding Shotgun"
+          },
+          {
            "id": 107,
            "name": "Heavy Pistol"
           },
@@ -187126,12 +187449,8 @@
            "id": 10,
            "name": "Shock CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
-          },
-          {
-           "id": 26,
-           "name": "Boarding Shotgun"
           }
          ],
          "skills": [],
@@ -187160,7 +187479,7 @@
            "id": 10,
            "name": "Shock CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
@@ -187193,7 +187512,7 @@
            "id": 10,
            "name": "Shock CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
@@ -187226,7 +187545,7 @@
            "id": 10,
            "name": "Shock CC Weapon",
            "extra": [
-            "PS=7"
+            "PS=6"
            ]
           }
          ],
@@ -187249,7 +187568,7 @@
    "crest": "korsan-corsairs-of-the-gate-1-1",
    "fireteam": {
     "all": 0,
-    "fto": 4
+    "fto": 5
    }
   },
   {
@@ -226916,7 +227235,7 @@
          "w": 1,
          "str": false,
          "s": 2,
-         "ava": 4,
+         "ava": 3,
          "skills": [
           {
            "id": 84,
@@ -232525,8 +232844,8 @@
          "name": "NAHAB Aeromobile Team",
          "type": "LI",
          "move": [
-          10,
-          10
+          15,
+          5
          ],
          "cc": 23,
          "bs": 12,
@@ -232610,6 +232929,13 @@
            "name": "Jump",
            "extra": [
             "+3\""
+           ]
+          },
+          {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
            ]
           }
          ],
@@ -234712,7 +235038,10 @@
           },
           {
            "id": 24,
-           "name": "Berserk"
+           "name": "Berserk",
+           "extra": [
+            "+3"
+           ]
           },
           {
            "id": 28,
@@ -234748,18 +235077,18 @@
           },
           {
            "id": 45,
-           "name": "Smoke Grenades"
+           "name": "Smoke Grenades",
+           "extra": [
+            "+1SD"
+           ]
           },
           {
            "id": 195,
            "name": "Smoke Grenade Launcher"
           },
           {
-           "id": 100,
-           "name": "AP Heavy Pistol",
-           "extra": [
-            "+1B"
-           ]
+           "id": 212,
+           "name": "Boarding Pistol"
           },
           {
            "id": 7,
@@ -240057,7 +240386,7 @@
           10,
           10
          ],
-         "cc": 22,
+         "cc": 24,
          "bs": 12,
          "ph": 12,
          "wip": 13,
@@ -240141,20 +240470,23 @@
          "swc": "0",
          "weapons": [
           {
-           "id": 26,
-           "name": "Boarding Shotgun"
+           "id": 81,
+           "name": "Vulkan Shotgun"
           },
           {
            "id": 196,
            "name": "Shock Mine"
           },
           {
-           "id": 69,
-           "name": "Pistol"
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
-           "id": 7,
-           "name": "E/M CC Weapon",
+           "id": 11,
+           "name": "DA CC Weapon",
            "extra": [
             "PS=6"
            ]
@@ -240177,8 +240509,8 @@
          "swc": "0",
          "weapons": [
           {
-           "id": 77,
-           "name": "Submachine Gun"
+           "id": 214,
+           "name": "AP Submachine Gun"
           },
           {
            "id": 96,
@@ -240189,12 +240521,15 @@
            "name": "D-Charges"
           },
           {
-           "id": 69,
-           "name": "Pistol"
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
-           "id": 7,
-           "name": "E/M CC Weapon",
+           "id": 11,
+           "name": "DA CC Weapon",
            "extra": [
             "PS=6"
            ]
@@ -240217,8 +240552,8 @@
          "swc": "0",
          "weapons": [
           {
-           "id": 77,
-           "name": "Submachine Gun"
+           "id": 214,
+           "name": "AP Submachine Gun"
           },
           {
            "id": 96,
@@ -240229,12 +240564,15 @@
            "name": "D-Charges"
           },
           {
-           "id": 69,
-           "name": "Pistol"
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
-           "id": 7,
-           "name": "E/M CC Weapon",
+           "id": 11,
+           "name": "DA CC Weapon",
            "extra": [
             "PS=6"
            ]
@@ -240267,8 +240605,8 @@
          "swc": "0.5",
          "weapons": [
           {
-           "id": 77,
-           "name": "Submachine Gun"
+           "id": 214,
+           "name": "AP Submachine Gun"
           },
           {
            "id": 17,
@@ -240279,12 +240617,15 @@
            "name": "Shock Mine"
           },
           {
-           "id": 69,
-           "name": "Pistol"
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
-           "id": 7,
-           "name": "E/M CC Weapon",
+           "id": 11,
+           "name": "DA CC Weapon",
            "extra": [
             "PS=6"
            ]
@@ -240324,7 +240665,7 @@
           10,
           10
          ],
-         "cc": 22,
+         "cc": 24,
          "bs": 12,
          "ph": 12,
          "wip": 13,
@@ -240408,20 +240749,23 @@
          "swc": "0",
          "weapons": [
           {
-           "id": 26,
-           "name": "Boarding Shotgun"
+           "id": 81,
+           "name": "Vulkan Shotgun"
           },
           {
            "id": 196,
            "name": "Shock Mine"
           },
           {
-           "id": 69,
-           "name": "Pistol"
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
-           "id": 7,
-           "name": "E/M CC Weapon",
+           "id": 11,
+           "name": "DA CC Weapon",
            "extra": [
             "PS=6"
            ]
@@ -240444,8 +240788,8 @@
          "swc": "0",
          "weapons": [
           {
-           "id": 77,
-           "name": "Submachine Gun"
+           "id": 214,
+           "name": "AP Submachine Gun"
           },
           {
            "id": 96,
@@ -240456,12 +240800,15 @@
            "name": "D-Charges"
           },
           {
-           "id": 69,
-           "name": "Pistol"
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
-           "id": 7,
-           "name": "E/M CC Weapon",
+           "id": 11,
+           "name": "DA CC Weapon",
            "extra": [
             "PS=6"
            ]
@@ -240484,8 +240831,8 @@
          "swc": "0",
          "weapons": [
           {
-           "id": 77,
-           "name": "Submachine Gun"
+           "id": 214,
+           "name": "AP Submachine Gun"
           },
           {
            "id": 96,
@@ -240496,12 +240843,15 @@
            "name": "D-Charges"
           },
           {
-           "id": 69,
-           "name": "Pistol"
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
-           "id": 7,
-           "name": "E/M CC Weapon",
+           "id": 11,
+           "name": "DA CC Weapon",
            "extra": [
             "PS=6"
            ]
@@ -240534,8 +240884,8 @@
          "swc": "0.5",
          "weapons": [
           {
-           "id": 77,
-           "name": "Submachine Gun"
+           "id": 214,
+           "name": "AP Submachine Gun"
           },
           {
            "id": 17,
@@ -240546,12 +240896,15 @@
            "name": "Shock Mine"
           },
           {
-           "id": 69,
-           "name": "Pistol"
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
-           "id": 7,
-           "name": "E/M CC Weapon",
+           "id": 11,
+           "name": "DA CC Weapon",
            "extra": [
             "PS=6"
            ]
@@ -240591,7 +240944,7 @@
           10,
           10
          ],
-         "cc": 22,
+         "cc": 24,
          "bs": 12,
          "ph": 12,
          "wip": 13,
@@ -240675,20 +241028,23 @@
          "swc": "0",
          "weapons": [
           {
-           "id": 26,
-           "name": "Boarding Shotgun"
+           "id": 81,
+           "name": "Vulkan Shotgun"
           },
           {
            "id": 196,
            "name": "Shock Mine"
           },
           {
-           "id": 69,
-           "name": "Pistol"
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
-           "id": 7,
-           "name": "E/M CC Weapon",
+           "id": 11,
+           "name": "DA CC Weapon",
            "extra": [
             "PS=6"
            ]
@@ -240711,8 +241067,8 @@
          "swc": "0",
          "weapons": [
           {
-           "id": 77,
-           "name": "Submachine Gun"
+           "id": 214,
+           "name": "AP Submachine Gun"
           },
           {
            "id": 96,
@@ -240723,12 +241079,15 @@
            "name": "D-Charges"
           },
           {
-           "id": 69,
-           "name": "Pistol"
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
-           "id": 7,
-           "name": "E/M CC Weapon",
+           "id": 11,
+           "name": "DA CC Weapon",
            "extra": [
             "PS=6"
            ]
@@ -240751,8 +241110,8 @@
          "swc": "0",
          "weapons": [
           {
-           "id": 77,
-           "name": "Submachine Gun"
+           "id": 214,
+           "name": "AP Submachine Gun"
           },
           {
            "id": 96,
@@ -240763,12 +241122,15 @@
            "name": "D-Charges"
           },
           {
-           "id": 69,
-           "name": "Pistol"
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
-           "id": 7,
-           "name": "E/M CC Weapon",
+           "id": 11,
+           "name": "DA CC Weapon",
            "extra": [
             "PS=6"
            ]
@@ -240801,8 +241163,8 @@
          "swc": "0.5",
          "weapons": [
           {
-           "id": 77,
-           "name": "Submachine Gun"
+           "id": 214,
+           "name": "AP Submachine Gun"
           },
           {
            "id": 17,
@@ -240813,12 +241175,15 @@
            "name": "Shock Mine"
           },
           {
-           "id": 69,
-           "name": "Pistol"
+           "id": 211,
+           "name": "Silenced Pistol",
+           "extra": [
+            "PS=6"
+           ]
           },
           {
-           "id": 7,
-           "name": "E/M CC Weapon",
+           "id": 11,
+           "name": "DA CC Weapon",
            "extra": [
             "PS=6"
            ]
@@ -251642,7 +252007,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "+1B"
+            "+1SD"
            ]
           },
           {
@@ -251700,7 +252065,7 @@
         {
          "id": 2,
          "name": "OKTAVIA",
-         "points": 26,
+         "points": 23,
          "swc": "1.5",
          "weapons": [
           {
@@ -251762,7 +252127,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "+1B"
+            "+1SD"
            ]
           },
           {
@@ -251820,7 +252185,7 @@
         {
          "id": 2,
          "name": "OKTAVIA",
-         "points": 26,
+         "points": 23,
          "swc": "1.5",
          "weapons": [
           {
@@ -251882,7 +252247,7 @@
            "id": 201,
            "name": "BS Attack",
            "extra": [
-            "+1B"
+            "+1SD"
            ]
           },
           {
@@ -251940,7 +252305,7 @@
         {
          "id": 2,
          "name": "OKTAVIA",
-         "points": 26,
+         "points": 23,
          "swc": "1.5",
          "weapons": [
           {
@@ -274796,13 +275161,6 @@
            "name": "No Cover"
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 275,
            "name": "Tech-recovery"
           },
@@ -274817,40 +275175,14 @@
        ],
        "options": [
         {
-         "id": 1,
-         "name": "REDEYE",
-         "points": 37,
-         "swc": "1.5",
-         "weapons": [
-          {
-           "id": 74,
-           "name": "Spitfire"
-          },
-          {
-           "id": 18,
-           "name": "Chain Rifle"
-          },
-          {
-           "id": 14,
-           "name": "Blitzen"
-          }
-         ],
-         "skills": [],
-         "equip": []
-        },
-        {
          "id": 2,
          "name": "REDEYE",
-         "points": 38,
+         "points": 42,
          "swc": "1.5",
          "weapons": [
           {
            "id": 74,
            "name": "Spitfire"
-          },
-          {
-           "id": 18,
-           "name": "Chain Rifle"
           },
           {
            "id": 194,
@@ -274858,6 +275190,24 @@
            "extra": [
             "Continuous Damage"
            ]
+          }
+         ],
+         "skills": [],
+         "equip": []
+        },
+        {
+         "id": 3,
+         "name": "REDEYE",
+         "points": 40,
+         "swc": "1.5",
+         "weapons": [
+          {
+           "id": 74,
+           "name": "Spitfire"
+          },
+          {
+           "id": 80,
+           "name": "Chain-colt"
           }
          ],
          "skills": [],
@@ -274945,13 +275295,6 @@
            "name": "No Cover"
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 275,
            "name": "Tech-recovery"
           },
@@ -274966,40 +275309,14 @@
        ],
        "options": [
         {
-         "id": 1,
-         "name": "REDEYE",
-         "points": 37,
-         "swc": "1.5",
-         "weapons": [
-          {
-           "id": 74,
-           "name": "Spitfire"
-          },
-          {
-           "id": 18,
-           "name": "Chain Rifle"
-          },
-          {
-           "id": 14,
-           "name": "Blitzen"
-          }
-         ],
-         "skills": [],
-         "equip": []
-        },
-        {
          "id": 2,
          "name": "REDEYE",
-         "points": 38,
+         "points": 42,
          "swc": "1.5",
          "weapons": [
           {
            "id": 74,
            "name": "Spitfire"
-          },
-          {
-           "id": 18,
-           "name": "Chain Rifle"
           },
           {
            "id": 194,
@@ -275007,6 +275324,24 @@
            "extra": [
             "Continuous Damage"
            ]
+          }
+         ],
+         "skills": [],
+         "equip": []
+        },
+        {
+         "id": 3,
+         "name": "REDEYE",
+         "points": 40,
+         "swc": "1.5",
+         "weapons": [
+          {
+           "id": 74,
+           "name": "Spitfire"
+          },
+          {
+           "id": 80,
+           "name": "Chain-colt"
           }
          ],
          "skills": [],
@@ -275094,13 +275429,6 @@
            "name": "No Cover"
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 275,
            "name": "Tech-recovery"
           },
@@ -275117,7 +275445,7 @@
         {
          "id": 1,
          "name": "REDEYE",
-         "points": 37,
+         "points": 41,
          "swc": "1.5",
          "weapons": [
           {
@@ -275125,8 +275453,8 @@
            "name": "Spitfire"
           },
           {
-           "id": 18,
-           "name": "Chain Rifle"
+           "id": 80,
+           "name": "Chain-colt"
           },
           {
            "id": 14,
@@ -275139,16 +275467,12 @@
         {
          "id": 2,
          "name": "REDEYE",
-         "points": 38,
+         "points": 42,
          "swc": "1.5",
          "weapons": [
           {
            "id": 74,
            "name": "Spitfire"
-          },
-          {
-           "id": 18,
-           "name": "Chain Rifle"
           },
           {
            "id": 194,
@@ -284184,6 +284508,13 @@
          "ava": 2,
          "skills": [
           {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 84,
            "name": "Courage"
           },
@@ -284240,13 +284571,6 @@
           }
          ],
          "skills": [
-          {
-           "id": 191,
-           "name": "Surprise Attack",
-           "extra": [
-            "-3"
-           ]
-          },
           {
            "id": 29,
            "name": "Camouflage",
@@ -284379,6 +284703,13 @@
          "ava": 3,
          "skills": [
           {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 84,
            "name": "Courage"
           },
@@ -284435,13 +284766,6 @@
           }
          ],
          "skills": [
-          {
-           "id": 191,
-           "name": "Surprise Attack",
-           "extra": [
-            "-3"
-           ]
-          },
           {
            "id": 29,
            "name": "Camouflage",
@@ -287196,8 +287520,19 @@
          "ava": 1,
          "skills": [
           {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 84,
            "name": "Courage"
+          },
+          {
+           "id": 207,
+           "name": "Counterintelligence"
           },
           {
            "id": 162,
@@ -287207,12 +287542,11 @@
            ]
           },
           {
-           "id": 86,
-           "name": "No Wound Incapacitation"
-          },
-          {
-           "id": 207,
-           "name": "Counterintelligence"
+           "id": 56,
+           "name": "Minelayer",
+           "extra": [
+            "2"
+           ]
           },
           {
            "id": 215,
@@ -287222,11 +287556,8 @@
            ]
           },
           {
-           "id": 56,
-           "name": "Minelayer",
-           "extra": [
-            "2"
-           ]
+           "id": 86,
+           "name": "No Wound Incapacitation"
           }
          ],
          "equip": [
@@ -287241,6 +287572,41 @@
        "options": [
         {
          "id": 1,
+         "name": "SALADIN",
+         "points": 32,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 207,
+           "name": "Thunderbolt"
+          },
+          {
+           "id": 213,
+           "name": "E/M Carbine"
+          },
+          {
+           "id": 65,
+           "name": "Nanopulser"
+          },
+          {
+           "id": 69,
+           "name": "Pistol"
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 26,
+           "name": "Chain of Command"
+          }
+         ],
+         "equip": []
+        },
+        {
+         "id": 2,
          "name": "SALADIN",
          "points": 33,
          "swc": "0",
@@ -287262,43 +287628,8 @@
            "name": "Pistol"
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon"
-          }
-         ],
-         "skills": [
-          {
-           "id": 26,
-           "name": "Chain of Command"
-          }
-         ],
-         "equip": []
-        },
-        {
-         "id": 2,
-         "name": "SALADIN",
-         "points": 34,
-         "swc": "0",
-         "weapons": [
-          {
-           "id": 207,
-           "name": "Thunderbolt"
-          },
-          {
-           "id": 213,
-           "name": "E/M Carbine"
-          },
-          {
-           "id": 65,
-           "name": "Nanopulser"
-          },
-          {
-           "id": 69,
-           "name": "Pistol"
-          },
-          {
-           "id": 10,
-           "name": "Shock CC Weapon"
+           "id": 5,
+           "name": "CC Weapon"
           }
          ],
          "skills": [
@@ -297226,6 +297557,1425 @@
    }
   },
   {
+   "id": 1942,
+   "isc": "Shadowcrow Operator",
+   "name": "SHADOWCROW Operator",
+   "slug": "shadowcrow-operator",
+   "inFactions": [
+    101,
+    201,
+    301,
+    401,
+    501,
+    605,
+    701,
+    1001,
+    1101
+   ],
+   "byFaction": {
+    "101": {
+     "groups": [
+      {
+       "id": 1,
+       "isc": "Shadowcrow Operator",
+       "category": "Veteran Troops",
+       "profiles": [
+        {
+         "id": 1,
+         "name": "SHADOWCROW Operator",
+         "type": "HI",
+         "move": [
+          15,
+          5
+         ],
+         "cc": 17,
+         "bs": 13,
+         "ph": 12,
+         "wip": 13,
+         "arm": 3,
+         "bts": 6,
+         "w": 1,
+         "str": false,
+         "s": 2,
+         "ava": 1,
+         "skills": [
+          {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "+1SD"
+           ]
+          },
+          {
+           "id": 162,
+           "name": "Immunity",
+           "extra": [
+            "Shock"
+           ]
+          },
+          {
+           "id": 28,
+           "name": "Mimetism",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
+           "id": 189,
+           "name": "Specialist Operative"
+          },
+          {
+           "id": 164,
+           "name": "Stealth"
+          },
+          {
+           "id": 86,
+           "name": "No Wound Incapacitation"
+          },
+          {
+           "id": 74,
+           "name": "Super-Jump",
+           "extra": [
+            "Jet Propulsion"
+           ]
+          }
+         ],
+         "equip": [],
+         "weapons": []
+        }
+       ],
+       "options": [
+        {
+         "id": 2,
+         "name": "SHADOWCROW",
+         "points": 31,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 25,
+           "name": "E/Mitter"
+          },
+          {
+           "id": 96,
+           "name": "Drop Bears"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 70,
+           "name": "Assault Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 33,
+           "name": "Parachutist"
+          },
+          {
+           "id": 35,
+           "name": "Combat Jump",
+           "extra": [
+            "PH=13"
+           ]
+          }
+         ],
+         "equip": []
+        }
+       ]
+      }
+     ]
+    },
+    "201": {
+     "groups": [
+      {
+       "id": 1,
+       "isc": "Shadowcrow Operator",
+       "category": "Veteran Troops",
+       "profiles": [
+        {
+         "id": 1,
+         "name": "SHADOWCROW Operator",
+         "type": "HI",
+         "move": [
+          15,
+          5
+         ],
+         "cc": 17,
+         "bs": 13,
+         "ph": 12,
+         "wip": 13,
+         "arm": 3,
+         "bts": 6,
+         "w": 1,
+         "str": false,
+         "s": 2,
+         "ava": 1,
+         "skills": [
+          {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "+1SD"
+           ]
+          },
+          {
+           "id": 162,
+           "name": "Immunity",
+           "extra": [
+            "Shock"
+           ]
+          },
+          {
+           "id": 28,
+           "name": "Mimetism",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
+           "id": 189,
+           "name": "Specialist Operative"
+          },
+          {
+           "id": 164,
+           "name": "Stealth"
+          },
+          {
+           "id": 86,
+           "name": "No Wound Incapacitation"
+          },
+          {
+           "id": 74,
+           "name": "Super-Jump",
+           "extra": [
+            "Jet Propulsion"
+           ]
+          }
+         ],
+         "equip": [],
+         "weapons": []
+        }
+       ],
+       "options": [
+        {
+         "id": 1,
+         "name": "SHADOWCROW FTO",
+         "points": 30,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 207,
+           "name": "Thunderbolt"
+          },
+          {
+           "id": 96,
+           "name": "Drop Bears"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 98,
+           "name": "Breaker Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "Continuous Damage"
+           ]
+          }
+         ],
+         "equip": [],
+         "fto": true
+        },
+        {
+         "id": 2,
+         "name": "SHADOWCROW",
+         "points": 31,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 25,
+           "name": "E/Mitter"
+          },
+          {
+           "id": 96,
+           "name": "Drop Bears"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 70,
+           "name": "Assault Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 33,
+           "name": "Parachutist"
+          },
+          {
+           "id": 35,
+           "name": "Combat Jump",
+           "extra": [
+            "PH=13"
+           ]
+          }
+         ],
+         "equip": []
+        },
+        {
+         "id": 3,
+         "name": "SHADOWCROW FTO",
+         "points": 31,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 230,
+           "name": "AP Thunderbolt"
+          },
+          {
+           "id": 150,
+           "name": "Madtraps"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 98,
+           "name": "Breaker Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 71,
+           "name": "PARA CC Weapon",
+           "extra": [
+            "-6"
+           ]
+          }
+         ],
+         "skills": [],
+         "equip": [],
+         "fto": true
+        }
+       ]
+      }
+     ]
+    },
+    "301": {
+     "groups": [
+      {
+       "id": 1,
+       "isc": "Shadowcrow Operator",
+       "category": "Veteran Troops",
+       "profiles": [
+        {
+         "id": 1,
+         "name": "SHADOWCROW Operator",
+         "type": "HI",
+         "move": [
+          15,
+          5
+         ],
+         "cc": 17,
+         "bs": 13,
+         "ph": 12,
+         "wip": 13,
+         "arm": 3,
+         "bts": 6,
+         "w": 1,
+         "str": false,
+         "s": 2,
+         "ava": 1,
+         "skills": [
+          {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "+1SD"
+           ]
+          },
+          {
+           "id": 162,
+           "name": "Immunity",
+           "extra": [
+            "Shock"
+           ]
+          },
+          {
+           "id": 28,
+           "name": "Mimetism",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
+           "id": 189,
+           "name": "Specialist Operative"
+          },
+          {
+           "id": 164,
+           "name": "Stealth"
+          },
+          {
+           "id": 86,
+           "name": "No Wound Incapacitation"
+          },
+          {
+           "id": 74,
+           "name": "Super-Jump",
+           "extra": [
+            "Jet Propulsion"
+           ]
+          }
+         ],
+         "equip": [],
+         "weapons": []
+        }
+       ],
+       "options": [
+        {
+         "id": 4,
+         "name": "SHADOWCROW",
+         "points": 28,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 42,
+           "name": "T2 Rifle"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 199,
+           "name": "AP Mine"
+          },
+          {
+           "id": 70,
+           "name": "Assault Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 33,
+           "name": "Parachutist"
+          }
+         ],
+         "equip": []
+        }
+       ]
+      }
+     ]
+    },
+    "401": {
+     "groups": [
+      {
+       "id": 1,
+       "isc": "Shadowcrow Operator",
+       "category": "Veteran Troops",
+       "profiles": [
+        {
+         "id": 1,
+         "name": "SHADOWCROW Operator",
+         "type": "HI",
+         "move": [
+          15,
+          5
+         ],
+         "cc": 17,
+         "bs": 13,
+         "ph": 12,
+         "wip": 13,
+         "arm": 3,
+         "bts": 6,
+         "w": 1,
+         "str": false,
+         "s": 2,
+         "ava": 1,
+         "skills": [
+          {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "+1SD"
+           ]
+          },
+          {
+           "id": 162,
+           "name": "Immunity",
+           "extra": [
+            "Shock"
+           ]
+          },
+          {
+           "id": 28,
+           "name": "Mimetism",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
+           "id": 189,
+           "name": "Specialist Operative"
+          },
+          {
+           "id": 164,
+           "name": "Stealth"
+          },
+          {
+           "id": 86,
+           "name": "No Wound Incapacitation"
+          },
+          {
+           "id": 74,
+           "name": "Super-Jump",
+           "extra": [
+            "Jet Propulsion"
+           ]
+          }
+         ],
+         "equip": [],
+         "weapons": []
+        }
+       ],
+       "options": [
+        {
+         "id": 1,
+         "name": "SHADOWCROW FTO",
+         "points": 30,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 207,
+           "name": "Thunderbolt"
+          },
+          {
+           "id": 96,
+           "name": "Drop Bears"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 98,
+           "name": "Breaker Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "Continuous Damage"
+           ]
+          }
+         ],
+         "equip": [],
+         "fto": true
+        },
+        {
+         "id": 5,
+         "name": "SHADOWCROW",
+         "points": 27,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 19,
+           "name": "Contender"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 70,
+           "name": "Assault Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 33,
+           "name": "Parachutist"
+          },
+          {
+           "id": 35,
+           "name": "Combat Jump",
+           "extra": [
+            "PH=13"
+           ]
+          }
+         ],
+         "equip": []
+        }
+       ]
+      }
+     ]
+    },
+    "501": {
+     "groups": [
+      {
+       "id": 1,
+       "isc": "Shadowcrow Operator",
+       "category": "Veteran Troops",
+       "profiles": [
+        {
+         "id": 1,
+         "name": "SHADOWCROW Operator",
+         "type": "HI",
+         "move": [
+          15,
+          5
+         ],
+         "cc": 17,
+         "bs": 13,
+         "ph": 12,
+         "wip": 13,
+         "arm": 3,
+         "bts": 6,
+         "w": 1,
+         "str": false,
+         "s": 2,
+         "ava": 1,
+         "skills": [
+          {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "+1SD"
+           ]
+          },
+          {
+           "id": 162,
+           "name": "Immunity",
+           "extra": [
+            "Shock"
+           ]
+          },
+          {
+           "id": 28,
+           "name": "Mimetism",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
+           "id": 189,
+           "name": "Specialist Operative"
+          },
+          {
+           "id": 164,
+           "name": "Stealth"
+          },
+          {
+           "id": 86,
+           "name": "No Wound Incapacitation"
+          },
+          {
+           "id": 74,
+           "name": "Super-Jump",
+           "extra": [
+            "Jet Propulsion"
+           ]
+          }
+         ],
+         "equip": [],
+         "weapons": []
+        }
+       ],
+       "options": [
+        {
+         "id": 6,
+         "name": "SHADOWCROW",
+         "points": 24,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 23,
+           "name": "E/Marat"
+          },
+          {
+           "id": 72,
+           "name": "Flash Pulse"
+          },
+          {
+           "id": 96,
+           "name": "Drop Bears"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 70,
+           "name": "Assault Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 33,
+           "name": "Parachutist"
+          },
+          {
+           "id": 35,
+           "name": "Combat Jump",
+           "extra": [
+            "PH=13"
+           ]
+          }
+         ],
+         "equip": []
+        }
+       ]
+      }
+     ]
+    },
+    "605": {
+     "groups": [
+      {
+       "id": 1,
+       "isc": "Shadowcrow Operator",
+       "category": "Veteran Troops",
+       "profiles": [
+        {
+         "id": 1,
+         "name": "SHADOWCROW Operator",
+         "type": "HI",
+         "move": [
+          15,
+          5
+         ],
+         "cc": 17,
+         "bs": 13,
+         "ph": 12,
+         "wip": 13,
+         "arm": 3,
+         "bts": 6,
+         "w": 1,
+         "str": false,
+         "s": 2,
+         "ava": 1,
+         "skills": [
+          {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "+1SD"
+           ]
+          },
+          {
+           "id": 162,
+           "name": "Immunity",
+           "extra": [
+            "Shock"
+           ]
+          },
+          {
+           "id": 28,
+           "name": "Mimetism",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
+           "id": 189,
+           "name": "Specialist Operative"
+          },
+          {
+           "id": 164,
+           "name": "Stealth"
+          },
+          {
+           "id": 86,
+           "name": "No Wound Incapacitation"
+          },
+          {
+           "id": 74,
+           "name": "Super-Jump",
+           "extra": [
+            "Jet Propulsion"
+           ]
+          }
+         ],
+         "equip": [],
+         "weapons": []
+        }
+       ],
+       "options": [
+        {
+         "id": 1,
+         "name": "SHADOWCROW FTO",
+         "points": 30,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 207,
+           "name": "Thunderbolt"
+          },
+          {
+           "id": 96,
+           "name": "Drop Bears"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 98,
+           "name": "Breaker Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "Continuous Damage"
+           ]
+          }
+         ],
+         "equip": [],
+         "fto": true
+        },
+        {
+         "id": 2,
+         "name": "SHADOWCROW",
+         "points": 31,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 25,
+           "name": "E/Mitter"
+          },
+          {
+           "id": 96,
+           "name": "Drop Bears"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 70,
+           "name": "Assault Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 33,
+           "name": "Parachutist"
+          },
+          {
+           "id": 35,
+           "name": "Combat Jump",
+           "extra": [
+            "PH=13"
+           ]
+          }
+         ],
+         "equip": []
+        },
+        {
+         "id": 7,
+         "name": "SHADOWCROW FTO",
+         "points": 31,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 230,
+           "name": "AP Thunderbolt"
+          },
+          {
+           "id": 47,
+           "name": "E/M Grenades"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 98,
+           "name": "Breaker Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 71,
+           "name": "PARA CC Weapon",
+           "extra": [
+            "-6"
+           ]
+          }
+         ],
+         "skills": [],
+         "equip": [],
+         "fto": true
+        }
+       ]
+      }
+     ]
+    },
+    "701": {
+     "groups": [
+      {
+       "id": 1,
+       "isc": "Shadowcrow Operator",
+       "category": "Veteran Troops",
+       "profiles": [
+        {
+         "id": 1,
+         "name": "SHADOWCROW Operator",
+         "type": "HI",
+         "move": [
+          15,
+          5
+         ],
+         "cc": 17,
+         "bs": 13,
+         "ph": 12,
+         "wip": 13,
+         "arm": 3,
+         "bts": 6,
+         "w": 1,
+         "str": false,
+         "s": 2,
+         "ava": 1,
+         "skills": [
+          {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "+1SD"
+           ]
+          },
+          {
+           "id": 162,
+           "name": "Immunity",
+           "extra": [
+            "Shock"
+           ]
+          },
+          {
+           "id": 28,
+           "name": "Mimetism",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
+           "id": 189,
+           "name": "Specialist Operative"
+          },
+          {
+           "id": 164,
+           "name": "Stealth"
+          },
+          {
+           "id": 86,
+           "name": "No Wound Incapacitation"
+          },
+          {
+           "id": 74,
+           "name": "Super-Jump",
+           "extra": [
+            "Jet Propulsion"
+           ]
+          }
+         ],
+         "equip": [],
+         "weapons": []
+        }
+       ],
+       "options": [
+        {
+         "id": 2,
+         "name": "SHADOWCROW",
+         "points": 31,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 25,
+           "name": "E/Mitter"
+          },
+          {
+           "id": 96,
+           "name": "Drop Bears"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 70,
+           "name": "Assault Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 33,
+           "name": "Parachutist"
+          },
+          {
+           "id": 35,
+           "name": "Combat Jump",
+           "extra": [
+            "PH=13"
+           ]
+          }
+         ],
+         "equip": []
+        }
+       ]
+      }
+     ]
+    },
+    "1001": {
+     "groups": [
+      {
+       "id": 1,
+       "isc": "Shadowcrow Operator",
+       "category": "Veteran Troops",
+       "profiles": [
+        {
+         "id": 1,
+         "name": "SHADOWCROW Operator",
+         "type": "HI",
+         "move": [
+          15,
+          5
+         ],
+         "cc": 17,
+         "bs": 13,
+         "ph": 12,
+         "wip": 13,
+         "arm": 3,
+         "bts": 6,
+         "w": 1,
+         "str": false,
+         "s": 2,
+         "ava": 1,
+         "skills": [
+          {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "+1SD"
+           ]
+          },
+          {
+           "id": 162,
+           "name": "Immunity",
+           "extra": [
+            "Shock"
+           ]
+          },
+          {
+           "id": 28,
+           "name": "Mimetism",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
+           "id": 189,
+           "name": "Specialist Operative"
+          },
+          {
+           "id": 164,
+           "name": "Stealth"
+          },
+          {
+           "id": 86,
+           "name": "No Wound Incapacitation"
+          },
+          {
+           "id": 74,
+           "name": "Super-Jump",
+           "extra": [
+            "Jet Propulsion"
+           ]
+          }
+         ],
+         "equip": [],
+         "weapons": []
+        }
+       ],
+       "options": [
+        {
+         "id": 2,
+         "name": "SHADOWCROW",
+         "points": 31,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 25,
+           "name": "E/Mitter"
+          },
+          {
+           "id": 96,
+           "name": "Drop Bears"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 70,
+           "name": "Assault Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 33,
+           "name": "Parachutist"
+          },
+          {
+           "id": 35,
+           "name": "Combat Jump",
+           "extra": [
+            "PH=13"
+           ]
+          }
+         ],
+         "equip": []
+        },
+        {
+         "id": 8,
+         "name": "SHADOWCROW FTO",
+         "points": 29,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 230,
+           "name": "AP Thunderbolt"
+          },
+          {
+           "id": 188,
+           "name": "Heavy Riotstopper"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 98,
+           "name": "Breaker Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 71,
+           "name": "PARA CC Weapon",
+           "extra": [
+            "-6"
+           ]
+          }
+         ],
+         "skills": [],
+         "equip": [],
+         "fto": true
+        }
+       ]
+      }
+     ]
+    },
+    "1101": {
+     "groups": [
+      {
+       "id": 1,
+       "isc": "Shadowcrow Operator",
+       "category": "Veteran Troops",
+       "profiles": [
+        {
+         "id": 1,
+         "name": "SHADOWCROW Operator",
+         "type": "HI",
+         "move": [
+          15,
+          5
+         ],
+         "cc": 17,
+         "bs": 13,
+         "ph": 12,
+         "wip": 13,
+         "arm": 3,
+         "bts": 6,
+         "w": 1,
+         "str": false,
+         "s": 2,
+         "ava": 1,
+         "skills": [
+          {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "+1SD"
+           ]
+          },
+          {
+           "id": 162,
+           "name": "Immunity",
+           "extra": [
+            "Shock"
+           ]
+          },
+          {
+           "id": 28,
+           "name": "Mimetism",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
+           "id": 189,
+           "name": "Specialist Operative"
+          },
+          {
+           "id": 164,
+           "name": "Stealth"
+          },
+          {
+           "id": 86,
+           "name": "No Wound Incapacitation"
+          },
+          {
+           "id": 74,
+           "name": "Super-Jump",
+           "extra": [
+            "Jet Propulsion"
+           ]
+          }
+         ],
+         "equip": [],
+         "weapons": []
+        }
+       ],
+       "options": [
+        {
+         "id": 1,
+         "name": "SHADOWCROW FTO",
+         "points": 30,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 207,
+           "name": "Thunderbolt"
+          },
+          {
+           "id": 96,
+           "name": "Drop Bears"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 98,
+           "name": "Breaker Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "Continuous Damage"
+           ]
+          }
+         ],
+         "equip": [],
+         "fto": true
+        },
+        {
+         "id": 2,
+         "name": "SHADOWCROW",
+         "points": 31,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 25,
+           "name": "E/Mitter"
+          },
+          {
+           "id": 96,
+           "name": "Drop Bears"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 70,
+           "name": "Assault Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 33,
+           "name": "Parachutist"
+          },
+          {
+           "id": 35,
+           "name": "Combat Jump",
+           "extra": [
+            "PH=13"
+           ]
+          }
+         ],
+         "equip": []
+        },
+        {
+         "id": 9,
+         "name": "SHADOWCROW FTO",
+         "points": 31,
+         "swc": "0",
+         "weapons": [
+          {
+           "id": 230,
+           "name": "AP Thunderbolt"
+          },
+          {
+           "id": 20,
+           "name": "Crazykoala"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 98,
+           "name": "Breaker Pistol",
+           "extra": [
+            "PS=6"
+           ]
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [],
+         "equip": [],
+         "fto": true
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "crest": "shadowcrow-operator-1-1",
+   "fireteam": {
+    "all": 0,
+    "fto": 4
+   }
+  },
+  {
    "id": 1546,
    "isc": "Shakush Light Armored Unit",
    "name": "SHAKUSH Light Armored Unit",
@@ -297254,7 +299004,7 @@
          ],
          "cc": 17,
          "bs": 14,
-         "ph": 14,
+         "ph": 13,
          "wip": 14,
          "arm": 6,
          "bts": 6,
@@ -297271,6 +299021,13 @@
            ]
           },
           {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 84,
            "name": "Courage"
           },
@@ -297282,8 +299039,8 @@
            ]
           },
           {
-           "id": 213,
-           "name": "Tactical Awareness"
+           "id": 267,
+           "name": "Warhorse"
           },
           {
            "id": 254,
@@ -297291,6 +299048,10 @@
            "extra": [
             "PH=11"
            ]
+          },
+          {
+           "id": 213,
+           "name": "Tactical Awareness"
           }
          ],
          "equip": [],
@@ -297301,7 +299062,7 @@
         {
          "id": 1,
          "name": "SHAKUSH",
-         "points": 58,
+         "points": 60,
          "swc": "1.5",
          "weapons": [
           {
@@ -297329,7 +299090,7 @@
         {
          "id": 2,
          "name": "SHAKUSH",
-         "points": 56,
+         "points": 58,
          "swc": "1.5",
          "weapons": [
           {
@@ -297436,7 +299197,7 @@
          ],
          "cc": 17,
          "bs": 14,
-         "ph": 14,
+         "ph": 13,
          "wip": 14,
          "arm": 6,
          "bts": 6,
@@ -297453,6 +299214,13 @@
            ]
           },
           {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 84,
            "name": "Courage"
           },
@@ -297464,8 +299232,8 @@
            ]
           },
           {
-           "id": 213,
-           "name": "Tactical Awareness"
+           "id": 267,
+           "name": "Warhorse"
           },
           {
            "id": 254,
@@ -297473,6 +299241,10 @@
            "extra": [
             "PH=11"
            ]
+          },
+          {
+           "id": 213,
+           "name": "Tactical Awareness"
           }
          ],
          "equip": [],
@@ -297483,7 +299255,7 @@
         {
          "id": 1,
          "name": "SHAKUSH",
-         "points": 58,
+         "points": 60,
          "swc": "1.5",
          "weapons": [
           {
@@ -297511,7 +299283,7 @@
         {
          "id": 2,
          "name": "SHAKUSH",
-         "points": 56,
+         "points": 58,
          "swc": "1.5",
          "weapons": [
           {
@@ -297618,7 +299390,7 @@
          ],
          "cc": 17,
          "bs": 14,
-         "ph": 14,
+         "ph": 13,
          "wip": 14,
          "arm": 6,
          "bts": 6,
@@ -297635,6 +299407,13 @@
            ]
           },
           {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 84,
            "name": "Courage"
           },
@@ -297646,8 +299425,8 @@
            ]
           },
           {
-           "id": 213,
-           "name": "Tactical Awareness"
+           "id": 267,
+           "name": "Warhorse"
           },
           {
            "id": 254,
@@ -297655,6 +299434,10 @@
            "extra": [
             "PH=11"
            ]
+          },
+          {
+           "id": 213,
+           "name": "Tactical Awareness"
           }
          ],
          "equip": [],
@@ -297665,7 +299448,7 @@
         {
          "id": 1,
          "name": "SHAKUSH",
-         "points": 58,
+         "points": 60,
          "swc": "1.5",
          "weapons": [
           {
@@ -297693,7 +299476,7 @@
         {
          "id": 2,
          "name": "SHAKUSH",
-         "points": 56,
+         "points": 58,
          "swc": "1.5",
          "weapons": [
           {
@@ -297800,7 +299583,7 @@
          ],
          "cc": 17,
          "bs": 14,
-         "ph": 14,
+         "ph": 13,
          "wip": 14,
          "arm": 6,
          "bts": 6,
@@ -297817,6 +299600,13 @@
            ]
           },
           {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "-3"
+           ]
+          },
+          {
            "id": 84,
            "name": "Courage"
           },
@@ -297828,8 +299618,8 @@
            ]
           },
           {
-           "id": 213,
-           "name": "Tactical Awareness"
+           "id": 267,
+           "name": "Warhorse"
           },
           {
            "id": 254,
@@ -297837,6 +299627,10 @@
            "extra": [
             "PH=11"
            ]
+          },
+          {
+           "id": 213,
+           "name": "Tactical Awareness"
           }
          ],
          "equip": [],
@@ -297847,7 +299641,7 @@
         {
          "id": 1,
          "name": "SHAKUSH",
-         "points": 58,
+         "points": 60,
          "swc": "1.5",
          "weapons": [
           {
@@ -297875,7 +299669,7 @@
         {
          "id": 2,
          "name": "SHAKUSH",
-         "points": 56,
+         "points": 58,
          "swc": "1.5",
          "weapons": [
           {
@@ -311154,13 +312948,6 @@
            "id": 74,
            "name": "Super-Jump",
            "extra": [
-            "+3\""
-           ]
-          },
-          {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
             "Jet Propulsion"
            ]
           },
@@ -311180,7 +312967,7 @@
         {
          "id": 1,
          "name": "SKYHOUND",
-         "points": 33,
+         "points": 36,
          "swc": "0",
          "weapons": [
           {
@@ -311188,10 +312975,10 @@
            "name": "Plasma Carbine"
           },
           {
-           "id": 207,
-           "name": "Thunderbolt",
+           "id": 230,
+           "name": "AP Thunderbolt",
            "extra": [
-            "AP"
+            "+1B"
            ]
           },
           {
@@ -311202,21 +312989,13 @@
            ]
           }
          ],
-         "skills": [
-          {
-           "id": 201,
-           "name": "BS Attack",
-           "extra": [
-            "+1B"
-           ]
-          }
-         ],
+         "skills": [],
          "equip": []
         },
         {
          "id": 2,
          "name": "SKYHOUND",
-         "points": 31,
+         "points": 35,
          "swc": "0",
          "weapons": [
           {
@@ -312774,9 +314553,9 @@
           15,
           5
          ],
-         "cc": 22,
+         "cc": 23,
          "bs": 13,
-         "ph": 12,
+         "ph": 11,
          "wip": 13,
          "arm": 2,
          "bts": 6,
@@ -312852,15 +314631,15 @@
            "name": "E/Mitter"
           },
           {
-           "id": 189,
-           "name": "MULTI Pistol"
+           "id": 221,
+           "name": "Kobra Pistol",
+           "extra": [
+            "+1B"
+           ]
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
-           "extra": [
-            "PS=6"
-           ]
+           "id": 5,
+           "name": "CC Weapon"
           }
          ],
          "skills": [],
@@ -312881,21 +314660,21 @@
            "name": "E/Marat"
           },
           {
-           "id": 189,
-           "name": "MULTI Pistol"
+           "id": 221,
+           "name": "Kobra Pistol",
+           "extra": [
+            "+1B"
+           ]
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
-           "extra": [
-            "PS=6"
-           ]
+           "id": 5,
+           "name": "CC Weapon"
           }
          ],
          "skills": [
           {
-           "id": 211,
-           "name": "NCO"
+           "id": 213,
+           "name": "Tactical Awareness"
           }
          ],
          "equip": []
@@ -312911,19 +314690,19 @@
            "name": "MULTI Rifle"
           },
           {
-           "id": 189,
-           "name": "MULTI Pistol"
+           "id": 25,
+           "name": "E/Mitter"
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
+           "id": 221,
+           "name": "Kobra Pistol",
            "extra": [
-            "PS=6"
+            "+1B"
            ]
           },
           {
-           "id": 25,
-           "name": "E/Mitter"
+           "id": 5,
+           "name": "CC Weapon"
           }
          ],
          "skills": [
@@ -312953,9 +314732,9 @@
           15,
           5
          ],
-         "cc": 22,
+         "cc": 23,
          "bs": 13,
-         "ph": 12,
+         "ph": 11,
          "wip": 13,
          "arm": 2,
          "bts": 6,
@@ -313031,15 +314810,15 @@
            "name": "E/Mitter"
           },
           {
-           "id": 189,
-           "name": "MULTI Pistol"
+           "id": 221,
+           "name": "Kobra Pistol",
+           "extra": [
+            "+1B"
+           ]
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
-           "extra": [
-            "PS=6"
-           ]
+           "id": 5,
+           "name": "CC Weapon"
           }
          ],
          "skills": [],
@@ -313060,21 +314839,21 @@
            "name": "E/Marat"
           },
           {
-           "id": 189,
-           "name": "MULTI Pistol"
+           "id": 221,
+           "name": "Kobra Pistol",
+           "extra": [
+            "+1B"
+           ]
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
-           "extra": [
-            "PS=6"
-           ]
+           "id": 5,
+           "name": "CC Weapon"
           }
          ],
          "skills": [
           {
-           "id": 211,
-           "name": "NCO"
+           "id": 213,
+           "name": "Tactical Awareness"
           }
          ],
          "equip": []
@@ -313090,19 +314869,19 @@
            "name": "MULTI Rifle"
           },
           {
-           "id": 189,
-           "name": "MULTI Pistol"
+           "id": 25,
+           "name": "E/Mitter"
           },
           {
-           "id": 10,
-           "name": "Shock CC Weapon",
+           "id": 221,
+           "name": "Kobra Pistol",
            "extra": [
-            "PS=6"
+            "+1B"
            ]
           },
           {
-           "id": 25,
-           "name": "E/Mitter"
+           "id": 5,
+           "name": "CC Weapon"
           }
          ],
          "skills": [
@@ -322611,6 +324390,13 @@
           {
            "id": 70,
            "name": "Strategos L2"
+          },
+          {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
           }
          ],
          "equip": [
@@ -322809,6 +324595,13 @@
           {
            "id": 70,
            "name": "Strategos L2"
+          },
+          {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
           }
          ],
          "equip": [
@@ -322972,7 +324765,7 @@
          ],
          "cc": 13,
          "bs": 13,
-         "ph": 14,
+         "ph": 12,
          "wip": 12,
          "arm": 4,
          "bts": 3,
@@ -322990,6 +324783,13 @@
            "name": "BS Attack",
            "extra": [
             "SR-1"
+           ]
+          },
+          {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
            ]
           },
           {
@@ -323026,7 +324826,7 @@
         {
          "id": 2,
          "name": "SUNDUQBUT",
-         "points": 49,
+         "points": 46,
          "swc": "1.5",
          "weapons": [
           {
@@ -323046,21 +324846,13 @@
            "name": "CC Weapon"
           }
          ],
-         "skills": [
-          {
-           "id": 191,
-           "name": "Surprise Attack",
-           "extra": [
-            "-3"
-           ]
-          }
-         ],
+         "skills": [],
          "equip": []
         },
         {
          "id": 3,
          "name": "SUNDUQBUT",
-         "points": 43,
+         "points": 40,
          "swc": "0.5",
          "weapons": [
           {
@@ -323092,13 +324884,6 @@
          ],
          "skills": [
           {
-           "id": 191,
-           "name": "Surprise Attack",
-           "extra": [
-            "-3"
-           ]
-          },
-          {
            "id": 56,
            "name": "Minelayer"
           }
@@ -323108,7 +324893,7 @@
         {
          "id": 4,
          "name": "SUNDUQBUT",
-         "points": 47,
+         "points": 43,
          "swc": "1.5",
          "weapons": [
           {
@@ -323135,7 +324920,7 @@
         {
          "id": 5,
          "name": "SUNDUQBUT",
-         "points": 42,
+         "points": 38,
          "swc": "0",
          "weapons": [
           {
@@ -323169,7 +324954,7 @@
         {
          "id": 6,
          "name": "SUNDUQBUT",
-         "points": 50,
+         "points": 46,
          "swc": "1.5",
          "weapons": [
           {
@@ -323218,7 +325003,7 @@
          ],
          "cc": 13,
          "bs": 13,
-         "ph": 14,
+         "ph": 12,
          "wip": 12,
          "arm": 4,
          "bts": 3,
@@ -323236,6 +325021,13 @@
            "name": "BS Attack",
            "extra": [
             "SR-1"
+           ]
+          },
+          {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
            ]
           },
           {
@@ -323272,7 +325064,7 @@
         {
          "id": 2,
          "name": "SUNDUQBUT",
-         "points": 49,
+         "points": 46,
          "swc": "1.5",
          "weapons": [
           {
@@ -323292,21 +325084,13 @@
            "name": "CC Weapon"
           }
          ],
-         "skills": [
-          {
-           "id": 191,
-           "name": "Surprise Attack",
-           "extra": [
-            "-3"
-           ]
-          }
-         ],
+         "skills": [],
          "equip": []
         },
         {
          "id": 3,
          "name": "SUNDUQBUT",
-         "points": 43,
+         "points": 40,
          "swc": "0.5",
          "weapons": [
           {
@@ -323338,13 +325122,6 @@
          ],
          "skills": [
           {
-           "id": 191,
-           "name": "Surprise Attack",
-           "extra": [
-            "-3"
-           ]
-          },
-          {
            "id": 56,
            "name": "Minelayer"
           }
@@ -323354,7 +325131,7 @@
         {
          "id": 4,
          "name": "SUNDUQBUT",
-         "points": 47,
+         "points": 43,
          "swc": "1.5",
          "weapons": [
           {
@@ -323381,7 +325158,7 @@
         {
          "id": 5,
          "name": "SUNDUQBUT",
-         "points": 42,
+         "points": 38,
          "swc": "0",
          "weapons": [
           {
@@ -323415,7 +325192,7 @@
         {
          "id": 6,
          "name": "SUNDUQBUT",
-         "points": 50,
+         "points": 46,
          "swc": "1.5",
          "weapons": [
           {
@@ -324090,7 +325867,7 @@
          "id": 3,
          "name": "SWISS GUARD",
          "points": 60,
-         "swc": "1.5",
+         "swc": "2",
          "weapons": [
           {
            "id": 28,
@@ -324170,66 +325947,6 @@
          ]
         },
         {
-         "id": 5,
-         "name": "SWISS GUARD",
-         "points": 44,
-         "swc": "0",
-         "weapons": [
-          {
-           "id": 214,
-           "name": "AP Submachine Gun"
-          },
-          {
-           "id": 145,
-           "name": "Pulzar"
-          },
-          {
-           "id": 82,
-           "name": "Flammenspeer"
-          },
-          {
-           "id": 107,
-           "name": "Heavy Pistol"
-          },
-          {
-           "id": 6,
-           "name": "AP CC Weapon",
-           "extra": [
-            "PS=6"
-           ]
-          }
-         ],
-         "skills": [
-          {
-           "id": 19,
-           "name": "Martial Arts L1"
-          },
-          {
-           "id": 274,
-           "name": "CC=21"
-          },
-          {
-           "id": 161,
-           "name": "Forward Deployment",
-           "extra": [
-            "+4\""
-           ]
-          }
-         ],
-         "equip": [
-          {
-           "id": 169,
-           "name": "TinBot: Firewall",
-           "extra": [
-            "-3"
-           ]
-          }
-         ],
-         "statOverrides": {
-          "cc": 21
-         }
-        },
-        {
          "id": 6,
          "name": "SWISS GUARD",
          "points": 47,
@@ -324296,6 +326013,42 @@
          "statOverrides": {
           "cc": 21
          }
+        },
+        {
+         "id": 7,
+         "name": "SWISS GUARD",
+         "points": 61,
+         "swc": "1.5",
+         "weapons": [
+          {
+           "id": 58,
+           "name": "Missile Launcher",
+           "extra": [
+            "+1B"
+           ]
+          },
+          {
+           "id": 145,
+           "name": "Pulzar"
+          },
+          {
+           "id": 28,
+           "name": "Light Shotgun"
+          },
+          {
+           "id": 107,
+           "name": "Heavy Pistol"
+          },
+          {
+           "id": 6,
+           "name": "AP CC Weapon",
+           "extra": [
+            "PS=6"
+           ]
+          }
+         ],
+         "skills": [],
+         "equip": []
         }
        ]
       }
@@ -324392,7 +326145,7 @@
          "id": 3,
          "name": "SWISS GUARD",
          "points": 60,
-         "swc": "1.5",
+         "swc": "2",
          "weapons": [
           {
            "id": 28,
@@ -324472,66 +326225,6 @@
          ]
         },
         {
-         "id": 5,
-         "name": "SWISS GUARD",
-         "points": 44,
-         "swc": "0",
-         "weapons": [
-          {
-           "id": 214,
-           "name": "AP Submachine Gun"
-          },
-          {
-           "id": 145,
-           "name": "Pulzar"
-          },
-          {
-           "id": 82,
-           "name": "Flammenspeer"
-          },
-          {
-           "id": 107,
-           "name": "Heavy Pistol"
-          },
-          {
-           "id": 6,
-           "name": "AP CC Weapon",
-           "extra": [
-            "PS=6"
-           ]
-          }
-         ],
-         "skills": [
-          {
-           "id": 19,
-           "name": "Martial Arts L1"
-          },
-          {
-           "id": 274,
-           "name": "CC=21"
-          },
-          {
-           "id": 161,
-           "name": "Forward Deployment",
-           "extra": [
-            "+4\""
-           ]
-          }
-         ],
-         "equip": [
-          {
-           "id": 169,
-           "name": "TinBot: Firewall",
-           "extra": [
-            "-3"
-           ]
-          }
-         ],
-         "statOverrides": {
-          "cc": 21
-         }
-        },
-        {
          "id": 6,
          "name": "SWISS GUARD",
          "points": 47,
@@ -324598,6 +326291,42 @@
          "statOverrides": {
           "cc": 21
          }
+        },
+        {
+         "id": 7,
+         "name": "SWISS GUARD",
+         "points": 61,
+         "swc": "1.5",
+         "weapons": [
+          {
+           "id": 58,
+           "name": "Missile Launcher",
+           "extra": [
+            "+1B"
+           ]
+          },
+          {
+           "id": 145,
+           "name": "Pulzar"
+          },
+          {
+           "id": 28,
+           "name": "Light Shotgun"
+          },
+          {
+           "id": 107,
+           "name": "Heavy Pistol"
+          },
+          {
+           "id": 6,
+           "name": "AP CC Weapon",
+           "extra": [
+            "PS=6"
+           ]
+          }
+         ],
+         "skills": [],
+         "equip": []
         }
        ]
       }
@@ -329886,13 +331615,6 @@
            "id": 74,
            "name": "Super-Jump",
            "extra": [
-            "+3\""
-           ]
-          },
-          {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
             "Jet Propulsion"
            ]
           },
@@ -329942,7 +331664,7 @@
         {
          "id": 1,
          "name": "TARKSIA",
-         "points": 41,
+         "points": 45,
          "swc": "1.5",
          "weapons": [
           {
@@ -329950,8 +331672,8 @@
            "name": "MULTI Red Fury"
           },
           {
-           "id": 18,
-           "name": "Chain Rifle"
+           "id": 80,
+           "name": "Chain-colt"
           }
          ],
          "skills": [],
@@ -329960,7 +331682,7 @@
         {
          "id": 2,
          "name": "TARKSIA",
-         "points": 38,
+         "points": 42,
          "swc": "0",
          "weapons": [
           {
@@ -329978,7 +331700,7 @@
         {
          "id": 3,
          "name": "TARKSIA",
-         "points": 34,
+         "points": 38,
          "swc": "0",
          "weapons": [
           {
@@ -329986,11 +331708,8 @@
            "name": "MULTI Marksman Rifle"
           },
           {
-           "id": 18,
-           "name": "Chain Rifle",
-           "extra": [
-            "+1B"
-           ]
+           "id": 80,
+           "name": "Chain-colt"
           }
          ],
          "skills": [],
@@ -330008,12 +331727,12 @@
          "name": "TARKSHYA OPERATOR",
          "type": "HI",
          "move": [
-          15,
-          5
+          10,
+          10
          ],
          "cc": 13,
-         "bs": 13,
-         "ph": 10,
+         "bs": 12,
+         "ph": 9,
          "wip": 13,
          "arm": 3,
          "bts": 3,
@@ -330034,15 +331753,12 @@
            "id": 28,
            "name": "Mimetism",
            "extra": [
-            "-6"
+            "-3"
            ]
           },
           {
            "id": 59,
-           "name": "Forward Observer",
-           "extra": [
-            "+1SD"
-           ]
+           "name": "Forward Observer"
           },
           {
            "id": 74,
@@ -330073,7 +331789,7 @@
         {
          "id": 1,
          "name": "TARKSIA OPERATOR",
-         "points": 41,
+         "points": 45,
          "swc": "0",
          "weapons": [
           {
@@ -330081,19 +331797,12 @@
            "name": "Red Fury"
           },
           {
-           "id": 5,
-           "name": "CC Weapon"
-          },
-          {
-           "id": 18,
-           "name": "Chain Rifle"
+           "id": 80,
+           "name": "Chain-colt"
           },
           {
            "id": 72,
-           "name": "Flash Pulse",
-           "extra": [
-            "+1SD"
-           ]
+           "name": "Flash Pulse"
           },
           {
            "id": 189,
@@ -330110,7 +331819,7 @@
         {
          "id": 2,
          "name": "TARKSIA OPERATOR",
-         "points": 38,
+         "points": 42,
          "swc": "0",
          "weapons": [
           {
@@ -330123,10 +331832,7 @@
           },
           {
            "id": 72,
-           "name": "Flash Pulse",
-           "extra": [
-            "+1SD"
-           ]
+           "name": "Flash Pulse"
           },
           {
            "id": 189,
@@ -330143,7 +331849,7 @@
         {
          "id": 3,
          "name": "TARKSIA OPERATOR",
-         "points": 34,
+         "points": 38,
          "swc": "0",
          "weapons": [
           {
@@ -330151,18 +331857,12 @@
            "name": "Marksman Rifle"
           },
           {
-           "id": 18,
-           "name": "Chain Rifle",
-           "extra": [
-            "+1B"
-           ]
+           "id": 80,
+           "name": "Chain-colt"
           },
           {
            "id": 72,
-           "name": "Flash Pulse",
-           "extra": [
-            "+1SD"
-           ]
+           "name": "Flash Pulse"
           },
           {
            "id": 189,
@@ -330247,13 +331947,6 @@
            "id": 74,
            "name": "Super-Jump",
            "extra": [
-            "+3\""
-           ]
-          },
-          {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
             "Jet Propulsion"
            ]
           },
@@ -330303,7 +331996,7 @@
         {
          "id": 1,
          "name": "TARKSIA",
-         "points": 41,
+         "points": 45,
          "swc": "1.5",
          "weapons": [
           {
@@ -330311,8 +332004,8 @@
            "name": "MULTI Red Fury"
           },
           {
-           "id": 18,
-           "name": "Chain Rifle"
+           "id": 80,
+           "name": "Chain-colt"
           }
          ],
          "skills": [],
@@ -330321,7 +332014,7 @@
         {
          "id": 2,
          "name": "TARKSIA",
-         "points": 38,
+         "points": 42,
          "swc": "0",
          "weapons": [
           {
@@ -330339,7 +332032,7 @@
         {
          "id": 3,
          "name": "TARKSIA",
-         "points": 34,
+         "points": 38,
          "swc": "0",
          "weapons": [
           {
@@ -330347,11 +332040,8 @@
            "name": "MULTI Marksman Rifle"
           },
           {
-           "id": 18,
-           "name": "Chain Rifle",
-           "extra": [
-            "+1B"
-           ]
+           "id": 80,
+           "name": "Chain-colt"
           }
          ],
          "skills": [],
@@ -330369,12 +332059,12 @@
          "name": "TARKSHYA OPERATOR",
          "type": "HI",
          "move": [
-          15,
-          5
+          10,
+          10
          ],
          "cc": 13,
-         "bs": 13,
-         "ph": 10,
+         "bs": 12,
+         "ph": 9,
          "wip": 13,
          "arm": 3,
          "bts": 3,
@@ -330395,15 +332085,12 @@
            "id": 28,
            "name": "Mimetism",
            "extra": [
-            "-6"
+            "-3"
            ]
           },
           {
            "id": 59,
-           "name": "Forward Observer",
-           "extra": [
-            "+1SD"
-           ]
+           "name": "Forward Observer"
           },
           {
            "id": 74,
@@ -330434,7 +332121,7 @@
         {
          "id": 1,
          "name": "TARKSIA OPERATOR",
-         "points": 41,
+         "points": 45,
          "swc": "0",
          "weapons": [
           {
@@ -330442,15 +332129,12 @@
            "name": "Red Fury"
           },
           {
-           "id": 18,
-           "name": "Chain Rifle"
+           "id": 80,
+           "name": "Chain-colt"
           },
           {
            "id": 72,
-           "name": "Flash Pulse",
-           "extra": [
-            "+1SD"
-           ]
+           "name": "Flash Pulse"
           },
           {
            "id": 189,
@@ -330467,7 +332151,7 @@
         {
          "id": 2,
          "name": "TARKSIA OPERATOR",
-         "points": 38,
+         "points": 42,
          "swc": "0",
          "weapons": [
           {
@@ -330480,10 +332164,7 @@
           },
           {
            "id": 72,
-           "name": "Flash Pulse",
-           "extra": [
-            "+1SD"
-           ]
+           "name": "Flash Pulse"
           },
           {
            "id": 189,
@@ -330500,7 +332181,7 @@
         {
          "id": 3,
          "name": "TARKSIA OPERATOR",
-         "points": 34,
+         "points": 38,
          "swc": "0",
          "weapons": [
           {
@@ -330508,18 +332189,12 @@
            "name": "Marksman Rifle"
           },
           {
-           "id": 18,
-           "name": "Chain Rifle",
-           "extra": [
-            "+1B"
-           ]
+           "id": 80,
+           "name": "Chain-colt"
           },
           {
            "id": 72,
-           "name": "Flash Pulse",
-           "extra": [
-            "+1SD"
-           ]
+           "name": "Flash Pulse"
           },
           {
            "id": 189,
@@ -350680,13 +352355,16 @@
           },
           {
            "id": 177,
-           "name": "Trench-Hammer"
+           "name": "Trench-Hammer",
+           "extra": [
+            "PS=5"
+           ]
           },
           {
            "id": 6,
            "name": "AP CC Weapon",
            "extra": [
-            "PS=4"
+            "PS=5"
            ]
           }
          ],
@@ -350697,14 +352375,14 @@
         {
          "id": 2,
          "name": "GUNNAR",
-         "points": 29,
+         "points": 28,
          "swc": "0",
          "weapons": [
           {
            "id": 26,
            "name": "Boarding Shotgun",
            "extra": [
-            "+1B"
+            "+1SD"
            ]
           },
           {
@@ -350717,17 +352395,27 @@
           },
           {
            "id": 177,
-           "name": "Trench-Hammer"
+           "name": "Trench-Hammer",
+           "extra": [
+            "PS=5"
+           ]
           },
           {
            "id": 6,
            "name": "AP CC Weapon",
            "extra": [
-            "PS=4"
+            "PS=5"
            ]
           }
          ],
          "skills": [
+          {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
+          },
           {
            "id": 161,
            "name": "Forward Deployment",
@@ -352828,6 +354516,13 @@
           {
            "id": 19,
            "name": "Martial Arts L1"
+          },
+          {
+           "id": 191,
+           "name": "Surprise Attack",
+           "extra": [
+            "-3"
+           ]
           },
           {
            "id": 161,
@@ -356908,6 +358603,41 @@
           }
          ],
          "equip": []
+        },
+        {
+         "id": 2,
+         "name": "VALERYA GROMOZ",
+         "points": 16,
+         "swc": "0.5",
+         "weapons": [
+          {
+           "id": 26,
+           "name": "Boarding Shotgun"
+          },
+          {
+           "id": 175,
+           "name": "Zapper"
+          },
+          {
+           "id": 154,
+           "name": "Pitcher"
+          },
+          {
+           "id": 69,
+           "name": "Pistol"
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 1000,
+           "name": "Hacker"
+          }
+         ],
+         "equip": []
         }
        ]
       }
@@ -356961,6 +358691,41 @@
           {
            "id": 33,
            "name": "Combi Rifle"
+          },
+          {
+           "id": 175,
+           "name": "Zapper"
+          },
+          {
+           "id": 154,
+           "name": "Pitcher"
+          },
+          {
+           "id": 69,
+           "name": "Pistol"
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 1000,
+           "name": "Hacker"
+          }
+         ],
+         "equip": []
+        },
+        {
+         "id": 2,
+         "name": "VALERYA GROMOZ",
+         "points": 16,
+         "swc": "0.5",
+         "weapons": [
+          {
+           "id": 26,
+           "name": "Boarding Shotgun"
           },
           {
            "id": 175,
@@ -357064,6 +358829,41 @@
           }
          ],
          "equip": []
+        },
+        {
+         "id": 2,
+         "name": "VALERYA GROMOZ",
+         "points": 16,
+         "swc": "0.5",
+         "weapons": [
+          {
+           "id": 26,
+           "name": "Boarding Shotgun"
+          },
+          {
+           "id": 175,
+           "name": "Zapper"
+          },
+          {
+           "id": 154,
+           "name": "Pitcher"
+          },
+          {
+           "id": 69,
+           "name": "Pistol"
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 1000,
+           "name": "Hacker"
+          }
+         ],
+         "equip": []
         }
        ]
       }
@@ -357117,6 +358917,41 @@
           {
            "id": 33,
            "name": "Combi Rifle"
+          },
+          {
+           "id": 175,
+           "name": "Zapper"
+          },
+          {
+           "id": 154,
+           "name": "Pitcher"
+          },
+          {
+           "id": 69,
+           "name": "Pistol"
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [
+          {
+           "id": 1000,
+           "name": "Hacker"
+          }
+         ],
+         "equip": []
+        },
+        {
+         "id": 2,
+         "name": "VALERYA GROMOZ",
+         "points": 16,
+         "swc": "0.5",
+         "weapons": [
+          {
+           "id": 26,
+           "name": "Boarding Shotgun"
           },
           {
            "id": 175,
@@ -383517,6 +385352,17 @@
          "ava": 1,
          "skills": [
           {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "Continuous Damage"
+           ]
+          },
+          {
+           "id": 207,
+           "name": "Counterintelligence"
+          },
+          {
            "id": 162,
            "name": "Immunity",
            "extra": [
@@ -383541,12 +385387,16 @@
         {
          "id": 1,
          "name": "YARA HADDAD",
-         "points": 24,
+         "points": 26,
          "swc": "0",
          "weapons": [
           {
            "id": 85,
            "name": "AP Marksman Rifle"
+          },
+          {
+           "id": 65,
+           "name": "Nanopulser"
           },
           {
            "id": 107,
@@ -383566,12 +385416,16 @@
         {
          "id": 3,
          "name": "YARA HADDAD",
-         "points": 24,
+         "points": 26,
          "swc": "0",
          "weapons": [
           {
            "id": 85,
            "name": "AP Marksman Rifle"
+          },
+          {
+           "id": 65,
+           "name": "Nanopulser"
           },
           {
            "id": 107,
@@ -383624,6 +385478,17 @@
          "ava": 1,
          "skills": [
           {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "Continuous Damage"
+           ]
+          },
+          {
+           "id": 207,
+           "name": "Counterintelligence"
+          },
+          {
            "id": 162,
            "name": "Immunity",
            "extra": [
@@ -383648,12 +385513,16 @@
         {
          "id": 1,
          "name": "YARA HADDAD",
-         "points": 24,
+         "points": 26,
          "swc": "0",
          "weapons": [
           {
            "id": 85,
            "name": "AP Marksman Rifle"
+          },
+          {
+           "id": 65,
+           "name": "Nanopulser"
           },
           {
            "id": 107,
@@ -383673,12 +385542,16 @@
         {
          "id": 2,
          "name": "YARA HADDAD",
-         "points": 27,
+         "points": 29,
          "swc": "0",
          "weapons": [
           {
            "id": 85,
            "name": "AP Marksman Rifle"
+          },
+          {
+           "id": 65,
+           "name": "Nanopulser"
           },
           {
            "id": 107,
@@ -383703,12 +385576,16 @@
         {
          "id": 3,
          "name": "YARA HADDAD",
-         "points": 24,
+         "points": 26,
          "swc": "0",
          "weapons": [
           {
            "id": 85,
            "name": "AP Marksman Rifle"
+          },
+          {
+           "id": 65,
+           "name": "Nanopulser"
           },
           {
            "id": 107,
@@ -383739,6 +385616,10 @@
           {
            "id": 85,
            "name": "AP Marksman Rifle"
+          },
+          {
+           "id": 65,
+           "name": "Nanopulser"
           },
           {
            "id": 107,
@@ -383795,6 +385676,17 @@
          "ava": 1,
          "skills": [
           {
+           "id": 201,
+           "name": "BS Attack",
+           "extra": [
+            "Continuous Damage"
+           ]
+          },
+          {
+           "id": 207,
+           "name": "Counterintelligence"
+          },
+          {
            "id": 162,
            "name": "Immunity",
            "extra": [
@@ -383819,12 +385711,16 @@
         {
          "id": 1,
          "name": "YARA HADDAD",
-         "points": 24,
+         "points": 26,
          "swc": "0",
          "weapons": [
           {
            "id": 85,
            "name": "AP Marksman Rifle"
+          },
+          {
+           "id": 65,
+           "name": "Nanopulser"
           },
           {
            "id": 107,
@@ -383844,12 +385740,16 @@
         {
          "id": 3,
          "name": "YARA HADDAD",
-         "points": 24,
+         "points": 26,
          "swc": "0",
          "weapons": [
           {
            "id": 85,
            "name": "AP Marksman Rifle"
+          },
+          {
+           "id": 65,
+           "name": "Nanopulser"
           },
           {
            "id": 107,
@@ -392289,13 +394189,6 @@
            ]
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 201,
            "name": "BS Attack",
            "extra": [
@@ -392322,13 +394215,27 @@
        "options": [
         {
          "id": 1,
-         "name": "ZEYBEK",
-         "points": 33,
+         "name": "ZEYBEK-1",
+         "points": 34,
          "swc": "1.5",
          "weapons": [
           {
-           "id": 157,
-           "name": "AP Spitfire"
+           "id": 74,
+           "name": "Spitfire"
+          }
+         ],
+         "skills": [],
+         "equip": []
+        },
+        {
+         "id": 2,
+         "name": "ZEYBEK-2",
+         "points": 35,
+         "swc": "2",
+         "weapons": [
+          {
+           "id": 74,
+           "name": "Spitfire"
           },
           {
            "id": 195,
@@ -392396,7 +394303,7 @@
            "id": 183,
            "name": "Albedo",
            "extra": [
-            "-6"
+            "-3"
            ]
           }
          ],
@@ -392407,8 +394314,34 @@
        "options": [
         {
          "id": 1,
-         "name": "ZEYBEK OPERATOR",
-         "points": 33,
+         "name": "ZEYBEK-1 OPERATOR",
+         "points": 34,
+         "swc": "-",
+         "weapons": [
+          {
+           "id": 74,
+           "name": "Spitfire"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 212,
+           "name": "Boarding Pistol"
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [],
+         "equip": []
+        },
+        {
+         "id": 2,
+         "name": "ZEYBEK-2 OPERATOR",
+         "points": 35,
          "swc": "-",
          "weapons": [
           {
@@ -392502,13 +394435,6 @@
            ]
           },
           {
-           "id": 74,
-           "name": "Super-Jump",
-           "extra": [
-            "+3\""
-           ]
-          },
-          {
            "id": 201,
            "name": "BS Attack",
            "extra": [
@@ -392535,13 +394461,27 @@
        "options": [
         {
          "id": 1,
-         "name": "ZEYBEK",
-         "points": 33,
+         "name": "ZEYBEK-1",
+         "points": 34,
          "swc": "1.5",
          "weapons": [
           {
-           "id": 157,
-           "name": "AP Spitfire"
+           "id": 74,
+           "name": "Spitfire"
+          }
+         ],
+         "skills": [],
+         "equip": []
+        },
+        {
+         "id": 2,
+         "name": "ZEYBEK-2",
+         "points": 35,
+         "swc": "2",
+         "weapons": [
+          {
+           "id": 74,
+           "name": "Spitfire"
           },
           {
            "id": 195,
@@ -392609,7 +394549,7 @@
            "id": 183,
            "name": "Albedo",
            "extra": [
-            "-6"
+            "-3"
            ]
           }
          ],
@@ -392620,8 +394560,34 @@
        "options": [
         {
          "id": 1,
-         "name": "ZEYBEK OPERATOR",
-         "points": 33,
+         "name": "ZEYBEK-1 OPERATOR",
+         "points": 34,
+         "swc": "-",
+         "weapons": [
+          {
+           "id": 74,
+           "name": "Spitfire"
+          },
+          {
+           "id": 17,
+           "name": "D-Charges"
+          },
+          {
+           "id": 212,
+           "name": "Boarding Pistol"
+          },
+          {
+           "id": 5,
+           "name": "CC Weapon"
+          }
+         ],
+         "skills": [],
+         "equip": []
+        },
+        {
+         "id": 2,
+         "name": "ZEYBEK-2 OPERATOR",
+         "points": 35,
          "swc": "-",
          "weapons": [
           {
