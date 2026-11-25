@@ -19,13 +19,13 @@ import {W, side, combi, immune, sansLines, shotAt, withExtra, label, byIsc, bsAt
 
 test('ammo extras: the weapon menu label shows the ammo', () => {
   assert.equal(label(withExtra([])), 'Combi Rifle · B3 · PS7 · N');
-  assert.equal(label(withExtra(['T2'])), 'Combi Rifle · B3 · PS7 · T2');
-  assert.equal(label(withExtra(['Shock'])), 'Combi Rifle · B3 · PS7 · Shock');
-  assert.equal(label(withExtra(['AP'])), 'Combi Rifle · B3 · PS7 · AP');
-  assert.equal(label(withExtra(['+1B', 'T2'])), 'Combi Rifle · B4 · PS7 · T2');
+  assert.equal(label(withExtra(['T2'])), 'T2 Combi Rifle · B3 · PS7 · T2');
+  assert.equal(label(withExtra(['Shock'])), 'Shock Combi Rifle · B3 · PS7 · Shock');
+  assert.equal(label(withExtra(['AP'])), 'AP Combi Rifle · B3 · PS7 · AP');
+  assert.equal(label(withExtra(['+1B', 'T2'])), 'T2 Combi Rifle · B4 · PS7 · T2');
   // Added to other ammo, not in place of it; an AP weapon doesn't say AP twice.
-  assert.equal(label(withExtra(['T2'], 6)), 'Heavy Pistol · B2 · PS6 · Shock+T2');
-  assert.equal(label(withExtra(['AP'], 15)), 'Breaker Rifle · B3 · PS7 · AP');
+  assert.equal(label(withExtra(['T2'], 6)), 'T2 Heavy Pistol · B2 · PS6 · Shock+T2');
+  assert.equal(label(withExtra(['AP'], 15)), 'Breaker Rifle · B3 · PS7 · AP');   // already AP: no prefix
   // Viral is N ammo on a BTS save, like the chart's Viral Combi Rifle.
   assert.equal(label(withExtra(['Viral'])), 'Viral Combi Rifle · B3 · PS7 · N');
   assert.equal(label(withExtra(['Viral'])), label(withExtra([], 4)));

@@ -41,3 +41,14 @@ test('isPseudo and rolls split the kinds', () => {
   assert.equal(isPseudo(undefined), false);
   assert.equal(rolls(null), false);
 });
+
+test('a loadout ammo extra is in the name: AP Thunderbolt, T2 Combi Rifle, Viral Combi Rifle', () => {
+  // Thunderbolt 207, Combi Rifle 33; the extra is the loadout's.
+  const name = (id, extra) => bsWeapons(/** @type {import('../types.js').OptionRow} */ ({weapons: [{id, name: '', extra}]}), army.weapons)[0].name;
+  assert.equal(name(207, ['AP']), 'AP Thunderbolt');
+  assert.equal(name(33, ['AP', '+1B']), 'AP Combi Rifle');
+  assert.equal(name(33, ['T2']), 'T2 Combi Rifle');
+  assert.equal(name(33, ['Viral']), 'Viral Combi Rifle');
+  assert.equal(name(207, null), 'Thunderbolt');
+  assert.equal(name(207, ['+1B']), 'Thunderbolt');
+});
