@@ -1,0 +1,240 @@
+<title>Infinity Army Update Changelog</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a datasheet ledger. Faction facets in one wrapping row, then one card per unit, change lines grouped by profile or loadout. */
+:root {
+  --bg: #f3f5f7;
+  --surface: #ffffff;
+  --ink: #16202a;
+  --muted: #5b6876;
+  --line: #d9dfe5;
+  --accent: #0a6e8a;
+  --accent-ink: #ffffff;
+  --add: #1f7a45;
+  --remove: #b3322b;
+  --change: #8a5a00;
+  --chip: #e7ecf0;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "Barlow", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f151b; --surface: #17202a; --ink: #e4eaf0; --muted: #93a1ae; --line: #2a3643;
+  --accent: #4cb8d6; --accent-ink: #0b1218; --add: #5cc98a; --remove: #f0776f; --change: #e0b04f; --chip: #222d39;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f151b; --surface: #17202a; --ink: #e4eaf0; --muted: #93a1ae; --line: #2a3643;
+  --accent: #4cb8d6; --accent-ink: #0b1218; --add: #5cc98a; --remove: #f0776f; --change: #e0b04f; --chip: #222d39;
+  color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--body); }
+.wrap { max-width: 920px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 20px; }
+header { display: flex; flex-direction: column; gap: 6px; }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font: 700 clamp(30px, 6vw, 44px)/1.05 var(--display); letter-spacing: .01em; margin: 0; text-wrap: balance; }
+.versions { font: 400 13px/1.4 var(--mono); color: var(--muted); }
+.versions b { color: var(--ink); font-weight: 500; }
+.note { font-size: 13px; color: var(--muted); max-width: 65ch; margin: 0; }
+
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.facet { font: 600 15px/1 var(--display); letter-spacing: .03em; text-transform: uppercase;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  padding: 8px 12px; border-radius: 4px; cursor: pointer; display: inline-flex; gap: 8px; align-items: baseline; }
+.facet .n { font: 500 11px/1 var(--mono); color: var(--muted); }
+.facet[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.facet[aria-pressed="true"] .n { color: var(--accent-ink); }
+.facet:focus-visible, .copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tools { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+  border-top: 1px solid var(--line); padding-top: 14px; }
+.count { font: 500 13px/1 var(--mono); color: var(--muted); }
+.copy { font: 600 14px/1 var(--display); letter-spacing: .04em; text-transform: uppercase; cursor: pointer;
+  background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 8px 12px; border-radius: 4px; }
+
+#list { display: flex; flex-direction: column; gap: 12px; }
+.unit { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.unit h2 { font: 700 22px/1.1 var(--display); margin: 0; letter-spacing: .01em; }
+.head { display: flex; gap: 14px; align-items: center; }
+.titles { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.crest { width: 56px; height: 56px; object-fit: contain; flex: none; }
+.facet { align-items: center; }
+.facet .logo { width: 20px; height: 20px; object-fit: contain; }
+.armies { display: flex; flex-wrap: wrap; gap: 6px; }
+.armies { gap: 8px; }
+.army { display: inline-flex; }
+.army .armylogo { width: 26px; height: 26px; object-fit: contain; }
+.army.text { font: 500 12px/1 var(--body); background: var(--chip); color: var(--muted); padding: 4px 7px; border-radius: 3px; }
+.target { display: flex; flex-direction: column; gap: 4px; border-top: 1px dashed var(--line); padding-top: 10px; min-width: 0; }
+.tname { font: 600 14px/1.2 var(--display); letter-spacing: .05em; text-transform: uppercase; }
+.tname .kind { font: 500 11px/1 var(--mono); color: var(--muted); letter-spacing: .06em; margin-left: 6px; }
+.tsub { font: 400 12px/1.4 var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+ul { list-style: none; margin: 2px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+li { display: grid; grid-template-columns: 18px 1fr; gap: 6px; font-size: 14px; }
+li .op { font: 500 13px/1.5 var(--mono); text-align: center; }
+li.add .op { color: var(--add); } li.remove .op { color: var(--remove); }
+li.change .op, li.up .op, li.down .op { color: var(--change); }
+li .t { min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.empty { color: var(--muted); padding: 24px 0; }
+footer { font-size: 12px; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .facet, .copy { transition: background-color .12s, color .12s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Infinity N5 · Army data update</span>
+    <h1>What changed in the latest Army release</h1>
+    <div class="versions" id="versions"></div>
+    <p class="note">Every unit whose stats, skills, equipment, weapons, points or SWC changed between the two Army data versions. Pick a faction to see only its units; sectorial armies are listed on each card.</p>
+  </header>
+
+  <div class="bar" id="facets" role="group" aria-label="Filter by faction"></div>
+
+  <div class="tools">
+    <span class="count" id="count"></span>
+    <button class="copy" id="copy" type="button">Copy as text</button>
+  </div>
+
+  <div id="list"></div>
+
+  <footer>Unofficial fan summary, compiled by comparing two snapshots of the Infinity Army data. Not affiliated with or endorsed by Corvus Belli. Mercenary pools, Reinforcements and fireteam charts are not covered.</footer>
+</div>
+
+<script type="application/json" id="data">__DATA__</script>
+<script>
+const D = JSON.parse(document.getElementById('data').textContent);
+const armyName = new Map(D.factions.map((f) => [f.id, f.name]));
+const armyLogo = new Map(D.factions.map((f) => [f.id, f.logo]));
+// Top-level faction of an army: PanOceania is 101, its sectorials 102-107, and so on.
+const factionOf = (id) => Math.floor(id / 100) * 100 + 1;
+const FACTION = {101: 'PanOceania', 201: 'Yu Jing', 301: 'Ariadna', 401: 'Haqqislam', 501: 'Nomads', 601: 'Combined Army', 701: 'ALEPH', 801: 'Tohaa', 901: 'Non-Aligned Armies', 1001: 'O-12', 1101: 'JSA'};
+// Logo files are published next to the page under CB's own slugs.
+const LOGO = {101: 'panoceania', 201: 'yu-jing', 301: 'ariadna', 401: 'haqqislam', 501: 'nomads', 601: 'combined-army', 701: 'aleph', 801: 'tohaa', 901: 'non-aligned-armies', 1001: 'o-12', 1101: 'jsa'};
+const img = (src, cls) => { const i = new Image(); i.src = src; i.alt = ''; i.className = cls; i.decoding = 'async'; i.onerror = () => i.remove(); return i; };
+const OP = {add: '+', remove: '−', change: '~', up: '▲', down: '▼'};
+for (const e of D.units) e.tops = [...new Set(e.factions.map(factionOf))];
+
+const fmtDate = (s) => new Date(s).toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: 'numeric'});
+document.getElementById('versions').innerHTML =
+  `<b>${D.from.version}</b> (${fmtDate(D.from.date)}) → <b>${D.to.version}</b> (${fmtDate(D.to.date)})`;
+
+let selected = null;
+const fromHash = () => { const m = /^#f-(\d+)$/.exec(location.hash); selected = m && FACTION[m[1]] ? Number(m[1]) : null; };
+
+function facets() {
+  const counts = new Map();
+  for (const e of D.units) for (const t of e.tops) counts.set(t, (counts.get(t) ?? 0) + 1);
+  const el = document.getElementById('facets');
+  el.replaceChildren();
+  const btn = (id, label, n) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'facet';
+    b.setAttribute('aria-pressed', String(selected === id));
+    b.innerHTML = `<span></span><span class="n">${n}</span>`;
+    b.firstChild.textContent = label;
+    if (LOGO[id]) b.prepend(img(`logos/${LOGO[id]}.svg`, 'logo'));
+    b.addEventListener('click', () => {
+      selected = selected === id || id === null ? null : id;
+      // The link follows the filter; the frame may refuse it, and the filter still works.
+      try { history.replaceState(null, '', selected ? `#f-${selected}` : location.pathname + location.search); } catch {}
+      render();
+    });
+    el.append(b);
+  };
+  btn(null, 'All', D.units.length);
+  for (const id of Object.keys(FACTION).map(Number)) if (counts.has(id)) btn(id, FACTION[id], counts.get(id));
+}
+
+// Change lines grouped by the profile or loadout they belong to, in source order.
+function groups(e) {
+  const out = new Map();
+  for (const c of e.changes) {
+    const key = c.target ?? '';
+    if (!out.has(key)) {
+      const [name, sub] = key.split('|');
+      out.set(key, {name, sub, loadout: key.includes('|'), lines: []});
+    }
+    out.get(key).lines.push(c);
+  }
+  return [...out.values()];
+}
+
+const shown = () => D.units.filter((e) => selected === null || e.tops.includes(selected));
+const armyIdsOf = (e) => e.factions.filter((f) => selected === null || factionOf(f) === selected);
+const armiesOf = (e) => armyIdsOf(e).map((f) => armyName.get(f) ?? f);
+
+function render() {
+  facets();
+  const list = document.getElementById('list');
+  list.replaceChildren();
+  const rows = shown();
+  document.getElementById('count').textContent =
+    `${rows.length} unit ${rows.length === 1 ? 'entry' : 'entries'}${selected ? ' · ' + FACTION[selected] : ''}`;
+  if (!rows.length) { list.innerHTML = '<p class="empty">No changes for this faction.</p>'; return; }
+  for (const e of rows) {
+    const card = document.createElement('article');
+    card.className = 'unit';
+    const head = document.createElement('div'); head.className = 'head';
+    if (e.crest) head.append(img(`crests/${e.crest}.svg`, 'crest'));
+    const titles = document.createElement('div'); titles.className = 'titles';
+    const h = document.createElement('h2'); h.textContent = e.unit; titles.append(h);
+    const armies = document.createElement('div'); armies.className = 'armies';
+    for (const id of armyIdsOf(e)) {
+      const name = armyName.get(id) ?? String(id), slug = armyLogo.get(id);
+      const s = document.createElement('span'); s.className = 'army'; s.title = name; s.setAttribute('role', 'img'); s.setAttribute('aria-label', name);
+      if (slug) { const i = img(`logos/${slug}.svg`, 'armylogo'); i.onerror = () => { i.remove(); s.textContent = name; s.classList.add('text'); }; s.append(i); }
+      else { s.textContent = name; s.classList.add('text'); }
+      armies.append(s);
+    }
+    titles.append(armies); head.append(titles); card.append(head);
+    for (const g of groups(e)) {
+      const t = document.createElement('div'); t.className = 'target';
+      if (g.name) {
+        const n = document.createElement('div'); n.className = 'tname'; n.textContent = g.name;
+        const k = document.createElement('span'); k.className = 'kind'; k.textContent = g.loadout ? 'LOADOUT' : 'PROFILE';
+        n.append(k); t.append(n);
+        if (g.sub) { const s = document.createElement('div'); s.className = 'tsub'; s.textContent = g.sub; t.append(s); }
+      }
+      const ul = document.createElement('ul');
+      for (const c of g.lines) {
+        const li = document.createElement('li'); li.className = c.op;
+        li.innerHTML = `<span class="op" aria-hidden="true">${OP[c.op] ?? '·'}</span><span class="t"></span>`;
+        li.lastChild.textContent = c.text; ul.append(li);
+      }
+      t.append(ul); card.append(t);
+    }
+    list.append(card);
+  }
+}
+
+// Plain text for forums and Discord: one block per unit, the current filter only.
+function asText() {
+  const head = `Infinity Army update ${D.from.version} → ${D.to.version}${selected ? ' · ' + FACTION[selected] : ''} (unofficial summary)`;
+  const blocks = shown().map((e) => {
+    const lines = [`**${e.unit}** (${armiesOf(e).join(', ')})`];
+    for (const g of groups(e)) {
+      const label = g.name ? (g.loadout ? `${g.name} [${g.sub}]` : g.name) : '';
+      lines.push(`- ${label ? label + ': ' : ''}${g.lines.map((c) => c.text).join('; ')}`);
+    }
+    return lines.join('\n');
+  });
+  return [head, ...blocks].join('\n\n');
+}
+document.getElementById('copy').addEventListener('click', (ev) => {
+  const b = ev.currentTarget, text = asText();
+  const done = (msg) => { b.textContent = msg; setTimeout(() => (b.textContent = 'Copy as text'), 1600); };
+  navigator.clipboard.writeText(text).then(() => done('Copied'), () => {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.append(ta); ta.select();
+    try { document.execCommand('copy'); done('Copied'); } catch { done('Select and copy'); }
+    ta.remove();
+  });
+});
+
+addEventListener('hashchange', () => { fromHash(); render(); });
+fromHash(); render();
+</script>
