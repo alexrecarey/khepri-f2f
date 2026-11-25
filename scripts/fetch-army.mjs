@@ -17,8 +17,8 @@
 //                (scripts/army-validate.mjs); anything new stops the build
 //                with the list of what to look at
 //   5. charts    every army's fireteam chart, unchanged, in
-//                src/army/fireteam-charts/<version>.json (full runs only), so the
-//                next release can be diffed against this one
+//                src/army/fireteam-charts.json, so the next release can be
+//                diffed against this one (git history keeps the old ones)
 //   6. crests    each profile's unit crest as a slug (unit.crest, or
 //                profile.crest where a profile has its own); yarn fetch-army
 //                then runs scripts/crests/sync.mjs, which uploads any new
@@ -34,7 +34,7 @@ import {fileURLToPath} from 'node:url';
 import {UnknownValue, normalizeWeaponRow, statOverrides} from '../src/army/normalize.js';
 import {validateArmy} from './army-validate.mjs';
 import {fireteamLimits} from '../src/army/fireteams.js';
-import {fireteamChartsSnapshot} from '../src/army/fireteamCharts.js';
+import {fireteamChartsFile} from '../src/army/fireteamCharts.js';
 import {clean, compactUpgrades, int, resolvers} from './army-compact.mjs';
 import {localNames} from './army-names.mjs';
 
@@ -58,7 +58,7 @@ const DEFAULT_FACTIONS = [
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'src', 'army', 'army.json');
 const CACHE = path.join(ROOT, '.cache', 'army');
-const CHARTS = path.join(ROOT, 'src', 'army', 'fireteam-charts');
+const CHARTS = path.join(ROOT, 'src', 'army', 'fireteam-charts.json');
 // Languages besides English whose names are written next to army.json
 // (src/army/names.<lang>.json; see src/army/localize.js).
 const LANGUAGES = ['es'];
@@ -312,16 +312,10 @@ async function main() {
     console.log(`Wrote ${path.relative(ROOT, file)}`);
   }
 
-  // This release's fireteam charts, so the next update can be diffed against
-  // them (src/army/fireteamCharts.js). Only a run over every army writes one:
-  // a partial snapshot would read as armies losing their charts.
-  if (factionIds.length === 0) {
-    const snap = fireteamChartsSnapshot(/** @type {import('../src/types.js').Army['factions']} */ (factions), factionFiles, data.generatedAt);
-    const file = path.join(CHARTS, `${snap.version}.json`);
-    await mkdir(CHARTS, {recursive: true});
-    await writeFile(file, JSON.stringify(snap, null, 1) + '\n');
-    console.log(`Wrote ${path.relative(ROOT, file)}`);
-  }
+  // The fireteam charts as served, so the next update can be diffed against
+  // them (src/army/fireteamCharts.js).
+  await writeFile(CHARTS, JSON.stringify(fireteamChartsFile(factionFiles, data.generatedAt), null, 1) + '\n');
+  console.log(`Wrote ${path.relative(ROOT, CHARTS)}`);
 }
 
 main().catch((err) => {
