@@ -76,7 +76,7 @@ test('Swiss Guard: SWC loadouts first (longer reach first), main gun is the fart
   const hits = orderLoadouts(army, searcher.unitRows(swiss.id, 101));
   // Every Swiss Guard loadout has a main weapon.
   const mains = hits.map((h) => army.weapons[/** @type {number} */ (mainWeapon(army, h.weaponIds))][0].name);
-  assert.deepEqual(mains.slice(0, 3), ['Missile Launcher', 'Heavy Machine Gun', 'MULTI Rifle']);
+  assert.deepEqual(mains.slice(0, 4), ['Missile Launcher', 'Missile Launcher', 'Heavy Machine Gun', 'MULTI Rifle']);
   assert.equal(loadoutCharts(army, hits[0].weaponIds)[0].name, 'Missile Launcher');
 });
 
