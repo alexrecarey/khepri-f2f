@@ -111,7 +111,7 @@ test('army ammo extras: Corax Combi Rifle (Viral), Treitak Combi Rifle (T2), Igu
 
   const treitak = byIsc('Treitak Spec-Ops');
   const t2 = /** @type {Trooper & {weapon: WeaponEntry, option: OptionRow}} */ (resolveSelection(army, {unitId: treitak.id, factionId: 601, groupId: 1, profileId: 1, optionId: 4, weaponKey: '33:'}));
-  assert.equal(label(t2.weapon), 'Combi Rifle · B3 · PS7 · T2');
+  assert.equal(label(t2.weapon), 'T2 Combi Rifle · B3 · PS7 · T2');
   assert.equal(derive({active: t2, reactive: null, rangeCm: 40}).inputs.ammoA, 'T2');
   assert.equal(/** @type {WeaponEntry} */ (defaultWeapon(bsWeapons(t2.option, army.weapons), 'active')).key, '33:');
 

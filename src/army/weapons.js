@@ -306,24 +306,33 @@ export function ammoTypes(row, mods) {
   return ammo;
 }
 
-// The weapon row as fired with the loadout's ammo extra, so the ammo, Shock
-// and default-weapon rules read it like any other row. "T2" and "Shock"
-// replace N ammo (Combi Rifle (T2), Mk12 (T2)). "Viral" makes the chart's
-// Viral Combi Rifle: N ammo, BTS save, Bioweapon (DA+SHOCK), and "Viral" in
-// the name for Vulnerability (Viral).
+// The name with the loadout's ammo in front, "AP Thunderbolt", "T2 Combi
+// Rifle", as players say it: the chart's name alone reads as its own ammo.
 /**
  * @param {WeaponRow} row
+ * @param {string} ammo
+ * @returns {WeaponRow}
+ */
+const named = (row, ammo) => ({...row, name: `${ammo} ${row.name}`, ...(row.en ? {en: `${ammo} ${row.en}`} : {})});
+
+// The weapon row as fired with the loadout's ammo extra, so the ammo, Shock
+// and default-weapon rules read it like any other row. "AP" (forceAP) only
+// renames it. "T2" and "Shock" replace N ammo (Combi Rifle (T2), Mk12 (T2)).
+// "Viral" makes the chart's Viral Combi Rifle: N ammo, BTS save, Bioweapon
+// (DA+SHOCK), and "Viral" in the name for Vulnerability (Viral).
+/**
+ * @param {WeaponRow} base
  * @param {WeaponMods | null | undefined} mods
  * @returns {WeaponRow}
  */
-function withAmmoExtra(row, mods) {
+function withAmmoExtra(base, mods) {
+  const row = mods?.forceAP && !ammoTypes(base).includes('AP') ? named(base, 'AP') : base;
   if (!mods?.ammo) return row;
   if (mods.ammo === 'Viral') {
     const props = (row.props ?? []).filter((p) => !p.startsWith('Bioweapon ('));
-    return {...row, name: `Viral ${row.name}`, ...(row.en ? {en: `Viral ${row.en}`} : {}), save: {attr: 'BTS'},
-      props: ['Bioweapon (DA+SHOCK)', ...props]};
+    return {...named(row, 'Viral'), save: {attr: 'BTS'}, props: ['Bioweapon (DA+SHOCK)', ...props]};
   }
-  return {...row, ammo: [...ammoTypes(row), mods.ammo]};
+  return {...named(row, mods.ammo), ammo: [...ammoTypes(row), mods.ammo]};
 }
 
 /** @param {string | null} mode */
