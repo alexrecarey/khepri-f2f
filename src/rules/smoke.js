@@ -93,16 +93,22 @@ export function smokeHit(x, side) {
 /** @type {Record<'dodge' | 'reset', string>} */
 export const EVADED = {dodge: 'Dodged', reset: 'Reset'};
 
-// The State x's win shows in place of wounds, or null for wounds: the
-// weapon's (army/weapons.js stateCaused: Isolated, Smoke...), or Dodged /
-// Reset for an evasion rolled on its own (params.unopposed).
+// What x's win shows in place of wounds (rules/woundStates.js): the State's
+// English name, or null for wounds, and whether the win itself causes it.
+// - A Jammer's or a Flash Pulse's State (army/weapons.js stateCaused) comes
+//   with each failed Saving Roll, like a wound: onWin false.
+// - A Smoke or Eclipse throw rolls no Saving Roll: winning places the
+//   template. So does a Dodge or Reset rolled on its own (params.unopposed):
+//   winning is the evasion. onWin true.
 /**
  * @param {ResolvedSide | null | undefined} x
  * @param {boolean} unopposed
- * @returns {string | null}
+ * @returns {{state: string | null, onWin: boolean}}
  */
 export function winState(x, unopposed) {
   const kind = x?.weapon?.kind;
-  if (kind === 'dodge' || kind === 'reset') return unopposed ? EVADED[kind] : null;
-  return stateCaused(x?.weapon?.row);
+  if (kind === 'dodge' || kind === 'reset') return unopposed ? {state: EVADED[kind], onWin: true} : {state: null, onWin: false};
+  const row = x?.weapon?.row;
+  const state = stateCaused(row);
+  return {state, onWin: state !== null && state === smokeAmmo(row)};
 }

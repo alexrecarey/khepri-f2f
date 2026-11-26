@@ -126,26 +126,6 @@ function applyShock(p, outcomes) {
   return outcomes.map((o) => (shock[o.player] && o.wounds > 0 ? {...o, wounds: o.wounds + 1} : o));
 }
 
-// Wins that cause no Saving Rolls but still do something, so the results
-// count each as one (a State, rules/woundStates.js), the way a Jammer's
-// failed save is one Isolated: a Smoke throw places its template ("Smoke
-// placed"), and a Dodge rolled on its own against it (p.unopposed) succeeds
-// ("Dodged"). A Dodge opposed to an attack is the win itself: left as it is.
-/**
- * @param {Params} p
- * @param {import('../types.js').Side} s
- */
-const winCounts = (p, s) => p[`ammo${s}`] === 'SMOKE' || (p.unopposed && p[`ammo${s}`] === 'DODGE');
-/**
- * @param {Params} p
- * @param {import('../types.js').EngineOutput['outcomes']} outcomes
- */
-function applyStateWins(p, outcomes) {
-  /** @type {Partial<Record<Player, boolean>>} */
-  const counts = {active: winCounts(p, 'A'), reactive: winCounts(p, 'B')};
-  return outcomes.map((o) => (counts[o.player] ? {...o, wounds: 1} : o));
-}
-
 /**
  * Engine output -> the result rows: who wins the Face to Face Roll, then the
  * wounds, active then fail then reactive. rawChance is the chance counted in
@@ -161,7 +141,7 @@ export function formatResult(p, {rolls: count, outcomes}) {
   const rolls = Number(count);
   /** @type {Record<Player, Map<number, number>>} */
   const chances = {active: new Map(), fail: new Map(), reactive: new Map()};
-  for (const o of applyStateWins(p, applyShock(p, outcomes))) {
+  for (const o of applyShock(p, outcomes)) {
     const w = Math.min(o.wounds, MAX_WOUNDS);
     chances[o.player].set(w, (chances[o.player].get(w) ?? 0) + o.chance);
   }

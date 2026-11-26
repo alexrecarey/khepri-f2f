@@ -122,7 +122,7 @@ test('a Direct Template against an attack: one engine run per side, each alone',
     [[0, 'active'], [1, 'active'], [2, 'reactive']]);
 });
 
-test('a Dodge against Smoke (unopposed): two runs, each success counts as one', () => {
+test('a Dodge against Smoke (unopposed): two runs, each keeping its own wins (no wounds: neither rolls a save)', () => {
   /** @type {import('../types.js').EngineInput[]} */
   const runs = [];
   /** @type {import('../types.js').RunEngine} */
@@ -133,7 +133,7 @@ test('a Dodge against Smoke (unopposed): two runs, each success counts as one', 
   };
   const r = calculate({...P, ammoA: 'SMOKE', burstA: 1, bonusBurstA: 0, ammoB: 'DODGE', unopposed: true}, engine);
   assert.equal(runs.length, 2);
-  assert.deepEqual(r.expectedWounds.map((x) => [x.player, x.wounds, x.chance]), [['active', 1, 0.7], ['reactive', 1, 0.7]]);
+  assert.deepEqual(r.expectedWounds.map((x) => [x.player, x.wounds, x.chance]), [['active', 0, 0.7], ['reactive', 0, 0.7]]);
   // Opposed, a Dodge's win stays a win with no wounds.
   const opposed = calculate({...P, ammoB: 'DODGE'}, () => ({rolls: 1, outcomes: [{player: 'reactive', wounds: 0, chance: 1}]}));
   assert.deepEqual(opposed.expectedWounds.map((x) => x.wounds), [0]);

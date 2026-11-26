@@ -240,7 +240,7 @@ const STATE_CAUSED = [[isolates, 'Isolated'], [stuns, 'Stunned'], [paralyses, 'I
 // The State a failed save causes in place of wounds, or null. A Hacking
 // Program names its own (army/hacking.js): Immobilized-B, Targeted, Possessed.
 // Smoke / Eclipse: winning places the template ('Smoke', 'Eclipse'), which
-// the results show the way they show a State (engine/calculate.js).
+// the results show the way they show a State (rules/smoke.js winState).
 /**
  * @param {MaybeRow} row
  * @returns {string | null}

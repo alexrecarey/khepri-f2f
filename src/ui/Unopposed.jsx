@@ -24,7 +24,7 @@ const top = (a) => [3, 2, 1].find((w) => shows(a.wounds[w - 1])) ?? 0;
 function AttackBar({a, side, thin = false, labels = false, evade = null}) {
   const t = useT();
   /** @type {{key: string, chance: number, bg?: string, ink?: string, cls?: string, text: string}[]} */
-  // A State (Smoke placed) is one "wound": its name, not a count.
+  // A State (Smoke placed, Isolated) takes the first segment: its name, not a count.
   const wounds = [3, 2, 1].map((w) => ({key: `w${w}`, chance: a.wounds[w - 1], bg: shade(side, w - 1, 3), ink: shadeInk(side, w - 1, 3),
     text: a.state ? /** @type {string} */ (a.state) : w === top(a) ? `${w}+` : `${w}`}));
   /** @type {typeof wounds} */
