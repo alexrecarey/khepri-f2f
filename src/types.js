@@ -558,6 +558,7 @@
  * @property {boolean} outOfFight takes the trooper out of the fight: the results offer its chance over several orders
  * @property {true} [shock] Shock against VITA 1: straight to Dead
  * @property {true} [state] a State (Isolated, Stunned) in place of wounds
+ * @property {true} [onWin] the win itself causes the State, with no Saving Roll (Smoke placed, Dodged): its chance is the side's win (results/summary.js)
  * @property {number} index
  * @property {number} exactly its own share of the rolls
  * @property {number} atLeast that state or worse
@@ -565,7 +566,7 @@
  */
 
 /** A wound state as the rules list it (rules/woundStates.js), before results/summary.js adds its share of the rolls.
- * @typedef {Pick<WoundState, 'key' | 'label' | 'wounds' | 'glyph' | 'outOfFight' | 'shock' | 'state'>} WoundStep */
+ * @typedef {Pick<WoundState, 'key' | 'label' | 'wounds' | 'glyph' | 'outOfFight' | 'shock' | 'state' | 'onWin'>} WoundStep */
 
 /** One part of the face to face bar, left to right. dodger: on the nobody
  * part, the side that Dodges a Direct Template; nobody wins exactly when it

@@ -60,5 +60,10 @@ tweaks usually appear as a weapon swapped on the loadout (`Chain Rifle (+1B)`
 ## Changing the page
 
 The template is `assets/template.html` (`__DATA__` is replaced with the
-changelog JSON). Its design tokens are at the top of the `<style>`. After an
+changelog JSON). Its design tokens are at the top of the `<style>`. The
+facets and every army's name and logo come from the data's `factions` (army.json),
+so a new or renamed army needs no edit here. After an
 edit, re-run step 3 and republish to the same URL.
+
+The scripts are JSDoc-typed against `src/types.js` and type-checked with the
+tests (`tsconfig.tests.json`).

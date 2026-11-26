@@ -80,19 +80,23 @@ test('Smoke in ARO against a shot: Face to Face, PH and Range MODs, none of the 
   assert.deepEqual(r.warnings, [], 'no Non-lethal warning: the results say Smoke placed');
 });
 
-test('a Smoke win places the template: one "wound", shown as Smoke placed, nobody out of the fight', () => {
+test('a Smoke win places the template: no wound, a step reached by the win, shown as Smoke placed, nobody out of the fight', () => {
   const p = fullParams(at8(rifle(), thrower()).inputs);
   const result = calculate(p, () => ({rolls: 400, outcomes: [
     {player: 'active', wounds: 1, chance: 0.3}, {player: 'active', wounds: 0, chance: 0.2},
     {player: 'reactive', wounds: 0, chance: 0.4}, {player: 'fail', wounds: 0, chance: 0.1},
   ]}));
-  assert.deepEqual(result.expectedWounds.filter((x) => x.player === 'reactive').map((x) => [x.wounds, x.chance]), [[1, 0.4]]);
+  // No Saving Roll: the engine's result keeps the win with 0 wounds
+  // (results/summary.js reads Smoke placed from the win chance).
+  assert.deepEqual(result.expectedWounds.filter((x) => x.player === 'reactive').map((x) => [x.wounds, x.chance]), [[0, 0.4]]);
   // The shooter's wounds are its own.
   assert.deepEqual(result.expectedWounds.filter((x) => x.player === 'active').map((x) => x.wounds), [0, 1]);
-  const [placed, ...rest] = woundStates(profile(), null, {state: 'Smoke'});
+  const thrown = /** @type {import('../types.js').ResolvedSide} */ (/** @type {unknown} */ (thrower()));
+  assert.deepEqual(winState(thrown, false), {state: 'Smoke', onWin: true});
+  const [placed, ...rest] = woundStates(profile(), null, winState(thrown, false));
   assert.deepEqual(rest, []);
-  assert.deepEqual([placed.key, render(tEn, placed.label), placed.outOfFight], ['smoke', 'Smoke placed', false]);
-  assert.equal(render(tEn, woundStates(profile(), null, {state: 'Eclipse'})[0].label), 'Eclipse placed');
+  assert.deepEqual([placed.key, render(tEn, placed.label), placed.outOfFight, placed.onWin], ['smoke', 'Smoke placed', false, true]);
+  assert.equal(render(tEn, woundStates(profile(), null, {state: 'Eclipse', onWin: true})[0].label), 'Eclipse placed');
 });
 
 test('a Multispectral Visor sees through Smoke: two Normal Rolls; Eclipse is Reflective, so it is opposed', () => {
@@ -175,7 +179,9 @@ test('Smoke and Eclipse Grenades are thrown within 8": their pick moves the rang
 test('an evasion rolled on its own shows its success as a State that takes nobody out of the fight', () => {
   const dodge = /** @type {import('../types.js').ResolvedSide} */ (/** @type {unknown} */ ({weapon: {kind: 'dodge'}}));
   const reset = /** @type {import('../types.js').ResolvedSide} */ (/** @type {unknown} */ ({weapon: {kind: 'reset'}}));
-  assert.deepEqual([winState(dodge, true), winState(reset, true), winState(dodge, false), winState(reset, false)], ['Dodged', 'Reset', null, null]);
-  const [step] = woundStates(profile(), null, {state: 'Reset'});
-  assert.deepEqual([render(tEn, step.label), step.outOfFight], ['Reset passed', false]);
+  const none = {state: null, onWin: false};
+  assert.deepEqual([winState(dodge, true), winState(reset, true), winState(dodge, false), winState(reset, false)],
+    [{state: 'Dodged', onWin: true}, {state: 'Reset', onWin: true}, none, none]);
+  const [step] = woundStates(profile(), null, winState(reset, true));
+  assert.deepEqual([render(tEn, step.label), step.outOfFight, step.onWin], ['Reset passed', false, true]);
 });

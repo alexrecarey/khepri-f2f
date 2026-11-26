@@ -8,6 +8,8 @@ import {templateDodger} from '../rules/evade.js';
 /** @typedef {import('../types.js').Player} Player */
 /** @typedef {'active' | 'reactive'} Role */
 /** @typedef {import('../types.js').WoundStep} WoundStep */
+// What the figures below read from a row: how many wounds (or steps) and its chance.
+/** @typedef {Pick<WoundRow, 'wounds' | 'chance'>} Reach */
 
 // Wounds the bars count one by one; more show as this many ("3+"). Not the
 // engine's MAX_WOUNDS (calculate.js), which caps what it calculates.
@@ -16,7 +18,7 @@ const BAR_WOUNDS = 3;
 /** @param {{chance: number}[]} rows */
 const sum = (rows) => rows.reduce((s, r) => s + r.chance, 0);
 // Expected wounds: each outcome's wounds weighted by its chance.
-/** @param {WoundRow[]} rows */
+/** @param {Reach[]} rows */
 const woundsPerOrder = (rows) => rows.reduce((t, r) => t + r.wounds * r.chance, 0);
 
 // A target whose only step is a State (Smoke placed, Isolated): that State's
@@ -27,6 +29,18 @@ const woundsPerOrder = (rows) => rows.reduce((t, r) => t + r.wounds * r.chance, 
  */
 export const onlyState = (steps) => (steps?.length === 1 && steps[0].state ? steps[0].label : null);
 
+// A side's rows as its target's steps count them. A State the win itself
+// causes (WoundStep.onWin: Smoke placed, Dodged) has no Saving Roll, so the
+// engine's rows for that side all have 0 wounds; its one step is reached by
+// winning, with the side's win chance.
+/**
+ * @param {Reach[]} rows the side's own engine rows
+ * @param {number} won the side's win chance
+ * @param {WoundStep[] | null | undefined} steps its target's states
+ * @returns {Reach[]}
+ */
+const reached = (rows, won, steps) => (steps?.length === 1 && steps[0].onWin ? [{wounds: steps[0].wounds, chance: won}] : rows);
+
 // One side's attack when nothing opposes it (sideResult = result.unopposed.x).
 // `steps`: its target's states (onlyState).
 /**
@@ -36,8 +50,8 @@ export const onlyState = (steps) => (steps?.length === 1 && steps[0].state ? ste
  * @returns {import('../types.js').AttackOnItsOwn}
  */
 function attackOnItsOwn(sideResult, player, steps) {
-  const rows = sideResult.expectedWounds.filter((r) => r.player === player);
   const hit = sum((sideResult.faceToFace ?? []).filter((r) => r.player === player));
+  const rows = reached(sideResult.expectedWounds.filter((r) => r.player === player), hit, steps);
   // BAR_WOUNDS entries: exactly 1, 2 and 3+.
   const wounds = /** @type {[number, number, number]} */ (Array.from({length: BAR_WOUNDS}, (_, i) => i + 1).map((w) => sum(rows.filter((r) => (w === BAR_WOUNDS ? r.wounds >= w : r.wounds === w)))));
   const wounded = wounds.reduce((a, b) => a + b, 0);
@@ -81,7 +95,7 @@ export function shade(side, i, n) {
 // A side's rows by its target's states: exactly n wounds for each state, n or
 // more for the last (Dead).
 /**
- * @param {WoundRow[]} rows
+ * @param {Reach[]} rows
  * @param {WoundStep[]} states
  * @param {Role} side
  * @returns {import('../types.js').WoundState[]}
@@ -103,26 +117,26 @@ function byState(rows, states, side) {
  */
 export function summarize(result, targets = null, params = null) {
   if (!result?.expectedWounds) return null;
-  const rows = result.expectedWounds;
-  /** @param {Player} player */
-  const of = (player) => rows.filter((r) => r.player === player);
-  /**
-   * @param {Player} player
-   * @param {number} w
-   */
-  const exactly = (player, w) => sum(of(player).filter((r) => (w === BAR_WOUNDS ? r.wounds >= w : r.wounds === w)));
-  /**
-   * @param {Player} player
-   * @returns {[number, number, number]}
-   */
-  const atLeast = (player) => /** @type {[number, number, number]} */ ([1, 2, 3].map((w) => sum(of(player).filter((r) => r.wounds >= w))));
-
   const ftf = result.faceToFace ?? [];
   /** @param {Player} player */
   const won = (player) => sum(ftf.filter((r) => r.player === player));
   // `none` is the remainder, set once both are known.
   const win = /** @type {import('../types.js').Summary['win']} */ ({active: won('active'), reactive: won('reactive')});
   win.none = Math.max(0, 1 - win.active - win.reactive);
+
+  const rows = result.expectedWounds;
+  /** @param {Role} player */
+  const of = (player) => reached(rows.filter((r) => r.player === player), win[player], targets?.[player]);
+  /**
+   * @param {Role} player
+   * @param {number} w
+   */
+  const exactly = (player, w) => sum(of(player).filter((r) => (w === BAR_WOUNDS ? r.wounds >= w : r.wounds === w)));
+  /**
+   * @param {Role} player
+   * @returns {[number, number, number]}
+   */
+  const atLeast = (player) => /** @type {[number, number, number]} */ ([1, 2, 3].map((w) => sum(of(player).filter((r) => r.wounds >= w))));
 
   const woundedA = sum(of('active').filter((r) => r.wounds > 0));
   const woundedB = sum(of('reactive').filter((r) => r.wounds > 0));

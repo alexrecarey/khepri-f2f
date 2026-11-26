@@ -262,7 +262,7 @@ export function matchupCore(army, matchup) {
    * @param {ResolvedSide | null} attacker
    */
   const statesOf = (target, shock, attacker) => (target?.profile
-    ? woundStates(target.profile, target.traits, {shock, state: winState(attacker, Boolean(/** @type {import('../types.js').Params} */ (params).unopposed))}) : null);
+    ? woundStates(target.profile, target.traits, {shock, ...winState(attacker, Boolean(/** @type {import('../types.js').Params} */ (params).unopposed))}) : null);
   const targets = complete
     ? {active: statesOf(B.resolved, /** @type {import('../types.js').Params} */ (params).shockA, A.resolved), reactive: statesOf(A.resolved, /** @type {import('../types.js').Params} */ (params).shockB, B.resolved)} : null;
   // Each band's Range MOD per side, for the range selector's stripes.

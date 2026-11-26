@@ -1,3 +1,4 @@
+// @ts-check
 // node changelog.mjs <old army.json> <new army.json> <out.json>
 // Diffs two army.json snapshots into changelog data: one entry per unit, with
 // armies whose changes are identical merged into one entry; each change names
@@ -5,127 +6,330 @@
 // because several loadouts of one unit often share a name.
 import {mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
+
+/** @typedef {import('../../../../src/types.js').Army} Army */
+/** @typedef {import('../../../../src/types.js').TraitRef} TraitRef */
+/** @typedef {import('../../../../src/types.js').FactionEntry} FactionEntry */
+/** @typedef {import('../../../../src/types.js').OptionRow} OptionRow */
+/** @typedef {import('../../../../src/types.js').ProfileRow} ProfileRow */
+/** @typedef {import('../../../../src/types.js').WeaponRow} WeaponRow */
+/**
+ * One line of the changelog. `target`: the profile name, or the loadout's
+ * "NAME|pts · SWC · kit" label (loadoutLabel), or null for the whole unit.
+ * @typedef {{kind: string, target: string | null, op: 'add' | 'remove' | 'change' | 'up' | 'down', text: string}} Change
+ */
+/** @typedef {Omit<Change, 'target'>} WeaponChange */
+
 const [oldPath, newPath, outPath] = process.argv.slice(2);
-const A = JSON.parse(readFileSync(oldPath, 'utf8'));
-const B = JSON.parse(readFileSync(newPath, 'utf8'));
+/** @type {Army} */
+const before = JSON.parse(readFileSync(oldPath, 'utf8'));
+/** @type {Army} */
+const after = JSON.parse(readFileSync(newPath, 'utf8'));
 
-const trait = (t) => t.name + (t.extra?.length ? ` (${t.extra.join(', ')})` : '');
-const STATS = ['type', 'move', 'cc', 'bs', 'ph', 'wip', 'arm', 'bts', 'w', 'str', 's', 'ava'];
+/** @typedef {'type' | 'move' | 'cc' | 'bs' | 'ph' | 'wip' | 'arm' | 'bts' | 'w' | 'str' | 's' | 'ava'} ProfileStat */
+// The profile fields compared, in the order the changelog lists them, with their labels.
+/** @type {Record<ProfileStat, string>} */
 const STAT_LABEL = {type: 'Type', move: 'MOV', cc: 'CC', bs: 'BS', ph: 'PH', wip: 'WIP', arm: 'ARM', bts: 'BTS', w: 'W/STR', str: 'STR flag', s: 'S', ava: 'AVA'};
-const fmtStat = (k, v) => (v === undefined ? '—' : k === 'move' ? v.join('-') : k === 'ava' && v === -1 ? 'T' : k === 'str' ? (v ? 'STR' : 'W') : String(v));
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const STATS = /** @type {ProfileStat[]} */ (Object.keys(STAT_LABEL));
+// AVA -1 is Total.
+const AVA_TOTAL = -1;
 
-function listDiff(a = [], b = [], kind, what, target, out) {
-  const A2 = a.map(trait), B2 = b.map(trait);
-  for (const x of B2) if (!A2.includes(x)) out.push({kind, target, op: 'add', text: `${what}: ${x}`});
-  for (const x of A2) if (!B2.includes(x)) out.push({kind, target, op: 'remove', text: `${what}: ${x}`});
+/** @param {TraitRef} trait "Name (extra, extra)" */
+const traitText = (trait) => trait.name + (trait.extra?.length ? ` (${trait.extra.join(', ')})` : '');
+
+/**
+ * @param {ProfileStat} stat
+ * @param {unknown} value
+ */
+function statText(stat, value) {
+  if (value === undefined) return '—';
+  if (stat === 'move') return /** @type {number[]} */ (value).join('-');
+  if (stat === 'ava' && value === AVA_TOTAL) return 'T';
+  if (stat === 'str') return value ? 'STR' : 'W';
+  return String(value);
 }
 
-function diffFaction(fa, fb) {
+/**
+ * @param {unknown} a
+ * @param {unknown} b
+ */
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+/**
+ * The traits added and removed between two lists, as changes.
+ * @param {TraitRef[] | undefined} oldList
+ * @param {TraitRef[] | undefined} newList
+ * @param {string} kind
+ * @param {string} what the line's label: Skill, Equipment, Weapon
+ * @param {string} target
+ * @returns {Change[]}
+ */
+function listDiff(oldList = [], newList = [], kind, what, target) {
+  const oldTexts = oldList.map(traitText);
+  const newTexts = newList.map(traitText);
+  return [
+    ...newTexts.filter((text) => !oldTexts.includes(text)).map((text) => ({kind, target, op: /** @type {const} */ ('add'), text: `${what}: ${text}`})),
+    ...oldTexts.filter((text) => !newTexts.includes(text)).map((text) => ({kind, target, op: /** @type {const} */ ('remove'), text: `${what}: ${text}`})),
+  ];
+}
+
+// A loadout's label: its name, then (after "|") points, SWC and kit, since
+// several loadouts of one unit often share a name.
+/** @param {OptionRow} option */
+function loadoutLabel(option) {
+  const kit = [...option.weapons, ...option.skills, ...option.equip].map(traitText).join(', ') || 'no extras';
+  return `${option.name}|${option.points} pts · ${option.swc} SWC · ${kit}`;
+}
+
+/**
+ * One profile's changes.
+ * @param {ProfileRow} oldProfile
+ * @param {ProfileRow} newProfile
+ * @returns {Change[]}
+ */
+function profileDiff(oldProfile, newProfile) {
+  const target = newProfile.name;
+  /** @type {Change[]} */
   const out = [];
-  if (!fa) { out.push({kind: 'new', target: null, op: 'add', text: 'Added to this army'}); return out; }
-  if (!fb) { out.push({kind: 'removed', target: null, op: 'remove', text: 'No longer in this army'}); return out; }
-  const ga = new Map(fa.groups.map((g) => [g.id, g])), gb = new Map(fb.groups.map((g) => [g.id, g]));
-  for (const [gid, g] of gb) if (!ga.has(gid)) out.push({kind: 'loadouts', target: g.isc, op: 'add', text: `New profile group: ${g.isc}`});
-  for (const [gid, g] of ga) if (!gb.has(gid)) out.push({kind: 'loadouts', target: g.isc, op: 'remove', text: `Profile group removed: ${g.isc}`});
-  for (const [gid, g2] of gb) {
-    const g1 = ga.get(gid); if (!g1) continue;
-    if (g1.category !== g2.category) out.push({kind: 'other', target: g2.isc, op: 'change', text: `Category: ${g1.category ?? '—'} → ${g2.category ?? '—'}`});
-    const pa = new Map(g1.profiles.map((p) => [p.id, p]));
-    for (const p2 of g2.profiles) {
-      const p1 = pa.get(p2.id);
-      if (!p1) { out.push({kind: 'loadouts', target: p2.name, op: 'add', text: `New profile: ${p2.name}`}); continue; }
-      if (p1.name !== p2.name) out.push({kind: 'other', target: p2.name, op: 'change', text: `Renamed from ${p1.name}`});
-      for (const k of STATS) if (!same(p1[k], p2[k])) out.push({kind: 'stats', target: p2.name, op: 'change', text: `${STAT_LABEL[k]}: ${fmtStat(k, p1[k])} → ${fmtStat(k, p2[k])}`});
-      listDiff(p1.skills, p2.skills, 'skills', 'Skill', p2.name, out);
-      listDiff(p1.equip, p2.equip, 'skills', 'Equipment', p2.name, out);
-      listDiff(p1.weapons, p2.weapons, 'loadouts', 'Weapon', p2.name, out);
-    }
-    for (const p1 of g1.profiles) if (!g2.profiles.some((p) => p.id === p1.id)) out.push({kind: 'loadouts', target: p1.name, op: 'remove', text: `Profile removed: ${p1.name}`});
-    const oa = new Map(g1.options.map((o) => [o.id, o]));
-    const ob = new Map(g2.options.map((o) => [o.id, o]));
-    const kit = (o) => [...o.weapons, ...o.skills, ...o.equip].map(trait).join(', ') || 'no extras';
-    for (const [oid, o2] of ob) {
-      const o1 = oa.get(oid);
-      if (!o1) { out.push({kind: 'loadouts', target: `${o2.name}|${o2.points} pts · ${o2.swc} SWC · ${kit(o2)}`, op: 'add', text: 'New loadout'}); continue; }
-      const t = `${o2.name}|${o2.points} pts · ${o2.swc} SWC · ${kit(o2)}`;
-      if (o1.name !== o2.name) out.push({kind: 'other', target: t, op: 'change', text: `Loadout renamed from ${o1.name}`});
-      if (o1.points !== o2.points) out.push({kind: 'points', target: t, op: o2.points > o1.points ? 'up' : 'down', text: `Points: ${o1.points} → ${o2.points}`});
-      if (o1.swc !== o2.swc) out.push({kind: 'points', target: t, op: Number(o2.swc) > Number(o1.swc) ? 'up' : 'down', text: `SWC: ${o1.swc} → ${o2.swc}`});
-      listDiff(o1.weapons, o2.weapons, 'loadouts', 'Weapon', t, out);
-      listDiff(o1.skills, o2.skills, 'skills', 'Skill', t, out);
-      listDiff(o1.equip, o2.equip, 'skills', 'Equipment', t, out);
-      if (!same(o1.statOverrides, o2.statOverrides)) out.push({kind: 'stats', target: t, op: 'change', text: `Loadout stat override: ${JSON.stringify(o1.statOverrides ?? {})} → ${JSON.stringify(o2.statOverrides ?? {})}`});
-      if (!!o1.fto !== !!o2.fto) out.push({kind: 'other', target: t, op: 'change', text: o2.fto ? 'Now an FTO loadout' : 'No longer FTO'});
-    }
-    for (const [oid, o1] of oa) if (!ob.has(oid)) out.push({kind: 'loadouts', target: `${o1.name}|${o1.points} pts · ${o1.swc} SWC · ${kit(o1)}`, op: 'remove', text: 'Loadout removed'});
+  if (oldProfile.name !== newProfile.name) out.push({kind: 'other', target, op: 'change', text: `Renamed from ${oldProfile.name}`});
+  for (const stat of STATS) {
+    if (same(oldProfile[stat], newProfile[stat])) continue;
+    out.push({kind: 'stats', target, op: 'change', text: `${STAT_LABEL[stat]}: ${statText(stat, oldProfile[stat])} → ${statText(stat, newProfile[stat])}`});
+  }
+  out.push(...listDiff(oldProfile.skills, newProfile.skills, 'skills', 'Skill', target));
+  out.push(...listDiff(oldProfile.equip, newProfile.equip, 'skills', 'Equipment', target));
+  out.push(...listDiff(oldProfile.weapons, newProfile.weapons, 'loadouts', 'Weapon', target));
+  return out;
+}
+
+/**
+ * One loadout's changes.
+ * @param {OptionRow} oldOption
+ * @param {OptionRow} newOption
+ * @returns {Change[]}
+ */
+function loadoutDiff(oldOption, newOption) {
+  const target = loadoutLabel(newOption);
+  /** @type {Change[]} */
+  const out = [];
+  if (oldOption.name !== newOption.name) out.push({kind: 'other', target, op: 'change', text: `Loadout renamed from ${oldOption.name}`});
+  if (oldOption.points !== newOption.points) {
+    out.push({kind: 'points', target, op: newOption.points > oldOption.points ? 'up' : 'down', text: `Points: ${oldOption.points} → ${newOption.points}`});
+  }
+  if (oldOption.swc !== newOption.swc) {
+    out.push({kind: 'points', target, op: Number(newOption.swc) > Number(oldOption.swc) ? 'up' : 'down', text: `SWC: ${oldOption.swc} → ${newOption.swc}`});
+  }
+  out.push(...listDiff(oldOption.weapons, newOption.weapons, 'loadouts', 'Weapon', target));
+  out.push(...listDiff(oldOption.skills, newOption.skills, 'skills', 'Skill', target));
+  out.push(...listDiff(oldOption.equip, newOption.equip, 'skills', 'Equipment', target));
+  if (!same(oldOption.statOverrides, newOption.statOverrides)) {
+    out.push({kind: 'stats', target, op: 'change', text: `Loadout stat override: ${JSON.stringify(oldOption.statOverrides ?? {})} → ${JSON.stringify(newOption.statOverrides ?? {})}`});
+  }
+  if (Boolean(oldOption.fto) !== Boolean(newOption.fto)) {
+    out.push({kind: 'other', target, op: 'change', text: newOption.fto ? 'Now an FTO loadout' : 'No longer FTO'});
   }
   return out;
 }
 
-// Units: diff per faction, then merge factions whose change lists are identical.
-const ua = new Map(A.units.map((u) => [u.id, u])), ub = new Map(B.units.map((u) => [u.id, u]));
-const entries = [];
-for (const id of new Set([...ua.keys(), ...ub.keys()])) {
-  const u1 = ua.get(id), u2 = ub.get(id), u = u2 ?? u1;
-  const factions = new Set([...Object.keys(u1?.byFaction ?? {}), ...Object.keys(u2?.byFaction ?? {})]);
-  const bySig = new Map();
-  for (const f of factions) {
-    const changes = diffFaction(u1?.byFaction[f], u2?.byFaction[f]);
-    if (!changes.length) continue;
-    const sig = JSON.stringify(changes);
-    if (!bySig.has(sig)) bySig.set(sig, {changes, factions: []});
-    bySig.get(sig).factions.push(Number(f));
+/**
+ * A unit's changes in one army. `labels`: the line for an army that gained or
+ * lost the unit ("New unit" when the unit itself is new).
+ * @param {FactionEntry | undefined} oldEntry
+ * @param {FactionEntry | undefined} newEntry
+ * @param {{added: string, removed: string}} labels
+ * @returns {Change[]}
+ */
+function diffFaction(oldEntry, newEntry, labels) {
+  if (!oldEntry) return [{kind: 'new', target: null, op: 'add', text: labels.added}];
+  if (!newEntry) return [{kind: 'removed', target: null, op: 'remove', text: labels.removed}];
+  /** @type {Change[]} */
+  const out = [];
+  const oldGroups = new Map(oldEntry.groups.map((group) => [group.id, group]));
+  const newGroups = new Map(newEntry.groups.map((group) => [group.id, group]));
+  for (const [id, group] of newGroups) {
+    if (!oldGroups.has(id)) out.push({kind: 'loadouts', target: group.isc, op: 'add', text: `New profile group: ${group.isc}`});
   }
-  for (const {changes, factions: fs} of bySig.values()) {
-    if (!u1 && fs.length) changes.forEach((c) => (c.text = c.text === 'Added to this army' ? 'New unit' : c.text));
-    if (!u2) changes.forEach((c) => (c.text = c.text === 'No longer in this army' ? 'Unit removed' : c.text));
-    entries.push({unit: u.isc, slug: u.slug, crest: u.crest ?? null, factions: fs.sort((a, b) => a - b), changes});
+  for (const [id, group] of oldGroups) {
+    if (!newGroups.has(id)) out.push({kind: 'loadouts', target: group.isc, op: 'remove', text: `Profile group removed: ${group.isc}`});
+  }
+  for (const [id, newGroup] of newGroups) {
+    const oldGroup = oldGroups.get(id);
+    if (!oldGroup) continue;
+    if (oldGroup.category !== newGroup.category) {
+      out.push({kind: 'other', target: newGroup.isc, op: 'change', text: `Category: ${oldGroup.category ?? '—'} → ${newGroup.category ?? '—'}`});
+    }
+    const oldProfiles = new Map(oldGroup.profiles.map((profile) => [profile.id, profile]));
+    for (const newProfile of newGroup.profiles) {
+      const oldProfile = oldProfiles.get(newProfile.id);
+      if (oldProfile) out.push(...profileDiff(oldProfile, newProfile));
+      else out.push({kind: 'loadouts', target: newProfile.name, op: 'add', text: `New profile: ${newProfile.name}`});
+    }
+    for (const oldProfile of oldGroup.profiles) {
+      if (!newGroup.profiles.some((profile) => profile.id === oldProfile.id)) {
+        out.push({kind: 'loadouts', target: oldProfile.name, op: 'remove', text: `Profile removed: ${oldProfile.name}`});
+      }
+    }
+    const oldOptions = new Map(oldGroup.options.map((option) => [option.id, option]));
+    const newOptions = new Map(newGroup.options.map((option) => [option.id, option]));
+    for (const [optionId, newOption] of newOptions) {
+      const oldOption = oldOptions.get(optionId);
+      if (oldOption) out.push(...loadoutDiff(oldOption, newOption));
+      else out.push({kind: 'loadouts', target: loadoutLabel(newOption), op: 'add', text: 'New loadout'});
+    }
+    for (const [optionId, oldOption] of oldOptions) {
+      if (!newOptions.has(optionId)) out.push({kind: 'loadouts', target: loadoutLabel(oldOption), op: 'remove', text: 'Loadout removed'});
+    }
+  }
+  return out;
+}
+
+// Units: diff per army, then merge the armies whose change lists are identical.
+/** @typedef {{unit: string, slug: string, crest: string | null, factions: number[], changes: Change[]}} UnitEntry */
+/** @type {UnitEntry[]} */
+const units = [];
+const oldUnits = new Map(before.units.map((unit) => [unit.id, unit]));
+const newUnits = new Map(after.units.map((unit) => [unit.id, unit]));
+for (const id of new Set([...oldUnits.keys(), ...newUnits.keys()])) {
+  const oldUnit = oldUnits.get(id);
+  const newUnit = newUnits.get(id);
+  const unit = /** @type {import('../../../../src/types.js').UnitRow} */ (newUnit ?? oldUnit);
+  const labels = {added: oldUnit ? 'Added to this army' : 'New unit', removed: newUnit ? 'No longer in this army' : 'Unit removed'};
+  const armies = new Set([...Object.keys(oldUnit?.byFaction ?? {}), ...Object.keys(newUnit?.byFaction ?? {})]);
+  /** @type {Map<string, {changes: Change[], factions: number[]}>} */
+  const byChanges = new Map();
+  for (const army of armies) {
+    const changes = diffFaction(oldUnit?.byFaction[army], newUnit?.byFaction[army], labels);
+    if (!changes.length) continue;
+    const key = JSON.stringify(changes);
+    const entry = byChanges.get(key) ?? {changes, factions: []};
+    entry.factions.push(Number(army));
+    byChanges.set(key, entry);
+  }
+  for (const {changes, factions} of byChanges.values()) {
+    units.push({unit: unit.isc, slug: unit.slug, crest: unit.crest ?? null, factions: factions.sort((a, b) => a - b), changes});
   }
 }
 
-// Weapons: global, tagged with every army that fields a unit carrying it.
+// Weapons: one list for every army, each entry tagged with the armies that
+// field a unit carrying the weapon.
+/** @type {Map<number, Set<number>>} */
 const carriers = new Map();
-for (const u of B.units) for (const [f, e] of Object.entries(u.byFaction)) for (const g of e.groups) {
-  for (const o of g.options) for (const w of o.weapons) { if (!carriers.has(w.id)) carriers.set(w.id, new Set()); carriers.get(w.id).add(Number(f)); }
-  for (const p of g.profiles) for (const w of p.weapons) { if (!carriers.has(w.id)) carriers.set(w.id, new Set()); carriers.get(w.id).add(Number(f)); }
-}
-const weapons = [];
-const fmtRanges = (r) => r.map((x) => `${x.to}":${x.mod > 0 ? '+' : ''}${x.mod}`).join(' ');
-for (const id of new Set([...Object.keys(A.weapons), ...Object.keys(B.weapons)])) {
-  const w1 = A.weapons[id], w2 = B.weapons[id];
-  if (same(w1, w2)) continue;
-  const name = (w2 ?? w1)[0].name;
-  const changes = [];
-  if (!w1) changes.push({kind: 'weapons', op: 'add', text: 'New weapon'});
-  else if (!w2) changes.push({kind: 'weapons', op: 'remove', text: 'Weapon removed'});
-  else {
-    const ma = new Map(w1.map((m) => [m.mode ?? '', m])), mb = new Map(w2.map((m) => [m.mode ?? '', m]));
-    for (const [mode, m2] of mb) {
-      const m1 = ma.get(mode), tag = mode ? `${mode}: ` : '';
-      if (!m1) { changes.push({kind: 'weapons', op: 'add', text: `New mode ${mode}`}); continue; }
-      for (const k of Object.keys({...m1, ...m2})) {
-        if (k === 'name' || k === 'mode' || same(m1[k], m2[k])) continue;
-        const f = (v) => (v === undefined ? '—' : k === 'ranges' ? fmtRanges(v) : Array.isArray(v) ? v.join(', ') || '—' : typeof v === 'object' ? JSON.stringify(v) : String(v));
-        changes.push({kind: 'weapons', op: 'change', text: `${tag}${k}: ${f(m1[k])} → ${f(m2[k])}`});
+for (const unit of after.units) {
+  for (const [army, entry] of Object.entries(unit.byFaction)) {
+    for (const group of entry.groups) {
+      for (const holder of [...group.options, ...group.profiles]) {
+        for (const weapon of holder.weapons) {
+          const armies = carriers.get(weapon.id) ?? new Set();
+          armies.add(Number(army));
+          carriers.set(weapon.id, armies);
+        }
       }
     }
-    for (const mode of ma.keys()) if (!mb.has(mode)) changes.push({kind: 'weapons', op: 'remove', text: `Mode removed: ${mode}`});
   }
+}
+
+/** @param {{to: number, mod: number}[]} ranges '8":+3 16":0 ...' */
+const rangesText = (ranges) => ranges.map((band) => `${band.to}":${band.mod > 0 ? '+' : ''}${band.mod}`).join(' ');
+
+/**
+ * A weapon field's value as the changelog writes it.
+ * @param {string} field
+ * @param {unknown} value
+ */
+function fieldText(field, value) {
+  if (value === undefined) return '—';
+  if (field === 'ranges') return rangesText(/** @type {{to: number, mod: number}[]} */ (value));
+  if (Array.isArray(value)) return value.join(', ') || '—';
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+}
+
+/**
+ * A weapon's changes, mode by mode.
+ * @param {WeaponRow[]} oldModes
+ * @param {WeaponRow[]} newModes
+ * @returns {WeaponChange[]}
+ */
+function weaponDiff(oldModes, newModes) {
+  /** @type {WeaponChange[]} */
+  const out = [];
+  const oldByMode = new Map(oldModes.map((row) => [row.mode ?? '', row]));
+  const newByMode = new Map(newModes.map((row) => [row.mode ?? '', row]));
+  for (const [mode, newRow] of newByMode) {
+    const oldRow = oldByMode.get(mode);
+    if (!oldRow) {
+      out.push({kind: 'weapons', op: 'add', text: `New mode ${mode}`});
+      continue;
+    }
+    const prefix = mode ? `${mode}: ` : '';
+    const oldFields = /** @type {Record<string, unknown>} */ (oldRow);
+    const newFields = /** @type {Record<string, unknown>} */ (newRow);
+    for (const field of Object.keys({...oldRow, ...newRow})) {
+      if (field === 'name' || field === 'mode' || same(oldFields[field], newFields[field])) continue;
+      out.push({kind: 'weapons', op: 'change', text: `${prefix}${field}: ${fieldText(field, oldFields[field])} → ${fieldText(field, newFields[field])}`});
+    }
+  }
+  for (const mode of oldByMode.keys()) {
+    if (!newByMode.has(mode)) out.push({kind: 'weapons', op: 'remove', text: `Mode removed: ${mode}`});
+  }
+  return out;
+}
+
+/** @type {{weapon: string, factions: number[], changes: WeaponChange[]}[]} */
+const weapons = [];
+for (const id of new Set([...Object.keys(before.weapons), ...Object.keys(after.weapons)])) {
+  const oldModes = before.weapons[id];
+  const newModes = after.weapons[id];
+  if (same(oldModes, newModes)) continue;
+  /** @type {WeaponChange[]} */
+  const changes = !oldModes ? [{kind: 'weapons', op: 'add', text: 'New weapon'}]
+    : !newModes ? [{kind: 'weapons', op: 'remove', text: 'Weapon removed'}]
+    : weaponDiff(oldModes, newModes);
+  const name = (newModes ?? oldModes)[0].name;
   weapons.push({weapon: name, factions: [...(carriers.get(Number(id)) ?? [])].sort((a, b) => a - b), changes});
 }
 
-const factions = Object.values(B.factions).map((f) => ({id: f.id, name: f.name, parent: f.parent, logo: f.logo?.split('/').pop().replace(/\.svg$/, '') ?? null}));
+// The armies, for the page's facets and logos. `logo`: CB's file name
+// without .svg, under which build.mjs publishes it.
+const factions = Object.values(after.factions).map((faction) => ({
+  id: faction.id,
+  name: faction.name,
+  parent: faction.parent,
+  logo: faction.logo?.split('/').pop()?.replace(/\.svg$/, '') ?? null,
+}));
+
+/** @param {string} version "7.26246.158" */
+const versionParts = (version) => version.split('.').map(Number);
+/**
+ * @param {string} a
+ * @param {string} b
+ */
+function compareVersions(a, b) {
+  const x = versionParts(a);
+  const y = versionParts(b);
+  for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] - y[i];
+  return 0;
+}
 // Each army has its own version; show the lowest and highest.
-const ver = (d) => {
-  const n = (v) => v.split('.').map(Number);
-  const cmp = (a, b) => { const x = n(a), y = n(b); for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] - y[i]; return 0; };
-  const vs = [...new Set(Object.values(d.factions).map((f) => f.version))].sort(cmp);
-  return vs.length > 1 ? `${vs[0]}–${vs.at(-1)}` : vs[0];
-};
-entries.sort((a, b) => a.unit.localeCompare(b.unit));
+/** @param {Army} data */
+function versionRange(data) {
+  const versions = [...new Set(Object.values(data.factions).map((faction) => faction.version))].sort(compareVersions);
+  return versions.length > 1 ? `${versions[0]}–${versions.at(-1)}` : versions[0];
+}
+
+units.sort((a, b) => a.unit.localeCompare(b.unit));
 weapons.sort((a, b) => a.weapon.localeCompare(b.weapon));
 mkdirSync(path.dirname(outPath), {recursive: true});
-writeFileSync(outPath, JSON.stringify({from: {version: ver(A), date: A.generatedAt}, to: {version: ver(B), date: B.generatedAt}, factions, units: entries, weapons}));
-console.log('unit entries', entries.length, 'weapon entries', weapons.length);
-const kinds = {}; for (const e of entries) for (const c of e.changes) kinds[c.kind] = (kinds[c.kind] ?? 0) + 1; console.log(kinds);
+writeFileSync(outPath, JSON.stringify({
+  from: {version: versionRange(before), date: before.generatedAt},
+  to: {version: versionRange(after), date: after.generatedAt},
+  factions,
+  units,
+  weapons,
+}));
+
+console.log('unit entries', units.length, 'weapon entries', weapons.length);
+/** @type {Record<string, number>} */
+const perKind = {};
+for (const entry of units) for (const change of entry.changes) perKind[change.kind] = (perKind[change.kind] ?? 0) + 1;
+console.log(perKind);

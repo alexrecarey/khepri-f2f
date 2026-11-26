@@ -11,7 +11,12 @@
 // Isolated, Flash Pulse: Stunned, PARA: Immobilized-A): that one state, for
 // one failed save or more (the engine counts each as a wound).
 //
-// Each state: {key, label, wounds, glyph, outOfFight, shock?, state?}. `label`
+// A State the win itself causes (onWin: Smoke placed, Dodged, Reset; see
+// rules/smoke.js winState): that one state, reached by winning the roll.
+// There is no Saving Roll, so results/summary.js reads its chance from the
+// win, and it takes nobody out of the fight.
+//
+// Each state: {key, label, wounds, glyph, outOfFight, shock?, state?, onWin?}. `label`
 // is a message descriptor (i18n/message.js); `wounds` is how
 // many wounds reach it; the last state (Dead) covers that many or more.
 // outOfFight: the state takes the trooper out of the fight (the first
@@ -19,8 +24,6 @@
 import {SKILL} from '../army/ids.js';
 import {hasSkill} from '../army/traits.js';
 import {msg} from '../i18n/message.js';
-import {SMOKE_AMMO} from '../army/weapons.js';
-import {EVADED} from './smoke.js';
 
 // `state` is the State's English name (weapons.js stateCaused); its key and
 // label follow from it.
@@ -29,13 +32,16 @@ import {EVADED} from './smoke.js';
 /**
  * @param {import('../types.js').ProfileRow | null | undefined} profile
  * @param {import('../types.js').Traits | null | undefined} [traits]
- * @param {{shock?: boolean, state?: string | null}} [effects]
+ * @param {{shock?: boolean, state?: string | null, onWin?: boolean}} [effects]
  * @returns {WoundStep[]}
  */
-export function woundStates(profile, traits, {shock = false, state = null} = {}) {
-  // Smoke placed, Dodged and Reset take nobody out of the fight.
-  const harmless = SMOKE_AMMO.includes(state ?? '') || Object.values(EVADED).includes(state ?? '');
-  if (state) return [{key: state.toLowerCase(), label: msg(`state.${state.toLowerCase()}`), wounds: 1, glyph: null, outOfFight: !harmless, state: true}];
+export function woundStates(profile, traits, {shock = false, state = null, onWin = false} = {}) {
+  if (state) {
+    const key = state.toLowerCase();
+    /** @type {WoundStep} */
+    const step = {key, label: msg(`state.${key}`), wounds: 1, glyph: null, outOfFight: !onWin, state: true};
+    return [onWin ? {...step, onWin: true} : step];
+  }
   if (shock) return [{key: 'dead', label: msg('state.dead'), wounds: 1, glyph: 'dead', outOfFight: true, shock: true}];
   const n = Math.max(1, profile?.w ?? 1);
   /** @type {WoundStep[]} */

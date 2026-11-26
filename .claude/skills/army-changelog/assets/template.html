@@ -107,13 +107,16 @@ footer { font-size: 12px; color: var(--muted); }
 <script type="application/json" id="data">__DATA__</script>
 <script>
 const D = JSON.parse(document.getElementById('data').textContent);
-const armyName = new Map(D.factions.map((f) => [f.id, f.name]));
-const armyLogo = new Map(D.factions.map((f) => [f.id, f.logo]));
-// Top-level faction of an army: PanOceania is 101, its sectorials 102-107, and so on.
-const factionOf = (id) => Math.floor(id / 100) * 100 + 1;
-const FACTION = {101: 'PanOceania', 201: 'Yu Jing', 301: 'Ariadna', 401: 'Haqqislam', 501: 'Nomads', 601: 'Combined Army', 701: 'ALEPH', 801: 'Tohaa', 901: 'Non-Aligned Armies', 1001: 'O-12', 1101: 'JSA'};
-// Logo files are published next to the page under CB's own slugs.
-const LOGO = {101: 'panoceania', 201: 'yu-jing', 301: 'ariadna', 401: 'haqqislam', 501: 'nomads', 601: 'combined-army', 701: 'aleph', 801: 'tohaa', 901: 'non-aligned-armies', 1001: 'o-12', 1101: 'jsa'};
+// Every army in the new data, by id. `logo`: the file published next to the
+// page under CB's own slug (build.mjs).
+const armyById = new Map(D.factions.map((f) => [f.id, f]));
+const armyName = (id) => armyById.get(id)?.name ?? String(id);
+const armyLogo = (id) => armyById.get(id)?.logo ?? null;
+// An army's top-level faction (the facets): its parent, PanOceania for its
+// sectorials. CB files Non-Aligned Armies under 900, which is no army, so an
+// army whose parent isn't listed is its own.
+const factionOf = (id) => { const parent = armyById.get(id)?.parent; return armyById.has(parent) ? parent : id; };
+const FACETS = D.factions.filter((f) => factionOf(f.id) === f.id).map((f) => f.id).sort((a, b) => a - b);
 const img = (src, cls) => { const i = new Image(); i.src = src; i.alt = ''; i.className = cls; i.decoding = 'async'; i.onerror = () => i.remove(); return i; };
 const OP = {add: '+', remove: '−', change: '~', up: '▲', down: '▼'};
 for (const e of D.units) e.tops = [...new Set(e.factions.map(factionOf))];
@@ -123,7 +126,7 @@ document.getElementById('versions').innerHTML =
   `<b>${D.from.version}</b> (${fmtDate(D.from.date)}) → <b>${D.to.version}</b> (${fmtDate(D.to.date)})`;
 
 let selected = null;
-const fromHash = () => { const m = /^#f-(\d+)$/.exec(location.hash); selected = m && FACTION[m[1]] ? Number(m[1]) : null; };
+const fromHash = () => { const m = /^#f-(\d+)$/.exec(location.hash); selected = m && FACETS.includes(Number(m[1])) ? Number(m[1]) : null; };
 
 function facets() {
   const counts = new Map();
@@ -136,7 +139,7 @@ function facets() {
     b.setAttribute('aria-pressed', String(selected === id));
     b.innerHTML = `<span></span><span class="n">${n}</span>`;
     b.firstChild.textContent = label;
-    if (LOGO[id]) b.prepend(img(`logos/${LOGO[id]}.svg`, 'logo'));
+    if (id !== null && armyLogo(id)) b.prepend(img(`logos/${armyLogo(id)}.svg`, 'logo'));
     b.addEventListener('click', () => {
       selected = selected === id || id === null ? null : id;
       // The link follows the filter; the frame may refuse it, and the filter still works.
@@ -146,7 +149,7 @@ function facets() {
     el.append(b);
   };
   btn(null, 'All', D.units.length);
-  for (const id of Object.keys(FACTION).map(Number)) if (counts.has(id)) btn(id, FACTION[id], counts.get(id));
+  for (const id of FACETS) if (counts.has(id)) btn(id, armyName(id), counts.get(id));
 }
 
 // Change lines grouped by the profile or loadout they belong to, in source order.
@@ -165,7 +168,7 @@ function groups(e) {
 
 const shown = () => D.units.filter((e) => selected === null || e.tops.includes(selected));
 const armyIdsOf = (e) => e.factions.filter((f) => selected === null || factionOf(f) === selected);
-const armiesOf = (e) => armyIdsOf(e).map((f) => armyName.get(f) ?? f);
+const armiesOf = (e) => armyIdsOf(e).map(armyName);
 
 function render() {
   facets();
@@ -173,7 +176,7 @@ function render() {
   list.replaceChildren();
   const rows = shown();
   document.getElementById('count').textContent =
-    `${rows.length} unit ${rows.length === 1 ? 'entry' : 'entries'}${selected ? ' · ' + FACTION[selected] : ''}`;
+    `${rows.length} unit ${rows.length === 1 ? 'entry' : 'entries'}${selected ? ' · ' + armyName(selected) : ''}`;
   if (!rows.length) { list.innerHTML = '<p class="empty">No changes for this faction.</p>'; return; }
   for (const e of rows) {
     const card = document.createElement('article');
@@ -184,7 +187,7 @@ function render() {
     const h = document.createElement('h2'); h.textContent = e.unit; titles.append(h);
     const armies = document.createElement('div'); armies.className = 'armies';
     for (const id of armyIdsOf(e)) {
-      const name = armyName.get(id) ?? String(id), slug = armyLogo.get(id);
+      const name = armyName(id), slug = armyLogo(id);
       const s = document.createElement('span'); s.className = 'army'; s.title = name; s.setAttribute('role', 'img'); s.setAttribute('aria-label', name);
       if (slug) { const i = img(`logos/${slug}.svg`, 'armylogo'); i.onerror = () => { i.remove(); s.textContent = name; s.classList.add('text'); }; s.append(i); }
       else { s.textContent = name; s.classList.add('text'); }
@@ -213,7 +216,7 @@ function render() {
 
 // Plain text for forums and Discord: one block per unit, the current filter only.
 function asText() {
-  const head = `Infinity Army update ${D.from.version} → ${D.to.version}${selected ? ' · ' + FACTION[selected] : ''} (unofficial summary)`;
+  const head = `Infinity Army update ${D.from.version} → ${D.to.version}${selected ? ' · ' + armyName(selected) : ''} (unofficial summary)`;
   const blocks = shown().map((e) => {
     const lines = [`**${e.unit}** (${armiesOf(e).join(', ')})`];
     for (const g of groups(e)) {
