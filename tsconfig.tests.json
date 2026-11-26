@@ -7,6 +7,6 @@
   "compilerOptions": {
     "noImplicitAny": false
   },
-  "include": ["src/**/*.test.mjs", "worker/**/*.test.mjs", "scripts/**/*.mjs", "vite.config.js"],
+  "include": ["src/**/*.test.mjs", "worker/**/*.test.mjs", "scripts/**/*.mjs", ".claude/skills/*/scripts/*.mjs", "vite.config.js"],
   "exclude": []
 }
